@@ -105,7 +105,7 @@ namespace Q
 			}
 
 		protected:
-			/// @note required by istream.tellg()
+			// @note required by istream.tellg()
 			virtual typename std::basic_streambuf< CharT >::pos_type seekoff(
 				typename std::basic_streambuf< CharT >::off_type off,
 				std::ios_base::seekdir dir,

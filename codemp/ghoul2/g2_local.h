@@ -253,7 +253,6 @@ int			G2_Find_Bolt_Surface_Num(boltInfo_v &bltlist, const int surfaceNum, const 
 int			G2_Add_Bolt_Surf_Num(CGhoul2Info *ghlInfo, boltInfo_v &bltlist, surfaceInfo_v &slist, const int surfNum);
 void		G2_RemoveRedundantBolts(boltInfo_v &bltlist, surfaceInfo_v &slist, int *activeSurfaces, int *activeBones);
 
-
 // API calls - G2_API.cpp
 void		RestoreGhoul2InfoArray();
 void		SaveGhoul2InfoArray();
@@ -282,7 +281,6 @@ qboolean	G2API_GetAnimRange(CGhoul2Info *ghlInfo, const char *boneName,	int *sta
 qboolean	G2API_PauseBoneAnim(CGhoul2Info *ghlInfo, const char *boneName, const int currentTime);
 qboolean	G2API_IsPaused(CGhoul2Info *ghlInfo, const char *boneName);
 qboolean	G2API_StopBoneAnim(CGhoul2Info *ghlInfo, const char *boneName);
-
 
 qboolean G2API_SetBoneAngles(CGhoul2Info_v &ghoul2, const int modelIndex, const char *boneName, const vec3_t angles, const int flags, const Eorientations up, const Eorientations left, const Eorientations forward, qhandle_t *modelList, int blendTime, int currentTime );
 

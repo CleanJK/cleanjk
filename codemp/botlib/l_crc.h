@@ -21,15 +21,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-//===========================================================================
-//
-// Name:				l_crc.h
-// Function:		for CRC checks
-// Programmer:		Mr Elusive (MrElusive@demigod.demon.nl)
-// Last update:	1997-12-31
-// Tab Size:		3
-//===========================================================================
-
 #pragma once
 
 typedef unsigned short crc_t;

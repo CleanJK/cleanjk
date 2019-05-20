@@ -28,7 +28,6 @@ ____________________________________________________________________________*/
 
 mod 5/16/95 first stage in 8 pt dct does not drop last sb mono
 
-
 MPEG audio decoder, dct
 portable C
 
@@ -89,7 +88,6 @@ static void back_bf(int m, int n, float x[], float f[])
    }
 }
 /*------------------------------------------------------------*/
-
 
 void fdct32(float x[], float c[])
 {

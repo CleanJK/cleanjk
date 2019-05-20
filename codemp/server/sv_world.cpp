@@ -27,15 +27,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "ghoul2/ghoul2_shared.h"
 #include "qcommon/cm_public.h"
 
-/*
-================
-SV_ClipHandleForEntity
-
-Returns a headnode that can be used for testing or clipping to a
-given entity.  If the entity is a bsp model, the headnode will
-be returned, otherwise a custom box tree will be constructed.
-================
-*/
+// Returns a headnode that can be used for testing or clipping to a given entity.
+// If the entity is a bsp model, the headnode will be returned, otherwise a custom box tree will be constructed.
 clipHandle_t SV_ClipHandleForEntity( const sharedEntity_t *ent ) {
 	if ( ent->r.bmodel ) {
 		// explicit hulls in the BSP model
@@ -50,20 +43,11 @@ clipHandle_t SV_ClipHandleForEntity( const sharedEntity_t *ent ) {
 	return CM_TempBoxModel( ent->r.mins, ent->r.maxs, qfalse );
 }
 
-
-
-/*
-===============================================================================
-
-ENTITY CHECKING
-
-To avoid linearly searching through lists of entities during environment testing,
-the world is carved up with an evenly spaced, axially aligned bsp tree.  Entities
-are kept in chains either at the final leafs, or at the first node that splits
-them, which prevents having to deal with multiple fragments of a single entity.
-
-===============================================================================
-*/
+// ENTITY CHECKING
+// To avoid linearly searching through lists of entities during environment testing, the world is carved up with an
+//	evenly spaced, axially aligned bsp tree.
+// Entities are kept in chains either at the final leafs, or at the first node that splits them, which prevents having
+//	to deal with multiple fragments of a single entity.
 
 typedef struct worldSector_s {
 	int		axis;		// -1 = leaf node
@@ -78,12 +62,6 @@ typedef struct worldSector_s {
 worldSector_t	sv_worldSectors[AREA_NODES];
 int			sv_numworldSectors;
 
-
-/*
-===============
-SV_SectorList_f
-===============
-*/
 void SV_SectorList_f( void ) {
 	int				i, c;
 	worldSector_t	*sec;
@@ -100,13 +78,7 @@ void SV_SectorList_f( void ) {
 	}
 }
 
-/*
-===============
-SV_CreateworldSector
-
-Builds a uniformly subdivided tree for the given world size
-===============
-*/
+// Builds a uniformly subdivided tree for the given world size
 worldSector_t *SV_CreateworldSector( int depth, vec3_t mins, vec3_t maxs ) {
 	worldSector_t	*anode;
 	vec3_t		size;
@@ -142,12 +114,6 @@ worldSector_t *SV_CreateworldSector( int depth, vec3_t mins, vec3_t maxs ) {
 	return anode;
 }
 
-/*
-===============
-SV_ClearWorld
-
-===============
-*/
 void SV_ClearWorld( void ) {
 	clipHandle_t	h;
 	vec3_t			mins, maxs;
@@ -161,13 +127,6 @@ void SV_ClearWorld( void ) {
 	SV_CreateworldSector( 0, mins, maxs );
 }
 
-
-/*
-===============
-SV_UnlinkEntity
-
-===============
-*/
 void SV_UnlinkEntity( sharedEntity_t *gEnt ) {
 	svEntity_t		*ent;
 	svEntity_t		*scan;
@@ -198,13 +157,6 @@ void SV_UnlinkEntity( sharedEntity_t *gEnt ) {
 	Com_Printf( "WARNING: SV_UnlinkEntity: not found in worldSector\n" );
 }
 
-
-/*
-===============
-SV_LinkEntity
-
-===============
-*/
 #define MAX_TOTAL_ENT_LEAFS		128
 void SV_LinkEntity( sharedEntity_t *gEnt ) {
 	worldSector_t	*node;
@@ -365,15 +317,9 @@ void SV_LinkEntity( sharedEntity_t *gEnt ) {
 	gEnt->r.linked = qtrue;
 }
 
-/*
-============================================================================
-
-AREA QUERY
-
-Fills in a list of all entities who's absmin / absmax intersects the given
-bounds.  This does NOT mean that they actually touch in the case of bmodels.
-============================================================================
-*/
+// AREA QUERY
+// Fills in a list of all entities who's absmin / absmax intersects the given bounds.
+// This does NOT mean that they actually touch in the case of bmodels.
 
 typedef struct areaParms_s {
 	const float	*mins;
@@ -382,13 +328,6 @@ typedef struct areaParms_s {
 	int			count, maxcount;
 } areaParms_t;
 
-
-/*
-====================
-SV_AreaEntities_r
-
-====================
-*/
 void SV_AreaEntities_r( worldSector_t *node, areaParms_t *ap ) {
 	svEntity_t	*check, *next;
 	sharedEntity_t *gcheck;
@@ -429,11 +368,6 @@ void SV_AreaEntities_r( worldSector_t *node, areaParms_t *ap ) {
 	}
 }
 
-/*
-================
-SV_AreaEntities
-================
-*/
 int SV_AreaEntities( const vec3_t mins, const vec3_t maxs, int *entityList, int maxcount ) {
 	areaParms_t		ap;
 
@@ -448,18 +382,10 @@ int SV_AreaEntities( const vec3_t mins, const vec3_t maxs, int *entityList, int 
 	return ap.count;
 }
 
-
-
-//===========================================================================
-
-
 typedef struct moveclip_s {
 	vec3_t		boxmins, boxmaxs;// enclose the test object along entire move
 	const float	*mins;
 	const float *maxs;	// size of the moving object
-/*
-Ghoul2 Insert Start
-*/
 	vec3_t		start;
 
 	vec3_t		end;
@@ -471,18 +397,8 @@ Ghoul2 Insert Start
 	int			traceFlags;
 	int			useLod;
 	trace_t		trace;			// make sure nothing goes under here for Ghoul2 collision purposes
-/*
-Ghoul2 Insert End
-*/
 } moveclip_t;
 
-
-/*
-====================
-SV_ClipToEntity
-
-====================
-*/
 void SV_ClipToEntity( trace_t *trace, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int entityNum, int contentmask, int capsule ) {
 	sharedEntity_t	*touch;
 	clipHandle_t	clipHandle;
@@ -518,13 +434,6 @@ void SV_ClipToEntity( trace_t *trace, const vec3_t start, const vec3_t mins, con
 	}
 }
 
-
-/*
-====================
-SV_ClipMoveToEntities
-
-====================
-*/
 #ifndef FINAL_BUILD
 static float VectorDistance(vec3_t p1, vec3_t p2)
 {
@@ -617,7 +526,6 @@ static void SV_ClipMoveToEntities( moveclip_t *clip ) {
 		origin = touch->r.currentOrigin;
 		angles = touch->r.currentAngles;
 
-
 		if ( !touch->r.bmodel ) {
 			angles = vec3_origin;	// boxes don't rotate
 		}
@@ -625,7 +533,6 @@ static void SV_ClipMoveToEntities( moveclip_t *clip ) {
 		CM_TransformedBoxTrace ( &trace, (float *)clip->start, (float *)clip->end,
 			(float *)clip->mins, (float *)clip->maxs, clipHandle,  clip->contentmask,
 			origin, angles, clip->capsule);
-
 
 		if (clip->traceFlags & G2TRFLAG_DOGHOULTRACE)
 		{ // keep these older variables around for a bit, incase we need to replace them in the Ghoul2 Collision check
@@ -653,9 +560,6 @@ static void SV_ClipMoveToEntities( moveclip_t *clip ) {
 			clip->trace = trace;
 			clip->trace.startsolid = (qboolean)((unsigned)clip->trace.startsolid | (unsigned)oldStart);
 		}
-/*
-Ghoul2 Insert Start
-*/
 #if 0
 		// decide if we should do the ghoul2 collision detection right here
 		if ((trace.entityNum == touch->s.number) && (clip->traceFlags))
@@ -751,18 +655,7 @@ Ghoul2 Insert Start
 			}
 #endif
 
-			if (com_optvehtrace &&
-				com_optvehtrace->integer &&
-				touch->s.eType == ET_NPC &&
-				touch->s.NPC_class == CLASS_VEHICLE &&
-				touch->m_pVehicle)
-			{ //for vehicles cache the transform data.
-				re->G2API_CollisionDetectCache(G2Trace, *((CGhoul2Info_v *)touch->ghoul2), angles, touch->r.currentOrigin, sv.time, touch->s.number, clip->start, clip->end, touch->modelScale, G2VertSpaceServer, 0, clip->useLod, fRadius);
-			}
-			else
-			{
-				re->G2API_CollisionDetect(G2Trace, *((CGhoul2Info_v *)touch->ghoul2), angles, touch->r.currentOrigin, sv.time, touch->s.number, clip->start, clip->end, touch->modelScale, G2VertSpaceServer, 0, clip->useLod, fRadius);
-			}
+			re->G2API_CollisionDetect(G2Trace, *((CGhoul2Info_v *)touch->ghoul2), angles, touch->r.currentOrigin, sv.time, touch->s.number, clip->start, clip->end, touch->modelScale, G2VertSpaceServer, 0, clip->useLod, fRadius);
 
 			tN = 0;
 			while (tN < MAX_G2_COLLISIONS)
@@ -798,27 +691,12 @@ Ghoul2 Insert Start
 			}
 		}
 #endif
-/*
-Ghoul2 Insert End
-*/
 	}
 }
 
-/*
-==================
-SV_Trace
-
-Moves the given mins/maxs volume through the world from start to end.
-passEntityNum and entities owned by passEntityNum are explicitly not checked.
-==================
-*/
-/*
-Ghoul2 Insert Start
-*/
+// Moves the given mins/maxs volume through the world from start to end.
+// passEntityNum and entities owned by passEntityNum are explicitly not checked.
 void SV_Trace( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask, int capsule, int traceFlags, int useLod ) {
-/*
-Ghoul2 Insert End
-*/
 	moveclip_t	clip;
 	int			i;
 
@@ -840,15 +718,9 @@ Ghoul2 Insert End
 	}
 
 	clip.contentmask = contentmask;
-/*
-Ghoul2 Insert Start
-*/
 	VectorCopy( start, clip.start );
 	clip.traceFlags = traceFlags;
 	clip.useLod = useLod;
-/*
-Ghoul2 Insert End
-*/
 //	VectorCopy( clip.trace.endpos, clip.end );
 	VectorCopy( end, clip.end );
 	clip.mins = mins;
@@ -876,13 +748,6 @@ Ghoul2 Insert End
 	*results = clip.trace;
 }
 
-
-
-/*
-=============
-SV_PointContents
-=============
-*/
 int SV_PointContents( const vec3_t p, int passEntityNum ) {
 	int			touch[MAX_GENTITIES];
 	sharedEntity_t *hit;
@@ -911,5 +776,4 @@ int SV_PointContents( const vec3_t p, int passEntityNum ) {
 
 	return contents;
 }
-
 

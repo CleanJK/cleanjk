@@ -56,22 +56,9 @@ void SHOWNET( msg_t *msg, char *s) {
 	}
 }
 
-/*
-=========================================================================
+// MESSAGE PARSING
 
-MESSAGE PARSING
-
-=========================================================================
-*/
-
-/*
-==================
-CL_DeltaEntity
-
-Parses deltas from the given base and adds the resulting entity
-to the current frame
-==================
-*/
+// Parses deltas from the given base and adds the resulting entity to the current frame
 void CL_DeltaEntity (msg_t *msg, clSnapshot_t *frame, int newnum, entityState_t *old,
 					 qboolean unchanged) {
 	entityState_t	*state;
@@ -96,12 +83,6 @@ void CL_DeltaEntity (msg_t *msg, clSnapshot_t *frame, int newnum, entityState_t 
 	frame->numEntities++;
 }
 
-/*
-==================
-CL_ParsePacketEntities
-
-==================
-*/
 void CL_ParsePacketEntities( msg_t *msg, clSnapshot_t *oldframe, clSnapshot_t *newframe) {
 	int			newnum;
 	entityState_t	*oldstate;
@@ -204,16 +185,8 @@ void CL_ParsePacketEntities( msg_t *msg, clSnapshot_t *oldframe, clSnapshot_t *n
 	}
 }
 
-
-/*
-================
-CL_ParseSnapshot
-
-If the snapshot is parsed properly, it will be copied to
-cl.snap and saved in cl.snapshots[].  If the snapshot is invalid
-for any reason, no changes to the state will be made at all.
-================
-*/
+// If the snapshot is parsed properly, it will be copied to cl.snap and saved in cl.snapshots[].
+// If the snapshot is invalid for any reason, no changes to the state will be made at all.
 void CL_ParseSnapshot( msg_t *msg ) {
 	int			len;
 	clSnapshot_t	*old;
@@ -299,16 +272,8 @@ void CL_ParseSnapshot( msg_t *msg ) {
 	SHOWNET( msg, "playerstate" );
 	if ( old ) {
 		MSG_ReadDeltaPlayerstate( msg, &old->ps, &newSnap.ps );
-		if (newSnap.ps.m_iVehicleNum)
-		{ //this means we must have written our vehicle's ps too
-			MSG_ReadDeltaPlayerstate( msg, &old->vps, &newSnap.vps, qtrue );
-		}
 	} else {
 		MSG_ReadDeltaPlayerstate( msg, NULL, &newSnap.ps );
-		if (newSnap.ps.m_iVehicleNum)
-		{ //this means we must have written our vehicle's ps too
-			MSG_ReadDeltaPlayerstate( msg, NULL, &newSnap.vps, qtrue );
-		}
 	}
 
 	// read packet entities
@@ -356,17 +321,9 @@ void CL_ParseSnapshot( msg_t *msg ) {
 	cl.newSnapshots = qtrue;
 }
 
-
-/*
-================
-CL_ParseSetGame
-
-rww - Update fs_game, this message is so we can use the ext_data
-*_overrides.txt files for mods.
-================
-*/
-void MSG_CheckNETFPSFOverrides(qboolean psfOverrides);
 void FS_UpdateGamedir(void);
+
+// rww - Update fs_game, this message is so we can use the ext_data *_overrides.txt files for mods.
 void CL_ParseSetGame( msg_t *msg )
 {
 	char newGameDir[MAX_QPATH];
@@ -405,27 +362,13 @@ void CL_ParseSetGame( msg_t *msg )
 
 	//Update the search path for the mod dir
 	FS_UpdateGamedir();
-
-	//Now update the overrides manually
-	MSG_CheckNETFPSFOverrides(qfalse);
-	MSG_CheckNETFPSFOverrides(qtrue);
 }
-
-
-//=====================================================================
 
 int cl_connectedToPureServer;
 int cl_connectedToCheatServer;
 
-/*
-==================
-CL_SystemInfoChanged
-
-The systeminfo configstring has been changed, so parse
-new information out of it.  This will happen at every
-gamestate, and possibly during gameplay.
-==================
-*/
+// The systeminfo configstring has been changed, so parse new information out of it.
+// This will happen at every gamestate, and possibly during gameplay.
 void CL_SystemInfoChanged( void ) {
 	char			*systemInfo;
 	const char		*s, *t;
@@ -493,11 +436,6 @@ void CL_SystemInfoChanged( void ) {
 	cl_connectedToPureServer = Cvar_VariableValue( "sv_pure" );
 }
 
-/*
-==================
-CL_ParseGamestate
-==================
-*/
 void CL_ParseGamestate( msg_t *msg ) {
 	int				i;
 	entityState_t	*es;
@@ -601,7 +539,6 @@ void CL_ParseGamestate( msg_t *msg ) {
 	// Throw away the info for the old RMG system.
 	MSG_ReadShort (msg);
 
-
 	// parse serverId and other cvars
 	CL_SystemInfoChanged();
 
@@ -621,16 +558,7 @@ void CL_ParseGamestate( msg_t *msg ) {
 	Cvar_Set( "cl_paused", "0" );
 }
 
-
-//=====================================================================
-
-/*
-=====================
-CL_ParseDownload
-
-A download message has been received from the server
-=====================
-*/
+// A download message has been received from the server
 void CL_ParseDownload ( msg_t *msg ) {
 	int		size;
 	unsigned char data[MAX_MSGLEN];
@@ -725,14 +653,7 @@ int CL_GetValueForHidden(const char *s)
 	return atoi(hiddenCvarVal);
 }
 
-/*
-=====================
-CL_ParseCommandString
-
-Command strings are just saved off until cgame asks for them
-when it transitions a snapshot
-=====================
-*/
+// Command strings are just saved off until cgame asks for them when it transitions a snapshot
 void CL_ParseCommandString( msg_t *msg ) {
 	char	*s;
 	int		seq;
@@ -798,12 +719,6 @@ void CL_ParseCommandString( msg_t *msg ) {
 	Q_strncpyz( clc.serverCommands[ index ], s, sizeof( clc.serverCommands[ index ] ) );
 }
 
-
-/*
-=====================
-CL_ParseServerMessage
-=====================
-*/
 void CL_ParseServerMessage( msg_t *msg ) {
 	int			cmd;
 
@@ -817,14 +732,11 @@ void CL_ParseServerMessage( msg_t *msg ) {
 
 	// get the reliable sequence acknowledge number
 	clc.reliableAcknowledge = MSG_ReadLong( msg );
-	//
 	if ( clc.reliableAcknowledge < clc.reliableSequence - MAX_RELIABLE_COMMANDS ) {
 		clc.reliableAcknowledge = clc.reliableSequence;
 	}
 
-	//
 	// parse the message
-	//
 	while ( 1 ) {
 		if ( msg->readcount > msg->cursize ) {
 			Com_Error (ERR_DROP,"CL_ParseServerMessage: read past end of server message");

@@ -1,7 +1,7 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Developer Studio generated include file.
 // Used by winquake.rc
-//
+
 #define IDS_STRING1                     1
 #define IDI_ICON1                       1
 #define IDB_BITMAP1                     1
@@ -11,7 +11,7 @@
 #define IDC_CURSOR3                     131
 
 // Next default values for new objects
-//
+
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1

@@ -63,13 +63,11 @@ float csa[8][2];		/* antialias */		// effectively constant
    compensates   */
 static float lr[2][8][2];	/* [ms_mode 0/1][sf][left/right]  */	// effectively constant
 
-
 /* intensity stereo MPEG2 */
 /* lr2[intensity_scale][ms_mode][sflen_offset+sf][left/right] */
 typedef float ARRAY2_64_2[2][64][2];
 typedef float ARRAY64_2[64][2];
 static float lr2[2][2][64][2];		// effectively constant
-
 
 /*===============================================================*/
 ARRAY2 *alias_init_addr()
@@ -154,7 +152,6 @@ void is_process_MPEG1(float x[][1152],	/* intensity stereo */
    int isf;
    float fls[3], frs[3];
    int cb0;
-
 
    cb0 = cb_info[1].cbmax;	/* start at end of right */
    i = pMP3Stream->sfBandIndex[cb_info[1].cbtype][cb0];

@@ -31,12 +31,6 @@ varString_m		varVectors;	//Work around for vector types
 
 int				numVariables = 0;
 
-/*
--------------------------
-Q3_VariableDeclared
--------------------------
-*/
-
 int Q3_VariableDeclared( const char *name )
 {
 	//Check the strings
@@ -59,12 +53,6 @@ int Q3_VariableDeclared( const char *name )
 
 	return VTYPE_NONE;
 }
-
-/*
--------------------------
-Q3_DeclareVariable
--------------------------
-*/
 
 void Q3_DeclareVariable( int type, const char *name )
 {
@@ -101,12 +89,6 @@ void Q3_DeclareVariable( int type, const char *name )
 	numVariables++;
 }
 
-/*
--------------------------
-Q3_FreeVariable
--------------------------
-*/
-
 void Q3_FreeVariable( const char *name )
 {
 	//Check the strings
@@ -140,12 +122,6 @@ void Q3_FreeVariable( const char *name )
 	}
 }
 
-/*
--------------------------
-Q3_GetFloatVariable
--------------------------
-*/
-
 int Q3_GetFloatVariable( const char *name, float *value )
 {
 	//Check the floats
@@ -160,12 +136,6 @@ int Q3_GetFloatVariable( const char *name, float *value )
 	return false;
 }
 
-/*
--------------------------
-Q3_GetStringVariable
--------------------------
-*/
-
 int Q3_GetStringVariable( const char *name, const char **value )
 {
 	//Check the strings
@@ -179,12 +149,6 @@ int Q3_GetStringVariable( const char *name, const char **value )
 
 	return false;
 }
-
-/*
--------------------------
-Q3_GetVectorVariable
--------------------------
-*/
 
 int Q3_GetVectorVariable( const char *name, vec3_t value )
 {
@@ -202,12 +166,6 @@ int Q3_GetVectorVariable( const char *name, vec3_t value )
 	return false;
 }
 
-/*
--------------------------
-Q3_InitVariables
--------------------------
-*/
-
 void Q3_InitVariables( void )
 {
 	varStrings.clear();
@@ -219,12 +177,6 @@ void Q3_InitVariables( void )
 
 	numVariables = 0;
 }
-
-/*
--------------------------
-Q3_SetVariable_Float
--------------------------
-*/
 
 int Q3_SetFloatVariable( const char *name, float value )
 {
@@ -239,12 +191,6 @@ int Q3_SetFloatVariable( const char *name, float value )
 	return true;
 }
 
-/*
--------------------------
-Q3_SetVariable_String
--------------------------
-*/
-
 int Q3_SetStringVariable( const char *name, const char *value )
 {
 	//Check the strings
@@ -258,12 +204,6 @@ int Q3_SetStringVariable( const char *name, const char *value )
 	return true;
 }
 
-/*
--------------------------
-Q3_SetVariable_Vector
--------------------------
-*/
-
 int Q3_SetVectorVariable( const char *name, const char *value )
 {
 	//Check the strings
@@ -276,12 +216,6 @@ int Q3_SetVectorVariable( const char *name, const char *value )
 
 	return true;
 }
-
-/*
--------------------------
-Q3_VariableSaveFloats
--------------------------
-*/
 
 void Q3_VariableSaveFloats( varFloat_m &fmap )
 {
@@ -305,12 +239,6 @@ void Q3_VariableSaveFloats( varFloat_m &fmap )
 	}
 	*/
 }
-
-/*
--------------------------
-Q3_VariableSaveStrings
--------------------------
-*/
 
 void Q3_VariableSaveStrings( varString_m &smap )
 {
@@ -338,12 +266,6 @@ void Q3_VariableSaveStrings( varString_m &smap )
 	*/
 }
 
-/*
--------------------------
-Q3_VariableSave
--------------------------
-*/
-
 int Q3_VariableSave( void )
 {
 	Q3_VariableSaveFloats( varFloats );
@@ -352,12 +274,6 @@ int Q3_VariableSave( void )
 
 	return qtrue;
 }
-
-/*
--------------------------
-Q3_VariableLoadFloats
--------------------------
-*/
 
 void Q3_VariableLoadFloats( varFloat_m &fmap )
 {
@@ -385,12 +301,6 @@ void Q3_VariableLoadFloats( varFloat_m &fmap )
 	}
 	*/
 }
-
-/*
--------------------------
-Q3_VariableLoadStrings
--------------------------
-*/
 
 void Q3_VariableLoadStrings( int type, varString_m &fmap )
 {
@@ -429,12 +339,6 @@ void Q3_VariableLoadStrings( int type, varString_m &fmap )
 	}
 	*/
 }
-
-/*
--------------------------
-Q3_VariableLoad
--------------------------
-*/
 
 int Q3_VariableLoad( void )
 {

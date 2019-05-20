@@ -23,9 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "ui_local.h"
 
-//
 // Cvar callbacks
-//
 
 static int UI_GetScreenshotFormatForString( const char *str ) {
 	if ( !Q_stricmp(str, "jpg") || !Q_stricmp(str, "jpeg") )
@@ -85,10 +83,7 @@ static void UI_UpdateScreenshot( void )
 	}
 }
 
-
-//
 // Cvar table
-//
 
 typedef struct cvarTable_s {
 	vmCvar_t	*vmCvar;

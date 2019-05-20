@@ -35,7 +35,6 @@ void CM_TraceThroughPatchCollide( traceWork_t *tw, const struct patchCollide_s *
 qboolean CM_PositionTestInPatchCollide( traceWork_t *tw, const struct patchCollide_s *pc );
 void CM_DrawDebugSurface( void (*drawPoly)(int color, int numPoints, flaot *points) );
 
-
 Issues for collision against curved surfaces:
 
 Surface edges need to be handled differently than surface planes
@@ -45,7 +44,6 @@ Plane expansion causes raw surfaces to expand past expanded bounding box
 Position test of a volume against a surface is tricky.
 
 Position test of a point against a surface is not well defined, because the surface has no volume.
-
 
 Tracing leading edge points instead of volumes?
 Position test by tracing corner to corner? (8*7 traces -- ouch)
@@ -61,7 +59,6 @@ WARNING: this may misbehave with meshes that have rows or columns that only
 degenerate a few triangles.  Completely degenerate rows and columns are handled
 properly.
 */
-
 
 #define	MAX_FACETS			1024
 #define	MAX_PATCH_PLANES	2048

@@ -21,40 +21,27 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 // Filename:-	stringed_interface.cpp
-//
 // This file contains functions that StringEd wants to call to do things like load/save, they can be modified
 //	for use ingame, but must remain functionally the same...
-//
 //  Please try and put modifications for whichever games this is used for inside #defines, so I can copy the same file
 //		into each project.
-//
 
-
-//////////////////////////////////////////////////
-//
 // stuff common to all qcommon files...
 #include "server/server.h"
 #include "qcommon/q_shared.h"
 #include "qcommon.h"
-//
-//////////////////////////////////////////////////
-
 #include "stringed_interface.h"
 #include "stringed_ingame.h"
 
 #include <string>
-
 #ifdef _STRINGED
 #include <stdlib.h>
 #include <memory.h>
 #include "generic.h"
 #endif
 
-
 // this just gets the binary of the file into memory, so I can parse it. Called by main SGE loader
-//
 //  returns either char * of loaded file, else NULL for failed-to-open...
-//
 unsigned char *SE_LoadFileData( const char *psFileName, int *piLoadedLength /* = 0 */)
 {
 	unsigned char *psReturn = NULL;
@@ -67,7 +54,7 @@ unsigned char *SE_LoadFileData( const char *psFileName, int *piLoadedLength /* =
 	if (psFileName[1] == ':')
 	{
 		// full-path filename...
-		//
+
 		FILE *fh = fopen( psFileName, "rb" );
 		if (fh)
 		{
@@ -82,7 +69,7 @@ unsigned char *SE_LoadFileData( const char *psFileName, int *piLoadedLength /* =
 					if (iBytesRead != lLength)
 					{
 						// error reading file!!!...
-						//
+
 						free(psReturn);
 							 psReturn = NULL;
 					}
@@ -103,7 +90,7 @@ unsigned char *SE_LoadFileData( const char *psFileName, int *piLoadedLength /* =
 #endif
 	{
 		// local filename, so prepend the base dir etc according to game and load it however (from PAK?)
-		//
+
 		unsigned char *pvLoadedData;
 		int iLen = FS_ReadFile( psFileName, (void **)&pvLoadedData );
 
@@ -120,9 +107,8 @@ unsigned char *SE_LoadFileData( const char *psFileName, int *piLoadedLength /* =
 	return psReturn;
 }
 
-
 // called by main SGE code after loaded data has been parsedinto internal structures...
-//
+
 void SE_FreeFileDataAfterLoad( unsigned char *psLoadedFile )
 {
 #ifdef _STRINGED
@@ -138,13 +124,9 @@ void SE_FreeFileDataAfterLoad( unsigned char *psLoadedFile )
 #endif
 }
 
-
-
-
-
 #ifndef _STRINGED
 // quake-style method of doing things since their file-list code doesn't have a 'recursive' flag...
-//
+
 int giFilesFound;
 static void SE_R_ListFiles( const char *psExtension, const char *psDir, std::string &strResults )
 {
@@ -160,10 +142,10 @@ static void SE_R_ListFiles( const char *psExtension, const char *psDir, std::str
 		{
 			char	sDirName[MAX_QPATH];
 			Com_sprintf(sDirName, sizeof(sDirName), "%s/%s", psDir, dirFiles[i]);
-			//
+
 			// for some reason the quake filesystem in this game now returns an extra slash on the end,
 			//	didn't used to. Sigh...
-			//
+
 			if (sDirName[strlen(sDirName)-1] == '/')
 			{
 				sDirName[strlen(sDirName)-1] = '\0';
@@ -185,7 +167,7 @@ static void SE_R_ListFiles( const char *psExtension, const char *psDir, std::str
 		giFilesFound++;
 
 		// read it in...
-		//
+
 /*		byte *pbData = NULL;
 		int iSize = FS_ReadFile( sFilename, (void **)&pbData);
 
@@ -201,11 +183,8 @@ static void SE_R_ListFiles( const char *psExtension, const char *psDir, std::str
 }
 #endif
 
-
 // replace this with a call to whatever your own code equivalent is.
-//
 // expected result is a ';'-delineated string (including last one) containing file-list search results
-//
 int SE_BuildFileList( const char *psStartDir, std::string &strResults )
 {
 #ifndef _STRINGED
@@ -217,7 +196,7 @@ int SE_BuildFileList( const char *psStartDir, std::string &strResults )
 	return giFilesFound;
 #else
 	// .ST files...
-	//
+
 	int iFilesFound = BuildFileList(	va("%s\\*%s",psStartDir, sSE_INGAME_FILE_EXTENSION),	// LPCSTR psPathAndFilter,
 										true					// bool bRecurseSubDirs
 										);
@@ -227,6 +206,3 @@ int SE_BuildFileList( const char *psStartDir, std::string &strResults )
 	return iFilesFound;
 #endif
 }
-
-/////////////////////// eof ///////////////////////
-

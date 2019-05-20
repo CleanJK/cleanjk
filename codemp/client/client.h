@@ -66,16 +66,7 @@ typedef struct clSnapshot_s {
 											// making the snapshot current
 } clSnapshot_t;
 
-
-
-/*
-=============================================================================
-
-the clientActive_t structure is wiped completely at every
-new gamestate_t, potentially several times during an established connection
-
-=============================================================================
-*/
+// the clientActive_t structure is wiped completely at every new gamestate_t, potentially several times during an established connection
 
 typedef struct outPacket_s {
 	int		p_cmdNumber;		// cl.cmdNumber when packet was sent
@@ -168,18 +159,9 @@ typedef struct
 
 #define	MAX_AUTOMAP_SYMBOLS	512
 
-/*
-=============================================================================
-
-the clientConnection_t structure is wiped when disconnecting from a server,
-either to go to a full screen console, play a demo, or connect to a different server
-
-A connection can be to either a server through the network layer or a
-demo through a file.
-
-=============================================================================
-*/
-
+// the clientConnection_t structure is wiped when disconnecting from a server, either to go to a full screen console, play a demo, or connect to a different
+//	server
+// A connection can be to either a server through the network layer or a demo through a file.
 
 typedef struct clientConnection_s {
 
@@ -246,14 +228,7 @@ typedef struct clientConnection_s {
 
 extern	clientConnection_t clc;
 
-/*
-==================================================================
-
-the clientStatic_t structure is never wiped, and is used even when
-no client connection is active at all
-
-==================================================================
-*/
+// the clientStatic_t structure is never wiped, and is used even when no client connection is active at all
 
 typedef struct ping_s {
 	netadr_t	adr;
@@ -359,9 +334,8 @@ extern	clientStatic_t		cls;
 
 extern	refexport_t		*re;		// interface to refresh .dll
 
-//
 // cvars
-//
+
 extern	cvar_t	*cl_nodelta;
 extern	cvar_t	*cl_debugMove;
 extern	cvar_t	*cl_noprint;
@@ -415,11 +389,7 @@ extern  cvar_t  *cl_lanForcePackets;
 
 extern	cvar_t	*cl_drawRecording;
 
-//=================================================
-
-//
 // cl_main
-//
 
 void CL_Init (void);
 void CL_FlushMemory(void);
@@ -438,7 +408,6 @@ void CL_Disconnect_f (void);
 void CL_GetChallengePacket (void);
 void CL_Vid_Restart_f( void );
 void CL_Snd_Restart_f (void);
-void CL_StartDemoLoop( void );
 void CL_NextDemo( void );
 void CL_ReadDemoMessage( void );
 
@@ -456,9 +425,8 @@ int CL_ServerStatus( const char *serverAddress, char *serverStatusString, int ma
 
 qboolean CL_CheckPaused(void);
 
-//
 // cl_input
-//
+
 typedef struct kbutton_s {
 	int			down[2];		// key nums holding it down
 	unsigned	downtime;		// msec timestamp
@@ -477,16 +445,13 @@ void CL_WritePacket( void );
 float CL_KeyState (kbutton_t *key);
 const char *Key_KeynumToString( int keynum/*, qboolean bTranslate */ ); //note: translate is only called for menu display not configs
 
-//
 // cl_parse.c
-//
+
 extern int cl_connectedToPureServer;
 extern int cl_connectedToCheatServer;
 
 void CL_SystemInfoChanged( void );
 void CL_ParseServerMessage( msg_t *msg );
-
-//====================================================================
 
 void	CL_ServerInfoPacket( netadr_t from, msg_t *msg );
 void	CL_LocalServers_f( void );
@@ -495,10 +460,7 @@ void	CL_FavoriteServers_f( void );
 void	CL_Ping_f( void );
 qboolean CL_UpdateVisiblePings_f( int source );
 
-
-//
 // console
-//
 
 void Con_CheckResize (void);
 void Con_Init (void);
@@ -515,10 +477,8 @@ void Con_Top( void );
 void Con_Bottom( void );
 void Con_Close( void );
 
-
-//
 // cl_scrn.c
-//
+
 void	SCR_Init (void);
 void	SCR_UpdateScreen (void);
 
@@ -536,10 +496,7 @@ void	SCR_DrawBigStringColor( int x, int y, const char *s, vec4_t color, qboolean
 void	SCR_DrawSmallStringExt( int x, int y, const char *string, float *setColor, qboolean forceColor, qboolean noColorEscape );
 void	SCR_DrawSmallChar( int x, int y, int ch );
 
-
-//
 // cl_cin.c
-//
 
 void CL_PlayCinematic_f( void );
 void SCR_DrawCinematic (void);
@@ -554,9 +511,8 @@ void CIN_SetLooping (int handle, qboolean loop);
 void CIN_UploadCinematic(int handle);
 void CIN_CloseAllVideos(void);
 
-//
 // cl_cgame.c
-//
+
 void CL_InitCGame( void );
 void CL_ShutdownCGame( void );
 qboolean CL_GameCommand( void );
@@ -565,9 +521,8 @@ void CL_SetCGameTime( void );
 void CL_FirstSnapshot( void );
 void CL_ShaderStateChanged(void);
 
-//
 // cl_ui.c
-//
+
 void CL_InitUI( void );
 void CL_ShutdownUI( void );
 int Key_GetCatcher( void );
@@ -575,17 +530,14 @@ void Key_SetCatcher( int catcher );
 void LAN_LoadCachedServers();
 void LAN_SaveServersToCache();
 
-
-//
 // cl_net_chan.c
-//
+
 void CL_Netchan_Transmit( netchan_t *chan, msg_t* msg);	//int length, const byte *data );
 void CL_Netchan_TransmitNextFragment( netchan_t *chan );
 qboolean CL_Netchan_Process( netchan_t *chan, msg_t *msg );
 
-//
 // cl_avi.c
-//
+
 qboolean CL_OpenAVIForWriting( const char *filename );
 void CL_TakeVideoFrame( void );
 void CL_WriteAVIVideoFrame( const byte *imageBuffer, int size );

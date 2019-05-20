@@ -35,7 +35,6 @@ cvar_t	*fx_nearCull;
 #define DEFAULT_EXPLOSION_RADIUS	512
 
 // Stuff for the FxHelper
-//------------------------------------------------------
 SFxHelper::SFxHelper() :
 	mTime(0),
 	mOldTime(0),
@@ -54,7 +53,6 @@ void SFxHelper::ReInit(refdef_t* pRefdef)
 	refdef = pRefdef;
 }
 
-//------------------------------------------------------
 void SFxHelper::Print( const char *msg, ... )
 {
 	va_list		argptr;
@@ -67,7 +65,6 @@ void SFxHelper::Print( const char *msg, ... )
 	Com_DPrintf( text );
 }
 
-//------------------------------------------------------
 void SFxHelper::AdjustTime( int frametime )
 {
 #ifdef _DEBUG
@@ -88,7 +85,6 @@ void SFxHelper::AdjustTime( int frametime )
 
 		mRealTime = mFrameTime * 0.001f;
 
-
 /*		mFrameTime = frametime;
 		mTime += mFrameTime;
 		mRealTime = mFrameTime * 0.001f;*/
@@ -97,7 +93,6 @@ void SFxHelper::AdjustTime( int frametime )
 	}
 }
 
-//------------------------------------------------------
 void SFxHelper::CameraShake( vec3_t origin, float intensity, int radius, int time )
 {
 	TCGCameraShake	*data = (TCGCameraShake *)cl.mSharedMemory;
@@ -110,7 +105,6 @@ void SFxHelper::CameraShake( vec3_t origin, float intensity, int radius, int tim
 	CGVM_CameraShake();
 }
 
-//------------------------------------------------------
 qboolean SFxHelper::GetOriginAxisFromBolt(CGhoul2Info_v *pGhoul2, int mEntNum, int modelNum, int boltNum, vec3_t /*out*/origin, vec3_t /*out*/axis[3])
 {
 	qboolean doesBoltExist;

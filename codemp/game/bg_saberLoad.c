@@ -55,15 +55,6 @@ stringID_table_t saberTable[] = {
 	ENUM2STRING( SABER_NONE ),
 	ENUM2STRING( SABER_SINGLE ),
 	ENUM2STRING( SABER_STAFF ),
-	ENUM2STRING( SABER_BROAD ),
-	ENUM2STRING( SABER_PRONG ),
-	ENUM2STRING( SABER_DAGGER ),
-	ENUM2STRING( SABER_ARC ),
-	ENUM2STRING( SABER_SAI ),
-	ENUM2STRING( SABER_CLAW ),
-	ENUM2STRING( SABER_LANCE ),
-	ENUM2STRING( SABER_STAR ),
-	ENUM2STRING( SABER_TRIDENT ),
 	{ "", -1 }
 };
 
@@ -199,8 +190,6 @@ saber_styles_t TranslateSaberStyle( const char *name ) {
 	if ( !Q_stricmp( name, "fast" ) )		return SS_FAST;
 	if ( !Q_stricmp( name, "medium" ) ) 	return SS_MEDIUM;
 	if ( !Q_stricmp( name, "strong" ) ) 	return SS_STRONG;
-	if ( !Q_stricmp( name, "desann" ) ) 	return SS_DESANN;
-	if ( !Q_stricmp( name, "tavion" ) ) 	return SS_TAVION;
 	if ( !Q_stricmp( name, "dual" ) )		return SS_DUAL;
 	if ( !Q_stricmp( name, "staff" ) )		return SS_STAFF;
 
@@ -370,14 +359,7 @@ qboolean WP_SaberStyleValidForSaber( saberInfo_t *saber1, saberInfo_t *saber2, i
 		}
 		//now: if using dual sabers, only dual and tavion (if given with this saber) are allowed
 		if ( saberAnimLevel != SS_DUAL ) {
-			if ( saberAnimLevel != SS_TAVION )
-				return qfalse;
-			else {
-				//see if "tavion" style is okay
-				if ( !(saber1Active && (saber1->stylesLearned & (1<<SS_TAVION)))
-					|| !(saber2->stylesLearned & (1<<SS_TAVION)) )
-					return qfalse;
-			}
+			return qfalse;
 		}
 	}
 
@@ -430,7 +412,7 @@ void WP_SaberSetDefaults( saberInfo_t *saber ) {
 	saber->disarmBonus2			= 0;
 	saber->singleBladeStyle		= SS_NONE;		// makes it so that you use a different style if you only have the first blade active
 
-//===NEW========================================================================================
+//NEW
 	//done in cgame (client-side code)
 	saber->saberFlags			= 0;			// see all the SFL_ flags
 	saber->saberFlags2			= 0;			// see all the SFL2_ flags
@@ -460,12 +442,12 @@ void WP_SaberSetDefaults( saberInfo_t *saber ) {
 	saber->flourishAnim			= -1;			// -1 - anim to use when hit "flourish"
 	saber->gloatAnim			= -1;			// -1 - anim to use when hit "gloat"
 
-	//***NOTE: you can only have a maximum of 2 "styles" of blades, so this next value, "bladeStyle2Start" is the number of the first blade to use these value on... all blades before this use the normal values above, all blades at and after this number use the secondary values below***
+	//NOTE: you can only have a maximum of 2 "styles" of blades, so this next value, "bladeStyle2Start" is the number of the first blade to use these value on... all blades before this use the normal values above, all blades at and after this number use the secondary values below
 	saber->bladeStyle2Start		= 0;			// 0 - if set, blades from this number and higher use the following values (otherwise, they use the normal values already set)
 
-	//***The following can be different for the extra blades - not setting them individually defaults them to the value for the whole saber (and first blade)***
+	// The following can be different for the extra blades - not setting them individually defaults them to the value for the whole saber (and first blade)
 
-	//===PRIMARY BLADES=====================
+	//PRIMARY BLADES
 	//done in cgame (client-side code)
 	saber->trailStyle			= 0;			// 0 - default (0) is normal, 1 is a motion blur and 2 is no trail at all (good for real-sword type mods)
 	saber->g2MarksShader		= 0;			// none - if set, the game will use this shader for marks on enemies instead of the default "gfx/damage/saberglowmark"
@@ -491,7 +473,7 @@ void WP_SaberSetDefaults( saberInfo_t *saber ) {
 	saber->splashDamage			= 0;			// 0 - amount of splashDamage, 100% at a distance of 0, 0% at a distance = splashRadius
 	saber->splashKnockback		= 0.0f;			// 0 - amount of splashKnockback, 100% at a distance of 0, 0% at a distance = splashRadius
 
-	//===SECONDARY BLADES===================
+	//SECONDARY BLADES
 	//done in cgame (client-side code)
 	saber->trailStyle2			= 0;			// 0 - default (0) is normal, 1 is a motion blur and 2 is no trail at all (good for real-sword type mods)
 	saber->g2MarksShader2		= 0;			// none - if set, the game will use this shader for marks on enemies instead of the default "gfx/damage/saberglowmark"
@@ -516,9 +498,7 @@ void WP_SaberSetDefaults( saberInfo_t *saber ) {
 	saber->splashRadius2		= 0.0f;			// 0 - radius of splashDamage
 	saber->splashDamage2		= 0;			// 0 - amount of splashDamage, 100% at a distance of 0, 0% at a distance = splashRadius
 	saber->splashKnockback2		= 0.0f;			// 0 - amount of splashKnockback, 100% at a distance of 0, 0% at a distance = splashRadius
-//=========================================================================================================================================
 }
-
 
 static void Saber_ParseName( saberInfo_t *saber, const char **p ) {
 	const char *value;
@@ -1796,13 +1776,6 @@ static void Saber_ParseNoClashFlare2( saberInfo_t *saber, const char **p ) {
 		saber->saberFlags2 |= SFL2_NO_CLASH_FLARE2;
 }
 
-
-/*
-===============
-Keyword Hash
-===============
-*/
-
 #define KEYWORDHASH_SIZE (512)
 
 typedef struct keywordHash_s {
@@ -2403,7 +2376,6 @@ easier on myself. SI indicates it was under saberinfo,
 and BLADE indicates it was under bladeinfo.
 */
 
-//---------------------------------------
 void BG_BLADE_ActivateTrail ( bladeInfo_t *blade, float duration )
 {
 	blade->trail.inAction = qtrue;
@@ -2415,7 +2387,7 @@ void BG_BLADE_DeactivateTrail ( bladeInfo_t *blade, float duration )
 	blade->trail.inAction = qfalse;
 	blade->trail.duration = duration;
 }
-//---------------------------------------
+
 void BG_SI_Activate( saberInfo_t *saber )
 {
 	int i;

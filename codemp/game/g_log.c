@@ -32,10 +32,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //		--the number of kills by that weapon
 //		--the number of deaths while holding that weapon
 //		--the time spent with each weapon
-//
 // Additionally,
 //		--how many times each powerup or item is picked up
-
 
 #ifdef LOGGING_WEAPONS
 int G_WeaponLogPickups[MAX_CLIENTS][WP_NUM_WEAPONS];
@@ -118,11 +116,6 @@ extern char	*modNames[];
 
 #endif //LOGGING_WEAPONS
 
-/*
-=================
-G_LogWeaponInit
-=================
-*/
 void G_LogWeaponInit(void) {
 #ifdef LOGGING_WEAPONS
 	memset(G_WeaponLogPickups, 0, sizeof(G_WeaponLogPickups));
@@ -228,7 +221,6 @@ void QDECL G_LogWeaponItem(int client, int itemid)
 #endif //_LOGGING_WEAPONS
 }
 
-
 // Run through each player.  Print out:
 //	-- Most commonly picked up weapon.
 //  -- Weapon with which the most time was spent.
@@ -237,7 +229,6 @@ void QDECL G_LogWeaponItem(int client, int itemid)
 //  -- Damage type with the most kills.
 //  -- Weapon with which the most damage was done.
 //	-- Weapon with which the most damage was done per shot.
-//
 // For the whole game, print out:
 //  -- Total pickups of each weapon.
 //  -- Total time spent with each weapon.
@@ -360,7 +351,6 @@ void G_LogWeaponOutput(void)
 	Com_sprintf(string, sizeof(string), "\n\n\nLevel:\t%s\n\n\n", mapname);
 	trap->FS_Write( string, strlen( string ), weaponfile);
 
-
 	// Combat data per character
 
 	// Start with Pickups per character
@@ -417,7 +407,6 @@ void G_LogWeaponOutput(void)
 	Com_sprintf(string, sizeof(string), "\n\n\n");
 	trap->FS_Write(string, strlen(string), weaponfile);
 
-
 	// Weapon fires per character
 	Com_sprintf(string, sizeof(string), "Weapon Shots per Player:\n\n");
 	trap->FS_Write( string, strlen( string ), weaponfile);
@@ -471,7 +460,6 @@ void G_LogWeaponOutput(void)
 
 	Com_sprintf(string, sizeof(string), "\n\n\n");
 	trap->FS_Write(string, strlen(string), weaponfile);
-
 
 	// Weapon time per character
 	Com_sprintf(string, sizeof(string), "Weapon Use Time per Player:\n\n");
@@ -527,8 +515,6 @@ void G_LogWeaponOutput(void)
 	Com_sprintf(string, sizeof(string), "\n\n\n");
 	trap->FS_Write(string, strlen(string), weaponfile);
 
-
-
 	// Weapon deaths per character
 	Com_sprintf(string, sizeof(string), "Weapon Deaths per Player:\n\n");
 	trap->FS_Write( string, strlen( string ), weaponfile);
@@ -582,9 +568,6 @@ void G_LogWeaponOutput(void)
 
 	Com_sprintf(string, sizeof(string), "\n\n\n");
 	trap->FS_Write(string, strlen(string), weaponfile);
-
-
-
 
 	// Weapon damage per character
 
@@ -653,8 +636,6 @@ void G_LogWeaponOutput(void)
 	Com_sprintf(string, sizeof(string), "\n\n\n");
 	trap->FS_Write(string, strlen(string), weaponfile);
 
-
-
 	// Weapon kills per character
 
 	Com_sprintf(string, sizeof(string), "Weapon Kills per Player:\n\n");
@@ -722,8 +703,6 @@ void G_LogWeaponOutput(void)
 	Com_sprintf(string, sizeof(string), "\n\n\n");
 	trap->FS_Write(string, strlen(string), weaponfile);
 
-
-
 	// Damage type damage per character
 	Com_sprintf(string, sizeof(string), "Typed Damage per Player:\n\n");
 	trap->FS_Write( string, strlen( string ), weaponfile);
@@ -777,8 +756,6 @@ void G_LogWeaponOutput(void)
 
 	Com_sprintf(string, sizeof(string), "\n\n\n");
 	trap->FS_Write(string, strlen(string), weaponfile);
-
-
 
 	// Damage type kills per character
 	Com_sprintf(string, sizeof(string), "Damage-Typed Kills per Player:\n\n");
@@ -834,9 +811,7 @@ void G_LogWeaponOutput(void)
 	Com_sprintf(string, sizeof(string), "\n\n\n");
 	trap->FS_Write(string, strlen(string), weaponfile);
 
-
 	trap->FS_Close(weaponfile);
-
 
 #endif //LOGGING_WEAPONS
 }
@@ -848,7 +823,6 @@ qboolean CalculateEfficiency(gentity_t *ent, int *efficiency)
 	float		fAccuracyRatio = 0, fBestRatio = 0;
 	int			i = 0, nShotsFired = 0, nShotsHit = 0, nBestPlayer = -1, tempEff = 0;
 	gentity_t	*player = NULL;
-
 
 	for (i = 0; i < sv_maxclients.integer; i++)
 	{
@@ -939,7 +913,6 @@ qboolean CalculateUntouchable(gentity_t *ent)
 		return qfalse;
 	//------------------------------------------------------ MUST HAVE ACHIEVED 2 KILLS PER MINUTE
 
-
 	// if this guy was never killed...  Award Away!!!
 	if (ent->client->ps.persistant[PERS_KILLED]==0)
 		return qtrue;
@@ -1002,9 +975,6 @@ qboolean CalculateLogistics(gentity_t *ent, int *stuffUsed)
 	return qfalse;
 }
 
-
-
-
 // did this player earn the tactician award?
 qboolean CalculateTactician(gentity_t *ent, int *kills)
 {
@@ -1032,9 +1002,6 @@ qboolean CalculateTactician(gentity_t *ent, int *kills)
 		return qfalse;
 	//------------------------------------------------------ MUST HAVE ACHIEVED 2 KILLS PER MINUTE
 
-
-
-
 	//------------------------------------------------------ FOR EVERY WEAPON, ADD UP TOTAL PICKUPS
 	for (weapon = 0; weapon<WP_NUM_WEAPONS; weapon++)
 			wasPickedUpBySomeone[weapon] = 0;				// CLEAR
@@ -1048,9 +1015,6 @@ qboolean CalculateTactician(gentity_t *ent, int *kills)
 		}
 	}
 	//------------------------------------------------------ FOR EVERY WEAPON, ADD UP TOTAL PICKUPS
-
-
-
 
 	//------------------------------------------------------ FOR EVERY PERSON, CHECK FOR CANDIDATE
 	for (person=0; person<sv_maxclients.integer; person++)
@@ -1075,13 +1039,13 @@ qboolean CalculateTactician(gentity_t *ent, int *kills)
 			weapon++;
 			nKills+=killsWithWeapon[weapon];							//  Update the number of kills
 		}
-		//
+
 		// At this point we have either successfully gone through every weapon on the map and saw it had
 		// been used, or we found one that WAS on the map and was NOT used
-		//
+
 		// so we look to see if the weapon==Max (i.e. we used every one) and then we check to see
 		// if we got the most kills out of anyone else who did this.
-		//
+
 		if (weapon>=WP_NUM_WEAPONS && nKills>nMostKills)
 		{
 			// WE ARE A TACTICION CANDIDATE
@@ -1100,9 +1064,6 @@ qboolean CalculateTactician(gentity_t *ent, int *kills)
 #endif // LOGGING_WEAPONS
 	return qfalse;
 }
-
-
-
 
 // did this player earn the demolitionist award?
 qboolean CalculateDemolitionist(gentity_t *ent, int *kills)
@@ -1462,9 +1423,7 @@ qboolean CalculateSection31Award(gentity_t *ent)
 		player = g_entities + i;
 		if (!player->inuse)
 			continue;
-//
 //	kef -- heh.
-//
 //		if (strcmp("JaxxonPhred", ent->client->pers.netname))
 //		{
 //			continue;
@@ -1641,10 +1600,8 @@ int GetFavoriteWeaponForClient(int nClient)
 	int i = 0, nMostKills = 0, fav=0, weapon=WP_STUN_BATON;
 	int	killsWithWeapon[WP_NUM_WEAPONS];
 
-
 	// First thing we need to do is cycle through all the MOD types and convert
 	// number of kills to a single weapon.
-	//----------------------------------------------------------------
 	for (weapon=0; weapon<WP_NUM_WEAPONS; weapon++)
 		killsWithWeapon[weapon] = 0;					// CLEAR
 
@@ -1659,7 +1616,6 @@ int GetFavoriteWeaponForClient(int nClient)
 	}
 
 	// now look through our list of kills per weapon and pick the biggest
-	//----------------------------------------------------------------
 	nMostKills=0;
 	for (weapon=WP_STUN_BATON; weapon<WP_NUM_WEAPONS; weapon++)
 	{

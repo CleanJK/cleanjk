@@ -28,13 +28,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "cg_local.h"
 
-/*
-==============
-CG_CheckAmmo
-
-If the ammo has gone low enough to generate the warning, play a sound
-==============
-*/
+// If the ammo has gone low enough to generate the warning, play a sound
 void CG_CheckAmmo( void ) {
 #if 0
 	int		i;
@@ -98,11 +92,6 @@ void CG_CheckAmmo( void ) {
 	//disabled silly ammo warning stuff for now
 }
 
-/*
-==============
-CG_DamageFeedback
-==============
-*/
 void CG_DamageFeedback( int yawByte, int pitchByte, int damage ) {
 	float		left, front, up;
 	float		kick;
@@ -195,16 +184,7 @@ void CG_DamageFeedback( int yawByte, int pitchByte, int damage ) {
 	cg.damageTime = cg.snap->serverTime;
 }
 
-
-
-
-/*
-================
-CG_Respawn
-
-A respawn happened this snapshot
-================
-*/
+// A respawn happened this snapshot
 void CG_Respawn( void ) {
 	// no error decay on player movement
 	cg.thisFrameTeleport = qtrue;
@@ -216,11 +196,6 @@ void CG_Respawn( void ) {
 	cg.weaponSelect = cg.snap->ps.weapon;
 }
 
-/*
-==============
-CG_CheckPlayerstateEvents
-==============
-*/
 void CG_CheckPlayerstateEvents( playerState_t *ps, playerState_t *ops ) {
 	int			i;
 	int			event;
@@ -256,11 +231,6 @@ void CG_CheckPlayerstateEvents( playerState_t *ps, playerState_t *ops ) {
 	}
 }
 
-/*
-==================
-CG_CheckChangedPredictableEvents
-==================
-*/
 void CG_CheckChangedPredictableEvents( playerState_t *ps ) {
 	int i;
 	int event;
@@ -268,7 +238,7 @@ void CG_CheckChangedPredictableEvents( playerState_t *ps ) {
 
 	cent = &cg_entities[ps->clientNum];
 	for ( i = ps->eventSequence - MAX_PS_EVENTS ; i < ps->eventSequence ; i++ ) {
-		//
+
 		if (i >= cg.eventSequence) {
 			continue;
 		}
@@ -292,11 +262,6 @@ void CG_CheckChangedPredictableEvents( playerState_t *ps ) {
 	}
 }
 
-/*
-==================
-pushReward
-==================
-*/
 #ifdef JK2AWARDS
 static void pushReward(sfxHandle_t sfx, qhandle_t shader, int rewardCount) {
 	if (cg.rewardStack < (MAX_REWARDSTACK-1)) {
@@ -310,11 +275,6 @@ static void pushReward(sfxHandle_t sfx, qhandle_t shader, int rewardCount) {
 
 int cgAnnouncerTime = 0; //to prevent announce sounds from playing on top of each other
 
-/*
-==================
-CG_CheckLocalSounds
-==================
-*/
 void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 	int			highScore, health, armor, reward;
 #ifdef JK2AWARDS
@@ -425,7 +385,7 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 #endif
 	// lead changes
 	if (!reward && cgAnnouncerTime < cg.time) {
-		//
+
 		if ( !cg.warmup && cgs.gametype != GT_POWERDUEL ) {
 			// never play lead changes during warmup and powerduel
 			if ( ps->persistant[PERS_RANK] != ops->persistant[PERS_RANK] ) {
@@ -473,7 +433,7 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 	}
 
 	// fraglimit warnings
-	if ( cgs.fraglimit > 0 && cgs.gametype < GT_CTF && cgs.gametype != GT_DUEL && cgs.gametype != GT_POWERDUEL && cgs.gametype != GT_SIEGE && cgAnnouncerTime < cg.time) {
+	if ( cgs.fraglimit > 0 && cgs.gametype < GT_CTF && cgs.gametype != GT_DUEL && cgs.gametype != GT_POWERDUEL && cgAnnouncerTime < cg.time) {
 		highScore = cgs.scores1;
 		if ( cgs.gametype == GT_TEAM && cgs.scores2 > highScore )
 			highScore = cgs.scores2;
@@ -496,12 +456,6 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 	}
 }
 
-/*
-===============
-CG_TransitionPlayerState
-
-===============
-*/
 void CG_TransitionPlayerState( playerState_t *ps, playerState_t *ops ) {
 	// check for changing follow mode
 	if ( ps->clientNum != ops->clientNum ) {
@@ -539,7 +493,11 @@ void CG_TransitionPlayerState( playerState_t *ps, playerState_t *ops ) {
 	// smooth the ducking viewheight change
 	if ( ps->viewheight != ops->viewheight ) {
 		cg.duckChange = ps->viewheight - ops->viewheight;
-		cg.duckTime = cg.time;
+		if ( cg_instantDuck.integer ) {
+			cg.duckTime = cg.time - DUCK_TIME;
+		}
+		else {
+			cg.duckTime = cg.time;
+		}
 	}
 }
-

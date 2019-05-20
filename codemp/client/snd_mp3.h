@@ -23,9 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 // Filename:-	cl_mp3.h
-//
 // (Interface to the rest of the game for the MP3 functions)
-//
 
 #include "snd_local.h"
 
@@ -45,9 +43,7 @@ extern const char sKEY_MAXVOL[];
 extern const char sKEY_UNCOMP[];
 
 // (so far, all these functions are only called from one place in snd_mem.cpp)
-//
 // (filenames are used purely for error reporting, all files should already be loaded before you get here)
-//
 void		MP3_InitCvars			( void );
 qboolean	MP3_IsValid				( const char *psLocalFilename, void *pvData, int iDataLen, qboolean bStereoDesired = qfalse );
 int			MP3_GetUnpackedSize		( const char *psLocalFilename, void *pvData, int iDataLen, qboolean qbIgnoreID3Tag = qfalse, qboolean bStereoDesired = qfalse );
@@ -64,19 +60,11 @@ qboolean	MP3Stream_SeekTo		( channel_t *ch, float fTimeToSeekTo );
 qboolean	MP3Stream_Rewind		( channel_t *ch );
 qboolean	MP3Stream_GetSamples	( channel_t *ch, int startingSampleNum, int count, short *buf, qboolean bStereo );
 
-
-
-
-
-///////////////////////////////////////
-//
 // the real worker code deep down in the MP3 C code...  (now externalised here so the music streamer can access one)
-//
 #ifdef __cplusplus
 extern "C"
 {
 #endif
-
 
 char*	C_MP3_IsValid			(void *pvData, int iDataLen, int bStereoDesired);
 char*	C_MP3_GetUnpackedSize	(void *pvData, int iDataLen, int *piUnpackedSize, int bStereoDesired);
@@ -87,12 +75,6 @@ char*	C_MP3Stream_DecodeInit	(LP_MP3STREAM pSFX_MP3Stream, void *pvSourceData, i
 unsigned int C_MP3Stream_Decode( LP_MP3STREAM pSFX_MP3Stream, int bFastForwarding );
 char*	C_MP3Stream_Rewind		(LP_MP3STREAM pSFX_MP3Stream);
 
-
 #ifdef __cplusplus
 }
 #endif
-//
-///////////////////////////////////////
-
-
-///////////////// eof /////////////////////

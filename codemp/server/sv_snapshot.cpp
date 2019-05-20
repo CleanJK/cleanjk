@@ -24,35 +24,21 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "server.h"
 #include "qcommon/cm_public.h"
 
-/*
-=============================================================================
+// Delta encode a client frame onto the network channel
+// A normal server packet will look like:
+//	4	sequence number (high bit set if an oversize fragment)
+//	<optional reliable commands>
+//	1	svc_snapshot
+//	4	last client reliable command
+//	4	serverTime
+//	1	lastframe for delta compression
+//	1	snapFlags
+//	1	areaBytes
+//	<areabytes>
+//	<playerstate>
+//	<packetentities>
 
-Delta encode a client frame onto the network channel
-
-A normal server packet will look like:
-
-4	sequence number (high bit set if an oversize fragment)
-<optional reliable commands>
-1	svc_snapshot
-4	last client reliable command
-4	serverTime
-1	lastframe for delta compression
-1	snapFlags
-1	areaBytes
-<areabytes>
-<playerstate>
-<packetentities>
-
-=============================================================================
-*/
-
-/*
-=============
-SV_EmitPacketEntities
-
-Writes a delta update of an entityState_t list to the message.
-=============
-*/
+// Writes a delta update of an entityState_t list to the message.
 static void SV_EmitPacketEntities( clientSnapshot_t *from, clientSnapshot_t *to, msg_t *msg ) {
 	entityState_t	*oldent, *newent;
 	int		oldindex, newindex;
@@ -113,13 +99,6 @@ static void SV_EmitPacketEntities( clientSnapshot_t *from, clientSnapshot_t *to,
 	MSG_WriteBits( msg, (MAX_GENTITIES-1), GENTITYNUM_BITS );	// end of packetentities
 }
 
-
-
-/*
-==================
-SV_WriteSnapshotToClient
-==================
-*/
 static void SV_WriteSnapshotToClient( client_t *client, msg_t *msg ) {
 	clientSnapshot_t	*frame, *oldframe;
 	int					lastframe;
@@ -224,40 +203,13 @@ static void SV_WriteSnapshotToClient( client_t *client, msg_t *msg ) {
 #else
 		MSG_WriteDeltaPlayerstate( msg, &oldframe->ps, &frame->ps );
 #endif
-		if (frame->ps.m_iVehicleNum)
-		{ //then write the vehicle's playerstate too
-			if (!oldframe->ps.m_iVehicleNum)
-			{ //if last frame didn't have vehicle, then the old vps isn't gonna delta
-				//properly (because our vps on the client could be anything)
-#ifdef _ONEBIT_COMBO
-				MSG_WriteDeltaPlayerstate( msg, NULL, &frame->vps, NULL, NULL, qtrue );
-#else
-				MSG_WriteDeltaPlayerstate( msg, NULL, &frame->vps, qtrue );
-#endif
-			}
-			else
-			{
-#ifdef _ONEBIT_COMBO
-				MSG_WriteDeltaPlayerstate( msg, &oldframe->vps, &frame->vps, frame->pDeltaOneBitVeh, frame->pDeltaNumBitVeh, qtrue );
-#else
-				MSG_WriteDeltaPlayerstate( msg, &oldframe->vps, &frame->vps, qtrue );
-#endif
-			}
-		}
-	} else {
+	}
+	else {
 #ifdef _ONEBIT_COMBO
 		MSG_WriteDeltaPlayerstate( msg, NULL, &frame->ps, NULL, NULL );
 #else
 		MSG_WriteDeltaPlayerstate( msg, NULL, &frame->ps );
 #endif
-		if (frame->ps.m_iVehicleNum)
-		{ //then write the vehicle's playerstate too
-#ifdef _ONEBIT_COMBO
-			MSG_WriteDeltaPlayerstate( msg, NULL, &frame->vps, NULL, NULL, qtrue );
-#else
-			MSG_WriteDeltaPlayerstate( msg, NULL, &frame->vps, qtrue );
-#endif
-		}
 	}
 
 	// delta encode the entities
@@ -271,14 +223,7 @@ static void SV_WriteSnapshotToClient( client_t *client, msg_t *msg ) {
 	}
 }
 
-
-/*
-==================
-SV_UpdateServerCommandsToClient
-
-(re)send all server commands the client hasn't acknowledged yet
-==================
-*/
+// (re)send all server commands the client hasn't acknowledged yet
 void SV_UpdateServerCommandsToClient( client_t *client, msg_t *msg ) {
 	int		i;
 	int		reliableAcknowledge;
@@ -298,24 +243,12 @@ void SV_UpdateServerCommandsToClient( client_t *client, msg_t *msg ) {
 	client->reliableSent = client->reliableSequence;
 }
 
-/*
-=============================================================================
-
-Build a client snapshot structure
-
-=============================================================================
-*/
-
+// Build a client snapshot structure
 typedef struct snapshotEntityNumbers_s {
 	int		numSnapshotEntities;
 	int		snapshotEntities[MAX_SNAPSHOT_ENTITIES];
 } snapshotEntityNumbers_t;
 
-/*
-=======================
-SV_QsortEntityNumbers
-=======================
-*/
 static int QDECL SV_QsortEntityNumbers( const void *a, const void *b ) {
 	int	*ea, *eb;
 
@@ -333,12 +266,6 @@ static int QDECL SV_QsortEntityNumbers( const void *a, const void *b ) {
 	return 1;
 }
 
-
-/*
-===============
-SV_AddEntToSnapshot
-===============
-*/
 static void SV_AddEntToSnapshot( svEntity_t *svEnt, sharedEntity_t *gEnt, snapshotEntityNumbers_t *eNums ) {
 	// if we have already added this entity to this snapshot, don't add again
 	if ( svEnt->snapshotCounter == sv.snapshotCounter ) {
@@ -355,11 +282,6 @@ static void SV_AddEntToSnapshot( svEntity_t *svEnt, sharedEntity_t *gEnt, snapsh
 	eNums->numSnapshotEntities++;
 }
 
-/*
-===============
-SV_AddEntitiesVisibleFromPoint
-===============
-*/
 float g_svCullDist = -1.0f;
 static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *frame,
 									snapshotEntityNumbers_t *eNums, qboolean portal ) {
@@ -527,19 +449,9 @@ static void SV_AddEntitiesVisibleFromPoint( vec3_t origin, clientSnapshot_t *fra
 	}
 }
 
-/*
-=============
-SV_BuildClientSnapshot
-
-Decides which entities are going to be visible to the client, and
-copies off the playerstate and areabits.
-
-This properly handles multiple recursive portals, but the render
-currently doesn't.
-
-For viewing through other player's eyes, client can be something other than client->gentity
-=============
-*/
+// Decides which entities are going to be visible to the client, and copies off the playerstate and areabits.
+// This properly handles multiple recursive portals, but the render currently doesn't.
+// For viewing through other player's eyes, client can be something other than client->gentity
 static void SV_BuildClientSnapshot( client_t *client ) {
 	vec3_t						org;
 	clientSnapshot_t			*frame;
@@ -576,32 +488,14 @@ static void SV_BuildClientSnapshot( client_t *client ) {
 	frame->pDeltaNumBit = &ps->deltaNumBits;
 #endif
 
-	if (ps->m_iVehicleNum)
-	{ //get the vehicle's playerstate too then
-		sharedEntity_t *veh = SV_GentityNum(ps->m_iVehicleNum);
-
-		if (veh && veh->playerState)
-		{ //Now VMA it and we've got ourselves a playerState
-			playerState_t *vps = ((playerState_t *)VM_ArgPtr((intptr_t)veh->playerState));
-
-            frame->vps = *vps;
-#ifdef _ONEBIT_COMBO
-			frame->pDeltaOneBitVeh = &vps->deltaOneBits;
-			frame->pDeltaNumBitVeh = &vps->deltaNumBits;
-#endif
-		}
-	}
-
-	int							clientNum;
 	// never send client's own entity, because it can
 	// be regenerated from the playerstate
-	clientNum = frame->ps.clientNum;
+	int clientNum = frame->ps.clientNum;
 	if ( clientNum < 0 || clientNum >= MAX_GENTITIES ) {
 		Com_Error( ERR_DROP, "SV_SvEntityForGentity: bad gEnt" );
 	}
 	svEnt = &sv.svEntities[ clientNum ];
 	svEnt->snapshotCounter = sv.snapshotCounter;
-
 
 	// find the client's viewpoint
 	VectorCopy( ps->origin, org );
@@ -640,16 +534,8 @@ static void SV_BuildClientSnapshot( client_t *client ) {
 	}
 }
 
-
-/*
-====================
-SV_RateMsec
-
-Return the number of msec a given size message is supposed
-to take to clear, based on the current rate
-====================
-*/
 #define	HEADER_RATE_BYTES	48		// include our header, IP header, and some overhead
+// Return the number of msec a given size message is supposed to take to clear, based on the current rate
 static int SV_RateMsec( client_t *client, int messageSize ) {
 	int		rate;
 	int		rateMsec;
@@ -682,13 +568,8 @@ static int SV_RateMsec( client_t *client, int messageSize ) {
 }
 
 extern void SV_WriteDemoMessage ( client_t *cl, msg_t *msg, int headerBytes );
-/*
-=======================
-SV_SendMessageToClient
 
-Called by SV_SendClientSnapshot and SV_SendClientGameState
-=======================
-*/
+// Called by SV_SendClientSnapshot and SV_SendClientGameState
 void SV_SendMessageToClient( msg_t *msg, client_t *client ) {
 	int			rateMsec;
 
@@ -759,16 +640,9 @@ void SV_SendMessageToClient( msg_t *msg, client_t *client ) {
 	}
 }
 
-
-/*
-=======================
-SV_SendClientSnapshot
-
-Also called by SV_FinalMessage
-
-=======================
-*/
 extern cvar_t	*fs_gamedirvar;
+
+// Also called by SV_FinalMessage
 void SV_SendClientSnapshot( client_t *client ) {
 	byte		msg_buf[MAX_MSGLEN];
 	msg_t		msg;
@@ -856,12 +730,6 @@ void SV_SendClientSnapshot( client_t *client ) {
 	SV_SendMessageToClient( &msg, client );
 }
 
-
-/*
-=======================
-SV_SendClientMessages
-=======================
-*/
 void SV_SendClientMessages( void ) {
 	int			i;
 	client_t	*c;

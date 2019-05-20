@@ -52,13 +52,7 @@ static decalPoly_t	re_decalPolys[DECALPOLY_TYPE_MAX][MAX_DECAL_POLYS];
 static int			re_decalPolyHead[DECALPOLY_TYPE_MAX];
 static int			re_decalPolyTotal[DECALPOLY_TYPE_MAX];
 
-/*
-===================
-RE_ClearDecals
-
-This is called to remove all decals from the world
-===================
-*/
+// This is called to remove all decals from the world
 void RE_ClearDecals( void ) {
 	memset( re_decalPolys, 0, sizeof(re_decalPolys) );
 	memset( re_decalPolyHead, 0, sizeof(re_decalPolyHead) );
@@ -89,13 +83,7 @@ void RE_FreeDecal( int type, int index ) {
 	re_decalPolyTotal[type]--;
 }
 
-/*
-===================
-RE_AllocDecal
-
-Will allways succeed, even if it requires freeing an old active mark
-===================
-*/
+// Will allways succeed, even if it requires freeing an old active mark
 decalPoly_t* RE_AllocDecal( int type ) {
 	decalPoly_t	*le;
 
@@ -143,20 +131,12 @@ decalPoly_t* RE_AllocDecal( int type ) {
 	return le;
 }
 
-/*
-=================
-RE_AddDecalToScene
-
-origin should be a point within a unit of the plane
-dir should be the plane normal
-
-temporary marks will not be stored or randomly oriented, but immediately
-passed to the renderer.
-=================
-*/
 #define	MAX_DECAL_FRAGMENTS	128
 #define	MAX_DECAL_POINTS		384
 
+// temporary marks will not be stored or randomly oriented, but immediately passed to the renderer.
+//	origin	should be a point within a unit of the plane
+//	dir		should be the plane normal
 void RE_AddDecalToScene( qhandle_t decalShader, const vec3_t origin, const vec3_t dir, float orientation, float red, float green, float blue, float alpha, qboolean alphaFade, float radius, qboolean temporary )
 {
 	matrix3_t		axis;
@@ -169,7 +149,9 @@ void RE_AddDecalToScene( qhandle_t decalShader, const vec3_t origin, const vec3_
 	vec3_t			markPoints[MAX_DECAL_POINTS];
 	vec3_t			projection;
 
-	assert(decalShader);
+	if ( !decalShader ) {
+		return;
+	}
 
 	if ( r_markcount->integer <= 0 && !temporary )
 		return;
@@ -250,11 +232,6 @@ void RE_AddDecalToScene( qhandle_t decalShader, const vec3_t origin, const vec3_
 	}
 }
 
-/*
-===============
-R_AddDecals
-===============
-*/
 void R_AddDecals( void )
 {
 	int			decalPoly;

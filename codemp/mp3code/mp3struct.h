@@ -1,7 +1,5 @@
 // Filename:	mp3struct.h
-//
 // this file is my struct to gather all loose MP3 global vars into one struct so we can do multiple-stream decompression
-//
 
 #ifndef MP3STRUCT_H
 #define MP3STRUCT_H
@@ -53,7 +51,6 @@ typedef struct
 			int		buf_ptr0;
 			int		buf_ptr1;
 			int		main_pos_bit;
-
 
 			int		band_limit_nsb;
 			int			nBand[2][22];		/* [long/short][cb] */
@@ -125,7 +122,6 @@ typedef struct
 	int			iTimeQuery_Width;
 
 } MP3STREAM, *LP_MP3STREAM;
-
 
 extern LP_MP3STREAM pMP3Stream;
 extern int bFastEstimateOnly;

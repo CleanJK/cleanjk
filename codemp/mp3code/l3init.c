@@ -27,7 +27,6 @@ ____________________________________________________________________________*/
 /****  tinit.c  ***************************************************
   Layer III  init tables
 
-
 ******************************************************************/
 
 #include <stdlib.h>
@@ -40,11 +39,9 @@ ____________________________________________________________________________*/
 /* 8 bit lookup x = pow(2.0, 0.25*(global_gain-210)) */
 float *quant_init_global_addr();
 
-
 /* x = pow(2.0, -0.5*(1+scalefact_scale)*scalefac + preemp) */
 typedef float LS[4][32];
 LS *quant_init_scale_addr();
-
 
 float *quant_init_pow_addr();
 float *quant_init_subblock_addr();
@@ -59,7 +56,6 @@ PAIR *alias_init_addr();
 static const float Ci[8] =
 {
    -0.6f, -0.535f, -0.33f, -0.185f, -0.095f, -0.041f, -0.0142f, -0.0037f};
-
 
 void hwin_init();		/* hybrid windows -- */
 void imdct_init();
@@ -97,8 +93,6 @@ int L3table_init()
 	   for (i = 0; i < 256 + 2 + 4; i++)
 		  x[i] = (float) pow(2.0, 0.25 * ((i - (2 + 4)) - 210 + GLOBAL_GAIN_SCALE));
 
-
-
 	/* x = pow(2.0, -0.5*(1+scalefact_scale)*scalefac + preemp) */
 	   ls = quant_init_scale_addr();
 	   for (scalefact_scale = 0; scalefact_scale < 2; scalefact_scale++)
@@ -121,7 +115,6 @@ int L3table_init()
 		  x[i] = (float) (tmp * pow(fabs(tmp), (1.0 / 3.0)));
 	   }
 
-
 	/*-- pow(2.0, -0.25*8.0*subblock_gain)  3 bits --*/
 	   x = quant_init_subblock_addr();
 	   for (i = 0; i < 8; i++)
@@ -131,7 +124,6 @@ int L3table_init()
 
 	/*-------------------------*/
 	// quant_init_sf_band(sr_index);   replaced by code in sup.c
-
 
 /*================ antialias ===============================*/
 	   // onceonly!!!!!!!!!!!!!!!!!!!!!
@@ -305,7 +297,6 @@ void msis_init()
    {
 	   lr = msis_init_addr();
 
-
 	   pi = 4.0 * atan(1.0);
 	   t = pi / 12.0;
 	   for (i = 0; i < 7; i++)
@@ -326,7 +317,6 @@ void msis_init()
 	/* ms_mode = 1, in is bands is routine does ms processing */
 	   lr[1][i][0] = 1.0f;
 	   lr[1][i][1] = 1.0f;
-
 
 	/*-------
 	for(i=0;i<21;i++) nBand[0][i] =

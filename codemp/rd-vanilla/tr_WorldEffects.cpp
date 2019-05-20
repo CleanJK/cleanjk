@@ -20,18 +20,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-////////////////////////////////////////////////////////////////////////////////////////
 // RAVEN SOFTWARE - STAR WARS: JK II
 //  (c) 2002 Activision
-//
-// World Effects
-//
-//
-////////////////////////////////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////////////////////////////////
+// World Effects
+
 // Includes
-////////////////////////////////////////////////////////////////////////////////////////
 #include "tr_local.h"
 #include "tr_WorldEffects.h"
 
@@ -41,9 +35,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "glext.h"
 
-////////////////////////////////////////////////////////////////////////////////////////
 // Defines
-////////////////////////////////////////////////////////////////////////////////////////
 #define GLS_ALPHA				(GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA)
 #define	MAX_WIND_ZONES			10
 #define MAX_WEATHER_ZONES		10
@@ -52,10 +44,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #define POINTCACHE_CELL_SIZE	96.0f
 
-
-////////////////////////////////////////////////////////////////////////////////////////
 // Globals
-////////////////////////////////////////////////////////////////////////////////////////
 float		mMillisecondsElapsed = 0;
 float		mSecondsElapsed = 0;
 bool		mFrozen = false;
@@ -65,19 +54,13 @@ CVec3		mGlobalWindDirection;
 float		mGlobalWindSpeed;
 int			mParticlesRendered;
 
-
-
-////////////////////////////////////////////////////////////////////////////////////////
 // Handy Functions
-////////////////////////////////////////////////////////////////////////////////////////
 // Returns a float min <= x < max (exclusive; will get max - 0.00001; but never max)
 inline float WE_flrand(float min, float max) {
 	return ((rand() * (max - min)) / (RAND_MAX)) + min;
 }
 
-////////////////////////////////////////////////////////////////////////////////////////
 // Externs & Fwd Decl.
-////////////////////////////////////////////////////////////////////////////////////////
 extern void			SetViewportAndScissor( void );
 
 inline void VectorFloor(vec3_t in)
@@ -135,13 +118,7 @@ inline	void	SnapVectorToGrid(CVec3& Vec, int GridSize)
 	SnapFloatToGrid(Vec[2], GridSize);
 }
 
-
-
-
-
-////////////////////////////////////////////////////////////////////////////////////////
 // Range Structures
-////////////////////////////////////////////////////////////////////////////////////////
 struct	SVecRange
 {
 	CVec3	mMins;
@@ -241,13 +218,7 @@ struct	SIntRange
 	}
 };
 
-
-
-
-
-////////////////////////////////////////////////////////////////////////////////////////
 // The Particle Class
-////////////////////////////////////////////////////////////////////////////////////////
 class	CWeatherParticle
 {
 public:
@@ -270,13 +241,7 @@ public:
 	float	mMass;			// A higher number will more greatly resist force and result in greater gravity
 };
 
-
-
-
-
-////////////////////////////////////////////////////////////////////////////////////////
 // The Wind
-////////////////////////////////////////////////////////////////////////////////////////
 class	CWindZone
 {
 public:
@@ -292,11 +257,8 @@ public:
 	CVec3		mTargetVelocity;
 	int			mTargetVelocityTimeRemaining;
 
-
 public:
-	////////////////////////////////////////////////////////////////////////////////////
 	// Initialize - Will setup default values for all data
-	////////////////////////////////////////////////////////////////////////////////////
 	void		Initialize()
 	{
 		mRBounds.Clear();
@@ -321,9 +283,7 @@ public:
 		mTargetVelocityTimeRemaining = 0;
 	}
 
-	////////////////////////////////////////////////////////////////////////////////////
 	// Update - Changes wind when current target velocity expires
-	////////////////////////////////////////////////////////////////////////////////////
 	void		Update()
 	{
 		if (mTargetVelocityTimeRemaining==0)
@@ -373,24 +333,16 @@ bool R_GetWindGusting()
 	return (mGlobalWindSpeed>1000.0f);
 }
 
-
-
-////////////////////////////////////////////////////////////////////////////////////////
 // Outside Point Cache
-////////////////////////////////////////////////////////////////////////////////////////
 class COutside
 {
 public:
-	////////////////////////////////////////////////////////////////////////////////////
 	//Global Public Outside Variables
-	////////////////////////////////////////////////////////////////////////////////////
 	bool			mOutsideShake;
 	float			mOutsidePain;
 
 private:
-	////////////////////////////////////////////////////////////////////////////////////
 	// The Outside Cache
-	////////////////////////////////////////////////////////////////////////////////////
 	bool			mCacheInit;			// Has It Been Cached?
 
 	struct SWeatherZone
@@ -403,9 +355,7 @@ private:
 		int			mHeight;
 		int			mDepth;
 
-		////////////////////////////////////////////////////////////////////////////////////
 		// Convert To Cell
-		////////////////////////////////////////////////////////////////////////////////////
 		inline	void	ConvertToCell(const CVec3& pos, int& x, int& y, int& z, int& bit)
 		{
 			x = (int)((pos[0] / POINTCACHE_CELL_SIZE) - mSize.mMins[0]);
@@ -416,9 +366,7 @@ private:
 			z >>= 5;
 		}
 
-		////////////////////////////////////////////////////////////////////////////////////
 		// CellOutside - Test to see if a given cell is outside
-		////////////////////////////////////////////////////////////////////////////////////
 		inline	bool	CellOutside(int x, int y, int z, int bit)
 		{
 			if ((x < 0 || x >= mWidth) || (y < 0 || y >= mHeight) || (z < 0 || z >= mDepth) || (bit < 0 || bit >= 32))
@@ -430,11 +378,8 @@ private:
 	};
 	ratl::vector_vs<SWeatherZone, MAX_WEATHER_ZONES>	mWeatherZones;
 
-
 private:
-	////////////////////////////////////////////////////////////////////////////////////
 	// Iteration Variables
-	////////////////////////////////////////////////////////////////////////////////////
 	int				mWCells;
 	int				mHCells;
 
@@ -446,13 +391,9 @@ private:
 	int				mYMax;
 	int				mZMax;
 
-
 private:
 
-
-	////////////////////////////////////////////////////////////////////////////////////
 	// Contents Outside
-	////////////////////////////////////////////////////////////////////////////////////
 	inline	bool	ContentsOutside(int contents)
 	{
 		if (contents&CONTENTS_WATER || contents&CONTENTS_SOLID)
@@ -470,13 +411,8 @@ private:
 		return !!(contents&CONTENTS_OUTSIDE);
 	}
 
-
-
-
 public:
-	////////////////////////////////////////////////////////////////////////////////////
 	// Constructor - Will setup default values for all data
-	////////////////////////////////////////////////////////////////////////////////////
 	void Reset()
 	{
 		mOutsideShake = false;
@@ -505,9 +441,7 @@ public:
 		return mCacheInit;
 	}
 
-	////////////////////////////////////////////////////////////////////////////////////
 	// AddWeatherZone - Will add a zone of mins and maxes
-	////////////////////////////////////////////////////////////////////////////////////
 	void			AddWeatherZone(vec3_t mins, vec3_t maxs)
 	{
 		if (!mWeatherZones.full())
@@ -533,11 +467,7 @@ public:
 		}
 	}
 
-
-
-	////////////////////////////////////////////////////////////////////////////////////
 	// Cache - Will Scan the World, Creating The Cache
-	////////////////////////////////////////////////////////////////////////////////////
 	void			Cache()
 	{
 		if (!tr.world || mCacheInit)
@@ -553,9 +483,7 @@ public:
 		uint32_t		contents;
 		uint32_t		bit;
 
-
 		// Record The Extents Of The World Incase No Other Weather Zones Exist
-		//---------------------------------------------------------------------
 		if (!mWeatherZones.size())
 		{
 			ri.Printf( PRINT_ALL, "WARNING: No Weather Zones Encountered\n");
@@ -563,22 +491,18 @@ public:
 		}
 
 		// Iterate Over All Weather Zones
-		//--------------------------------
 		for (int zone=0; zone<mWeatherZones.size(); zone++)
 		{
 			SWeatherZone	wz = mWeatherZones[zone];
 
 			// Make Sure Point Contents Checks Occur At The CENTER Of The Cell
-			//-----------------------------------------------------------------
 			Mins = wz.mExtents.mMins;
 			for (x=0; x<3; x++)
 			{
 				Mins[x] += (POINTCACHE_CELL_SIZE/2);
 			}
 
-
 			// Start Scanning
-			//----------------
 			for(z = 0; z < wz.mDepth; z++)
 			{
 				for(q = 0; q < 32; q++)
@@ -612,7 +536,6 @@ public:
 								}
 
 								// Mark The Point
-								//----------------
 								wz.mPointCache[((z * wz.mWidth * wz.mHeight) + (y * wz.mWidth) + x)] |= bit;
 							}
 						}// for (y)
@@ -621,9 +544,7 @@ public:
 			}// for (z)
 		}
 
-
 		// If no indoor or outdoor brushes were found
-		//--------------------------------------------
 		if (!mCacheInit)
 		{
 			mCacheInit = true;
@@ -631,13 +552,8 @@ public:
 		}
 	}
 
-
-
-
 public:
-	////////////////////////////////////////////////////////////////////////////////////
 	// PointOutside - Test to see if a given point is outside
-	////////////////////////////////////////////////////////////////////////////////////
 	inline	bool	PointOutside(const CVec3& pos)
 	{
 		if (!mCacheInit)
@@ -658,10 +574,7 @@ public:
 
 	}
 
-
-	////////////////////////////////////////////////////////////////////////////////////
 	// PointOutside - Test to see if a given bounded plane is outside
-	////////////////////////////////////////////////////////////////////////////////////
 	inline	bool	PointOutside(const CVec3& pos, float width, float height)
 	{
 		for (int zone=0; zone<mWeatherZones.size(); zone++)
@@ -705,7 +618,6 @@ public:
 COutside			mOutside;
 bool				COutside::SWeatherZone::mMarkedOutside = false;
 
-
 void RE_AddWeatherZone(vec3_t mins, vec3_t maxs)
 {
 	mOutside.AddWeatherZone(mins, maxs);
@@ -726,23 +638,16 @@ float R_IsOutsideCausingPain(vec3_t pos)
 	return (mOutside.mOutsidePain && mOutside.PointOutside(pos));
 }
 
-
-////////////////////////////////////////////////////////////////////////////////////////
 // Particle Cloud
-////////////////////////////////////////////////////////////////////////////////////////
 class	CWeatherParticleCloud
 {
 private:
-	////////////////////////////////////////////////////////////////////////////////////
 	// DYNAMIC MEMORY
-	////////////////////////////////////////////////////////////////////////////////////
 	image_t*	mImage;
 	CWeatherParticle*	mParticles;
 
 private:
-	////////////////////////////////////////////////////////////////////////////////////
 	// RUN TIME VARIANTS
-	////////////////////////////////////////////////////////////////////////////////////
 	float		mSpawnSpeed;
 	CVec3		mSpawnPlaneNorm;
 	CVec3		mSpawnPlaneRight;
@@ -756,17 +661,13 @@ private:
 	CVec3		mCameraLeftPlusUp;
 	CVec3		mCameraLeftMinusUp;
 
-
 	int			mParticleCountRender;
 	int			mGLModeEnum;
 
 	bool		mPopulated;
 
-
 public:
-	////////////////////////////////////////////////////////////////////////////////////
 	// CONSTANTS
-	////////////////////////////////////////////////////////////////////////////////////
 	bool		mOrientWithVelocity;
 	float		mSpawnPlaneSize;
 	float		mSpawnPlaneDistance;
@@ -798,13 +699,8 @@ public:
 
 	bool		mWaterParticles;
 
-
-
-
 public:
-	////////////////////////////////////////////////////////////////////////////////////
 	// Initialize - Create Image, Particles, And Setup All Values
-	////////////////////////////////////////////////////////////////////////////////////
 	void	Initialize(int count, const char* texturePath, int VertexCount=4)
 	{
 		Reset();
@@ -812,7 +708,6 @@ public:
 		assert(mImage==0);
 
 		// Create The Image
-		//------------------
 		mImage = R_FindImageFile(texturePath, qfalse, qfalse, qfalse, GL_CLAMP);
 		if (!mImage)
 		{
@@ -821,14 +716,9 @@ public:
 
 		GL_Bind(mImage);
 
-
-
 		// Create The Particles
-		//----------------------
 		mParticleCount	= count;
 		mParticles		= new CWeatherParticle[mParticleCount];
-
-
 
 		CWeatherParticle*	part=0;
 		for (int particleNum=0; particleNum<mParticleCount; particleNum++)
@@ -845,10 +735,7 @@ public:
 		mGLModeEnum = (mVertexCount==3)?(GL_TRIANGLES):(GL_QUADS);
 	}
 
-
-	////////////////////////////////////////////////////////////////////////////////////
 	// Reset - Initializes all data to default values
-	////////////////////////////////////////////////////////////////////////////////////
 	void		Reset()
 	{
 		if (mImage)
@@ -865,10 +752,7 @@ public:
 
 		mPopulated			= 0;
 
-
-
 		// These Are The Default Startup Values For Constant Data
-		//========================================================
 		mOrientWithVelocity = false;
 		mWaterParticles		= false;
 
@@ -906,9 +790,7 @@ public:
 		mFrictionInverse	= 0.7f;		// No Friction?
 	}
 
-	////////////////////////////////////////////////////////////////////////////////////
 	// Constructor - Will setup default values for all data
-	////////////////////////////////////////////////////////////////////////////////////
 	CWeatherParticleCloud()
 	{
 		mImage = 0;
@@ -916,27 +798,19 @@ public:
 		Reset();
 	}
 
-	////////////////////////////////////////////////////////////////////////////////////
 	// Initialize - Will setup default values for all data
-	////////////////////////////////////////////////////////////////////////////////////
 	~CWeatherParticleCloud()
 	{
 		Reset();
 	}
 
-
-	////////////////////////////////////////////////////////////////////////////////////
 	// UseSpawnPlane - Check To See If We Should Spawn On A Plane, Or Just Wrap The Box
-	////////////////////////////////////////////////////////////////////////////////////
 	inline bool	UseSpawnPlane()
 	{
 		return (mGravity!=0.0f);
 	}
 
-
-	////////////////////////////////////////////////////////////////////////////////////
 	// Update - Applies All Physics Forces To All Contained Particles
-	////////////////////////////////////////////////////////////////////////////////////
 	void		Update()
 	{
 		CWeatherParticle*	part=0;
@@ -957,7 +831,6 @@ public:
 */
 
 		// Compute Camera
-		//----------------
 		{
 			mCameraPosition	= backEnd.viewParms.ori.origin;
 			mCameraForward	= backEnd.viewParms.ori.axis[0];
@@ -1001,31 +874,24 @@ public:
 			}
 		}
 
-
 		// Compute Global Force
-		//----------------------
 		CVec3		force;
 		{
 			force.Clear();
 
 			// Apply Gravity
-			//---------------
 			force[2] = -1.0f * mGravity;
 
 			// Apply Wind Velocity
-			//---------------------
 			force    += mGlobalWindVelocity;
 		}
 
-
 		// Update Range
-		//--------------
 		{
 			mRange.mMins = mCameraPosition + mSpawnRange.mMins;
 			mRange.mMaxs = mCameraPosition + mSpawnRange.mMaxs;
 
 			// If Using A Spawn Plane, Increase The Range Box A Bit To Account For Rotation On The Spawn Plane
-			//-------------------------------------------------------------------------------------------------
 			if (UseSpawnPlane())
 			{
 				for (int dim=0; dim<3; dim++)
@@ -1050,7 +916,6 @@ public:
 			}
 
 			// Optimization For Quad Position Calculation
-			//--------------------------------------------
 			if (mVertexCount==4)
 			{
 		 		mCameraLeftPlusUp  = (mCameraLeft - mCameraDown);
@@ -1063,16 +928,12 @@ public:
 		}
 
 		// Stop All Additional Processing
-		//--------------------------------
 		if (mFrozen)
 		{
 			return;
 		}
 
-
-
 		// Now Update All Particles
-		//--------------------------
 		mParticleCountRender = 0;
 		for (particleNum=0; particleNum<mParticleCount; particleNum++)
 		{
@@ -1084,13 +945,10 @@ public:
 			}
 
 			// Grab The Force And Apply Non Global Wind
-			//------------------------------------------
 			partForce = force;
 			partForce /= part->mMass;
 
-
 			// Apply The Force
-			//-----------------
 			part->mVelocity		+= partForce;
 			part->mVelocity		*= mFrictionInverse;
 
@@ -1103,13 +961,11 @@ public:
 			partInView		= (partOutside && partInRange && (partToCamera.Dot(mCameraForward)>0.0f));
 
 			// Process Respawn
-			//-----------------
 			if (!partInRange && !partRendering)
 			{
 				part->mVelocity.Clear();
 
 				// Reselect A Position On The Spawn Plane
-				//----------------------------------------
 				if (UseSpawnPlane())
 				{
 					part->mPosition		= mCameraPosition;
@@ -1119,7 +975,6 @@ public:
 				}
 
 				// Otherwise, Just Wrap Around To The Other End Of The Range
-				//-----------------------------------------------------------
 				else
 				{
 					mRange.Wrap(part->mPosition, mSpawnRange);
@@ -1128,10 +983,8 @@ public:
 			}
 
 			// Process Fade
-			//--------------
 			{
 				// Start A Fade Out
-				//------------------
 				if		(partRendering && !partInView)
 				{
 					part->mFlags.clear_bit(CWeatherParticle::FLAG_FADEIN);
@@ -1139,7 +992,6 @@ public:
 				}
 
 				// Switch From Fade Out To Fade In
-				//---------------------------------
 				else if (partRendering && partInView && part->mFlags.get_bit(CWeatherParticle::FLAG_FADEOUT))
 				{
 					part->mFlags.set_bit(CWeatherParticle::FLAG_FADEIN);
@@ -1147,7 +999,6 @@ public:
 				}
 
 				// Start A Fade In
-				//-----------------
 				else if (!partRendering && partInView)
 				{
 					partRendering = true;
@@ -1158,12 +1009,10 @@ public:
 				}
 
 				// Update Fade
-				//-------------
 				if (partRendering)
 				{
 
 					// Update Fade Out
-					//-----------------
 					if (part->mFlags.get_bit(CWeatherParticle::FLAG_FADEOUT))
 					{
 						part->mAlpha -= particleFade;
@@ -1178,7 +1027,6 @@ public:
 					}
 
 					// Update Fade In
-					//----------------
 					else if (part->mFlags.get_bit(CWeatherParticle::FLAG_FADEIN))
 					{
 						part->mAlpha += particleFade;
@@ -1192,37 +1040,26 @@ public:
 			}
 
 			// Keep Track Of The Number Of Particles To Render
-			//-------------------------------------------------
 			if (part->mFlags.get_bit(CWeatherParticle::FLAG_RENDER))
 			{
 				mParticleCountRender ++;
 			}
 
-
-
-
-
 		}
 		mPopulated = true;
 	}
 
-	////////////////////////////////////////////////////////////////////////////////////
 	// Render -
-	////////////////////////////////////////////////////////////////////////////////////
 	void		Render()
 	{
 		CWeatherParticle*	part=0;
 		int			particleNum;
 
-
 		// Set The GL State And Image Binding
-		//------------------------------------
 		GL_State((mBlendMode==0)?(GLS_ALPHA):(GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE));
 		GL_Bind(mImage);
 
-
 		// Enable And Disable Things
-		//---------------------------
 		qglEnable(GL_TEXTURE_2D);
 		//qglDisable(GL_CULL_FACE);
 		//naughty, you are making the assumption that culling is on when you get here. -rww
@@ -1231,15 +1068,11 @@ public:
 		qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (mFilterMode==0)?(GL_LINEAR):(GL_NEAREST));
 		qglTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, (mFilterMode==0)?(GL_LINEAR):(GL_NEAREST));
 
-
 		// Setup Matrix Mode And Translation
-		//-----------------------------------
 		qglMatrixMode(GL_MODELVIEW);
 		qglPushMatrix();
 
-
 		// Begin
-		//-------
 		qglBegin(mGLModeEnum);
 		for (particleNum=0; particleNum<mParticleCount; particleNum++)
 		{
@@ -1250,21 +1083,18 @@ public:
 			}
 
 			// Blend Mode Zero -> Apply Alpha Just To Alpha Channel
-			//------------------------------------------------------
 			if (mBlendMode==0)
 			{
 				qglColor4f(mColor[0], mColor[1], mColor[2], part->mAlpha);
 			}
 
 			// Otherwise Apply Alpha To All Channels
-			//---------------------------------------
 			else
 			{
 				qglColor4f(mColor[0]*part->mAlpha, mColor[1]*part->mAlpha, mColor[2]*part->mAlpha, mColor[3]*part->mAlpha);
 			}
 
 			// Render A Triangle
-			//-------------------
 			if (mVertexCount==3)
 			{
  				qglTexCoord2f(1.0, 0.0);
@@ -1284,7 +1114,6 @@ public:
 			}
 
 			// Render A Quad
-			//---------------
 			else
 			{
 				// Left bottom.
@@ -1323,11 +1152,7 @@ public:
 };
 ratl::vector_vs<CWeatherParticleCloud, MAX_PARTICLE_CLOUDS>	mParticleClouds;
 
-
-
-////////////////////////////////////////////////////////////////////////////////////////
 // Init World Effects - Will Iterate Over All Particle Clouds, Clear Them Out, And Erase
-////////////////////////////////////////////////////////////////////////////////////////
 void R_InitWorldEffects(void)
 {
 	srand(ri.Milliseconds());
@@ -1341,17 +1166,13 @@ void R_InitWorldEffects(void)
 	mOutside.Reset();
 }
 
-////////////////////////////////////////////////////////////////////////////////////////
 // Init World Effects - Will Iterate Over All Particle Clouds, Clear Them Out, And Erase
-////////////////////////////////////////////////////////////////////////////////////////
 void R_ShutdownWorldEffects(void)
 {
 	R_InitWorldEffects();
 }
 
-////////////////////////////////////////////////////////////////////////////////////////
 // RB_RenderWorldEffects - If any particle clouds exist, this will update and render them
-////////////////////////////////////////////////////////////////////////////////////////
 void RB_RenderWorldEffects(void)
 {
 	if (!tr.world ||
@@ -1366,9 +1187,7 @@ void RB_RenderWorldEffects(void)
 	qglMatrixMode(GL_MODELVIEW);
 	qglLoadMatrixf(backEnd.viewParms.world.modelMatrix);
 
-
 	// Calculate Elapsed Time For Scale Purposes
-	//-------------------------------------------
 	mMillisecondsElapsed = backEnd.refdef.frametime;
 	if (mMillisecondsElapsed<1)
 	{
@@ -1380,9 +1199,7 @@ void RB_RenderWorldEffects(void)
 	}
 	mSecondsElapsed = (mMillisecondsElapsed / 1000.0f);
 
-
 	// Make Sure We Are Always Outside Cached
-	//----------------------------------------
 	if (!mOutside.Initialized())
 	{
 		mOutside.Cache();
@@ -1390,7 +1207,6 @@ void RB_RenderWorldEffects(void)
 	else
 	{
 		// Update All Wind Zones
-		//-----------------------
 		if (!mFrozen)
 		{
 			mGlobalWindVelocity.Clear();
@@ -1407,7 +1223,6 @@ void RB_RenderWorldEffects(void)
 		}
 
 		// Update All Particle Clouds
-		//----------------------------
 		mParticlesRendered = 0;
 		for (int i=0; i<mParticleClouds.size(); i++)
 		{
@@ -1421,7 +1236,6 @@ void RB_RenderWorldEffects(void)
 	}
 }
 
-
 void R_WorldEffect_f(void)
 {
 	char temp[2048] = {0};
@@ -1429,11 +1243,6 @@ void R_WorldEffect_f(void)
 	RE_WorldEffectCommand( temp );
 }
 
-/*
-===============
-WE_ParseVector
-===============
-*/
 qboolean WE_ParseVector( const char **text, int count, float *v ) {
 	char	*token;
 	int		i;
@@ -1481,7 +1290,6 @@ void RE_WorldEffectCommand(const char *command)
 		return;
 	}
 
-
 	//Die - clean up the whole weather system -rww
 	if (Q_stricmp(token, "die") == 0)
 	{
@@ -1490,7 +1298,6 @@ void RE_WorldEffectCommand(const char *command)
 	}
 
 	// Clear - Removes All Particle Clouds And Wind Zones
-	//----------------------------------------------------
 	else if (Q_stricmp(token, "clear") == 0)
 	{
 		for (int p=0; p<mParticleClouds.size(); p++)
@@ -1502,14 +1309,12 @@ void RE_WorldEffectCommand(const char *command)
 	}
 
 	// Freeze / UnFreeze - Stops All Particle Motion Updates
-	//--------------------------------------------------------
 	else if (Q_stricmp(token, "freeze") == 0)
 	{
 		mFrozen = !mFrozen;
 	}
 
 	// Add a zone
-	//---------------
 	else if (Q_stricmp(token, "zone") == 0)
 	{
 		vec3_t	mins;
@@ -1521,7 +1326,6 @@ void RE_WorldEffectCommand(const char *command)
 	}
 
 	// Basic Wind
-	//------------
 	else if (Q_stricmp(token, "wind") == 0)
 	{
 		if (mWindZones.full())
@@ -1533,7 +1337,6 @@ void RE_WorldEffectCommand(const char *command)
 	}
 
 	// Constant Wind
-	//---------------
 	else if (Q_stricmp(token, "constantwind") == 0)
 	{
 		if (mWindZones.full())
@@ -1551,7 +1354,6 @@ void RE_WorldEffectCommand(const char *command)
 	}
 
 	// Gusting Wind
-	//--------------
 	else if (Q_stricmp(token, "gustingwind") == 0)
 	{
 		if (mWindZones.full())
@@ -1575,10 +1377,7 @@ void RE_WorldEffectCommand(const char *command)
 		nWind.mRDeadTime.mMax				=  4000;
 	}
 
-
-
 	// Create A Rain Storm
-	//---------------------
 	else if (Q_stricmp(token, "lightrain") == 0)
 	{
 		if (mParticleClouds.full())
@@ -1599,7 +1398,6 @@ void RE_WorldEffectCommand(const char *command)
 	}
 
 	// Create A Rain Storm
-	//---------------------
 	else if (Q_stricmp(token, "rain") == 0)
 	{
 		if (mParticleClouds.full())
@@ -1620,7 +1418,6 @@ void RE_WorldEffectCommand(const char *command)
 	}
 
 	// Create A Rain Storm
-	//---------------------
 	else if (Q_stricmp(token, "acidrain") == 0)
 	{
 		if (mParticleClouds.full())
@@ -1648,7 +1445,6 @@ void RE_WorldEffectCommand(const char *command)
 	}
 
 	// Create A Rain Storm
-	//---------------------
 	else if (Q_stricmp(token, "heavyrain") == 0)
 	{
 		if (mParticleClouds.full())
@@ -1669,7 +1465,6 @@ void RE_WorldEffectCommand(const char *command)
 	}
 
 	// Create A Snow Storm
-	//---------------------
 	else if (Q_stricmp(token, "snow") == 0)
 	{
 		if (mParticleClouds.full())
@@ -1685,7 +1480,6 @@ void RE_WorldEffectCommand(const char *command)
 	}
 
 	// Create A Some stuff
-	//---------------------
 	else if (Q_stricmp(token, "spacedust") == 0)
 	{
 		int count;
@@ -1716,7 +1510,6 @@ void RE_WorldEffectCommand(const char *command)
 	}
 
 	// Create A Sand Storm
-	//---------------------
 	else if (Q_stricmp(token, "sand") == 0)
 	{
 		if (mParticleClouds.full())
@@ -1743,7 +1536,6 @@ void RE_WorldEffectCommand(const char *command)
 	}
 
 	// Create Blowing Clouds Of Fog
-	//------------------------------
 	else if (Q_stricmp(token, "fog") == 0)
 	{
 		if (mParticleClouds.full())
@@ -1767,7 +1559,6 @@ void RE_WorldEffectCommand(const char *command)
 	}
 
 	// Create Heavy Rain Particle Cloud
-	//-----------------------------------
 	else if (Q_stricmp(token, "heavyrainfog") == 0)
 	{
 		if (mParticleClouds.full())
@@ -1794,7 +1585,6 @@ void RE_WorldEffectCommand(const char *command)
 	}
 
 	// Create Blowing Clouds Of Fog
-	//------------------------------
 	else if (Q_stricmp(token, "light_fog") == 0)
 	{
 		if (mParticleClouds.full())
@@ -1853,8 +1643,6 @@ void RE_WorldEffectCommand(const char *command)
 		ri.Printf( PRINT_ALL, "	outsidepain\n" );
 	}
 }
-
-
 
 float R_GetChanceOfSaberFizz()
 {

@@ -112,7 +112,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define MODELINDEX_REDCUBE			33
 #define MODELINDEX_BLUECUBE			34
 
-//
 #define WEAPONINDEX_STUN_BATON		1
 #define WEAPONINDEX_SABER			2
 #define WEAPONINDEX_BRYAR_PISTOL	3

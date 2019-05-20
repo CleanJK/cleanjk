@@ -44,9 +44,7 @@ extern ICARUS_Instance	*iICARUS;
 extern bufferlist_t		ICARUS_BufferList;
 extern entlist_t		ICARUS_EntList;
 
-//
 //	g_ICARUS.cpp
-//
 void ICARUS_Init( void );
 bool ICARUS_ValidEnt( sharedEntity_t *ent );
 void ICARUS_InitEnt( sharedEntity_t *ent );

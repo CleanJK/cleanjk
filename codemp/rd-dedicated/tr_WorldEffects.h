@@ -2,8 +2,6 @@
 
 class CWorldEffectsSystem;
 
-
-
 #define PARTICLE_FLAG_RENDER			0x00000001
 
 struct	SParticle
@@ -12,8 +10,6 @@ struct	SParticle
 	vec3_t		velocity;
 	unsigned	flags;
 };
-
-
 
 class CWorldEffect
 {
@@ -60,8 +56,6 @@ public:
 	virtual	void	Render(CWorldEffectsSystem *system);
 };
 
-
-
 class CWorldEffectsSystem
 {
 protected:
@@ -84,7 +78,6 @@ public:
 	virtual	void	ParmUpdate(int which);
 	virtual	void	Render(void);
 };
-
 
 void R_InitWorldEffects(void);
 void R_ShutdownWorldEffects(void);

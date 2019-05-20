@@ -93,7 +93,6 @@ typedef struct cPatch_s {
 	struct patchCollide_s	*pc;
 } cPatch_t;
 
-
 typedef struct cArea_s {
 	int			floodnum;
 	int			floodvalid;
@@ -147,7 +146,6 @@ typedef struct clipMap_s {
 	int			floodvalid;
 	int			checkcount;					// incremented on each trace
 } clipMap_t;
-
 
 // keep 1/8 unit away to keep the position valid before network snapping
 // and to avoid various numeric issues

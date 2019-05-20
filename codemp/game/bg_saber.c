@@ -599,9 +599,7 @@ saberMoveName_t PM_CheckStabDown( void )
 		ent = PM_BGEntForNum(tr.entityNum);
 	}
 
-	if ( ent &&
-		(ent->s.eType == ET_PLAYER || ent->s.eType == ET_NPC) &&
-		BG_InKnockDown( ent->s.legsAnim ) )
+	if ( ent && ent->s.eType == ET_PLAYER && BG_InKnockDown( ent->s.legsAnim ) )
 	{//guy is on the ground below me, do a top-down attack
 		if ( pm->ps->fd.saberAnimLevel == SS_DUAL )
 		{
@@ -668,7 +666,6 @@ int PM_SaberMoveQuadrantForMovement( usercmd_t *ucmd )
 	}
 }
 
-//===================================================================
 qboolean PM_SaberInBounce( int move )
 {
 	if ( move >= LS_B1_BR && move <= LS_B1_BL )
@@ -715,19 +712,6 @@ int PM_SaberAttackChainAngle( int move1, int move2 )
 
 qboolean PM_SaberKataDone(int curmove, int newmove)
 {
-	if (pm->ps->m_iVehicleNum)
-	{ //never continue kata on vehicle
-		if (pm->ps->saberAttackChainCount > 0)
-		{
-			return qtrue;
-		}
-	}
-
-	if ( pm->ps->fd.saberAnimLevel == SS_DESANN || pm->ps->fd.saberAnimLevel == SS_TAVION )
-	{//desann and tavion can link up as many attacks as they want
-		return qfalse;
-	}
-
 	if ( pm->ps->fd.saberAnimLevel == SS_STAFF )
 	{
 		//TEMP: for now, let staff attacks infinitely chain
@@ -909,7 +893,6 @@ int PM_SaberLockWinAnim( qboolean victory, qboolean superBreak )
 // Need to avoid nesting namespaces!
 #ifdef _GAME //including game headers on cgame is FORBIDDEN ^_^
 	#include "g_local.h"
-	extern void NPC_SetAnim(gentity_t *ent, int setAnimParts, int anim, int setAnimFlags);
 	extern gentity_t g_entities[];
 #elif defined(_CGAME)
 	#include "cgame/cg_local.h" //ahahahahhahahaha@$!$!
@@ -1034,7 +1017,7 @@ int PM_SaberLockLoseAnim( playerState_t *genemy, qboolean victory, qboolean supe
 	if ( loseAnim != -1 )
 	{
 #ifdef _GAME
-		NPC_SetAnim( &g_entities[genemy->clientNum], SETANIM_BOTH, loseAnim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+		G_SetAnim( &g_entities[genemy->clientNum], &g_entities[genemy->clientNum].client->pers.cmd, SETANIM_BOTH, loseAnim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0 );
 		genemy->weaponTime = genemy->torsoTimer;// + 250;
 #endif
 		genemy->saberBlocked = BLOCKED_NONE;
@@ -1095,7 +1078,8 @@ int PM_SaberLockResultAnim( playerState_t *duelist, qboolean superBreak, qboolea
 	}
 	else
 	{//other guy
-		NPC_SetAnim( &g_entities[duelist->clientNum], SETANIM_BOTH, baseAnim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
+		//CJKFIXME: this may not be the right thing to do
+		G_SetAnim( &g_entities[duelist->clientNum], &g_entities[duelist->clientNum].client->pers.cmd, SETANIM_BOTH, baseAnim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0 );
 	}
 #else
 	PM_SetAnim( SETANIM_BOTH, baseAnim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD );
@@ -1502,7 +1486,6 @@ qboolean PM_SaberInBrokenParry( int move )
 	return qfalse;
 }
 
-
 int PM_BrokenParryForParry( int move )
 {
 	switch ( move )
@@ -1554,7 +1537,7 @@ qboolean PM_CanBackstab(void)
 	{
 		bgEntity_t *bgEnt = PM_BGEntForNum(tr.entityNum);
 
-		if (bgEnt && (bgEnt->s.eType == ET_PLAYER || bgEnt->s.eType == ET_NPC))
+		if (bgEnt && bgEnt->s.eType == ET_PLAYER)
 		{
 			return qtrue;
 		}
@@ -1733,7 +1716,7 @@ qboolean PM_SomeoneInFront(trace_t *tr)
 	{
 		bgEntity_t *bgEnt = PM_BGEntForNum(tr->entityNum);
 
-		if (bgEnt && (bgEnt->s.eType == ET_PLAYER || bgEnt->s.eType == ET_NPC))
+		if (bgEnt && bgEnt->s.eType == ET_PLAYER)
 		{
 			return qtrue;
 		}
@@ -2008,8 +1991,7 @@ static qboolean PM_CheckEnemyPresence( int dir, float radius )
 	{ //let's see who we hit
 		bgEntity_t *bgEnt = PM_BGEntForNum(tr.entityNum);
 
-		if (bgEnt &&
-			(bgEnt->s.eType == ET_PLAYER || bgEnt->s.eType == ET_NPC))
+		if (bgEnt && bgEnt->s.eType == ET_PLAYER)
 		{ //this guy can be considered an "enemy"... if he is on the same team, oh well. can't bg-check that (without a whole lot of hassle).
 			return qtrue;
 		}
@@ -2101,11 +2083,11 @@ saberMoveName_t PM_CheckPullAttack( void )
 					vec3_t targAngles = {0,targEnt->client->ps.viewangles[YAW],0};
 					if ( InFront( pm->ps->origin, targEnt->currentOrigin, targAngles ) )
 					{
-						NPC_SetAnim( targEnt, SETANIM_BOTH, BOTH_PULLED_INAIR_F, SETANIM_FLAG_OVERRIDE, SETANIM_FLAG_HOLD );
+						G_SetAnim( targEnt, SETANIM_BOTH, BOTH_PULLED_INAIR_F, SETANIM_FLAG_OVERRIDE, SETANIM_FLAG_HOLD );
 					}
 					else
 					{
-						NPC_SetAnim( targEnt, SETANIM_BOTH, BOTH_PULLED_INAIR_B, SETANIM_FLAG_OVERRIDE, SETANIM_FLAG_HOLD );
+						G_SetAnim( targEnt, SETANIM_BOTH, BOTH_PULLED_INAIR_B, SETANIM_FLAG_OVERRIDE, SETANIM_FLAG_HOLD );
 					}
 					//hold the anim until I'm with done pull anim
 					targEnt->client->ps.legsAnimTimer = targEnt->client->ps.torsoAnimTimer = PM_AnimLength( pm->gent->client->clientInfo.animFileIndex, (animNumber_t)saberMoveData[pullAttackMove].animToUse );
@@ -2728,21 +2710,17 @@ qboolean PM_CanDoRollStab( void )
 	}
 	return qtrue;
 }
-/*
-=================
-PM_WeaponLightsaber
 
-Consults a chart to choose what to do with the lightsaber.
-While this is a little different than the Quake 3 code, there is no clean way of using the Q3 code for this kind of thing.
-=================
-*/
-// Ultimate goal is to set the sabermove to the proper next location
-// Note that if the resultant animation is NONE, then the animation is essentially "idle", and is set in WP_TorsoAnim
 qboolean PM_WalkingAnim( int anim );
 qboolean PM_SwimmingAnim( int anim );
 int PM_SaberBounceForAttack( int move );
 qboolean BG_SuperBreakLoseAnim( int anim );
 qboolean BG_SuperBreakWinAnim( int anim );
+
+// Consults a chart to choose what to do with the lightsaber.
+// While this is a little different than the Quake 3 code, there is no clean way of using the Q3 code for this kind of thing.
+// Ultimate goal is to set the sabermove to the proper next location
+// Note that if the resultant animation is NONE, then the animation is essentially "idle", and is set in WP_TorsoAnim
 void PM_WeaponLightsaber(void)
 {
 	int			addTime;
@@ -2876,16 +2854,8 @@ void PM_WeaponLightsaber(void)
 		{
 			if (pm->ps->duelTime < pm->cmd.serverTime)
 			{
-				if (!pm->ps->m_iVehicleNum)
-				{ //don't let em unholster the saber by attacking while on vehicle
-					pm->ps->saberHolstered = 0;
-					PM_AddEvent(EV_SABER_UNHOLSTER);
-				}
-				else
-				{
-					pm->cmd.buttons &= ~BUTTON_ALT_ATTACK;
-					pm->cmd.buttons &= ~BUTTON_ATTACK;
-				}
+				pm->ps->saberHolstered = 0;
+				PM_AddEvent(EV_SABER_UNHOLSTER);
 			}
 		}
 
@@ -3292,14 +3262,12 @@ weapChecks:
 			switch ( pm->ps->fd.saberAnimLevel )
 			{
 			case SS_FAST:
-			case SS_TAVION:
 				PM_SetSaberMove( LS_A1_SPECIAL );
 				break;
 			case SS_MEDIUM:
 				PM_SetSaberMove( LS_A2_SPECIAL );
 				break;
 			case SS_STRONG:
-			case SS_DESANN:
 				PM_SetSaberMove( LS_A3_SPECIAL );
 				break;
 			case SS_DUAL:
@@ -3819,27 +3787,24 @@ void PM_SetSaberMove(short newMove)
 	}
 
 	//saber torso anims should always be highest priority (4/12/02 - for special anims only)
-	if (!pm->ps->m_iVehicleNum)
-	{ //if not riding a vehicle
-		if (BG_SaberInSpecial(newMove))
-		{
-			setflags |= SETANIM_FLAG_OVERRIDE;
-		}
-		/*
-		if ( newMove == LS_A_LUNGE
-			|| newMove == LS_A_JUMP_T__B_
-			|| newMove == LS_A_BACKSTAB
-			|| newMove == LS_A_BACK
-			|| newMove == LS_A_BACK_CR
-			|| newMove == LS_A_FLIP_STAB
-			|| newMove == LS_A_FLIP_SLASH
-			|| newMove == LS_JUMPATTACK_DUAL
-			|| newMove == LS_A_BACKFLIP_ATK)
-		{
-			setflags |= SETANIM_FLAG_OVERRIDE;
-		}
-		*/
+	if (BG_SaberInSpecial(newMove))
+	{
+		setflags |= SETANIM_FLAG_OVERRIDE;
 	}
+	/*
+	if ( newMove == LS_A_LUNGE
+		|| newMove == LS_A_JUMP_T__B_
+		|| newMove == LS_A_BACKSTAB
+		|| newMove == LS_A_BACK
+		|| newMove == LS_A_BACK_CR
+		|| newMove == LS_A_FLIP_STAB
+		|| newMove == LS_A_FLIP_SLASH
+		|| newMove == LS_JUMPATTACK_DUAL
+		|| newMove == LS_A_BACKFLIP_ATK)
+	{
+		setflags |= SETANIM_FLAG_OVERRIDE;
+	}
+	*/
 	if ( BG_InSaberStandAnim(anim) || anim == BOTH_STAND1 )
 	{
 		anim = (pm->ps->legsAnim);
@@ -3868,79 +3833,75 @@ void PM_SetSaberMove(short newMove)
 		parts = SETANIM_TORSO;
 	}
 
-	if (!pm->ps->m_iVehicleNum)
-	{ //if not riding a vehicle
-		if (newMove == LS_JUMPATTACK_ARIAL_RIGHT ||
-				newMove == LS_JUMPATTACK_ARIAL_LEFT)
-		{ //force only on legs
-			parts = SETANIM_LEGS;
-		}
-		else if ( newMove == LS_A_LUNGE
-				|| newMove == LS_A_JUMP_T__B_
-				|| newMove == LS_A_BACKSTAB
-				|| newMove == LS_A_BACK
-				|| newMove == LS_A_BACK_CR
-				|| newMove == LS_ROLL_STAB
-				|| newMove == LS_A_FLIP_STAB
-				|| newMove == LS_A_FLIP_SLASH
-				|| newMove == LS_JUMPATTACK_DUAL
-				|| newMove == LS_JUMPATTACK_ARIAL_LEFT
-				|| newMove == LS_JUMPATTACK_ARIAL_RIGHT
-				|| newMove == LS_JUMPATTACK_CART_LEFT
-				|| newMove == LS_JUMPATTACK_CART_RIGHT
-				|| newMove == LS_JUMPATTACK_STAFF_LEFT
-				|| newMove == LS_JUMPATTACK_STAFF_RIGHT
-				|| newMove == LS_A_BACKFLIP_ATK
-				|| newMove == LS_STABDOWN
-				|| newMove == LS_STABDOWN_STAFF
-				|| newMove == LS_STABDOWN_DUAL
-				|| newMove == LS_DUAL_SPIN_PROTECT
-				|| newMove == LS_STAFF_SOULCAL
-				|| newMove == LS_A1_SPECIAL
-				|| newMove == LS_A2_SPECIAL
-				|| newMove == LS_A3_SPECIAL
-				|| newMove == LS_UPSIDE_DOWN_ATTACK
-				|| newMove == LS_PULL_ATTACK_STAB
-				|| newMove == LS_PULL_ATTACK_SWING
-				|| BG_KickMove( newMove ) )
+	if (newMove == LS_JUMPATTACK_ARIAL_RIGHT ||
+			newMove == LS_JUMPATTACK_ARIAL_LEFT)
+	{ //force only on legs
+		parts = SETANIM_LEGS;
+	}
+	else if ( newMove == LS_A_LUNGE
+			|| newMove == LS_A_JUMP_T__B_
+			|| newMove == LS_A_BACKSTAB
+			|| newMove == LS_A_BACK
+			|| newMove == LS_A_BACK_CR
+			|| newMove == LS_ROLL_STAB
+			|| newMove == LS_A_FLIP_STAB
+			|| newMove == LS_A_FLIP_SLASH
+			|| newMove == LS_JUMPATTACK_DUAL
+			|| newMove == LS_JUMPATTACK_ARIAL_LEFT
+			|| newMove == LS_JUMPATTACK_ARIAL_RIGHT
+			|| newMove == LS_JUMPATTACK_CART_LEFT
+			|| newMove == LS_JUMPATTACK_CART_RIGHT
+			|| newMove == LS_JUMPATTACK_STAFF_LEFT
+			|| newMove == LS_JUMPATTACK_STAFF_RIGHT
+			|| newMove == LS_A_BACKFLIP_ATK
+			|| newMove == LS_STABDOWN
+			|| newMove == LS_STABDOWN_STAFF
+			|| newMove == LS_STABDOWN_DUAL
+			|| newMove == LS_DUAL_SPIN_PROTECT
+			|| newMove == LS_STAFF_SOULCAL
+			|| newMove == LS_A1_SPECIAL
+			|| newMove == LS_A2_SPECIAL
+			|| newMove == LS_A3_SPECIAL
+			|| newMove == LS_UPSIDE_DOWN_ATTACK
+			|| newMove == LS_PULL_ATTACK_STAB
+			|| newMove == LS_PULL_ATTACK_SWING
+			|| BG_KickMove( newMove ) )
+	{
+		parts = SETANIM_BOTH;
+	}
+	else if ( BG_SpinningSaberAnim( anim ) )
+	{//spins must be played on entire body
+		parts = SETANIM_BOTH;
+	}
+	else if ( (!pm->cmd.forwardmove&&!pm->cmd.rightmove&&!pm->cmd.upmove))
+	{//not trying to run, duck or jump
+		if ( !BG_FlippingAnim( pm->ps->legsAnim ) &&
+			!BG_InRoll( pm->ps, pm->ps->legsAnim ) &&
+			!PM_InKnockDown( pm->ps ) &&
+			!PM_JumpingAnim( pm->ps->legsAnim ) &&
+			!BG_InSpecialJump( pm->ps->legsAnim ) &&
+			anim != PM_GetSaberStance() &&
+			pm->ps->groundEntityNum != ENTITYNUM_NONE &&
+			!(pm->ps->pm_flags & PMF_DUCKED))
 		{
 			parts = SETANIM_BOTH;
 		}
-		else if ( BG_SpinningSaberAnim( anim ) )
-		{//spins must be played on entire body
+		else if ( !(pm->ps->pm_flags & PMF_DUCKED)
+			&& ( newMove == LS_SPINATTACK_DUAL || newMove == LS_SPINATTACK ) )
+		{
 			parts = SETANIM_BOTH;
 		}
-		else if ( (!pm->cmd.forwardmove&&!pm->cmd.rightmove&&!pm->cmd.upmove))
-		{//not trying to run, duck or jump
-			if ( !BG_FlippingAnim( pm->ps->legsAnim ) &&
-				!BG_InRoll( pm->ps, pm->ps->legsAnim ) &&
-				!PM_InKnockDown( pm->ps ) &&
-				!PM_JumpingAnim( pm->ps->legsAnim ) &&
-				!BG_InSpecialJump( pm->ps->legsAnim ) &&
-				anim != PM_GetSaberStance() &&
-				pm->ps->groundEntityNum != ENTITYNUM_NONE &&
-				!(pm->ps->pm_flags & PMF_DUCKED))
-			{
-				parts = SETANIM_BOTH;
-			}
-			else if ( !(pm->ps->pm_flags & PMF_DUCKED)
-				&& ( newMove == LS_SPINATTACK_DUAL || newMove == LS_SPINATTACK ) )
-			{
-				parts = SETANIM_BOTH;
-			}
-		}
+	}
 
-		PM_SetAnim(parts, anim, setflags);
-		if (parts != SETANIM_LEGS &&
-			(pm->ps->legsAnim == BOTH_ARIAL_LEFT ||
-			pm->ps->legsAnim == BOTH_ARIAL_RIGHT))
+	PM_SetAnim(parts, anim, setflags);
+	if (parts != SETANIM_LEGS &&
+		(pm->ps->legsAnim == BOTH_ARIAL_LEFT ||
+		pm->ps->legsAnim == BOTH_ARIAL_RIGHT))
+	{
+		if (pm->ps->legsTimer > pm->ps->torsoTimer)
 		{
-			if (pm->ps->legsTimer > pm->ps->torsoTimer)
-			{
-				pm->ps->legsTimer = pm->ps->torsoTimer;
-			}
+			pm->ps->legsTimer = pm->ps->torsoTimer;
 		}
-
 	}
 
 	if ( (pm->ps->torsoAnim) == anim )
@@ -4019,21 +3980,8 @@ saberInfo_t *BG_MySaber( int clientNum, int saberNum )
 		return &ent->client->saber[saberNum];
 	}
 #elif defined(_CGAME)
-	clientInfo_t *ci = NULL;
-	if (clientNum < MAX_CLIENTS)
-	{
-		ci = &cgs.clientinfo[clientNum];
-	}
-	else
-	{
-		centity_t *cent = &cg_entities[clientNum];
-		if (cent->npcClient)
-		{
-			ci = cent->npcClient;
-		}
-	}
-	if ( ci
-		&& ci->infoValid )
+	clientInfo_t *ci = (clientNum < MAX_CLIENTS) ? &cgs.clientinfo[clientNum] : NULL;
+	if ( ci && ci->infoValid )
 	{
 		if ( !ci->saber[saberNum].model[0] )
 		{ //don't have sabers anymore!

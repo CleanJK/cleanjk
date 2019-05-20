@@ -38,7 +38,6 @@ mod 5/16/95 sb limit for reduced samprate output
 
 mod 11/15/95 for Layer I
 
-
 =========================================================*/
 /*-- compiler bug, floating constant overflow w/ansi --*/
 
@@ -46,7 +45,6 @@ static const long steps[18] =
 {
    0, 3, 5, 7, 9, 15, 31, 63, 127,
    255, 511, 1023, 2047, 4095, 8191, 16383, 32767, 65535};
-
 
 /* ABCD_INDEX = lookqt[mode][sr_index][br_index]  */
 /* -1 = invalid  */
@@ -117,7 +115,6 @@ static const unsigned char look_nbat[5][4] =
   {4, 0, 7, 19},
 };
 
-
 void sbt_mono(float *sample, short *pcm, int n);
 void sbt_dual(float *sample, short *pcm, int n);
 void sbt_dual_mono(float *sample, short *pcm, int n);
@@ -151,7 +148,6 @@ void sbtB8_dual_mono(float *sample, unsigned char *pcm, int n);
 void sbtB8_dual_left(float *sample, unsigned char *pcm, int n);
 void sbtB8_dual_right(float *sample, unsigned char *pcm, int n);
 
-
 static const SBT_FUNCTION sbt_table[2][3][5] =
 {
  {{sbt_mono, sbt_dual, sbt_dual_mono, sbt_dual_left, sbt_dual_right},
@@ -177,12 +173,10 @@ static const SBT_FUNCTION sbt_table[2][3][5] =
 static const int out_chans[5] =
 {1, 2, 1, 1, 1};
 
-
 int audio_decode_initL1(MPEG_HEAD * h, int framebytes_arg,
 		   int reduction_code, int transform_code, int convert_code,
 			int freq_limit);
 void sbt_init();
-
 
 IN_OUT L1audio_decode(unsigned char *bs, signed short *pcm);
 IN_OUT L2audio_decode(unsigned char *bs, signed short *pcm);
@@ -275,7 +269,6 @@ int audio_decode_init(MPEG_HEAD * h, int framebytes_arg,
 /* select decoder routine Layer I,II,III */
    audio_decode_routine = decode_routine_table[h->option & 3];
 
-
    if (h->option == 3)		/* layer I */
       return L1audio_decode_init(h, framebytes_arg,
 		  reduction_code, transform_code, convert_code, freq_limit);
@@ -283,8 +276,6 @@ int audio_decode_init(MPEG_HEAD * h, int framebytes_arg,
    if (h->option == 1)		/* layer III */
       return L3audio_decode_init(h, framebytes_arg,
 		  reduction_code, transform_code, convert_code, freq_limit);
-
-
 
    bit_code = 0;
    if (convert_code & 8)
@@ -296,7 +287,6 @@ int audio_decode_init(MPEG_HEAD * h, int framebytes_arg,
       reduction_code = 2;
    if (freq_limit < 1000)
       freq_limit = 1000;
-
 
    pMP3Stream->framebytes = framebytes_arg;
 /* check if code handles */
@@ -366,12 +356,9 @@ int audio_decode_init(MPEG_HEAD * h, int framebytes_arg,
    decinfo.framebytes = pMP3Stream->framebytes;
    decinfo.type = 0;
 
-
-
 /* clear sample buffer, unused sub bands must be 0 */
    for (i = 0; i < 2304*2; i++)	// the *2 here was inserted by me just in case, since the array is now *2, because of stereo files unpacking at 4608 bytes per frame (which may or may not be relevant, but in any case I don't think we use the L1 versions of MP3 now anyway
       sample[i] = 0.0F;
-
 
 /* init sub-band transform */
    sbt_init();

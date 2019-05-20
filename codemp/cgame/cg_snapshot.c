@@ -26,13 +26,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "cg_local.h"
 
-
-
-/*
-==================
-CG_ResetEntity
-==================
-*/
 static void CG_ResetEntity( centity_t *cent ) {
 	// if the previous snapshot this entity was updated in is at least
 	// an event window back in time then we can reset the previous event
@@ -58,18 +51,12 @@ static void CG_ResetEntity( centity_t *cent ) {
 	}
 #endif
 
-	if ( cent->currentState.eType == ET_PLAYER || cent->currentState.eType == ET_NPC ) {
+	if ( cent->currentState.eType == ET_PLAYER ) {
 		CG_ResetPlayerEntity( cent );
 	}
 }
 
-/*
-===============
-CG_TransitionEntity
-
-cent->nextState is moved to cent->currentState and events are fired
-===============
-*/
+// cent->nextState is moved to cent->currentState and events are fired
 static void CG_TransitionEntity( centity_t *cent ) {
 	cent->currentState = cent->nextState;
 	cent->currentValid = qtrue;
@@ -86,18 +73,9 @@ static void CG_TransitionEntity( centity_t *cent ) {
 	CG_CheckEvents( cent );
 }
 
-
-/*
-==================
-CG_SetInitialSnapshot
-
-This will only happen on the very first snapshot, or
-on tourney restarts.  All other times will use
-CG_TransitionSnapshot instead.
-
-FIXME: Also called by map_restart?
-==================
-*/
+// This will only happen on the very first snapshot, or on tourney restarts.
+// All other times will use CG_TransitionSnapshot instead.
+//FIXME: Also called by map_restart?
 void CG_SetInitialSnapshot( snapshot_t *snap ) {
 	int				i;
 	centity_t		*cent;
@@ -142,15 +120,9 @@ void CG_SetInitialSnapshot( snapshot_t *snap ) {
 	}
 }
 
-
-/*
-===================
-CG_TransitionSnapshot
-
-The transition point from snap to nextSnap has passed
-===================
-*/
 extern qboolean CG_UsingEWeb(void); //cg_predict.c
+
+// The transition point from snap to nextSnap has passed
 static void CG_TransitionSnapshot( void ) {
 	centity_t			*cent;
 	snapshot_t			*oldFrame;
@@ -216,14 +188,7 @@ static void CG_TransitionSnapshot( void ) {
 
 }
 
-
-/*
-===================
-CG_SetNextSnap
-
-A new snapshot has just been read in from the client system.
-===================
-*/
+// A new snapshot has just been read in from the client system.
 static void CG_SetNextSnap( snapshot_t *snap ) {
 	int					num;
 	entityState_t		*es;
@@ -277,17 +242,8 @@ static void CG_SetNextSnap( snapshot_t *snap ) {
 	CG_BuildSolidList();
 }
 
-
-/*
-========================
-CG_ReadNextSnapshot
-
-This is the only place new snapshots are requested
-This may increment cgs.processedSnapshotNum multiple
-times if the client system fails to return a
-valid snapshot.
-========================
-*/
+// This is the only place new snapshots are requested
+// This may increment cgs.processedSnapshotNum multiple times if the client system fails to return a valid snapshot.
 static snapshot_t *CG_ReadNextSnapshot( void ) {
 	qboolean	r;
 	snapshot_t	*dest;
@@ -343,26 +299,11 @@ static snapshot_t *CG_ReadNextSnapshot( void ) {
 	return NULL;
 }
 
-
-/*
-============
-CG_ProcessSnapshots
-
-We are trying to set up a renderable view, so determine
-what the simulated time is, and try to get snapshots
-both before and after that time if available.
-
-If we don't have a valid cg.snap after exiting this function,
-then a 3D game view cannot be rendered.  This should only happen
-right after the initial connection.  After cg.snap has been valid
-once, it will never turn invalid.
-
-Even if cg.snap is valid, cg.nextSnap may not be, if the snapshot
-hasn't arrived yet (it becomes an extrapolating situation instead
-of an interpolating one)
-
-============
-*/
+// We are trying to set up a renderable view, so determine what the simulated time is, and try to get snapshots both
+//	before and after that time if available.
+// If we don't have a valid cg.snap after exiting this function, then a 3D game view cannot be rendered.
+// This should only happen right after the initial connection. After cg.snap has been valid once, it will never turn invalid.
+// Even if cg.snap is valid, cg.nextSnap may not be, if the snapshot hasn't arrived yet (it becomes an extrapolating situation instead of an interpolating one)
 void CG_ProcessSnapshots( void ) {
 	snapshot_t		*snap;
 	int				n;
@@ -409,7 +350,6 @@ void CG_ProcessSnapshots( void ) {
 			}
 
 			CG_SetNextSnap( snap );
-
 
 			// if time went backwards, we have a level restart
 			if ( cg.nextSnap->serverTime < cg.snap->serverTime ) {

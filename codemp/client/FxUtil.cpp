@@ -42,11 +42,7 @@ int				activeFx = 0;
 int				drawnFx;
 qboolean		fxInitialized = qfalse;
 
-//-------------------------
-// FX_Free
-//
 // Frees all FX
-//-------------------------
 bool FX_Free( bool templates )
 {
 	for ( int i = 0; i < MAX_EFFECTS; i++ )
@@ -65,11 +61,7 @@ bool FX_Free( bool templates )
 	return true;
 }
 
-//-------------------------
-// FX_Stop
-//
 // Frees all active FX but leaves the templates
-//-------------------------
 void FX_Stop( void )
 {
 	for ( int i = 0; i < MAX_EFFECTS; i++ )
@@ -87,11 +79,7 @@ void FX_Stop( void )
 	theFxScheduler.Clean(false);
 }
 
-//-------------------------
-// FX_Init
-//
 // Preps system for use
-//-------------------------
 int	FX_Init( refdef_t* refdef )
 {
 //	FX_Free( true );
@@ -123,9 +111,6 @@ void FX_SetRefDef(refdef_t *refdef)
 	theFxHelper.refdef = refdef;
 }
 
-//-------------------------
-// FX_FreeMember
-//-------------------------
 static void FX_FreeMember( SEffectList *obj )
 {
 	obj->mEffect->Die();
@@ -138,15 +123,8 @@ static void FX_FreeMember( SEffectList *obj )
 	activeFx--;
 }
 
-
-//-------------------------
-// FX_GetValidEffect
-//
 // Finds an unused effect slot
-//
-// Note - in the editor, this function may return NULL, indicating that all
-// effects are being stopped.
-//-------------------------
+// Note - in the editor, this function may return NULL, indicating that all effects are being stopped.
 static SEffectList *FX_GetValidEffect()
 {
 	if ( nextValidEffect->mEffect == 0 )
@@ -178,11 +156,7 @@ static SEffectList *FX_GetValidEffect()
 	return nextValidEffect;
 }
 
-//-------------------------
-// FX_Add
-//
 // Adds all fx to the view
-//-------------------------
 void FX_Add( bool portal )
 {
 	int			i;
@@ -220,7 +194,6 @@ void FX_Add( bool portal )
 		}
 	}
 
-
 	if ( fx_debug->integer && !portal)
 	{
 		theFxHelper.Print( "Active    FX: %i\n", activeFx );
@@ -229,14 +202,7 @@ void FX_Add( bool portal )
 	}
 }
 
-
-
-//-------------------------
-// FX_AddPrimitive
-//
-// Note - in the editor, this function may change *pEffect to NULL, indicating that
-// all effects are being stopped.
-//-------------------------
+// Note - in the editor, this function may change *pEffect to NULL, indicating that all effects are being stopped.
 extern bool gEffectsInPortal;	//from FXScheduler.cpp so i don't have to pass it in on EVERY FX_ADD*
 void FX_AddPrimitive( CEffect **pEffect, int killTime )
 {
@@ -253,9 +219,6 @@ void FX_AddPrimitive( CEffect **pEffect, int killTime )
 	(*pEffect)->SetTimeEnd( theFxHelper.mTime + killTime );
 }
 
-//-------------------------
-//  FX_AddParticle
-//-------------------------
 CParticle *FX_AddParticle( vec3_t org, vec3_t vel, vec3_t accel, float size1, float size2, float sizeParm,
 							float alpha1, float alpha2, float alphaParm,
 							vec3_t sRGB, vec3_t eRGB, float rgbParm,
@@ -291,7 +254,7 @@ CParticle *FX_AddParticle( vec3_t org, vec3_t vel, vec3_t accel, float size1, fl
 		fx->SetVel( vel );
 		fx->SetAccel( accel );
 
-		// RGB----------------
+		// RGB
 		fx->SetRGBStart( sRGB );
 		fx->SetRGBEnd( eRGB );
 
@@ -305,7 +268,7 @@ CParticle *FX_AddParticle( vec3_t org, vec3_t vel, vec3_t accel, float size1, fl
 			fx->SetRGBParm( rgbParm * 0.01f * killTime + theFxHelper.mTime );
 		}
 
-		// Alpha----------------
+		// Alpha
 		fx->SetAlphaStart( alpha1 );
 		fx->SetAlphaEnd( alpha2 );
 
@@ -318,7 +281,7 @@ CParticle *FX_AddParticle( vec3_t org, vec3_t vel, vec3_t accel, float size1, fl
 			fx->SetAlphaParm( alphaParm * 0.01f * killTime + theFxHelper.mTime );
 		}
 
-		// Size----------------
+		// Size
 		fx->SetSizeStart( size1 );
 		fx->SetSizeEnd( size2 );
 
@@ -349,14 +312,9 @@ CParticle *FX_AddParticle( vec3_t org, vec3_t vel, vec3_t accel, float size1, fl
 	return fx;
 }
 
-
-
-//-------------------------
-//  FX_AddLine
-//-------------------------
 CLine *FX_AddLine( vec3_t start, vec3_t end, float size1, float size2, float sizeParm,
 									float alpha1, float alpha2, float alphaParm,
-									vec3_t sRGB, vec3_t eRGB, float rgbParm,
+									const vec3_t sRGB, const vec3_t eRGB, float rgbParm,
 									int killTime, qhandle_t shader, int flags = 0,
 									EMatImpactEffect matImpactFX /*MATIMPACTFX_NONE*/, int fxParm /*-1*/,
 									CGhoul2Info_v *ghoul2/*0*/, int entNum/*-1*/, int modelNum/*-1*/, int boltNum/*-1*/)
@@ -385,7 +343,7 @@ CLine *FX_AddLine( vec3_t start, vec3_t end, float size1, float size2, float siz
 		fx->SetMatImpactFX(matImpactFX);
 		fx->SetMatImpactParm(fxParm);
 
-		// RGB----------------
+		// RGB
 		fx->SetRGBStart( sRGB );
 		fx->SetRGBEnd( eRGB );
 
@@ -399,7 +357,7 @@ CLine *FX_AddLine( vec3_t start, vec3_t end, float size1, float size2, float siz
 			fx->SetRGBParm( rgbParm * 0.01f * killTime + theFxHelper.mTime );
 		}
 
-		// Alpha----------------
+		// Alpha
 		fx->SetAlphaStart( alpha1 );
 		fx->SetAlphaEnd( alpha2 );
 
@@ -412,7 +370,7 @@ CLine *FX_AddLine( vec3_t start, vec3_t end, float size1, float size2, float siz
 			fx->SetAlphaParm( alphaParm * 0.01f * killTime + theFxHelper.mTime );
 		}
 
-		// Size----------------
+		// Size
 		fx->SetSizeStart( size1 );
 		fx->SetSizeEnd( size2 );
 
@@ -436,10 +394,6 @@ CLine *FX_AddLine( vec3_t start, vec3_t end, float size1, float size2, float siz
 	return fx;
 }
 
-
-//-------------------------
-//  FX_AddElectricity
-//-------------------------
 CElectricity *FX_AddElectricity( vec3_t start, vec3_t end, float size1, float size2, float sizeParm,
 								float alpha1, float alpha2, float alphaParm,
 								vec3_t sRGB, vec3_t eRGB, float rgbParm,
@@ -471,7 +425,7 @@ CElectricity *FX_AddElectricity( vec3_t start, vec3_t end, float size1, float si
 		fx->SetMatImpactFX(matImpactFX);
 		fx->SetMatImpactParm(fxParm);
 
-		// RGB----------------
+		// RGB
 		fx->SetRGBStart( sRGB );
 		fx->SetRGBEnd( eRGB );
 
@@ -485,7 +439,7 @@ CElectricity *FX_AddElectricity( vec3_t start, vec3_t end, float size1, float si
 			fx->SetRGBParm( rgbParm * 0.01f * killTime + theFxHelper.mTime );
 		}
 
-		// Alpha----------------
+		// Alpha
 		fx->SetAlphaStart( alpha1 );
 		fx->SetAlphaEnd( alpha2 );
 
@@ -498,7 +452,7 @@ CElectricity *FX_AddElectricity( vec3_t start, vec3_t end, float size1, float si
 			fx->SetAlphaParm( alphaParm * 0.01f * killTime + theFxHelper.mTime );
 		}
 
-		// Size----------------
+		// Size
 		fx->SetSizeStart( size1 );
 		fx->SetSizeEnd( size2 );
 
@@ -528,10 +482,6 @@ CElectricity *FX_AddElectricity( vec3_t start, vec3_t end, float size1, float si
 	return fx;
 }
 
-
-//-------------------------
-//  FX_AddTail
-//-------------------------
 CTail *FX_AddTail( vec3_t org, vec3_t vel, vec3_t accel,
 							float size1, float size2, float sizeParm,
 							float length1, float length2, float lengthParm,
@@ -567,7 +517,7 @@ CTail *FX_AddTail( vec3_t org, vec3_t vel, vec3_t accel,
 		fx->SetVel( vel );
 		fx->SetAccel( accel );
 
-		// RGB----------------
+		// RGB
 		fx->SetRGBStart( sRGB );
 		fx->SetRGBEnd( eRGB );
 
@@ -581,7 +531,7 @@ CTail *FX_AddTail( vec3_t org, vec3_t vel, vec3_t accel,
 			fx->SetRGBParm( rgbParm * 0.01f * killTime + theFxHelper.mTime );
 		}
 
-		// Alpha----------------
+		// Alpha
 		fx->SetAlphaStart( alpha1 );
 		fx->SetAlphaEnd( alpha2 );
 
@@ -594,7 +544,7 @@ CTail *FX_AddTail( vec3_t org, vec3_t vel, vec3_t accel,
 			fx->SetAlphaParm( alphaParm * 0.01f * killTime + theFxHelper.mTime );
 		}
 
-		// Size----------------
+		// Size
 		fx->SetSizeStart( size1 );
 		fx->SetSizeEnd( size2 );
 
@@ -607,7 +557,7 @@ CTail *FX_AddTail( vec3_t org, vec3_t vel, vec3_t accel,
 			fx->SetSizeParm( sizeParm * 0.01f * killTime + theFxHelper.mTime );
 		}
 
-		// Length----------------
+		// Length
 		fx->SetLengthStart( length1 );
 		fx->SetLengthEnd( length2 );
 
@@ -635,10 +585,6 @@ CTail *FX_AddTail( vec3_t org, vec3_t vel, vec3_t accel,
 	return fx;
 }
 
-
-//-------------------------
-//  FX_AddCylinder
-//-------------------------
 CCylinder *FX_AddCylinder( vec3_t start, vec3_t normal,
 							float size1s, float size1e, float size1Parm,
 							float size2s, float size2e, float size2Parm,
@@ -676,7 +622,7 @@ CCylinder *FX_AddCylinder( vec3_t start, vec3_t normal,
 		fx->SetOrigin1( start );
 		fx->SetNormal( normal );
 
-		// RGB----------------
+		// RGB
 		fx->SetRGBStart( rgb1 );
 		fx->SetRGBEnd( rgb2 );
 
@@ -690,7 +636,7 @@ CCylinder *FX_AddCylinder( vec3_t start, vec3_t normal,
 			fx->SetRGBParm( rgbParm * 0.01f * killTime + theFxHelper.mTime );
 		}
 
-		// Size1----------------
+		// Size1
 		fx->SetSizeStart( size1s );
 		fx->SetSizeEnd( size1e );
 
@@ -703,7 +649,7 @@ CCylinder *FX_AddCylinder( vec3_t start, vec3_t normal,
 			fx->SetSizeParm( size1Parm * 0.01f * killTime + theFxHelper.mTime );
 		}
 
-		// Size2----------------
+		// Size2
 		fx->SetSize2Start( size2s );
 		fx->SetSize2End( size2e );
 
@@ -716,7 +662,7 @@ CCylinder *FX_AddCylinder( vec3_t start, vec3_t normal,
 			fx->SetSize2Parm( size2Parm * 0.01f * killTime + theFxHelper.mTime );
 		}
 
-		// Length1---------------
+		// Length1
 		fx->SetLengthStart( length1 );
 		fx->SetLengthEnd( length2 );
 
@@ -729,7 +675,7 @@ CCylinder *FX_AddCylinder( vec3_t start, vec3_t normal,
 			fx->SetLengthParm( lengthParm * 0.01f * killTime + theFxHelper.mTime );
 		}
 
-		// Alpha----------------
+		// Alpha
 		fx->SetAlphaStart( alpha1 );
 		fx->SetAlphaEnd( alpha2 );
 
@@ -751,9 +697,6 @@ CCylinder *FX_AddCylinder( vec3_t start, vec3_t normal,
 	return fx;
 }
 
-//-------------------------
-//  FX_AddEmitter
-//-------------------------
 CEmitter *FX_AddEmitter( vec3_t org, vec3_t vel, vec3_t accel,
 								float size1, float size2, float sizeParm,
 								float alpha1, float alpha2, float alphaParm,
@@ -786,7 +729,7 @@ CEmitter *FX_AddEmitter( vec3_t org, vec3_t vel, vec3_t accel,
 		fx->SetVel( vel );
 		fx->SetAccel( accel );
 
-		// RGB----------------
+		// RGB
 		fx->SetRGBStart( rgb1 );
 		fx->SetRGBEnd( rgb2 );
 
@@ -800,7 +743,7 @@ CEmitter *FX_AddEmitter( vec3_t org, vec3_t vel, vec3_t accel,
 			fx->SetRGBParm( rgbParm * 0.01f * killTime + theFxHelper.mTime );
 		}
 
-		// Size----------------
+		// Size
 		fx->SetSizeStart( size1 );
 		fx->SetSizeEnd( size2 );
 
@@ -813,7 +756,7 @@ CEmitter *FX_AddEmitter( vec3_t org, vec3_t vel, vec3_t accel,
 			fx->SetSizeParm( sizeParm * 0.01f * killTime + theFxHelper.mTime );
 		}
 
-		// Alpha----------------
+		// Alpha
 		fx->SetAlphaStart( alpha1 );
 		fx->SetAlphaEnd( alpha2 );
 
@@ -849,9 +792,6 @@ CEmitter *FX_AddEmitter( vec3_t org, vec3_t vel, vec3_t accel,
 	return fx;
 }
 
-//-------------------------
-//  FX_AddLight
-//-------------------------
 CLight *FX_AddLight( vec3_t org, float size1, float size2, float sizeParm,
 							vec3_t rgb1, vec3_t rgb2, float rgbParm,
 							int killTime, int flags = 0,
@@ -880,7 +820,7 @@ CLight *FX_AddLight( vec3_t org, float size1, float size2, float sizeParm,
 		fx->SetMatImpactFX(matImpactFX);
 		fx->SetMatImpactParm(fxParm);
 
-		// RGB----------------
+		// RGB
 		fx->SetRGBStart( rgb1 );
 		fx->SetRGBEnd( rgb2 );
 
@@ -894,7 +834,7 @@ CLight *FX_AddLight( vec3_t org, float size1, float size2, float sizeParm,
 			fx->SetRGBParm( rgbParm * 0.01f * killTime + theFxHelper.mTime );
 		}
 
-		// Size----------------
+		// Size
 		fx->SetSizeStart( size1 );
 		fx->SetSizeEnd( size2 );
 
@@ -916,10 +856,6 @@ CLight *FX_AddLight( vec3_t org, float size1, float size2, float sizeParm,
 
 }
 
-
-//-------------------------
-//  FX_AddOrientedParticle
-//-------------------------
 COrientedParticle *FX_AddOrientedParticle( vec3_t org, vec3_t norm, vec3_t vel, vec3_t accel,
 						float size1, float size2, float sizeParm,
 						float alpha1, float alpha2, float alphaParm,
@@ -957,7 +893,7 @@ COrientedParticle *FX_AddOrientedParticle( vec3_t org, vec3_t norm, vec3_t vel, 
 		fx->SetVel( vel );
 		fx->SetAccel( accel );
 
-		// RGB----------------
+		// RGB
 		fx->SetRGBStart( rgb1 );
 		fx->SetRGBEnd( rgb2 );
 
@@ -971,7 +907,7 @@ COrientedParticle *FX_AddOrientedParticle( vec3_t org, vec3_t norm, vec3_t vel, 
 			fx->SetRGBParm( rgbParm * 0.01f * killTime + theFxHelper.mTime );
 		}
 
-		// Alpha----------------
+		// Alpha
 		fx->SetAlphaStart( alpha1 );
 		fx->SetAlphaEnd( alpha2 );
 
@@ -984,7 +920,7 @@ COrientedParticle *FX_AddOrientedParticle( vec3_t org, vec3_t norm, vec3_t vel, 
 			fx->SetAlphaParm( alphaParm * 0.01f * killTime + theFxHelper.mTime );
 		}
 
-		// Size----------------
+		// Size
 		fx->SetSizeStart( size1 );
 		fx->SetSizeEnd( size2 );
 
@@ -1013,10 +949,6 @@ COrientedParticle *FX_AddOrientedParticle( vec3_t org, vec3_t norm, vec3_t vel, 
 	return fx;
 }
 
-
-//-------------------------
-//  FX_AddPoly
-//-------------------------
 CPoly *FX_AddPoly( vec3_t *verts, vec2_t *st, int numVerts,
 							vec3_t vel, vec3_t accel,
 							float alpha1, float alpha2, float alphaParm,
@@ -1043,7 +975,7 @@ CPoly *FX_AddPoly( vec3_t *verts, vec2_t *st, int numVerts,
 		fx->SetVel( vel );
 		fx->SetAccel( accel );
 
-		// RGB----------------
+		// RGB
 		fx->SetRGBStart( rgb1 );
 		fx->SetRGBEnd( rgb2 );
 
@@ -1057,7 +989,7 @@ CPoly *FX_AddPoly( vec3_t *verts, vec2_t *st, int numVerts,
 			fx->SetRGBParm( rgbParm * 0.01f * killTime + theFxHelper.mTime );
 		}
 
-		// Alpha----------------
+		// Alpha
 		fx->SetAlphaStart( alpha1 );
 		fx->SetAlphaEnd( alpha2 );
 
@@ -1086,10 +1018,6 @@ CPoly *FX_AddPoly( vec3_t *verts, vec2_t *st, int numVerts,
 	return fx;
 }
 
-
-//-------------------------
-//  FX_AddFlash
-//-------------------------
 CFlash *FX_AddFlash( vec3_t origin,
 					float size1, float size2, float sizeParm,
 					float alpha1, float alpha2, float alphaParm,
@@ -1116,7 +1044,7 @@ CFlash *FX_AddFlash( vec3_t origin,
 		fx->SetMatImpactParm(fxParm);
 		fx->SetOrigin1( origin );
 
-		// RGB----------------
+		// RGB
 		fx->SetRGBStart( sRGB );
 		fx->SetRGBEnd( eRGB );
 
@@ -1130,7 +1058,7 @@ CFlash *FX_AddFlash( vec3_t origin,
 			fx->SetRGBParm( rgbParm * 0.01f * killTime + theFxHelper.mTime );
 		}
 
-		// Alpha----------------
+		// Alpha
 		fx->SetAlphaStart( alpha1 );
 		fx->SetAlphaEnd( alpha2 );
 
@@ -1143,7 +1071,7 @@ CFlash *FX_AddFlash( vec3_t origin,
 			fx->SetAlphaParm( alphaParm * 0.01f * killTime + theFxHelper.mTime );
 		}
 
-		// Size----------------
+		// Size
 		fx->SetSizeStart( size1 );
 		fx->SetSizeEnd( size2 );
 
@@ -1169,9 +1097,6 @@ CFlash *FX_AddFlash( vec3_t origin,
 	return fx;
 }
 
-//-------------------------
-//  FX_AddBezier
-//-------------------------
 CBezier *FX_AddBezier( vec3_t start, vec3_t end,
 								vec3_t control1, vec3_t control1Vel,
 								vec3_t control2, vec3_t control2Vel,
@@ -1195,7 +1120,7 @@ CBezier *FX_AddBezier( vec3_t start, vec3_t end,
 		fx->SetControlPoints( control1, control2 );
 		fx->SetControlVel( control1Vel, control2Vel );
 
-		// RGB----------------
+		// RGB
 		fx->SetRGBStart( sRGB );
 		fx->SetRGBEnd( eRGB );
 
@@ -1209,7 +1134,7 @@ CBezier *FX_AddBezier( vec3_t start, vec3_t end,
 			fx->SetRGBParm( rgbParm * 0.01f * killTime + theFxHelper.mTime );
 		}
 
-		// Alpha----------------
+		// Alpha
 		fx->SetAlphaStart( alpha1 );
 		fx->SetAlphaEnd( alpha2 );
 
@@ -1222,7 +1147,7 @@ CBezier *FX_AddBezier( vec3_t start, vec3_t end,
 			fx->SetAlphaParm( alphaParm * 0.01f * killTime + theFxHelper.mTime );
 		}
 
-		// Size----------------
+		// Size
 		fx->SetSizeStart( size1 );
 		fx->SetSizeEnd( size2 );
 

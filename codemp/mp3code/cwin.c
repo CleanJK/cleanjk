@@ -105,8 +105,6 @@ void window(float *vbuf, int vb_ptr, short *pcm)
    }
 }
 
-
-
 /*------------------------------------------------------------*/
 void window_dual(float *vbuf, int vb_ptr, short *pcm)
 {

@@ -221,7 +221,6 @@ void MC_UnCompress(float mat[3][4],const unsigned char * comp)
 	val-=1<<(MC_BITS_VECT-1);
 	mat[0][2]=((float)(val))*MC_SCALE_VECT;
 
-
 	val=(int)((unsigned short *)(comp))[6];
 	val-=1<<(MC_BITS_VECT-1);
 	mat[1][0]=((float)(val))*MC_SCALE_VECT;
@@ -233,7 +232,6 @@ void MC_UnCompress(float mat[3][4],const unsigned char * comp)
 	val=(int)((unsigned short *)(comp))[8];
 	val-=1<<(MC_BITS_VECT-1);
 	mat[1][2]=((float)(val))*MC_SCALE_VECT;
-
 
 	val=(int)((unsigned short *)(comp))[9];
 	val-=1<<(MC_BITS_VECT-1);
@@ -294,7 +292,7 @@ void MC_UnCompressQuat(float mat[3][4],const unsigned char * comp)
     fTzz = fTz*z;
 
 	// rot...
-	//
+
     mat[0][0] = 1.0f-(fTyy+fTzz);
     mat[0][1] = fTxy-fTwz;
     mat[0][2] = fTxz+fTwy;
@@ -306,7 +304,7 @@ void MC_UnCompressQuat(float mat[3][4],const unsigned char * comp)
     mat[2][2] = 1.0f-(fTxx+fTyy);
 
 	// xlat...
-	//
+
 	f = *pwIn++;
 	f/=64;
 	f-=512;
@@ -322,5 +320,4 @@ void MC_UnCompressQuat(float mat[3][4],const unsigned char * comp)
 	f-=512;
 	mat[2][3] = f;
 }
-
 

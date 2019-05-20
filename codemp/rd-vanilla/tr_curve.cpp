@@ -23,27 +23,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "tr_local.h"
 
-/*
+// This file does all of the processing necessary to turn a raw grid of points read from the map file into a
+//	srfGridMesh_t ready for rendering.
+// The level of detail solution is direction independent, based only on subdivided distance from the true curve.
+// Only a single entry point:
+//	srfGridMesh_t *R_SubdividePatchToGrid( int width, int height, drawVert_t points[MAX_PATCH_SIZE*MAX_PATCH_SIZE] );
 
-This file does all of the processing necessary to turn a raw grid of points
-read from the map file into a srfGridMesh_t ready for rendering.
-
-The level of detail solution is direction independent, based only on subdivided
-distance from the true curve.
-
-Only a single entry point:
-
-srfGridMesh_t *R_SubdividePatchToGrid( int width, int height,
-								drawVert_t points[MAX_PATCH_SIZE*MAX_PATCH_SIZE] ) {
-
-*/
-
-
-/*
-============
-LerpDrawVert
-============
-*/
 static void LerpDrawVert( drawVert_t *a, drawVert_t *b, drawVert_t *out )
 {
 	int	k;
@@ -71,11 +56,6 @@ static void LerpDrawVert( drawVert_t *a, drawVert_t *b, drawVert_t *out )
 	}
 }
 
-/*
-============
-Transpose
-============
-*/
 static void Transpose( int width, int height, drawVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE] ) {
 	int		i, j;
 	drawVert_t	temp;
@@ -112,14 +92,7 @@ static void Transpose( int width, int height, drawVert_t ctrl[MAX_GRID_SIZE][MAX
 
 }
 
-
-/*
-=================
-MakeMeshNormals
-
-Handles all the complicated wrapping and degenerate cases
-=================
-*/
+// Handles all the complicated wrapping and degenerate cases
 static void MakeMeshNormals( int width, int height, drawVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE] ) {
 	int		i, j, k, dist;
 	vec3_t	normal;
@@ -160,7 +133,6 @@ static	int	neighbors[8][2] = {
 	if ( i == width) {
 		wrapHeight = qtrue;
 	}
-
 
 	for ( i = 0 ; i < width ; i++ ) {
 		for ( j = 0 ; j < height ; j++ ) {
@@ -224,11 +196,6 @@ static	int	neighbors[8][2] = {
 	}
 }
 
-/*
-============
-InvertCtrl
-============
-*/
 static void InvertCtrl( int width, int height, drawVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE] ) {
 	int		i, j;
 	drawVert_t	temp;
@@ -242,11 +209,6 @@ static void InvertCtrl( int width, int height, drawVert_t ctrl[MAX_GRID_SIZE][MA
 	}
 }
 
-/*
-=================
-InvertErrorTable
-=================
-*/
 static void InvertErrorTable( float errorTable[2][MAX_GRID_SIZE], int width, int height ) {
 	int		i;
 	float	copy[2][MAX_GRID_SIZE];
@@ -263,11 +225,6 @@ static void InvertErrorTable( float errorTable[2][MAX_GRID_SIZE], int width, int
 
 }
 
-/*
-==================
-PutPointsOnCurve
-==================
-*/
 static void PutPointsOnCurve( drawVert_t	ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE],
 							 int width, int height ) {
 	int			i, j;
@@ -281,7 +238,6 @@ static void PutPointsOnCurve( drawVert_t	ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE],
 		}
 	}
 
-
 	for ( j = 0 ; j < height ; j++ ) {
 		for ( i = 1 ; i < width ; i += 2 ) {
 			LerpDrawVert( &ctrl[j][i], &ctrl[j][i+1], &prev );
@@ -291,11 +247,6 @@ static void PutPointsOnCurve( drawVert_t	ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE],
 	}
 }
 
-/*
-=================
-R_CreateSurfaceGridMesh
-=================
-*/
 srfGridMesh_t *R_CreateSurfaceGridMesh(int width, int height,
 								drawVert_t ctrl[MAX_GRID_SIZE][MAX_GRID_SIZE], float errorTable[2][MAX_GRID_SIZE] ) {
 	int i, j, size;
@@ -346,26 +297,16 @@ srfGridMesh_t *R_CreateSurfaceGridMesh(int width, int height,
 
 	VectorCopy( grid->localOrigin, grid->lodOrigin );
 	grid->lodRadius = grid->meshRadius;
-	//
+
 	return grid;
 }
 
-/*
-=================
-R_FreeSurfaceGridMesh
-=================
-*/
 void R_FreeSurfaceGridMesh( srfGridMesh_t *grid ) {
 	Z_Free(grid->widthLodError);
 	Z_Free(grid->heightLodError);
 	Z_Free(grid);
 }
 
-/*
-=================
-R_SubdividePatchToGrid
-=================
-*/
 srfGridMesh_t *R_SubdividePatchToGrid( int width, int height,
 								drawVert_t points[MAX_PATCH_SIZE*MAX_PATCH_SIZE] ) {
 	int			i, j, k, l;
@@ -472,7 +413,6 @@ srfGridMesh_t *R_SubdividePatchToGrid( int width, int height,
 		height = t;
 	}
 
-
 	// put all the aproximating points on the curve
 	PutPointsOnCurve( ctrl, width, height );
 
@@ -523,11 +463,6 @@ srfGridMesh_t *R_SubdividePatchToGrid( int width, int height,
 	return R_CreateSurfaceGridMesh( width, height, ctrl, errorTable );
 }
 
-/*
-===============
-R_GridInsertColumn
-===============
-*/
 srfGridMesh_t *R_GridInsertColumn( srfGridMesh_t *grid, int column, int row, vec3_t point, float loderror ) {
 	int i, j;
 	int width, height, oldwidth;
@@ -577,11 +512,6 @@ srfGridMesh_t *R_GridInsertColumn( srfGridMesh_t *grid, int column, int row, vec
 	return grid;
 }
 
-/*
-===============
-R_GridInsertRow
-===============
-*/
 srfGridMesh_t *R_GridInsertRow( srfGridMesh_t *grid, int row, int column, vec3_t point, float loderror ) {
 	int i, j;
 	int width, height, oldheight;

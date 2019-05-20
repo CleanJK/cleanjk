@@ -35,7 +35,6 @@ typedef struct mdfour_s {
 	uint32_t totalN;
 } mdfour_ctx;
 
-
 /* NOTE: This code makes no attempt to be fast!
 
    It assumes that an int is at least 32 bits long
@@ -127,7 +126,6 @@ void mdfour_begin(mdfour_ctx *md)
 	md->totalN = 0;
 }
 
-
 static void mdfour_tail(byte *in, int n)
 {
 	byte buf[128];
@@ -174,7 +172,6 @@ static void mdfour_update(mdfour_ctx *md, byte *in, int n)
 	mdfour_tail(in, n);
 }
 
-
 static void mdfour_result(mdfour_ctx *md, byte *out)
 {
 	m = md;
@@ -192,8 +189,6 @@ static void mdfour(byte *out, byte *in, int n)
 	mdfour_update(&md, in, n);
 	mdfour_result(&md, out);
 }
-
-//===================================================================
 
 uint32_t Com_BlockChecksum (const void *buffer, int length)
 {

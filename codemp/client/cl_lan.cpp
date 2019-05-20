@@ -28,11 +28,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 int				cls_nummplayerservers;
 serverInfo_t	cls_mplayerServers[MAX_OTHER_SERVERS];
 
-/*
-====================
-LAN_LoadCachedServers
-====================
-*/
 void LAN_LoadCachedServers( ) {
 	int size;
 	fileHandle_t fileIn;
@@ -55,11 +50,6 @@ void LAN_LoadCachedServers( ) {
 	}
 }
 
-/*
-====================
-LAN_SaveServersToCache
-====================
-*/
 void LAN_SaveServersToCache( ) {
 	int size;
 	fileHandle_t fileOut = FS_SV_FOpenFileWrite("servercache.dat");
@@ -74,11 +64,6 @@ void LAN_SaveServersToCache( ) {
 	FS_FCloseFile(fileOut);
 }
 
-/*
-====================
-LAN_ResetPings
-====================
-*/
 void LAN_ResetPings(int source) {
 	int count,i;
 	serverInfo_t *servers = NULL;
@@ -106,11 +91,6 @@ void LAN_ResetPings(int source) {
 	}
 }
 
-/*
-====================
-LAN_AddServer
-====================
-*/
 int LAN_AddServer(int source, const char *name, const char *address) {
 	int max, *count, i;
 	netadr_t adr;
@@ -179,11 +159,6 @@ int LAN_AddFavAddr( const char *address ) {
 	return -1;
 }
 
-/*
-====================
-LAN_RemoveServer
-====================
-*/
 void LAN_RemoveServer(int source, const char *addr) {
 	int *count, i;
 	serverInfo_t *servers = NULL;
@@ -220,12 +195,6 @@ void LAN_RemoveServer(int source, const char *addr) {
 	}
 }
 
-
-/*
-====================
-LAN_GetServerCount
-====================
-*/
 int LAN_GetServerCount( int source ) {
 	switch (source) {
 		case AS_LOCAL :
@@ -242,11 +211,6 @@ int LAN_GetServerCount( int source ) {
 	return 0;
 }
 
-/*
-====================
-LAN_GetLocalServerAddressString
-====================
-*/
 void LAN_GetServerAddressString( int source, int n, char *buf, int buflen ) {
 	switch (source) {
 		case AS_LOCAL :
@@ -272,11 +236,6 @@ void LAN_GetServerAddressString( int source, int n, char *buf, int buflen ) {
 	buf[0] = '\0';
 }
 
-/*
-====================
-LAN_GetServerInfo
-====================
-*/
 void LAN_GetServerInfo( int source, int n, char *buf, int buflen ) {
 	char info[MAX_STRING_CHARS];
 	serverInfo_t *server = NULL;
@@ -328,11 +287,6 @@ void LAN_GetServerInfo( int source, int n, char *buf, int buflen ) {
 	}
 }
 
-/*
-====================
-LAN_GetServerPing
-====================
-*/
 int LAN_GetServerPing( int source, int n ) {
 	serverInfo_t *server = NULL;
 	switch (source) {
@@ -359,11 +313,6 @@ int LAN_GetServerPing( int source, int n ) {
 	return -1;
 }
 
-/*
-====================
-LAN_GetServerPtr
-====================
-*/
 static serverInfo_t *LAN_GetServerPtr( int source, int n ) {
 	switch (source) {
 		case AS_LOCAL :
@@ -386,11 +335,6 @@ static serverInfo_t *LAN_GetServerPtr( int source, int n ) {
 	return NULL;
 }
 
-/*
-====================
-LAN_CompareServers
-====================
-*/
 int LAN_CompareServers( int source, int sortKey, int sortDir, int s1, int s2 ) {
 	int res;
 	serverInfo_t *server1, *server2;
@@ -455,47 +399,22 @@ int LAN_CompareServers( int source, int sortKey, int sortDir, int s1, int s2 ) {
 	return res;
 }
 
-/*
-====================
-LAN_GetPingQueueCount
-====================
-*/
 int LAN_GetPingQueueCount( void ) {
 	return (CL_GetPingQueueCount());
 }
 
-/*
-====================
-LAN_ClearPing
-====================
-*/
 void LAN_ClearPing( int n ) {
 	CL_ClearPing( n );
 }
 
-/*
-====================
-LAN_GetPing
-====================
-*/
 void LAN_GetPing( int n, char *buf, int buflen, int *pingtime ) {
 	CL_GetPing( n, buf, buflen, pingtime );
 }
 
-/*
-====================
-LAN_GetPingInfo
-====================
-*/
 void LAN_GetPingInfo( int n, char *buf, int buflen ) {
 	CL_GetPingInfo( n, buf, buflen );
 }
 
-/*
-====================
-LAN_MarkServerVisible
-====================
-*/
 void LAN_MarkServerVisible(int source, int n, qboolean visible ) {
 	if (n == -1) {
 		int count = MAX_OTHER_SERVERS;
@@ -541,12 +460,6 @@ void LAN_MarkServerVisible(int source, int n, qboolean visible ) {
 	}
 }
 
-
-/*
-=======================
-LAN_ServerIsVisible
-=======================
-*/
 int LAN_ServerIsVisible(int source, int n ) {
 	switch (source) {
 		case AS_LOCAL :
@@ -569,20 +482,10 @@ int LAN_ServerIsVisible(int source, int n ) {
 	return qfalse;
 }
 
-/*
-=======================
-LAN_UpdateVisiblePings
-=======================
-*/
 qboolean LAN_UpdateVisiblePings(int source ) {
 	return CL_UpdateVisiblePings_f(source);
 }
 
-/*
-====================
-LAN_GetServerStatus
-====================
-*/
 int LAN_GetServerStatus( const char *serverAddress, char *serverStatus, int maxLen ) {
 	return CL_ServerStatus( serverAddress, serverStatus, maxLen );
 }

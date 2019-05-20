@@ -22,54 +22,34 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-////////////////////////////////////////////////////////////////////////////////////////
 // RAVEN STANDARD TEMPLATE LIBRARY
 //  (c) 2002 Activision
-//
-//
 // Common
-// ------
-// The raven libraries contain a number of common defines, enums, and typedefs which
-// need to be accessed by all templates.  Each of these is included here.
-//
-// Also included is a safeguarded assert file for all the asserts in RTL.
-//
-// This file is included in EVERY TEMPLATE, so it should be very light in order to
-// reduce compile times.
-//
-//
+//	The raven libraries contain a number of common defines, enums, and typedefs which need to be accessed by all
+//		templates.
+//	Each of these is included here.
+//	Also included is a safeguarded assert file for all the asserts in RTL.
+//	This file is included in EVERY TEMPLATE, so it should be very light in order to reduce compile times.
 // Format
-// ------
-// In order to simplify code and provide readability, the template library has some
-// standard formats.  Any new templates or functions should adhere to these formats:
-//
-// - All memory is statically allocated, usually by parameter SIZE
-// - All classes provide an enum which defines constant variables, including CAPACITY
-// - All classes which moniter the number of items allocated provide the following functions:
-//     size()   - the number of objects
-//     empty()  - does the container have zero objects
-//     full()   - does the container have any room left for more objects
-//     clear()  - remove all objects
-//
-//
-// - Functions are defined in the following order:
-//     Capacity
-//     Constructors  (copy, from string, etc...)
-//     Range		 (size(), empty(), full(), clear(), etc...)
-//     Access        (operator[], front(), back(), etc...)
-//     Modification  (add(), remove(), push(), pop(), etc...)
-//     Iteration     (begin(), end(), insert(), erase(), find(), etc...)
-//
-//
+//	In order to simplify code and provide readability, the template library has some standard formats. Any new templates
+//		or functions should adhere to these formats:
+//		- All memory is statically allocated, usually by parameter SIZE
+//		- All classes provide an enum which defines constant variables, including CAPACITY
+//		- All classes which moniter the number of items allocated provide the following functions:
+//		    size()   - the number of objects
+//		    empty()  - does the container have zero objects
+//		    full()   - does the container have any room left for more objects
+//		    clear()  - remove all objects
+//		- Functions are defined in the following order:
+//		    Capacity
+//		    Constructors  (copy, from string, etc...)
+//		    Range		 (size(), empty(), full(), clear(), etc...)
+//		    Access        (operator[], front(), back(), etc...)
+//		    Modification  (add(), remove(), push(), pop(), etc...)
+//		    Iteration     (begin(), end(), insert(), erase(), find(), etc...)
 // NOTES:
-//
-//
-//
-////////////////////////////////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////////////////////////////////
 // In VC++, Don't Bother With These Warnings
-////////////////////////////////////////////////////////////////////////////////////////
 #if defined(_MSC_VER) && !defined(__MWERKS__)
 	#pragma warning ( disable : 4786 )			// Truncated to 255 characters warning
 	#pragma warning ( disable : 4284 )			// nevamind what this is
@@ -80,10 +60,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 	#pragma warning ( disable : 4996 )			// This function or variable may be unsafe.
 #endif
 
-
-////////////////////////////////////////////////////////////////////////////////////////
 // Includes
-////////////////////////////////////////////////////////////////////////////////////////
 #if !defined(ASSERT_H_INC)
 #include <assert.h>
 #define ASSERT_H_INC
@@ -94,13 +71,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define STRING_H_INC
 #endif
 
-
-////////////////////////////////////////////////////////////////////////////////////////
 // Forward Dec.
-////////////////////////////////////////////////////////////////////////////////////////
 class hfile;
-
-
 
 // I don't know why this needs to be in the global namespace, but it does
 class TRatlNew;
@@ -117,28 +89,18 @@ inline void operator delete(void *, TRatlNew *)
 namespace ratl
 {
 
-
-
 #ifdef _DEBUG
 extern int HandleSaltValue; //this is used in debug for global uniqueness of handles
 extern int FoolTheOptimizer; //this is used to make sure certain things aren't optimized out
 #endif
 
-////////////////////////////////////////////////////////////////////////////////////////
 // All Raven Template Library Internal Memory Operations
-//
-// This is mostly for future use.  For now, they only provide a simple interface with
-// a couple extra functions (eql and clr).
-////////////////////////////////////////////////////////////////////////////////////////
+// This is mostly for future use.  For now, they only provide a simple interface with a couple extra functions (eql and
+//	clr).
 namespace	mem
 {
-////////////////////////////////////////////////////////////////////////////////////////
 // The Align Struct Is The Root Memory Structure for Inheritance and Object Semantics
-//
-// In most cases, we just want a simple int.  However, sometimes we need to use an
-// unsigned character array
-//
-////////////////////////////////////////////////////////////////////////////////////////
+// In most cases, we just want a simple int. However, sometimes we need to use an unsigned character array
 #if defined(_MSC_VER) && !defined(__MWERKS__)
 	struct alignStruct
 	{
@@ -273,13 +235,9 @@ namespace str
 	void	printf(char *dest,const char *formatS, ...);
 }
 
-
-////////////////////////////////////////////////////////////////////////////////////////
 // The Raven Template Library Compile Assert
-//
 // If, during compile time the stuff under (condition) is zero, this code will not
 // compile.
-////////////////////////////////////////////////////////////////////////////////////////
 template<int condition>
 class	compile_assert
 {
@@ -306,20 +264,9 @@ public:
 #endif
 };
 
-
-
-
-
-
-////////////////////////////////////////////////////////////////////////////////////////
 // The Raven Template Library Base Class
-//
-// This is the base class for all the Raven Template Library container classes like
-// vector_vs and pool_vs.
-//
+// This is the base class for all the Raven Template Library container classes like vector_vs and pool_vs.
 // This class might be a good place to put memory profile code in the future.
-//
-////////////////////////////////////////////////////////////////////////////////////////
 class	ratl_base
 {
 public:
@@ -332,10 +279,7 @@ public:
 	static	void*	OutputPrint;
 };
 
-
-////////////////////////////////////////////////////////////////////////////////////////
 // this is a simplified version of bits_vs
-////////////////////////////////////////////////////////////////////////////////////////
 template <int	SZ>
 class bits_base
 {
@@ -349,9 +293,7 @@ protected:
 		BYTE_SIZE		= (ARRAY_SIZE*sizeof(unsigned int)),	// Num Bytes Used
 	};
 
-	////////////////////////////////////////////////////////////////////////////////////
 	// Data
-	////////////////////////////////////////////////////////////////////////////////////
 	unsigned int						mV[ARRAY_SIZE];
 public:
 	enum
@@ -418,7 +360,6 @@ public:
 			return SIZE;			// Did Not Find
 		}
 		// Get The Word Which Contains The Start Bit & Mask Out Everything Before The Start Bit
-		//--------------------------------------------------------------------------------------
 		unsigned int	v = mV[start>>BITS_SHIFT];
 		if (!onBit)
 		{
@@ -426,9 +367,7 @@ public:
 		}
 		v >>= (start&31);
 
-
 		// Search For The First Non Zero Word In The Array
-		//-------------------------------------------------
 		while(!v)
 		{
 			start = (start & (~(BITS_INT_SIZE-1))) + BITS_INT_SIZE;
@@ -443,9 +382,7 @@ public:
 			}
 		}
 
-
 		// So, We've Found A Non Zero Word, So Start Masking Against Parts To Skip Over Bits
-		//-----------------------------------------------------------------------------------
 		if (!(v&0xffff))
 		{
 			start+=16;
@@ -463,7 +400,6 @@ public:
 		}
 
 		// Time To Search Each Bit
-		//-------------------------
 		while(!(v&1))
 		{
 			start++;
@@ -477,10 +413,7 @@ public:
 	}
 };
 
-
-////////////////////////////////////////////////////////////////////////////////////////
 // Raven Standard Compare Class
-////////////////////////////////////////////////////////////////////////////////////////
 struct ratl_compare
 {
 	float	mCost;
@@ -492,10 +425,7 @@ struct ratl_compare
 	}
 };
 
-
-////////////////////////////////////////////////////////////////////////////////////////
 // this is used to keep track of the constuction state for things that are always constucted
-////////////////////////////////////////////////////////////////////////////////////////
 class bits_true
 {
 public:
@@ -523,7 +453,6 @@ public:
 	}
 };
 
-
 namespace storage
 {
 	template<class T,int SIZE>
@@ -539,7 +468,6 @@ namespace storage
 
 		typedef bits_true TConstructed;
 		typedef TStorage TArray[SIZE];
-
 
 		enum
 		{
@@ -848,7 +776,6 @@ namespace storage
 		typedef SNode		TStorage;		// this is what we make our array of
 		typedef TStorage TArray[SIZE];
 
-
 		enum
 		{
 			NEEDS_CONSTRUCT=0,
@@ -1027,24 +954,18 @@ namespace storage
 
 }
 
-////////////////////////////////////////////////////////////////////////////////////////
 // The Array Base Class, used for most containers
-////////////////////////////////////////////////////////////////////////////////////////
 template<class T>
 class array_base : public ratl_base
 {
 public:
-    ////////////////////////////////////////////////////////////////////////////////////
 	// Capacity Enum
-    ////////////////////////////////////////////////////////////////////////////////////
  	enum
 	{
 		CAPACITY	= T::CAPACITY,
 		SIZE		= T::CAPACITY,
 	};
-	////////////////////////////////////////////////////////////////////////////////////
 	// Data
-	////////////////////////////////////////////////////////////////////////////////////
 	typedef T					TStorageTraits;
 	typedef typename T::TArray			TTArray;
 	typedef typename T::TValue			TTValue;
@@ -1079,9 +1000,7 @@ public:
 		}
 	}
 
-	////////////////////////////////////////////////////////////////////////////////////
 	// Access Operator
-	////////////////////////////////////////////////////////////////////////////////////
 	TTValue&			operator[](int index)
 	{
 		assert(index>=0 && index<SIZE);
@@ -1089,9 +1008,7 @@ public:
 		return T::ref(mArray+index);
 	}
 
-	////////////////////////////////////////////////////////////////////////////////////
 	// Const Access Operator
-	////////////////////////////////////////////////////////////////////////////////////
 	const TTValue&	operator[](int index) const
 	{
 		assert(index>=0 && index<SIZE);

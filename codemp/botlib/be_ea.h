@@ -21,18 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-/*****************************************************************************
- * name:		be_ea.h
- *
- * desc:		elementary actions
- *
- * $Archive: /source/code/botlib/be_ea.h $
- * $Author: osman $
- * $Revision: 1.4 $
- * $Modtime: 10/05/99 3:32p $
- * $Date: 2003/03/15 23:44:00 $
- *
- *****************************************************************************/
+// elementary actions
 
 #pragma once
 

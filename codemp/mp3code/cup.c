@@ -29,7 +29,6 @@ ____________________________________________________________________________*/
 MPEG audio decoder Layer I/II  mpeg1 and mpeg2
 should be portable ANSI C, should be endian independent
 
-
 mod  2/21/95 2/21/95  add bit skip, sb limiting
 
 mods 11/15/95 for Layer I
@@ -67,14 +66,12 @@ convert_code    input, channel conversion
 freq_limit      input, limits bandwidth of pcm output to specified
                 frequency.  Special use. Set to 24000 for normal use.
 
-
 ---------------------------------
 void audio_decode_info( DEC_INFO *info)
 
 information return:
           Call after audio_decode_init.  See mhead.h for
           information returned in DEC_INFO structure.
-
 
 ---------------------------------
 IN_OUT audio_decode(unsigned char *bs, void *pcmbuf)
@@ -92,7 +89,6 @@ IN_OUT structure returns:
 
 *******************************************************************/
 
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <float.h>
@@ -100,7 +96,6 @@ IN_OUT structure returns:
 #include "mhead.h"		/* mpeg header structure */
 
 #include "mp3struct.h"
-
 
 /*-------------------------------------------------------
 NOTE:  Decoder may read up to three bytes beyond end of
@@ -165,7 +160,6 @@ static signed short group9_table[1024][3];	// effectively constant
 void sbt_mono(float *sample, short *pcm, int n);
 void sbt_dual(float *sample, short *pcm, int n);
 ////@@@@static SBT_FUNCTION sbt = sbt_mono;
-
 
 typedef IN_OUT(*AUDIO_DECODE_ROUTINE) (unsigned char *bs, signed short *pcm);
 IN_OUT L2audio_decode(unsigned char *bs, signed short *pcm);
@@ -487,7 +481,6 @@ static void unpack_samp()	/* unpack samples */
 	 }			/* end switch */
       }				/* end j loop */
    }				/* end i loop */
-
 
 }
 /*-------------------------------------------------------------------------*/

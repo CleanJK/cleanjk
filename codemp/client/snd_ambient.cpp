@@ -86,7 +86,6 @@ static const char	*keywordNames[NUM_AS_KEYWORDS]=
 						"basedir",
 					};
 
-
 CSetGroup::CSetGroup(void)
 {
 	m_ambientSets = new std::vector<ambientSet_t*>;
@@ -94,18 +93,11 @@ CSetGroup::CSetGroup(void)
 	m_numSets = 0;
 }
 
-
 CSetGroup::~CSetGroup(void)
 {
 	delete m_ambientSets;
 	delete m_setMap;
 }
-
-/*
--------------------------
-Free
--------------------------
-*/
 
 void CSetGroup::Free( void )
 {
@@ -124,12 +116,6 @@ void CSetGroup::Free( void )
 
 	m_numSets = 0;
 }
-
-/*
--------------------------
-AddSet
--------------------------
-*/
 
 ambientSet_t *CSetGroup::AddSet( const char *name )
 {
@@ -158,12 +144,6 @@ ambientSet_t *CSetGroup::AddSet( const char *name )
 
 	return set;
 }
-
-/*
--------------------------
-GetSet
--------------------------
-*/
 
 ambientSet_t *CSetGroup::GetSet( const char *name )
 {
@@ -194,20 +174,7 @@ ambientSet_t *CSetGroup::GetSet( int ID )
 	return (*m_ambientSets)[ID];
 }
 
-
-/*
-===============================================
-
-File Parsing
-
-===============================================
-*/
-
-/*
--------------------------
-AS_GetSetNameIDForString
--------------------------
-*/
+// File Parsing
 
 static int AS_GetSetNameIDForString( const char *name )
 {
@@ -224,12 +191,6 @@ static int AS_GetSetNameIDForString( const char *name )
 	return -1;
 }
 
-/*
--------------------------
-AS_GetKeywordIDForString
--------------------------
-*/
-
 static int AS_GetKeywordIDForString( const char *name )
 {
 	//Make sure it's valid
@@ -245,14 +206,7 @@ static int AS_GetKeywordIDForString( const char *name )
 	return -1;
 }
 
-/*
--------------------------
-AS_SkipLine
-
-Skips a line in the character buffer
--------------------------
-*/
-
+// Skips a line in the character buffer
 static void AS_SkipLine( void )
 {
 	if ( parsePos > parseSize )	// needed to avoid a crash because of some OOR access that shouldn't be done
@@ -269,14 +223,7 @@ static void AS_SkipLine( void )
 	parsePos++;
 }
 
-/*
--------------------------
-AS_GetTimeBetweenWaves
-
-getTimeBetweenWaves <start> <end>
--------------------------
-*/
-
+// getTimeBetweenWaves <start> <end>
 static void AS_GetTimeBetweenWaves( ambientSet_t &set )
 {
 	int		startTime, endTime;
@@ -303,14 +250,7 @@ static void AS_GetTimeBetweenWaves( ambientSet_t &set )
 	AS_SkipLine();
 }
 
-/*
--------------------------
-AS_GetSubWaves
-
-subWaves <directory> <wave1> <wave2> ...
--------------------------
-*/
-
+// subWaves <directory> <wave1> <wave2> ...
 static void AS_GetSubWaves( ambientSet_t &set )
 {
 	char	dirBuffer[512], waveBuffer[256], waveName[1024];
@@ -359,14 +299,7 @@ static void AS_GetSubWaves( ambientSet_t &set )
 	AS_SkipLine();
 }
 
-/*
--------------------------
-AS_GetLoopedWave
-
-loopedWave <name>
--------------------------
-*/
-
+// loopedWave <name>
 static void AS_GetLoopedWave( ambientSet_t &set )
 {
 	char	waveBuffer[256], waveName[1024];
@@ -387,12 +320,6 @@ static void AS_GetLoopedWave( ambientSet_t &set )
 
 	AS_SkipLine();
 }
-
-/*
--------------------------
-AS_GetVolumeRange
--------------------------
-*/
 
 static void AS_GetVolumeRange( ambientSet_t &set )
 {
@@ -420,12 +347,6 @@ static void AS_GetVolumeRange( ambientSet_t &set )
 	AS_SkipLine();
 }
 
-/*
--------------------------
-AS_GetRadius
--------------------------
-*/
-
 static void AS_GetRadius( ambientSet_t &set )
 {
 	//Get the data
@@ -433,12 +354,6 @@ static void AS_GetRadius( ambientSet_t &set )
 
 	AS_SkipLine();
 }
-
-/*
--------------------------
-AS_GetGeneralSet
--------------------------
-*/
 
 static void AS_GetGeneralSet( ambientSet_t &set )
 {
@@ -492,12 +407,6 @@ static void AS_GetGeneralSet( ambientSet_t &set )
 		}
 	}
 }
-
-/*
--------------------------
-AS_GetLocalSet
--------------------------
-*/
 
 static void AS_GetLocalSet( ambientSet_t &set )
 {
@@ -556,12 +465,6 @@ static void AS_GetLocalSet( ambientSet_t &set )
 	}
 }
 
-/*
--------------------------
-AS_GetBModelSet
--------------------------
-*/
-
 static void AS_GetBModelSet( ambientSet_t &set )
 {
 	int		keywordID;
@@ -603,14 +506,7 @@ static void AS_GetBModelSet( ambientSet_t &set )
 	}
 }
 
-/*
--------------------------
-AS_ParseSet
-
-Parses an individual set group out of a set file buffer
--------------------------
-*/
-
+// Parses an individual set group out of a set file buffer
 static qboolean AS_ParseSet( int setID, CSetGroup *sg )
 {
 	ambientSet_t	*set;
@@ -664,14 +560,7 @@ static qboolean AS_ParseSet( int setID, CSetGroup *sg )
 	return qtrue;
 }
 
-/*
--------------------------
-AS_ParseHeader
-
-Parses the directory information out of the beginning of the file
--------------------------
-*/
-
+// Parses the directory information out of the beginning of the file
 static void AS_ParseHeader( void )
 {
 	char	typeBuffer[128];
@@ -713,14 +602,7 @@ static void AS_ParseHeader( void )
 	}
 }
 
-/*
--------------------------
-AS_ParseFile
-
-Opens and parses a sound set file
--------------------------
-*/
-
+// Opens and parses a sound set file
 static qboolean AS_ParseFile( const char *filename, CSetGroup *sg )
 {
 	//Open the file and read the information from it
@@ -742,22 +624,9 @@ static qboolean AS_ParseFile( const char *filename, CSetGroup *sg )
 	return qtrue;
 }
 
-/*
-===============================================
+// Main code
 
-Main code
-
-===============================================
-*/
-
-/*
--------------------------
-AS_Init
-
-Loads the ambient sound sets and prepares to play them when needed
--------------------------
-*/
-
+// Loads the ambient sound sets and prepares to play them when needed
 void AS_Init( void )
 {
 	if (!aSets)
@@ -772,12 +641,6 @@ void AS_Init( void )
 	}
 }
 
-/*
--------------------------
-AS_AddPrecacheEntry
--------------------------
-*/
-
 void AS_AddPrecacheEntry( const char *name )
 {
 	if (!Q_stricmp(name,"#clear"))
@@ -790,14 +653,7 @@ void AS_AddPrecacheEntry( const char *name )
 	}
 }
 
-/*
--------------------------
-AS_ParseSets
-
-Called on the client side to load and precache all the ambient sound sets
--------------------------
-*/
-
+// Called on the client side to load and precache all the ambient sound sets
 void AS_ParseSets( void )
 {
 	AS_Init();
@@ -832,14 +688,7 @@ void AS_ParseSets( void )
 //	pMap->clear();	// do NOT do this here now
 }
 
-/*
--------------------------
-AS_Free
-
-Frees up the ambient sound system
--------------------------
-*/
-
+// Frees up the ambient sound system
 void AS_Free( void )
 {
 	if (aSets)
@@ -857,7 +706,6 @@ void AS_Free( void )
 		numSets	= 0;
 	}
 }
-
 
 void AS_FreePartial(void)
 {
@@ -877,22 +725,9 @@ void AS_FreePartial(void)
 	}
 }
 
-/*
-===============================================
+// Sound code
 
-Sound code
-
-===============================================
-*/
-
-/*
--------------------------
-AS_UpdateSetVolumes
-
-Fades volumes up or down depending on the action being taken on them.
--------------------------
-*/
-
+// Fades volumes up or down depending on the action being taken on them.
 static void AS_UpdateSetVolumes( void )
 {
 	ambientSet_t	*old, *current;
@@ -939,14 +774,7 @@ static void AS_UpdateSetVolumes( void )
 	}
 }
 
-/*
--------------------------
-S_UpdateCurrentSet
-
-Does internal maintenance to keep track of changing sets.
--------------------------
-*/
-
+// Does internal maintenance to keep track of changing sets.
 static void AS_UpdateCurrentSet( int id )
 {
 	ambientSet_t	*old, *current;
@@ -981,15 +809,8 @@ static void AS_UpdateCurrentSet( int id )
 	AS_UpdateSetVolumes();
 }
 
-/*
--------------------------
-AS_PlayLocalSet
-
-Plays a local set taking volume and subwave playing into account.
-Alters lastTime to reflect the time updates.
--------------------------
-*/
-
+// Plays a local set taking volume and subwave playing into account.
+// Alters lastTime to reflect the time updates.
 static void AS_PlayLocalSet( vec3_t listener_origin, vec3_t origin, ambientSet_t *set, int entID, int *lastTime )
 {
 	unsigned char	volume;
@@ -1028,15 +849,8 @@ static void AS_PlayLocalSet( vec3_t listener_origin, vec3_t origin, ambientSet_t
 		S_StartAmbientSound( origin, entID, volume, set->subWaves[Q_irand( 0, set->numSubWaves-1)] );
 }
 
-/*
--------------------------
-AS_PlayAmbientSet
-
-Plays an ambient set taking volume and subwave playing into account.
-Alters lastTime to reflect the time updates.
--------------------------
-*/
-
+// Plays an ambient set taking volume and subwave playing into account.
+// Alters lastTime to reflect the time updates.
 static void AS_PlayAmbientSet( vec3_t origin, ambientSet_t *set, int *lastTime )
 {
 	unsigned char	volume;
@@ -1071,14 +885,7 @@ static void AS_PlayAmbientSet( vec3_t origin, ambientSet_t *set, int *lastTime )
 		S_StartAmbientSound( origin, 0, volume, set->subWaves[Q_irand( 0, set->numSubWaves-1)] );
 }
 
-/*
--------------------------
-S_UpdateAmbientSet
-
-Does maintenance and plays the ambient sets (two if crossfading)
--------------------------
-*/
-
+// Does maintenance and plays the ambient sets (two if crossfading)
 void S_UpdateAmbientSet ( const char *name, vec3_t origin )
 {
 	ambientSet_t	*current, *old;
@@ -1100,12 +907,6 @@ void S_UpdateAmbientSet ( const char *name, vec3_t origin )
 		AS_PlayAmbientSet( origin, old, &oldSetTime );
 }
 
-/*
--------------------------
-S_AddLocalSet
--------------------------
-*/
-
 int S_AddLocalSet( const char *name, vec3_t listener_origin, vec3_t origin, int entID, int time )
 {
 	ambientSet_t	*set;
@@ -1122,12 +923,6 @@ int S_AddLocalSet( const char *name, vec3_t listener_origin, vec3_t origin, int 
 
 	return currentTime;
 }
-
-/*
--------------------------
-AS_GetBModelSound
--------------------------
-*/
 
 sfxHandle_t AS_GetBModelSound( const char *name, int stage )
 {

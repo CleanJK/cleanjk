@@ -29,15 +29,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // display context for new ui stuff
 displayContextDef_t cgDC;
 
-extern int cgSiegeRoundState;
-extern int cgSiegeRoundTime;
-/*
-Ghoul2 Insert Start
-*/
 void CG_InitItems(void);
-/*
-Ghoul2 Insert End
-*/
 
 void CG_InitJetpackGhoul2(void);
 void CG_CleanJetpackGhoul2(void);
@@ -57,7 +49,6 @@ static void C_Trace(void);
 static void C_G2Trace(void);
 static void C_G2Mark(void);
 static int	CG_RagCallback(int callType);
-static void C_ImpactMark(void);
 
 extern autoMapInput_t cg_autoMapInput; //cg_view.c
 extern int cg_autoMapInputTime;
@@ -110,24 +101,6 @@ static void C_GetLerpData( void ) {
 		// normal player
 		data->mAngles[PITCH] = 0.0f;
 		data->mAngles[ROLL] = 0.0f;
-	}
-	else if ( cg_entities[data->mEntityNum].currentState.eType == ET_NPC ) {
-		// an NPC
-		Vehicle_t *pVeh = cg_entities[data->mEntityNum].m_pVehicle;
-		if ( !pVeh ) {
-			// for vehicles, we may or may not want to 0 out pitch and roll
-			data->mAngles[PITCH] = 0.0f;
-			data->mAngles[ROLL] = 0.0f;
-		}
-		else if ( pVeh->m_pVehicleInfo->type == VH_SPEEDER ) {
-			// speeder wants no pitch but a roll
-			data->mAngles[PITCH] = 0.0f;
-		}
-		else if ( pVeh->m_pVehicleInfo->type != VH_FIGHTER ) {
-			// fighters want all angles
-			data->mAngles[PITCH] = 0.0f;
-			data->mAngles[ROLL] = 0.0f;
-		}
 	}
 }
 
@@ -282,16 +255,6 @@ static int CG_RagCallback(int callType)
 	return 0;
 }
 
-static void C_ImpactMark( void ) {
-	TCGImpactMark *data = &cg.sharedBuffer.impactMark;
-
-//	CG_ImpactMark( (int)arg0, (const float *)arg1, (const float *)arg2, (float)arg3, (float)arg4, (float)arg5, (float)arg6,
-//		(float)arg7, qtrue, (float)arg8, qfalse );
-
-	CG_ImpactMark( data->mHandle, data->mPoint, data->mAngle, data->mRotation, data->mRed, data->mGreen, data->mBlue,
-		data->mAlphaStart, qtrue, data->mSizeStart, qfalse );
-}
-
 void CG_MiscEnt( void ) {
 	int i, modelIndex;
 	TCGMiscEnt *data = &cg.sharedBuffer.miscEnt;
@@ -332,9 +295,6 @@ void CG_MiscEnt( void ) {
 }
 
 /*
-Ghoul2 Insert Start
-*/
-/*
 void CG_ResizeG2Bolt(boltInfo_v *bolt, int newCount)
 {
 	bolt->resize(newCount);
@@ -359,9 +319,6 @@ void CG_ResizeG2TempBone(mdxaBone_v *tempBone, int newCount)
 {
 	tempBone->resize(newCount);
 }
-*/
-/*
-Ghoul2 Insert End
 */
 cg_t				cg;
 cgs_t				cgs;
@@ -390,11 +347,6 @@ int CG_LastAttacker( void ) {
 	return cg.snap->ps.persistant[PERS_ATTACKER];
 }
 
-/*
-================
-CG_Argv
-================
-*/
 const char *CG_Argv( int arg ) {
 	static char	buffer[MAX_STRING_CHARS] = {0};
 
@@ -403,22 +355,12 @@ const char *CG_Argv( int arg ) {
 	return buffer;
 }
 
-
-//========================================================================
-
-//so shared code can get the local time depending on the side it's executed on
-int BG_GetTime(void)
-{
+// so shared code can get the local time depending on the side it's executed on
+int BG_GetTime( void ) {
 	return cg.time;
 }
 
-/*
-=================
-CG_RegisterItemSounds
-
-The server says this item is used on this level
-=================
-*/
+// The server says this item is used on this level
 static void CG_RegisterItemSounds( int itemNum ) {
 	gitem_t			*item;
 	char			data[MAX_QPATH];
@@ -532,60 +474,7 @@ void CG_ParseWeatherEffect(const char *str)
 	trap->R_WorldEffectCommand(sptr);
 }
 
-extern int cgSiegeRoundBeganTime;
-void CG_ParseSiegeState(const char *str)
-{
-	int i = 0;
-	int j = 0;
-//	int prevState = cgSiegeRoundState;
-	char b[1024];
-
-	while (str[i] && str[i] != '|')
-	{
-		b[j] = str[i];
-		i++;
-		j++;
-	}
-	b[j] = 0;
-	cgSiegeRoundState = atoi(b);
-
-	if (str[i] == '|')
-	{
-		j = 0;
-		i++;
-		while (str[i])
-		{
-			b[j] = str[i];
-			i++;
-			j++;
-		}
-		b[j] = 0;
-//		if (cgSiegeRoundState != prevState)
-		{ //it changed
-			cgSiegeRoundTime = atoi(b);
-			if (cgSiegeRoundState == 0 || cgSiegeRoundState == 2)
-			{
-				cgSiegeRoundBeganTime = cgSiegeRoundTime;
-			}
-		}
-	}
-	else
-	{
-	    cgSiegeRoundTime = cg.time;
-	}
-}
-
-/*
-=================
-CG_RegisterSounds
-
-called during a precache command
-=================
-*/
-void CG_PrecacheNPCSounds(const char *str);
-void CG_ParseSiegeObjectiveStatus(const char *str);
-extern int cg_beatingSiegeTime;
-extern int cg_siegeWinTeam;
+// called during a precache command
 static void CG_RegisterSounds( void ) {
 	int		i;
 	char	items[MAX_ITEMS+1];
@@ -913,12 +802,7 @@ static void CG_RegisterSounds( void ) {
 		if ( !soundName[0] ) {
 			break;
 		}
-		if ( soundName[0] == '*' )
-		{
-			if (soundName[1] == '$')
-			{ //an NPC soundset
-				CG_PrecacheNPCSounds(soundName);
-			}
+		if ( soundName[0] == '*' ) {
 			continue;	// custom sound
 		}
 		cgs.gameSounds[i] = trap->S_RegisterSound( soundName );
@@ -955,30 +839,6 @@ static void CG_RegisterSounds( void ) {
 		cgs.gameIcons[i] = trap->R_RegisterShaderNoMip ( iconName );
 	}
 
-	soundName = CG_ConfigString(CS_SIEGE_STATE);
-
-	if (soundName[0])
-	{
-		CG_ParseSiegeState(soundName);
-	}
-
-	soundName = CG_ConfigString(CS_SIEGE_WINTEAM);
-
-	if (soundName[0])
-	{
-		cg_siegeWinTeam = atoi(soundName);
-	}
-
-	if (cgs.gametype == GT_SIEGE)
-	{
-		CG_ParseSiegeObjectiveStatus(CG_ConfigString(CS_SIEGE_OBJECTIVES));
-		cg_beatingSiegeTime = atoi(CG_ConfigString(CS_SIEGE_TIMEOVERRIDE));
-		if ( cg_beatingSiegeTime )
-		{
-			CG_SetSiegeTimerCvar ( cg_beatingSiegeTime );
-		}
-	}
-
 	cg.loadLCARSStage = 2;
 
 	// FIXME: only needed with item
@@ -989,14 +849,7 @@ static void CG_RegisterSounds( void ) {
 	cgs.media.loserSound = trap->S_RegisterSound( "sound/chars/protocol/misc/40MOM010" );
 }
 
-
-//-------------------------------------
-// CG_RegisterEffects
-//
-// Handles precaching all effect files
-//	and any shader, model, or sound
-//	files an effect may use.
-//-------------------------------------
+// Handles precaching all effect files and any shader, model, or sound files an effect may use.
 static void CG_RegisterEffects( void )
 {
 	/*
@@ -1037,18 +890,11 @@ static void CG_RegisterEffects( void )
 	cgs.effects.acidSplash = trap->FX_RegisterEffect( "env/acid_splash" );
 }
 
-//===================================================================================
-
 extern char *forceHolocronModels[];
 int CG_HandleAppendedSkin(char *modelName);
 void CG_CacheG2AnimInfo(char *modelName);
-/*
-=================
-CG_RegisterGraphics
 
-This function may execute for a couple of minutes with a slow disk.
-=================
-*/
+// This function may execute for a couple of minutes with a slow disk.
 static void CG_RegisterGraphics( void ) {
 	int			i;
 	int			breakPoint;
@@ -1167,7 +1013,6 @@ static void CG_RegisterGraphics( void ) {
 	cgs.effects.mShipDestBurning = trap->FX_RegisterEffect("effects/ships/dest_burning.efx");
 	cgs.effects.mBobaJet = trap->FX_RegisterEffect("effects/boba/jet.efx");
 
-
 	cgs.effects.itemCone = trap->FX_RegisterEffect("mp/itemcone.efx");
 	cgs.effects.mTurretMuzzleFlash = trap->FX_RegisterEffect("effects/turret/muzzle_flash.efx");
 	cgs.effects.mSparks = trap->FX_RegisterEffect("sparks/spark_nosnd.efx"); //sparks/spark.efx
@@ -1197,9 +1042,6 @@ static void CG_RegisterGraphics( void ) {
 	cg.loadLCARSStage = 4;
 
 	cgs.media.backTileShader = trap->R_RegisterShader( "gfx/2d/backtile" );
-
-	//precache the fpls skin
-	//trap->R_RegisterSkin("models/players/kyle/model_fpls2.skin");
 
 	cgs.media.itemRespawningPlaceholder = trap->R_RegisterShader("powerups/placeholder");
 	cgs.media.itemRespawningRezOut = trap->R_RegisterShader("powerups/rezout");
@@ -1326,13 +1168,7 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.crateBreakSound[0]	= trap->S_RegisterSound("sound/weapons/explosions/crateBust1" );
 	cgs.media.crateBreakSound[1]	= trap->S_RegisterSound("sound/weapons/explosions/crateBust2" );
 
-/*
-Ghoul2 Insert Start
-*/
 	CG_InitItems();
-/*
-Ghoul2 Insert End
-*/
 	memset( cg_weapons, 0, sizeof( cg_weapons ) );
 
 	// only register the items that the server says we need
@@ -1420,10 +1256,6 @@ Ghoul2 Insert End
 		}
 	}
 	cg.loadLCARSStage = 8;
-/*
-Ghoul2 Insert Start
-*/
-
 
 //	CG_LoadingString( "BSP instances" );
 
@@ -1488,11 +1320,7 @@ Ghoul2 Insert Start
 
 	CG_InitG2Weapons();
 
-/*
-Ghoul2 Insert End
-*/
 	cg.loadLCARSStage = 9;
-
 
 	// new stuff
 	cgs.media.patrolShader = trap->R_RegisterShaderNoMip("ui/assets/statusbar/patrol.tga");
@@ -1502,7 +1330,6 @@ Ghoul2 Insert End
 	cgs.media.defendShader = trap->R_RegisterShaderNoMip("ui/assets/statusbar/defend.tga");
 	cgs.media.retrieveShader = trap->R_RegisterShaderNoMip("ui/assets/statusbar/retrieve.tga");
 	cgs.media.escortShader = trap->R_RegisterShaderNoMip("ui/assets/statusbar/escort.tga");
-	cgs.media.cursor = trap->R_RegisterShaderNoMip( "menu/art/3_cursor2" );
 	cgs.media.sizeCursor = trap->R_RegisterShaderNoMip( "ui/assets/sizecursor.tga" );
 	cgs.media.selectCursor = trap->R_RegisterShaderNoMip( "ui/assets/selectcursor.tga" );
 
@@ -1522,53 +1349,11 @@ const char *CG_GetStringEdString(char *refSection, char *refName)
 	return text[index];
 }
 
-int	CG_GetClassCount(team_t team,int siegeClass );
 int CG_GetTeamNonScoreCount(team_t team);
 
-void CG_SiegeCountCvars( void )
-{
-	int classGfx[6];
-
-	trap->Cvar_Set( "ui_tm1_cnt",va("%d",CG_GetTeamNonScoreCount(TEAM_RED )));
-	trap->Cvar_Set( "ui_tm2_cnt",va("%d",CG_GetTeamNonScoreCount(TEAM_BLUE )));
-	trap->Cvar_Set( "ui_tm3_cnt",va("%d",CG_GetTeamNonScoreCount(TEAM_SPECTATOR )));
-
-	// This is because the only way we can match up classes is by the gfx handle.
-	classGfx[0] = trap->R_RegisterShaderNoMip("gfx/mp/c_icon_infantry");
-	classGfx[1] = trap->R_RegisterShaderNoMip("gfx/mp/c_icon_heavy_weapons");
-	classGfx[2] = trap->R_RegisterShaderNoMip("gfx/mp/c_icon_demolitionist");
-	classGfx[3] = trap->R_RegisterShaderNoMip("gfx/mp/c_icon_vanguard");
-	classGfx[4] = trap->R_RegisterShaderNoMip("gfx/mp/c_icon_support");
-	classGfx[5] = trap->R_RegisterShaderNoMip("gfx/mp/c_icon_jedi_general");
-
-	trap->Cvar_Set( "ui_tm1_c0_cnt",va("%d",CG_GetClassCount(TEAM_RED,classGfx[0])));
-	trap->Cvar_Set( "ui_tm1_c1_cnt",va("%d",CG_GetClassCount(TEAM_RED,classGfx[1])));
-	trap->Cvar_Set( "ui_tm1_c2_cnt",va("%d",CG_GetClassCount(TEAM_RED,classGfx[2])));
-	trap->Cvar_Set( "ui_tm1_c3_cnt",va("%d",CG_GetClassCount(TEAM_RED,classGfx[3])));
-	trap->Cvar_Set( "ui_tm1_c4_cnt",va("%d",CG_GetClassCount(TEAM_RED,classGfx[4])));
-	trap->Cvar_Set( "ui_tm1_c5_cnt",va("%d",CG_GetClassCount(TEAM_RED,classGfx[5])));
-
-	trap->Cvar_Set( "ui_tm2_c0_cnt",va("%d",CG_GetClassCount(TEAM_BLUE,classGfx[0])));
-	trap->Cvar_Set( "ui_tm2_c1_cnt",va("%d",CG_GetClassCount(TEAM_BLUE,classGfx[1])));
-	trap->Cvar_Set( "ui_tm2_c2_cnt",va("%d",CG_GetClassCount(TEAM_BLUE,classGfx[2])));
-	trap->Cvar_Set( "ui_tm2_c3_cnt",va("%d",CG_GetClassCount(TEAM_BLUE,classGfx[3])));
-	trap->Cvar_Set( "ui_tm2_c4_cnt",va("%d",CG_GetClassCount(TEAM_BLUE,classGfx[4])));
-	trap->Cvar_Set( "ui_tm2_c5_cnt",va("%d",CG_GetClassCount(TEAM_BLUE,classGfx[5])));
-
-}
-
-/*
-=======================
-CG_BuildSpectatorString
-
-=======================
-*/
 void CG_BuildSpectatorString(void) {
 	int i;
 	cg.spectatorList[0] = 0;
-
-	// Count up the number of players per team and per class
-	CG_SiegeCountCvars();
 
 	for (i = 0; i < MAX_CLIENTS; i++) {
 		if (cgs.clientinfo[i].infoValid && cgs.clientinfo[i].team == TEAM_SPECTATOR ) {
@@ -1582,12 +1367,6 @@ void CG_BuildSpectatorString(void) {
 	}
 }
 
-
-/*
-===================
-CG_RegisterClients
-===================
-*/
 static void CG_RegisterClients( void ) {
 	int		i;
 
@@ -1611,13 +1390,6 @@ static void CG_RegisterClients( void ) {
 	CG_BuildSpectatorString();
 }
 
-//===========================================================================
-
-/*
-=================
-CG_ConfigString
-=================
-*/
 const char *CG_ConfigString( int index ) {
 	if ( index < 0 || index >= MAX_CONFIGSTRINGS ) {
 		trap->Error( ERR_DROP, "CG_ConfigString: bad index: %i", index );
@@ -1625,14 +1397,6 @@ const char *CG_ConfigString( int index ) {
 	return cgs.gameState.stringData + cgs.gameState.stringOffsets[ index ];
 }
 
-//==================================================================
-
-/*
-======================
-CG_StartMusic
-
-======================
-*/
 void CG_StartMusic( qboolean bForceStart ) {
 	char	*s;
 	char	parm1[MAX_QPATH], parm2[MAX_QPATH];
@@ -1668,11 +1432,7 @@ char *CG_GetMenuBuffer(const char *filename) {
 	return buf;
 }
 
-//
-// ==============================
 // new hud stuff ( mission pack )
-// ==============================
-//
 qboolean CG_Asset_Parse(int handle) {
 	pc_token_t token;
 
@@ -1871,7 +1631,6 @@ void CG_ParseMenu(const char *menuFile) {
 			}
 		}
 
-
 		if (Q_stricmp(token.string, "menudef") == 0) {
 			// start a new menu
 			Menu_New(handle);
@@ -1879,7 +1638,6 @@ void CG_ParseMenu(const char *menuFile) {
 	}
 	trap->PC_FreeSource(handle);
 }
-
 
 qboolean CG_Load_Menu(const char **p)
 {
@@ -1909,11 +1667,9 @@ qboolean CG_Load_Menu(const char **p)
 	return qfalse;
 }
 
-
 static qboolean CG_OwnerDrawHandleKey(int ownerDraw, int flags, float *special, int key) {
 	return qfalse;
 }
-
 
 static int CG_FeederCount(float feederID) {
 	int i, count;
@@ -1935,7 +1691,6 @@ static int CG_FeederCount(float feederID) {
 	}
 	return count;
 }
-
 
 void CG_SetScoreSelection(void *p) {
 	menuDef_t *menu = (menuDef_t*)p;
@@ -2149,12 +1904,6 @@ static void CG_RunCinematicFrame(int handle) {
 	trap->CIN_RunCinematic(handle);
 }
 
-/*
-=================
-CG_LoadMenus();
-
-=================
-*/
 void CG_LoadMenus(const char *menuFile)
 {
 	const char	*token;
@@ -2221,12 +1970,6 @@ void CG_LoadMenus(const char *menuFile)
 	//Com_Printf("UI menu load time = %d milli seconds\n", cgi_Milliseconds() - start);
 }
 
-/*
-=================
-CG_LoadHudMenu();
-
-=================
-*/
 void CG_LoadHudMenu()
 {
 	const char *hudSet;
@@ -2290,7 +2033,6 @@ void CG_LoadHudMenu()
 	cgDC.runCinematicFrame				= &CG_RunCinematicFrame;
 	cgDC.ext.Font_StrLenPixels			= trap->ext.R_Font_StrLenPixels;
 
-
 	Init_Display(&cgDC);
 
 	Menu_Reset();
@@ -2329,13 +2071,6 @@ void CG_AssetCache() {
 	cgDC.Assets.sliderThumb = trap->R_RegisterShaderNoMip( ASSET_SLIDER_THUMB );
 }
 
-/*
-
-
-/*
-Ghoul2 Insert Start
-*/
-
 // initialise the cg_entities structure - take into account the ghoul2 stl stuff in the active snap shots
 void CG_Init_CG(void)
 {
@@ -2347,7 +2082,6 @@ void CG_Init_CGents(void)
 {
 	memset(&cg_entities, 0, sizeof(cg_entities));
 }
-
 
 void CG_InitItems(void)
 {
@@ -2374,28 +2108,16 @@ void CG_TransitionPermanent(void)
 	}
 }
 
-/*
-Ghoul2 Insert End
-*/
-
 extern playerState_t *cgSendPS[MAX_GENTITIES]; //is not MAX_CLIENTS because NPCs exceed MAX_CLIENTS
 void CG_PmoveClientPointerUpdate();
 
 void WP_SaberLoadParms( void );
-void BG_VehicleLoadParms( void );
 
-/*
-=================
-CG_Init
-
-Called after every level change or subsystem restart
-Will perform callbacks to make the loading info screen update.
-=================
-*/
+// Called after every level change or subsystem restart
+// Will perform callbacks to make the loading info screen update.
 void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
 {
 	static gitem_t *item;
-	char buf[64];
 	const char	*s;
 	int i = 0;
 
@@ -2403,13 +2125,7 @@ void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
 
 	trap->RegisterSharedMemory( cg.sharedBuffer.raw );
 
-	//Load external vehicle data
-	BG_VehicleLoadParms();
-
 	// clear everything
-/*
-Ghoul2 Insert Start
-*/
 
 //	memset( cg_entities, 0, sizeof( cg_entities ) );
 	CG_Init_CGents();
@@ -2422,10 +2138,6 @@ Ghoul2 Insert Start
 	CG_InitJetpackGhoul2();
 
 	CG_PmoveClientPointerUpdate();
-
-/*
-Ghoul2 Insert End
-*/
 
 	//Load sabers.cfg data
 	WP_SaberLoadParms();
@@ -2454,7 +2166,7 @@ Ghoul2 Insert End
 	cg.forceSelect = -1;
 
 	// load a few needed things before we do any screen updates
-	cgs.media.charsetShader		= trap->R_RegisterShaderNoMip( "gfx/2d/charsgrid_med" );
+	cgs.media.charsetShader		= trap->R_RegisterShader( "charset" );
 	cgs.media.whiteShader		= trap->R_RegisterShader( "white" );
 
 	cgs.media.loadBarLED		= trap->R_RegisterShaderNoMip( "gfx/hud/load_tick" );
@@ -2483,9 +2195,7 @@ Ghoul2 Insert End
 		}
 		i++;
 	}
-	trap->Cvar_VariableStringBuffer("com_buildscript", buf, sizeof(buf));
-	if (atoi(buf))
-	{
+	if ( com_buildScript.integer ) {
 		trap->R_RegisterShaderNoMip("gfx/hud/w_icon_saberstaff");
 		trap->R_RegisterShaderNoMip("gfx/hud/w_icon_duallightsaber");
 	}
@@ -2524,7 +2234,6 @@ Ghoul2 Insert End
 		i++;
 	}
 	cgs.media.rageRecShader = trap->R_RegisterShaderNoMip("gfx/mp/f_icon_ragerec");
-
 
 	//body decal shaders -rww
 	cgs.media.bdecal_bodyburn1 = trap->R_RegisterShader("gfx/damage/bodyburnmark1");
@@ -2573,9 +2282,6 @@ Ghoul2 Insert End
 	String_Init();
 
 	cg.loading = qtrue;		// force players to load instead of defer
-
-	//make sure saber data is loaded before this! (so we can precache the appropriate hilts)
-	CG_InitSiegeMode();
 
 	CG_RegisterSounds();
 
@@ -2673,13 +2379,7 @@ void CG_DestroyAllGhoul2(void)
 	CG_CleanJetpackGhoul2();
 }
 
-/*
-=================
-CG_Shutdown
-
-Called before every level change or subsystem restart
-=================
-*/
+// Called before every level change or subsystem restart
 void CG_Shutdown( void )
 {
 	BG_ClearAnimsets(); //free all dynamic allocations made through the engine
@@ -2700,11 +2400,6 @@ void CG_Shutdown( void )
 	// like closing files or archiving session data
 }
 
-/*
-===============
-CG_NextForcePower_f
-===============
-*/
 void CG_NextForcePower_f( void )
 {
 	int current;
@@ -2747,11 +2442,6 @@ void CG_NextForcePower_f( void )
 	}
 }
 
-/*
-===============
-CG_PrevForcePower_f
-===============
-*/
 void CG_PrevForcePower_f( void )
 {
 	int current;
@@ -2931,12 +2621,6 @@ static void CG_FX_CameraShake( void ) {
 	CG_DoCameraShake( data->mOrigin, data->mIntensity, data->mRadius, data->mTime );
 }
 
-/*
-============
-GetModuleAPI
-============
-*/
-
 cgameImport_t *trap = NULL;
 
 Q_EXPORT cgameExport_t* QDECL GetModuleAPI( int apiVersion, cgameImport_t *import )
@@ -2984,141 +2668,4 @@ Q_EXPORT cgameExport_t* QDECL GetModuleAPI( int apiVersion, cgameImport_t *impor
 	cge.CameraShake				= CG_FX_CameraShake;
 
 	return &cge;
-}
-
-/*
-================
-vmMain
-
-This is the only way control passes into the module.
-This must be the very first function compiled into the .q3vm file
-================
-*/
-Q_EXPORT intptr_t vmMain( int command, intptr_t arg0, intptr_t arg1, intptr_t arg2, intptr_t arg3, intptr_t arg4,
-	intptr_t arg5, intptr_t arg6, intptr_t arg7, intptr_t arg8, intptr_t arg9, intptr_t arg10, intptr_t arg11 )
-{
-	switch ( command ) {
-	case CG_INIT:
-		CG_Init( arg0, arg1, arg2 );
-		return 0;
-
-	case CG_SHUTDOWN:
-		CG_Shutdown();
-		return 0;
-
-	case CG_CONSOLE_COMMAND:
-		return CG_ConsoleCommand();
-
-	case CG_DRAW_ACTIVE_FRAME:
-		CG_DrawActiveFrame( arg0, arg1, arg2 );
-		return 0;
-
-	case CG_CROSSHAIR_PLAYER:
-		return CG_CrosshairPlayer();
-
-	case CG_LAST_ATTACKER:
-		return CG_LastAttacker();
-
-	case CG_KEY_EVENT:
-		CG_KeyEvent( arg0, arg1 );
-		return 0;
-
-	case CG_MOUSE_EVENT:
-		_CG_MouseEvent( arg0, arg1 );
-		return 0;
-
-	case CG_EVENT_HANDLING:
-		CG_EventHandling( arg0 );
-		return 0;
-
-	case CG_POINT_CONTENTS:
-		return C_PointContents();
-
-	case CG_GET_LERP_ORIGIN:
-		C_GetLerpOrigin();
-		return 0;
-
-	case CG_GET_LERP_DATA:
-		C_GetLerpData();
-		return 0;
-
-	case CG_GET_GHOUL2:
-		return (intptr_t)cg_entities[arg0].ghoul2; //NOTE: This is used by the effect bolting which is actually not used at all.
-											  //I'm fairly sure if you try to use it with vm's it will just give you total
-											  //garbage. In other words, use at your own risk.
-
-	case CG_GET_MODEL_LIST:
-		return (intptr_t)cgs.gameModels;
-
-	case CG_CALC_LERP_POSITIONS:
-		CG_CalcEntityLerpPositions( &cg_entities[arg0] );
-		return 0;
-
-	case CG_TRACE:
-		C_Trace();
-		return 0;
-
-	case CG_GET_SORTED_FORCE_POWER:
-		return forcePowerSorted[arg0];
-
-	case CG_G2TRACE:
-		C_G2Trace();
-		return 0;
-
-	case CG_G2MARK:
-		C_G2Mark();
-		return 0;
-
-	case CG_RAG_CALLBACK:
-		return CG_RagCallback( arg0 );
-
-	case CG_INCOMING_CONSOLE_COMMAND:
-		return CG_IncomingConsoleCommand();
-
-	case CG_GET_USEABLE_FORCE:
-		return CG_NoUseableForce();
-
-	case CG_GET_ORIGIN:
-		CG_GetOrigin( arg0, (float *)arg1 );
-		return 0;
-
-	case CG_GET_ANGLES:
-		CG_GetAngles( arg0, (float *)arg1 );
-		return 0;
-
-	case CG_GET_ORIGIN_TRAJECTORY:
-		return (intptr_t)CG_GetOriginTrajectory( arg0 );
-
-	case CG_GET_ANGLE_TRAJECTORY:
-		return (intptr_t)CG_GetAngleTrajectory( arg0 );
-
-	case CG_ROFF_NOTETRACK_CALLBACK:
-		_CG_ROFF_NotetrackCallback( arg0, (const char *)arg1 );
-		return 0;
-
-	case CG_IMPACT_MARK:
-		C_ImpactMark();
-		return 0;
-
-	case CG_MAP_CHANGE:
-		CG_MapChange();
-		return 0;
-
-	case CG_AUTOMAP_INPUT:
-		CG_AutomapInput();
-		return 0;
-
-	case CG_MISC_ENT:
-		CG_MiscEnt();
-		return 0;
-
-	case CG_FX_CAMERASHAKE:
-		CG_FX_CameraShake();
-		return 0;
-
-	default:
-		trap->Error( ERR_DROP, "vmMain: unknown command %i", command );
-		break;
-	}
-	return -1;
 }

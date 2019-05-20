@@ -31,13 +31,7 @@ localEntity_t	cg_localEntities[MAX_LOCAL_ENTITIES];
 localEntity_t	cg_activeLocalEntities;		// double linked list
 localEntity_t	*cg_freeLocalEntities;		// single linked list
 
-/*
-===================
-CG_InitLocalEntities
-
-This is called at startup and for tournament restarts
-===================
-*/
+// This is called at startup and for tournament restarts
 void	CG_InitLocalEntities( void ) {
 	int		i;
 
@@ -50,12 +44,6 @@ void	CG_InitLocalEntities( void ) {
 	}
 }
 
-
-/*
-==================
-CG_FreeLocalEntity
-==================
-*/
 void CG_FreeLocalEntity( localEntity_t *le ) {
 	if ( !le->prev ) {
 		trap->Error( ERR_DROP, "CG_FreeLocalEntity: not active" );
@@ -71,13 +59,7 @@ void CG_FreeLocalEntity( localEntity_t *le ) {
 	cg_freeLocalEntities = le;
 }
 
-/*
-===================
-CG_AllocLocalEntity
-
-Will allways succeed, even if it requires freeing an old active entity
-===================
-*/
+// Will allways succeed, even if it requires freeing an old active entity
 localEntity_t	*CG_AllocLocalEntity( void ) {
 	localEntity_t	*le;
 
@@ -100,25 +82,10 @@ localEntity_t	*CG_AllocLocalEntity( void ) {
 	return le;
 }
 
+// FRAGMENT PROCESSING
+// A fragment localentity interacts with the environment in some way (hitting walls), or generates more localentities along a trail.
 
-/*
-====================================================================================
-
-FRAGMENT PROCESSING
-
-A fragment localentity interacts with the environment in some way (hitting walls),
-or generates more localentities along a trail.
-
-====================================================================================
-*/
-
-/*
-================
-CG_BloodTrail
-
-Leave expanding blood puffs behind gibs
-================
-*/
+// Leave expanding blood puffs behind gibs
 void CG_BloodTrail( localEntity_t *le ) {
 	int		t;
 	int		t2;
@@ -148,12 +115,6 @@ void CG_BloodTrail( localEntity_t *le ) {
 	}
 }
 
-
-/*
-================
-CG_FragmentBounceMark
-================
-*/
 void CG_FragmentBounceMark( localEntity_t *le, trace_t *trace ) {
 //	int radius;
 
@@ -169,11 +130,6 @@ void CG_FragmentBounceMark( localEntity_t *le, trace_t *trace ) {
 	le->leMarkType = LEMT_NONE;
 }
 
-/*
-================
-CG_FragmentBounceSound
-================
-*/
 void CG_FragmentBounceSound( localEntity_t *le, trace_t *trace ) {
 	// half the fragments will make a bounce sounds
 	if ( rand() & 1 )
@@ -209,12 +165,6 @@ void CG_FragmentBounceSound( localEntity_t *le, trace_t *trace ) {
 	}
 }
 
-
-/*
-================
-CG_ReflectVelocity
-================
-*/
 void CG_ReflectVelocity( localEntity_t *le, trace_t *trace ) {
 	vec3_t	velocity;
 	float	dot;
@@ -241,11 +191,6 @@ void CG_ReflectVelocity( localEntity_t *le, trace_t *trace ) {
 	}
 }
 
-/*
-================
-CG_AddFragment
-================
-*/
 void CG_AddFragment( localEntity_t *le ) {
 	vec3_t	newOrigin;
 	trace_t	trace;
@@ -346,20 +291,8 @@ void CG_AddFragment( localEntity_t *le ) {
 	}
 }
 
-/*
-=====================================================================
-
-TRIVIAL LOCAL ENTITIES
-
-These only do simple scaling or modulation before passing to the renderer
-=====================================================================
-*/
-
-/*
-====================
-CG_AddFadeRGB
-====================
-*/
+// TRIVIAL LOCAL ENTITIES
+// These only do simple scaling or modulation before passing to the renderer
 void CG_AddFadeRGB( localEntity_t *le ) {
 	refEntity_t *re;
 	float c;
@@ -404,11 +337,6 @@ static void CG_AddFadeScaleModel( localEntity_t *le )
 	trap->R_AddRefEntityToScene( ent );
 }
 
-/*
-==================
-CG_AddMoveScaleFade
-==================
-*/
 static void CG_AddMoveScaleFade( localEntity_t *le ) {
 	refEntity_t	*re;
 	float		c;
@@ -446,11 +374,6 @@ static void CG_AddMoveScaleFade( localEntity_t *le ) {
 	trap->R_AddRefEntityToScene( re );
 }
 
-/*
-==================
-CG_AddPuff
-==================
-*/
 static void CG_AddPuff( localEntity_t *le ) {
 	refEntity_t	*re;
 	float		c;
@@ -484,15 +407,8 @@ static void CG_AddPuff( localEntity_t *le ) {
 	trap->R_AddRefEntityToScene( re );
 }
 
-/*
-===================
-CG_AddScaleFade
-
-For rocket smokes that hang in place, fade out, and are
-removed if the view passes through them.
-There are often many of these, so it needs to be simple.
-===================
-*/
+// For rocket smokes that hang in place, fade out, and are removed if the view passes through them.
+// There are often many of these, so it needs to be simple.
 static void CG_AddScaleFade( localEntity_t *le ) {
 	refEntity_t	*re;
 	float		c;
@@ -519,17 +435,9 @@ static void CG_AddScaleFade( localEntity_t *le ) {
 	trap->R_AddRefEntityToScene( re );
 }
 
-
-/*
-=================
-CG_AddFallScaleFade
-
-This is just an optimized CG_AddMoveScaleFade
-For blood mists that drift down, fade out, and are
-removed if the view passes through them.
-There are often 100+ of these, so it needs to be simple.
-=================
-*/
+// This is just an optimized CG_AddMoveScaleFade
+// For blood mists that drift down, fade out, and are removed if the view passes through them.
+// There are often 100+ of these, so it needs to be simple.
 static void CG_AddFallScaleFade( localEntity_t *le ) {
 	refEntity_t	*re;
 	float		c;
@@ -559,13 +467,6 @@ static void CG_AddFallScaleFade( localEntity_t *le ) {
 	trap->R_AddRefEntityToScene( re );
 }
 
-
-
-/*
-================
-CG_AddExplosion
-================
-*/
 static void CG_AddExplosion( localEntity_t *ex ) {
 	refEntity_t	*ent;
 
@@ -589,11 +490,6 @@ static void CG_AddExplosion( localEntity_t *ex ) {
 	}
 }
 
-/*
-================
-CG_AddSpriteExplosion
-================
-*/
 static void CG_AddSpriteExplosion( localEntity_t *le ) {
 	refEntity_t	re;
 	float c;
@@ -630,12 +526,6 @@ static void CG_AddSpriteExplosion( localEntity_t *le ) {
 	}
 }
 
-
-/*
-===================
-CG_AddRefEntity
-===================
-*/
 void CG_AddRefEntity( localEntity_t *le ) {
 	if (le->endTime < cg.time) {
 		CG_FreeLocalEntity( le );
@@ -644,11 +534,6 @@ void CG_AddRefEntity( localEntity_t *le ) {
 	trap->R_AddRefEntityToScene( &le->refEntity );
 }
 
-/*
-===================
-CG_AddScorePlum
-===================
-*/
 #define NUMBER_SIZE		8
 
 void CG_AddScorePlum( localEntity_t *le ) {
@@ -730,13 +615,7 @@ void CG_AddScorePlum( localEntity_t *le ) {
 	}
 }
 
-/*
-===================
-CG_AddOLine
-
-For forcefields/other rectangular things
-===================
-*/
+// For forcefields/other rectangular things
 void CG_AddOLine( localEntity_t *le )
 {
 	refEntity_t	*re;
@@ -775,13 +654,7 @@ void CG_AddOLine( localEntity_t *le )
 	trap->R_AddRefEntityToScene( re );
 }
 
-/*
-===================
-CG_AddLine
-
-for beams and the like.
-===================
-*/
+// for beams and the like.
 void CG_AddLine( localEntity_t *le )
 {
 	refEntity_t	*re;
@@ -793,14 +666,6 @@ void CG_AddLine( localEntity_t *le )
 	trap->R_AddRefEntityToScene( re );
 }
 
-//==============================================================================
-
-/*
-===================
-CG_AddLocalEntities
-
-===================
-*/
 void CG_AddLocalEntities( void ) {
 	localEntity_t	*le, *next;
 
@@ -878,7 +743,3 @@ void CG_AddLocalEntities( void ) {
 		}
 	}
 }
-
-
-
-

@@ -54,9 +54,6 @@ static const float s_flipMatrix[16] = {
 	0, 0, 0, 1
 };
 
-/*
-** GL_Bind
-*/
 void GL_Bind( image_t *image ) {
 	int texnum;
 
@@ -78,9 +75,6 @@ void GL_Bind( image_t *image ) {
 	}
 }
 
-/*
-** GL_SelectTexture
-*/
 void GL_SelectTexture( int unit )
 {
 	if ( glState.currenttmu == unit )
@@ -123,10 +117,6 @@ void GL_SelectTexture( int unit )
 	glState.currenttmu = unit;
 }
 
-
-/*
-** GL_Cull
-*/
 void GL_Cull( int cullType ) {
 	if ( glState.faceCulling == cullType ) {
 		return;
@@ -169,9 +159,6 @@ void GL_Cull( int cullType ) {
 	}
 }
 
-/*
-** GL_TexEnv
-*/
 void GL_TexEnv( int env )
 {
 	if ( env == glState.texEnv[glState.currenttmu] )
@@ -180,7 +167,6 @@ void GL_TexEnv( int env )
 	}
 
 	glState.texEnv[glState.currenttmu] = env;
-
 
 	switch ( env )
 	{
@@ -202,12 +188,7 @@ void GL_TexEnv( int env )
 	}
 }
 
-/*
-** GL_State
-**
-** This routine is responsible for setting the most commonly changed state
-** in Q3.
-*/
+// This routine is responsible for setting the most commonly changed state in Q3.
 void GL_State( uint32_t stateBits )
 {
 	uint32_t diff = stateBits ^ glState.glStateBits;
@@ -217,9 +198,8 @@ void GL_State( uint32_t stateBits )
 		return;
 	}
 
-	//
 	// check depthFunc bits
-	//
+
 	if ( diff & GLS_DEPTHFUNC_EQUAL )
 	{
 		if ( stateBits & GLS_DEPTHFUNC_EQUAL )
@@ -232,9 +212,8 @@ void GL_State( uint32_t stateBits )
 		}
 	}
 
-	//
 	// check blend bits
-	//
+
 	if ( diff & ( GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS ) )
 	{
 		GLenum srcFactor, dstFactor;
@@ -317,9 +296,8 @@ void GL_State( uint32_t stateBits )
 		}
 	}
 
-	//
 	// check depthmask
-	//
+
 	if ( diff & GLS_DEPTHMASK_TRUE )
 	{
 		if ( stateBits & GLS_DEPTHMASK_TRUE )
@@ -332,9 +310,8 @@ void GL_State( uint32_t stateBits )
 		}
 	}
 
-	//
 	// fill/line mode
-	//
+
 	if ( diff & GLS_POLYMODE_LINE )
 	{
 		if ( stateBits & GLS_POLYMODE_LINE )
@@ -347,9 +324,8 @@ void GL_State( uint32_t stateBits )
 		}
 	}
 
-	//
 	// depthtest
-	//
+
 	if ( diff & GLS_DEPTHTEST_DISABLE )
 	{
 		if ( stateBits & GLS_DEPTHTEST_DISABLE )
@@ -362,9 +338,8 @@ void GL_State( uint32_t stateBits )
 		}
 	}
 
-	//
 	// alpha test
-	//
+
 	if ( diff & GLS_ATEST_BITS )
 	{
 		switch ( stateBits & GLS_ATEST_BITS )
@@ -397,15 +372,7 @@ void GL_State( uint32_t stateBits )
 	glState.glStateBits = stateBits;
 }
 
-
-
-/*
-================
-RB_Hyperspace
-
-A player has predicted a teleport, but hasn't arrived yet
-================
-*/
+// A player has predicted a teleport, but hasn't arrived yet
 static void RB_Hyperspace( void ) {
 	float		c;
 
@@ -420,7 +387,6 @@ static void RB_Hyperspace( void ) {
 	backEnd.isHyperspace = qtrue;
 }
 
-
 void SetViewportAndScissor( void ) {
 	qglMatrixMode(GL_PROJECTION);
 	qglLoadMatrixf( backEnd.viewParms.projectionMatrix );
@@ -433,14 +399,7 @@ void SetViewportAndScissor( void ) {
 		backEnd.viewParms.viewportWidth, backEnd.viewParms.viewportHeight );
 }
 
-/*
-=================
-RB_BeginDrawingView
-
-Any mirrored or portaled views have already been drawn, so prepare
-to actually render the visible surfaces for this view
-=================
-*/
+// Any mirrored or portaled views have already been drawn, so prepare to actually render the visible surfaces for this view
 void RB_BeginDrawingView (void) {
 	int clearBits = GL_DEPTH_BUFFER_BIT;
 
@@ -457,9 +416,8 @@ void RB_BeginDrawingView (void) {
 	// 2D images again
 	backEnd.projection2D = qfalse;
 
-	//
 	// set the modelview matrix for the viewer
-	//
+
 	SetViewportAndScissor();
 
 	// ensures that depth writes are enabled for the depth clear
@@ -611,14 +569,8 @@ static inline bool R_WorldCoordToScreenCoord( vec3_t worldCoord, int *x, int *y 
 	return retVal;
 }
 
-/*
-==================
-RB_RenderDrawSurfList
-==================
-*/
-//number of possible surfs we can postrender.
-//note that postrenders lack much of the optimization that the standard sort-render crap does,
-//so it's slower.
+// number of possible surfs we can postrender.
+// note that postrenders lack much of the optimization that the standard sort-render crap does, so it's slower.
 #define MAX_POST_RENDERS	128
 
 typedef struct postRender_s {
@@ -729,7 +681,6 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 
 		oldSort = drawSurf->sort;
 
-		//
 		// change the tess parameters if needed
 		// a "entityMergable" shader is a shader that can have surfaces from seperate
 		// entities merged into a single batch, like smoke and blood puff sprites
@@ -850,9 +801,8 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 			oldDlighted = dlighted;
 		}
 
-		//
 		// change the modelview matrix if needed
-		//
+
 		if ( entityNum != oldEntityNum ) {
 			depthRange = 0;
 
@@ -892,9 +842,8 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 
 			qglLoadMatrixf( backEnd.ori.modelMatrix );
 
-			//
 			// change depthrange if needed
-			//
+
 			if ( oldDepthRange != depthRange ) {
 				switch ( depthRange ) {
 					default:
@@ -1168,21 +1117,8 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 //	RB_RenderFlares();
 }
 
+// RENDER BACK END FUNCTIONS
 
-/*
-============================================================================
-
-RENDER BACK END FUNCTIONS
-
-============================================================================
-*/
-
-/*
-================
-RB_SetGL2D
-
-================
-*/
 void	RB_SetGL2D (void) {
 	backEnd.projection2D = qtrue;
 
@@ -1207,16 +1143,9 @@ void	RB_SetGL2D (void) {
 	backEnd.refdef.floatTime = backEnd.refdef.time * 0.001f;
 }
 
-
-/*
-=============
-RE_StretchRaw
-
-FIXME: not exactly backend
-Stretches a raw 32 bit power of 2 bitmap image over the given screen rectangle.
-Used for cinematics.
-=============
-*/
+// Stretches a raw 32 bit power of 2 bitmap image over the given screen rectangle.
+// Used for cinematics.
+//FIXME: not exactly backend
 void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty)
 {
 	int			start, end;
@@ -1307,13 +1236,6 @@ void RE_UploadCinematic (int cols, int rows, const byte *data, int client, qbool
 	}
 }
 
-
-/*
-=============
-RB_SetColor
-
-=============
-*/
 const void	*RB_SetColor( const void *data ) {
 	const setColorCommand_t	*cmd;
 
@@ -1327,11 +1249,6 @@ const void	*RB_SetColor( const void *data ) {
 	return (const void *)(cmd + 1);
 }
 
-/*
-=============
-RB_StretchPic
-=============
-*/
 const void *RB_StretchPic ( const void *data ) {
 	const stretchPicCommand_t	*cmd;
 	shader_t *shader;
@@ -1403,12 +1320,6 @@ const void *RB_StretchPic ( const void *data ) {
 	return (const void *)(cmd + 1);
 }
 
-
-/*
-=============
-RB_DrawRotatePic
-=============
-*/
 const void *RB_RotatePic ( const void *data )
 {
 	const rotatePicCommand_t	*cmd;
@@ -1499,11 +1410,6 @@ const void *RB_RotatePic ( const void *data )
 	return (const void *)(cmd + 1);
 }
 
-/*
-=============
-RB_DrawRotatePic2
-=============
-*/
 const void *RB_RotatePic2 ( const void *data )
 {
 	const rotatePicCommand_t	*cmd;
@@ -1593,7 +1499,6 @@ const void *RB_RotatePic2 ( const void *data )
 
 			return (const void *)(cmd + 1);
 
-
 #if 0
 			// Hmmm, this is not too cool
 			GL_State( GLS_DEPTHTEST_DISABLE |
@@ -1606,13 +1511,6 @@ const void *RB_RotatePic2 ( const void *data )
 	return (const void *)(cmd + 1);
 }
 
-
-/*
-=============
-RB_DrawSurfs
-
-=============
-*/
 const void	*RB_DrawSurfs( const void *data ) {
 	const drawSurfsCommand_t	*cmd;
 
@@ -1698,13 +1596,6 @@ const void	*RB_DrawSurfs( const void *data ) {
 	return (const void *)(cmd + 1);
 }
 
-
-/*
-=============
-RB_DrawBuffer
-
-=============
-*/
 const void	*RB_DrawBuffer( const void *data ) {
 	const drawBufferCommand_t	*cmd;
 
@@ -1762,16 +1653,9 @@ const void	*RB_DrawBuffer( const void *data ) {
 	return (const void *)(cmd + 1);
 }
 
-/*
-===============
-RB_ShowImages
-
-Draw all the images to the screen, on top of whatever
-was there.  This is used to test for texture thrashing.
-
-Also called by RE_EndRegistration
-===============
-*/
+// Draw all the images to the screen, on top of whatever was there.
+// This is used to test for texture thrashing.
+// Also called by RE_EndRegistration
 void RB_ShowImages( void ) {
 	image_t	*image;
 	float	x, y, w, h;
@@ -1786,7 +1670,6 @@ void RB_ShowImages( void ) {
 	qglFinish();
 
 //	start = ri.Milliseconds()*ri.Cvar_VariableValue( "timescale" );
-
 
 	int i=0;
 	   				 R_Images_StartIteration();
@@ -1868,13 +1751,6 @@ static void RB_GammaCorrectRender()
 	qglPopAttrib();
 }
 
-
-/*
-=============
-RB_SwapBuffers
-
-=============
-*/
 const void	*RB_SwapBuffers( const void *data ) {
 	const swapBuffersCommand_t	*cmd;
 
@@ -1947,11 +1823,6 @@ const void	*RB_WorldEffects( const void *data )
 	return (const void *)(cmd + 1);
 }
 
-/*
-====================
-RB_ExecuteRenderCommands
-====================
-*/
 extern const void *R_DrawWireframeAutomap(const void *data); //tr_world.cpp
 void RB_ExecuteRenderCommands( const void *data ) {
 	int		t1, t2;
@@ -2072,9 +1943,7 @@ static inline void RB_BlurGlowTexture()
 
 	GL_State(0);
 
-	/////////////////////////////////////////////////////////
 	// Setup vertex and pixel programs.
-	/////////////////////////////////////////////////////////
 
 	// NOTE: The 0.25 is because we're blending 4 textures (so = 1.0) and we want a relatively normalized pixel
 	// intensity distribution, but this won't happen anyways if intensity is higher than 1.0.
@@ -2101,9 +1970,7 @@ static inline void RB_BlurGlowTexture()
 		qglProgramEnvParameter4fARB( GL_FRAGMENT_PROGRAM_ARB, 0, fBlurWeight[0], fBlurWeight[1], fBlurWeight[2], fBlurWeight[3] );
 	}
 
-	/////////////////////////////////////////////////////////
 	// Set the blur texture to the 4 texture stages.
-	/////////////////////////////////////////////////////////
 
 	// How much to offset each texel by.
 	float fTexelWidthOffset = 0.1f, fTexelHeightOffset = 0.1f;
@@ -2127,9 +1994,7 @@ static inline void RB_BlurGlowTexture()
 	qglEnable( GL_TEXTURE_RECTANGLE_ARB );
 	qglBindTexture( GL_TEXTURE_RECTANGLE_ARB, uiTex );
 
-	/////////////////////////////////////////////////////////
 	// Draw the blur passes (each pass blurs it more, increasing the blur radius ).
-	/////////////////////////////////////////////////////////
 
 	//int iTexWidth = backEnd.viewParms.viewportWidth, iTexHeight = backEnd.viewParms.viewportHeight;
 	int iTexWidth = glConfig.vidWidth, iTexHeight = glConfig.vidHeight;

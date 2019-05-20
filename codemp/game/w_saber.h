@@ -42,7 +42,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //This is a hack because ATM the saberEntityState is only non-0 if out or 0 if in, and we
 //at least want NPCs knowing when their saber is out regardless.
 
-
 #define JSF_AMBUSH		16	//ambusher Jedi
 
 #define SABER_RADIUS_STANDARD	3.0f

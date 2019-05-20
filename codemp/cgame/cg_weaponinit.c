@@ -20,19 +20,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-//
 // cg_weaponinit.c -- events and effects dealing with weapons
 #include "cg_local.h"
-#include "fx_local.h"
+#include "cg_weaponfx.h"
 
-
-/*
-=================
-CG_RegisterWeapon
-
-The server says this item is used on this level
-=================
-*/
+// The server says this item is used on this level
 void CG_RegisterWeapon( int weaponNum) {
 	weaponInfo_t	*weaponInfo;
 	gitem_t			*item, *ammo;
@@ -40,11 +32,11 @@ void CG_RegisterWeapon( int weaponNum) {
 	vec3_t			mins, maxs;
 	int				i;
 
-	weaponInfo = &cg_weapons[weaponNum];
-
-	if ( weaponNum == 0 ) {
+	if ( weaponNum <= WP_NONE || weaponNum >= WP_NUM_WEAPONS ) {
 		return;
 	}
+
+	weaponInfo = &cg_weapons[weaponNum];
 
 	if ( weaponInfo->registered ) {
 		return;
@@ -108,9 +100,9 @@ void CG_RegisterWeapon( int weaponNum) {
 	}
 	else if (weaponNum == WP_STUN_BATON)
 	{ //only weapon with more than 1 barrel..
-		trap->R_RegisterModel("models/weapons2/stun_baton/baton_barrel.md3");
-		trap->R_RegisterModel("models/weapons2/stun_baton/baton_barrel2.md3");
-		trap->R_RegisterModel("models/weapons2/stun_baton/baton_barrel3.md3");
+		trap->R_RegisterModel("models/weapons/stun_baton/baton_barrel.md3");
+		trap->R_RegisterModel("models/weapons/stun_baton/baton_barrel2.md3");
+		trap->R_RegisterModel("models/weapons/stun_baton/baton_barrel3.md3");
 	}
 	else
 	{
@@ -130,7 +122,7 @@ void CG_RegisterWeapon( int weaponNum) {
 	}
 
 //	if ( !weaponInfo->handsModel ) {
-//		weaponInfo->handsModel = trap->R_RegisterModel( "models/weapons2/shotgun/shotgun_hand.md3" );
+//		weaponInfo->handsModel = trap->R_RegisterModel( "models/weapons/shotgun/shotgun_hand.md3" );
 //	}
 
 	switch ( weaponNum ) {
@@ -167,7 +159,7 @@ void CG_RegisterWeapon( int weaponNum) {
 	case WP_SABER:
 		MAKERGB( weaponInfo->flashDlightColor, 0.6f, 0.6f, 1.0f );
 		weaponInfo->firingSound = trap->S_RegisterSound( "sound/weapons/saber/saberhum1.wav" );
-		weaponInfo->missileModel		= trap->R_RegisterModel( "models/weapons2/saber/saber_w.glm" );
+		weaponInfo->missileModel		= trap->R_RegisterModel( DEFAULT_SABER_MODEL );
 		break;
 
 	case WP_CONCUSSION:
@@ -435,7 +427,7 @@ void CG_RegisterWeapon( int weaponNum) {
 		weaponInfo->firingSound			= NULL_SOUND;
 		weaponInfo->chargeSound			= NULL_SOUND;
 		weaponInfo->muzzleEffect		= trap->FX_RegisterEffect( "flechette/muzzle_flash" );
-		weaponInfo->missileModel		= trap->R_RegisterModel("models/weapons2/golan_arms/projectileMain.md3");
+		weaponInfo->missileModel		= trap->R_RegisterModel("models/weapons/golan_arms/projectileMain.md3");
 		weaponInfo->missileSound		= NULL_SOUND;
 		weaponInfo->missileDlight		= 0;
 //		weaponInfo->missileDlightColor	= {0,0,0};
@@ -446,7 +438,7 @@ void CG_RegisterWeapon( int weaponNum) {
 		weaponInfo->altFiringSound		= NULL_SOUND;
 		weaponInfo->altChargeSound		= NULL_SOUND;
 		weaponInfo->altMuzzleEffect		= trap->FX_RegisterEffect( "flechette/muzzle_flash" );
-		weaponInfo->altMissileModel		= trap->R_RegisterModel( "models/weapons2/golan_arms/projectile.md3" );
+		weaponInfo->altMissileModel		= trap->R_RegisterModel( "models/weapons/golan_arms/projectile.md3" );
 		weaponInfo->altMissileSound		= NULL_SOUND;
 		weaponInfo->altMissileDlight	= 0;
 //		weaponInfo->altMissileDlightColor= {0,0,0};
@@ -467,7 +459,7 @@ void CG_RegisterWeapon( int weaponNum) {
 		weaponInfo->chargeSound			= NULL_SOUND;
 		weaponInfo->muzzleEffect		= trap->FX_RegisterEffect( "rocket/muzzle_flash" ); //trap->FX_RegisterEffect( "rocket/muzzle_flash2" );
 		//flash2 still looks crappy with the fx bolt stuff. Because the fx bolt stuff doesn't work entirely right.
-		weaponInfo->missileModel		= trap->R_RegisterModel( "models/weapons2/merr_sonn/projectile.md3" );
+		weaponInfo->missileModel		= trap->R_RegisterModel( "models/weapons/merr_sonn/projectile.md3" );
 		weaponInfo->missileSound		= trap->S_RegisterSound( "sound/weapons/rocket/missleloop.wav");
 		weaponInfo->missileDlight		= 125;
 		VectorSet(weaponInfo->missileDlightColor, 1.0, 1.0, 0.5);
@@ -478,7 +470,7 @@ void CG_RegisterWeapon( int weaponNum) {
 		weaponInfo->altFiringSound		= NULL_SOUND;
 		weaponInfo->altChargeSound		= NULL_SOUND;
 		weaponInfo->altMuzzleEffect		= trap->FX_RegisterEffect( "rocket/altmuzzle_flash" );
-		weaponInfo->altMissileModel		= trap->R_RegisterModel( "models/weapons2/merr_sonn/projectile.md3" );
+		weaponInfo->altMissileModel		= trap->R_RegisterModel( "models/weapons/merr_sonn/projectile.md3" );
 		weaponInfo->altMissileSound		= trap->S_RegisterSound( "sound/weapons/rocket/missleloop.wav");
 		weaponInfo->altMissileDlight	= 125;
 		VectorSet(weaponInfo->altMissileDlightColor, 1.0, 1.0, 0.5);
@@ -502,7 +494,7 @@ void CG_RegisterWeapon( int weaponNum) {
 		weaponInfo->firingSound			= NULL_SOUND;
 		weaponInfo->chargeSound			= trap->S_RegisterSound( "sound/weapons/thermal/charge.wav");
 		weaponInfo->muzzleEffect		= NULL_FX;
-		weaponInfo->missileModel		= trap->R_RegisterModel( "models/weapons2/thermal/thermal_proj.md3" );
+		weaponInfo->missileModel		= trap->R_RegisterModel( "models/weapons/thermal/thermal_proj.md3" );
 		weaponInfo->missileSound		= NULL_SOUND;
 		weaponInfo->missileDlight		= 0;
 //		weaponInfo->missileDlightColor	= {0,0,0};
@@ -513,7 +505,7 @@ void CG_RegisterWeapon( int weaponNum) {
 		weaponInfo->altFiringSound		= NULL_SOUND;
 		weaponInfo->altChargeSound		= trap->S_RegisterSound( "sound/weapons/thermal/charge.wav");
 		weaponInfo->altMuzzleEffect		= NULL_FX;
-		weaponInfo->altMissileModel		= trap->R_RegisterModel( "models/weapons2/thermal/thermal_proj.md3" );
+		weaponInfo->altMissileModel		= trap->R_RegisterModel( "models/weapons/thermal/thermal_proj.md3" );
 		weaponInfo->altMissileSound		= NULL_SOUND;
 		weaponInfo->altMissileDlight	= 0;
 //		weaponInfo->altMissileDlightColor= {0,0,0};
@@ -538,7 +530,7 @@ void CG_RegisterWeapon( int weaponNum) {
 		weaponInfo->firingSound			= NULL_SOUND;
 		weaponInfo->chargeSound			= NULL_SOUND;
 		weaponInfo->muzzleEffect		= NULL_FX;
-		weaponInfo->missileModel		= 0;//trap->R_RegisterModel( "models/weapons2/laser_trap/laser_trap_w.md3" );
+		weaponInfo->missileModel		= 0;//trap->R_RegisterModel( "models/weapons/laser_trap/laser_trap_w.md3" );
 		weaponInfo->missileSound		= NULL_SOUND;
 		weaponInfo->missileDlight		= 0;
 //		weaponInfo->missileDlightColor	= {0,0,0};
@@ -549,7 +541,7 @@ void CG_RegisterWeapon( int weaponNum) {
 		weaponInfo->altFiringSound		= NULL_SOUND;
 		weaponInfo->altChargeSound		= NULL_SOUND;
 		weaponInfo->altMuzzleEffect		= NULL_FX;
-		weaponInfo->altMissileModel		= 0;//trap->R_RegisterModel( "models/weapons2/laser_trap/laser_trap_w.md3" );
+		weaponInfo->altMissileModel		= 0;//trap->R_RegisterModel( "models/weapons/laser_trap/laser_trap_w.md3" );
 		weaponInfo->altMissileSound		= NULL_SOUND;
 		weaponInfo->altMissileDlight	= 0;
 //		weaponInfo->altMissileDlightColor= {0,0,0};
@@ -572,7 +564,7 @@ void CG_RegisterWeapon( int weaponNum) {
 		weaponInfo->firingSound			= NULL_SOUND;
 		weaponInfo->chargeSound			= NULL_SOUND;
 		weaponInfo->muzzleEffect		= NULL_FX;
-		weaponInfo->missileModel		= trap->R_RegisterModel( "models/weapons2/detpack/det_pack.md3" );
+		weaponInfo->missileModel		= trap->R_RegisterModel( "models/weapons/detpack/det_pack.md3" );
 		weaponInfo->missileSound		= NULL_SOUND;
 		weaponInfo->missileDlight		= 0;
 //		weaponInfo->missileDlightColor	= {0,0,0};
@@ -583,14 +575,14 @@ void CG_RegisterWeapon( int weaponNum) {
 		weaponInfo->altFiringSound		= NULL_SOUND;
 		weaponInfo->altChargeSound		= NULL_SOUND;
 		weaponInfo->altMuzzleEffect		= NULL_FX;
-		weaponInfo->altMissileModel		= trap->R_RegisterModel( "models/weapons2/detpack/det_pack.md3" );
+		weaponInfo->altMissileModel		= trap->R_RegisterModel( "models/weapons/detpack/det_pack.md3" );
 		weaponInfo->altMissileSound		= NULL_SOUND;
 		weaponInfo->altMissileDlight	= 0;
 //		weaponInfo->altMissileDlightColor= {0,0,0};
 		weaponInfo->altMissileHitSound	= NULL_SOUND;
 		weaponInfo->altMissileTrailFunc = 0;
 
-		trap->R_RegisterModel( "models/weapons2/detpack/det_pack.md3" );
+		trap->R_RegisterModel( "models/weapons/detpack/det_pack.md3" );
 		trap->S_RegisterSound( "sound/weapons/detpack/stick.wav" );
 		trap->S_RegisterSound( "sound/weapons/detpack/warning.wav" );
 		trap->S_RegisterSound( "sound/weapons/explosions/explode5.wav" );

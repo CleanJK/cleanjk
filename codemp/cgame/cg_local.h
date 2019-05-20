@@ -127,15 +127,9 @@ typedef enum {
 	IMPACTSOUND_FLESH
 } impactSound_t;
 
-//=================================================
-
-// player entities need to track more information
-// than any other type of entity.
-
-// note that not every player entity is a client entity,
-// because corpses after respawn are outside the normal
-// client numbering range
-
+// player entities need to track more information than any other type of entity.
+// note that not every player entity is a client entity, because corpses after respawn are outside the normal client
+//	numbering range
 // when changing animation, set animationTime to frameTime + lerping time
 // The current lerp will finish out, then it will lerp to the new animation
 typedef struct lerpFrame_s {
@@ -168,7 +162,6 @@ typedef struct lerpFrame_s {
 	qboolean	torsoYawing;
 } lerpFrame_t;
 
-
 typedef struct playerEntity_s {
 	lerpFrame_t		legs, torso, flag;
 	int				painTime;
@@ -181,13 +174,10 @@ typedef struct playerEntity_s {
 	qboolean		barrelSpinning;
 } playerEntity_t;
 
-//=================================================
-
-// each client has an associated clientInfo_t
-// that contains media references necessary to present the
-// client model and other color coded effects
-// this is regenerated each time a client's configstring changes,
-// usually as a result of a userinfo (name, model, etc) change
+// each client has an associated clientInfo_t that contains media references necessary to present the client model and
+//	other color coded effects
+// this is regenerated each time a client's configstring changes, usually as a result of a userinfo (name, model, etc)
+//	change
 #define	MAX_CUSTOM_COMBAT_SOUNDS	40
 #define	MAX_CUSTOM_EXTRA_SOUNDS	40
 #define	MAX_CUSTOM_JEDI_SOUNDS	40
@@ -294,14 +284,11 @@ typedef struct clientInfo_s {
 
 	qhandle_t		bolt_llumbar;
 
-	int				siegeIndex;
-	int				siegeDesiredTeam;
-
 	sfxHandle_t		sounds[MAX_CUSTOM_SOUNDS];
 	sfxHandle_t		combatSounds[MAX_CUSTOM_COMBAT_SOUNDS];
 	sfxHandle_t		extraSounds[MAX_CUSTOM_EXTRA_SOUNDS];
 	sfxHandle_t		jediSounds[MAX_CUSTOM_JEDI_SOUNDS];
-	sfxHandle_t		siegeSounds[MAX_CUSTOM_SIEGE_SOUNDS];
+	sfxHandle_t		siegeSounds[MAX_CUSTOM_SIEGE_SOUNDS]; // actually vchat
 	sfxHandle_t		duelSounds[MAX_CUSTOM_DUEL_SOUNDS];
 
 	int				legsAnim;
@@ -328,11 +315,11 @@ typedef struct cgLoopSound_s {
 // centity_t have a direct corespondence with gentity_t in the game, but
 // only the entityState_t is directly communicated to the cgame
 typedef struct centity_s {
+	//CJKFIXME: bgentity_t substruct
 	// This comment below is correct, but now m_pVehicle is the first thing in bg shared entity, so it goes first. - AReis
 	//rww - entstate must be first, to correspond with the bg shared entity structure
 	entityState_t	currentState;	// from cg.frame
 	playerState_t	*playerState;	//ptr to playerstate if applicable (for bg ents)
-	Vehicle_t		*m_pVehicle; //vehicle data
 	void			*ghoul2; //g2 instance
 	int				localAnimIndex; //index locally (game/cgame) to anim data for this skel
 	vec3_t			modelScale; //needed for g2 collision
@@ -385,13 +372,7 @@ typedef struct centity_s {
 	qboolean		noLumbar; //if true only do anims and things on model_root instead of lower_lumbar, this will be the case for some NPCs.
 	qboolean		noFace;
 
-	//For keeping track of the current surface status in relation to the entitystate surface fields.
-	int				npcLocalSurfOn;
-	int				npcLocalSurfOff;
-
 	int				eventAnimIndex;
-
-	clientInfo_t	*npcClient; //dynamically allocated - always free it, and never stomp over it.
 
 	int				weapon;
 
@@ -458,11 +439,8 @@ typedef struct centity_s {
 	int				vChatTime;
 } centity_t;
 
-
-//======================================================================
-
-// local entities are created as a result of events or predicted actions,
-// and live independently from all server transmitted entities
+// local entities are created as a result of events or predicted actions, and live independently from all server
+//	transmitted entities
 
 typedef struct markPoly_s {
 	struct markPoly_s	*prevMark, *nextMark;
@@ -473,7 +451,6 @@ typedef struct markPoly_s {
 	poly_t		poly;
 	polyVert_t	verts[MAX_VERTS_ON_POLY];
 } markPoly_t;
-
 
 typedef enum {
 	LE_MARK,
@@ -621,9 +598,6 @@ typedef struct localEntity_s {
 	refEntity_t		refEntity;
 } localEntity_t;
 
-//======================================================================
-
-
 typedef struct score_s {
 	int				client;
 	int				score;
@@ -641,7 +615,6 @@ typedef struct score_s {
 	qboolean	perfect;
 	int				team;
 } score_t;
-
 
 // each WP_* weapon enum has an associated weaponInfo_t
 // that contains media references necessary to present the
@@ -698,7 +671,6 @@ typedef struct weaponInfo_s {
 
 } weaponInfo_t;
 
-
 // each IT_* item has an associated itemInfo_t
 // that constains media references necessary to present the
 // item and its effects
@@ -706,21 +678,13 @@ typedef struct itemInfo_s {
 	qboolean		registered;
 	qhandle_t		models[MAX_ITEM_MODELS];
 	qhandle_t		icon;
-/*
-Ghoul2 Insert Start
-*/
 	void			*g2Models[MAX_ITEM_MODELS];
 	float			radius[MAX_ITEM_MODELS];
-/*
-Ghoul2 Insert End
-*/
 } itemInfo_t;
-
 
 typedef struct powerupInfo_s {
 	int				itemNum;
 } powerupInfo_t;
-
 
 #define MAX_SKULLTRAIL		10
 
@@ -729,17 +693,13 @@ typedef struct skulltrail_s {
 	int numpositions;
 } skulltrail_t;
 
-
 #define MAX_REWARDSTACK		10
 #define MAX_SOUNDBUFFER		20
 
-//======================================================================
-
-// all cg.stepTime, cg.duckTime, cg.landTime, etc are set to cg.time when the action
-// occurs, and they will have visible effects for #define STEP_TIME or whatever msec after
+// all cg.stepTime, cg.duckTime, cg.landTime, etc are set to cg.time when the action occurs, and they will have visible
+//	effects for e.g. STEP_TIME msec after
 
 #define MAX_PREDICTED_EVENTS	16
-
 
 #define	MAX_CHATBOX_ITEMS		5
 typedef struct chatBoxItem_s
@@ -793,7 +753,6 @@ typedef struct cg_s {
 	// prediction state
 	qboolean	hyperspace;				// true if prediction has hit a trigger_teleport
 	playerState_t	predictedPlayerState;
-	playerState_t	predictedVehicleState;
 
 	//centity_t		predictedPlayerEntity;
 	//rww - I removed this and made it use cg_entities[clnum] directly.
@@ -879,9 +838,6 @@ typedef struct cg_s {
 	int			crosshairClientNum;
 	int			crosshairClientTime;
 
-	int			crosshairVehNum;
-	int			crosshairVehTime;
-
 	// powerup active flashing
 	int			powerupActive;
 	int			powerupTime;
@@ -911,8 +867,6 @@ typedef struct cg_s {
 	// warmup countdown
 	int			warmup;
 	int			warmupCount;
-
-	//==========================
 
 	int			itemPickup;
 	int			itemPickupTime;
@@ -962,9 +916,6 @@ typedef struct cg_s {
 	char			testModelName[MAX_QPATH];
 	qboolean		testGun;
 
-	int			VHUDFlashTime;
-	qboolean	VHUDTurboFlag;
-
 	// HUD stuff
 	float			HUDTickFlashTime;
 	qboolean		HUDArmorFlag;
@@ -977,15 +928,9 @@ typedef struct cg_s {
 
 	vec3_t			lastFPFlashPoint;
 
-/*
-Ghoul2 Insert Start
-*/
 	int				testModel;
 	// had to be moved so we wouldn't wipe these out with the memset - these have STL in them and shouldn't be cleared that way
 	snapshot_t	activeSnapshots[2];
-/*
-Ghoul2 Insert End
-*/
 
 	// used for communication with the engine
 	union {
@@ -1027,6 +972,13 @@ Ghoul2 Insert End
 	char *spawnVars[MAX_SPAWN_VARS][2];	// key / value pairs
 	int numSpawnVarChars;
 	char spawnVarChars[MAX_SPAWN_VARS_CHARS];
+
+	struct {
+		vec3_t		amount;
+		float		speed;
+	} gunIdleDrift;
+	vec3_t		gunAlign;
+	vec3_t		gunBob;
 
 } cg_t;
 
@@ -1124,7 +1076,6 @@ typedef struct cgMedia_s {
 	qhandle_t	hackerIconShader;
 
 	// Saber shaders
-	//-----------------------------
 	qhandle_t	forceCoronaShader;
 
 	qhandle_t	redSaberGlowShader;
@@ -1387,9 +1338,7 @@ typedef struct cgMedia_s {
 
 } cgMedia_t;
 
-
 // Stored FX handles
-//--------------------
 typedef struct cgEffects_s {
 	//concussion
 	fxHandle_t	concussionShotEffect;
@@ -1542,7 +1491,6 @@ typedef struct cgs_s {
 	qboolean		localServer;		// detected on startup by checking sv_running
 
 	// parsed from serverinfo
-	int				siegeTeamSwitch;
 	int				showDuelHealths;
 	gametype_t		gametype;
 	int				debugMelee;
@@ -1594,9 +1542,8 @@ typedef struct cgs_s {
 
 	qboolean  newHud;
 
-	//
 	// locally derived information from gamestate
-	//
+
 	qhandle_t		gameModels[MAX_MODELS];
 	sfxHandle_t		gameSounds[MAX_SOUNDS];
 	fxHandle_t		gameEffects[MAX_FX];
@@ -1627,20 +1574,6 @@ typedef struct cgs_s {
 
 } cgs_t;
 
-typedef struct siegeExtended_s
-{
-	int			health;
-	int			maxhealth;
-	int			ammo;
-	int			weapon;
-	int			lastUpdated;
-} siegeExtended_t;
-
-//keep an entry available for each client
-extern siegeExtended_t cg_siegeExtendedData[MAX_CLIENTS];
-
-//==============================================================================
-
 extern	cgs_t			cgs;
 extern	cg_t			cg;
 extern	centity_t		cg_entities[MAX_GENTITIES];
@@ -1659,9 +1592,7 @@ extern	markPoly_t		cg_markPolys[MAX_MARK_POLYS];
 void CG_RegisterCvars( void );
 void CG_UpdateCvars( void );
 
-//
 // cg_main.c
-//
 const char *CG_ConfigString( int index );
 const char *CG_Argv( int arg );
 
@@ -1683,9 +1614,7 @@ void CG_PrevInventory_f(void);
 void CG_NextForcePower_f(void);
 void CG_PrevForcePower_f(void);
 
-//
 // cg_view.c
-//
 void CG_TestModel_f (void);
 void CG_TestGun_f (void);
 void CG_TestModelNextFrame_f (void);
@@ -1697,9 +1626,6 @@ void CG_ZoomUp_f( void );
 void CG_AddBufferedSound( sfxHandle_t sfx);
 
 void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demoPlayback );
-/*
-Ghoul2 Insert Start
-*/
 
 void CG_TestG2Model_f (void);
 void CG_TestModelSurfaceOnOff_f(void);
@@ -1708,13 +1634,8 @@ void CG_ListModelBones_f (void);
 void CG_TestModelSetAnglespre_f(void);
 void CG_TestModelSetAnglespost_f(void);
 void CG_TestModelAnimate_f(void);
-/*
-Ghoul2 Insert End
-*/
 
-//
 // cg_drawtools.c
-//
 void CG_FillRect( float x, float y, float width, float height, const float *color );
 void CG_DrawPic( float x, float y, float width, float height, qhandle_t hShader );
 void CG_DrawRotatePic( float x, float y, float width, float height,float angle, qhandle_t hShader );
@@ -1745,9 +1666,7 @@ void CG_DrawRect( float x, float y, float width, float height, float size, const
 void CG_DrawSides(float x, float y, float w, float h, float size);
 void CG_DrawTopBottom(float x, float y, float w, float h, float size);
 
-//
 // cg_draw.c, cg_newDraw.c
-//
 extern	int sortedTeamPlayers[TEAM_MAXOVERLAY];
 extern	int	numSortedTeamPlayers;
 extern  char systemChat[256];
@@ -1777,18 +1696,11 @@ qboolean CG_YourTeamHasFlag(void);
 qboolean CG_OtherTeamHasFlag(void);
 qhandle_t CG_StatusHandle(int task);
 
-
-
-//
 // cg_player.c
-//
 qboolean CG_RagDoll(centity_t *cent, vec3_t forcedAngles);
 qboolean CG_G2TraceCollide(trace_t *tr, const vec3_t mins, const vec3_t maxs, const vec3_t lastValidStart, const vec3_t lastValidEnd);
 void CG_AddGhoul2Mark(int shader, float size, vec3_t start, vec3_t end, int entnum,
 					  vec3_t entposition, float entangle, void *ghoul2, vec3_t scale, int lifeTime);
-
-void CG_CreateNPCClient(clientInfo_t **ci);
-void CG_DestroyNPCClient(clientInfo_t **ci);
 
 void CG_Player( centity_t *cent );
 void CG_ResetPlayerEntity( centity_t *cent );
@@ -1797,10 +1709,7 @@ void CG_NewClientInfo( int clientNum, qboolean entitiesInitialized );
 sfxHandle_t	CG_CustomSound( int clientNum, const char *soundName );
 void CG_PlayerShieldHit(int entitynum, vec3_t angles, int amount);
 
-
-//
 // cg_predict.c
-//
 void CG_BuildSolidList( void );
 int	CG_PointContents( const vec3_t point, int passEntityNum );
 void CG_Trace( trace_t *result, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
@@ -1810,21 +1719,14 @@ void CG_G2Trace( trace_t *result, const vec3_t start, const vec3_t mins, const v
 void CG_PredictPlayerState( void );
 void CG_LoadDeferredPlayers( void );
 
-
-//
 // cg_events.c
-//
 void CG_CheckEvents( centity_t *cent );
 const char	*CG_PlaceString( int rank );
 void CG_EntityEvent( centity_t *cent, vec3_t position );
 void CG_PainEvent( centity_t *cent, int health );
 void CG_ReattachLimb(centity_t *source);
 
-
-//
 // cg_ents.c
-//
-
 void CG_S_AddLoopingSound(int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx);
 void CG_S_AddRealLoopingSound(int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx);
 void CG_S_StopLoopingSound(int entityNum, sfxHandle_t sfx);
@@ -1841,22 +1743,12 @@ void CG_PositionEntityOnTag( refEntity_t *entity, const refEntity_t *parent,
 void CG_PositionRotatedEntityOnTag( refEntity_t *entity, const refEntity_t *parent,
 							qhandle_t parentModel, char *tagName );
 
-/*
-Ghoul2 Insert Start
-*/
 void ScaleModelAxis(refEntity_t	*ent);
-/*
-Ghoul2 Insert End
-*/
 
-//
 // cg_turret.c
-//
 void TurretClientRun(centity_t *ent);
 
-//
 // cg_weapons.c
-//
 void CG_GetClientWeaponMuzzleBoltPoint(int clIndex, vec3_t to);
 
 void CG_NextWeapon_f( void );
@@ -1878,9 +1770,7 @@ void CG_DrawIconBackground(void);
 
 void CG_OutOfAmmoChange( int oldWeapon );	// should this be in pmove?
 
-//
 // cg_marks.c
-//
 void	CG_InitMarkPolys( void );
 void	CG_AddMarks( void );
 void	CG_ImpactMark( qhandle_t markShader,
@@ -1890,16 +1780,12 @@ void	CG_ImpactMark( qhandle_t markShader,
 					qboolean alphaFade,
 					float radius, qboolean temporary );
 
-//
 // cg_localents.c
-//
 void	CG_InitLocalEntities( void );
 localEntity_t	*CG_AllocLocalEntity( void );
 void	CG_AddLocalEntities( void );
 
-//
 // cg_effects.c
-//
 localEntity_t *CG_SmokePuff( const vec3_t p,
 				   const vec3_t vel,
 				   float radius,
@@ -1927,22 +1813,16 @@ void CG_TestLine( vec3_t start, vec3_t end, int time, unsigned int color, int ra
 
 void CG_InitGlass( void );
 
-//
 // cg_snapshot.c
-//
 void CG_ProcessSnapshots( void );
 
-//
 // cg_info.c
-//
 void CG_LoadingString( const char *s );
 void CG_LoadingItem( int itemNum );
 void CG_LoadingClient( int clientNum );
 void CG_DrawInformation( void );
 
-//
 // cg_spawn.c
-//
 qboolean	CG_SpawnString( const char *key, const char *defaultString, char **out );
 // spawn string returns a temporary reference, you must CopyString() if you want to keep it
 qboolean	CG_SpawnFloat( const char *key, const char *defaultString, float *out );
@@ -1951,45 +1831,25 @@ qboolean	CG_SpawnBoolean( const char *key, const char *defaultString, qboolean *
 qboolean	CG_SpawnVector( const char *key, const char *defaultString, float *out );
 void		CG_ParseEntitiesFromString( void );
 
-//
 // cg_scoreboard.c
-//
 qboolean CG_DrawOldScoreboard( void );
 void CG_DrawOldTourneyScoreboard( void );
 
-//
 // cg_consolecmds.c
-//
 qboolean CG_ConsoleCommand( void );
 void CG_InitConsoleCommands( void );
 
-//
 // cg_servercmds.c
-//
 void CG_ExecuteNewServerCommands( int latestSequence );
 void CG_ParseServerinfo( void );
 void CG_SetConfigValues( void );
 void CG_ShaderStateChanged(void);
 
-//
 // cg_playerstate.c
-//
 int CG_IsMindTricked(int trickIndex1, int trickIndex2, int trickIndex3, int trickIndex4, int client);
 void CG_Respawn( void );
 void CG_TransitionPlayerState( playerState_t *ps, playerState_t *ops );
 void CG_CheckChangedPredictableEvents( playerState_t *ps );
-
-
-//
-// cg_siege.c
-//
-void CG_InitSiegeMode(void);
-void CG_SiegeRoundOver(centity_t *ent, int won);
-void CG_SiegeObjectiveCompleted(centity_t *ent, int won, int objectivenum);
-
-
-
-//===============================================
 
 void		BG_CycleInven(playerState_t *ps, int direction);
 int			BG_ProperForceIndex(int power);
@@ -2006,9 +1866,7 @@ void FX_ConcussionHitPlayer( vec3_t origin, vec3_t normal, qboolean humanoid );
 void FX_ConcussionProjectileThink(  centity_t *cent, const struct weaponInfo_s *weapon );
 void FX_ConcAltShot( vec3_t start, vec3_t end );
 
-//-----------------------------
 // Effects related prototypes
-//-----------------------------
 
 // Environmental effects
 void CG_Spark( vec3_t origin, vec3_t dir );
@@ -2024,13 +1882,9 @@ void FX_BlasterAltFireThink( centity_t *cent, const struct weaponInfo_s *weapon 
 void FX_BlasterWeaponHitWall( vec3_t origin, vec3_t normal );
 void FX_BlasterWeaponHitPlayer( vec3_t origin, vec3_t normal, qboolean humanoid );
 
-
 void FX_ForceDrained(vec3_t origin, vec3_t dir);
 
-
-//-----------------------------
 // Effects related prototypes
-//-----------------------------
 
 // Environmental effects
 void CG_Spark( vec3_t origin, vec3_t dir );
@@ -2049,7 +1903,6 @@ void FX_BlasterWeaponHitPlayer( vec3_t origin, vec3_t normal, qboolean humanoid 
 void		CG_Init_CG(void);
 void		CG_Init_CGents(void);
 
-
 void CG_SetGhoul2Info( refEntity_t *ent, centity_t *cent);
 void CG_CreateBBRefEnts(entityState_t *s1, vec3_t origin );
 
@@ -2059,14 +1912,8 @@ void CG_CopyG2WeaponInstance(centity_t *cent, int weaponNum, void *toGhoul2);
 void *CG_G2WeaponInstance(centity_t *cent, int weapon);
 void CG_CheckPlayerG2Weapons(playerState_t *ps, centity_t *cent);
 
-void CG_SetSiegeTimerCvar( int msec );
-
 void	CG_ClearLightStyles (void);
 void	CG_RunLightStyles (void);
 void	CG_SetLightstyle (int i);
-
-/*
-Ghoul2 Insert End
-*/
 
 extern cgameImport_t *trap;

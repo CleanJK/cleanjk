@@ -1,5 +1,5 @@
 // Token Interpreter
-//
+
 //	-- jweier
 
 #ifdef _WIN32
@@ -17,13 +17,7 @@ extern void  ICARUS_Free(void *pMem);
 #include "blockstream.h"
 #include "interpreter.h"
 
-/*
-===================================================================================================
-
-  Table Definitions
-
-===================================================================================================
-*/
+// Table Definitions
 
 //FIXME: The following tables should be passed in to the interpreter for flexibility
 
@@ -129,14 +123,7 @@ keywordArray_t CInterpreter::m_typeKeywords[] =
 	"",				TYPE_EOF,
 };
 
-
-/*
-===================================================================================================
-
-  Constructor / Destructor
-
-===================================================================================================
-*/
+// Constructor / Destructor
 
 CInterpreter::CInterpreter()
 {
@@ -146,13 +133,7 @@ CInterpreter::~CInterpreter()
 {
 }
 
-/*
-===================================================================================================
-
-	Error Handling
-
-===================================================================================================
-*/
+// Error Handling
 
 int CInterpreter::Error( char *format, ... )
 {
@@ -164,7 +145,7 @@ int CInterpreter::Error( char *format, ... )
 	if (!error_file)
 	{
 		// 99% of the time we'll get here now, because of pushed parse streams
-		//
+
 		error_file = (char *)m_sCurrentFile.c_str();
 	}
 
@@ -202,10 +183,10 @@ int CInterpreter::Error( char *format, ... )
 
 	// A bit of kludge code that takes care of the case where there's some garbage at the beginning of the file
 	//	before any blocks are read as valid. This is needed because ints are incapable of containing 0
-	//
+
 	// This'll mean that technically it's saying block 1 is wrong, rather than the one in between them, but I can
 	//	live with that.
-	//
+
 	if (m_iBadCBlockNumber == 0)
 	{
 		m_iBadCBlockNumber = 1;
@@ -213,31 +194,13 @@ int CInterpreter::Error( char *format, ... )
 	return false;
 }
 
-/*
-===================================================================================================
-
-	Local Variable Functions
-
-===================================================================================================
-*/
-
-/*
--------------------------
-InitVars
--------------------------
-*/
+// Local Variable Functions
 
 void CInterpreter::InitVars( void )
 {
 	m_vars.clear();
 	m_varMap.clear();
 }
-
-/*
--------------------------
-FreeVars
--------------------------
-*/
 
 void CInterpreter::FreeVars( void )
 {
@@ -250,12 +213,6 @@ void CInterpreter::FreeVars( void )
 
 	InitVars();
 }
-
-/*
--------------------------
-AddVar
--------------------------
-*/
 
 variable_t *CInterpreter::AddVar( const char *name, int type )
 {
@@ -278,12 +235,6 @@ variable_t *CInterpreter::AddVar( const char *name, int type )
 	return var;
 }
 
-/*
--------------------------
-FindVar
--------------------------
-*/
-
 variable_t *CInterpreter::FindVar( const char *name )
 {
 	variable_m::iterator	vmi;
@@ -295,12 +246,6 @@ variable_t *CInterpreter::FindVar( const char *name )
 
 	return (*vmi).second;
 }
-
-/*
--------------------------
-GetVariable
--------------------------
-*/
 
 int CInterpreter::GetVariable( int type )
 {
@@ -337,13 +282,7 @@ int CInterpreter::GetVariable( int type )
 	return true;
 }
 
-/*
-===================================================================================================
-
-	ID Table Functions
-
-===================================================================================================
-*/
+// ID Table Functions
 
 int CInterpreter::GetVector( CBlock *block )
 {
@@ -378,16 +317,7 @@ int CInterpreter::GetVector( CBlock *block )
 	return false;
 }
 
-/*
-===================================================================================================
-
-  MatchTag()
-
-  Attempts to match to a tag identifier.
-
-===================================================================================================
-*/
-
+// Attempts to match to a tag identifier.
 int CInterpreter::MatchTag( void )
 {
 	CToken		*token;
@@ -409,16 +339,7 @@ int CInterpreter::MatchTag( void )
 	return true;
 }
 
-/*
-===================================================================================================
-
-  MatchGet()
-
-  Attempts to match to a get identifier.
-
-===================================================================================================
-*/
-
+// Attempts to match to a get identifier.
 int CInterpreter::MatchGet( void )
 {
 	CToken		*token;
@@ -440,16 +361,7 @@ int CInterpreter::MatchGet( void )
 	return true;
 }
 
-/*
-===================================================================================================
-
-  MatchRandom()
-
-  Attempts to match to a random identifier.
-
-===================================================================================================
-*/
-
+// Attempts to match to a random identifier.
 int CInterpreter::MatchRandom( void )
 {
 	CToken		*token;
@@ -471,16 +383,7 @@ int CInterpreter::MatchRandom( void )
 	return true;
 }
 
-/*
-===================================================================================================
-
-  FindSymbol()
-
-  Searches the symbol table for the given name.  Returns the ID if found.
-
-===================================================================================================
-*/
-
+// Searches the symbol table for the given name.  Returns the ID if found.
 int CInterpreter::FindSymbol( const char *name,  keywordArray_t *table)
 {
 	keywordArray_t *ids;
@@ -494,19 +397,8 @@ int CInterpreter::FindSymbol( const char *name,  keywordArray_t *table)
 	return -1;
 }
 
-
-/*
-===================================================================================================
-
-  Match()
-
-  Looks ahead to the next token to try and match it to the passed token, consumes token on success.
-
-===================================================================================================
-*/
-
+// Looks ahead to the next token to try and match it to the passed token, consumes token on success.
 //NOTENOTE:  LookAhead() was separated from Match() for clarity
-
 int CInterpreter::Match( int token_id )
 {
 	CToken	*token;
@@ -524,12 +416,6 @@ int CInterpreter::Match( int token_id )
 	return true;
 }
 
-/*
--------------------------
-GetNextType
--------------------------
-*/
-
 int CInterpreter::GetNextType( void )
 {
 	CToken	*token = m_tokenizer->GetToken( 0, 0 );
@@ -540,16 +426,7 @@ int CInterpreter::GetNextType( void )
 	return id;
 }
 
-/*
-===================================================================================================
-
-  LookAhead()
-
-  Looks ahead without consuming on success.
-
-===================================================================================================
-*/
-
+// Looks ahead without consuming on success.
 int CInterpreter::LookAhead( int token_id )
 {
 	CToken	*token;
@@ -568,16 +445,7 @@ int CInterpreter::LookAhead( int token_id )
 	return true;
 }
 
-/*
-===================================================================================================
-
-  GetTokenName()
-
-  Returns the name of a token.
-
-===================================================================================================
-*/
-
+// Returns the name of a token.
 const char *CInterpreter::GetTokenName( int token_id )
 {
 	switch ( token_id )
@@ -608,24 +476,9 @@ const char *CInterpreter::GetTokenName( int token_id )
 	}
 }
 
-/*
-===================================================================================================
+// Token Value Functions
 
-	Token Value Functions
-
-===================================================================================================
-*/
-
-/*
-===================================================================================================
-
-  GetFloat()
-
-  Attempts to match and retrieve the value of a float token.
-
-===================================================================================================
-*/
-
+// Attempts to match and retrieve the value of a float token.
 int CInterpreter::GetFloat( CBlock *block )
 {
 	CToken	*token;
@@ -666,31 +519,13 @@ int CInterpreter::GetFloat( CBlock *block )
 	return true;
 }
 
-/*
-===================================================================================================
-
-  GetInteger()
-
-  Attempts to match and retrieve the value of an integer token.
-
-===================================================================================================
-*/
-
+// Attempts to match and retrieve the value of an integer token.
 int CInterpreter::GetInteger( CBlock *block )
 {
 	return GetFloat( block );
 }
 
-/*
-===================================================================================================
-
-  GetString()
-
-  Attempts to match and retrieve the value of a string token.
-
-===================================================================================================
-*/
-
+// Attempts to match and retrieve the value of a string token.
 int CInterpreter::GetString( CBlock *block )
 {
 	CToken	*token;
@@ -747,16 +582,7 @@ int CInterpreter::GetString( CBlock *block )
 	return true;
 }
 
-/*
-===================================================================================================
-
-  GetIdentifier()
-
-  Attempts to match and retrieve the value of an indentifier token.
-
-===================================================================================================
-*/
-
+// Attempts to match and retrieve the value of an indentifier token.
 int CInterpreter::GetIdentifier( CBlock *block )
 {
 	CToken	*token;
@@ -786,16 +612,7 @@ int CInterpreter::GetIdentifier( CBlock *block )
 	return true;
 }
 
-/*
-===================================================================================================
-
-  GetEvaluator()
-
-  Attempts to match and retrieve the value of an evaluator token.
-
-===================================================================================================
-*/
-
+// Attempts to match and retrieve the value of an evaluator token.
 int CInterpreter::GetEvaluator( CBlock *block )
 {
 	CToken	*token;
@@ -836,16 +653,7 @@ int CInterpreter::GetEvaluator( CBlock *block )
 	return true;
 }
 
-/*
-===================================================================================================
-
-  GetAny()
-
-  Attempts to match and retrieve any valid data type.
-
-===================================================================================================
-*/
-
+// Attempts to match and retrieve any valid data type.
 int CInterpreter::GetAny( CBlock *block )
 {
 	CToken	*token;
@@ -923,16 +731,7 @@ int CInterpreter::GetAny( CBlock *block )
 	return true;
 }
 
-/*
-===================================================================================================
-
-  GetType()
-
-  Attempts to match and retrieve the value of a type token.
-
-===================================================================================================
-*/
-
+// Attempts to match and retrieve the value of a type token.
 int CInterpreter::GetType( char *get )
 {
 	CToken	*token;
@@ -960,18 +759,8 @@ int CInterpreter::GetType( char *get )
 	return true;
 }
 
-/*
-===================================================================================================
-
-  GetID()
-
-  Attempts to match and interpret an identifier.
-
-===================================================================================================
-*/
-
+// Attempts to match and interpret an identifier.
 //FIXME: This should use an externally defined table to match ID and functions
-
 int CInterpreter::GetID( char *id_name )
 {
 	int		id;
@@ -1120,19 +909,7 @@ int CInterpreter::GetID( char *id_name )
 	return true;
 }
 
-/*
-===================================================================================================
-
-	ID Interpreting Functions
-
-===================================================================================================
-*/
-
-/*
--------------------------
-GetDeclare
--------------------------
-*/
+// ID Interpreting Functions
 
 int CInterpreter::GetDeclare( void )
 {
@@ -1174,13 +951,6 @@ int CInterpreter::GetDeclare( void )
 	return true;
 }
 
-
-/*
--------------------------
-GetFree
--------------------------
-*/
-
 int CInterpreter::GetFree( void )
 {
 	CBlock	block;
@@ -1201,18 +971,8 @@ int CInterpreter::GetFree( void )
 	return true;
 }
 
-/*
-===================================================================================================
-
-  GetIf()
-
-  Handles the if() conditional statement.
-
-===================================================================================================
-*/
-
+// Handles the if() conditional statement.
 // if ( STRING ? STRING )
-
 int CInterpreter::GetIf( void )
 {
 	CBlock	block;
@@ -1239,18 +999,8 @@ int CInterpreter::GetIf( void )
 	return true;
 }
 
-/*
-===================================================================================================
-
-  GetElse()
-
-  Handles the else() conditional statement.
-
-===================================================================================================
-*/
-
+// Handles the else() conditional statement.
 // else
-
 int CInterpreter::GetElse( void )
 {
 	CBlock	block;
@@ -1283,18 +1033,8 @@ int CInterpreter::GetElse( void )
 	return true;
 }
 
-/*
-===================================================================================================
-
-  GetTask()
-
-  Handles the task() sequence specifier.
-
-===================================================================================================
-*/
-
-//task ( name ) { }
-
+// Handles the task() sequence specifier.
+// task ( name ) { }
 int CInterpreter::GetTask( void )
 {
 	CBlock	block;
@@ -1316,18 +1056,8 @@ int CInterpreter::GetTask( void )
 
 }
 
-/*
-===================================================================================================
-
-  GetDo()
-
-  Handles the do() function.
-
-===================================================================================================
-*/
-
-//do ( taskName )
-
+// Handles the do() function.
+// do ( taskName )
 int CInterpreter::GetDo( void )
 {
 	CBlock	block;
@@ -1348,18 +1078,8 @@ int CInterpreter::GetDo( void )
 	return true;
 }
 
-/*
-===================================================================================================
-
-  GetGet()
-
-  Handles the get() function.
-
-===================================================================================================
-*/
-
+// Handles the get() function.
 // get( TYPE, NAME );
-
 int CInterpreter::GetGet( CBlock *block )
 {
 	char	typeName[MAX_STRING_LENGTH];
@@ -1398,18 +1118,8 @@ int CInterpreter::GetGet( CBlock *block )
 	return true;
 }
 
-/*
-===================================================================================================
-
-  GetRandom()
-
-  Handles the random() function.
-
-===================================================================================================
-*/
-
+// Handles the random() function.
 // random( low, high );
-
 int CInterpreter::GetRandom( CBlock *block )
 {
 	block->Write( ID_RANDOM, (float) ID_RANDOM );
@@ -1429,18 +1139,8 @@ int CInterpreter::GetRandom( CBlock *block )
 	return true;
 }
 
-/*
-===================================================================================================
-
-  GetSound()
-
-  Handles the sound() function.
-
-===================================================================================================
-*/
-
+// Handles the sound() function.
 // sound( NAME );
-
 int CInterpreter::GetSound( void )
 {
 	CBlock	block;
@@ -1464,18 +1164,8 @@ int CInterpreter::GetSound( void )
 	return true;
 }
 
-/*
-===================================================================================================
-
-  GetMove()
-
-  Handles the move() function.
-
-===================================================================================================
-*/
-
+// Handles the move() function.
 // move( ORIGIN, ANGLES, DURATION );
-
 int CInterpreter::GetMove( void )
 {
 	CBlock	block;
@@ -1506,18 +1196,8 @@ int CInterpreter::GetMove( void )
 	return true;
 }
 
-/*
-===================================================================================================
-
-  GetRotate()
-
-  Handles the rotate() function.
-
-===================================================================================================
-*/
-
+// Handles the rotate() function.
 // move( ANGLES, DURATION );
-
 int CInterpreter::GetRotate( void )
 {
 	CBlock	block;
@@ -1541,18 +1221,8 @@ int CInterpreter::GetRotate( void )
 	return true;
 }
 
-/*
-===================================================================================================
-
-  GetAffect()
-
-  Handles the affect() function.
-
-===================================================================================================
-*/
-
+// Handles the affect() function.
 //FIXME:  This should be externally defined
-
 int CInterpreter::GetAffect( void )
 {
 	CBlock			block;
@@ -1603,18 +1273,8 @@ int CInterpreter::GetAffect( void )
 	return true;
 }
 
-/*
-===================================================================================================
-
-  GetWait()
-
-  Handles the wait() function.
-
-===================================================================================================
-*/
-
+// Handles the wait() function.
 //FIXME:  This should be externally defined
-
 int CInterpreter::GetWait( void )
 {
 	CBlock			block;
@@ -1643,18 +1303,8 @@ int CInterpreter::GetWait( void )
 	return true;
 }
 
-/*
-===================================================================================================
-
-  GetSet()
-
-  Handles the set() function.
-
-===================================================================================================
-*/
-
+// Handles the set() function.
 //FIXME:  This should be externally defined
-
 int CInterpreter::GetSet( void )
 {
 	CBlock		block;
@@ -1732,16 +1382,7 @@ int CInterpreter::GetSet( void )
 	return true;
 }
 
-/*
-===================================================================================================
-
-  GetLoop()
-
-  Handles the loop() function.
-
-===================================================================================================
-*/
-
+// Handles the loop() function.
 int CInterpreter::GetLoop( void )
 {
 	CBlock			block;
@@ -1770,16 +1411,7 @@ int CInterpreter::GetLoop( void )
 	return true;
 }
 
-/*
-===================================================================================================
-
-  GetPrint()
-
-  Handles the print() function.
-
-===================================================================================================
-*/
-
+// Handles the print() function.
 int CInterpreter::GetPrint( void )
 {
 	CBlock			block;
@@ -1800,16 +1432,7 @@ int CInterpreter::GetPrint( void )
 	return true;
 }
 
-/*
-===================================================================================================
-
-  GetUse()
-
-  Handles the use() function.
-
-===================================================================================================
-*/
-
+// Handles the use() function.
 int CInterpreter::GetUse( void )
 {
 	CBlock			block;
@@ -1830,16 +1453,7 @@ int CInterpreter::GetUse( void )
 	return true;
 }
 
-/*
-===================================================================================================
-
-  GetFlush()
-
-  Handles the flush() function.
-
-===================================================================================================
-*/
-
+// Handles the flush() function.
 int CInterpreter::GetFlush( void )
 {
 	CBlock	block;
@@ -1857,16 +1471,7 @@ int CInterpreter::GetFlush( void )
 	return true;
 }
 
-/*
-===================================================================================================
-
-  GetRun()
-
-  Handles the run() function.
-
-===================================================================================================
-*/
-
+// Handles the run() function.
 int CInterpreter::GetRun( void )
 {
 	CBlock	block;
@@ -1887,16 +1492,7 @@ int CInterpreter::GetRun( void )
 	return true;
 }
 
-/*
-===================================================================================================
-
-  GetKill()
-
-  Handles the kill() function.
-
-===================================================================================================
-*/
-
+// Handles the kill() function.
 int CInterpreter::GetKill( void )
 {
 	CBlock	block;
@@ -1917,16 +1513,7 @@ int CInterpreter::GetKill( void )
 	return true;
 }
 
-/*
-===================================================================================================
-
-  GetRemove()
-
-  Handles the remove() function.
-
-===================================================================================================
-*/
-
+// Handles the remove() function.
 int CInterpreter::GetRemove( void )
 {
 	CBlock	block;
@@ -1947,18 +1534,8 @@ int CInterpreter::GetRemove( void )
 	return true;
 }
 
-/*
-===================================================================================================
-
-  GetRem()
-
-  Handles the rem() function.
-
-===================================================================================================
-*/
-
+// Handles the rem() function.
 // this is just so people can put comments in scripts in BehavEd and not have them lost as normal comments would be.
-//
 int CInterpreter::GetRem( void )
 {
 	CBlock	block;
@@ -1981,17 +1558,7 @@ int CInterpreter::GetRem( void )
 	return true;
 }
 
-
-/*
-===================================================================================================
-
-  GetCamera()
-
-  Handles the camera() function.
-
-===================================================================================================
-*/
-
+// Handles the camera() function.
 int CInterpreter::GetCamera( void )
 {
 	CBlock	block;
@@ -2174,12 +1741,6 @@ int CInterpreter::GetCamera( void )
 	return true;
 }
 
-/*
--------------------------
-GetDoWait
--------------------------
-*/
-
 int CInterpreter::GetDoWait( void )
 {
 	CBlock	block;
@@ -2211,12 +1772,6 @@ int CInterpreter::GetDoWait( void )
 	return true;
 }
 
-/*
--------------------------
-GetSignal
--------------------------
-*/
-
 int CInterpreter::GetSignal( void )
 {
 	CBlock			block;
@@ -2237,12 +1792,6 @@ int CInterpreter::GetSignal( void )
 	return true;
 }
 
-/*
--------------------------
-GetSignal
--------------------------
-*/
-
 int CInterpreter::GetWaitSignal( void )
 {
 	CBlock			block;
@@ -2262,12 +1811,6 @@ int CInterpreter::GetWaitSignal( void )
 
 	return true;
 }
-
-/*
--------------------------
-GetPlay
--------------------------
-*/
 
 int CInterpreter::GetPlay( void )
 {
@@ -2292,18 +1835,8 @@ int CInterpreter::GetPlay( void )
 	return true;
 }
 
-/*
-===================================================================================================
-
-  GetTag()
-
-  Handles the tag() identifier.
-
-===================================================================================================
-*/
-
+// Handles the tag() identifier.
 //NOTENOTE: The tag's information is included as block members, not as a separate block.
-
 int CInterpreter::GetTag( CBlock *block )
 {
 	char	typeName[MAX_STRING_SIZE];
@@ -2338,19 +1871,11 @@ int CInterpreter::GetTag( CBlock *block )
 	return true;
 }
 
-/*
-===================================================================================================
-
-	Interpret function
-
-===================================================================================================
-*/
+// Interpret function
 
 // note new return type, this now returns the bad block number, else 0 for success.
-//
 //  I also return -ve block numbers for errors between blocks. Eg if you read 3 good blocks, then find an unexpected
 //		float in the script between blocks 3 & 4 then I return -3 to indicate the error is after that, but not block 4
-//
 int	CInterpreter::Interpret( CTokenizer *Tokenizer, CBlockStream *BlockStream, char *filename )
 {
 	CBlock		block;

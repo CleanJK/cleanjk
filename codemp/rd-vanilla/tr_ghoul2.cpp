@@ -801,23 +801,10 @@ CRenderableSurface *AllocRS()
 }
 #endif
 
-/*
+// All bones should be an identity orientation to display the mesh exactly as it is specified.
+// For all other frames, the bones represent the transformation from the orientation of the bone in the base frame to
+//	the orientation in this frame.
 
-All bones should be an identity orientation to display the mesh exactly
-as it is specified.
-
-For all other frames, the bones represent the transformation from the
-orientation of the bone in the base frame to the orientation in this
-frame.
-
-*/
-
-
-/*
-=============
-R_ACullModel
-=============
-*/
 static int R_GCullModel( trRefEntity_t *ent ) {
 
 	// scale the radius if need be
@@ -854,13 +841,6 @@ static int R_GCullModel( trRefEntity_t *ent ) {
 	return CULL_IN;
 }
 
-
-/*
-=================
-R_AComputeFogNum
-
-=================
-*/
 static int R_GComputeFogNum( trRefEntity_t *ent ) {
 
 	int				i, j;
@@ -951,7 +931,6 @@ static int G2_ComputeLOD( trRefEntity_t *ent, const model_t *currentModel, int l
  		lod = currentModel->numLods - 1;
  	}
 
-
 	lod += lodBias;
 
 	if ( lod >= currentModel->numLods )
@@ -962,10 +941,7 @@ static int G2_ComputeLOD( trRefEntity_t *ent, const model_t *currentModel, int l
 	return lod;
 }
 
-//======================================================================
-//
 // Bone Manipulation code
-
 
 void G2_CreateQuaterion(mdxaBone_t *mat, vec4_t quat)
 {
@@ -1066,7 +1042,6 @@ void Multiply_3x4Matrix(mdxaBone_t *out, mdxaBone_t *in2, mdxaBone_t *in)
 	out->matrix[2][3] = (in2->matrix[2][0] * in->matrix[0][3]) + (in2->matrix[2][1] * in->matrix[1][3]) + (in2->matrix[2][2] * in->matrix[2][3]) + in2->matrix[2][3];
 }
 
-
 static int G2_GetBonePoolIndex(const mdxaHeader_t *pMDXAHeader, int iFrame, int iBone)
 {
 	const int iOffsetToIndex	= (iFrame * pMDXAHeader->numBones * 3) + (iBone * 3);
@@ -1074,7 +1049,6 @@ static int G2_GetBonePoolIndex(const mdxaHeader_t *pMDXAHeader, int iFrame, int 
 
 	return (pIndex->iIndex[2] << 16) + (pIndex->iIndex[1] << 8) + (pIndex->iIndex[0]);
 }
-
 
 /*static inline*/ void UnCompressBone(float mat[3][4], int iBoneIndex, const mdxaHeader_t *pMDXAHeader, int iFrame)
 {
@@ -1635,9 +1609,8 @@ void G2_TransformBone (int child,CBoneCache &BC)
 		}
 	}
 
-  	//
   	// lerp this bone - use the temp space on the ref entity to put the bone transforms into
-  	//
+
   	if (!TB.backlerp)
   	{
 // 		MC_UnCompress(tbone[2].matrix,compBonePointer[aoldFrame->boneIndexes[child]].Comp);
@@ -2020,7 +1993,6 @@ void G2_TransformGhoulBones(boneInfo_v &rootBoneList,mdxaBone_t &rootMatrix, CGh
 	model_t			*currentModel = (model_t *)ghoul2.currentModel;
 	mdxaHeader_t	*aHeader = (mdxaHeader_t *)ghoul2.aHeader;
 
-
 	assert(ghoul2.aHeader);
 	assert(ghoul2.currentModel);
 	assert(ghoul2.currentModel->mdxm);
@@ -2156,13 +2128,9 @@ void G2_TransformGhoulBones(boneInfo_v &rootBoneList,mdxaBone_t &rootMatrix, CGh
 #endif
 }
 
-
 #define MDX_TAG_ORIGIN 2
 
-//======================================================================
-//
 // Surface Manipulation code
-
 
 // We've come across a surface that's designated as a bolt surface, process it and put it in the appropriate bolt place
 void G2_ProcessSurfaceBolt(mdxaBone_v &bonePtr, mdxmSurface_t *surface, int boltNum, boltInfo_v &boltList, surfaceInfo_t *surfInfo, model_t *mod)
@@ -2291,7 +2259,6 @@ void G2_ProcessSurfaceBolt(mdxaBone_v &bonePtr, mdxmSurface_t *surface, int bolt
 		boltList[boltNum].position.matrix[1][2] = right[1];
 		boltList[boltNum].position.matrix[2][2] = right[2];
 
-
 	}
 	// no, we are looking at a normal model tag
 	else
@@ -2367,7 +2334,6 @@ void G2_ProcessSurfaceBolt(mdxaBone_v &bonePtr, mdxmSurface_t *surface, int bolt
 	}
 
 }
-
 
 // now go through all the generated surfaces that aren't included in the model surface hierarchy and create the correct bolt info for them
 void G2_ProcessGeneratedSurfaceBolts(CGhoul2Info &ghoul2, mdxaBone_v &bonePtr, model_t *mod_t)
@@ -2661,7 +2627,6 @@ void ProcessModelBoltSurfaces(int surfaceNum, surfaceInfo_v &rootSList,
 #endif
 }
 
-
 // build the used bone list so when doing bone transforms we can determine if we need to do it or not
 void G2_ConstructUsedBoneList(CConstructBoneList &CBL)
 {
@@ -2716,7 +2681,7 @@ void G2_ConstructUsedBoneList(CConstructBoneList &CBL)
 			}
 
 			// now we need to ensure that the parents of this bone are actually active...
-			//
+
 			int iParentBone = skel->parent;
 			while (iParentBone != -1)
 			{
@@ -2742,7 +2707,6 @@ void G2_ConstructUsedBoneList(CConstructBoneList &CBL)
 		G2_ConstructUsedBoneList(CBL);
 	}
 }
-
 
 // sort all the ghoul models in this list so if they go in reference order. This will ensure the bolt on's are attached to the right place
 // on the previous model, since it ensures the model being attached to is built and rendered first.
@@ -2994,7 +2958,6 @@ void G2_ProcessSurfaceBolt2(CBoneCache &boneCache, const mdxmSurface_t *surface,
 		retMatrix.matrix[1][2] = right[1];
 		retMatrix.matrix[2][2] = right[2];
 
-
 	}
 	// no, we are looking at a normal model tag
 	else
@@ -3207,11 +3170,6 @@ static inline bool bInShadowRange(vec3_t location)
 	return (dist < r_shadowRange->value);
 }
 
-/*
-==============
-R_AddGHOULSurfaces
-==============
-*/
 void R_AddGhoulSurfaces( trRefEntity_t *ent ) {
 #ifdef G2_PERFORMANCE_ANALYSIS
 	G2PerformanceTimer_R_AddGHOULSurfaces.Start();
@@ -3244,7 +3202,6 @@ void R_AddGhoulSurfaces( trRefEntity_t *ent ) {
 	}
 
 	int currentTime=G2API_GetTime(tr.refdef.time);
-
 
 	// cull the entire model if merged bounding box of both frames
 	// is outside the view frustum.
@@ -3292,9 +3249,9 @@ void R_AddGhoulSurfaces( trRefEntity_t *ent ) {
 		i = modelList[j];
 		if (ghoul2[i].mValid&&!(ghoul2[i].mFlags & GHOUL2_NOMODEL)&&!(ghoul2[i].mFlags & GHOUL2_NORENDER))
 		{
-			//
+
 			// figure out whether we should be using a custom shader for this model
-			//
+
 			skin = NULL;
 			if (ent->e.customShader)
 			{
@@ -3387,11 +3344,7 @@ bool G2_NeedsRecalc(CGhoul2Info *ghlInfo,int frameNum)
 	return false;
 }
 
-/*
-==============
-G2_ConstructGhoulSkeleton - builds a complete skeleton for all ghoul models in a CGhoul2Info_v class	- using LOD 0
-==============
-*/
+// builds a complete skeleton for all ghoul models in a CGhoul2Info_v class	- using LOD 0
 void G2_ConstructGhoulSkeleton( CGhoul2Info_v &ghoul2,const int frameNum,bool checkForNewOrigin,const vec3_t scale)
 {
 #ifdef G2_PERFORMANCE_ANALYSIS
@@ -3603,9 +3556,7 @@ void RB_SurfaceGhoul( CRenderableSurface *surf )
 	// first up, sanity check our numbers
 	RB_CheckOverflow( surface->numVerts, surface->numTriangles );
 
-	//
 	// deform the vertexes by the lerped bones
-	//
 
 	// first up, sanity check our numbers
 	baseVertex = tess.numVertexes;
@@ -3824,20 +3775,9 @@ void RB_SurfaceGhoul( CRenderableSurface *surf )
 #endif
 }
 
-/*
-=================
-R_LoadMDXM - load a Ghoul 2 Mesh file
-=================
-*/
-
-/*
-
-Some information used in the creation of the JK2 - JKA bone remap table
-
-These are the old bones:
-Complete list of all 72 bones:
-
-*/
+// Some information used in the creation of the JK2 - JKA bone remap table
+// These are the old bones:
+// Complete list of all 72 bones:
 
 int OldToNewRemapTable[72] = {
 0,// Bone 0:   "model_root":           Parent: ""  (index -1)
@@ -3913,7 +3853,6 @@ int OldToNewRemapTable[72] = {
 48,// Bone70:   "l_d1_j3":				Parent: "thoracic"  (index 15)
 52// Bone71:   "face_always_":			Parent: "cranium"  (index 17)
 };
-
 
 /*
 
@@ -4181,11 +4120,9 @@ Bone  52:   "face_always_":
             Child 6: (index 22), name "rtlip2"
             Child 7: (index 23), name "reye"
 
-
-
 */
 
-
+// load a Ghoul 2 Mesh file
 qboolean R_LoadMDXM( model_t *mod, void *buffer, const char *mod_name, qboolean &bAlreadyCached ) {
 	int					i,l, j;
 	mdxmHeader_t		*pinmodel, *mdxm;
@@ -4206,9 +4143,9 @@ qboolean R_LoadMDXM( model_t *mod, void *buffer, const char *mod_name, qboolean 
 #endif
 
 	pinmodel= (mdxmHeader_t *)buffer;
-	//
+
 	// read some fields from the binary, but only LittleLong() them when we know this wasn't an already-cached model...
-	//
+
 	version = (pinmodel->version);
 	size	= (pinmodel->ofsEnd);
 
@@ -4238,9 +4175,9 @@ qboolean R_LoadMDXM( model_t *mod, void *buffer, const char *mod_name, qboolean 
 		// horrible new hackery, if !bAlreadyFound then we've just done a tag-morph, so we need to set the
 		//	bool reference passed into this function to true, to tell the caller NOT to do an ri.FS_Freefile since
 		//	we've hijacked that memory block...
-		//
+
 		// Aaaargh. Kill me now...
-		//
+
 		bAlreadyCached = qtrue;
 		assert( mdxm == buffer );
 //		memcpy( mdxm, buffer, size );	// and don't do this now, since it's the same thing
@@ -4628,11 +4565,7 @@ int BoneParentChildIndex(mdxaHeader_t *mdxa, mdxaSkelOffsets_t *offsets, mdxaSke
 }
 #endif //CREATE_LIMB_HIERARCHY
 
-/*
-=================
-R_LoadMDXA - load a Ghoul 2 animation file
-=================
-*/
+// load a Ghoul 2 animation file
 qboolean R_LoadMDXA( model_t *mod, void *buffer, const char *mod_name, qboolean &bAlreadyCached ) {
 
 	mdxaHeader_t		*pinmodel, *mdxa;
@@ -4650,13 +4583,12 @@ qboolean R_LoadMDXA( model_t *mod, void *buffer, const char *mod_name, qboolean 
 	mdxaCompQuatBone_t	*pCompBonePool;
 	unsigned short		*pwIn;
 	mdxaIndex_t			*pIndex;
-	int					tmp;
 #endif
 
  	pinmodel = (mdxaHeader_t *)buffer;
-	//
+
 	// read some fields from the binary, but only LittleLong() them when we know this wasn't an already-cached model...
-	//
+
 	version = (pinmodel->version);
 	size	= (pinmodel->ofsEnd);
 
@@ -4703,9 +4635,9 @@ qboolean R_LoadMDXA( model_t *mod, void *buffer, const char *mod_name, qboolean 
 		// horrible new hackery, if !bAlreadyFound then we've just done a tag-morph, so we need to set the
 		//	bool reference passed into this function to true, to tell the caller NOT to do an ri.FS_Freefile since
 		//	we've hijacked that memory block...
-		//
+
 		// Aaaargh. Kill me now...
-		//
+
 		bAlreadyCached = qtrue;
 		assert( mdxa == buffer );
 //		memcpy( mdxa, buffer, size );	// and don't do this now, since it's the same thing
@@ -4898,10 +4830,3 @@ qboolean R_LoadMDXA( model_t *mod, void *buffer, const char *mod_name, qboolean 
 #endif
 	return qtrue;
 }
-
-
-
-
-
-
-

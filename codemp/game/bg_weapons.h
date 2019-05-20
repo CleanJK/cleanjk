@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 // Filename:-	bg_weapons.h
-//
+
 // This crosses both client and server.  It could all be crammed into bg_public, but isolation of this type of data is best.
 
 typedef enum {
@@ -53,8 +53,8 @@ typedef enum {
 //	WP_MACHINEGUN,			// Bryar
 //	WP_SHOTGUN,				// Blaster
 //	WP_GRENADE_LAUNCHER,	// Thermal
-//	WP_LIGHTNING,			//
-//	WP_RAILGUN,				//
+//	WP_LIGHTNING,
+//	WP_RAILGUN,
 //	WP_GRAPPLING_HOOK,
 
 	WP_NUM_WEAPONS
@@ -77,7 +77,6 @@ typedef enum //# ammo_e
 	AMMO_DETPACK,
 	AMMO_MAX
 } ammo_t;
-
 
 typedef struct weaponData_s
 {
@@ -104,23 +103,19 @@ typedef struct weaponData_s
 	int		altMaxCharge;		// above for secondary
 } weaponData_t;
 
-
 typedef struct  ammoData_s
 {
 //	char	icon[32];	// Name of ammo icon file
 	int		max;		// Max amount player can hold of ammo
 } ammoData_t;
 
-
 extern weaponData_t weaponData[WP_NUM_WEAPONS];
 extern ammoData_t ammoData[AMMO_MAX];
-
 
 // Specific weapon information
 
 #define FIRST_WEAPON		WP_BRYAR_PISTOL		// this is the first weapon for next and prev weapon switching
 #define MAX_PLAYER_WEAPONS	WP_NUM_WEAPONS-1	// this is the max you can switch to and get with the give all.
-
 
 #define DEFAULT_SHOTGUN_SPREAD	700
 #define DEFAULT_SHOTGUN_COUNT	11

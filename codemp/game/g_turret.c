@@ -24,13 +24,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "g_local.h"
 #include "qcommon/q_shared.h"
 
-void G_SetEnemy( gentity_t *self, gentity_t *enemy );
 qboolean turret_base_spawn_top( gentity_t *base );
 void ObjectDie (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath );
 
-//------------------------------------------------------------------------------------------------------------
 void TurretPain( gentity_t *self, gentity_t *attacker, int damage )
-//------------------------------------------------------------------------------------------------------------
 {
 	if (self->target_ent)
 	{
@@ -46,15 +43,10 @@ void TurretPain( gentity_t *self, gentity_t *attacker, int damage )
 		self->attackDebounceTime = level.time + 800 + Q_flrand(0.0f, 1.0f) * 500;
 		self->painDebounceTime = self->attackDebounceTime;
 	}
-	if ( !self->enemy )
-	{//react to being hit
-		G_SetEnemy( self, attacker );
-	}
+	//CJKFIXME: react to turret being hit
 }
 
-//------------------------------------------------------------------------------------------------------------
 void TurretBasePain( gentity_t *self, gentity_t *attacker, int damage )
-//------------------------------------------------------------------------------------------------------------
 {
 	if (self->target_ent)
 	{
@@ -68,9 +60,7 @@ void TurretBasePain( gentity_t *self, gentity_t *attacker, int damage )
 	}
 }
 
-//------------------------------------------------------------------------------------------------------------
 void auto_turret_die ( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath )
-//------------------------------------------------------------------------------------------------------------
 {
 	vec3_t	forward = { 0,0, 1 }, pos;
 
@@ -104,7 +94,6 @@ void auto_turret_die ( gentity_t *self, gentity_t *inflictor, gentity_t *attacke
 
 	self->s.weapon = 0; // crosshair code uses this to mark crosshair red
 
-
 	if ( self->s.modelindex2 )
 	{
 		// switch to damage model if we should
@@ -129,9 +118,7 @@ void auto_turret_die ( gentity_t *self, gentity_t *inflictor, gentity_t *attacke
 	}
 }
 
-//------------------------------------------------------------------------------------------------------------
 void bottom_die ( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath )
-//------------------------------------------------------------------------------------------------------------
 {
 	if (self->target_ent && self->target_ent->health > 0)
 	{
@@ -146,9 +133,7 @@ void bottom_die ( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, in
 
 #define START_DIS 15
 
-//----------------------------------------------------------------
 static void turret_fire ( gentity_t *ent, vec3_t start, vec3_t dir )
-//----------------------------------------------------------------
 {
 	vec3_t		org;
 	gentity_t	*bolt;
@@ -197,9 +182,7 @@ static void turret_fire ( gentity_t *ent, vec3_t start, vec3_t dir )
 	bolt->parent = ent;
 }
 
-//-----------------------------------------------------
 void turret_head_think( gentity_t *self )
-//-----------------------------------------------------
 {
 	gentity_t *top = &g_entities[self->r.ownerNum];
 	if ( !top )
@@ -246,9 +229,7 @@ void turret_head_think( gentity_t *self )
 	}
 }
 
-//-----------------------------------------------------
 static void turret_aim( gentity_t *self )
-//-----------------------------------------------------
 {
 	vec3_t	enemyDir, org, org2;
 	vec3_t	desiredAngles, setAngle;
@@ -290,13 +271,6 @@ static void turret_aim( gentity_t *self )
 		// Aim at enemy
 		VectorCopy( self->enemy->r.currentOrigin, org );
 		org[2]+=self->enemy->r.maxs[2]*0.5f;
-		if (self->enemy->s.eType == ET_NPC &&
-			self->enemy->s.NPC_class == CLASS_VEHICLE &&
-			self->enemy->m_pVehicle &&
-			self->enemy->m_pVehicle->m_pVehicleInfo->type == VH_WALKER)
-		{ //hack!
-			org[2] += 32.0f;
-		}
 		/*
 		mdxaBone_t	boltMatrix;
 
@@ -373,9 +347,7 @@ static void turret_aim( gentity_t *self )
 	}
 }
 
-//-----------------------------------------------------
 static void turret_turnoff( gentity_t *self )
-//-----------------------------------------------------
 {
 	gentity_t *top = &g_entities[self->r.ownerNum];
 	if ( top != NULL )
@@ -395,9 +367,7 @@ static void turret_turnoff( gentity_t *self )
 	self->enemy = NULL;
 }
 
-//-----------------------------------------------------
 static void turret_sleep( gentity_t *self )
-//-----------------------------------------------------
 {
 	if ( self->enemy == NULL )
 	{
@@ -412,16 +382,14 @@ static void turret_sleep( gentity_t *self )
 	self->enemy = NULL;
 }
 
-//-----------------------------------------------------
 static qboolean turret_find_enemies( gentity_t *self )
-//-----------------------------------------------------
 {
 	qboolean	found = qfalse;
 	int			i, count;
 	float		bestDist = self->radius * self->radius;
 	float		enemyDist;
 	vec3_t		enemyDir, org, org2;
-	gentity_t	*entity_list[MAX_GENTITIES], *target, *bestTarget = NULL;
+	gentity_t	*entity_list[MAX_GENTITIES], *target;
 	trace_t		tr;
 	gentity_t *top = &g_entities[self->r.ownerNum];
 	if ( !top )
@@ -496,9 +464,8 @@ static qboolean turret_find_enemies( gentity_t *self )
 			VectorSubtract( target->r.currentOrigin, top->r.currentOrigin, enemyDir );
 			enemyDist = VectorLengthSquared( enemyDir );
 
-			if ( enemyDist < bestDist // all things equal, keep current
-				|| (!Q_stricmp( "atst_vehicle", target->NPC_type ) && bestTarget && Q_stricmp( "atst_vehicle", bestTarget->NPC_type ) ) )//target AT-STs over non-AT-STs... FIXME: must be a better, easier way to tell this, no?
-			{
+			if ( enemyDist < bestDist ) {
+				// all things equal, keep current
 				if ( self->attackDebounceTime < level.time )
 				{
 					// We haven't fired or acquired an enemy in the last 2 seconds-start-up sound
@@ -508,7 +475,6 @@ static qboolean turret_find_enemies( gentity_t *self )
 					self->attackDebounceTime = level.time + 1400;
 				}
 
-				bestTarget = target;
 				bestDist = enemyDist;
 				found = qtrue;
 			}
@@ -517,7 +483,6 @@ static qboolean turret_find_enemies( gentity_t *self )
 
 	if ( found )
 	{
-		G_SetEnemy( self, bestTarget );
 		if ( VALIDSTRING( self->target2 ))
 		{
 			G_UseTargets2( self, self, self->target2 );
@@ -527,9 +492,7 @@ static qboolean turret_find_enemies( gentity_t *self )
 	return found;
 }
 
-//-----------------------------------------------------
 void turret_base_think( gentity_t *self )
-//-----------------------------------------------------
 {
 	qboolean	turnOff = qtrue;
 	float		enemyDist;
@@ -630,9 +593,7 @@ void turret_base_think( gentity_t *self )
 	turret_aim( self );
 }
 
-//-----------------------------------------------------------------------------
 void turret_base_use( gentity_t *self, gentity_t *other, gentity_t *activator )
-//-----------------------------------------------------------------------------
 {
 	// Toggle on and off
 	self->spawnflags = (self->spawnflags ^ 1);
@@ -648,7 +609,6 @@ void turret_base_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 	}
 	*/
 }
-
 
 /*QUAKED misc_turret (1 0 0) (-48 -48 0) (48 48 144) START_OFF
 Large 2-piece turbolaser turret
@@ -689,9 +649,7 @@ Large 2-piece turbolaser turret
 
 "icon" - icon that represents the objective on the radar
 */
-//-----------------------------------------------------
 void SP_misc_turret( gentity_t *base )
-//-----------------------------------------------------
 {
 	char* s;
 
@@ -732,7 +690,6 @@ void SP_misc_turret( gentity_t *base )
 	}
 }
 
-//-----------------------------------------------------
 qboolean turret_base_spawn_top( gentity_t *base )
 {
 	vec3_t		org;
@@ -754,8 +711,7 @@ qboolean turret_base_spawn_top( gentity_t *base )
 	base->r.ownerNum = top->s.number;
 	top->r.ownerNum = base->s.number;
 
-	if ( base->team && base->team[0] && //level.gametype == GT_SIEGE &&
-		!base->teamnodmg)
+	if ( base->team && base->team[0] && !base->teamnodmg )
 	{
 		base->teamnodmg = atoi(base->team);
 	}

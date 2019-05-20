@@ -25,10 +25,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "../qcommon/q_shared.h"
 
 // Filename:-	sstring.h
-//
 // Gil's string template, used to replace Microsoft's <string> vrsion which doesn't compile under certain stl map<>
 //	conditions...
-
 
 template<int MaxSize>
 class sstring
@@ -140,4 +138,3 @@ public:
 
 typedef sstring<MAX_QPATH> sstring_t;
 
-/////////////////// eof ////////////////////

@@ -21,18 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-/*****************************************************************************
- * name:		l_precomp.h
- *
- * desc:		pre compiler
- *
- * $Archive: /source/code/botlib/l_precomp.h $
- * $Author: Mrelusive $
- * $Revision: 2 $
- * $Modtime: 10/05/99 3:32p $
- * $Date: 10/05/99 3:42p $
- *
- *****************************************************************************/
+// pre compiler
 
 #pragma once
 
@@ -58,7 +47,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #if defined(BSPC) && !defined(QDECL)
 #define QDECL
 #endif
-
 
 #define DEFINE_FIXED			0x0001
 #define	DEFINE_GLOBAL			0x0002
@@ -114,7 +102,6 @@ typedef struct source_s
 	int skip;								// > 0 if skipping conditional code
 	token_t token;							//last read token
 } source_t;
-
 
 //read a token from the source
 int PC_ReadToken(source_t *source, token_t *token);
@@ -181,7 +168,6 @@ typedef struct pc_token_s
 #endif //!_Q_SHARED_H
 #endif //BSPC
 
-//
 int PC_LoadSourceHandle(const char *filename);
 int PC_FreeSourceHandle(int handle);
 int PC_ReadTokenHandle(int handle, pc_token_t *pc_token);

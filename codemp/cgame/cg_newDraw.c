@@ -26,7 +26,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 extern displayContextDef_t cgDC;
 
-
 int CG_GetSelectedPlayer() {
 	if (cg_currentSelectedPlayer.integer < 0 || cg_currentSelectedPlayer.integer >= numSortedTeamPlayers) {
 		cg_currentSelectedPlayer.integer = 0;
@@ -64,7 +63,6 @@ qhandle_t CG_StatusHandle(int task) {
 	}
 	return h;
 }
-
 
 float CG_GetValue(int ownerDraw) {
 	centity_t	*cent;
@@ -142,7 +140,7 @@ qboolean CG_YourTeamHasFlag(void) {
 }
 
 // THINKABOUTME: should these be exclusive or inclusive..
-//
+
 qboolean CG_OwnerDrawVisible(int flags) {
 
 	if (flags & CG_SHOW_TEAMINFO) {
@@ -200,18 +198,6 @@ qboolean CG_OwnerDrawVisible(int flags) {
 		}
 	}
 
-	if (flags & CG_SHOW_SINGLEPLAYER) {
-		if( cgs.gametype == GT_SINGLE_PLAYER ) {
-			return qtrue;
-		}
-	}
-
-	if (flags & CG_SHOW_TOURNAMENT) {
-		if( cgs.gametype == GT_DUEL || cgs.gametype == GT_POWERDUEL ) {
-			return qtrue;
-		}
-	}
-
 	if (flags & CG_SHOW_DURINGINCOMINGVOICE) {
 	}
 
@@ -223,7 +209,6 @@ qboolean CG_OwnerDrawVisible(int flags) {
 	return qfalse;
 }
 
-
 const char *CG_GetKillerText(void) {
 	static const char *s = "";
 	if ( cg.killerName[0] ) {
@@ -231,7 +216,6 @@ const char *CG_GetKillerText(void) {
 	}
 	return s;
 }
-
 
 const char *CG_GetGameStatusText(void) {
 	static const char *s = "";
@@ -265,13 +249,13 @@ const char *CG_GetGameStatusText(void) {
 extern int MenuFontToHandle(int iMenuFont);
 
 // maxX param is initially an X limit, but is also used as feedback. 0 = text was clipped to fit within, else maxX = next pos
-//
+
 static void CG_Text_Paint_Limit(float *maxX, float x, float y, float scale, vec4_t color, const char* text, float adjust, int limit, int iMenuFont)
 {
 	qboolean bIsTrailingPunctuation;
 
 	// this is kinda dirty, but...
-	//
+
 	int iFontIndex = MenuFontToHandle(iMenuFont);
 
 	//float fMax = *maxX;
@@ -280,7 +264,7 @@ static void CG_Text_Paint_Limit(float *maxX, float x, float y, float scale, vec4
 	{
 		// whole text won't fit, so we need to print just the amount that does...
 		//  Ok, this is slow and tacky, but only called occasionally, and it works...
-		//
+
 		char sTemp[4096]={0};	// lazy assumption
 		const char *psText = text;
 		char *psOut = &sTemp[0];
@@ -315,13 +299,11 @@ static void CG_Text_Paint_Limit(float *maxX, float x, float y, float scale, vec4
 	else
 	{
 		// whole text fits fine, so print it all...
-		//
+
 		*maxX = x + iPixelLen;	// feedback the next position, as the caller expects
 		CG_Text_Paint(x, y, scale, color, text, adjust, limit, ITEM_TEXTSTYLE_NORMAL, iMenuFont);
 	}
 }
-
-
 
 #define PIC_WIDTH 12
 
@@ -413,8 +395,6 @@ void CG_DrawNewTeamInfo(rectDef_t *rect, float text_x, float text_y, float scale
 			leftOver = rect->w - xx;
 			maxx = xx + leftOver / 3;
 
-
-
 			CG_Text_Paint_Limit(&maxx, xx, y + text_y, scale, color, ci->name, 0, 0, FONT_MEDIUM);
 
 			p = CG_GetLocationString(CG_ConfigString(CS_LOCATIONS+ci->location));
@@ -434,7 +414,6 @@ void CG_DrawNewTeamInfo(rectDef_t *rect, float text_x, float text_y, float scale
 		}
 	}
 }
-
 
 void CG_DrawTeamSpectators(rectDef_t *rect, float scale, vec4_t color, qhandle_t shader) {
 	if (cg.spectatorLen) {
@@ -492,8 +471,6 @@ void CG_DrawTeamSpectators(rectDef_t *rect, float scale, vec4_t color, qhandle_t
 
 	}
 }
-
-
 
 void CG_DrawMedal(int ownerDraw, rectDef_t *rect, float scale, vec4_t color, qhandle_t shader) {
 	score_t *score = &cg.scores[cg.selectedScore];
@@ -559,8 +536,6 @@ void CG_DrawMedal(int ownerDraw, rectDef_t *rect, float scale, vec4_t color, qha
 
 }
 
-
-//
 void CG_OwnerDraw(float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, float scale, vec4_t color, qhandle_t shader, int textStyle,int font) {
 
 	//Ignore all this, at least for now. May put some stat stuff back in menu files later.
@@ -784,39 +759,19 @@ void CG_MouseEvent(int x, int y) {
 
 }
 
-/*
-==================
-CG_HideTeamMenus
-==================
-
-*/
 void CG_HideTeamMenu() {
 	Menus_CloseByName("teamMenu");
 	Menus_CloseByName("getMenu");
 }
 
-/*
-==================
-CG_ShowTeamMenus
-==================
-
-*/
 void CG_ShowTeamMenu() {
 	Menus_OpenByName("teamMenu");
 }
 
-
-
-
-/*
-==================
-CG_EventHandling
-==================
-type 0 - no event handling
-1 - team menu
-2 - hud editor
-
-*/
+// type:
+//	0 - no event handling
+//	1 - team menu
+//	2 - hud editor
 void CG_EventHandling(int type) {
 	cgs.eventHandling = type;
 	if (type == CGAME_EVENT_NONE) {
@@ -827,8 +782,6 @@ void CG_EventHandling(int type) {
 	}
 
 }
-
-
 
 void CG_KeyEvent(int key, qboolean down) {
 
@@ -847,8 +800,6 @@ void CG_KeyEvent(int key, qboolean down) {
 	//  CG_EventHandling(CGAME_EVENT_NONE);
 	//  trap->Key_SetCatcher(0);
 	//}
-
-
 
 	Display_HandleKey(key, down, cgs.cursorX, cgs.cursorY);
 

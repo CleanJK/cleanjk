@@ -167,56 +167,6 @@ char *GetFlagStr( int flags )
 		i++;
 	}
 
-	if (flags & WPFLAG_SIEGE_IMPERIALOBJ)
-	{
-		if (i)
-		{
-			flagstr[i] = ' ';
-			i++;
-		}
-		flagstr[i] = 's';
-		i++;
-		flagstr[i] = 'a';
-		i++;
-		flagstr[i] = 'g';
-		i++;
-		flagstr[i] = 'a';
-		i++;
-		flagstr[i] = '_';
-		i++;
-		flagstr[i] = 'i';
-		i++;
-		flagstr[i] = 'm';
-		i++;
-		flagstr[i] = 'p';
-		i++;
-	}
-
-	if (flags & WPFLAG_SIEGE_REBELOBJ)
-	{
-		if (i)
-		{
-			flagstr[i] = ' ';
-			i++;
-		}
-		flagstr[i] = 's';
-		i++;
-		flagstr[i] = 'a';
-		i++;
-		flagstr[i] = 'g';
-		i++;
-		flagstr[i] = 'a';
-		i++;
-		flagstr[i] = '_';
-		i++;
-		flagstr[i] = 'r';
-		i++;
-		flagstr[i] = 'e';
-		i++;
-		flagstr[i] = 'b';
-		i++;
-	}
-
 	flagstr[i] = '\0';
 
 	if (i == 0)
@@ -1743,68 +1693,6 @@ gentity_t *GetObjectThatTargets(gentity_t *ent)
 	return NULL;
 }
 
-void CalculateSiegeGoals(void)
-{
-	int i = 0;
-	int looptracker = 0;
-	int wpindex = 0;
-	vec3_t dif;
-	gentity_t *ent;
-	gentity_t *tent = NULL, *t2ent = NULL;
-
-	while (i < level.num_entities)
-	{
-		ent = &g_entities[i];
-
-		tent = NULL;
-
-		if (ent && ent->classname && strcmp(ent->classname, "info_siege_objective") == 0)
-		{
-			tent = ent;
-			t2ent = GetObjectThatTargets(tent);
-			looptracker = 0;
-
-			while (t2ent && looptracker < 2048)
-			{ //looptracker keeps us from getting stuck in case something is set up weird on this map
-				tent = t2ent;
-				t2ent = GetObjectThatTargets(tent);
-				looptracker++;
-			}
-
-			if (looptracker >= 2048)
-			{ //something unpleasent has happened
-				tent = NULL;
-				break;
-			}
-		}
-
-		if (tent && ent && tent != ent)
-		{ //tent should now be the object attached to the mission objective
-			dif[0] = (tent->r.absmax[0]+tent->r.absmin[0])/2;
-			dif[1] = (tent->r.absmax[1]+tent->r.absmin[1])/2;
-			dif[2] = (tent->r.absmax[2]+tent->r.absmin[2])/2;
-
-			wpindex = GetNearestVisibleWP(dif, tent->s.number);
-
-			if (wpindex != -1 && gWPArray[wpindex] && gWPArray[wpindex]->inuse)
-			{ //found the waypoint nearest the center of this objective-related object
-				if (ent->side == SIEGETEAM_TEAM1)
-				{
-					gWPArray[wpindex]->flags |= WPFLAG_SIEGE_IMPERIALOBJ;
-				}
-				else
-				{
-					gWPArray[wpindex]->flags |= WPFLAG_SIEGE_REBELOBJ;
-				}
-
-				gWPArray[wpindex]->associated_entity = tent->s.number;
-			}
-		}
-
-		i++;
-	}
-}
-
 float botGlobalNavWeaponWeights[WP_NUM_WEAPONS] =
 {
 	0,//WP_NONE,
@@ -2245,11 +2133,6 @@ int LoadPathData(const char *filename)
 	B_TempFree(2048); //currentVar
 
 	trap->FS_Close(f);
-
-	if (level.gametype == GT_SIEGE)
-	{
-		CalculateSiegeGoals();
-	}
 
 	CalculateWeightGoals();
 	//calculate weights for idle activity goals when
@@ -3047,7 +2930,6 @@ qboolean G_BackwardAttachment(int start, int finalDestination, int insertAfter)
 	return qfalse;
 }
 
-
 #ifdef _DEBUG
 #define PATH_TIME_DEBUG
 #endif
@@ -3261,7 +3143,6 @@ void BeginAutoPathRoutine(void)
 	trap->BotUpdateWaypoints(gWPNum, gWPArray);
 	trap->BotCalculatePaths(RMG.integer);
 	//CalculatePaths(); //make everything nice and connected
-
 
 	FlagObjects(); //currently only used for flagging waypoints nearest CTF flags
 

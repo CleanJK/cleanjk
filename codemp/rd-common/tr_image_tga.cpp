@@ -25,8 +25,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "tr_common.h"
 
 // My TGA loader...
-//
-//---------------------------------------------------
 #pragma pack(push,1)
 typedef struct TGAHeader_s {
 	byte	byIDFieldLength;	// must be 0
@@ -47,11 +45,8 @@ typedef struct TGAHeader_s {
 } TGAHeader_t;
 #pragma pack(pop)
 
-
 // *pic == pic, else NULL for failed.
-//
 //  returns false if found but had a format error, else true for either OK or not-found (there's a reason for this)
-//
 
 void LoadTGA ( const char *name, byte **pic, int *width, int *height)
 {
@@ -59,20 +54,18 @@ void LoadTGA ( const char *name, byte **pic, int *width, int *height)
 	bool bFormatErrors = false;
 
 	// these don't need to be declared or initialised until later, but the compiler whines that 'goto' skips them.
-	//
+
 	byte *pRGBA = NULL;
 	byte *pOut	= NULL;
 	byte *pIn	= NULL;
-
 
 	*pic = NULL;
 
 #define TGA_FORMAT_ERROR(blah) {sprintf(sErrorString,blah); bFormatErrors = true; goto TGADone;}
 //#define TGA_FORMAT_ERROR(blah) Com_Error( ERR_DROP, blah );
 
-	//
 	// load the file
-	//
+
 	byte *pTempLoadedBuffer = 0;
 	ri.FS_ReadFile ( ( char * ) name, (void **)&pTempLoadedBuffer);
 	if (!pTempLoadedBuffer) {
@@ -124,10 +117,8 @@ void LoadTGA ( const char *name, byte **pic, int *width, int *height)
 		TGA_FORMAT_ERROR("LoadTGA: ScanLineOrder must be either 0x00,0x10,0x20, or 0x30\n");
 	}
 
-
-
 	// these last checks are so i can use ID's RLE-code. I don't dare fiddle with it or it'll probably break...
-	//
+
 	if ( pHeader->byImageType == 10)
 	{
 		if ((pHeader->byScanLineOrder & 0x30) != 0x00)
@@ -141,12 +132,12 @@ void LoadTGA ( const char *name, byte **pic, int *width, int *height)
 	}
 
 	// now read the actual bitmap in...
-	//
+
 	// Image descriptor bytes
 	// bits 0-3 = # attr bits (alpha chan)
 	// bits 4-5 = pixel order/dir
 	// bits 6-7 scan line interleave (00b=none,01b=2way interleave,10b=4way)
-	//
+
 	int iYStart,iXStart,iYStep,iXStep;
 
 	switch(pHeader->byScanLineOrder & 0x30)
@@ -194,7 +185,7 @@ void LoadTGA ( const char *name, byte **pic, int *width, int *height)
 	}
 
 	// feed back the results...
-	//
+
 	if (width)
 		*width = pHeader->wImageWidth;
 	if (height)
@@ -207,7 +198,7 @@ void LoadTGA ( const char *name, byte **pic, int *width, int *height)
 
 	// I don't know if this ID-thing here is right, since comments that I've seen are at the end of the file,
 	//	with a zero in this field. However, may as well...
-	//
+
 	if (pHeader->byIDFieldLength != 0)
 		pIn += pHeader->byIDFieldLength;	// skip TARGA image comment
 
@@ -266,7 +257,7 @@ void LoadTGA ( const char *name, byte **pic, int *width, int *height)
 	{
 		// I've no idea if this stuff works, I normally reject RLE targas, but this is from ID's code
 		//	so maybe I should try and support it...
-		//
+
 		byte packetHeader, packetSize, j;
 
 		for (int y = pHeader->wImageHeight-1; y >= 0; y--)

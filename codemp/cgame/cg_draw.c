@@ -34,8 +34,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 extern float CG_RadiusForCent( centity_t *cent );
 qboolean CG_WorldCoordToScreenCoordFloat(vec3_t worldCoord, float *x, float *y);
 qboolean CG_CalcMuzzlePoint( int entityNum, vec3_t muzzle );
-static void CG_DrawSiegeTimer(int timeRemaining, qboolean isMyTeam);
-static void CG_DrawSiegeDeathTimer( int timeRemaining );
 // nmckenzie: DUEL_HEALTH
 void CG_DrawDuelistHealth ( float x, float y, float w, float h, int duelist );
 
@@ -52,9 +50,6 @@ extern float zoomFov; //this has to be global client-side
 char systemChat[256];
 char teamChat1[256];
 char teamChat2[256];
-
-// The time at which you died and the time it will take for you to rejoin game.
-int cg_siegeDeathTime = 0;
 
 #define MAX_HUD_TICS 4
 const char *armorTicName[MAX_HUD_TICS] =
@@ -114,7 +109,6 @@ char *showPowersName[] =
 
 //Called from UI shared code. For now we'll just redirect to the normal anim load function.
 
-
 int UI_ParseAnimationFile(const char *filename, animation_t *animset, qboolean isHumanoid)
 {
 	return BG_ParseAnimationFile(filename, animset, isHumanoid);
@@ -133,7 +127,6 @@ int MenuFontToHandle(int iMenuFont)
 
 	return cgDC.Assets.qhMediumFont;
 }
-
 
 int CG_Text_Width(const char *text, float scale, int iMenuFont)
 {
@@ -176,12 +169,6 @@ void CG_Text_Paint(float x, float y, float scale, vec4_t color, const char *text
 							);
 }
 
-/*
-================
-CG_DrawZoomMask
-
-================
-*/
 static void CG_DrawZoomMask( void )
 {
 	vec4_t		color1;
@@ -355,7 +342,6 @@ static void CG_DrawZoomMask( void )
 */
 		//max = ( cg_entities[0].gent->health / 100.0f );
 
-
 		if ( (cg.snap->ps.eFlags & EF_DOUBLE_AMMO) )
 		{
 			max = cg.snap->ps.ammo[weaponData[WP_DISRUPTOR].ammoIndex] / ((float)ammoData[weaponData[WP_DISRUPTOR].ammoIndex].max*2.0f);
@@ -422,13 +408,6 @@ static void CG_DrawZoomMask( void )
 	}
 }
 
-
-/*
-================
-CG_Draw3DModel
-
-================
-*/
 void CG_Draw3DModel( float x, float y, float w, float h, qhandle_t model, void *ghoul2, int g2radius, qhandle_t skin, vec3_t origin, vec3_t angles ) {
 	refdef_t		refdef;
 	refEntity_t		ent;
@@ -467,13 +446,7 @@ void CG_Draw3DModel( float x, float y, float w, float h, qhandle_t model, void *
 	trap->R_RenderScene( &refdef );
 }
 
-/*
-================
-CG_DrawHead
-
-Used for both the status bar and the scoreboard
-================
-*/
+// Used for both the status bar and the scoreboard
 void CG_DrawHead( float x, float y, float w, float h, int clientNum, vec3_t headAngles )
 {
 	clientInfo_t	*ci;
@@ -494,13 +467,7 @@ void CG_DrawHead( float x, float y, float w, float h, int clientNum, vec3_t head
 	}
 }
 
-/*
-================
-CG_DrawFlagModel
-
-Used for both the status bar and the scoreboard
-================
-*/
+// Used for both the status bar and the scoreboard
 void CG_DrawFlagModel( float x, float y, float w, float h, int team, qboolean force2D ) {
 	qhandle_t		cm;
 	float			len;
@@ -559,11 +526,6 @@ void CG_DrawFlagModel( float x, float y, float w, float h, int team, qboolean fo
 	}
 }
 
-/*
-================
-CG_DrawHealth
-================
-*/
 void CG_DrawHealth( menuDef_t *menuHUD )
 {
 	vec4_t			calcColor;
@@ -587,7 +549,6 @@ void CG_DrawHealth( menuDef_t *menuHUD )
 	{
 		healthAmt = ps->stats[STAT_MAX_HEALTH];
 	}
-
 
 	inc = (float) ps->stats[STAT_MAX_HEALTH] / MAX_HUD_TICS;
 	currValue = healthAmt;
@@ -647,11 +608,6 @@ void CG_DrawHealth( menuDef_t *menuHUD )
 
 }
 
-/*
-================
-CG_DrawArmor
-================
-*/
 void CG_DrawArmor( menuDef_t *menuHUD )
 {
 	vec4_t			calcColor;
@@ -777,14 +733,7 @@ void CG_DrawArmor( menuDef_t *menuHUD )
 
 }
 
-/*
-================
-CG_DrawSaberStyle
-
-If the weapon is a light saber (which needs no ammo) then draw a graphic showing
-the saber style (fast, medium, strong)
-================
-*/
+// If the weapon is a light saber (which needs no ammo) then draw a graphic showing the saber style (fast, medium, strong)
 static void CG_DrawSaberStyle( centity_t *cent, menuDef_t *menuHUD)
 {
 	itemDef_t		*focusItem;
@@ -804,7 +753,6 @@ static void CG_DrawSaberStyle( centity_t *cent, menuDef_t *menuHUD)
 	{
 		return;
 	}
-
 
 	// draw the current saber style in this window
 	switch ( cg.predictedPlayerState.fd.saberDrawAnimLevel )
@@ -867,11 +815,6 @@ static void CG_DrawSaberStyle( centity_t *cent, menuDef_t *menuHUD)
 
 }
 
-/*
-================
-CG_DrawAmmo
-================
-*/
 static void CG_DrawAmmo( centity_t	*cent,menuDef_t *menuHUD)
 {
 	playerState_t	*ps;
@@ -899,9 +842,8 @@ static void CG_DrawAmmo( centity_t	*cent,menuDef_t *menuHUD)
 		return;
 	}
 
-	//
 	// ammo
-	//
+
 	if (cg.oldammo < value)
 	{
 		cg.oldAmmoTime = cg.time + 200;
@@ -952,7 +894,6 @@ static void CG_DrawAmmo( centity_t	*cent,menuDef_t *menuHUD)
 				memcpy(calcColor, colorTable[CT_RED], sizeof(vec4_t));
 			}
 		}
-
 
 		trap->R_SetColor( calcColor );
 		if (focusItem)
@@ -1019,11 +960,6 @@ static void CG_DrawAmmo( centity_t	*cent,menuDef_t *menuHUD)
 
 }
 
-/*
-================
-CG_DrawForcePower
-================
-*/
 void CG_DrawForcePower( menuDef_t *menuHUD )
 {
 	int				i;
@@ -1185,14 +1121,6 @@ static void CG_DrawSimpleSaberStyle( const centity_t *cent )
 		Com_sprintf( num, sizeof( num ), "STRONG" );
 		calcColor = CT_HUD_RED;
 		break;
-	case SS_DESANN:
-		Com_sprintf( num, sizeof( num ), "DESANN" );
-		calcColor = CT_HUD_RED;
-		break;
-	case SS_TAVION:
-		Com_sprintf( num, sizeof( num ), "TAVION" );
-		calcColor = CT_ICON_BLUE;
-		break;
 	case SS_DUAL:
 		Com_sprintf( num, sizeof( num ), "AKIMBO" );
 		calcColor = CT_HUD_ORANGE;
@@ -1229,9 +1157,8 @@ static void CG_DrawSimpleAmmo( const centity_t *cent )
 		return;
 	}
 
-	//
 	// ammo
-	//
+
 	if ( cg.oldammo < currValue )
 	{
 		cg.oldAmmoTime = cg.time + 200;
@@ -1315,11 +1242,6 @@ static void CG_DrawSimpleForcePower( const centity_t *cent )
 	CG_DrawProportionalString( SCREEN_WIDTH - (18 + 14 + 32), (SCREEN_HEIGHT - 80) + 40 + 14, num, UI_SMALLFONT | UI_DROPSHADOW, colorTable[calcColor] );
 }
 
-/*
-================
-CG_DrawHUD
-================
-*/
 void CG_DrawHUD(centity_t	*cent)
 {
 	menuDef_t	*menuHUD = NULL;
@@ -1523,11 +1445,6 @@ qboolean ForcePower_Valid(int i)
 	return qfalse;
 }
 
-/*
-===================
-CG_DrawForceSelect
-===================
-*/
 void CG_DrawForceSelect( void )
 {
 	int		i;
@@ -1672,11 +1589,6 @@ void CG_DrawForceSelect( void )
 	}
 }
 
-/*
-===================
-CG_DrawInventorySelect
-===================
-*/
 void CG_DrawInvenSelect( void )
 {
 	int				i;
@@ -1873,964 +1785,11 @@ void CG_DrawInvenSelect( void )
 	}
 }
 
-int cg_targVeh = ENTITYNUM_NONE;
-int cg_targVehLastTime = 0;
-qboolean CG_CheckTargetVehicle( centity_t **pTargetVeh, float *alpha )
-{
-	int targetNum = ENTITYNUM_NONE;
-	centity_t	*targetVeh = NULL;
-
-	if ( !pTargetVeh || !alpha )
-	{//hey, where are my pointers?
-		return qfalse;
-	}
-
-	*alpha = 1.0f;
-
-	//FIXME: need to clear all of these when you die?
-	if ( cg.predictedPlayerState.rocketLockIndex < ENTITYNUM_WORLD )
-	{
-		targetNum = cg.predictedPlayerState.rocketLockIndex;
-	}
-	else if ( cg.crosshairVehNum < ENTITYNUM_WORLD
-		&& cg.time - cg.crosshairVehTime < 3000 )
-	{//crosshair was on a vehicle in the last 3 seconds
-		targetNum = cg.crosshairVehNum;
-	}
-    else if ( cg.crosshairClientNum < ENTITYNUM_WORLD )
-	{
-		targetNum = cg.crosshairClientNum;
-	}
-
-	if ( targetNum < MAX_CLIENTS )
-	{//real client
-		if ( cg_entities[targetNum].currentState.m_iVehicleNum >= MAX_CLIENTS )
-		{//in a vehicle
-			targetNum = cg_entities[targetNum].currentState.m_iVehicleNum;
-		}
-	}
-    if ( targetNum < ENTITYNUM_WORLD
-		&& targetNum >= MAX_CLIENTS )
-	{
-		//centity_t *targetVeh = &cg_entities[targetNum];
-		targetVeh = &cg_entities[targetNum];
-		if ( targetVeh->currentState.NPC_class == CLASS_VEHICLE
-			&& targetVeh->m_pVehicle
-			&& targetVeh->m_pVehicle->m_pVehicleInfo
-			&& targetVeh->m_pVehicle->m_pVehicleInfo->type == VH_FIGHTER )
-		{//it's a vehicle
-			cg_targVeh = targetNum;
-			cg_targVehLastTime = cg.time;
-			*alpha = 1.0f;
-		}
-		else
-		{
-			targetVeh = NULL;
-		}
-	}
-	if ( targetVeh )
-	{
-		*pTargetVeh = targetVeh;
-		return qtrue;
-	}
-
-	if ( cg_targVehLastTime && cg.time - cg_targVehLastTime < 3000 )
-	{
-		targetVeh = &cg_entities[cg_targVeh];
-
-		//stay at full alpha for 1 sec after lose them from crosshair
-		if ( cg.time-cg_targVehLastTime < 1000 )
-			*alpha = 1.0f;
-		else //fade out over 2 secs
-			*alpha = 1.0f-((cg.time-cg_targVehLastTime-1000)/2000.0f);
-	}
-	return qfalse;
+static void CG_DrawStats( void ) {
+	centity_t *cent = &cg_entities[cg.snap->ps.clientNum];
+	CG_DrawHUD( cent );
 }
 
-#define MAX_VHUD_SHIELD_TICS 12
-#define MAX_VHUD_SPEED_TICS 5
-#define MAX_VHUD_ARMOR_TICS 5
-#define MAX_VHUD_AMMO_TICS 5
-
-float CG_DrawVehicleShields( const menuDef_t	*menuHUD, const centity_t *veh )
-{
-	int				i;
-	char			itemName[64];
-	float			inc, currValue,maxShields;
-	vec4_t			calcColor;
-	itemDef_t		*item;
-	float			percShields;
-
-	item = Menu_FindItemByName((menuDef_t	*) menuHUD, "armorbackground");
-
-	if (item)
-	{
-		trap->R_SetColor( item->window.foreColor );
-		CG_DrawPic(
-			item->window.rect.x,
-			item->window.rect.y,
-			item->window.rect.w,
-			item->window.rect.h,
-			item->window.background );
-	}
-
-	maxShields = veh->m_pVehicle->m_pVehicleInfo->shields;
-	currValue = cg.predictedVehicleState.stats[STAT_ARMOR];
-	percShields = (float)currValue/(float)maxShields;
-	// Print all the tics of the shield graphic
-	// Look at the amount of health left and show only as much of the graphic as there is health.
-	// Use alpha to fade out partial section of health
-	inc = (float) maxShields / MAX_VHUD_ARMOR_TICS;
-	for (i=1;i<=MAX_VHUD_ARMOR_TICS;i++)
-	{
-		sprintf( itemName, "armor_tic%d",	i );
-
-		item = Menu_FindItemByName((menuDef_t *) menuHUD, itemName);
-
-		if (!item)
-		{
-			continue;
-		}
-
-		memcpy(calcColor, item->window.foreColor, sizeof(vec4_t));
-
-		if (currValue <= 0)	// don't show tic
-		{
-			break;
-		}
-		else if (currValue < inc)	// partial tic (alpha it out)
-		{
-			float percent = currValue / inc;
-			calcColor[3] *= percent;		// Fade it out
-		}
-
-		trap->R_SetColor( calcColor);
-
-		CG_DrawPic(
-			item->window.rect.x,
-			item->window.rect.y,
-			item->window.rect.w,
-			item->window.rect.h,
-			item->window.background );
-
-		currValue -= inc;
-	}
-
-	return percShields;
-}
-
-int cg_vehicleAmmoWarning = 0;
-int cg_vehicleAmmoWarningTime = 0;
-void CG_DrawVehicleAmmo( const menuDef_t *menuHUD, const centity_t *veh )
-{
-	int i;
-	char itemName[64];
-	float inc, currValue,maxAmmo;
-	vec4_t	calcColor;
-	itemDef_t	*item;
-
-	item = Menu_FindItemByName((menuDef_t *) menuHUD, "ammobackground");
-
-	if (item)
-	{
-		trap->R_SetColor( item->window.foreColor );
-		CG_DrawPic(
-			item->window.rect.x,
-			item->window.rect.y,
-			item->window.rect.w,
-			item->window.rect.h,
-			item->window.background );
-	}
-
-	maxAmmo = veh->m_pVehicle->m_pVehicleInfo->weapon[0].ammoMax;
-	currValue = cg.predictedVehicleState.ammo[0];
-
-	inc = (float) maxAmmo / MAX_VHUD_AMMO_TICS;
-	for (i=1;i<=MAX_VHUD_AMMO_TICS;i++)
-	{
-		sprintf( itemName, "ammo_tic%d",	i );
-
-		item = Menu_FindItemByName((menuDef_t *)menuHUD, itemName);
-
-		if (!item)
-		{
-			continue;
-		}
-
-		if ( cg_vehicleAmmoWarningTime > cg.time
-			&& cg_vehicleAmmoWarning == 0 )
-		{
-			memcpy(calcColor, g_color_table[ColorIndex(COLOR_RED)], sizeof(vec4_t));
-			calcColor[3] = sin(cg.time*0.005)*0.5f+0.5f;
-		}
-		else
-		{
-			memcpy(calcColor, item->window.foreColor, sizeof(vec4_t));
-
-			if (currValue <= 0)	// don't show tic
-			{
-				break;
-			}
-			else if (currValue < inc)	// partial tic (alpha it out)
-			{
-				float percent = currValue / inc;
-				calcColor[3] *= percent;		// Fade it out
-			}
-		}
-
-		trap->R_SetColor( calcColor);
-
-		CG_DrawPic(
-			item->window.rect.x,
-			item->window.rect.y,
-			item->window.rect.w,
-			item->window.rect.h,
-			item->window.background );
-
-		currValue -= inc;
-	}
-}
-
-
-void CG_DrawVehicleAmmoUpper( const menuDef_t *menuHUD, const centity_t *veh )
-{
-	int			i;
-	char		itemName[64];
-	float		inc, currValue,maxAmmo;
-	vec4_t		calcColor;
-	itemDef_t	*item;
-
-	item = Menu_FindItemByName((menuDef_t *)menuHUD, "ammoupperbackground");
-
-	if (item)
-	{
-		trap->R_SetColor( item->window.foreColor );
-		CG_DrawPic(
-			item->window.rect.x,
-			item->window.rect.y,
-			item->window.rect.w,
-			item->window.rect.h,
-			item->window.background );
-	}
-
-	maxAmmo = veh->m_pVehicle->m_pVehicleInfo->weapon[0].ammoMax;
-	currValue = cg.predictedVehicleState.ammo[0];
-
-	inc = (float) maxAmmo / MAX_VHUD_AMMO_TICS;
-	for (i=1;i<MAX_VHUD_AMMO_TICS;i++)
-	{
-		sprintf( itemName, "ammoupper_tic%d",	i );
-
-		item = Menu_FindItemByName((menuDef_t *)menuHUD, itemName);
-
-		if (!item)
-		{
-			continue;
-		}
-
-		if ( cg_vehicleAmmoWarningTime > cg.time
-			&& cg_vehicleAmmoWarning == 0 )
-		{
-			memcpy(calcColor, g_color_table[ColorIndex(COLOR_RED)], sizeof(vec4_t));
-			calcColor[3] = sin(cg.time*0.005)*0.5f+0.5f;
-		}
-		else
-		{
-			memcpy(calcColor, item->window.foreColor, sizeof(vec4_t));
-
-			if (currValue <= 0)	// don't show tic
-			{
-				break;
-			}
-			else if (currValue < inc)	// partial tic (alpha it out)
-			{
-				float percent = currValue / inc;
-				calcColor[3] *= percent;		// Fade it out
-			}
-		}
-
-		trap->R_SetColor( calcColor);
-
-		CG_DrawPic(
-			item->window.rect.x,
-			item->window.rect.y,
-			item->window.rect.w,
-			item->window.rect.h,
-			item->window.background );
-
-		currValue -= inc;
-	}
-}
-
-
-void CG_DrawVehicleAmmoLower( const menuDef_t *menuHUD, const centity_t *veh )
-{
-	int				i;
-	char			itemName[64];
-	float			inc, currValue,maxAmmo;
-	vec4_t			calcColor;
-	itemDef_t		*item;
-
-
-	item = Menu_FindItemByName((menuDef_t *)menuHUD, "ammolowerbackground");
-
-	if (item)
-	{
-		trap->R_SetColor( item->window.foreColor );
-		CG_DrawPic(
-			item->window.rect.x,
-			item->window.rect.y,
-			item->window.rect.w,
-			item->window.rect.h,
-			item->window.background );
-	}
-
-	maxAmmo = veh->m_pVehicle->m_pVehicleInfo->weapon[1].ammoMax;
-	currValue = cg.predictedVehicleState.ammo[1];
-
-	inc = (float) maxAmmo / MAX_VHUD_AMMO_TICS;
-	for (i=1;i<MAX_VHUD_AMMO_TICS;i++)
-	{
-		sprintf( itemName, "ammolower_tic%d",	i );
-
-		item = Menu_FindItemByName((menuDef_t *)menuHUD, itemName);
-
-		if (!item)
-		{
-			continue;
-		}
-
-		if ( cg_vehicleAmmoWarningTime > cg.time
-			&& cg_vehicleAmmoWarning == 1 )
-		{
-			memcpy(calcColor, g_color_table[ColorIndex(COLOR_RED)], sizeof(vec4_t));
-			calcColor[3] = sin(cg.time*0.005)*0.5f+0.5f;
-		}
-		else
-		{
-			memcpy(calcColor, item->window.foreColor, sizeof(vec4_t));
-
-			if (currValue <= 0)	// don't show tic
-			{
-				break;
-			}
-			else if (currValue < inc)	// partial tic (alpha it out)
-			{
-				float percent = currValue / inc;
-				calcColor[3] *= percent;		// Fade it out
-			}
-		}
-
-		trap->R_SetColor( calcColor);
-
-		CG_DrawPic(
-			item->window.rect.x,
-			item->window.rect.y,
-			item->window.rect.w,
-			item->window.rect.h,
-			item->window.background );
-
-		currValue -= inc;
-	}
-}
-
-// The HUD.menu file has the graphic print with a negative height, so it will print from the bottom up.
-void CG_DrawVehicleTurboRecharge( const menuDef_t	*menuHUD, const centity_t *veh )
-{
-	itemDef_t	*item;
-	int			height;
-
-	item = Menu_FindItemByName( (menuDef_t	*) menuHUD, "turborecharge");
-
-	if (item)
-	{
-		float percent=0.0f;
-		int diff = ( cg.time - veh->m_pVehicle->m_iTurboTime );
-
-		height = item->window.rect.h;
-
-		if (diff > veh->m_pVehicle->m_pVehicleInfo->turboRecharge)
-		{
-			percent = 1.0f;
-			trap->R_SetColor( colorTable[CT_GREEN] );
-		}
-		else
-		{
-			percent = (float) diff / veh->m_pVehicle->m_pVehicleInfo->turboRecharge;
-			if (percent < 0.0f)
-			{
-				percent = 0.0f;
-			}
-			trap->R_SetColor( colorTable[CT_RED] );
-		}
-
-		height *= percent;
-
-		CG_DrawPic(
-			item->window.rect.x,
-			item->window.rect.y,
-			item->window.rect.w,
-			height,
-			cgs.media.whiteShader);
-	}
-}
-
-qboolean cg_drawLink = qfalse;
-void CG_DrawVehicleWeaponsLinked( const menuDef_t	*menuHUD, const centity_t *veh )
-{
-	qboolean drawLink = qfalse;
-	if ( veh->m_pVehicle
-		&& veh->m_pVehicle->m_pVehicleInfo
-		&& (veh->m_pVehicle->m_pVehicleInfo->weapon[0].linkable == 2|| veh->m_pVehicle->m_pVehicleInfo->weapon[1].linkable == 2) )
-	{//weapon is always linked
-		drawLink = qtrue;
-	}
-	else
-	{
-//MP way:
-		//must get sent over network
-		if ( cg.predictedVehicleState.vehWeaponsLinked )
-		{
-			drawLink = qtrue;
-		}
-//NOTE: below is SP way
-/*
-		//just cheat it
-		if ( veh->gent->m_pVehicle->weaponStatus[0].linked
-			|| veh->gent->m_pVehicle->weaponStatus[1].linked )
-		{
-			drawLink = qtrue;
-		}
-*/
-	}
-
-	if ( cg_drawLink != drawLink )
-	{//state changed, play sound
-		cg_drawLink = drawLink;
-		trap->S_StartSound (NULL, cg.predictedPlayerState.clientNum, CHAN_LOCAL, trap->S_RegisterSound( "sound/vehicles/common/linkweaps.wav" ) );
-	}
-
-	if ( drawLink )
-	{
-		itemDef_t	*item;
-
-		item = Menu_FindItemByName( (menuDef_t	*) menuHUD, "weaponslinked");
-
-		if (item)
-		{
-			trap->R_SetColor( colorTable[CT_CYAN] );
-
-				CG_DrawPic(
-				item->window.rect.x,
-				item->window.rect.y,
-				item->window.rect.w,
-				item->window.rect.h,
-				cgs.media.whiteShader);
-		}
-	}
-}
-
-void CG_DrawVehicleSpeed( const menuDef_t	*menuHUD, const centity_t *veh )
-{
-	int i;
-	char itemName[64];
-	float inc, currValue,maxSpeed;
-	vec4_t		calcColor;
-	itemDef_t	*item;
-
-	item = Menu_FindItemByName((menuDef_t *) menuHUD, "speedbackground");
-
-	if (item)
-	{
-		trap->R_SetColor( item->window.foreColor );
-		CG_DrawPic(
-			item->window.rect.x,
-			item->window.rect.y,
-			item->window.rect.w,
-			item->window.rect.h,
-			item->window.background );
-	}
-
-	maxSpeed = veh->m_pVehicle->m_pVehicleInfo->speedMax;
-	currValue = cg.predictedVehicleState.speed;
-
-
-	// Print all the tics of the shield graphic
-	// Look at the amount of health left and show only as much of the graphic as there is health.
-	// Use alpha to fade out partial section of health
-	inc = (float) maxSpeed / MAX_VHUD_SPEED_TICS;
-	for (i=1;i<=MAX_VHUD_SPEED_TICS;i++)
-	{
-		sprintf( itemName, "speed_tic%d",	i );
-
-		item = Menu_FindItemByName((menuDef_t *)menuHUD, itemName);
-
-		if (!item)
-		{
-			continue;
-		}
-
-		if ( cg.time > veh->m_pVehicle->m_iTurboTime )
-		{
-			memcpy(calcColor, item->window.foreColor, sizeof(vec4_t));
-		}
-		else	// In turbo mode
-		{
-			if (cg.VHUDFlashTime < cg.time)
-			{
-				cg.VHUDFlashTime = cg.time + 200;
-				if (cg.VHUDTurboFlag)
-				{
-					cg.VHUDTurboFlag = qfalse;
-				}
-				else
-				{
-					cg.VHUDTurboFlag = qtrue;
-				}
-			}
-
-			if (cg.VHUDTurboFlag)
-			{
-				memcpy(calcColor, colorTable[CT_LTRED1], sizeof(vec4_t));
-			}
-			else
-			{
-				memcpy(calcColor, item->window.foreColor, sizeof(vec4_t));
-			}
-		}
-
-
-		if (currValue <= 0)	// don't show tic
-		{
-			break;
-		}
-		else if (currValue < inc)	// partial tic (alpha it out)
-		{
-			float percent = currValue / inc;
-			calcColor[3] *= percent;		// Fade it out
-		}
-
-		trap->R_SetColor( calcColor);
-
-		CG_DrawPic(
-			item->window.rect.x,
-			item->window.rect.y,
-			item->window.rect.w,
-			item->window.rect.h,
-			item->window.background );
-
-		currValue -= inc;
-	}
-}
-
-void CG_DrawVehicleArmor( const menuDef_t *menuHUD, const centity_t *veh )
-{
-	int			i;
-	vec4_t		calcColor;
-	char		itemName[64];
-	float		inc, currValue,maxArmor;
-	itemDef_t	*item;
-
-	maxArmor = veh->m_pVehicle->m_pVehicleInfo->armor;
-	currValue = cg.predictedVehicleState.stats[STAT_HEALTH];
-
-	item = Menu_FindItemByName( (menuDef_t	*) menuHUD, "shieldbackground");
-
-	if (item)
-	{
-		trap->R_SetColor( item->window.foreColor );
-		CG_DrawPic(
-			item->window.rect.x,
-			item->window.rect.y,
-			item->window.rect.w,
-			item->window.rect.h,
-			item->window.background );
-	}
-
-
-	// Print all the tics of the shield graphic
-	// Look at the amount of health left and show only as much of the graphic as there is health.
-	// Use alpha to fade out partial section of health
-	inc = (float) maxArmor / MAX_VHUD_SHIELD_TICS;
-	for (i=1;i <= MAX_VHUD_SHIELD_TICS;i++)
-	{
-		sprintf( itemName, "shield_tic%d",	i );
-
-		item = Menu_FindItemByName((menuDef_t	*) menuHUD, itemName);
-
-		if (!item)
-		{
-			continue;
-		}
-
-
-		memcpy(calcColor, item->window.foreColor, sizeof(vec4_t));
-
-		if (currValue <= 0)	// don't show tic
-		{
-			break;
-		}
-		else if (currValue < inc)	// partial tic (alpha it out)
-		{
-			float percent = currValue / inc;
-			calcColor[3] *= percent;		// Fade it out
-		}
-
-		trap->R_SetColor( calcColor);
-
-		CG_DrawPic(
-			item->window.rect.x,
-			item->window.rect.y,
-			item->window.rect.w,
-			item->window.rect.h,
-			item->window.background );
-
-		currValue -= inc;
-	}
-}
-
-enum
-{
-	VEH_DAMAGE_FRONT=0,
-	VEH_DAMAGE_BACK,
-	VEH_DAMAGE_LEFT,
-	VEH_DAMAGE_RIGHT,
-};
-
-typedef struct
-{
-	const char	*itemName;
-	short	heavyDamage;
-	short	lightDamage;
-} veh_damage_t;
-
-veh_damage_t vehDamageData[4] =
-{
-	{ "vehicle_front",SHIPSURF_DAMAGE_FRONT_HEAVY,SHIPSURF_DAMAGE_FRONT_LIGHT },
-	{ "vehicle_back",SHIPSURF_DAMAGE_BACK_HEAVY,SHIPSURF_DAMAGE_BACK_LIGHT },
-	{ "vehicle_left",SHIPSURF_DAMAGE_LEFT_HEAVY,SHIPSURF_DAMAGE_LEFT_LIGHT },
-	{ "vehicle_right",SHIPSURF_DAMAGE_RIGHT_HEAVY,SHIPSURF_DAMAGE_RIGHT_LIGHT },
-};
-
-// Draw health graphic for given part of vehicle
-void CG_DrawVehicleDamage(const centity_t *veh,int brokenLimbs,const menuDef_t	*menuHUD,float alpha,int index)
-{
-	itemDef_t		*item;
-	int				colorI;
-	vec4_t			color;
-	int				graphicHandle=0;
-
-	item = Menu_FindItemByName((menuDef_t *)menuHUD, vehDamageData[index].itemName);
-	if (item)
-	{
-		if (brokenLimbs & (1<<vehDamageData[index].heavyDamage))
-		{
-			colorI = CT_RED;
-			if (brokenLimbs & (1<<vehDamageData[index].lightDamage))
-			{
-				colorI = CT_DKGREY;
-			}
-		}
-		else if (brokenLimbs & (1<<vehDamageData[index].lightDamage))
-		{
-			colorI = CT_YELLOW;
-		}
-		else
-		{
-			colorI = CT_GREEN;
-		}
-
-		VectorCopy4 ( colorTable[colorI], color );
-		color[3] = alpha;
-		trap->R_SetColor( color );
-
-		switch ( index )
-		{
-			case VEH_DAMAGE_FRONT :
-				graphicHandle = veh->m_pVehicle->m_pVehicleInfo->iconFrontHandle;
-				break;
-			case VEH_DAMAGE_BACK :
-				graphicHandle = veh->m_pVehicle->m_pVehicleInfo->iconBackHandle;
-				break;
-			case VEH_DAMAGE_LEFT :
-				graphicHandle = veh->m_pVehicle->m_pVehicleInfo->iconLeftHandle;
-				break;
-			case VEH_DAMAGE_RIGHT :
-				graphicHandle = veh->m_pVehicle->m_pVehicleInfo->iconRightHandle;
-				break;
-		}
-
-		if (graphicHandle)
-		{
-			CG_DrawPic(
-				item->window.rect.x,
-				item->window.rect.y,
-				item->window.rect.w,
-				item->window.rect.h,
-				graphicHandle );
-		}
-	}
-}
-
-
-// Used on both damage indicators :  player vehicle and the vehicle the player is locked on
-void CG_DrawVehicleDamageHUD(const centity_t *veh,int brokenLimbs,float percShields,char *menuName, float alpha)
-{
-	menuDef_t		*menuHUD;
-	itemDef_t		*item;
-	vec4_t			color;
-
-	menuHUD = Menus_FindByName(menuName);
-
-	if ( !menuHUD )
-	{
-		return;
-	}
-
-	item = Menu_FindItemByName(menuHUD, "background");
-	if (item)
-	{
-		if (veh->m_pVehicle->m_pVehicleInfo->dmgIndicBackgroundHandle)
-		{
-			if ( veh->damageTime > cg.time )
-			{//ship shields currently taking damage
-				//NOTE: cent->damageAngle can be accessed to get the direction from the ship origin to the impact point (in 3-D space)
-				float perc = 1.0f - ((veh->damageTime - cg.time) / 2000.0f/*MIN_SHIELD_TIME*/);
-				if ( perc < 0.0f )
-				{
-					perc = 0.0f;
-				}
-				else if ( perc > 1.0f )
-				{
-					perc = 1.0f;
-				}
-				color[0] = item->window.foreColor[0];//flash red
-				color[1] = item->window.foreColor[1]*perc;//fade other colors back in over time
-				color[2] = item->window.foreColor[2]*perc;//fade other colors back in over time
-				color[3] = item->window.foreColor[3];//always normal alpha
-				trap->R_SetColor( color );
-			}
-			else
-			{
-				trap->R_SetColor( item->window.foreColor );
-			}
-
-			CG_DrawPic(
-				item->window.rect.x,
-				item->window.rect.y,
-				item->window.rect.w,
-				item->window.rect.h,
-				veh->m_pVehicle->m_pVehicleInfo->dmgIndicBackgroundHandle );
-		}
-	}
-
-	item = Menu_FindItemByName(menuHUD, "outer_frame");
-	if (item)
-	{
-		if (veh->m_pVehicle->m_pVehicleInfo->dmgIndicFrameHandle)
-		{
-			trap->R_SetColor( item->window.foreColor );
-			CG_DrawPic(
-				item->window.rect.x,
-				item->window.rect.y,
-				item->window.rect.w,
-				item->window.rect.h,
-				veh->m_pVehicle->m_pVehicleInfo->dmgIndicFrameHandle );
-		}
-	}
-
-	item = Menu_FindItemByName(menuHUD, "shields");
-	if (item)
-	{
-		if (veh->m_pVehicle->m_pVehicleInfo->dmgIndicShieldHandle)
-		{
-			VectorCopy4 ( colorTable[CT_HUD_GREEN], color );
-			color[3] = percShields;
-			trap->R_SetColor( color );
-			CG_DrawPic(
-				item->window.rect.x,
-				item->window.rect.y,
-				item->window.rect.w,
-				item->window.rect.h,
-				veh->m_pVehicle->m_pVehicleInfo->dmgIndicShieldHandle );
-		}
-	}
-
-	//TODO: if we check nextState.brokenLimbs & prevState.brokenLimbs, we can tell when a damage flag has been added and flash that part of the ship
-	//FIXME: when ship explodes, either stop drawing ship or draw all parts black
-	CG_DrawVehicleDamage(veh,brokenLimbs,menuHUD,alpha,VEH_DAMAGE_FRONT);
-	CG_DrawVehicleDamage(veh,brokenLimbs,menuHUD,alpha,VEH_DAMAGE_BACK);
-	CG_DrawVehicleDamage(veh,brokenLimbs,menuHUD,alpha,VEH_DAMAGE_LEFT);
-	CG_DrawVehicleDamage(veh,brokenLimbs,menuHUD,alpha,VEH_DAMAGE_RIGHT);
-}
-
-qboolean CG_DrawVehicleHud( const centity_t *cent )
-{
-	itemDef_t		*item;
-	menuDef_t		*menuHUD;
-	playerState_t	*ps;
-	centity_t		*veh;
-	float			shieldPerc,alpha;
-
-	menuHUD = Menus_FindByName("swoopvehiclehud");
-	if (!menuHUD)
-	{
-		return qtrue;	// Draw player HUD
-	}
-
-	ps = &cg.predictedPlayerState;
-
-	if (!ps || !(ps->m_iVehicleNum))
-	{
-		return qtrue;	// Draw player HUD
-	}
-	veh = &cg_entities[ps->m_iVehicleNum];
-
-	if ( !veh || !veh->m_pVehicle )
-	{
-		return qtrue;	// Draw player HUD
-	}
-
-	CG_DrawVehicleTurboRecharge( menuHUD, veh );
-	CG_DrawVehicleWeaponsLinked( menuHUD, veh );
-
-	item = Menu_FindItemByName(menuHUD, "leftframe");
-
-	// Draw frame
-	if (item)
-	{
-		trap->R_SetColor( item->window.foreColor );
-		CG_DrawPic(
-			item->window.rect.x,
-			item->window.rect.y,
-			item->window.rect.w,
-			item->window.rect.h,
-			item->window.background );
-	}
-
-	item = Menu_FindItemByName(menuHUD, "rightframe");
-
-	if (item)
-	{
-		trap->R_SetColor( item->window.foreColor );
-		CG_DrawPic(
-			item->window.rect.x,
-			item->window.rect.y,
-			item->window.rect.w,
-			item->window.rect.h,
-			item->window.background );
-	}
-
-
-	CG_DrawVehicleArmor( menuHUD, veh );
-
-	// Get animal hud for speed
-//	if (veh->m_pVehicle->m_pVehicleInfo->type == VH_ANIMAL)
-//	{
-//		menuHUD = Menus_FindByName("tauntaunhud");
-//	}
-
-
-	CG_DrawVehicleSpeed( menuHUD, veh );
-
-	// Revert to swoophud
-//	if (veh->m_pVehicle->m_pVehicleInfo->type == VH_ANIMAL)
-//	{
-//		menuHUD = Menus_FindByName("swoopvehiclehud");
-//	}
-
-//	if (veh->m_pVehicle->m_pVehicleInfo->type == VH_ANIMAL)
-//	{
-		shieldPerc = CG_DrawVehicleShields( menuHUD, veh );
-//	}
-
-	if (veh->m_pVehicle->m_pVehicleInfo->weapon[0].ID && !veh->m_pVehicle->m_pVehicleInfo->weapon[1].ID)
-	{
-		CG_DrawVehicleAmmo( menuHUD, veh );
-	}
-	else if (veh->m_pVehicle->m_pVehicleInfo->weapon[0].ID && veh->m_pVehicle->m_pVehicleInfo->weapon[1].ID)
-	{
-		CG_DrawVehicleAmmoUpper( menuHUD, veh );
-		CG_DrawVehicleAmmoLower( menuHUD, veh );
-	}
-
-	// If he's hidden, he must be in a vehicle
-	if (veh->m_pVehicle->m_pVehicleInfo->hideRider)
-	{
-		CG_DrawVehicleDamageHUD(veh,cg.predictedVehicleState.brokenLimbs,shieldPerc,"vehicledamagehud",1.0f);
-
-		// Has he targeted an enemy?
-		if (CG_CheckTargetVehicle( &veh, &alpha ))
-		{
-			CG_DrawVehicleDamageHUD(veh,veh->currentState.brokenLimbs,((float)veh->currentState.activeForcePass/10.0f),"enemyvehicledamagehud",alpha);
-		}
-
-		return qfalse;	// Don't draw player HUD
-	}
-
-	return qtrue;	// Draw player HUD
-
-}
-
-/*
-================
-CG_DrawStats
-
-================
-*/
-static void CG_DrawStats( void )
-{
-	centity_t		*cent;
-	playerState_t	*ps;
-	qboolean		drawHUD = qtrue;
-/*	playerState_t	*ps;
-	vec3_t			angles;
-//	vec3_t		origin;
-
-	if ( cg_drawStatus.integer == 0 ) {
-		return;
-	}
-*/
-	cent = &cg_entities[cg.snap->ps.clientNum];
-/*	ps = &cg.snap->ps;
-
-	VectorClear( angles );
-
-	// Do start
-	if (!cg.interfaceStartupDone)
-	{
-		CG_InterfaceStartup();
-	}
-
-	cgi_UI_MenuPaintAll();*/
-
-	if ( cent )
-	{
-		ps = &cg.predictedPlayerState;
-
-		if ( (ps->m_iVehicleNum ) )	// In a vehicle???
-		{
-			drawHUD = CG_DrawVehicleHud( cent );
-		}
-	}
-
-	if (drawHUD)
-	{
-		CG_DrawHUD(cent);
-	}
-
-	/*CG_DrawArmor(cent);
-	CG_DrawHealth(cent);
-	CG_DrawAmmo(cent);
-
-	CG_DrawTalk(cent);*/
-}
-
-/*
-===================
-CG_DrawPickupItem
-===================
-*/
 static void CG_DrawPickupItem( void ) {
 	int		value;
 	float	*fadeColor;
@@ -2849,12 +1808,6 @@ static void CG_DrawPickupItem( void ) {
 	}
 }
 
-/*
-================
-CG_DrawTeamBackground
-
-================
-*/
 void CG_DrawTeamBackground( int x, int y, int w, int h, float alpha, int team )
 {
 	vec4_t		hcolor;
@@ -2878,20 +1831,6 @@ void CG_DrawTeamBackground( int x, int y, int w, int h, float alpha, int team )
 	trap->R_SetColor( NULL );
 }
 
-
-/*
-===========================================================================================
-
-  UPPER RIGHT CORNER
-
-===========================================================================================
-*/
-
-/*
-================
-CG_DrawMiniScoreboard
-================
-*/
 static float CG_DrawMiniScoreboard ( float y )
 {
 	char temp[MAX_QPATH];
@@ -2899,11 +1838,6 @@ static float CG_DrawMiniScoreboard ( float y )
 
 	if ( !cg_drawScores.integer )
 	{
-		return y;
-	}
-
-	if (cgs.gametype == GT_SIEGE)
-	{ //don't bother with this in siege
 		return y;
 	}
 
@@ -2932,15 +1866,9 @@ static float CG_DrawMiniScoreboard ( float y )
 		//rww - no longer doing this. Since the attacker now shows who is first, we print the score there.
 	}
 
-
 	return y;
 }
 
-/*
-================
-CG_DrawEnemyInfo
-================
-*/
 static float CG_DrawEnemyInfo ( float y )
 {
 	float		size;
@@ -2980,7 +1908,6 @@ static float CG_DrawEnemyInfo ( float y )
 			//return y;
 //			title = "Get Saber!";
 			title = CG_GetStringEdString("MP_INGAME", "GET_SABER");
-
 
 			size = ICON_SIZE * 1.25;
 			y += 5;
@@ -3048,7 +1975,6 @@ static float CG_DrawEnemyInfo ( float y )
 			return y;
 		}
 
-
 		title = va("%s: %i",CG_GetStringEdString("MP_INGAME", "LEADER"), cgs.scores1);
 
 		/*
@@ -3113,11 +2039,6 @@ static float CG_DrawEnemyInfo ( float y )
 	return y + BIGCHAR_HEIGHT + 2;
 }
 
-/*
-==================
-CG_DrawSnapshot
-==================
-*/
 static float CG_DrawSnapshot( float y ) {
 	char		*s;
 	int			w;
@@ -3132,11 +2053,6 @@ static float CG_DrawSnapshot( float y ) {
 	return y + BIGCHAR_HEIGHT + 4;
 }
 
-/*
-==================
-CG_DrawFPS
-==================
-*/
 #define	FPS_FRAMES	16
 static float CG_DrawFPS( float y ) {
 	char		*s;
@@ -3147,7 +2063,6 @@ static float CG_DrawFPS( float y ) {
 	int		t, i, fps, total;
 	unsigned short frameTime;
 	const int		xOffset = 0;
-
 
 	// don't use serverTime, because that will be drifting to
 	// correct for internet lag changes, timescales, timedemos, etc
@@ -3224,18 +2139,11 @@ void CG_DrawDuelistHealth ( float x, float y, float w, float h, int duelist )
 	CG_DrawHealthBarRough (x, y, w, h, ratio, duelHealthColor, colorTable[CT_WHITE]);	// new art for this?  I'm not crazy about how this looks.
 }
 
-/*
-=====================
-CG_DrawRadar
-=====================
-*/
 float	cg_radarRange = 2500.0f;
 
 #define RADAR_RADIUS			60
 #define RADAR_X					(580 - RADAR_RADIUS)
 #define RADAR_CHAT_DURATION		6000
-static int radarLockSoundDebounceTime = 0;
-static int impactSoundDebounceTime = 0;
 #define	RADAR_MISSILE_RANGE					3000.0f
 #define	RADAR_ASTEROID_RANGE				10000.0f
 #define	RADAR_MIN_ASTEROID_SURF_WARN_DIST	1200.0f
@@ -3293,7 +2201,7 @@ float CG_DrawRadar ( float y )
 		float		angleLook;
 		float		anglePlayer;
 		float		angle;
-		float		distance, actualDist;
+		float		distance;
 		centity_t*	cent;
 
 		cent = &cg_entities[cg.radarEntities[i]];
@@ -3301,15 +2209,12 @@ float CG_DrawRadar ( float y )
 		// Get the distances first
 		VectorSubtract ( cg.predictedPlayerState.origin, cent->lerpOrigin, dirPlayer );
 		dirPlayer[2] = 0;
-		actualDist = distance = VectorNormalize ( dirPlayer );
+		distance = VectorNormalize ( dirPlayer );
 
 		if ( distance > cg_radarRange * 0.8f)
 		{
-			if ( (cent->currentState.eFlags & EF_RADAROBJECT)//still want to draw the direction
-				|| ( cent->currentState.eType==ET_NPC//FIXME: draw last, with players...
-					&& cent->currentState.NPC_class == CLASS_VEHICLE
-					&& cent->currentState.speed > 0 ) )//always draw vehicles
-			{
+			if ( cent->currentState.eFlags & EF_RADAROBJECT ) {
+				//still want to draw the direction
 				distance = cg_radarRange*0.8f;
 			}
 			else
@@ -3449,271 +2354,10 @@ float CG_DrawRadar ( float y )
 				}
 				break;
 
-			case ET_NPC://FIXME: draw last, with players...
-				if ( cent->currentState.NPC_class == CLASS_VEHICLE
-					&& cent->currentState.speed > 0 )
-				{
-					if ( cent->m_pVehicle && cent->m_pVehicle->m_pVehicleInfo->radarIconHandle )
-					{
-						float  x;
-						float  ly;
-
-						x = (float)RADAR_X + (float)RADAR_RADIUS + (float)sin (angle) * distance;
-						ly = y + (float)RADAR_RADIUS + (float)cos (angle) * distance;
-
-						arrowBaseScale = 9.0f;
-						zScale = 1.0f;
-
-						//we want to scale the thing up/down based on the relative Z (up/down) positioning
-						if (cent->lerpOrigin[2] > cg.predictedPlayerState.origin[2])
-						{ //higher, scale up (between 16 and 24)
-							float dif = (cent->lerpOrigin[2] - cg.predictedPlayerState.origin[2]);
-
-							//max out to 1.5x scale at 512 units above local player's height
-							dif /= 4096.0f;
-							if (dif > 0.5f)
-							{
-								dif = 0.5f;
-							}
-							zScale += dif;
-						}
-						else if (cent->lerpOrigin[2] < cg.predictedPlayerState.origin[2])
-						{ //lower, scale down (between 16 and 8)
-							float dif = (cg.predictedPlayerState.origin[2] - cent->lerpOrigin[2]);
-
-							//half scale at 512 units below local player's height
-							dif /= 4096.0f;
-							if (dif > 0.5f)
-							{
-								dif = 0.5f;
-							}
-							zScale -= dif;
-						}
-
-						arrowBaseScale *= zScale;
-
-						if ( cent->currentState.m_iVehicleNum //vehicle has a driver
-							&& cgs.clientinfo[ cent->currentState.m_iVehicleNum-1 ].infoValid )
-						{
-							if ( cgs.clientinfo[ cent->currentState.m_iVehicleNum-1 ].team == local->team )
-							{
-								trap->R_SetColor ( teamColor );
-							}
-							else
-							{
-								trap->R_SetColor ( g_color_table[ColorIndex(COLOR_RED)] );
-							}
-						}
-						else
-						{
-							trap->R_SetColor ( NULL );
-						}
-						CG_DrawPic ( x - 4 + xOffset, ly - 4, arrowBaseScale, arrowBaseScale, cent->m_pVehicle->m_pVehicleInfo->radarIconHandle );
-					}
-				}
-				break; //maybe do something?
-
 			case ET_MOVER:
-				if ( cent->currentState.speed//the mover's size, actually
-					&& actualDist < (cent->currentState.speed+RADAR_ASTEROID_RANGE)
-					&& cg.predictedPlayerState.m_iVehicleNum )
-				{//a mover that's close to me and I'm in a vehicle
-					qboolean mayImpact = qfalse;
-					float surfaceDist = (actualDist-cent->currentState.speed);
-					if ( surfaceDist < 0.0f )
-					{
-						surfaceDist = 0.0f;
-					}
-					if ( surfaceDist < RADAR_MIN_ASTEROID_SURF_WARN_DIST )
-					{//always warn!
-						mayImpact = qtrue;
-					}
-					else
-					{//not close enough to always warn, yet, so check its direction
-						vec3_t	asteroidPos, myPos, moveDir;
-						int		predictTime, timeStep = 500;
-						float	newDist;
-						for ( predictTime = timeStep; predictTime < 5000; predictTime+=timeStep )
-						{
-							//asteroid dir, speed, size, + my dir & speed...
-							BG_EvaluateTrajectory( &cent->currentState.pos, cg.time+predictTime, asteroidPos );
-							//FIXME: I don't think it's calcing "myPos" correctly
-							AngleVectors( cg.predictedVehicleState.viewangles, moveDir, NULL, NULL );
-							VectorMA( cg.predictedVehicleState.origin, cg.predictedVehicleState.speed*predictTime/1000.0f, moveDir, myPos );
-							newDist = Distance( myPos, asteroidPos );
-							if ( (newDist-cent->currentState.speed) <= RADAR_MIN_ASTEROID_SURF_WARN_DIST )//200.0f )
-							{//heading for an impact within the next 5 seconds
-								mayImpact = qtrue;
-								break;
-							}
-						}
-					}
-					if ( mayImpact )
-					{//possible collision
-						vec4_t	asteroidColor = {0.5f,0.5f,0.5f,1.0f};
-						float  x;
-						float  ly;
-						float asteroidScale = (cent->currentState.speed/2000.0f);//average asteroid radius?
-						if ( actualDist > RADAR_ASTEROID_RANGE )
-						{
-							actualDist = RADAR_ASTEROID_RANGE;
-						}
-						distance = (actualDist/RADAR_ASTEROID_RANGE)*RADAR_RADIUS;
-
-						x = (float)RADAR_X + (float)RADAR_RADIUS + (float)sin (angle) * distance;
-						ly = y + (float)RADAR_RADIUS + (float)cos (angle) * distance;
-
-						if ( asteroidScale > 3.0f )
-						{
-							asteroidScale = 3.0f;
-						}
-						else if ( asteroidScale < 0.2f )
-						{
-							asteroidScale = 0.2f;
-						}
-						arrowBaseScale = (9.0f*asteroidScale);
-						if ( impactSoundDebounceTime < cg.time )
-						{
-							vec3_t	soundOrg;
-							if ( surfaceDist > RADAR_ASTEROID_RANGE*0.66f )
-							{
-								impactSoundDebounceTime = cg.time + 1000;
-							}
-							else if ( surfaceDist > RADAR_ASTEROID_RANGE/3.0f )
-							{
-								impactSoundDebounceTime = cg.time + 400;
-							}
-							else
-							{
-								impactSoundDebounceTime = cg.time + 100;
-							}
-							VectorMA( cg.refdef.vieworg, -500.0f*(surfaceDist/RADAR_ASTEROID_RANGE), dirPlayer, soundOrg );
-							trap->S_StartSound( soundOrg, ENTITYNUM_WORLD, CHAN_AUTO, trap->S_RegisterSound( "sound/vehicles/common/impactalarm.wav" ) );
-						}
-						//brighten it the closer it is
-						if ( surfaceDist > RADAR_ASTEROID_RANGE*0.66f )
-						{
-							asteroidColor[0] = asteroidColor[1] = asteroidColor[2] = 0.7f;
-						}
-						else if ( surfaceDist > RADAR_ASTEROID_RANGE/3.0f )
-						{
-							asteroidColor[0] = asteroidColor[1] = asteroidColor[2] = 0.85f;
-						}
-						else
-						{
-							asteroidColor[0] = asteroidColor[1] = asteroidColor[2] = 1.0f;
-						}
-						//alpha out the longer it's been since it was considered dangerous
-						if ( (cg.time-impactSoundDebounceTime) > 100 )
-						{
-							asteroidColor[3] = (float)((cg.time-impactSoundDebounceTime)-100)/900.0f;
-						}
-
-						trap->R_SetColor ( asteroidColor );
-						CG_DrawPic ( x - 4 + xOffset, ly - 4, arrowBaseScale, arrowBaseScale, trap->R_RegisterShaderNoMip( "gfx/menus/radar/asteroid" ) );
-					}
-				}
 				break;
 
 			case ET_MISSILE:
-				if ( //cent->currentState.weapon == WP_ROCKET_LAUNCHER &&//a rocket
-					cent->currentState.owner > MAX_CLIENTS //belongs to an NPC
-					&& cg_entities[cent->currentState.owner].currentState.NPC_class == CLASS_VEHICLE )
-				{//a rocket belonging to an NPC, FIXME: only tracking rockets!
-					float  x;
-					float  ly;
-
-					x = (float)RADAR_X + (float)RADAR_RADIUS + (float)sin (angle) * distance;
-					ly = y + (float)RADAR_RADIUS + (float)cos (angle) * distance;
-
-					arrowBaseScale = 3.0f;
-					if ( cg.predictedPlayerState.m_iVehicleNum )
-					{//I'm in a vehicle
-						//if it's targetting me, then play an alarm sound if I'm in a vehicle
-						if ( cent->currentState.otherEntityNum == cg.predictedPlayerState.clientNum || cent->currentState.otherEntityNum == cg.predictedPlayerState.m_iVehicleNum )
-						{
-							if ( radarLockSoundDebounceTime < cg.time )
-							{
-								vec3_t	soundOrg;
-								int		alarmSound;
-								if ( actualDist > RADAR_MISSILE_RANGE * 0.66f )
-								{
-									radarLockSoundDebounceTime = cg.time + 1000;
-									arrowBaseScale = 3.0f;
-									alarmSound = trap->S_RegisterSound( "sound/vehicles/common/lockalarm1.wav" );
-								}
-								else if ( actualDist > RADAR_MISSILE_RANGE/3.0f )
-								{
-									radarLockSoundDebounceTime = cg.time + 500;
-									arrowBaseScale = 6.0f;
-									alarmSound = trap->S_RegisterSound( "sound/vehicles/common/lockalarm2.wav" );
-								}
-								else
-								{
-									radarLockSoundDebounceTime = cg.time + 250;
-									arrowBaseScale = 9.0f;
-									alarmSound = trap->S_RegisterSound( "sound/vehicles/common/lockalarm3.wav" );
-								}
-								if ( actualDist > RADAR_MISSILE_RANGE )
-								{
-									actualDist = RADAR_MISSILE_RANGE;
-								}
-								VectorMA( cg.refdef.vieworg, -500.0f*(actualDist/RADAR_MISSILE_RANGE), dirPlayer, soundOrg );
-								trap->S_StartSound( soundOrg, ENTITYNUM_WORLD, CHAN_AUTO, alarmSound );
-							}
-						}
-					}
-					zScale = 1.0f;
-
-					//we want to scale the thing up/down based on the relative Z (up/down) positioning
-					if (cent->lerpOrigin[2] > cg.predictedPlayerState.origin[2])
-					{ //higher, scale up (between 16 and 24)
-						float dif = (cent->lerpOrigin[2] - cg.predictedPlayerState.origin[2]);
-
-						//max out to 1.5x scale at 512 units above local player's height
-						dif /= 1024.0f;
-						if (dif > 0.5f)
-						{
-							dif = 0.5f;
-						}
-						zScale += dif;
-					}
-					else if (cent->lerpOrigin[2] < cg.predictedPlayerState.origin[2])
-					{ //lower, scale down (between 16 and 8)
-						float dif = (cg.predictedPlayerState.origin[2] - cent->lerpOrigin[2]);
-
-						//half scale at 512 units below local player's height
-						dif /= 1024.0f;
-						if (dif > 0.5f)
-						{
-							dif = 0.5f;
-						}
-						zScale -= dif;
-					}
-
-					arrowBaseScale *= zScale;
-
-					if ( cent->currentState.owner >= MAX_CLIENTS//missile owned by an NPC
-						&& cg_entities[cent->currentState.owner].currentState.NPC_class == CLASS_VEHICLE//NPC is a vehicle
-						&& cg_entities[cent->currentState.owner].currentState.m_iVehicleNum <= MAX_CLIENTS//Vehicle has a player driver
-						&& cgs.clientinfo[cg_entities[cent->currentState.owner].currentState.m_iVehicleNum-1].infoValid ) //player driver is valid
-					{
-						cl = &cgs.clientinfo[cg_entities[cent->currentState.owner].currentState.m_iVehicleNum-1];
-						if ( cl->team == local->team )
-						{
-							trap->R_SetColor ( teamColor );
-						}
-						else
-						{
-							trap->R_SetColor ( g_color_table[ColorIndex(COLOR_RED)] );
-						}
-					}
-					else
-					{
-						trap->R_SetColor ( NULL );
-					}
-					CG_DrawPic ( x - 4 + xOffset, ly - 4, arrowBaseScale, arrowBaseScale, cgs.media.mAutomapRocketIcon );
-				}
 				break;
 
 			case ET_PLAYER:
@@ -3797,11 +2441,6 @@ float CG_DrawRadar ( float y )
 	return y+(RADAR_RADIUS*2);
 }
 
-/*
-=================
-CG_DrawTimer
-=================
-*/
 static float CG_DrawTimer( float y ) {
 	char		*s;
 	int			w;
@@ -3825,12 +2464,6 @@ static float CG_DrawTimer( float y ) {
 	return y + BIGCHAR_HEIGHT + 4;
 }
 
-
-/*
-=================
-CG_DrawTeamOverlay
-=================
-*/
 extern const char *CG_GetLocationString(const char *loc); //cg_main.c
 static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 	int x, w, h, xx;
@@ -4003,7 +2636,6 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 //#endif
 }
 
-
 static void CG_DrawPowerupIcons(int y)
 {
 	int j;
@@ -4063,13 +2695,6 @@ static void CG_DrawPowerupIcons(int y)
 	}
 }
 
-
-/*
-=====================
-CG_DrawUpperRight
-
-=====================
-*/
 static void CG_DrawUpperRight( void ) {
 	float	y = 0;
 
@@ -4089,9 +2714,7 @@ static void CG_DrawUpperRight( void ) {
 		y = CG_DrawTimer( y );
 	}
 
-	if ( ( cgs.gametype >= GT_TEAM || cg.predictedPlayerState.m_iVehicleNum )
-		&& cg_drawRadar.integer )
-	{//draw Radar in Siege mode or when in a vehicle of any kind
+	if ( cgs.gametype >= GT_TEAM && cg_drawRadar.integer ) {
 		y = CG_DrawRadar ( y );
 	}
 
@@ -4102,11 +2725,6 @@ static void CG_DrawUpperRight( void ) {
 	CG_DrawPowerupIcons(y);
 }
 
-/*
-===================
-CG_DrawReward
-===================
-*/
 #ifdef JK2AWARDS
 static void CG_DrawReward( void ) {
 	float	*color;
@@ -4176,17 +2794,7 @@ static void CG_DrawReward( void ) {
 }
 #endif
 
-
-/*
-===============================================================================
-
-LAGOMETER
-
-===============================================================================
-*/
-
 #define	LAG_SAMPLES		128
-
 
 struct lagometer_s {
 	int		frameSamples[LAG_SAMPLES];
@@ -4196,13 +2804,7 @@ struct lagometer_s {
 	int		snapshotCount;
 } lagometer;
 
-/*
-==============
-CG_AddLagometerFrameInfo
-
-Adds the current interpolate / extrapolate bar for this frame
-==============
-*/
+// Adds the current interpolate / extrapolate bar for this frame
 void CG_AddLagometerFrameInfo( void ) {
 	int			offset;
 
@@ -4211,16 +2813,8 @@ void CG_AddLagometerFrameInfo( void ) {
 	lagometer.frameCount++;
 }
 
-/*
-==============
-CG_AddLagometerSnapshotInfo
-
-Each time a snapshot is received, log its ping time and
-the number of snapshots that were dropped before it.
-
-Pass NULL for a dropped packet.
-==============
-*/
+// Each time a snapshot is received, log its ping time and the number of snapshots that were dropped before it.
+// Pass NULL for a dropped packet.
 void CG_AddLagometerSnapshotInfo( snapshot_t *snap ) {
 	// dropped packet
 	if ( !snap ) {
@@ -4235,13 +2829,7 @@ void CG_AddLagometerSnapshotInfo( snapshot_t *snap ) {
 	lagometer.snapshotCount++;
 }
 
-/*
-==============
-CG_DrawDisconnect
-
-Should we draw something different for long lag vs no packets?
-==============
-*/
+// Should we draw something different for long lag vs no packets?
 static void CG_DrawDisconnect( void ) {
 	float		x, y;
 	int			cmdNum;
@@ -4285,15 +2873,9 @@ static void CG_DrawDisconnect( void ) {
 	CG_DrawPic( x, y, 48, 48, trap->R_RegisterShader("gfx/2d/net.tga" ) );
 }
 
-
 #define	MAX_LAGOMETER_PING	900
 #define	MAX_LAGOMETER_RANGE	300
 
-/*
-==============
-CG_DrawLagometer
-==============
-*/
 static void CG_DrawLagometer( void ) {
 	int		a, x, y, i;
 	float	v;
@@ -4306,9 +2888,8 @@ static void CG_DrawLagometer( void ) {
 		return;
 	}
 
-	//
 	// draw the graph
-	//
+
 	x = 640 - 48;
 	y = 480 - 144;
 
@@ -4395,51 +2976,7 @@ static void CG_DrawLagometer( void ) {
 	CG_DrawDisconnect();
 }
 
-void CG_DrawSiegeMessage( const char *str, int objectiveScreen )
-{
-//	if (!( trap->Key_GetCatcher() & KEYCATCH_UI ))
-	{
-		trap->OpenUIMenu(UIMENU_CLOSEALL);
-		trap->Cvar_Set("cg_siegeMessage", str);
-		if (objectiveScreen)
-		{
-			trap->OpenUIMenu(UIMENU_SIEGEOBJECTIVES);
-		}
-		else
-		{
-			trap->OpenUIMenu(UIMENU_SIEGEMESSAGE);
-		}
-	}
-}
-
-void CG_DrawSiegeMessageNonMenu( const char *str )
-{
-	char	text[1024];
-	if (str[0]=='@')
-	{
-		trap->SE_GetStringTextString(str+1, text, sizeof(text));
-		str = text;
-	}
-	CG_CenterPrint(str, SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH);
-}
-
-/*
-===============================================================================
-
-CENTER PRINTING
-
-===============================================================================
-*/
-
-
-/*
-==============
-CG_CenterPrint
-
-Called for important messages that should stay in the center of the screen
-for a few moments
-==============
-*/
+// Called for important messages that should stay in the center of the screen for a few moments
 void CG_CenterPrint( const char *str, int y, int charWidth ) {
 	char	*s;
 	//[BugFix19]
@@ -4472,12 +3009,6 @@ void CG_CenterPrint( const char *str, int y, int charWidth ) {
 	}
 }
 
-
-/*
-===================
-CG_DrawCenterString
-===================
-*/
 qboolean BG_IsWhiteSpace( char c )
 {//this function simply checks to see if the given character is whitespace.
 	if ( c == ' ' || c == '\n' || c == '\0' )
@@ -4568,148 +3099,8 @@ static void CG_DrawCenterString( void ) {
 	trap->R_SetColor( NULL );
 }
 
-
-
-/*
-================================================================================
-
-CROSSHAIR
-
-================================================================================
-*/
-
 #define HEALTH_WIDTH		50.0f
 #define HEALTH_HEIGHT		5.0f
-
-//see if we can draw some extra info on this guy based on our class
-void CG_DrawSiegeInfo(centity_t *cent, float chX, float chY, float chW, float chH)
-{
-	siegeExtended_t *se = &cg_siegeExtendedData[cent->currentState.number];
-	clientInfo_t *ci;
-	const char *configstring, *v;
-	siegeClass_t *siegeClass;
-	vec4_t aColor;
-	vec4_t cColor;
-	float x;
-	float y;
-	float percent;
-	int ammoMax;
-
-	assert(cent->currentState.number < MAX_CLIENTS);
-
-	if (se->lastUpdated > cg.time)
-	{ //strange, shouldn't happen
-		return;
-	}
-
-	if ((cg.time - se->lastUpdated) > 10000)
-	{ //if you haven't received a status update on this guy in 10 seconds, forget about it
-		return;
-	}
-
-	if (cent->currentState.eFlags & EF_DEAD)
-	{ //he's dead, don't display info on him
-		return;
-	}
-
-	if (cent->currentState.weapon != se->weapon)
-	{ //data is invalidated until it syncs back again
-		return;
-	}
-
-	ci = &cgs.clientinfo[cent->currentState.number];
-	if (ci->team != cg.predictedPlayerState.persistant[PERS_TEAM])
-	{ //not on the same team
-		return;
-	}
-
-	configstring = CG_ConfigString( cg.predictedPlayerState.clientNum + CS_PLAYERS );
-	v = Info_ValueForKey( configstring, "siegeclass" );
-
-	if (!v || !v[0])
-	{ //don't have siege class in info?
-		return;
-	}
-
-	siegeClass = BG_SiegeFindClassByName(v);
-
-	if (!siegeClass)
-	{ //invalid
-		return;
-	}
-
-    if (!(siegeClass->classflags & (1<<CFL_STATVIEWER)))
-	{ //doesn't really have the ability to see others' stats
-		return;
-	}
-
-	x = chX+((chW/2)-(HEALTH_WIDTH/2));
-	y = (chY+chH) + 8.0f;
-	percent = ((float)se->health/(float)se->maxhealth)*HEALTH_WIDTH;
-
-	//color of the bar
-	aColor[0] = 0.0f;
-	aColor[1] = 1.0f;
-	aColor[2] = 0.0f;
-	aColor[3] = 0.4f;
-
-	//color of greyed out "missing health"
-	cColor[0] = 0.5f;
-	cColor[1] = 0.5f;
-	cColor[2] = 0.5f;
-	cColor[3] = 0.4f;
-
-	//draw the background (black)
-	CG_DrawRect(x, y, HEALTH_WIDTH, HEALTH_HEIGHT, 1.0f, colorTable[CT_BLACK]);
-
-	//now draw the part to show how much health there is in the color specified
-	CG_FillRect(x+1.0f, y+1.0f, percent-1.0f, HEALTH_HEIGHT-1.0f, aColor);
-
-	//then draw the other part greyed out
-	CG_FillRect(x+percent, y+1.0f, HEALTH_WIDTH-percent-1.0f, HEALTH_HEIGHT-1.0f, cColor);
-
-
-	//now draw his ammo
-	ammoMax = ammoData[weaponData[cent->currentState.weapon].ammoIndex].max;
-	if ( (cent->currentState.eFlags & EF_DOUBLE_AMMO) )
-	{
-		ammoMax *= 2;
-	}
-
-	x = chX+((chW/2)-(HEALTH_WIDTH/2));
-	y = (chY+chH) + HEALTH_HEIGHT + 10.0f;
-
-	if (!weaponData[cent->currentState.weapon].energyPerShot &&
-		!weaponData[cent->currentState.weapon].altEnergyPerShot)
-	{ //a weapon that takes no ammo, so show full
-		percent = HEALTH_WIDTH;
-	}
-	else
-	{
-		percent = ((float)se->ammo/(float)ammoMax)*HEALTH_WIDTH;
-	}
-
-	//color of the bar
-	aColor[0] = 1.0f;
-	aColor[1] = 1.0f;
-	aColor[2] = 0.0f;
-	aColor[3] = 0.4f;
-
-	//color of greyed out "missing health"
-	cColor[0] = 0.5f;
-	cColor[1] = 0.5f;
-	cColor[2] = 0.5f;
-	cColor[3] = 0.4f;
-
-	//draw the background (black)
-	CG_DrawRect(x, y, HEALTH_WIDTH, HEALTH_HEIGHT, 1.0f, colorTable[CT_BLACK]);
-
-	//now draw the part to show how much health there is in the color specified
-	CG_FillRect(x+1.0f, y+1.0f, percent-1.0f, HEALTH_HEIGHT-1.0f, aColor);
-
-	//then draw the other part greyed out
-	CG_FillRect(x+percent, y+1.0f, HEALTH_WIDTH-percent-1.0f, HEALTH_HEIGHT-1.0f, cColor);
-}
 
 //draw the health bar based on current "health" and maxhealth
 void CG_DrawHealthBar(centity_t *cent, float chX, float chY, float chW, float chH)
@@ -4851,12 +3242,6 @@ void CG_DrawGenericTimerBar(void)
 	CG_FillRect(x+1.0f, y+1.0f, CGTIMERBAR_W-2.0f, CGTIMERBAR_H-percent, cColor);
 }
 
-/*
-=================
-CG_DrawCrosshair
-=================
-*/
-
 float cg_crosshairPrevPosX = 0;
 float cg_crosshairPrevPosY = 0;
 #define CRAZY_CROSSHAIR_MAX_ERROR_X	(100.0f*640.0f/480.0f)
@@ -4904,270 +3289,189 @@ void CG_LerpCrosshairPos( float *x, float *y )
 
 vec3_t cg_crosshairPos={0,0,0};
 static void CG_DrawCrosshair( vec3_t worldPoint, int chEntValid ) {
-	float		w, h;
-	qhandle_t	hShader = 0;
-	float		f;
-	float		x, y;
-	qboolean	corona = qfalse;
+	float		x, y, w, h, f, chX, chY;
 	vec4_t		ecolor = {0,0,0,0};
-	centity_t	*crossEnt = NULL;
-	float		chX, chY;
+	qhandle_t	hShader = 0;
+	qboolean	corona = qfalse;
+	centity_t			*chEnt = chEntValid ? &cg_entities[cg.crosshairClientNum] : NULL;
+	const entityState_t	*chES = chEntValid ? &cg_entities[cg.crosshairClientNum].currentState : NULL;
+	const clientInfo_t	*chCI = chEntValid ? &cgs.clientinfo[chES->number] : NULL;
+	const clientInfo_t	*myCI = &cgs.clientinfo[cg.snap->ps.clientNum];
+	const team_t		 myTeam = cg.predictedPlayerState.persistant[PERS_TEAM]; // ci->team;
 
-	if ( worldPoint )
-	{
+	if ( worldPoint ) {
 		VectorCopy( worldPoint, cg_crosshairPos );
 	}
 
-	if ( !cg_drawCrosshair.integer )
-	{
+	if ( !cg_drawCrosshair.integer ) {
 		return;
 	}
 
-	if (cg.snap->ps.fallingToDeath)
-	{
+	if ( cg.snap->ps.fallingToDeath ) {
 		return;
 	}
 
-	if ( cg.predictedPlayerState.zoomMode != 0 )
-	{//not while scoped
+	if ( cg.predictedPlayerState.zoomMode != 0 ) {
+		//not while scoped
 		return;
 	}
 
-	if ( cg_crosshairHealth.integer )
-	{
-		vec4_t		hcolor;
-
+	if ( cg_crosshairHealth.integer ) {
+		vec4_t hcolor;
 		CG_ColorForHealth( hcolor );
 		trap->R_SetColor( hcolor );
 	}
-	else
-	{
-		//set color based on what kind of ent is under crosshair
-		if ( cg.crosshairClientNum >= ENTITYNUM_WORLD )
-		{
+	else {
+		// set color based on what kind of ent is under crosshair
+		if ( cg.crosshairClientNum >= ENTITYNUM_WORLD ) {
 			trap->R_SetColor( NULL );
 		}
-		//rwwFIXMEFIXME: Write this a different way, it's getting a bit too sloppy looking
-		else if (chEntValid &&
-			(cg_entities[cg.crosshairClientNum].currentState.number < MAX_CLIENTS ||
-			cg_entities[cg.crosshairClientNum].currentState.eType == ET_NPC ||
-			cg_entities[cg.crosshairClientNum].currentState.shouldtarget ||
-			cg_entities[cg.crosshairClientNum].currentState.health || //always show ents with health data under crosshair
-			(cg_entities[cg.crosshairClientNum].currentState.eType == ET_MOVER && cg_entities[cg.crosshairClientNum].currentState.bolt1 && cg.predictedPlayerState.weapon == WP_SABER) ||
-			(cg_entities[cg.crosshairClientNum].currentState.eType == ET_MOVER && cg_entities[cg.crosshairClientNum].currentState.teamowner)))
+		else if ( chEntValid
+			&& (
+				chES->number < MAX_CLIENTS
+				|| chES->shouldtarget
+				|| chES->health
+				|| (
+					chES->eType == ET_MOVER
+					&& (
+						(chES->bolt1 && cg.predictedPlayerState.weapon == WP_SABER)
+						|| chES->teamowner
+					)
+				)
+			)
+		)
 		{
-			crossEnt = &cg_entities[cg.crosshairClientNum];
-
-			if ( crossEnt->currentState.powerups & (1 <<PW_CLOAKED) )
-			{ //don't show up for cloaked guys
+			if ( chEnt->currentState.powerups & (1 <<PW_CLOAKED) ) {
+				// don't show up for cloaked guys
 				ecolor[0] = 1.0;//R
 				ecolor[1] = 1.0;//G
 				ecolor[2] = 1.0;//B
 			}
-			else if ( crossEnt->currentState.number < MAX_CLIENTS )
-			{
-				if (cgs.gametype >= GT_TEAM &&
-					cgs.clientinfo[crossEnt->currentState.number].team == cgs.clientinfo[cg.snap->ps.clientNum].team )
-				{
-					//Allies are green
+			else if ( chES->number < MAX_CLIENTS ) {
+				if ( cgs.gametype >= GT_TEAM && chCI->team == myTeam ) {
+					// Allies are green
 					ecolor[0] = 0.0;//R
 					ecolor[1] = 1.0;//G
 					ecolor[2] = 0.0;//B
 				}
-				else
-				{
-					if (cgs.gametype == GT_POWERDUEL &&
-						cgs.clientinfo[crossEnt->currentState.number].duelTeam == cgs.clientinfo[cg.snap->ps.clientNum].duelTeam)
-					{ //on the same duel team in powerduel, so he's a friend
+				else {
+					if ( cgs.gametype == GT_POWERDUEL && chCI->duelTeam == myCI->duelTeam ) {
+						// on the same duel team in powerduel, so he's a friend
 						ecolor[0] = 0.0;//R
 						ecolor[1] = 1.0;//G
 						ecolor[2] = 0.0;//B
 					}
-					else
-					{ //Enemies are red
+					else {
+						// Enemies are red
 						ecolor[0] = 1.0;//R
 						ecolor[1] = 0.0;//G
 						ecolor[2] = 0.0;//B
 					}
 				}
 
-				if (cg.snap->ps.duelInProgress)
-				{
-					if (crossEnt->currentState.number != cg.snap->ps.duelIndex)
-					{ //grey out crosshair for everyone but your foe if you're in a duel
+				if ( cg.snap->ps.duelInProgress ) {
+					// we're dueling
+					if ( chES->number != cg.snap->ps.duelIndex ) {
+						// ...but they're not
 						ecolor[0] = 0.4f;
 						ecolor[1] = 0.4f;
 						ecolor[2] = 0.4f;
 					}
 				}
-				else if (crossEnt->currentState.bolt1)
-				{ //this fellow is in a duel. We just checked if we were in a duel above, so
-				  //this means we aren't and he is. Which of course means our crosshair greys out over him.
+				else if ( chES->bolt1 ) {
+					// we're not dueling, but they are
 					ecolor[0] = 0.4f;
 					ecolor[1] = 0.4f;
 					ecolor[2] = 0.4f;
 				}
 			}
-			else if (crossEnt->currentState.shouldtarget || crossEnt->currentState.eType == ET_NPC)
-			{
+			else if ( chES->shouldtarget ) {
 				//VectorCopy( crossEnt->startRGBA, ecolor );
-				if ( !ecolor[0] && !ecolor[1] && !ecolor[2] )
-				{
+				if ( !ecolor[0] && !ecolor[1] && !ecolor[2] ) {
 					// We really don't want black, so set it to yellow
 					ecolor[0] = 1.0f;//R
 					ecolor[1] = 0.8f;//G
 					ecolor[2] = 0.3f;//B
 				}
 
-				if (crossEnt->currentState.eType == ET_NPC)
-				{
-					int plTeam;
-					if (cgs.gametype == GT_SIEGE)
-					{
-						plTeam = cg.predictedPlayerState.persistant[PERS_TEAM];
-					}
-					else
-					{
-						plTeam = NPCTEAM_PLAYER;
-					}
-
-					if ( crossEnt->currentState.powerups & (1 <<PW_CLOAKED) )
-					{
+				if ( chES->teamowner == TEAM_RED || chES->teamowner == TEAM_BLUE ) {
+					if ( cgs.gametype < GT_TEAM ) {
+						// not teamplay, just neutral then
 						ecolor[0] = 1.0f;//R
 						ecolor[1] = 1.0f;//G
-						ecolor[2] = 1.0f;//B
+						ecolor[2] = 0.0f;//B
 					}
-					else if ( !crossEnt->currentState.teamowner )
-					{ //not on a team
-						if (!crossEnt->currentState.teamowner ||
-							crossEnt->currentState.NPC_class == CLASS_VEHICLE)
-						{ //neutral
-							if (crossEnt->currentState.owner < MAX_CLIENTS)
-							{ //base color on who is pilotting this thing
-								clientInfo_t *ci = &cgs.clientinfo[crossEnt->currentState.owner];
-
-								if (cgs.gametype >= GT_TEAM && ci->team == cg.predictedPlayerState.persistant[PERS_TEAM])
-								{ //friendly
-									ecolor[0] = 0.0f;//R
-									ecolor[1] = 1.0f;//G
-									ecolor[2] = 0.0f;//B
-								}
-								else
-								{ //hostile
-									ecolor[0] = 1.0f;//R
-									ecolor[1] = 0.0f;//G
-									ecolor[2] = 0.0f;//B
-								}
-							}
-							else
-							{ //unmanned
-								ecolor[0] = 1.0f;//R
-								ecolor[1] = 1.0f;//G
-								ecolor[2] = 0.0f;//B
-							}
-						}
-						else
-						{
-							ecolor[0] = 1.0f;//R
-							ecolor[1] = 0.0f;//G
-							ecolor[2] = 0.0f;//B
-						}
-					}
-					else if ( crossEnt->currentState.teamowner != plTeam )
-					{// on enemy team
+					else if ( chES->teamowner != myTeam ) {
+						// on the enemy team
 						ecolor[0] = 1.0f;//R
 						ecolor[1] = 0.0f;//G
 						ecolor[2] = 0.0f;//B
 					}
-					else
-					{ //a friend
+					else {
+						// on my team
 						ecolor[0] = 0.0f;//R
 						ecolor[1] = 1.0f;//G
 						ecolor[2] = 0.0f;//B
 					}
 				}
-				else if ( crossEnt->currentState.teamowner == TEAM_RED
-					|| crossEnt->currentState.teamowner == TEAM_BLUE )
-				{
-					if (cgs.gametype < GT_TEAM)
-					{ //not teamplay, just neutral then
-						ecolor[0] = 1.0f;//R
-						ecolor[1] = 1.0f;//G
-						ecolor[2] = 0.0f;//B
-					}
-					else if ( crossEnt->currentState.teamowner != cgs.clientinfo[cg.snap->ps.clientNum].team )
-					{ //on the enemy team
-						ecolor[0] = 1.0f;//R
-						ecolor[1] = 0.0f;//G
-						ecolor[2] = 0.0f;//B
-					}
-					else
-					{ //on my team
-						ecolor[0] = 0.0f;//R
-						ecolor[1] = 1.0f;//G
-						ecolor[2] = 0.0f;//B
-					}
-				}
-				else if (crossEnt->currentState.owner == cg.snap->ps.clientNum ||
-					(cgs.gametype >= GT_TEAM && crossEnt->currentState.teamowner == cgs.clientinfo[cg.snap->ps.clientNum].team))
+				else if ( chES->owner == cg.snap->ps.clientNum
+					|| (cgs.gametype >= GT_TEAM && chES->teamowner == myTeam) )
 				{
 					ecolor[0] = 0.0f;//R
 					ecolor[1] = 1.0f;//G
 					ecolor[2] = 0.0f;//B
 				}
-				else if (crossEnt->currentState.teamowner == 16 ||
-					(cgs.gametype >= GT_TEAM && crossEnt->currentState.teamowner && crossEnt->currentState.teamowner != cgs.clientinfo[cg.snap->ps.clientNum].team))
+				else if ( chES->teamowner == 16
+					|| (cgs.gametype >= GT_TEAM && chES->teamowner && chES->teamowner != myTeam) )
 				{
 					ecolor[0] = 1.0f;//R
 					ecolor[1] = 0.0f;//G
 					ecolor[2] = 0.0f;//B
 				}
 			}
-			else if (crossEnt->currentState.eType == ET_MOVER && crossEnt->currentState.bolt1 && cg.predictedPlayerState.weapon == WP_SABER)
-			{ //can push/pull this mover. Only show it if we're using the saber.
+			else if ( chES->eType == ET_MOVER && chES->bolt1 && cg.predictedPlayerState.weapon == WP_SABER ) {
+				// can push/pull this mover. Only show it if we're using the saber.
 				ecolor[0] = 0.2f;
 				ecolor[1] = 0.5f;
 				ecolor[2] = 1.0f;
 
 				corona = qtrue;
 			}
-			else if (crossEnt->currentState.eType == ET_MOVER && crossEnt->currentState.teamowner)
-			{ //a team owns this - if it's my team green, if not red, if not teamplay then yellow
-				if (cgs.gametype < GT_TEAM)
-				{
+			else if ( chES->eType == ET_MOVER && chES->teamowner ) {
+				// a team owns this - if it's my team green, if not red, if not teamplay then yellow
+				if ( cgs.gametype < GT_TEAM ) {
 					ecolor[0] = 1.0f;//R
 					ecolor[1] = 1.0f;//G
 					ecolor[2] = 0.0f;//B
 				}
-                else if (cg.predictedPlayerState.persistant[PERS_TEAM] != crossEnt->currentState.teamowner)
-				{ //not my team
+                else if ( chES->teamowner != myTeam ) {
+					// not my team
 					ecolor[0] = 1.0f;//R
 					ecolor[1] = 0.0f;//G
 					ecolor[2] = 0.0f;//B
 				}
-				else
-				{ //my team
+				else {
+					// my team
 					ecolor[0] = 0.0f;//R
 					ecolor[1] = 1.0f;//G
 					ecolor[2] = 0.0f;//B
 				}
 			}
-			else if (crossEnt->currentState.health)
-			{
-				if (!crossEnt->currentState.teamowner || cgs.gametype < GT_TEAM)
-				{ //not owned by a team or teamplay
+			else if ( chES->health ) {
+				if ( !chES->teamowner || cgs.gametype < GT_TEAM ) {
+					// not owned by a team or teamplay
 					ecolor[0] = 1.0f;
 					ecolor[1] = 1.0f;
 					ecolor[2] = 0.0f;
 				}
-				else if (crossEnt->currentState.teamowner == cg.predictedPlayerState.persistant[PERS_TEAM])
-				{ //owned by my team
+				else if ( chES->teamowner == myTeam ) {
+					// owned by my team
 					ecolor[0] = 0.0f;
 					ecolor[1] = 1.0f;
 					ecolor[2] = 0.0f;
 				}
-				else
-				{ //hostile
+				else {
+					// hostile
 					ecolor[0] = 1.0f;
 					ecolor[1] = 0.0f;
 					ecolor[2] = 0.0f;
@@ -5180,24 +3484,7 @@ static void CG_DrawCrosshair( vec3_t worldPoint, int chEntValid ) {
 		}
 	}
 
-	if ( cg.predictedPlayerState.m_iVehicleNum )
-	{//I'm in a vehicle
-		centity_t *vehCent = &cg_entities[cg.predictedPlayerState.m_iVehicleNum];
-	    if ( vehCent
-			&& vehCent->m_pVehicle
-			&& vehCent->m_pVehicle->m_pVehicleInfo
-			&& vehCent->m_pVehicle->m_pVehicleInfo->crosshairShaderHandle )
-		{
-			hShader = vehCent->m_pVehicle->m_pVehicleInfo->crosshairShaderHandle;
-		}
-		//bigger by default
-		w = cg_crosshairSize.value*2.0f;
-		h = w;
-	}
-	else
-	{
-		w = h = cg_crosshairSize.value;
-	}
+	w = h = cg_crosshairSize.value;
 
 	// pulse the size of the crosshair when picking up items
 	f = cg.time - cg.itemPickupBlendTime;
@@ -5207,73 +3494,48 @@ static void CG_DrawCrosshair( vec3_t worldPoint, int chEntValid ) {
 		h *= ( 1 + f );
 	}
 
-	if ( worldPoint && VectorLength( worldPoint ) )
-	{
-		if ( !CG_WorldCoordToScreenCoordFloat( worldPoint, &x, &y ) )
-		{//off screen, don't draw it
+	if ( worldPoint && VectorLength( worldPoint ) ) {
+		if ( !CG_WorldCoordToScreenCoordFloat( worldPoint, &x, &y ) ) {
+			// off screen, don't draw it
 			return;
 		}
 		//CG_LerpCrosshairPos( &x, &y );
 		x -= 320;
 		y -= 240;
 	}
-	else
-	{
+	else {
 		x = cg_crosshairX.integer;
 		y = cg_crosshairY.integer;
 	}
 
-	if ( !hShader )
-	{
-		hShader = cgs.media.crosshairShader[ cg_drawCrosshair.integer % NUM_CROSSHAIRS ];
+	if ( !hShader ) {
+		hShader = cgs.media.crosshairShader[Com_Clampi( 0, NUM_CROSSHAIRS, cg_drawCrosshair.integer-1 )];
 	}
 
 	chX = x + cg.refdef.x + 0.5 * (640 - w);
 	chY = y + cg.refdef.y + 0.5 * (480 - h);
 	trap->R_DrawStretchPic( chX, chY, w, h, 0, 0, 1, 1, hShader );
 
-	//draw a health bar directly under the crosshair if we're looking at something
-	//that takes damage
-	if (crossEnt &&
-		crossEnt->currentState.maxhealth)
-	{
-		CG_DrawHealthBar(crossEnt, chX, chY, w, h);
-		chY += HEALTH_HEIGHT*2;
-	}
-	else if (crossEnt && crossEnt->currentState.number < MAX_CLIENTS)
-	{
-		if (cgs.gametype == GT_SIEGE)
-		{
-			CG_DrawSiegeInfo(crossEnt, chX, chY, w, h);
-			chY += HEALTH_HEIGHT*4;
-		}
-		if (cg.crosshairVehNum && cg.time == cg.crosshairVehTime)
-		{ //it was in the crosshair this frame
-			centity_t *hisVeh = &cg_entities[cg.crosshairVehNum];
-
-			if (hisVeh->currentState.eType == ET_NPC &&
-				hisVeh->currentState.NPC_class == CLASS_VEHICLE &&
-				hisVeh->currentState.maxhealth &&
-				hisVeh->m_pVehicle)
-			{ //draw the health for this vehicle
-				CG_DrawHealthBar(hisVeh, chX, chY, w, h);
-				chY += HEALTH_HEIGHT*2;
-			}
+	// draw a health bar directly under the crosshair if we're looking at something that takes damage
+	if ( chES ) {
+		if ( chES->maxhealth ) {
+			CG_DrawHealthBar( chEnt, chX, chY, w, h );
+			chY += HEALTH_HEIGHT*2;
 		}
 	}
 
-	if (cg.predictedPlayerState.hackingTime)
-	{ //hacking something
-		CG_DrawHaqrBar(chX, chY, w, h);
+	if ( cg.predictedPlayerState.hackingTime ) {
+		// hacking something
+		CG_DrawHaqrBar( chX, chY, w, h );
 	}
 
-	if (cg_genericTimerBar > cg.time)
-	{ //draw generic timing bar, can be used for whatever
+	if ( cg_genericTimerBar > cg.time ) {
+		// draw generic timing bar, can be used for whatever
 		CG_DrawGenericTimerBar();
 	}
 
-	if ( corona ) // drawing extra bits
-	{
+	if ( corona ) {
+		// drawing extra bits
 		ecolor[3] = 0.5f;
 		ecolor[0] = ecolor[1] = ecolor[2] = (1 - ecolor[3]) * ( sin( cg.time * 0.001f ) * 0.08f + 0.35f ); // don't draw full color
 		ecolor[3] = 1.0f;
@@ -5283,9 +3545,11 @@ static void CG_DrawCrosshair( vec3_t worldPoint, int chEntValid ) {
 		w *= 2.0f;
 		h *= 2.0f;
 
-		trap->R_DrawStretchPic( x + cg.refdef.x + 0.5 * (640 - w),
+		trap->R_DrawStretchPic(
+			x + cg.refdef.x + 0.5 * (640 - w),
 			y + cg.refdef.y + 0.5 * (480 - h),
-			w, h, 0, 0, 1, 1, cgs.media.forceCoronaShader );
+			w, h, 0, 0, 1, 1, cgs.media.forceCoronaShader
+		);
 	}
 
 	trap->R_SetColor( NULL );
@@ -5329,11 +3593,6 @@ qboolean CG_WorldCoordToScreenCoord( vec3_t worldCoord, int *x, int *y ) {
 	return qfalse;
 }
 
-/*
-====================
-CG_SaberClashFlare
-====================
-*/
 int cg_saberFlashTime = 0;
 vec3_t cg_saberFlashPos = {0, 0, 0};
 void CG_SaberClashFlare( void )
@@ -5430,8 +3689,6 @@ void CG_BracketEntity( centity_t *cent, float radius )
 	vec3_t dif;
 	float	len, size, lineLength, lineWidth;
 	float	x,	y;
-	clientInfo_t *local;
-	qboolean isEnemy = qfalse;
 
 	VectorSubtract( cent->lerpOrigin, cg.refdef.vieworg, dif );
 	len = VectorNormalize( dif );
@@ -5462,41 +3719,18 @@ void CG_BracketEntity( centity_t *cent, float radius )
 	//just to see if it's centered
 	//CG_DrawPic( x-2, y-2, 4, 4, cgs.media.whiteShader );
 
-	local = &cgs.clientinfo[cg.snap->ps.clientNum];
-	if ( cent->currentState.m_iVehicleNum //vehicle has a driver
-		&& (cent->currentState.m_iVehicleNum-1) < MAX_CLIENTS
-		&& cgs.clientinfo[ cent->currentState.m_iVehicleNum-1 ].infoValid )
-	{
-		if ( cgs.gametype < GT_TEAM )
-		{//ffa?
-			isEnemy = qtrue;
-			trap->R_SetColor ( g_color_table[ColorIndex(COLOR_RED)] );
+	if ( cent->currentState.teamowner ) {
+		if ( cgs.gametype < GT_TEAM ) {
+			// ffa?
+			trap->R_SetColor( g_color_table[ColorIndex(COLOR_RED)] );
 		}
-		else if ( cgs.clientinfo[ cent->currentState.m_iVehicleNum-1 ].team == local->team )
-		{
-			trap->R_SetColor ( g_color_table[ColorIndex(COLOR_GREEN)] );
+		else if ( cent->currentState.teamowner != cg.predictedPlayerState.persistant[PERS_TEAM] ) {
+			// on enemy team
+			trap->R_SetColor( g_color_table[ColorIndex(COLOR_RED)] );
 		}
-		else
-		{
-			isEnemy = qtrue;
-			trap->R_SetColor ( g_color_table[ColorIndex(COLOR_RED)] );
-		}
-	}
-	else if ( cent->currentState.teamowner )
-	{
-		if ( cgs.gametype < GT_TEAM )
-		{//ffa?
-			isEnemy = qtrue;
-			trap->R_SetColor ( g_color_table[ColorIndex(COLOR_RED)] );
-		}
-		else if ( cent->currentState.teamowner != cg.predictedPlayerState.persistant[PERS_TEAM] )
-		{// on enemy team
-			isEnemy = qtrue;
-			trap->R_SetColor ( g_color_table[ColorIndex(COLOR_RED)] );
-		}
-		else
-		{ //a friend
-			trap->R_SetColor ( g_color_table[ColorIndex(COLOR_GREEN)] );
+		else {
+			// a friend
+			trap->R_SetColor( g_color_table[ColorIndex(COLOR_GREEN)] );
 		}
 	}
 	else
@@ -5556,94 +3790,6 @@ void CG_BracketEntity( centity_t *cent, float radius )
 		//vert
         CG_DrawPic( x+size-lineWidth, y+size-lineLength, lineWidth, lineLength, cgs.media.whiteShader );
 	}
-	//Lead Indicator...
-	if ( cg_drawVehLeadIndicator.integer )
-	{//draw the lead indicator
-		if ( isEnemy )
-		{//an enemy object
-			if ( cent->currentState.NPC_class == CLASS_VEHICLE )
-			{//enemy vehicle
-				if ( !VectorCompare( cent->currentState.pos.trDelta, vec3_origin ) )
-				{//enemy vehicle is moving
-					if ( cg.predictedPlayerState.m_iVehicleNum )
-					{//I'm in a vehicle
-						centity_t		*veh = &cg_entities[cg.predictedPlayerState.m_iVehicleNum];
-						if ( veh //vehicle cent
-							&& veh->m_pVehicle//vehicle
-							&& veh->m_pVehicle->m_pVehicleInfo//vehicle stats
-							&& veh->m_pVehicle->m_pVehicleInfo->weapon[0].ID > VEH_WEAPON_BASE )//valid vehicle weapon
-						{
-							vehWeaponInfo_t *vehWeapon = &g_vehWeaponInfo[veh->m_pVehicle->m_pVehicleInfo->weapon[0].ID];
-							if ( vehWeapon
-								&& vehWeapon->bIsProjectile//primary weapon's shot is a projectile
-								&& !vehWeapon->bHasGravity//primary weapon's shot is not affected by gravity
-								&& !vehWeapon->fHoming//primary weapon's shot is not homing
-								&& vehWeapon->fSpeed )//primary weapon's shot has speed
-							{//our primary weapon's projectile has a speed
-								vec3_t vehDiff, vehLeadPos;
-								float vehDist, eta;
-								float leadX, leadY;
-
-								VectorSubtract( cent->lerpOrigin, cg.predictedVehicleState.origin, vehDiff );
-								vehDist = VectorNormalize( vehDiff );
-								eta = (vehDist/vehWeapon->fSpeed);//how many seconds it would take for my primary weapon's projectile to get from my ship to theirs
-								//now extrapolate their position that number of seconds into the future based on their velocity
-								VectorMA( cent->lerpOrigin, eta, cent->currentState.pos.trDelta, vehLeadPos );
-								//now we have where we should be aiming at, project that onto the screen at a 2D co-ord
-								if ( !CG_WorldCoordToScreenCoordFloat(cent->lerpOrigin, &x, &y) )
-								{//off-screen, don't draw it
-									return;
-								}
-								if ( !CG_WorldCoordToScreenCoordFloat(vehLeadPos, &leadX, &leadY) )
-								{//off-screen, don't draw it
-									//just draw the line
-									CG_DottedLine( x, y, leadX, leadY, 1, 10, g_color_table[ColorIndex(COLOR_RED)], 0.5f );
-									return;
-								}
-								//draw a line from the ship's cur pos to the lead pos
-								CG_DottedLine( x, y, leadX, leadY, 1, 10, g_color_table[ColorIndex(COLOR_RED)], 0.5f );
-								//now draw the lead indicator
-								trap->R_SetColor ( g_color_table[ColorIndex(COLOR_RED)] );
-								CG_DrawPic( leadX-8, leadY-8, 16, 16, trap->R_RegisterShader( "gfx/menus/radar/lead" ) );
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-}
-
-qboolean CG_InFighter( void )
-{
-	if ( cg.predictedPlayerState.m_iVehicleNum )
-	{//I'm in a vehicle
-		centity_t *vehCent = &cg_entities[cg.predictedPlayerState.m_iVehicleNum];
-	    if ( vehCent
-			&& vehCent->m_pVehicle
-			&& vehCent->m_pVehicle->m_pVehicleInfo
-			&& vehCent->m_pVehicle->m_pVehicleInfo->type == VH_FIGHTER )
-		{//I'm in a fighter
-			return qtrue;
-		}
-	}
-	return qfalse;
-}
-
-qboolean CG_InATST( void )
-{
-	if ( cg.predictedPlayerState.m_iVehicleNum )
-	{//I'm in a vehicle
-		centity_t *vehCent = &cg_entities[cg.predictedPlayerState.m_iVehicleNum];
-	    if ( vehCent
-			&& vehCent->m_pVehicle
-			&& vehCent->m_pVehicle->m_pVehicleInfo
-			&& vehCent->m_pVehicle->m_pVehicleInfo->type == VH_WALKER )
-		{//I'm in an atst
-			return qtrue;
-		}
-	}
-	return qfalse;
 }
 
 void CG_DrawBracketedEntities( void )
@@ -5656,9 +3802,7 @@ void CG_DrawBracketedEntities( void )
 	}
 }
 
-//--------------------------------------------------------------
 static void CG_DrawHolocronIcons(void)
-//--------------------------------------------------------------
 {
 	int icon_size = 40;
 	int i = 0;
@@ -5711,9 +3855,7 @@ static qboolean CG_IsDurationPower(int power)
 	return qfalse;
 }
 
-//--------------------------------------------------------------
 static void CG_DrawActivePowers(void)
-//--------------------------------------------------------------
 {
 	int icon_size = 40;
 	int i = 0;
@@ -5759,16 +3901,14 @@ static void CG_DrawActivePowers(void)
 	}
 }
 
-//--------------------------------------------------------------
 static void CG_DrawRocketLocking( int lockEntNum, int lockTime )
-//--------------------------------------------------------------
 {
 	int		cx, cy;
 	vec3_t	org;
 	static	int oldDif = 0;
 	centity_t *cent = &cg_entities[lockEntNum];
 	vec4_t color={0.0f,0.0f,0.0f,0.0f};
-	float lockTimeInterval = ((cgs.gametype==GT_SIEGE)?2400.0f:1200.0f)/16.0f;
+	float lockTimeInterval = 1200.0f/16.0f;
 	//FIXME: if in a vehicle, use the vehicle's lockOnTime...
 	int dif = (cg.time - cg.snap->ps.rocketLockTime)/lockTimeInterval;
 	int i;
@@ -5783,87 +3923,15 @@ static void CG_DrawRocketLocking( int lockEntNum, int lockTime )
 		return;
 	}
 
-	if ( cg.snap->ps.m_iVehicleNum )
-	{//driving a vehicle
-		centity_t *veh = &cg_entities[cg.snap->ps.m_iVehicleNum];
-		if ( veh->m_pVehicle )
-		{
-			vehWeaponInfo_t *vehWeapon = NULL;
-			if ( cg.predictedVehicleState.weaponstate == WEAPON_CHARGING_ALT )
-			{
-				if ( veh->m_pVehicle->m_pVehicleInfo->weapon[1].ID > VEH_WEAPON_BASE
-					&& veh->m_pVehicle->m_pVehicleInfo->weapon[1].ID < MAX_VEH_WEAPONS )
-				{
-					vehWeapon = &g_vehWeaponInfo[veh->m_pVehicle->m_pVehicleInfo->weapon[1].ID];
-				}
-			}
-			else
-			{
-				if ( veh->m_pVehicle->m_pVehicleInfo->weapon[0].ID > VEH_WEAPON_BASE
-					&& veh->m_pVehicle->m_pVehicleInfo->weapon[0].ID < MAX_VEH_WEAPONS )
-				{
-					vehWeapon = &g_vehWeaponInfo[veh->m_pVehicle->m_pVehicleInfo->weapon[0].ID];
-				}
-			}
-			if ( vehWeapon != NULL )
-			{//we are trying to lock on with a valid vehicle weapon, so use *its* locktime, not the hard-coded one
-				if ( !vehWeapon->iLockOnTime )
-				{//instant lock-on
-					dif = 10.0f;
-				}
-				else
-				{//use the custom vehicle lockOnTime
-					lockTimeInterval = (vehWeapon->iLockOnTime/16.0f);
-					dif = (cg.time - cg.snap->ps.rocketLockTime)/lockTimeInterval;
-				}
-			}
-		}
-	}
 	//We can't check to see in pmove if players are on the same team, so we resort
 	//to just not drawing the lock if a teammate is the locked on ent
 	if (cg.snap->ps.rocketLockIndex >= 0 &&
 		cg.snap->ps.rocketLockIndex < ENTITYNUM_NONE)
 	{
-		clientInfo_t *ci = NULL;
-
-		if (cg.snap->ps.rocketLockIndex < MAX_CLIENTS)
-		{
-			ci = &cgs.clientinfo[cg.snap->ps.rocketLockIndex];
-		}
-		else
-		{
-			ci = cg_entities[cg.snap->ps.rocketLockIndex].npcClient;
-		}
-
-		if (ci)
-		{
-			if (ci->team == cgs.clientinfo[cg.snap->ps.clientNum].team)
-			{
-				if (cgs.gametype >= GT_TEAM)
-				{
-					return;
-				}
-			}
-			else if (cgs.gametype >= GT_TEAM)
-			{
-				centity_t *hitEnt = &cg_entities[cg.snap->ps.rocketLockIndex];
-				if (hitEnt->currentState.eType == ET_NPC &&
-					hitEnt->currentState.NPC_class == CLASS_VEHICLE &&
-					hitEnt->currentState.owner < ENTITYNUM_WORLD)
-				{ //this is a vehicle, if it has a pilot and that pilot is on my team, then...
-					if (hitEnt->currentState.owner < MAX_CLIENTS)
-					{
-						ci = &cgs.clientinfo[hitEnt->currentState.owner];
-					}
-					else
-					{
-						ci = cg_entities[hitEnt->currentState.owner].npcClient;
-					}
-					if (ci && ci->team == cgs.clientinfo[cg.snap->ps.clientNum].team)
-					{
-						return;
-					}
-				}
+		clientInfo_t *ci = (cg.snap->ps.rocketLockIndex < MAX_CLIENTS) ? &cgs.clientinfo[cg.snap->ps.rocketLockIndex] : NULL;
+		if ( ci && ci->team == cgs.clientinfo[cg.snap->ps.clientNum].team ) {
+			if ( cgs.gametype >= GT_TEAM ) {
+				return;
 			}
 		}
 	}
@@ -5915,28 +3983,10 @@ static void CG_DrawRocketLocking( int lockEntNum, int lockTime )
 		// do sounds
 		if ( oldDif != dif )
 		{
-			if ( dif == 8 )
-			{
-				if ( cg.snap->ps.m_iVehicleNum )
-				{
-					trap->S_StartSound( org, 0, CHAN_AUTO, trap->S_RegisterSound( "sound/vehicles/weapons/common/lock.wav" ));
-				}
-				else
-				{
-					trap->S_StartSound( org, 0, CHAN_AUTO, trap->S_RegisterSound( "sound/weapons/rocket/lock.wav" ));
-				}
-			}
-			else
-			{
-				if ( cg.snap->ps.m_iVehicleNum )
-				{
-					trap->S_StartSound( org, 0, CHAN_AUTO, trap->S_RegisterSound( "sound/vehicles/weapons/common/tick.wav" ));
-				}
-				else
-				{
-					trap->S_StartSound( org, 0, CHAN_AUTO, trap->S_RegisterSound( "sound/weapons/rocket/tick.wav" ));
-				}
-			}
+			const char *soundName = (dif == 8)
+				? "sound/weapons/rocket/lock.wav"
+				: "sound/weapons/rocket/tick.wav";
+			trap->S_StartSound( org, 0, CHAN_AUTO, trap->S_RegisterSound( soundName ) );
 		}
 
 		oldDif = dif;
@@ -5967,86 +4017,6 @@ static void CG_DrawRocketLocking( int lockEntNum, int lockTime )
 	}
 }
 
-extern void CG_CalcVehMuzzle(Vehicle_t *pVeh, centity_t *ent, int muzzleNum);
-qboolean CG_CalcVehicleMuzzlePoint( int entityNum, vec3_t start, vec3_t d_f, vec3_t d_rt, vec3_t d_up)
-{
-	centity_t *vehCent = &cg_entities[entityNum];
-	if ( vehCent->m_pVehicle && vehCent->m_pVehicle->m_pVehicleInfo->type == VH_WALKER )
-	{//draw from barrels
-		VectorCopy( vehCent->lerpOrigin, start );
-		start[2] += vehCent->m_pVehicle->m_pVehicleInfo->height-DEFAULT_MINS_2-48;
-		AngleVectors( vehCent->lerpAngles, d_f, d_rt, d_up );
-		/*
-		mdxaBone_t		boltMatrix;
-		int				bolt;
-		vec3_t			yawOnlyAngles;
-
-		VectorSet( yawOnlyAngles, 0, vehCent->lerpAngles[YAW], 0 );
-
-		bolt = trap->G2API_AddBolt( vehCent->ghoul2, 0, "*flash1");
-		trap->G2API_GetBoltMatrix( vehCent->ghoul2, 0, bolt, &boltMatrix,
-									yawOnlyAngles, vehCent->lerpOrigin, cg.time,
-									NULL, vehCent->modelScale );
-
-		// work the matrix axis stuff into the original axis and origins used.
-		BG_GiveMeVectorFromMatrix( &boltMatrix, ORIGIN, start );
-		BG_GiveMeVectorFromMatrix( &boltMatrix, POSITIVE_X, d_f );
-		VectorClear( d_rt );//don't really need this, do we?
-		VectorClear( d_up );//don't really need this, do we?
-		*/
-	}
-	else
-	{
-		//check to see if we're a turret gunner on this vehicle
-		if ( cg.predictedPlayerState.generic1 )//as a passenger
-		{//passenger in a vehicle
-			if ( vehCent->m_pVehicle
-				&& vehCent->m_pVehicle->m_pVehicleInfo
-				&& vehCent->m_pVehicle->m_pVehicleInfo->maxPassengers )
-			{//a vehicle capable of carrying passengers
-				int turretNum;
-				for ( turretNum = 0; turretNum < MAX_VEHICLE_TURRETS; turretNum++ )
-				{
-					if ( vehCent->m_pVehicle->m_pVehicleInfo->turret[turretNum].iAmmoMax )
-					{// valid turret
-						if ( vehCent->m_pVehicle->m_pVehicleInfo->turret[turretNum].passengerNum == cg.predictedPlayerState.generic1 )
-						{//I control this turret
-							//Go through all muzzles, average their positions and directions and use the result for crosshair trace
-							int vehMuzzle, numMuzzles = 0;
-							vec3_t	muzzlesAvgPos={0},muzzlesAvgDir={0};
-							int	i;
-
-							for ( i = 0; i < MAX_VEHICLE_TURRET_MUZZLES; i++ )
-							{
-								vehMuzzle = vehCent->m_pVehicle->m_pVehicleInfo->turret[turretNum].iMuzzle[i];
-								if ( vehMuzzle )
-								{
-									vehMuzzle -= 1;
-									CG_CalcVehMuzzle( vehCent->m_pVehicle, vehCent, vehMuzzle );
-									VectorAdd( muzzlesAvgPos, vehCent->m_pVehicle->m_vMuzzlePos[vehMuzzle], muzzlesAvgPos );
-									VectorAdd( muzzlesAvgDir, vehCent->m_pVehicle->m_vMuzzleDir[vehMuzzle], muzzlesAvgDir );
-									numMuzzles++;
-								}
-								if ( numMuzzles )
-								{
-									VectorScale( muzzlesAvgPos, 1.0f/(float)numMuzzles, start );
-									VectorScale( muzzlesAvgDir, 1.0f/(float)numMuzzles, d_f );
-									VectorClear( d_rt );
-									VectorClear( d_up );
-									return qtrue;
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		VectorCopy( vehCent->lerpOrigin, start );
-		AngleVectors( vehCent->lerpAngles, d_f, d_rt, d_up );
-	}
-	return qfalse;
-}
-
 //calc the muzzle point from the e-web itself
 void CG_CalcEWebMuzzlePoint(centity_t *cent, vec3_t start, vec3_t d_f, vec3_t d_rt, vec3_t d_up)
 {
@@ -6071,18 +4041,12 @@ void CG_CalcEWebMuzzlePoint(centity_t *cent, vec3_t start, vec3_t d_f, vec3_t d_
 	}
 }
 
-/*
-=================
-CG_`Entity
-=================
-*/
 #define MAX_XHAIR_DIST_ACCURACY	20000.0f
 static void CG_ScanForCrosshairEntity( void ) {
 	trace_t		trace;
 	vec3_t		start, end;
 	int			content;
 	int			ignore;
-	qboolean	bVehCheckTraceFromCamPos = qfalse;
 
 	ignore = cg.predictedPlayerState.clientNum;
 
@@ -6101,39 +4065,7 @@ static void CG_ScanForCrosshairEntity( void ) {
 		*/
 		//For now we still want to draw the crosshair in relation to the player's world coordinates
 		//even if we have a melee weapon/no weapon.
-		if ( cg.predictedPlayerState.m_iVehicleNum && (cg.predictedPlayerState.eFlags&EF_NODRAW) )
-		{//we're *inside* a vehicle
-			//do the vehicle's crosshair instead
-			centity_t *veh = &cg_entities[cg.predictedPlayerState.m_iVehicleNum];
-			qboolean gunner = qfalse;
-
-			//if (veh->currentState.owner == cg.predictedPlayerState.clientNum)
-			{ //the pilot
-				ignore = cg.predictedPlayerState.m_iVehicleNum;
-				gunner = CG_CalcVehicleMuzzlePoint(cg.predictedPlayerState.m_iVehicleNum, start, d_f, d_rt, d_up);
-			}
-			/*
-			else
-			{ //a passenger
-				ignore = cg.predictedPlayerState.m_iVehicleNum;
-				VectorCopy( veh->lerpOrigin, start );
-				AngleVectors( veh->lerpAngles, d_f, d_rt, d_up );
-				VectorMA(start, 32.0f, d_f, start); //super hack
-			}
-			*/
-			if ( veh->m_pVehicle
-				&& veh->m_pVehicle->m_pVehicleInfo
-				&& veh->m_pVehicle->m_pVehicleInfo->type == VH_FIGHTER
-				&& cg.distanceCull > MAX_XHAIR_DIST_ACCURACY
-				&& !gunner )
-			{
-				//NOTE: on huge maps, the crosshair gets inaccurate at close range,
-				//		so we'll do an extra G2 trace from the cg.refdef.vieworg
-				//		to see if we hit anything closer and auto-aim at it if so
-				bVehCheckTraceFromCamPos = qtrue;
-			}
-		}
-		else if (cg.snap && cg.snap->ps.weapon == WP_EMPLACED_GUN && cg.snap->ps.emplacedIndex &&
+		if (cg.snap && cg.snap->ps.weapon == WP_EMPLACED_GUN && cg.snap->ps.emplacedIndex &&
 			cg_entities[cg.snap->ps.emplacedIndex].ghoul2 && cg_entities[cg.snap->ps.emplacedIndex].currentState.weapon == WP_NONE)
 		{ //locked into our e-web, calc the muzzle from it
 			CG_CalcEWebMuzzlePoint(&cg_entities[cg.snap->ps.emplacedIndex], start, d_f, d_rt, d_up);
@@ -6190,87 +4122,41 @@ static void CG_ScanForCrosshairEntity( void ) {
 		VectorMA( start, 131072, cg.refdef.viewaxis[0], end );
 	}
 
-	if ( cg_dynamicCrosshair.integer && cg_dynamicCrosshairPrecision.integer )
-	{ //then do a trace with ghoul2 models in mind
-		CG_G2Trace( &trace, start, vec3_origin, vec3_origin, end,
-			ignore, CONTENTS_SOLID|CONTENTS_BODY );
-		if ( bVehCheckTraceFromCamPos )
-		{
-			//NOTE: this MUST stay up to date with the method used in WP_VehCheckTraceFromCamPos
-			centity_t *veh = &cg_entities[cg.predictedPlayerState.m_iVehicleNum];
-			trace_t	extraTrace;
-			vec3_t	viewDir2End, extraEnd;
-			float	minAutoAimDist = Distance( veh->lerpOrigin, cg.refdef.vieworg ) + (veh->m_pVehicle->m_pVehicleInfo->length/2.0f) + 200.0f;
-
-			VectorSubtract( end, cg.refdef.vieworg, viewDir2End );
-			VectorNormalize( viewDir2End );
-			VectorMA( cg.refdef.vieworg, MAX_XHAIR_DIST_ACCURACY, viewDir2End, extraEnd );
-			CG_G2Trace( &extraTrace, cg.refdef.vieworg, vec3_origin, vec3_origin, extraEnd,
-				ignore, CONTENTS_SOLID|CONTENTS_BODY );
-			if ( !extraTrace.allsolid
-				&& !extraTrace.startsolid )
-			{
-				if ( extraTrace.fraction < 1.0f )
-				{
-					if ( (extraTrace.fraction*MAX_XHAIR_DIST_ACCURACY) > minAutoAimDist )
-					{
-						if ( ((extraTrace.fraction*MAX_XHAIR_DIST_ACCURACY)-Distance( veh->lerpOrigin, cg.refdef.vieworg )) < (trace.fraction*cg.distanceCull) )
-						{//this trace hit *something* that's closer than the thing the main trace hit, so use this result instead
-							memcpy( &trace, &extraTrace, sizeof( trace_t ) );
-						}
-					}
-				}
-			}
-		}
+	if ( cg_dynamicCrosshair.integer && cg_dynamicCrosshairPrecision.integer ) {
+		// then do a trace with ghoul2 models in mind
+		CG_G2Trace( &trace, start, vec3_origin, vec3_origin, end, ignore, CONTENTS_SOLID|CONTENTS_BODY );
 	}
-	else
-	{
-		CG_Trace( &trace, start, vec3_origin, vec3_origin, end,
-			ignore, CONTENTS_SOLID|CONTENTS_BODY );
+	else {
+		CG_Trace( &trace, start, vec3_origin, vec3_origin, end, ignore, CONTENTS_SOLID|CONTENTS_BODY );
 	}
 
-	if (trace.entityNum < MAX_CLIENTS)
-	{
-		if (CG_IsMindTricked(cg_entities[trace.entityNum].currentState.trickedentindex,
-			cg_entities[trace.entityNum].currentState.trickedentindex2,
-			cg_entities[trace.entityNum].currentState.trickedentindex3,
-			cg_entities[trace.entityNum].currentState.trickedentindex4,
-			cg.snap->ps.clientNum))
-		{
+	if ( trace.entityNum < MAX_CLIENTS ) {
+		const entityState_t *chES = &cg_entities[trace.entityNum].currentState;
+		const qboolean isMindTricked = CG_IsMindTricked(
+			chES->trickedentindex, chES->trickedentindex2, chES->trickedentindex3, chES->trickedentindex4,
+			cg.snap->ps.clientNum
+		);
+		if ( isMindTricked ) {
 			if (cg.crosshairClientNum == trace.entityNum)
 			{
 				cg.crosshairClientNum = ENTITYNUM_NONE;
 				cg.crosshairClientTime = 0;
 			}
 
-			CG_DrawCrosshair(trace.endpos, 0);
+			CG_DrawCrosshair( trace.endpos, 0 );
 
 			return; //this entity is mind-tricking the current client, so don't render it
 		}
 	}
 
-	if (cg.snap->ps.persistant[PERS_TEAM] != TEAM_SPECTATOR)
-	{
-		if (trace.entityNum < /*MAX_CLIENTS*/ENTITYNUM_WORLD)
-		{
-			centity_t *veh = &cg_entities[trace.entityNum];
+	if ( cg.snap->ps.persistant[PERS_TEAM] != TEAM_SPECTATOR ) {
+		if ( trace.entityNum < /*MAX_CLIENTS*/ENTITYNUM_WORLD ) {
 			cg.crosshairClientNum = trace.entityNum;
 			cg.crosshairClientTime = cg.time;
-
-			if (veh->currentState.eType == ET_NPC &&
-				veh->currentState.NPC_class == CLASS_VEHICLE &&
-				veh->currentState.owner < MAX_CLIENTS)
-			{ //draw the name of the pilot then
-				cg.crosshairClientNum = veh->currentState.owner;
-				cg.crosshairVehNum = veh->currentState.number;
-				cg.crosshairVehTime = cg.time;
-			}
-
-			CG_DrawCrosshair(trace.endpos, 1);
+			CG_DrawCrosshair( trace.endpos, 1 );
 		}
-		else
-		{
-			CG_DrawCrosshair(trace.endpos, 0);
+		else {
+			CG_DrawCrosshair( trace.endpos, 0 );
 		}
 	}
 
@@ -6289,11 +4175,6 @@ static void CG_ScanForCrosshairEntity( void ) {
 	cg.crosshairClientTime = cg.time;
 }
 
-/*
-=====================
-CG_DrawCrosshairNames
-=====================
-*/
 static void CG_DrawCrosshairNames( void ) {
 	float		*color;
 	vec4_t		tcolor;
@@ -6312,21 +4193,6 @@ static void CG_DrawCrosshairNames( void ) {
 		return;
 	}
 	//rww - still do the trace, our dynamic crosshair depends on it
-
-	if (cg.crosshairClientNum < ENTITYNUM_WORLD)
-	{
-		centity_t *veh = &cg_entities[cg.crosshairClientNum];
-
-		if (veh->currentState.eType == ET_NPC &&
-			veh->currentState.NPC_class == CLASS_VEHICLE &&
-			veh->currentState.owner < MAX_CLIENTS)
-		{ //draw the name of the pilot then
-			cg.crosshairClientNum = veh->currentState.owner;
-			cg.crosshairVehNum = veh->currentState.number;
-			cg.crosshairVehTime = cg.time;
-			isVeh = qtrue; //so we know we're drawing the pilot's name
-		}
-	}
 
 	if (cg.crosshairClientNum >= MAX_CLIENTS)
 	{
@@ -6349,28 +4215,13 @@ static void CG_DrawCrosshairNames( void ) {
 
 	if (cgs.gametype >= GT_TEAM)
 	{
-		//if (cgs.gametype == GT_SIEGE)
-		if (1)
-		{ //instead of team-based we'll make it oriented based on which team we're on
-			if (cgs.clientinfo[cg.crosshairClientNum].team == cg.predictedPlayerState.persistant[PERS_TEAM])
-			{
-				baseColor = CT_GREEN;
-			}
-			else
-			{
-				baseColor = CT_RED;
-			}
+		if (cgs.clientinfo[cg.crosshairClientNum].team == cg.predictedPlayerState.persistant[PERS_TEAM])
+		{
+			baseColor = CT_GREEN;
 		}
 		else
 		{
-			if (cgs.clientinfo[cg.crosshairClientNum].team == TEAM_RED)
-			{
-				baseColor = CT_RED;
-			}
-			else
-			{
-				baseColor = CT_BLUE;
-			}
+			baseColor = CT_RED;
 		}
 	}
 	else
@@ -6420,14 +4271,6 @@ static void CG_DrawCrosshairNames( void ) {
 	trap->R_SetColor( NULL );
 }
 
-
-//==============================================================================
-
-/*
-=================
-CG_DrawSpectator
-=================
-*/
 static void CG_DrawSpectator(void)
 {
 	const char* s;
@@ -6505,11 +4348,6 @@ static void CG_DrawSpectator(void)
 	}
 }
 
-/*
-=================
-CG_DrawVote
-=================
-*/
 static void CG_DrawVote(void) {
 	const char *s = NULL, *sParm = NULL;
 	int sec;
@@ -6543,7 +4381,6 @@ static void CG_DrawVote(void) {
 		else if ( !Q_stricmp( "Holocron FFA", cgs.voteString+11 ) )				sParm = CG_GetStringEdString( "MENUS", "HOLOCRON_FFA" );
 		else if ( !Q_stricmp( "Power Duel", cgs.voteString+11 ) )				sParm = CG_GetStringEdString( "MENUS", "POWERDUEL" );
 		else if ( !Q_stricmp( "Team FFA", cgs.voteString+11 ) ) 				sParm = CG_GetStringEdString( "MENUS", "TEAM_FFA" );
-		else if ( !Q_stricmp( "Siege", cgs.voteString+11 ) )					sParm = CG_GetStringEdString( "MENUS", "SIEGE" );
 		else if ( !Q_stricmp( "Capture the Flag", cgs.voteString+11 )  )		sParm = CG_GetStringEdString( "MENUS", "CAPTURE_THE_FLAG" );
 		else if ( !Q_stricmp( "Capture the Ysalamiri", cgs.voteString+11 ) )	sParm = CG_GetStringEdString( "MENUS", "CAPTURE_THE_YSALIMARI" );
 	}
@@ -6560,8 +4397,6 @@ static void CG_DrawVote(void) {
 		sParm = cgs.voteString;
 	}
 
-
-
 	trap->SE_GetStringTextString( "MENUS_VOTE", sVote, sizeof( sVote ) );
 	trap->SE_GetStringTextString( "MENUS_YES", sYes, sizeof( sYes ) );
 	trap->SE_GetStringTextString( "MENUS_NO", sNo, sizeof( sNo ) );
@@ -6577,11 +4412,6 @@ static void CG_DrawVote(void) {
 	}
 }
 
-/*
-=================
-CG_DrawTeamVote
-=================
-*/
 static void CG_DrawTeamVote(void) {
 	char	*s;
 	int		sec, cs_offset;
@@ -6654,26 +4484,11 @@ static qboolean CG_DrawScoreboard() {
 	return CG_DrawOldScoreboard();
 }
 
-/*
-=================
-CG_DrawIntermission
-=================
-*/
 static void CG_DrawIntermission( void ) {
-//	int key;
-	//if (cg_singlePlayer.integer) {
-	//	CG_DrawCenterString();
-	//	return;
-	//}
 	cg.scoreFadeTime = cg.time;
 	cg.scoreBoardShowing = CG_DrawScoreboard();
 }
 
-/*
-=================
-CG_DrawFollow
-=================
-*/
 static qboolean CG_DrawFollow( void )
 {
 	const char	*s;
@@ -6742,11 +4557,6 @@ static void CG_DrawTemporaryStats()
 }
 #endif
 
-/*
-=================
-CG_DrawAmmoWarning
-=================
-*/
 static void CG_DrawAmmoWarning( void ) {
 #if 0
 	const char	*s;
@@ -6775,13 +4585,6 @@ static void CG_DrawAmmoWarning( void ) {
 #endif
 }
 
-
-
-/*
-=================
-CG_DrawWarmup
-=================
-*/
 static void CG_DrawWarmup( void ) {
 	int			w, sec, i;
 	float		scale;
@@ -6855,10 +4658,8 @@ static void CG_DrawWarmup( void ) {
 		else if ( cgs.gametype == GT_HOLOCRON )			s = CG_GetStringEdString("MENUS", "HOLOCRON_FFA");//"Holocron FFA";
 		else if ( cgs.gametype == GT_JEDIMASTER )		s = "Jedi Master";
 		else if ( cgs.gametype == GT_TEAM )				s = CG_GetStringEdString("MENUS", "TEAM_FFA");//"Team FFA";
-		else if ( cgs.gametype == GT_SIEGE )			s = CG_GetStringEdString("MENUS", "SIEGE");//"Siege";
 		else if ( cgs.gametype == GT_CTF )				s = CG_GetStringEdString("MENUS", "CAPTURE_THE_FLAG");//"Capture the Flag";
 		else if ( cgs.gametype == GT_CTY )				s = CG_GetStringEdString("MENUS", "CAPTURE_THE_YSALIMARI");//"Capture the Ysalamiri";
-		else if ( cgs.gametype == GT_SINGLE_PLAYER )	s = "Cooperative";
 		else											s = "";
 		w = CG_Text_Width(s, 1.5f, FONT_MEDIUM);
 		CG_Text_Paint(320 - w / 2, 90, 1.5f, colorWhite, s, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE,FONT_MEDIUM);
@@ -6874,21 +4675,18 @@ static void CG_DrawWarmup( void ) {
 	if ( sec != cg.warmupCount ) {
 		cg.warmupCount = sec;
 
-		if (cgs.gametype != GT_SIEGE)
-		{
-			switch ( sec ) {
-			case 0:
-				trap->S_StartLocalSound( cgs.media.count1Sound, CHAN_ANNOUNCER );
-				break;
-			case 1:
-				trap->S_StartLocalSound( cgs.media.count2Sound, CHAN_ANNOUNCER );
-				break;
-			case 2:
-				trap->S_StartLocalSound( cgs.media.count3Sound, CHAN_ANNOUNCER );
-				break;
-			default:
-				break;
-			}
+		switch ( sec ) {
+		case 0:
+			trap->S_StartLocalSound( cgs.media.count1Sound, CHAN_ANNOUNCER );
+			break;
+		case 1:
+			trap->S_StartLocalSound( cgs.media.count2Sound, CHAN_ANNOUNCER );
+			break;
+		case 2:
+			trap->S_StartLocalSound( cgs.media.count3Sound, CHAN_ANNOUNCER );
+			break;
+		default:
+			break;
 		}
 	}
 	scale = 0.45f;
@@ -6911,12 +4709,6 @@ static void CG_DrawWarmup( void ) {
 	CG_Text_Paint(320 - w / 2, 125, scale, colorWhite, s, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE, FONT_MEDIUM);
 }
 
-//==================================================================================
-/*
-=================
-CG_DrawTimedMenus
-=================
-*/
 void CG_DrawTimedMenus() {
 	if (cg.voiceTime) {
 		int t = cg.time - cg.voiceTime;
@@ -7166,194 +4958,7 @@ float cgYsalFadeVal = 0;
 qboolean gCGHasFallVector = qfalse;
 vec3_t gCGFallVector;
 
-/*
-=================
-CG_Draw2D
-=================
-*/
-extern int cgSiegeRoundState;
-extern int cgSiegeRoundTime;
-
-extern int team1Timed;
-extern int team2Timed;
-
-int cg_beatingSiegeTime = 0;
-
-int cgSiegeRoundBeganTime = 0;
-int cgSiegeRoundCountTime = 0;
-
-static void CG_DrawSiegeTimer(int timeRemaining, qboolean isMyTeam)
-{ //rwwFIXMEFIXME: Make someone make assets and use them.
-  //this function is pretty much totally placeholder.
-//	int x = 0;
-//	int y = SCREEN_HEIGHT-160;
-	int fColor = 0;
-	int minutes = 0;
-	int seconds = 0;
-	char timeStr[1024];
-	menuDef_t	*menuHUD = NULL;
-	itemDef_t	*item = NULL;
-
-	menuHUD = Menus_FindByName("mp_timer");
-	if (!menuHUD)
-	{
-		return;
-	}
-
-	item = Menu_FindItemByName(menuHUD, "frame");
-
-	if (item)
-	{
-		trap->R_SetColor( item->window.foreColor );
-		CG_DrawPic(
-			item->window.rect.x,
-			item->window.rect.y,
-			item->window.rect.w,
-			item->window.rect.h,
-			item->window.background );
-	}
-
-	seconds = timeRemaining;
-
-	while (seconds >= 60)
-	{
-		minutes++;
-		seconds -= 60;
-	}
-
-	strcpy(timeStr, va( "%i:%02i", minutes, seconds ));
-
-	if (isMyTeam)
-	{
-		fColor = CT_HUD_RED;
-	}
-	else
-	{
-		fColor = CT_HUD_GREEN;
-	}
-
-//	trap->Cvar_Set("ui_siegeTimer", timeStr);
-
-//	CG_DrawProportionalString( x+16, y+40, timeStr, UI_SMALLFONT|UI_DROPSHADOW, colorTable[fColor] );
-
-	item = Menu_FindItemByName(menuHUD, "timer");
-	if (item)
-	{
-		CG_DrawProportionalString(
-			item->window.rect.x,
-			item->window.rect.y,
-			timeStr,
-			UI_SMALLFONT|UI_DROPSHADOW,
-			colorTable[fColor] );
-	}
-
-}
-
-static void CG_DrawSiegeDeathTimer( int timeRemaining )
-{
-	int minutes = 0;
-	int seconds = 0;
-	char timeStr[1024];
-	menuDef_t	*menuHUD = NULL;
-	itemDef_t	*item = NULL;
-
-	menuHUD = Menus_FindByName("mp_timer");
-	if (!menuHUD)
-	{
-		return;
-	}
-
-	item = Menu_FindItemByName(menuHUD, "frame");
-
-	if (item)
-	{
-		trap->R_SetColor( item->window.foreColor );
-		CG_DrawPic(
-			item->window.rect.x,
-			item->window.rect.y,
-			item->window.rect.w,
-			item->window.rect.h,
-			item->window.background );
-	}
-
-	seconds = timeRemaining;
-
-	while (seconds >= 60)
-	{
-		minutes++;
-		seconds -= 60;
-	}
-
-	if (seconds < 10)
-	{
-		strcpy(timeStr, va( "%i:0%i", minutes, seconds ));
-	}
-	else
-	{
-		strcpy(timeStr, va( "%i:%i", minutes, seconds ));
-	}
-
-	item = Menu_FindItemByName(menuHUD, "deathtimer");
-	if (item)
-	{
-		CG_DrawProportionalString(
-			item->window.rect.x,
-			item->window.rect.y,
-			timeStr,
-			UI_SMALLFONT|UI_DROPSHADOW,
-			item->window.foreColor );
-	}
-
-}
-
-int cgSiegeEntityRender = 0;
-
-static void CG_DrawSiegeHUDItem(void)
-{
-	void *g2;
-	qhandle_t handle;
-	vec3_t origin, angles;
-	vec3_t mins, maxs;
-	float len;
-	centity_t *cent = &cg_entities[cgSiegeEntityRender];
-
-	if (cent->ghoul2)
-	{
-		g2 = cent->ghoul2;
-		handle = 0;
-	}
-	else
-	{
-		handle = cgs.gameModels[cent->currentState.modelindex];
-		g2 = NULL;
-	}
-
-	if (handle)
-	{
-		trap->R_ModelBounds( handle, mins, maxs );
-	}
-	else
-	{
-		VectorSet(mins, -16, -16, -20);
-		VectorSet(maxs, 16, 16, 32);
-	}
-
-	origin[2] = -0.5 * ( mins[2] + maxs[2] );
-	origin[1] = 0.5 * ( mins[1] + maxs[1] );
-	len = 0.5 * ( maxs[2] - mins[2] );
-	origin[0] = len / 0.268;
-
-	VectorClear(angles);
-	angles[YAW] = cg.autoAngles[YAW];
-
-	CG_Draw3DModel( 8, 8, 64, 64, handle, g2, cent->currentState.g2radius, 0, origin, angles );
-
-	cgSiegeEntityRender = 0; //reset for next frame
-}
-
-/*====================================
-chatbox functionality -rww
-====================================*/
+// chatbox functionality -rww
 #define	CHATBOX_CUTOFF_LEN	550
 #define	CHATBOX_FONT_HEIGHT	20
 
@@ -8155,7 +5760,6 @@ static void CG_Draw2D( void ) {
 
 	CG_DrawLagometer();
 
-
 	if (!cl_paused.integer) {
 		CG_DrawBracketedEntities();
 		CG_DrawUpperRight();
@@ -8163,175 +5767,6 @@ static void CG_Draw2D( void ) {
 
 	if ( !CG_DrawFollow() ) {
 		CG_DrawWarmup();
-	}
-
-	if (cgSiegeRoundState)
-	{
-		char pStr[1024];
-		int rTime = 0;
-
-		//cgSiegeRoundBeganTime = 0;
-
-		switch (cgSiegeRoundState)
-		{
-		case 1:
-			CG_CenterPrint(CG_GetStringEdString("MP_INGAME", "WAITING_FOR_PLAYERS"), SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH);
-			break;
-		case 2:
-			rTime = (SIEGE_ROUND_BEGIN_TIME - (cg.time - cgSiegeRoundTime));
-
-			if (rTime < 0)
-			{
-				rTime = 0;
-			}
-			if (rTime > SIEGE_ROUND_BEGIN_TIME)
-			{
-				rTime = SIEGE_ROUND_BEGIN_TIME;
-			}
-
-			rTime /= 1000;
-
-			rTime += 1;
-
-			if (rTime < 1)
-			{
-				rTime = 1;
-			}
-
-			if (rTime <= 3 && rTime != cgSiegeRoundCountTime)
-			{
-				cgSiegeRoundCountTime = rTime;
-
-				switch (rTime)
-				{
-				case 1:
-					trap->S_StartLocalSound( cgs.media.count1Sound, CHAN_ANNOUNCER );
-					break;
-				case 2:
-					trap->S_StartLocalSound( cgs.media.count2Sound, CHAN_ANNOUNCER );
-					break;
-				case 3:
-					trap->S_StartLocalSound( cgs.media.count3Sound, CHAN_ANNOUNCER );
-					break;
-				default:
-					break;
-				}
-			}
-
-			Q_strncpyz(pStr, va("%s %i...", CG_GetStringEdString("MP_INGAME", "ROUNDBEGINSIN"), rTime), sizeof(pStr));
-			CG_CenterPrint(pStr, SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH);
-			//same
-			break;
-		default:
-			break;
-		}
-
-		cgSiegeEntityRender = 0;
-	}
-	else if (cgSiegeRoundTime)
-	{
-		CG_CenterPrint("", SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH);
-		cgSiegeRoundTime = 0;
-
-		//cgSiegeRoundBeganTime = cg.time;
-		cgSiegeEntityRender = 0;
-	}
-	else if (cgSiegeRoundBeganTime)
-	{ //Draw how much time is left in the round based on local info.
-		int timedTeam = TEAM_FREE;
-		int timedValue = 0;
-
-		if (cgSiegeEntityRender)
-		{ //render the objective item model since this client has it
-			CG_DrawSiegeHUDItem();
-		}
-
-		if (team1Timed)
-		{
-			timedTeam = TEAM_RED; //team 1
-			if (cg_beatingSiegeTime)
-			{
-				timedValue = cg_beatingSiegeTime;
-			}
-			else
-			{
-				timedValue = team1Timed;
-			}
-		}
-		else if (team2Timed)
-		{
-			timedTeam = TEAM_BLUE; //team 2
-			if (cg_beatingSiegeTime)
-			{
-				timedValue = cg_beatingSiegeTime;
-			}
-			else
-			{
-				timedValue = team2Timed;
-			}
-		}
-
-		if (timedTeam != TEAM_FREE)
-		{ //one of the teams has a timer
-			int timeRemaining;
-			qboolean isMyTeam = qfalse;
-
-			if (cgs.siegeTeamSwitch && !cg_beatingSiegeTime)
-			{ //in switchy mode but not beating a time, so count up.
-				timeRemaining = (cg.time-cgSiegeRoundBeganTime);
-				if (timeRemaining < 0)
-				{
-					timeRemaining = 0;
-				}
-			}
-			else
-			{
-				timeRemaining = (((cgSiegeRoundBeganTime)+timedValue) - cg.time);
-			}
-
-			if (timeRemaining > timedValue)
-			{
-				timeRemaining = timedValue;
-			}
-			else if (timeRemaining < 0)
-			{
-				timeRemaining = 0;
-			}
-
-			if (timeRemaining)
-			{
-				timeRemaining /= 1000;
-			}
-
-			if (cg.predictedPlayerState.persistant[PERS_TEAM] == timedTeam)
-			{ //the team that's timed is the one this client is on
-				isMyTeam = qtrue;
-			}
-
-			CG_DrawSiegeTimer(timeRemaining, isMyTeam);
-		}
-	}
-	else
-	{
-		cgSiegeEntityRender = 0;
-	}
-
-	if ( cg_siegeDeathTime )
-	{
-		int timeRemaining = ( cg_siegeDeathTime - cg.time );
-
-		if ( timeRemaining < 0 )
-		{
-			timeRemaining = 0;
-			cg_siegeDeathTime = 0;
-		}
-
-		if ( timeRemaining )
-		{
-			timeRemaining /= 1000;
-		}
-
-		CG_DrawSiegeDeathTimer( timeRemaining );
 	}
 
 	// don't draw center string if scoreboard is up
@@ -8396,13 +5831,7 @@ void CG_DrawMiscStaticModels( void ) {
 static void CG_DrawTourneyScoreboard() {
 }
 
-/*
-=====================
-CG_DrawActive
-
-Perform all drawing needed to completely fill the screen
-=====================
-*/
+// Perform all drawing needed to completely fill the screen
 void CG_DrawActive( stereoFrame_t stereoView ) {
 	float		separation;
 	vec3_t		baseOrg;
@@ -8435,7 +5864,6 @@ void CG_DrawActive( stereoFrame_t stereoView ) {
 		trap->Error( ERR_DROP, "CG_DrawActive: Undefined stereoView" );
 	}
 
-
 	// clear around the rendered view if sized down
 	CG_TileClear();
 
@@ -8463,6 +5891,3 @@ void CG_DrawActive( stereoFrame_t stereoView ) {
 	// draw status bar and other floating elements
  	CG_Draw2D();
 }
-
-
-

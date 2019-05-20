@@ -164,7 +164,6 @@ void DeleteGoreSet(int goreSetTag)
 	}
 }
 
-
 CGoreSet::~CGoreSet()
 {
 	std::multimap<int,SGoreSurface>::iterator i;
@@ -330,18 +329,10 @@ void G2_List_Model_Bones(const char *fileName, int frame)
 	}
 }
 
-
-/************************************************************************************************
- * G2_GetAnimFileName
- *    obtain the .gla filename for a model
- *
- * Input
- *    filename of model
- *
- * Output
- *    true if we successfully obtained a filename, false otherwise
- *
- ************************************************************************************************/
+// obtain the .gla filename for a model
+//	fileName	filename of model
+//	filename	out: filename of animations
+// returns true if we successfully obtained a filename, false otherwise
 qboolean G2_GetAnimFileName(const char *fileName, char **filename)
 {
 	// find the model we want
@@ -355,12 +346,7 @@ qboolean G2_GetAnimFileName(const char *fileName, char **filename)
 	return qfalse;
 }
 
-
-/////////////////////////////////////////////////////////////////////
-//
-//	Code for collision detection for models gameside
-//
-/////////////////////////////////////////////////////////////////////
+// Code for collision detection for models gameside
 
 int G2_DecideTraceLod(CGhoul2Info &ghoul2, int useLod)
 {
@@ -392,9 +378,8 @@ void R_TransformEachSurface( const mdxmSurface_t *surface, vec3_t scale, IHeapAl
 	mdxmVertex_t 	*v;
 	float			*TransformedVerts;
 
-	//
 	// deform the vertexes by the lerped bones
-	//
+
 	int *piBoneReferences = (int*) ((byte*)surface + surface->ofsBoneReferences);
 
 	// alloc some space for the transformed verts to get put in
@@ -560,7 +545,6 @@ void G2_TransformModel(CGhoul2Info_v &ghoul2, const int frameNum, vec3_t scale, 
 		firstModelOnly = qtrue;
 	}
 
-
 	VectorCopy(scale, correctScale);
 	// check for scales of 0 - that's the default I believe
 	if (!scale[0])
@@ -643,7 +627,6 @@ void G2_TransformModel(CGhoul2Info_v &ghoul2, const int frameNum, vec3_t scale, 
 	}
 }
 
-
 // work out how much space a triangle takes
 static float	G2_AreaOfTri(const vec3_t A, const vec3_t B, const vec3_t C)
 {
@@ -686,7 +669,6 @@ static void G2_BuildHitPointST( const vec3_t A, const float SA, const float TA,
 	}
 
 }
-
 
 // routine that works out given a ray whether or not it hits a poly
 qboolean G2_SegmentTriangleTest( const vec3_t start, const vec3_t end,
@@ -1316,7 +1298,7 @@ static bool G2_RadiusTracePolys(
 		else
 		{
 			// we hit a triangle, so init a collision record...
-			//
+
 			for (i=0; i<MAX_G2_COLLISIONS;i++)
 			{
 				if (TS.collRecMap[i].mEntityNum == -1)
@@ -1359,7 +1341,6 @@ static bool G2_RadiusTracePolys(
 						return true;
 					}
 
-
 					vec3_t			  distVect;
 #if 0
 					//i don't know the hitPoint, but let's just assume it's the first vert for now...
@@ -1398,7 +1379,6 @@ static bool G2_RadiusTracePolys(
 
 	return false;
 }
-
 
 // look at a surface and then do the trace on each poly
 static void G2_TraceSurfaces(CTraceSurface &TS)
@@ -1439,7 +1419,7 @@ static void G2_TraceSurfaces(CTraceSurface &TS)
 			if (!(fabs(TS.m_fRadius) < 0.1))	// if not a point-trace
 			{
 				// .. then use radius check
-				//
+
 				if (G2_RadiusTracePolys(surface,		// const mdxmSurface_t *surface,
 										TS
 										)
@@ -1601,7 +1581,6 @@ void TransformAndTranslatePoint (const vec3_t in, vec3_t out, mdxaBone_t *mat) {
 	}
 }
 
-
 // create a matrix using a set of angles
 void Create_Matrix(const float *angle, mdxaBone_t *matrix)
 {
@@ -1624,7 +1603,6 @@ void Create_Matrix(const float *angle, mdxaBone_t *matrix)
 	matrix->matrix[0][3] = 0;
 	matrix->matrix[1][3] = 0;
 	matrix->matrix[2][3] = 0;
-
 
 }
 

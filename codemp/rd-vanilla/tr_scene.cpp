@@ -47,12 +47,6 @@ static	int			r_numpolyverts;
 int					skyboxportal;
 int					drawskyboxportal;
 
-/*
-====================
-R_InitNextFrame
-
-====================
-*/
 void R_InitNextFrame( void ) {
 	backEndData->commands.used = 0;
 
@@ -73,13 +67,6 @@ void R_InitNextFrame( void ) {
 	r_numpolyverts = 0;
 }
 
-
-/*
-====================
-RE_ClearScene
-
-====================
-*/
 void RE_ClearScene( void ) {
 	r_firstSceneDlight = r_numdlights;
 	r_firstSceneEntity = r_numentities;
@@ -88,21 +75,9 @@ void RE_ClearScene( void ) {
 	r_firstSceneMiniEntity = r_numminientities;
 }
 
-/*
-===========================================================================
+// DISCRETE POLYS
 
-DISCRETE POLYS
-
-===========================================================================
-*/
-
-/*
-=====================
-R_AddPolygonSurfaces
-
-Adds all the scene's polys into this view's drawsurf list
-=====================
-*/
+// Adds all the scene's polys into this view's drawsurf list
 void R_AddPolygonSurfaces( void ) {
 	int			i;
 	shader_t	*sh;
@@ -117,12 +92,6 @@ void R_AddPolygonSurfaces( void ) {
 	}
 }
 
-/*
-=====================
-RE_AddPolyToScene
-
-=====================
-*/
 void RE_AddPolyToScene( qhandle_t hShader, int numVerts, const polyVert_t *verts, int numPolys ) {
 	srfPoly_t	*poly;
 	int			i, j;
@@ -135,7 +104,10 @@ void RE_AddPolyToScene( qhandle_t hShader, int numVerts, const polyVert_t *verts
 	}
 
 	if ( !hShader ) {
-		ri.Printf( PRINT_ALL, S_COLOR_YELLOW  "WARNING: RE_AddPolyToScene: NULL poly shader\n");
+		ri.Printf( PRINT_ALL, S_COLOR_YELLOW  "WARNING: RE_AddPolyToScene: NULL poly shader(%i)\n", hShader );
+	#ifdef PARANOID
+		//assert( !"RE_AddPolyToScene: NULL poly shader" );
+	#endif
 		return;
 	}
 
@@ -196,16 +168,6 @@ void RE_AddPolyToScene( qhandle_t hShader, int numVerts, const polyVert_t *verts
 	}
 }
 
-
-//=================================================================================
-
-
-/*
-=====================
-RE_AddRefEntityToScene
-
-=====================
-*/
 void RE_AddRefEntityToScene( const refEntity_t *ent ) {
 	if ( !tr.registered ) {
 		return;
@@ -272,20 +234,10 @@ void RE_AddRefEntityToScene( const refEntity_t *ent ) {
 	r_numentities++;
 }
 
-
-/************************************************************************************************
- * RE_AddMiniRefEntityToScene                                                                   *
- *    Adds a mini ref ent to the scene.  If the input parameter is null, it signifies the end   *
- *    of the chain.  Otherwise, if there is a valid chain parent, it will be added to that.     *
- *    If there is no parent, it will be added as a regular ref ent.                             *
- *                                                                                              *
- * Input                                                                                        *
- *    ent: the mini ref ent to be added                                                         *
- *                                                                                              *
- * Output / Return                                                                              *
- *    none                                                                                      *
- *                                                                                              *
- ************************************************************************************************/
+// Adds a mini ref ent to the scene.
+// If the input parameter is null, it signifies the end of the chain. Otherwise, if there is a valid chain parent, it
+//	will be added to that. If there is no parent, it will be added as a regular ref ent.
+//	ent		the mini ref ent to be added
 void RE_AddMiniRefEntityToScene( const miniRefEntity_t *ent )
 {
 #if 0
@@ -334,12 +286,6 @@ void RE_AddMiniRefEntityToScene( const miniRefEntity_t *ent )
 #endif
 }
 
-/*
-=====================
-RE_AddDynamicLightToScene
-
-=====================
-*/
 void RE_AddDynamicLightToScene( const vec3_t org, float intensity, float r, float g, float b, int additive ) {
 	dlight_t	*dl;
 
@@ -361,39 +307,18 @@ void RE_AddDynamicLightToScene( const vec3_t org, float intensity, float r, floa
 	dl->additive = additive;
 }
 
-/*
-=====================
-RE_AddLightToScene
-
-=====================
-*/
 void RE_AddLightToScene( const vec3_t org, float intensity, float r, float g, float b ) {
 	RE_AddDynamicLightToScene( org, intensity, r, g, b, qfalse );
 }
 
-/*
-=====================
-RE_AddAdditiveLightToScene
-
-=====================
-*/
 void RE_AddAdditiveLightToScene( const vec3_t org, float intensity, float r, float g, float b ) {
 	RE_AddDynamicLightToScene( org, intensity, r, g, b, qtrue );
 }
 
-/*
-@@@@@@@@@@@@@@@@@@@@@
-RE_RenderScene
-
-Draw a 3D view into a part of the window, then return
-to 2D drawing.
-
-Rendering a scene may require multiple views to be rendered
-to handle mirrors,
-@@@@@@@@@@@@@@@@@@@@@
-*/
 void RE_RenderWorldEffects(void);
 void RE_RenderAutoMap(void);
+// Draw a 3D view into a part of the window, then return to 2D drawing.
+// Rendering a scene may require multiple views to be rendered to handle mirrors,
 void RE_RenderScene( const refdef_t *fd ) {
 	viewParms_t		parms;
 	int				startTime;
@@ -481,7 +406,6 @@ void RE_RenderScene( const refdef_t *fd ) {
 		}
 	}
 
-
 	// derived info
 
 	tr.refdef.floatTime = tr.refdef.time * 0.001f;
@@ -513,20 +437,18 @@ void RE_RenderScene( const refdef_t *fd ) {
 		tr.refdef.num_dlights = 0;
 	}
 
-	// a single frame may have multiple scenes draw inside it --
-	// a 3D game view, 3D status bar renderings, 3D menus, etc.
-	// They need to be distinguished by the light flare code, because
-	// the visibility state for a given surface may be different in
-	// each scene / view.
+	// a single frame may have multiple scenes draw inside it - a 3D game view, 3D status bar renderings, 3D menus, etc.
+	// They need to be distinguished by the light flare code, because the visibility state for a given surface may be
+	//	different in each scene / view.
 	tr.frameSceneNum++;
 	tr.sceneCount++;
 
 	// setup view parms for the initial view
-	//
+
 	// set up viewport
 	// The refdef takes 0-at-the-top y coordinates, so
 	// convert to GL's 0-at-the-bottom space
-	//
+
 	memset( &parms, 0, sizeof( parms ) );
 	parms.viewportX = tr.refdef.x;
 	parms.viewportY = glConfig.vidHeight - ( tr.refdef.y + tr.refdef.height );

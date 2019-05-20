@@ -44,7 +44,6 @@ typedef float ARRAY36[36];
 /*-- windows by block type --*/
 static float win[4][36];	// effectively a constant
 
-
 /*====================================================================*/
 void imdct18(float f[]);	/* 18 point */
 void imdct6_3(float f[]);	/* 6 point */
@@ -55,7 +54,6 @@ ARRAY36 *hwin_init_addr()
    return win;
 }
 
-
 /*====================================================================*/
 int hybrid(float xin[], float xprev[], float y[18][32],
 	   int btype, int nlong, int ntot, int nprev)
@@ -65,8 +63,6 @@ int hybrid(float xin[], float xprev[], float y[18][32],
    float xa, xb;
    int n;
    int nout;
-
-
 
    if (btype == 2)
       btype = 0;
@@ -157,7 +153,6 @@ int hybrid(float xin[], float xprev[], float y[18][32],
    return nout;
 }
 
-
 /*--------------------------------------------------------------------*/
 /*--------------------------------------------------------------------*/
 /*-- convert to mono, add curr result to y,
@@ -170,8 +165,6 @@ int hybrid_sum(float xin[], float xin_left[], float y[18][32],
    float xa, xb;
    int n;
    int nout;
-
-
 
    if (btype == 2)
       btype = 0;

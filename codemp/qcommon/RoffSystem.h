@@ -29,7 +29,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <map>
 
 // ROFF Defines
-//-------------------
 #define ROFF_VERSION				1
 #define ROFF_NEW_VERSION			2
 #define ROFF_STRING					"ROFF"
@@ -37,16 +36,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define ROFF_AUTO_FIX_BAD_ANGLES	// exporter can mess up angles,
 									//	defining this attempts to detect and fix these problems
 
-
-// The CROFFSystem object provides all of the functionality of ROFF
-//	caching, playback, and clean-up, plus some useful debug features.
-//--------------------------------------
+// The CROFFSystem object provides all of the functionality of ROFF caching, playback, and clean-up, plus some useful debug features.
 class CROFFSystem
-//--------------------------------------
 {
 private:
-//------
-
 	// forward declarations
 	class			CROFF;
 	struct			SROFFEntity;
@@ -61,7 +54,6 @@ private:
 
 	// ROFF Header file definition, nothing else needs to see this
 	typedef struct tROFFHeader
-	//-------------------------------
 	{
 		char	mHeader[4];				// should match roff_string defined above
 		long	mVersion;				// version num, supported version defined above
@@ -71,14 +63,12 @@ private:
 
 	// ROFF Entry, nothing else needs to see this
 	typedef struct tROFFEntry
-	//-------------------------------
 	{
 		float		mOriginOffset[3];
 		float		mRotateOffset[3];
 	} TROFFEntry;
 
 	typedef struct tROFF2Header
-	//-------------------------------
 	{
 		char	mHeader[4];				// should match roff_string defined above
 		long	mVersion;				// version num, supported version defined above
@@ -90,7 +80,6 @@ private:
 
 	// ROFF Entry, nothing else needs to see this
 	typedef struct tROFF2Entry
-	//-------------------------------
 	{
 		float		mOriginOffset[3];
 		float		mRotateOffset[3];
@@ -99,12 +88,9 @@ private:
 
 	// An individual ROFF object,
 	//	contains actual rotation/offset information
-	//--------------------------------------
 	class CROFF
-	//--------------------------------------
 	{
 	public:
-	//------
 
 		int			mID;						// id for this roff file
 		char		mROFFFilePath[MAX_QPATH];	// roff file path
@@ -126,13 +112,10 @@ private:
 
 	}; // class CROFF
 
-
 	// The roff system tracks entities that are
 	//	roffing, so this is the internal structure
 	//	that represents these objects.
-	//--------------------------------------
 	struct SROFFEntity
-	//--------------------------------------
 	{
 		int			mEntID;			// the entity that is currently roffing
 
@@ -146,7 +129,6 @@ private:
 		qboolean	mIsClient;
 		vec3_t		mStartAngles;	// initial angle of the entity
 	}; // struct SROFFEntity
-
 
 	qboolean	IsROFF( byte *file );				// Makes sure the file is a valid roff file
 	qboolean	InitROFF( byte *file, CROFF *obj );	// Handles stashing raw roff data into the roff object
@@ -165,11 +147,9 @@ private:
 	qboolean	ClearLerp( SROFFEntity *roff_ent );				// Clears out the angular and position lerp fields
 
 public:
-//------
 
 	CROFFSystem()	{	mID = 0; mROFFEntList.clear();	}
 	~CROFFSystem()	{	Restart();	}
-
 
 	qboolean		Restart();						// Free up all system resources and reset the ID counter
 
@@ -187,6 +167,5 @@ public:
 	void		UpdateEntities(qboolean isClient);			// applys roff data to roffing entities.
 
 }; // class CROFFSystem
-
 
 extern CROFFSystem theROFFSystem;

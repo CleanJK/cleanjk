@@ -154,8 +154,7 @@ typedef struct miniRefEntity_s
 
 typedef struct refEntity_s {
 	// this stucture must remain identical as the miniRefEntity_t
-	//
-	//
+
 	refEntityType_t		reType;
 	int					renderfx;
 
@@ -183,15 +182,10 @@ typedef struct refEntity_s {
 	// misc
 	float		shaderTime;			// subtracted from refdef time to control effect start times
 	int			frame;				// also used as MODEL_BEAM's diameter
-	//
-	//
+
 	// end miniRefEntity_t
 
-	//
-	//
 	// specific full refEntity_t data
-	//
-	//
 
 	// most recent data
 	vec3_t		lightingOrigin;		// so multi-part models can be lit identically (RF_LIGHTING_ORIGIN)
@@ -259,22 +253,13 @@ typedef struct refEntity_s {
 	float		endTime;
 	float		saberLength;
 
-/*
-Ghoul2 Insert Start
-*/
 	vec3_t		angles;				// rotation angles - used for Ghoul2
 
 	vec3_t		modelScale;			// axis scale for models
 //	CGhoul2Info_v	*ghoul2;  		// has to be at the end of the ref-ent in order for it to be created properly
 	void		*ghoul2;  		// has to be at the end of the ref-ent in order for it to be created properly
-/*
-Ghoul2 Insert End
-*/
 } refEntity_t;
 
-/*
-Ghoul2 Insert Start
-*/
 #define MDXABONEDEF
 #include "rd-common/mdx_format.h"
 #include "qcommon/qfiles.h"
@@ -293,21 +278,12 @@ typedef struct skin_s {
 	_skinSurface_t	*surfaces[128];
 } skin_t;
 
-/*
-Ghoul2 Insert End
-*/
 typedef enum {
 	MOD_BAD,
 	MOD_BRUSH,
 	MOD_MESH,
-/*
-Ghoul2 Insert Start
-*/
    	MOD_MDXM,
 	MOD_MDXA
-/*
-Ghoul2 Insert End
-*/
 } modtype_t;
 
 typedef struct model_s {
@@ -318,14 +294,8 @@ typedef struct model_s {
 	int			dataSize;			// just for listing purposes
 	struct bmodel_s	*bmodel;			// only if type == MOD_BRUSH
 	md3Header_t	*md3[MD3_MAX_LODS];	// only if type == MOD_MESH
-/*
-Ghoul2 Insert Start
-*/
 	mdxmHeader_t *mdxm;				// only if type == MOD_GL2M which is a GHOUL II Mesh file NOT a GHOUL II animation file
 	mdxaHeader_t *mdxa;				// only if type == MOD_GL2A which is a GHOUL II Animation file
-/*
-Ghoul2 Insert End
-*/
 	int			 numLods;
 	qboolean	bspInstance;
 } model_t;
@@ -353,7 +323,6 @@ typedef struct refdef_s {
 	char		text[MAX_RENDER_STRINGS][MAX_RENDER_STRING_LENGTH];
 } refdef_t;
 
-
 enum {
 	STEREO_CENTER,
 	STEREO_LEFT,
@@ -361,14 +330,8 @@ enum {
 };
 typedef int stereoFrame_t;
 
-
-/*
-** glconfig_t
-**
-** Contains variables specific to the OpenGL configuration
-** being run right now.  These are constant once the OpenGL
-** subsystem is initialized.
-*/
+// Contains variables specific to the OpenGL configuration being run right now.
+// These are constant once the OpenGL subsystem is initialized.
 typedef enum { // r_ext_preferred_tc_method
 	TC_NONE,
 	TC_S3TC,

@@ -27,15 +27,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "tr_quicksprite.h"
 #include "tr_WorldEffects.h"
 
-
-/////===== Part of the VERTIGON system =====/////
-// The surfacesprites are a simple system.  When a polygon with this shader stage on it is drawn,
-// there are randomly distributed images (defined by the shader stage) placed on the surface.
+// Part of the VERTIGON system
+// The surfacesprites are a simple system. When a polygon with this shader stage on it is drawn, there are randomly
+//	distributed images (defined by the shader stage) placed on the surface.
 // these are capable of doing effects, grass, or simple oriented sprites.
 // They usually stick vertically off the surface, hence the term vertigons.
-
-// The vertigons are applied as part of the renderer backend.  That is, they access OpenGL calls directly.
-
+// The vertigons are applied as part of the renderer backend. That is, they access OpenGL calls directly.
 
 unsigned char randomindex, randominterval;
 const float randomchart[256] = {
@@ -101,7 +98,6 @@ int		rightvectorcount;
 
 trRefEntity_t *ssLastEntityDrawn=NULL;
 vec3_t	ssViewOrigin, ssViewRight, ssViewUp;
-
 
 static void R_SurfaceSpriteFrameUpdate(void)
 {
@@ -171,16 +167,13 @@ static void R_SurfaceSpriteFrameUpdate(void)
 	VectorScale(ssViewRight, 0.866f, ssrightvectors[1]);
 	VectorMA(ssrightvectors[1], -0.5f, ssfwdvector, ssrightvectors[1]);
 
-
 	// Right two has a big nudge forward (30 degrees).
 	VectorScale(ssViewRight, 0.866f, ssrightvectors[2]);
 	VectorMA(ssrightvectors[2], 0.5f, ssfwdvector, ssrightvectors[2]);
 
-
 	// Right three has a nudge back (10 degrees).
 	VectorScale(ssViewRight, 0.985f, ssrightvectors[3]);
 	VectorMA(ssrightvectors[3], -0.174f, ssfwdvector, ssrightvectors[3]);
-
 
 	// Update the wind.
 	// If it is raining, get the windspeed from the rain system rather than the cvar
@@ -310,11 +303,7 @@ static void R_SurfaceSpriteFrameUpdate(void)
 	sssurfaces=0;
 }
 
-
-
-/////////////////////////////////////////////
 // Surface sprite calculation and drawing.
-/////////////////////////////////////////////
 
 #define FADE_RANGE			250.0
 #define WINDPOINT_RADIUS	750.0
@@ -326,8 +315,6 @@ vec2_t SSVertWindDir[SHADER_MAX_VERTEXES];
 qboolean SSAdditiveTransparency=qfalse;
 qboolean SSUsingFog=qfalse;
 
-
-/////////////////////////////////////////////
 // Vertical surface sprites
 
 static void RB_VerticalSurfaceSprite(vec3_t loc, float width, float height, byte light,
@@ -493,7 +480,6 @@ static void RB_VerticalSurfaceSpriteWindPoint(vec3_t loc, float width, float hei
 	{
 		VectorScale(ssrightvectors[rightvectorcount], width*0.5, right);
 	}
-
 
 	color[0]=light;
 	color[1]=light;
@@ -830,8 +816,6 @@ static void RB_DrawVerticalSurfaceSprites( shaderStage_t *stage, shaderCommands_
 	}
 }
 
-
-/////////////////////////////////////////////
 // Oriented surface sprites
 
 static void RB_OrientedSurfaceSprite(vec3_t loc, float width, float height, byte light, byte alpha, vec2_t fog, int faceup)
@@ -1105,8 +1089,6 @@ static void RB_DrawOrientedSurfaceSprites( shaderStage_t *stage, shaderCommands_
 	}
 }
 
-
-/////////////////////////////////////////////
 // Effect surface sprites
 
 static void RB_EffectSurfaceSprite(vec3_t loc, float width, float height, byte light, byte alpha, float life, int faceup)
@@ -1434,9 +1416,8 @@ void RB_DrawSurfaceSprites( shaderStage_t *stage, shaderCommands_t *input)
 
 	R_SurfaceSpriteFrameUpdate();
 
-	//
 	// Check fog
-	//
+
 	if ( tess.fogNum && tess.shader->fogPass && r_drawfog->value)
 	{
 		SSUsingFog = qtrue;
@@ -1457,7 +1438,6 @@ void RB_DrawSurfaceSprites( shaderStage_t *stage, shaderCommands_t *input)
 	{
 		SSAdditiveTransparency=qfalse;
 	}
-
 
 	//Check if this is a new entity transformation (incl. world entity), and update the appropriate vectors if so.
 	if (backEnd.currentEntity != ssLastEntityDrawn)

@@ -37,9 +37,6 @@ int		gl_filter_max = GL_LINEAR;
 //#define FILE_HASH_SIZE		1024	// actually the shader code still needs this (from another module, great),
 //static	image_t*		hashTable[FILE_HASH_SIZE];
 
-/*
-** R_GammaCorrect
-*/
 void R_GammaCorrect( byte *buffer, int bufSize ) {
 	int i;
 
@@ -64,11 +61,6 @@ textureMode_t modes[] = {
 
 static const size_t numTextureModes = ARRAY_LEN(modes);
 
-/*
-===============
-GL_TextureMode
-===============
-*/
 void GL_TextureMode( const char *string ) {
 	size_t	i;
 	image_t	*glt;
@@ -115,7 +107,7 @@ void GL_TextureMode( const char *string ) {
 }
 
 // makeup a nice clean, consistant name to query for and file under, for map<> usage...
-//
+
 static char *GenerateImageMappingName( const char *name )
 {
 	static char sName[MAX_QPATH];
@@ -190,11 +182,6 @@ static float R_BytesPerTex (int format)
 	}
 }
 
-/*
-===============
-R_SumOfUsedImages
-===============
-*/
 float R_SumOfUsedImages( qboolean bUseFormat )
 {
 	int	total = 0;
@@ -219,11 +206,6 @@ float R_SumOfUsedImages( qboolean bUseFormat )
 	return total;
 }
 
-/*
-===============
-R_ImageList_f
-===============
-*/
 void R_ImageList_f( void ) {
 	int		i=0;
 	image_t	*image;
@@ -303,17 +285,7 @@ void R_ImageList_f( void ) {
 	ri.Printf( PRINT_ALL,  " %i total images\n\n", iNumImages );
 }
 
-//=======================================================================
-
-
-/*
-================
-R_LightScaleTexture
-
-Scale up the pixel values in a texture to increase the
-lighting range
-================
-*/
+// Scale up the pixel values in a texture to increase the lighting range
 void R_LightScaleTexture (unsigned *in, int inwidth, int inheight, qboolean only_gamma )
 {
 	if ( only_gamma )
@@ -364,15 +336,8 @@ void R_LightScaleTexture (unsigned *in, int inwidth, int inheight, qboolean only
 	}
 }
 
-
-/*
-================
-R_MipMap2
-
-Operates in place, quartering the size of the texture
-Proper linear filter
-================
-*/
+// Operates in place, quartering the size of the texture
+// Proper linear filter
 static void R_MipMap2( unsigned *in, int inWidth, int inHeight ) {
 	int			i, j, k;
 	byte		*outpix;
@@ -421,13 +386,7 @@ static void R_MipMap2( unsigned *in, int inWidth, int inHeight ) {
 	Hunk_FreeTempMemory( temp );
 }
 
-/*
-================
-R_MipMap
-
-Operates in place, quartering the size of the texture
-================
-*/
+// Operates in place, quartering the size of the texture
 static void R_MipMap (byte *in, int width, int height) {
 	int		i, j;
 	byte	*out;
@@ -468,14 +427,7 @@ static void R_MipMap (byte *in, int width, int height) {
 	}
 }
 
-
-/*
-==================
-R_BlendOverTexture
-
-Apply a color blend over a set of pixels
-==================
-*/
+// Apply a color blend over a set of pixels
 static void R_BlendOverTexture( byte *data, int pixelCount, byte blend[4] ) {
 	int		i;
 	int		inverseAlpha;
@@ -512,10 +464,6 @@ byte	mipBlendColors[16][4] = {
 	{0,0,255,128},
 };
 
-
-
-
-
 class CStringComparator
 {
 public:
@@ -527,9 +475,8 @@ AllocatedImages_t AllocatedImages;
 AllocatedImages_t::iterator itAllocatedImages;
 int giTextureBindNum = 1024;	// will be set to this anyway at runtime, but wtf?
 
-
 // return = number of images in the list, for those interested
-//
+
 int R_Images_StartIteration(void)
 {
 	itAllocatedImages = AllocatedImages.begin();
@@ -547,9 +494,9 @@ image_t *R_Images_GetNextIteration(void)
 }
 
 // clean up anything to do with an image_t struct, but caller will have to clear the internal to an image_t struct ready for either struct free() or overwrite...
-//
+
 // (avoid using ri->xxxx stuff here in case running on dedicated)
-//
+
 static void R_Images_DeleteImageContents( image_t *pImage )
 {
 	assert(pImage);	// should never be called with NULL
@@ -560,16 +507,6 @@ static void R_Images_DeleteImageContents( image_t *pImage )
 	}
 }
 
-
-
-
-
-/*
-===============
-Upload32
-
-===============
-*/
 static void Upload32( unsigned *data,
 						 GLenum format,
 						 qboolean mipmap,
@@ -594,9 +531,8 @@ static void Upload32( unsigned *data,
 		int			width = *pUploadWidth;
 		int			height = *pUploadHeight;
 
-		//
 		// perform optional picmip operation
-		//
+
 		if ( picmip ) {
 			for(i = 0; i < r_picmip->integer; i++) {
 				R_MipMap( (byte *)data, width, height );
@@ -611,21 +547,19 @@ static void Upload32( unsigned *data,
 			}
 		}
 
-		//
 		// clamp to the current upper OpenGL limit
 		// scale both axis down equally so we don't have to
 		// deal with a half mip resampling
-		//
+
 		while ( width > glConfig.maxTextureSize	|| height > glConfig.maxTextureSize ) {
 			R_MipMap( (byte *)data, width, height );
 			width >>= 1;
 			height >>= 1;
 		}
 
-		//
 		// scan the texture for each channel's max values
 		// and verify if the alpha channel is being used or not
-		//
+
 		c = width*height;
 		scan = ((byte *)data);
 		samples = 3;
@@ -784,11 +718,10 @@ static void GL_ResetBinds(void)
 	}
 }
 
-
 // special function used in conjunction with "devmapbsp"...
-//
+
 // (avoid using ri->xxxx stuff here in case running on dedicated)
-//
+
 void R_Images_DeleteLightMaps(void)
 {
 	for (AllocatedImages_t::iterator itImage = AllocatedImages.begin(); itImage != AllocatedImages.end(); /* empty */)
@@ -811,11 +744,11 @@ void R_Images_DeleteLightMaps(void)
 }
 
 // special function currently only called by Dissolve code...
-//
+
 void R_Images_DeleteImage(image_t *pImage)
 {
 	// Even though we supply the image handle, we need to get the corresponding iterator entry...
-	//
+
 	AllocatedImages_t::iterator itImage = AllocatedImages.find(pImage->imgName);
 	if (itImage != AllocatedImages.end())
 	{
@@ -829,7 +762,7 @@ void R_Images_DeleteImage(image_t *pImage)
 }
 
 // called only at app startup, vid_restart, app-exit
-//
+
 void R_Images_Clear(void)
 {
 	image_t *pImage;
@@ -844,7 +777,6 @@ void R_Images_Clear(void)
 
 	giTextureBindNum = 1024;
 }
-
 
 void RE_RegisterImages_Info_f( void )
 {
@@ -867,7 +799,7 @@ void RE_RegisterImages_Info_f( void )
 }
 
 // currently, this just goes through all the images and dumps any not referenced on this level...
-//
+
 qboolean RE_RegisterImages_LevelLoadEnd(void)
 {
 	ri.Printf( PRINT_DEVELOPER, S_COLOR_RED "RE_RegisterImages_LevelLoadEnd():\n");
@@ -885,11 +817,11 @@ qboolean RE_RegisterImages_LevelLoadEnd(void)
 		if (pImage->imgName[0] != '*' || strchr(pImage->imgName,'/'))
 		{
 			// image used on this level?
-			//
+
 			if ( pImage->iLastLevelUsedOn != RE_RegisterMedia_GetLevel() )
 			{
 				// nope, so dump it...
-				//
+
 				ri.Printf( PRINT_DEVELOPER, S_COLOR_RED "Dumping image \"%s\"\n",pImage->imgName);
 
 				R_Images_DeleteImageContents(pImage);
@@ -906,9 +838,8 @@ qboolean RE_RegisterImages_LevelLoadEnd(void)
 		}
 	}
 
-
 	// this check can be deleted AFAIC, it seems to be just a quake thing...
-	//
+
 //	iNumImages = R_Images_StartIteration();
 //	if (iNumImages > MAX_DRAWIMAGES)
 //	{
@@ -922,13 +853,11 @@ qboolean RE_RegisterImages_LevelLoadEnd(void)
 	return imageDeleted;
 }
 
-
-
 // returns image_t struct if we already have this, else NULL. No disk-open performed
 //	(important for creating default images).
-//
+
 // This is called by both R_FindImageFile and anything that creates default images...
-//
+
 static image_t *R_FindImageFile_NoLoad(const char *name, qboolean mipmap, qboolean allowPicmip, qboolean allowTC, int glWrapClampMode )
 {
 	if (!name) {
@@ -937,16 +866,15 @@ static image_t *R_FindImageFile_NoLoad(const char *name, qboolean mipmap, qboole
 
 	char *pName = GenerateImageMappingName(name);
 
-	//
 	// see if the image is already loaded
-	//
+
 	AllocatedImages_t::iterator itAllocatedImage = AllocatedImages.find(pName);
 	if (itAllocatedImage != AllocatedImages.end())
 	{
 		image_t *pImage = (*itAllocatedImage).second;
 
 		// the white image can be used with any set of parms, but other mismatches are errors...
-		//
+
 		if ( strcmp( pName, "*white" ) ) {
 			if ( pImage->mipmap != !!mipmap ) {
 				ri.Printf( PRINT_ALL, S_COLOR_YELLOW  "WARNING: reused image %s with mixed mipmap parm\n", pName );
@@ -967,15 +895,7 @@ static image_t *R_FindImageFile_NoLoad(const char *name, qboolean mipmap, qboole
 	return NULL;
 }
 
-
-
-/*
-================
-R_CreateImage
-
-This is the only way any image_t are created
-================
-*/
+// This is the only way any image_t are created
 image_t *R_CreateImage( const char *name, const byte *pic, int width, int height,
 					   GLenum format, qboolean mipmap, qboolean allowPicmip, qboolean allowTC, int glWrapClampMode, bool bRectangle )
 {
@@ -1014,7 +934,7 @@ image_t *R_CreateImage( const char *name, const byte *pic, int width, int height
 	image->texnum = 1024 + giTextureBindNum++;	// ++ is of course staggeringly important...
 
 	// record which map it was used on...
-	//
+
 	image->iLastLevelUsedOn = RE_RegisterMedia_GetLevel();
 
 	image->mipmap = !!mipmap;
@@ -1072,14 +992,8 @@ image_t *R_CreateImage( const char *name, const byte *pic, int width, int height
 	return image;
 }
 
-/*
-===============
-R_FindImageFile
-
-Finds or loads the given image.
-Returns NULL if it fails, not a default image.
-==============
-*/
+// Finds or loads the given image.
+// Returns NULL if it fails, not a default image.
 image_t	*R_FindImageFile( const char *name, qboolean mipmap, qboolean allowPicmip, qboolean allowTC, int glWrapClampMode ) {
 	image_t	*image;
 	int		width, height;
@@ -1092,7 +1006,7 @@ image_t	*R_FindImageFile( const char *name, qboolean mipmap, qboolean allowPicmi
 
 	// need to do this here as well as in R_CreateImage, or R_FindImageFile_NoLoad() may complain about
 	//	different clamp parms used...
-	//
+
 	if(glConfig.clampToEdgeAvailable && glWrapClampMode == GL_CLAMP) {
 		glWrapClampMode = GL_CLAMP_TO_EDGE;
 	}
@@ -1102,17 +1016,15 @@ image_t	*R_FindImageFile( const char *name, qboolean mipmap, qboolean allowPicmi
 		return image;
 	}
 
-	//
 	// load the pic from disk
-	//
+
 	R_LoadImage( name, &pic, &width, &height );
 	if ( pic == NULL ) {                                    // if we dont get a successful load
 		return NULL;                                        // bail
 	}
 
-
 	// refuse to find any files not power of 2 dims...
-	//
+
 	if ( (width&(width-1)) || (height&(height-1)) )
 	{
 		ri.Printf( PRINT_ALL, "Refusing to load non-power-2-dims(%d,%d) pic \"%s\"...\n", width,height,name );
@@ -1124,12 +1036,6 @@ image_t	*R_FindImageFile( const char *name, qboolean mipmap, qboolean allowPicmi
 	return image;
 }
 
-
-/*
-================
-R_CreateDlightImage
-================
-*/
 #define	DLIGHT_SIZE	16
 static void R_CreateDlightImage( void )
 {
@@ -1171,12 +1077,6 @@ static void R_CreateDlightImage( void )
 	}
 }
 
-
-/*
-=================
-R_InitFogTable
-=================
-*/
 void R_InitFogTable( void ) {
 	int		i;
 	float	d;
@@ -1191,15 +1091,9 @@ void R_InitFogTable( void ) {
 	}
 }
 
-/*
-================
-R_FogFactor
-
-Returns a 0.0 to 1.0 fog density value
-This is called for each texel of the fog texture on startup
-and for each vertex of transparent shaders in fog dynamically
-================
-*/
+// Returns a 0.0 to 1.0 fog density value
+// This is called for each texel of the fog texture on startup and for each vertex of transparent shaders in fog
+//	dynamically
 float	R_FogFactor( float s, float t ) {
 	float	d;
 
@@ -1226,11 +1120,6 @@ float	R_FogFactor( float s, float t ) {
 	return d;
 }
 
-/*
-================
-R_CreateFogImage
-================
-*/
 #define	FOG_S	256
 #define	FOG_T	32
 static void R_CreateFogImage( void ) {
@@ -1266,11 +1155,6 @@ static void R_CreateFogImage( void ) {
 	qglTexParameterfv( GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor );
 }
 
-/*
-==================
-R_CreateDefaultImage
-==================
-*/
 #define	DEFAULT_SIZE	16
 static void R_CreateDefaultImage( void ) {
 	int		x;
@@ -1302,11 +1186,6 @@ static void R_CreateDefaultImage( void ) {
 	tr.defaultImage = R_CreateImage("*default", (byte *)data, DEFAULT_SIZE, DEFAULT_SIZE, GL_RGBA, qtrue, qfalse, qfalse, GL_REPEAT );
 }
 
-/*
-==================
-R_CreateBuiltinImages
-==================
-*/
 void R_CreateBuiltinImages( void ) {
 	int		x,y;
 	byte	data[DEFAULT_SIZE][DEFAULT_SIZE][4];
@@ -1396,12 +1275,6 @@ void R_CreateBuiltinImages( void ) {
 	R_CreateFogImage();
 }
 
-
-/*
-===============
-R_SetColorMappings
-===============
-*/
 void R_SetColorMappings( void ) {
 	int		i, j;
 	float	g;
@@ -1430,7 +1303,6 @@ void R_SetColorMappings( void ) {
 
 	tr.identityLight = 1.0f / ( 1 << tr.overbrightBits );
 	tr.identityLightByte = 255 * tr.identityLight;
-
 
 	if ( r_intensity->value < 1.0f ) {
 		ri.Cvar_Set( "r_intensity", "1" );
@@ -1525,11 +1397,6 @@ void R_SetGammaCorrectionLUT()
 	}
 }
 
-/*
-===============
-R_InitImages
-===============
-*/
 void	R_InitImages( void ) {
 	//memset(hashTable, 0, sizeof(hashTable));	// DO NOT DO THIS NOW (because of image cacheing)	-ste.
 	// build brightness translation tables
@@ -1541,16 +1408,8 @@ void	R_InitImages( void ) {
 	R_SetGammaCorrectionLUT();
 }
 
-/*
-===============
-R_DeleteTextures
-===============
-*/
-// (only gets called during vid_restart now (and app exit), not during map load)
-//
+// only gets called during vid_restart now (and app exit), not during map load
 void R_DeleteTextures( void ) {
-
 	R_Images_Clear();
 	GL_ResetBinds();
 }
-

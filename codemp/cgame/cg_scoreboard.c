@@ -42,8 +42,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // Used when interleaved
 
-
-
 #define SB_LEFT_BOTICON_X	(SCOREBOARD_X+0)
 #define SB_LEFT_HEAD_X		(SCOREBOARD_X+32)
 #define SB_RIGHT_BOTICON_X	(SCOREBOARD_X+64)
@@ -62,24 +60,14 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define SB_TIME_X			(SB_SCORELINE_X + .85 * SB_SCORELINE_WIDTH)
 
 // The new and improved score board
-//
 // In cases where the number of clients is high, the score board heads are interleaved
 // here's the layout
-
-//
 //	0   32   80  112  144   240  320  400   <-- pixel position
 //  bot head bot head score ping time name
-//
 //  wins/losses are drawn on bot icon now
 
 static qboolean localClient; // true if local client has been displayed
 
-
-							 /*
-=================
-CG_DrawScoreboard
-=================
-*/
 static void CG_DrawClientScore( int y, score_t *score, float *color, float fade, qboolean largeFormat )
 {
 	//vec3_t	headAngles;
@@ -114,19 +102,6 @@ static void CG_DrawClientScore( int y, score_t *score, float *color, float fade,
 	{
 		CG_DrawPic( iconx, y, iconSize, iconSize, trap->R_RegisterShaderNoMip(
 			(ci->duelTeam == DUELTEAM_LONE) ? "gfx/mp/pduel_icon_lone" : "gfx/mp/pduel_icon_double" ) );
-	}
-
-	else if (cgs.gametype == GT_SIEGE)
-	{ //try to draw the shader for this class on the scoreboard
-		if (ci->siegeIndex != -1)
-		{
-			siegeClass_t *scl = &bgSiegeClasses[ci->siegeIndex];
-
-			if (scl->classShader)
-			{
-				CG_DrawPic (iconx, y, largeFormat?24:12, largeFormat?24:12, scl->classShader);
-			}
-		}
 	}
 
 	// highlight your position
@@ -201,11 +176,6 @@ static void CG_DrawClientScore( int y, score_t *score, float *color, float fade,
 	}
 }
 
-/*
-=================
-CG_TeamScoreboard
-=================
-*/
 static int CG_TeamScoreboard( int y, team_t team, float fade, int maxClients, int lineHeight, qboolean countOnly )
 {
 	int		i;
@@ -237,37 +207,6 @@ static int CG_TeamScoreboard( int y, team_t team, float fade, int maxClients, in
 	return count;
 }
 
-int	CG_GetClassCount(team_t team,int siegeClass )
-{
-	int i = 0;
-	int count = 0;
-	clientInfo_t	*ci;
-	siegeClass_t *scl;
-
-	for ( i = 0 ; i < cgs.maxclients ; i++ )
-	{
-		ci = &cgs.clientinfo[ i ];
-
-		if ((!ci->infoValid) || ( team != ci->team ))
-		{
-			continue;
-		}
-
-		scl = &bgSiegeClasses[ci->siegeIndex];
-
-		// Correct class?
-		if ( siegeClass != scl->classShader )
-		{
-			continue;
-		}
-
-		count++;
-	}
-
- 	return count;
-
-}
-
 int CG_GetTeamNonScoreCount(team_t team)
 {
 	int i = 0,count=0;
@@ -277,7 +216,7 @@ int CG_GetTeamNonScoreCount(team_t team)
 	{
 		ci = &cgs.clientinfo[ i ];
 
-		if ( (!ci->infoValid) || (team != ci->team && team != ci->siegeDesiredTeam) )
+		if ( !ci->infoValid || team != ci->team )
 		{
 			continue;
 		}
@@ -311,14 +250,8 @@ int CG_GetTeamCount(team_t team, int maxClients)
 	return count;
 
 }
-/*
-=================
-CG_DrawScoreboard
 
-Draw the normal in-game scoreboard
-=================
-*/
-int cg_siegeWinTeam = 0;
+// Draw the normal in-game scoreboard
 qboolean CG_DrawOldScoreboard( void ) {
 	int		x, y, i, n1, n2;
 	float	fade;
@@ -431,7 +364,7 @@ qboolean CG_DrawOldScoreboard( void ) {
 			CG_DrawProportionalString(x, y, s, UI_CENTER|UI_DROPSHADOW, colorTable[CT_WHITE]);
 		}
 	}
-	else if (cgs.gametype != GT_SIEGE)
+	else
 	{
 		if ( cg.teamScores[0] == cg.teamScores[1] ) {
 			s = va("%s %i", CG_GetStringEdString("MP_INGAME", "TIEDAT"), cg.teamScores[0] );
@@ -439,22 +372,6 @@ qboolean CG_DrawOldScoreboard( void ) {
 			s = va("%s, %i / %i", CG_GetStringEdString("MP_INGAME", "RED_LEADS"), cg.teamScores[0], cg.teamScores[1] );
 		} else {
 			s = va("%s, %i / %i", CG_GetStringEdString("MP_INGAME", "BLUE_LEADS"), cg.teamScores[1], cg.teamScores[0] );
-		}
-
-		x = ( SCREEN_WIDTH ) / 2;
-		y = 60;
-
-		CG_Text_Paint ( x - CG_Text_Width ( s, 1.0f, FONT_MEDIUM ) / 2, y, 1.0f, colorWhite, s, 0, 0, ITEM_TEXTSTYLE_OUTLINED, FONT_MEDIUM );
-	}
-	else if (cgs.gametype == GT_SIEGE && (cg_siegeWinTeam == 1 || cg_siegeWinTeam == 2))
-	{
-		if (cg_siegeWinTeam == 1)
-		{
-			s = va("%s", CG_GetStringEdString("MP_INGAME", "SIEGETEAM1WIN") );
-		}
-		else
-		{
-			s = va("%s", CG_GetStringEdString("MP_INGAME", "SIEGETEAM2WIN") );
 		}
 
 		x = ( SCREEN_WIDTH ) / 2;
@@ -501,7 +418,6 @@ qboolean CG_DrawOldScoreboard( void ) {
 
 	localClient = qfalse;
 
-
 	//I guess this should end up being able to display 19 clients at once.
 	//In a team game, if there are 9 or more clients on the team not in the lead,
 	//we only want to show 10 of the clients on the team in the lead, so that we
@@ -510,9 +426,9 @@ qboolean CG_DrawOldScoreboard( void ) {
 	//I guess this can be accomplished simply by printing the first teams score with a maxClients
 	//value passed in related to how many players are on both teams.
 	if ( cgs.gametype >= GT_TEAM ) {
-		//
+
 		// teamplay scoreboard
-		//
+
 		y += lineHeight/2;
 
 		if ( cg.teamScores[0] >= cg.teamScores[1] ) {
@@ -587,9 +503,9 @@ qboolean CG_DrawOldScoreboard( void ) {
 		y += (n1 * lineHeight) + BIGCHAR_HEIGHT;
 
 	} else {
-		//
+
 		// free for all scoreboard
-		//
+
 		n1 = CG_TeamScoreboard( y, TEAM_FREE, fade, maxClients, lineHeight, qfalse );
 		y += (n1 * lineHeight) + BIGCHAR_HEIGHT;
 		n2 = CG_TeamScoreboard( y, TEAM_SPECTATOR, fade, maxClients - n1, lineHeight, qfalse );
@@ -613,6 +529,3 @@ qboolean CG_DrawOldScoreboard( void ) {
 
 	return qtrue;
 }
-
-//================================================================================
-

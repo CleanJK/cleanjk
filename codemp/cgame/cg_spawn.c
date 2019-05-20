@@ -21,22 +21,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-/*
-**	cg_spawn.c
-**
-**	Client-side functions for parsing entity data.
-*/
+// Client-side functions for parsing entity data.
 
 #include "cg_local.h"
 
-/*
-=============
-CG_NewString
-
-Builds a copy of the string, translating \n to real linefeeds
-so message texts can be multi-line
-=============
-*/
+// Builds a copy of the string, translating \n to real linefeeds so message texts can be multi-line
 #if 0
 // Enable if you put in cgame alloc and need it for some reason...
 // (ie: if you need to re-implement cross game field_t)
@@ -146,14 +135,8 @@ qboolean CG_SpawnVector( const char *key, const char *defaultString, float *out 
 	}
 	return present;
 }
-/*
-=============
-VectorToString
 
-This is just a convenience function
-for printing vectors
-=============
-*/
+// This is just a convenience function for printing vectors
 char    *vtos( const vec3_t v ) {
 	static int index;
 	static char str[8][32];
@@ -281,14 +264,7 @@ spawn_t spawns [] = {
 	{ "misc_weather_zone",		SP_misc_weather_zone		},
 };
 
-/*
-===================
-CG_ParseEntityFromSpawnVars
-
-Spawn an entity and fill in all of the level fields from
-cg.spawnVars[], then call the class specfic spawn function
-===================
-*/
+// Spawn an entity and fill in all of the level fields from cg.spawnVars[], then call the class specfic spawn function
 static int spawncmp( const void *a, const void *b ) {
 	return Q_stricmp( (const char *)a, ((spawn_t*)b)->name );
 }
@@ -298,17 +274,9 @@ void CG_ParseEntityFromSpawnVars( void ) {
 	int i;
 	char *classname;
 	char *p, *value, *gametypeName;
-	static char *gametypeNames [] = { "ffa", "holocron", "jedimaster", "duel", "powerduel", "single", "team", "siege", "ctf", "cty" };
+	static char *gametypeNames [GT_MAX_GAME_TYPE] = { "ffa", "holocron", "jedimaster", "duel", "powerduel", "team", "ctf", "cty" };
 
-	// check for "notsingle" flag
-	if( cgs.gametype == GT_SINGLE_PLAYER ) {
-		CG_SpawnInt( "notsingle", "0", &i );
-		if( i ) {
-			return;
-		}
-	}
-
-	// check for "notteam" flag (GT_FFA, GT_DUEL, GT_SINGLE_PLAYER)
+	// check for "notteam" flag (GT_FFA, GT_DUEL)
 	if( cgs.gametype >= GT_TEAM ) {
 		CG_SpawnInt( "notteam", "0", &i );
 		if( i ) {
@@ -339,11 +307,6 @@ void CG_ParseEntityFromSpawnVars( void ) {
 			s->spawn();
 	}
 }
-/*
-====================
-CG_AddSpawnVarToken
-====================
-*/
 char *CG_AddSpawnVarToken( const char *string ) {
 	int l;
 	char *dest;
@@ -360,16 +323,9 @@ char *CG_AddSpawnVarToken( const char *string ) {
 
 	return dest;
 }
-/*
-====================
-CG_ParseSpawnVars
 
-Parses a brace bounded set of key / value pairs out of the
-level's entity strings into cg.spawnVars[]
-
-This does not actually spawn an entity.
-====================
-*/
+// Parses a brace bounded set of key / value pairs out of the level's entity strings into cg.spawnVars[]
+// This does not actually spawn an entity.
 qboolean CG_ParseSpawnVars( void ) {
 	char keyname[MAX_TOKEN_CHARS];
 	char com_token[MAX_TOKEN_CHARS];
@@ -431,13 +387,8 @@ void SP_worldspawn( void ) {
 	CG_SpawnFloat( "fogstart", "0", &cg_linearFogOverride );
 	CG_SpawnFloat( "radarrange", "2500", &cg_radarRange );
 }
-/*
-==============
-CG_ParseEntitiesFromString
 
-Parses textual entity definitions out of an entstring
-==============
-*/
+// Parses textual entity definitions out of an entstring
 void CG_ParseEntitiesFromString( void ) {
 	// make sure it is reset
 	trap->R_GetEntityToken( NULL, -1 );

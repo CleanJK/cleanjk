@@ -17,7 +17,7 @@ namespace Q
 		GT = 1
 	};
 	Ordering stricmp( const gsl::cstring_view& lhs, const gsl::cstring_view& rhs ) NOEXCEPT;
-	/// Case-insensitive less comparator for cstring_view; e.g. for case insensitive std::map
+	// Case-insensitive less comparator for cstring_view; e.g. for case insensitive std::map
 	struct CStringViewILess
 	{
 		bool operator()( const gsl::cstring_view& lhs, const gsl::cstring_view& rhs ) const NOEXCEPT

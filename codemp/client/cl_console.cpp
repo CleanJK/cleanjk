@@ -29,7 +29,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "qcommon/stringed_ingame.h"
 #include "qcommon/game_version.h"
 
-
 int g_console_field_width = 78;
 
 console_t	con;
@@ -43,18 +42,7 @@ cvar_t		*con_autoclear;
 
 vec4_t	console_color = {0.509f, 0.609f, 0.847f, 1.0f};
 
-/*
-================
-Con_ToggleConsole_f
-================
-*/
 void Con_ToggleConsole_f (void) {
-	// closing a full screen console restarts the demo loop
-	if ( cls.state == CA_DISCONNECTED && Key_GetCatcher( ) == KEYCATCH_CONSOLE ) {
-		CL_StartDemoLoop();
-		return;
-	}
-
 	if( con_autoclear->integer )
 		Field_Clear( &g_consoleField );
 	g_consoleField.widthInChars = g_console_field_width;
@@ -63,21 +51,11 @@ void Con_ToggleConsole_f (void) {
 	Key_SetCatcher( Key_GetCatcher( ) ^ KEYCATCH_CONSOLE );
 }
 
-/*
-===================
-Con_ToggleMenu_f
-===================
-*/
 void Con_ToggleMenu_f( void ) {
 	CL_KeyEvent( A_ESCAPE, qtrue, Sys_Milliseconds() );
 	CL_KeyEvent( A_ESCAPE, qfalse, Sys_Milliseconds() );
 }
 
-/*
-================
-Con_MessageMode_f
-================
-*/
 void Con_MessageMode_f (void) {	//yell
 	chat_playerNum = -1;
 	chat_team = qfalse;
@@ -87,11 +65,6 @@ void Con_MessageMode_f (void) {	//yell
 	Key_SetCatcher( Key_GetCatcher( ) ^ KEYCATCH_MESSAGE );
 }
 
-/*
-================
-Con_MessageMode2_f
-================
-*/
 void Con_MessageMode2_f (void) {	//team chat
 	chat_playerNum = -1;
 	chat_team = qtrue;
@@ -100,11 +73,6 @@ void Con_MessageMode2_f (void) {	//team chat
 	Key_SetCatcher( Key_GetCatcher( ) ^ KEYCATCH_MESSAGE );
 }
 
-/*
-================
-Con_MessageMode3_f
-================
-*/
 void Con_MessageMode3_f (void)
 {		//target chat
 	if (!cls.cgameStarted)
@@ -124,11 +92,6 @@ void Con_MessageMode3_f (void)
 	Key_SetCatcher( Key_GetCatcher( ) ^ KEYCATCH_MESSAGE );
 }
 
-/*
-================
-Con_MessageMode4_f
-================
-*/
 void Con_MessageMode4_f (void)
 {	//attacker
 	if (!cls.cgameStarted)
@@ -148,11 +111,6 @@ void Con_MessageMode4_f (void)
 	Key_SetCatcher( Key_GetCatcher( ) ^ KEYCATCH_MESSAGE );
 }
 
-/*
-================
-Con_Clear_f
-================
-*/
 void Con_Clear_f (void) {
 	int		i;
 
@@ -163,14 +121,7 @@ void Con_Clear_f (void) {
 	Con_Bottom();		// go to end
 }
 
-
-/*
-================
-Con_Dump_f
-
-Save the console contents out to a file
-================
-*/
+// Save the console contents out to a file
 void Con_Dump_f (void)
 {
 	int		l, x, i;
@@ -249,12 +200,6 @@ void Con_Dump_f (void)
 	FS_FCloseFile( f );
 }
 
-
-/*
-================
-Con_ClearNotify
-================
-*/
 void Con_ClearNotify( void ) {
 	int		i;
 
@@ -263,15 +208,7 @@ void Con_ClearNotify( void ) {
 	}
 }
 
-
-
-/*
-================
-Con_CheckResize
-
-If the line width has changed, reformat the buffer.
-================
-*/
+// If the line width has changed, reformat the buffer.
 void Con_CheckResize (void)
 {
 	int		i, j, width, oldwidth, oldtotallines, numlines, numchars;
@@ -282,7 +219,6 @@ void Con_CheckResize (void)
 
 	if (width == con.linewidth)
 		return;
-
 
 	if (width < 1)			// video hasn't been initialized yet
 	{
@@ -321,7 +257,6 @@ void Con_CheckResize (void)
 
 			con.text[i] = (ColorIndex(COLOR_WHITE)<<8) | ' ';
 
-
 		for (i=0 ; i<numlines ; i++)
 		{
 			for (j=0 ; j<numchars ; j++)
@@ -339,22 +274,11 @@ void Con_CheckResize (void)
 	con.display = con.current;
 }
 
-
-/*
-==================
-Cmd_CompleteTxtName
-==================
-*/
 void Cmd_CompleteTxtName( char *args, int argNum ) {
 	if ( argNum == 2 )
 		Field_CompleteFilename( "", "txt", qfalse, qtrue );
 }
 
-/*
-================
-Con_Init
-================
-*/
 void Con_Init (void) {
 	int		i;
 
@@ -383,11 +307,6 @@ void Con_Init (void) {
 	Cmd_SetCommandCompletionFunc( "condump", Cmd_CompleteTxtName );
 }
 
-/*
-================
-Con_Shutdown
-================
-*/
 void Con_Shutdown(void)
 {
 	Cmd_RemoveCommand("toggleconsole");
@@ -400,11 +319,6 @@ void Con_Shutdown(void)
 	Cmd_RemoveCommand("condump");
 }
 
-/*
-===============
-Con_Linefeed
-===============
-*/
 static void Con_Linefeed (qboolean skipnotify)
 {
 	int		i;
@@ -426,15 +340,9 @@ static void Con_Linefeed (qboolean skipnotify)
 		con.text[(con.current%con.totallines)*con.linewidth+i] = (ColorIndex(COLOR_WHITE)<<8) | ' ';
 }
 
-/*
-================
-CL_ConsolePrint
-
-Handles cursor positioning, line wrapping, etc
-All console printing must go through this in order to be logged to disk
-If no console is visible, the text will appear at the top of the game window
-================
-*/
+// Handles cursor positioning, line wrapping, etc
+// All console printing must go through this in order to be logged to disk
+// If no console is visible, the text will appear at the top of the game window
 void CL_ConsolePrint( const char *txt) {
 	int		y;
 	int		c, l;
@@ -511,7 +419,6 @@ void CL_ConsolePrint( const char *txt) {
 		}
 	}
 
-
 	// mark time for transparent overlay
 
 	if (con.current >= 0 )
@@ -529,23 +436,9 @@ void CL_ConsolePrint( const char *txt) {
 	}
 }
 
+// DRAWING
 
-/*
-==============================================================================
-
-DRAWING
-
-==============================================================================
-*/
-
-
-/*
-================
-Con_DrawInput
-
-Draw the editline after a ] prompt
-================
-*/
+// Draw the editline after a ] prompt
 void Con_DrawInput (void) {
 	int		y;
 
@@ -563,16 +456,7 @@ void Con_DrawInput (void) {
 				SCREEN_WIDTH - 3 * SMALLCHAR_WIDTH, qtrue, qtrue );
 }
 
-
-
-
-/*
-================
-Con_DrawNotify
-
-Draws the last few lines of output transparently over the game top
-================
-*/
+// Draws the last few lines of output transparently over the game top
 void Con_DrawNotify (void)
 {
 	int		x, v;
@@ -603,16 +487,13 @@ void Con_DrawNotify (void)
 			continue;
 		}
 
-
 		if (!cl_conXOffset)
 		{
 			cl_conXOffset = Cvar_Get ("cl_conXOffset", "0", 0);
 		}
 
 		// asian language needs to use the new font system to print glyphs...
-		//
 		// (ignore colours since we're going to print the whole thing as one string)
-		//
 		if (re->Language_IsAsian())
 		{
 			static int iFontIndex = re->RegisterFont("ocr_a");	// this seems naughty
@@ -620,7 +501,6 @@ void Con_DrawNotify (void)
 			const int iPixelHeightToAdvance =   2+(1.3/con.yadjust) * re->Font_HeightPixels(iFontIndex, fFontScale);	// for asian spacing, since we don't want glyphs to touch.
 
 			// concat the text to be printed...
-			//
 			char sTemp[4096]={0};	// ott
 			for (x = 0 ; x < con.linewidth ; x++)
 			{
@@ -630,9 +510,7 @@ void Con_DrawNotify (void)
 				}
 				strcat(sTemp,va("%c",text[x] & 0xFF));
 			}
-			//
 			// and print...
-			//
 			re->Font_DrawString(cl_conXOffset->integer + con.xadjust*(con.xadjust + (1*SMALLCHAR_WIDTH/*aesthetics*/)), con.yadjust*(v), sTemp, g_color_table[currentColor], iFontIndex, -1, fFontScale);
 
 			v +=  iPixelHeightToAdvance;
@@ -688,13 +566,7 @@ void Con_DrawNotify (void)
 
 }
 
-/*
-================
-Con_DrawSolidConsole
-
-Draws the console with the solid background
-================
-*/
+// Draws the console with the solid background
 void Con_DrawSolidConsole( float frac ) {
 	int				i, x, y;
 	int				rows;
@@ -742,7 +614,6 @@ void Con_DrawSolidConsole( float frac ) {
 		SCR_DrawSmallChar( cls.glconfig.vidWidth - ( i - x + 1 ) * SMALLCHAR_WIDTH,
 			(lines-(SMALLCHAR_HEIGHT+SMALLCHAR_HEIGHT/2)), JK_VERSION[x] );
 	}
-
 
 	// draw the text
 	con.vislines = lines;
@@ -794,13 +665,10 @@ void Con_DrawSolidConsole( float frac ) {
 		text = con.text + (row % con.totallines)*con.linewidth;
 
 		// asian language needs to use the new font system to print glyphs...
-		//
 		// (ignore colours since we're going to print the whole thing as one string)
-		//
 		if (re->Language_IsAsian())
 		{
 			// concat the text to be printed...
-			//
 			char sTemp[4096]={0};	// ott
 			for (x = 0 ; x < con.linewidth ; x++)
 			{
@@ -810,9 +678,7 @@ void Con_DrawSolidConsole( float frac ) {
 				}
 				strcat(sTemp,va("%c",text[x] & 0xFF));
 			}
-			//
 			// and print...
-			//
 			re->Font_DrawString(con.xadjust*(con.xadjust + (1*SMALLCHAR_WIDTH/*(aesthetics)*/)), con.yadjust*(y), sTemp, g_color_table[currentColor], iFontIndexForAsian, -1, fFontScaleForAsian);
 		}
 		else
@@ -837,13 +703,6 @@ void Con_DrawSolidConsole( float frac ) {
 	re->SetColor( NULL );
 }
 
-
-
-/*
-==================
-Con_DrawConsole
-==================
-*/
 void Con_DrawConsole( void ) {
 	// check for console width changes from a vid mode change
 	Con_CheckResize ();
@@ -866,15 +725,7 @@ void Con_DrawConsole( void ) {
 	}
 }
 
-//================================================================
-
-/*
-==================
-Con_RunConsole
-
-Scroll it up or down
-==================
-*/
+// Scroll it up or down
 void Con_RunConsole (void) {
 	// decide on the destination height of the console
 	if ( Key_GetCatcher( ) & KEYCATCH_CONSOLE )
@@ -898,7 +749,6 @@ void Con_RunConsole (void) {
 	}
 
 }
-
 
 void Con_PageUp( void ) {
 	con.display -= 2;
@@ -924,7 +774,6 @@ void Con_Top( void ) {
 void Con_Bottom( void ) {
 	con.display = con.current;
 }
-
 
 void Con_Close( void ) {
 	if ( !com_cl_running->integer ) {

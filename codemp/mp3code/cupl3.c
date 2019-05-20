@@ -27,7 +27,6 @@ ____________________________________________________________________________*/
 /****  cupL3.c  ***************************************************
 unpack Layer III
 
-
 mod 8/18/97  bugfix crc problem
 
 mod 10/9/97  add pMP3Stream->band_limit12 for short blocks
@@ -154,7 +153,6 @@ IN_OUT L3audio_decode_MPEG1(unsigned char *bs, unsigned char *pcm);
 IN_OUT L3audio_decode_MPEG2(unsigned char *bs, unsigned char *pcm);
 ////@@@@typedef IN_OUT(*DECODE_FUNCTION) (unsigned char *bs, unsigned char *pcm);
 ////@@@@static DECODE_FUNCTION decode_function = L3audio_decode_MPEG1;		<------------------ needs streaming, ditto above!!!
-
 
 /*====================================================================*/
 int hybrid(void *xin, void *xprev, float *y,
@@ -422,7 +420,6 @@ static int unpack_side_MPEG1()
    pMP3Stream->ms_mode = side_info.mode_ext >> 1;
    pMP3Stream->is_mode = side_info.mode_ext & 1;
 
-
    pMP3Stream->crcbytes = 0;
    if (prot)
       bitget(4);		/* skip to data */
@@ -501,8 +498,6 @@ static int unpack_side_MPEG1()
       }
    }
 
-
-
 /* return  bytes in header + side info */
    return side_bytes;
 }
@@ -576,7 +571,6 @@ static int unpack_side_MPEG2(int igr)
    }
    side_info.scfsi[1] = side_info.scfsi[0] = 0;
 
-
    for (ch = 0; ch < pMP3Stream->nchan; ch++)
    {
       side_info.gr[igr][ch].part2_3_length = bitget(12);
@@ -642,7 +636,6 @@ static void unpack_main(unsigned char *pcm, int igr)
    int qbits;
    int m0;
 
-
    for (ch = 0; ch < pMP3Stream->nchan; ch++)
    {
       bitget_init(pMP3Stream->buf + (pMP3Stream->main_pos_bit >> 3));
@@ -664,7 +657,6 @@ static void unpack_main(unsigned char *pcm, int igr)
 			  + side_info.gr[igr][ch].region1_count + 1];
       n3 = side_info.gr[igr][ch].big_values;
       n3 = n3 + n3;
-
 
       if (n3 > pMP3Stream->band_limit)
 	 n3 = pMP3Stream->band_limit;
@@ -695,8 +687,6 @@ static void unpack_main(unsigned char *pcm, int igr)
 	 memset(pMP3Stream->sample[ch][igr], 0, sizeof(SAMPLE) * (576));
       }
    }
-
-
 
 /*--- dequant ---*/
    for (ch = 0; ch < pMP3Stream->nchan; ch++)
@@ -761,11 +751,8 @@ static void unpack_main(unsigned char *pcm, int igr)
 	 nsamp[igr][ch] = n1;
    }
 
-
-
 /*--- hybrid + sbt ---*/
    pMP3Stream->Xform(pcm, igr);
-
 
 /*-- done --*/
 }
@@ -869,7 +856,6 @@ IN_OUT L3audio_decode_MPEG2(unsigned char *bs, unsigned char *pcm)
 
 //   iframe++;
 
-
    bitget_init(bs);		/* initialize bit getter */
 /* test sync */
    in_out.in_bytes = 0;		/* assume fail */
@@ -886,7 +872,6 @@ IN_OUT L3audio_decode_MPEG2(unsigned char *bs, unsigned char *pcm)
 	 return in_out;		/* sync fail */
    }
 /*-----------*/
-
 
 /*-- unpack side info --*/
    side_bytes = unpack_side_MPEG2(igr);
@@ -930,8 +915,6 @@ IN_OUT L3audio_decode_MPEG2(unsigned char *bs, unsigned char *pcm)
       in_out.out_bytes = pMP3Stream->outbytes;
 // iframe--;  in_out.out_bytes = 0; return in_out;// test test */
    }
-
-
 
    igr = igr ^ 1;
    return in_out;
@@ -1055,7 +1038,6 @@ sfBandIndexTable[3][3] =
    ,
 };
 
-
 void sbt_mono_L3(float *sample, signed short *pcm, int ch);
 void sbt_dual_L3(float *sample, signed short *pcm, int ch);
 void sbt16_mono_L3(float *sample, signed short *pcm, int ch);
@@ -1069,8 +1051,6 @@ void sbtB16_mono_L3(float *sample, unsigned char *pcm, int ch);
 void sbtB16_dual_L3(float *sample, unsigned char *pcm, int ch);
 void sbtB8_mono_L3(float *sample, unsigned char *pcm, int ch);
 void sbtB8_dual_L3(float *sample, unsigned char *pcm, int ch);
-
-
 
 static const SBT_FUNCTION sbt_table[2][3][2] =
 {
@@ -1088,7 +1068,6 @@ static const SBT_FUNCTION sbt_table[2][3][2] =
  { (SBT_FUNCTION) sbtB8_mono_L3,
    (SBT_FUNCTION) sbtB8_dual_L3 }}
 };
-
 
 void Xform_mono(void *pcm, int igr);
 void Xform_dual(void *pcm, int igr);
@@ -1149,7 +1128,6 @@ int L3audio_decode_init(MPEG_HEAD * h, int framebytes_arg,
    if (freq_limit < 1000)
       freq_limit = 1000;
 
-
    samprate = sr_table[4 * h->id + h->sr_index];
    if ((h->sync & 1) == 0)
       samprate = samprate / 2;	// mpeg 2.5
@@ -1186,7 +1164,6 @@ int L3audio_decode_init(MPEG_HEAD * h, int framebytes_arg,
    if (pMP3Stream->band_limit12 > pMP3Stream->band_limit)
       pMP3Stream->band_limit12 = pMP3Stream->band_limit;
 
-
    pMP3Stream->band_limit_nsb = (pMP3Stream->band_limit + 17) / 18;	/* limit nsb's rounded up */
 /*----------------------------------------------*/
    pMP3Stream->gain_adjust = 0;		/* adjust gain e.g. cvt to mono sum channel */
@@ -1209,7 +1186,6 @@ int L3audio_decode_init(MPEG_HEAD * h, int framebytes_arg,
       k = 0;
    pMP3Stream->Xform = xform_table[k];
 
-
    pMP3Stream->outvalues *= out_chans;
 
    if (bit_code)
@@ -1221,7 +1197,6 @@ int L3audio_decode_init(MPEG_HEAD * h, int framebytes_arg,
       pMP3Stream->zero_level_pcm = 128;	/* 8 bit output */
    else
       pMP3Stream->zero_level_pcm = 0;
-
 
    decinfo.channels = out_chans;
    decinfo.outvalues = pMP3Stream->outvalues;
@@ -1239,7 +1214,6 @@ int L3audio_decode_init(MPEG_HEAD * h, int framebytes_arg,
 
 /*- init band tables --*/
 
-
    k = h->id;
    if ((h->sync & 1) == 0)
       k = 2;			// mpeg 2.5
@@ -1253,7 +1227,6 @@ int L3audio_decode_init(MPEG_HEAD * h, int framebytes_arg,
    for (i = 0; i < 13; i++)
       pMP3Stream->nBand[1][i] = sfBandIndexTable[k][h->sr_index].s[i + 1] - sfBandIndexTable[k][h->sr_index].s[i];
 
-
 /* init tables */
    L3table_init();
 /* init ms and is stereo modes */
@@ -1261,8 +1234,6 @@ int L3audio_decode_init(MPEG_HEAD * h, int framebytes_arg,
 
 /*----- init sbt ---*/
    sbt_init();
-
-
 
 /*--- clear buffers --*/
    for (i = 0; i < 576; i++)

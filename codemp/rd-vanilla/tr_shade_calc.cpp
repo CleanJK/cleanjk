@@ -26,7 +26,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "tr_local.h"
 #include "../rd-common/tr_common.h"
 
-
 #define	WAVEVALUE( table, base, amplitude, phase, freq )  ((base) + table[ Q_ftol( ( ( (phase) + tess.shaderTime * (freq) ) * FUNCTABLE_SIZE ) ) & FUNCTABLE_MASK ] * (amplitude))
 
 static float *TableForFunc( genFunc_t func )
@@ -52,11 +51,7 @@ static float *TableForFunc( genFunc_t func )
 	return NULL;
 }
 
-/*
-** EvalWaveForm
-**
-** Evaluates a given waveForm_t, referencing backEnd.refdef.time directly
-*/
+// Evaluates a given waveForm_t, referencing backEnd.refdef.time directly
 static float EvalWaveForm( const waveForm_t *wf )
 {
 	float	*table;
@@ -92,9 +87,6 @@ static float EvalWaveFormClamped( const waveForm_t *wf )
 	return glow;
 }
 
-/*
-** RB_CalcStretchTexCoords
-*/
 void RB_CalcStretchTexCoords( const waveForm_t *wf, float *st )
 {
 	float p;
@@ -113,20 +105,8 @@ void RB_CalcStretchTexCoords( const waveForm_t *wf, float *st )
 	RB_CalcTransformTexCoords( &tmi, st );
 }
 
-/*
-====================================================================
+// DEFORMATIONS
 
-DEFORMATIONS
-
-====================================================================
-*/
-
-/*
-========================
-RB_CalcDeformVertexes
-
-========================
-*/
 void RB_CalcDeformVertexes( deformStage_t *ds )
 {
 	int i;
@@ -171,13 +151,7 @@ void RB_CalcDeformVertexes( deformStage_t *ds )
 	}
 }
 
-/*
-=========================
-RB_CalcDeformNormals
-
-Wiggle the normals for wavy environment mapping
-=========================
-*/
+// Wiggle the normals for wavy environment mapping
 void RB_CalcDeformNormals( deformStage_t *ds ) {
 	int i;
 	float	scale;
@@ -204,12 +178,6 @@ void RB_CalcDeformNormals( deformStage_t *ds ) {
 	}
 }
 
-/*
-========================
-RB_CalcBulgeVertexes
-
-========================
-*/
 void RB_CalcBulgeVertexes( deformStage_t *ds )
 {
 	//Old bulge code:
@@ -274,14 +242,7 @@ void RB_CalcBulgeVertexes( deformStage_t *ds )
 	}
 }
 
-
-/*
-======================
-RB_CalcMoveVertexes
-
-A deformation that can move an entire surface along a wave path
-======================
-*/
+// A deformation that can move an entire surface along a wave path
 void RB_CalcMoveVertexes( deformStage_t *ds ) {
 	int			i;
 	float		*xyz;
@@ -304,14 +265,7 @@ void RB_CalcMoveVertexes( deformStage_t *ds ) {
 	}
 }
 
-
-/*
-=============
-DeformText
-
-Change a polygon into a bunch of text polygons
-=============
-*/
+// Change a polygon into a bunch of text polygons
 void DeformText( const char *text ) {
 	int		i;
 	vec3_t	origin, width, height;
@@ -380,25 +334,13 @@ void DeformText( const char *text ) {
 	}
 }
 
-/*
-==================
-GlobalVectorToLocal
-==================
-*/
 static void GlobalVectorToLocal( const vec3_t in, vec3_t out ) {
 	out[0] = DotProduct( in, backEnd.ori.axis[0] );
 	out[1] = DotProduct( in, backEnd.ori.axis[1] );
 	out[2] = DotProduct( in, backEnd.ori.axis[2] );
 }
 
-/*
-=====================
-AutospriteDeform
-
-Assuming all the triangles for this shader are independent
-quads, rebuild them as forward facing sprites
-=====================
-*/
+// Assuming all the triangles for this shader are independent quads, rebuild them as forward facing sprites
 static void AutospriteDeform( void ) {
 	int		i;
 	int		oldVerts;
@@ -462,14 +404,7 @@ static void AutospriteDeform( void ) {
 	}
 }
 
-
-/*
-=====================
-Autosprite2Deform
-
-Autosprite2 will pivot a rectangular quad along the center of its long axis
-=====================
-*/
+// Autosprite2 will pivot a rectangular quad along the center of its long axis
 int edgeVerts[6][2] = {
 	{ 0, 1 },
 	{ 0, 2 },
@@ -581,13 +516,6 @@ static void Autosprite2Deform( void ) {
 	}
 }
 
-
-/*
-=====================
-RB_DeformTessGeometry
-
-=====================
-*/
 void RB_DeformTessGeometry( void ) {
 	int		i;
 	deformStage_t	*ds;
@@ -633,18 +561,7 @@ void RB_DeformTessGeometry( void ) {
 	}
 }
 
-/*
-====================================================================
-
-COLORS
-
-====================================================================
-*/
-
-
-/*
-** RB_CalcColorFromEntity
-*/
+// COLORS
 
 void RB_CalcColorFromEntity( unsigned char *dstColors )
 {
@@ -661,9 +578,6 @@ void RB_CalcColorFromEntity( unsigned char *dstColors )
 	}
 }
 
-/*
-** RB_CalcColorFromOneMinusEntity
-*/
 void RB_CalcColorFromOneMinusEntity( unsigned char *dstColors )
 {
 	int	i;
@@ -685,9 +599,6 @@ void RB_CalcColorFromOneMinusEntity( unsigned char *dstColors )
 	}
 }
 
-/*
-** RB_CalcAlphaFromEntity
-*/
 void RB_CalcAlphaFromEntity( unsigned char *dstColors )
 {
 	int	i;
@@ -703,9 +614,6 @@ void RB_CalcAlphaFromEntity( unsigned char *dstColors )
 	}
 }
 
-/*
-** RB_CalcAlphaFromOneMinusEntity
-*/
 void RB_CalcAlphaFromOneMinusEntity( unsigned char *dstColors )
 {
 	int	i;
@@ -721,9 +629,6 @@ void RB_CalcAlphaFromOneMinusEntity( unsigned char *dstColors )
 	}
 }
 
-/*
-** RB_CalcWaveColor
-*/
 void RB_CalcWaveColor( const waveForm_t *wf, unsigned char *dstColors )
 {
 	int i;
@@ -731,7 +636,6 @@ void RB_CalcWaveColor( const waveForm_t *wf, unsigned char *dstColors )
 	float glow;
 	int *colors = ( int * ) dstColors;
 	byte	color[4];
-
 
   if ( wf->func == GF_NOISE ) {
 		glow = wf->base + R_NoiseGet4f( 0, 0, 0, ( tess.shaderTime + wf->phase ) * wf->frequency ) * wf->amplitude;
@@ -756,9 +660,6 @@ void RB_CalcWaveColor( const waveForm_t *wf, unsigned char *dstColors )
 	}
 }
 
-/*
-** RB_CalcWaveAlpha
-*/
 void RB_CalcWaveAlpha( const waveForm_t *wf, unsigned char *dstColors )
 {
 	int i;
@@ -775,9 +676,6 @@ void RB_CalcWaveAlpha( const waveForm_t *wf, unsigned char *dstColors )
 	}
 }
 
-/*
-** RB_CalcModulateColorsByFog
-*/
 void RB_CalcModulateColorsByFog( unsigned char *colors ) {
 	int		i;
 	float	texCoords[SHADER_MAX_VERTEXES][2];
@@ -795,9 +693,6 @@ void RB_CalcModulateColorsByFog( unsigned char *colors ) {
 	}
 }
 
-/*
-** RB_CalcModulateAlphasByFog
-*/
 void RB_CalcModulateAlphasByFog( unsigned char *colors ) {
 	int		i;
 	float	texCoords[SHADER_MAX_VERTEXES][2];
@@ -813,9 +708,6 @@ void RB_CalcModulateAlphasByFog( unsigned char *colors ) {
 	}
 }
 
-/*
-** RB_CalcModulateRGBAsByFog
-*/
 void RB_CalcModulateRGBAsByFog( unsigned char *colors ) {
 	int		i;
 	float	texCoords[SHADER_MAX_VERTEXES][2];
@@ -834,24 +726,10 @@ void RB_CalcModulateRGBAsByFog( unsigned char *colors ) {
 	}
 }
 
+// TEX COORDS
 
-/*
-====================================================================
-
-TEX COORDS
-
-====================================================================
-*/
-
-/*
-========================
-RB_CalcFogTexCoords
-
-To do the clipped fog plane really correctly, we should use
-projected textures, but I don't trust the drivers and it
-doesn't fit our shader data.
-========================
-*/
+// To do the clipped fog plane really correctly, we should use projected textures, but I don't trust the drivers and it
+//	doesn't fit our shader data.
 void RB_CalcFogTexCoords( float *st ) {
 	int			i;
 	float		*v;
@@ -933,11 +811,6 @@ void RB_CalcFogTexCoords( float *st ) {
 	}
 }
 
-
-
-/*
-** RB_CalcEnvironmentTexCoords
-*/
 void RB_CalcEnvironmentTexCoords( float *st )
 {
 	int			i;
@@ -964,9 +837,6 @@ void RB_CalcEnvironmentTexCoords( float *st )
 	}
 }
 
-/*
-** RB_CalcTurbulentTexCoords
-*/
 void RB_CalcTurbulentTexCoords( const waveForm_t *wf, float *st )
 {
 	int i;
@@ -984,9 +854,6 @@ void RB_CalcTurbulentTexCoords( const waveForm_t *wf, float *st )
 	}
 }
 
-/*
-** RB_CalcScaleTexCoords
-*/
 void RB_CalcScaleTexCoords( const float scale[2], float *st )
 {
 	int i;
@@ -998,9 +865,6 @@ void RB_CalcScaleTexCoords( const float scale[2], float *st )
 	}
 }
 
-/*
-** RB_CalcScrollTexCoords
-*/
 void RB_CalcScrollTexCoords( const float scrollSpeed[2], float *st )
 {
 	int i;
@@ -1022,9 +886,6 @@ void RB_CalcScrollTexCoords( const float scrollSpeed[2], float *st )
 	}
 }
 
-/*
-** RB_CalcTransformTexCoords
-*/
 void RB_CalcTransformTexCoords( const texModInfo_t *tmi, float *st  )
 {
 	int i;
@@ -1039,9 +900,6 @@ void RB_CalcTransformTexCoords( const texModInfo_t *tmi, float *st  )
 	}
 }
 
-/*
-** RB_CalcRotateTexCoords
-*/
 void RB_CalcRotateTexCoords( float degsPerSecond, float *st )
 {
 	float timeScale = tess.shaderTime;
@@ -1067,18 +925,9 @@ void RB_CalcRotateTexCoords( float degsPerSecond, float *st )
 	RB_CalcTransformTexCoords( &tmi, st );
 }
 
-
-
-
-
-
-/*
-** RB_CalcSpecularAlpha
-**
-** Calculates specular coefficient and places it in the alpha channel
-*/
 vec3_t lightOrigin = { -960, 1980, 96 };		// FIXME: track dynamically
 
+// Calculates specular coefficient and places it in the alpha channel
 void RB_CalcSpecularAlpha( unsigned char *alphas ) {
 	int			i;
 	float		*v, *normal;
@@ -1134,11 +983,7 @@ void RB_CalcSpecularAlpha( unsigned char *alphas ) {
 	}
 }
 
-/*
-** RB_CalcDiffuseColor
-**
-** The basic vertex lighting calc
-*/
+// The basic vertex lighting calc
 void RB_CalcDiffuseColor( unsigned char *colors )
 {
 	int				i, j;
@@ -1189,11 +1034,7 @@ void RB_CalcDiffuseColor( unsigned char *colors )
 	}
 }
 
-/*
-** RB_CalcDiffuseColorEntity
-**
-** The basic vertex lighting calc * Entity Color
-*/
+// The basic vertex lighting calc * Entity Color
 void RB_CalcDiffuseEntityColor( unsigned char *colors )
 {
 	int				i;
@@ -1260,7 +1101,6 @@ void RB_CalcDiffuseEntityColor( unsigned char *colors )
 	}
 }
 
-//---------------------------------------------------------
 void RB_CalcDisintegrateColors( unsigned char *colors )
 {
 	int			i, numVertexes;
@@ -1354,7 +1194,6 @@ void RB_CalcDisintegrateColors( unsigned char *colors )
 	}
 }
 
-//---------------------------------------------------------
 void RB_CalcDisintegrateVertDeform( void )
 {
 	float	*xyz = ( float * ) tess.xyz;

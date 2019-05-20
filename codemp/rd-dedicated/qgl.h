@@ -1,9 +1,5 @@
 #pragma once
 
-/*
-** QGL.H
-*/
-
 #if defined( __LINT__ )
 
 #include <GL/gl.h>
@@ -53,12 +49,7 @@
 #define WINAPI
 #endif
 
-
-//===========================================================================
-
-/*
-** multitexture extension definitions
-*/
+// multitexture extension definitions
 #define GL_ACTIVE_TEXTURE_ARB               0x84E0
 #define GL_CLIENT_ACTIVE_TEXTURE_ARB        0x84E1
 #define GL_MAX_ACTIVE_TEXTURES_ARB          0x84E2
@@ -110,16 +101,12 @@ typedef void (APIENTRY * PFNGLACTIVETEXTUREARBPROC) (GLenum target);
 typedef void (APIENTRY * PFNGLCLIENTACTIVETEXTUREARBPROC) (GLenum target);
 #endif
 
-
 // Steps to adding a new extension:
 //	- Add the typedef and function pointer externs here.
 //	- Define the function pointer in tr_init.cpp and possibly add a cvar to track your ext status.
 //	- Load the extension in win_glimp.cpp.
 
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Register Combiner extension definitions. - AReis
-/***********************************************************************************************************/
 // NOTE: These are obviously not all the regcom flags. I'm only including the ones I use (to reduce code clutter), so
 // if you need any of the other flags, just add them.
 #define GL_REGISTER_COMBINERS_NV			0x8522
@@ -164,7 +151,6 @@ typedef void (APIENTRY *PFNGLGETCOMBINEROUTPUTPARAMETERFVNV) (GLenum stage,GLenu
 typedef void (APIENTRY *PFNGLGETCOMBINEROUTPUTPARAMETERIVNV) (GLenum stage,GLenum portion,GLenum pname,GLint *params);
 typedef void (APIENTRY *PFNGLGETFINALCOMBINERINPUTPARAMETERFVNV) (GLenum variable,GLenum pname,GLfloat *params);
 typedef void (APIENTRY *PFNGLGETFINALCOMBINERINPUTPARAMETERIVNV) (GLenum variable,GLenum pname,GLfloat *params);
-/***********************************************************************************************************/
 
 // Declare Register Combiners function pointers.
 extern PFNGLCOMBINERPARAMETERFVNV				qglCombinerParameterfvNV;
@@ -181,12 +167,9 @@ extern PFNGLGETCOMBINEROUTPUTPARAMETERIVNV		qglGetCombinerOutputParameterivNV;
 extern PFNGLGETFINALCOMBINERINPUTPARAMETERFVNV	qglGetFinalCombinerInputParameterfvNV;
 extern PFNGLGETFINALCOMBINERINPUTPARAMETERIVNV	qglGetFinalCombinerInputParameterivNV;
 
-
 #ifdef _WIN32
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Pixel Format extension definitions. - AReis
-/***********************************************************************************************************/
 #define WGL_COLOR_BITS_ARB             0x2014
 #define WGL_ALPHA_BITS_ARB             0x201B
 #define WGL_DEPTH_BITS_ARB             0x2022
@@ -195,17 +178,13 @@ extern PFNGLGETFINALCOMBINERINPUTPARAMETERIVNV	qglGetFinalCombinerInputParameter
 typedef BOOL (WINAPI * PFNWGLGETPIXELFORMATATTRIBIVARBPROC) (HDC hdc, int iPixelFormat, int iLayerPlane, UINT nAttributes, const int *piAttributes, int *piValues);
 typedef BOOL (WINAPI * PFNWGLGETPIXELFORMATATTRIBFVARBPROC) (HDC hdc, int iPixelFormat, int iLayerPlane, UINT nAttributes, const int *piAttributes, FLOAT *pfValues);
 typedef BOOL (WINAPI * PFNWGLCHOOSEPIXELFORMATARBPROC) (HDC hdc, const int *piAttribIList, const FLOAT *pfAttribFList, UINT nMaxFormats, int *piFormats, UINT *nNumFormats);
-/***********************************************************************************************************/
 
 // Declare Pixel Format function pointers.
 extern PFNWGLGETPIXELFORMATATTRIBIVARBPROC		qwglGetPixelFormatAttribivARB;
 extern PFNWGLGETPIXELFORMATATTRIBFVARBPROC		qwglGetPixelFormatAttribfvARB;
 extern PFNWGLCHOOSEPIXELFORMATARBPROC			qwglChoosePixelFormatARB;
 
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Pixel Buffer extension definitions. - AReis
-/***********************************************************************************************************/
 DECLARE_HANDLE(HPBUFFERARB);
 
 #define WGL_SUPPORT_OPENGL_ARB         0x2010
@@ -222,7 +201,6 @@ typedef HDC (WINAPI * PFNWGLGETPBUFFERDCARBPROC) (HPBUFFERARB hPbuffer);
 typedef int (WINAPI * PFNWGLRELEASEPBUFFERDCARBPROC) (HPBUFFERARB hPbuffer, HDC hDC);
 typedef BOOL (WINAPI * PFNWGLDESTROYPBUFFERARBPROC) (HPBUFFERARB hPbuffer);
 typedef BOOL (WINAPI * PFNWGLQUERYPBUFFERARBPROC) (HPBUFFERARB hPbuffer, int iAttribute, int *piValue);
-/***********************************************************************************************************/
 
 // Declare Pixel Buffer function pointers.
 extern PFNWGLCREATEPBUFFERARBPROC				qwglCreatePbufferARB;
@@ -231,10 +209,7 @@ extern PFNWGLRELEASEPBUFFERDCARBPROC			qwglReleasePbufferDCARB;
 extern PFNWGLDESTROYPBUFFERARBPROC				qwglDestroyPbufferARB;
 extern PFNWGLQUERYPBUFFERARBPROC				qwglQueryPbufferARB;
 
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Render-Texture extension definitions. - AReis
-/***********************************************************************************************************/
 #define WGL_BIND_TO_TEXTURE_RGBA_ARB       0x2071
 #define WGL_TEXTURE_FORMAT_ARB             0x2072
 #define WGL_TEXTURE_TARGET_ARB             0x2073
@@ -246,7 +221,6 @@ extern PFNWGLQUERYPBUFFERARBPROC				qwglQueryPbufferARB;
 typedef BOOL (WINAPI * PFNWGLBINDTEXIMAGEARBPROC) (HPBUFFERARB hPbuffer, int iBuffer);
 typedef BOOL (WINAPI * PFNWGLRELEASETEXIMAGEARBPROC) (HPBUFFERARB hPbuffer, int iBuffer);
 typedef BOOL (WINAPI * PFNWGLSETPBUFFERATTRIBARBPROC) (HPBUFFERARB hPbuffer, const int * piAttribList);
-/***********************************************************************************************************/
 
 // Declare Render-Texture function pointers.
 extern PFNWGLBINDTEXIMAGEARBPROC			qwglBindTexImageARB;
@@ -255,9 +229,7 @@ extern PFNWGLSETPBUFFERATTRIBARBPROC		qwglSetPbufferAttribARB;
 
 #endif //_WIN32
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Vertex and Fragment Program extension definitions. - AReis
-/***********************************************************************************************************/
 #ifndef GL_ARB_fragment_program
 #define GL_FRAGMENT_PROGRAM_ARB           0x8804
 #define GL_PROGRAM_ALU_INSTRUCTIONS_ARB   0x8805
@@ -300,7 +272,6 @@ typedef void (APIENTRY * PFNGLGETPROGRAMLOCALPARAMETERFVARBPROC) (GLenum target,
 typedef void (APIENTRY * PFNGLGETPROGRAMIVARBPROC) (GLenum target, GLenum pname, GLint *params);
 typedef void (APIENTRY * PFNGLGETPROGRAMSTRINGARBPROC) (GLenum target, GLenum pname, GLvoid *string);
 typedef GLboolean (APIENTRY * PFNGLISPROGRAMARBPROC) (GLuint program);
-/***********************************************************************************************************/
 
 // Declare Vertex and Fragment Program function pointers.
 extern PFNGLPROGRAMSTRINGARBPROC qglProgramStringARB;
@@ -323,16 +294,11 @@ extern PFNGLGETPROGRAMIVARBPROC qglGetProgramivARB;
 extern PFNGLGETPROGRAMSTRINGARBPROC qglGetProgramStringARB;
 extern PFNGLISPROGRAMARBPROC qglIsProgramARB;
 
-
-/*
-** extension constants
-*/
-
+// extension constants
 
 // S3TC compression constants
 #define GL_RGB_S3TC							0x83A0
 #define GL_RGB4_S3TC						0x83A1
-
 
 // extensions will be function pointers on all platforms
 
@@ -342,8 +308,6 @@ extern	void ( APIENTRY * qglClientActiveTextureARB )( GLenum texture );
 
 extern	void ( APIENTRY * qglLockArraysEXT) (GLint, GLint);
 extern	void ( APIENTRY * qglUnlockArraysEXT) (void);
-
-//===========================================================================
 
 // non-windows systems will just redefine qgl* to gl*
 #if !defined( _WIN32 ) && !defined(MACOS_X) && !defined( __linux__ ) && !defined( __FreeBSD__ ) // rb010123

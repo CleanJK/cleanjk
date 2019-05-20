@@ -21,10 +21,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 // ICARUS Engine Interface File
-//
 //	This file is the only section of the ICARUS systems that
 //	is not directly portable from engine to engine.
-//
 //	-- jweier
 
 #include "game/g_public.h"
@@ -47,35 +45,16 @@ stringID_table_t tagsTable [] =
 extern float Q_flrand(float min, float max);
 extern qboolean COM_ParseString( char **data, char **s );
 
-//=======================================================================
-
 interface_export_t	interface_export;
 
-
-/*
-============
-Q3_ReadScript
-  Description	: Reads in a file and attaches the script directory properly
-  Return type	: static int
-  Argument		: const char *name
-  Argument		: void **buf
-============
-*/
+// Reads in a file and attaches the script directory properly
 extern int ICARUS_GetScript( const char *name, char **buf );	//g_icarus.cpp
 static int Q3_ReadScript( const char *name, void **buf )
 {
 	return ICARUS_GetScript( va( "%s/%s", Q3_SCRIPT_DIR, name ), (char**)buf );	//get a (hopefully) cached file
 }
 
-/*
-============
-Q3_CenterPrint
-  Description	: Prints a message in the center of the screen
-  Return type	: static void
-  Argument		:  const char *format
-  Argument		: ...
-============
-*/
+// Prints a message in the center of the screen
 static void Q3_CenterPrint ( const char *format, ... )
 {
 
@@ -105,25 +84,12 @@ static void Q3_CenterPrint ( const char *format, ... )
 	return;
 }
 
-
-/*
--------------------------
-void Q3_ClearTaskID( int *taskID )
-
-WARNING: Clearing a taskID will make that task never finish unless you intend to
-			return the same taskID from somewhere else.
--------------------------
-*/
+// WARNING: Clearing a taskID will make that task never finish unless you intend to return the same taskID from somewhere else.
 void Q3_TaskIDClear( int *taskID )
 {
 	*taskID = -1;
 }
 
-/*
--------------------------
-qboolean Q3_TaskIDPending( sharedEntity_t *ent, taskID_t taskType )
--------------------------
-*/
 qboolean Q3_TaskIDPending( sharedEntity_t *ent, taskID_t taskType )
 {
 	if ( !gSequencers[ent->s.number] || !gTaskManagers[ent->s.number] )
@@ -144,11 +110,6 @@ qboolean Q3_TaskIDPending( sharedEntity_t *ent, taskID_t taskType )
 	return qfalse;
 }
 
-/*
--------------------------
-void Q3_TaskIDComplete( sharedEntity_t *ent, taskID_t taskType )
--------------------------
-*/
 void Q3_TaskIDComplete( sharedEntity_t *ent, taskID_t taskType )
 {
 	if ( taskType < TID_CHAN_VOICE || taskType >= NUM_TIDS )
@@ -176,12 +137,6 @@ void Q3_TaskIDComplete( sharedEntity_t *ent, taskID_t taskType )
 	//otherwise, wasn't waiting for a task to complete anyway
 }
 
-/*
--------------------------
-void Q3_SetTaskID( sharedEntity_t *ent, taskID_t taskType, int taskID )
--------------------------
-*/
-
 void Q3_TaskIDSet( sharedEntity_t *ent, taskID_t taskType, int taskID )
 {
 	if ( taskType < TID_CHAN_VOICE || taskType >= NUM_TIDS )
@@ -195,15 +150,6 @@ void Q3_TaskIDSet( sharedEntity_t *ent, taskID_t taskType, int taskID )
 	ent->taskID[taskType] = taskID;
 }
 
-
-/*
-============
-Q3_CheckStringCounterIncrement
-  Description	:
-  Return type	: static float
-  Argument		: const char *string
-============
-*/
 static float Q3_CheckStringCounterIncrement( const char *string )
 {
 	char	*numString;
@@ -229,13 +175,7 @@ static float Q3_CheckStringCounterIncrement( const char *string )
 	return val;
 }
 
-/*
-=============
-Q3_GetEntityByName
-
-Returns the sequencer of the entity by the given name
-=============
-*/
+// Returns the sequencer of the entity by the given name
 static sharedEntity_t *Q3_GetEntityByName( const char *name )
 {
 	sharedEntity_t				*ent;
@@ -262,27 +202,14 @@ static sharedEntity_t *Q3_GetEntityByName( const char *name )
 //	return gSequencers[ent->s.number];
 }
 
-/*
-=============
-Q3_GetTime
-
-Get the current game time
-=============
-*/
-static unsigned int Q3_GetTime( void )
-{
+// Get the current game time
+static unsigned int Q3_GetTime( void ) {
 	return svs.time;
 }
 
-/*
-=============
-G_AddSexToMunroString
-
-Take any string, look for "kyle/" replace with "kyla/" based on "sex"
-And: Take any string, look for "/mr_" replace with "/ms_" based on "sex"
-returns qtrue if changed to ms
-=============
-*/
+// Take any string, look for "kyle/" replace with "kyla/" based on "sex"
+// And: Take any string, look for "/mr_" replace with "/ms_" based on "sex"
+// returns qtrue if changed to ms
 /*
 static qboolean G_AddSexToMunroString ( char *string, qboolean qDoBoth )
 {
@@ -321,13 +248,7 @@ static qboolean G_AddSexToMunroString ( char *string, qboolean qDoBoth )
 }
 */
 
-/*
-=============
-Q3_PlaySound
-
-Plays a sound from an entity
-=============
-*/
+// Plays a sound from an entity
 static int Q3_PlaySound( int taskID, int entID, const char *name, const char *channel )
 {
 	T_G_ICARUS_PLAYSOUND *sharedMem = (T_G_ICARUS_PLAYSOUND *)sv.mSharedMemory;
@@ -340,24 +261,11 @@ static int Q3_PlaySound( int taskID, int entID, const char *name, const char *ch
 	return GVM_ICARUS_PlaySound();
 }
 
-
-/*
-============
-Q3_SetVar
-  Description	:
-  Return type	: static void
-  Argument		:  int taskID
-  Argument		: int entID
-  Argument		: const char *type_name
-  Argument		: const char *data
-============
-*/
 void Q3_SetVar( int taskID, int entID, const char *type_name, const char *data )
 {
 	int	vret = Q3_VariableDeclared( type_name ) ;
 	float	float_data;
 	float	val = 0.0f;
-
 
 	if ( vret != VTYPE_NONE )
 	{
@@ -392,17 +300,6 @@ void Q3_SetVar( int taskID, int entID, const char *type_name, const char *data )
 	Q3_DebugPrint( WL_ERROR, "%s variable or field not found!\n", type_name );
 }
 
-/*
-============
-Q3_Set
-  Description	:
-  Return type	: void
-  Argument		:  int taskID
-  Argument		: int entID
-  Argument		: const char *type_name
-  Argument		: const char *data
-============
-*/
 static void Q3_Set( int taskID, int entID, const char *type_name, const char *data )
 {
 	T_G_ICARUS_SET *sharedMem = (T_G_ICARUS_SET *)sv.mSharedMemory;
@@ -418,19 +315,6 @@ static void Q3_Set( int taskID, int entID, const char *type_name, const char *da
 	}
 }
 
-
-/*
-============
-Q3_Evaluate
-  Description	:
-  Return type	: int
-  Argument		:  int p1Type
-  Argument		: const char *p1
-  Argument		: int p2Type
-  Argument		: const char *p2
-  Argument		: int operatorType
-============
-*/
 static int Q3_Evaluate( int p1Type, const char *p1, int p2Type, const char *p2, int operatorType )
 {
 	float	f1=0, f2=0;
@@ -488,9 +372,7 @@ static int Q3_Evaluate( int p1Type, const char *p1, int p2Type, const char *p2, 
 	switch ( operatorType )
 	{
 
-	//
 	//	EQUAL TO
-	//
 
 	case TK_EQUALS:
 
@@ -520,9 +402,7 @@ static int Q3_Evaluate( int p1Type, const char *p1, int p2Type, const char *p2, 
 
 		break;
 
-	//
 	//	GREATER THAN
-	//
 
 	case TK_GREATER_THAN:
 
@@ -554,9 +434,7 @@ static int Q3_Evaluate( int p1Type, const char *p1, int p2Type, const char *p2, 
 
 		break;
 
-	//
 	//	LESS THAN
-	//
 
 	case TK_LESS_THAN:
 
@@ -588,9 +466,7 @@ static int Q3_Evaluate( int p1Type, const char *p1, int p2Type, const char *p2, 
 
 		break;
 
-	//
 	//	NOT
-	//
 
 	case TK_NOT:	//NOTENOTE: Implied "NOT EQUAL TO"
 
@@ -628,31 +504,16 @@ static int Q3_Evaluate( int p1Type, const char *p1, int p2Type, const char *p2, 
 	return false;
 }
 
-/*
--------------------------
-Q3_CameraFade
--------------------------
-*/
 static void Q3_CameraFade( float sr, float sg, float sb, float sa, float dr, float dg, float db, float da, float duration )
 {
 	Q3_DebugPrint( WL_WARNING, "Q3_CameraFade: NOT SUPPORTED IN MP\n");
 }
 
-/*
--------------------------
-Q3_CameraPath
--------------------------
-*/
 static void Q3_CameraPath( const char *name )
 {
 	Q3_DebugPrint( WL_WARNING, "Q3_CameraPath: NOT SUPPORTED IN MP\n");
 }
 
-/*
--------------------------
-Q3_DebugPrint
--------------------------
-*/
 void Q3_DebugPrint( int level, const char *format, ... )
 {
 	//Don't print messages they don't want to see
@@ -958,15 +819,7 @@ static int Q3_GetString( int entID, int type, const char *name, char **value )
 	return r;
 }
 
-
-/*
-============
-Interface_Init
-  Description	: Inits the interface for the game
-  Return type	: void
-  Argument		: interface_export_t *pe
-============
-*/
+// Inits the interface for the game
 void Interface_Init( interface_export_t *pe )
 {
 	//TODO: This is where you link up all your functions to the engine

@@ -23,8 +23,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 // tr_QuickSprite.h: interface for the CQuickSprite class.
-//
-//////////////////////////////////////////////////////////////////////
 
 class CQuickSpriteSystem
 {

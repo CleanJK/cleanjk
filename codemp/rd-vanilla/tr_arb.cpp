@@ -24,9 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "tr_local.h"
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Vertex and Pixel Shader definitions.	- AReis
-/***********************************************************************************************************/
 // This vertex shader basically passes through most values and calculates no lighting. The only
 // unusual thing it does is add the inputed texel offsets to all four texture units (this allows
 // nearest neighbor pixel peeking).
@@ -120,7 +118,6 @@ TEMP r0;\
 TEX r0, fragment.texcoord[0], texture[0], RECT;\
 TEX result.color, r0, texture[1], 3D;\
 END";
-/***********************************************************************************************************/
 
 #define GL_PROGRAM_ERROR_STRING_ARB						0x8874
 #define GL_PROGRAM_ERROR_POSITION_ARB					0x864B

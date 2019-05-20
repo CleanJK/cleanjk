@@ -147,8 +147,6 @@ cvar_t	*r_portalOnly;
 cvar_t	*r_subdivisions;
 cvar_t	*r_lodCurveError;
 
-
-
 cvar_t	*r_overBrightBits;
 cvar_t	*r_mapOverBrightBits;
 
@@ -166,8 +164,7 @@ cvar_t	*r_marksOnTriangleMeshes;
 
 cvar_t	*r_aspectCorrectFonts;
 
-// the limits apply to the sum of all scenes in a frame --
-// the main view, all the 3D icons, etc
+// the limits apply to the sum of all scenes in a frame - the main view, all the 3D icons, etc
 #define	DEFAULT_MAX_POLYS		600
 #define	DEFAULT_MAX_POLYVERTS	3000
 cvar_t	*r_maxpolys;
@@ -177,9 +174,6 @@ int		max_polyverts;
 
 cvar_t	*r_modelpoolmegs;
 
-/*
-Ghoul2 Insert Start
-*/
 #ifdef _DEBUG
 cvar_t	*r_noPrecacheGLA;
 #endif
@@ -206,10 +200,6 @@ cvar_t	*broadsword_extra2=0;
 cvar_t	*broadsword_effcorr=0;
 cvar_t	*broadsword_ragtobase=0;
 cvar_t	*broadsword_dircap=0;
-
-/*
-Ghoul2 Insert End
-*/
 
 cvar_t *se_language;
 
@@ -296,7 +286,6 @@ void R_Splash()
 	const float y1 = 240 - height / 2;
 	const float y2 = 240 + height / 2;
 
-
 	qglBegin (GL_TRIANGLE_STRIP);
 		qglTexCoord2f( 0,  0 );
 		qglVertex2f(x1, y1);
@@ -311,12 +300,7 @@ void R_Splash()
 	ri.WIN_Present(&window);
 }
 
-/*
-** GLW_CheckForExtension
-
-  Cannot use strstr directly to differentiate between (for eg) reg_combiners and reg_combiners2
-*/
-
+// Cannot use strstr directly to differentiate between (for eg) reg_combiners and reg_combiners2
 static void GLW_InitTextureCompression( void )
 {
 	bool newer_tc, old_tc;
@@ -424,11 +408,6 @@ static void GLW_InitTextureCompression( void )
 	}
 }
 
-/*
-===============
-GLimp_InitExtensions
-===============
-*/
 extern bool g_bDynamicGlowSupported;
 extern bool g_bARBShadersAvailable;
 static void GLimp_InitExtensions( void )
@@ -756,26 +735,20 @@ static const char *TruncateGLExtensionsString (const char *extensionsString, int
 	return truncatedExtensions;
 }
 
-/*
-** InitOpenGL
-**
-** This function is responsible for initializing a valid OpenGL subsystem.  This
-** is done by calling GLimp_Init (which gives us a working OGL subsystem) then
-** setting variables, checking GL constants, and reporting the gfx system config
-** to the user.
-*/
+// This function is responsible for initializing a valid OpenGL subsystem.
+// This is done by calling GLimp_Init (which gives us a working OGL subsystem) then setting variables, checking GL
+//	constants, and reporting the gfx system config to the user.
 static void InitOpenGL( void )
 {
-	//
+
 	// initialize OS specific portions of the renderer
-	//
+
 	// GLimp_Init directly or indirectly references the following cvars:
 	//		- r_fullscreen
 	//		- r_mode
 	//		- r_(color|depth|stencil)bits
 	//		- r_ignorehwgamma
 	//		- r_gamma
-	//
 
 	if ( glConfig.vidWidth == 0 )
 	{
@@ -816,11 +789,6 @@ static void InitOpenGL( void )
 	}
 }
 
-/*
-==================
-GL_CheckErrors
-==================
-*/
 void GL_CheckErrors( void ) {
 #if defined(_DEBUG)
     GLenum	err;
@@ -861,31 +829,14 @@ void GL_CheckErrors( void ) {
 #endif
 }
 
-/*
-==============================================================================
+// SCREEN SHOTS
 
-						SCREEN SHOTS
-
-==============================================================================
-*/
-
-/*
-==================
-RB_ReadPixels
-
-Reads an image but takes care of alignment issues for reading RGB images.
-
-Reads a minimum offset for where the RGB data starts in the image from
-integer stored at pointer offset. When the function has returned the actual
-offset was written back to address offset. This address will always have an
-alignment of packAlign to ensure efficient copying.
-
-Stores the length of padding after a line of pixels to address padlen
-
-Return value must be freed with Hunk_FreeTempMemory()
-==================
-*/
-
+// Reads an image but takes care of alignment issues for reading RGB images.
+// Reads a minimum offset for where the RGB data starts in the image from integer stored at pointer offset.
+// When the function has returned the actual offset was written back to address offset.
+// This address will always have an alignment of packAlign to ensure efficient copying.
+// Stores the length of padding after a line of pixels to address padlen
+//NOTE: Return value must be freed with Hunk_FreeTempMemory()
 byte *RB_ReadPixels(int x, int y, int width, int height, size_t *offset, int *padlen)
 {
 	byte *buffer, *bufstart;
@@ -909,11 +860,6 @@ byte *RB_ReadPixels(int x, int y, int width, int height, size_t *offset, int *pa
 	return buffer;
 }
 
-/*
-==================
-R_TakeScreenshot
-==================
-*/
 void R_TakeScreenshot( int x, int y, int width, int height, char *fileName ) {
 	byte *allbuf, *buffer;
 	byte *srcptr, *destptr;
@@ -969,11 +915,6 @@ void R_TakeScreenshot( int x, int y, int width, int height, char *fileName ) {
 	ri.Hunk_FreeTempMemory(allbuf);
 }
 
-/*
-==================
-R_TakeScreenshotPNG
-==================
-*/
 void R_TakeScreenshotPNG( int x, int y, int width, int height, char *fileName ) {
 	byte *buffer=NULL;
 	size_t offset=0;
@@ -984,11 +925,6 @@ void R_TakeScreenshotPNG( int x, int y, int width, int height, char *fileName ) 
 	ri.Hunk_FreeTempMemory( buffer );
 }
 
-/*
-==================
-R_TakeScreenshotJPEG
-==================
-*/
 void R_TakeScreenshotJPEG( int x, int y, int width, int height, char *fileName ) {
 	byte *buffer;
 	size_t offset = 0, memcount;
@@ -1005,11 +941,6 @@ void R_TakeScreenshotJPEG( int x, int y, int width, int height, char *fileName )
 	ri.Hunk_FreeTempMemory(buffer);
 }
 
-/*
-==================
-R_ScreenshotFilename
-==================
-*/
 void R_ScreenshotFilename( char *buf, int bufSize, const char *ext ) {
 	time_t rawtime;
 	char timeStr[32] = {0}; // should really only reach ~19 chars
@@ -1020,15 +951,8 @@ void R_ScreenshotFilename( char *buf, int bufSize, const char *ext ) {
 	Com_sprintf( buf, bufSize, "screenshots/shot%s%s", timeStr, ext );
 }
 
-/*
-====================
-R_LevelShot
-
-levelshots are specialized 256*256 thumbnails for
-the menu system, sampled down from full screen distorted images
-====================
-*/
 #define LEVELSHOTSIZE 256
+// levelshots are specialized 256*256 thumbnails for the menu system, sampled down from full screen distorted images
 static void R_LevelShot( void ) {
 	char		checkname[MAX_OSPATH];
 	byte		*buffer;
@@ -1089,18 +1013,11 @@ static void R_LevelShot( void ) {
 	ri.Printf( PRINT_ALL, "[skipnotify]Wrote %s\n", checkname );
 }
 
-/*
-==================
-R_ScreenShotTGA_f
-
-screenshot
-screenshot [silent]
-screenshot [levelshot]
-screenshot [filename]
-
-Doesn't print the pacifier message if there is a second arg
-==================
-*/
+// Doesn't print the pacifier message if there is a second arg
+//	screenshot
+//	screenshot [silent]
+//	screenshot [levelshot]
+//	screenshot [filename]
 void R_ScreenShotTGA_f (void) {
 	char checkname[MAX_OSPATH] = {0};
 	qboolean silent = qfalse;
@@ -1133,18 +1050,11 @@ void R_ScreenShotTGA_f (void) {
 		ri.Printf( PRINT_ALL, "[skipnotify]Wrote %s\n", checkname );
 }
 
-/*
-==================
-R_ScreenShotPNG_f
-
-screenshot
-screenshot [silent]
-screenshot [levelshot]
-screenshot [filename]
-
-Doesn't print the pacifier message if there is a second arg
-==================
-*/
+// Doesn't print the pacifier message if there is a second arg
+//	screenshot
+//	screenshot [silent]
+//	screenshot [levelshot]
+//	screenshot [filename]
 void R_ScreenShotPNG_f (void) {
 	char checkname[MAX_OSPATH] = {0};
 	qboolean silent = qfalse;
@@ -1208,11 +1118,6 @@ void R_ScreenShot_f (void) {
 		ri.Printf( PRINT_ALL, "[skipnotify]Wrote %s\n", checkname );
 }
 
-/*
-==================
-RB_TakeVideoFrameCmd
-==================
-*/
 const void *RB_TakeVideoFrameCmd( const void *data )
 {
 	const videoFrameCommand_t	*cmd;
@@ -1285,11 +1190,6 @@ const void *RB_TakeVideoFrameCmd( const void *data )
 	return (const void *)(cmd + 1);
 }
 
-//============================================================================
-
-/*
-** GL_SetDefaultState
-*/
 void GL_SetDefaultState( void )
 {
 	qglClearDepth( 1.0f );
@@ -1319,9 +1219,8 @@ void GL_SetDefaultState( void )
 	// arrays are enabled and disabled around the compiled vertex array call
 	qglEnableClientState (GL_VERTEX_ARRAY);
 
-	//
 	// make sure our GL state vector is set correctly
-	//
+
 	glState.glStateBits = GLS_DEPTHTEST_DISABLE | GLS_DEPTHMASK_TRUE;
 
 	qglPolygonMode (GL_FRONT_AND_BACK, GL_FILL);
@@ -1332,13 +1231,7 @@ void GL_SetDefaultState( void )
 	qglDisable( GL_BLEND );
 }
 
-/*
-================
-R_PrintLongString
-
-Workaround for ri.Printf's 1024 characters buffer limit.
-================
-*/
+// Workaround for ri.Printf's 1024 characters buffer limit.
 void R_PrintLongString(const char *string)
 {
 	char buffer[1024];
@@ -1370,11 +1263,6 @@ void R_PrintLongString(const char *string)
 	}
 }
 
-/*
-================
-GfxInfo_f
-================
-*/
 extern bool g_bTextureRectangleHack;
 void GfxInfo_f( void )
 {
@@ -1535,18 +1423,13 @@ static const size_t numCommands = ARRAY_LEN( commands );
 #endif
 #define MAX_PRIMITIVES 3
 
-/*
-===============
-R_Register
-===============
-*/
 void R_Register( void )
 {
 	//FIXME: lol badness
 	se_language = ri.Cvar_Get("se_language", "english", CVAR_ARCHIVE | CVAR_NORESTART, "");
-	//
+
 	// latched and archived variables
-	//
+
 	r_allowExtensions					= ri.Cvar_Get( "r_allowExtensions",				"1",						CVAR_ARCHIVE_ND|CVAR_LATCH, "" );
 	r_ext_compressed_textures			= ri.Cvar_Get( "r_ext_compress_textures",			"1",						CVAR_ARCHIVE_ND|CVAR_LATCH, "" );
 	r_ext_compressed_lightmaps			= ri.Cvar_Get( "r_ext_compress_lightmaps",			"0",						CVAR_ARCHIVE_ND|CVAR_LATCH, "" );
@@ -1657,9 +1540,6 @@ void R_Register( void )
 	r_aspectCorrectFonts				= ri.Cvar_Get( "r_aspectCorrectFonts",				"0",						CVAR_ARCHIVE, "" );
 	r_maxpolys							= ri.Cvar_Get( "r_maxpolys",						XSTRING( DEFAULT_MAX_POLYS ),		CVAR_NONE, "" );
 	r_maxpolyverts						= ri.Cvar_Get( "r_maxpolyverts",					XSTRING( DEFAULT_MAX_POLYVERTS ),	CVAR_NONE, "" );
-/*
-Ghoul2 Insert Start
-*/
 #ifdef _DEBUG
 	r_noPrecacheGLA						= ri.Cvar_Get( "r_noPrecacheGLA",					"0",						CVAR_CHEAT, "" );
 #endif
@@ -1678,9 +1558,6 @@ Ghoul2 Insert Start
 	broadsword_effcorr					= ri.Cvar_Get( "broadsword_effcorr",				"1",						CVAR_NONE, "" );
 	broadsword_ragtobase				= ri.Cvar_Get( "broadsword_ragtobase",				"2",						CVAR_NONE, "" );
 	broadsword_dircap					= ri.Cvar_Get( "broadsword_dircap",				"64",						CVAR_NONE, "" );
-/*
-Ghoul2 Insert End
-*/
 	r_modelpoolmegs = ri.Cvar_Get("r_modelpoolmegs", "20", CVAR_ARCHIVE, "" );
 	if (ri.Sys_LowPhysicalMemory() )
 		ri.Cvar_Set("r_modelpoolmegs", "0");
@@ -1695,12 +1572,6 @@ Ghoul2 Insert End
 		ri.Cmd_AddCommand( commands[i].cmd, commands[i].func, "" );
 }
 
-
-/*
-===============
-R_Init
-===============
-*/
 extern void R_InitWorldEffects(void); //tr_WorldEffects.cpp
 void R_Init( void ) {
 	int i;
@@ -1719,9 +1590,9 @@ void R_Init( void ) {
 		ri.Printf( PRINT_ALL, "WARNING: tess.xyz not 16 byte aligned\n" );
 	}
 #endif
-	//
+
 	// init function tables
-	//
+
 	for ( i = 0; i < FUNCTABLE_SIZE; i++ )
 	{
 		tr.sinTable[i]		= sin( DEG2RAD( i * 360.0f / ( ( float ) ( FUNCTABLE_SIZE - 1 ) ) ) );
@@ -1792,11 +1663,6 @@ void R_Init( void ) {
 //	ri.Printf( PRINT_ALL, "----- finished R_Init -----\n" );
 }
 
-/*
-===============
-RE_Shutdown
-===============
-*/
 void RE_Shutdown( qboolean destroyWindow, qboolean restarting ) {
 
 //	ri.Printf( PRINT_ALL, "RE_Shutdown( %i )\n", destroyWindow );
@@ -1872,13 +1738,7 @@ void RE_Shutdown( qboolean destroyWindow, qboolean restarting ) {
 	tr.registered = qfalse;
 }
 
-/*
-=============
-RE_EndRegistration
-
-Touch all images to make sure they are resident
-=============
-*/
+// Touch all images to make sure they are resident
 void RE_EndRegistration( void ) {
 	R_IssuePendingRenderCommands();
 	if (!ri.Sys_LowPhysicalMemory()) {
@@ -1943,12 +1803,6 @@ extern qboolean R_InitializeWireframeAutomap( void ); //tr_world.cpp
 
 extern qhandle_t RE_RegisterServerSkin( const char *name );
 
-/*
-@@@@@@@@@@@@@@@@@@@@@
-GetRefAPI
-
-@@@@@@@@@@@@@@@@@@@@@
-*/
 extern "C" {
 Q_EXPORT refexport_t* QDECL GetRefAPI( int apiVersion, refimport_t *rimp ) {
 	static refexport_t re;

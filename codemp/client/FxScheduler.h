@@ -39,9 +39,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define FX_MAX_EFFECT_COMPONENTS	24		// how many primitives an effect can hold, this should be plenty
 #define FX_MAX_PRIM_NAME			32
 
-//-----------------------------------------------
 // These are spawn flags for primitiveTemplates
-//-----------------------------------------------
 
 #define FX_ORG_ON_SPHERE		0x00001	// Pretty dang expensive, calculates a point on a sphere/ellipsoid
 #define FX_AXIS_FROM_SPHERE		0x00002	// Can be used in conjunction with org_on_sphere to cause particles to move out
@@ -66,14 +64,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #define FX_AFFECTED_BY_WIND		0x10000	// this effect primitive needs to query wind
 
-//-----------------------------------------------------------------
-//
-// CMediaHandles
-//
-// Primitive templates might want to use a list of sounds, shaders
-//	or models to get a bit more variation in their effects.
-//
-//-----------------------------------------------------------------
+// Primitive templates might want to use a list of sounds, shaders or models to get a bit more variation in their effects.
 class CMediaHandles
 {
 private:
@@ -89,16 +80,8 @@ public:
 	CMediaHandles &operator=(const CMediaHandles &that );
 };
 
-
-//-----------------------------------------------------------------
-//
-// CFxRange
-//
-// Primitive templates typically use this class to define each of
-//	its members.  This is done to make it easier to create effects
-//	with a desired range of characteristics.
-//
-//-----------------------------------------------------------------
+// Primitive templates typically use this class to define each of its members.
+// This is done to make it easier to create effects with a desired range of characteristics.
 class CFxRange
 {
 private:
@@ -123,11 +106,7 @@ public:
 	bool operator==(const CFxRange &rhs) const		{ return ((mMin == rhs.mMin) &&	(mMax == rhs.mMax)); }
 };
 
-
-//----------------------------
 // Supported primitive types
-//----------------------------
-
 enum EPrimType
 {
 	None = 0,
@@ -146,20 +125,17 @@ enum EPrimType
 	ScreenFlash
 };
 
+struct CFxRange2 {
+	CFxRange start, end;
+};
+struct CFxRange3 {
+	CFxRange x, y, z;
+};
 
-//-----------------------------------------------------------------
-//
-// CPrimitiveTemplate
-//
-// The primitive template is used to spawn 1 or more fx primitives
-//	with the range of characteristics defined by the template.
-//
-// As such, I just made this one huge shared class knowing that
-//	there won't be many of them in memory at once, 	and we won't
-//	be dynamically creating and deleting them mid-game.  Also,
-//	note that not every primitive type will use all of these fields.
-//
-//-----------------------------------------------------------------
+// The primitive template is used to spawn 1 or more fx primitives with the range of characteristics defined by the template.
+// As such, I just made this one huge shared class knowing that there won't be many of them in memory at once, and we won't be dynamically creating and
+//	deleting them mid-game.
+// Also, note that not every primitive type will use all of these fields.
 class CPrimitiveTemplate
 {
 
@@ -194,13 +170,7 @@ public:
 	vec3_t			mMin;
 	vec3_t			mMax;
 
-	CFxRange		mOrigin1X;
-	CFxRange		mOrigin1Y;
-	CFxRange		mOrigin1Z;
-
-	CFxRange		mOrigin2X;
-	CFxRange		mOrigin2Y;
-	CFxRange		mOrigin2Z;
+	CFxRange3		mOrigin1, mOrigin2;
 
 	CFxRange		mRadius;		// spawn on sphere/ellipse/disk stuff.
 	CFxRange		mHeight;
@@ -217,43 +187,28 @@ public:
 	CFxRange		mAngle2Delta;
 	CFxRange		mAngle3Delta;
 
-	CFxRange		mVelX;
-	CFxRange		mVelY;
-	CFxRange		mVelZ;
-
-	CFxRange		mAccelX;
-	CFxRange		mAccelY;
-	CFxRange		mAccelZ;
+	CFxRange3		mVel;
+	CFxRange3		mAccel;
 
 	CFxRange		mGravity;
 
 	CFxRange		mDensity;
 	CFxRange		mVariance;
 
-	CFxRange		mRedStart;
-	CFxRange		mGreenStart;
-	CFxRange		mBlueStart;
-
-	CFxRange		mRedEnd;
-	CFxRange		mGreenEnd;
-	CFxRange		mBlueEnd;
+	CFxRange2		mRed, mGreen, mBlue;
 
 	CFxRange		mRGBParm;
 
-	CFxRange		mAlphaStart;
-	CFxRange		mAlphaEnd;
+	CFxRange2		mAlpha;
 	CFxRange		mAlphaParm;
 
-	CFxRange		mSizeStart;
-	CFxRange		mSizeEnd;
+	CFxRange2		mSize;
 	CFxRange		mSizeParm;
 
-	CFxRange		mSize2Start;
-	CFxRange		mSize2End;
+	CFxRange2		mSize2;
 	CFxRange		mSize2Parm;
 
-	CFxRange		mLengthStart;
-	CFxRange		mLengthEnd;
+	CFxRange2		mLength;
 	CFxRange		mLengthParm;
 
 	CFxRange		mTexCoordS;
@@ -545,15 +500,8 @@ class PagedPoolAllocator
 		PoolAllocator<T, N> *pages;
 };
 
-//-----------------------------------------------------------------
-//
-// CFxScheduler
-//
-// The scheduler not only handles requests to play an effect, it
-//	tracks the request throughout its life if necessary, creating
-//	any of the delayed components as needed.
-//
-//-----------------------------------------------------------------
+// The scheduler not only handles requests to play an effect, it tracks the request throughout its life if necessary, creating any of the delayed components as
+//	needed.
 class CFxScheduler
 {
 private:
@@ -591,7 +539,6 @@ private:
 
 	int		ScheduleLoopedEffect( int id, int boltInfo, CGhoul2Info_v *ghoul2, bool isPortal, int iLoopTime, bool isRelative );
 	void	AddLoopedEffects( );
-
 
 	class CScheduled2DEffect
 	{
@@ -678,7 +625,5 @@ public:
 	void	MaterialImpact(trace_t *tr, CEffect *effect);
 };
 
-//-------------------
 // The one and only
-//-------------------
 extern CFxScheduler theFxScheduler;

@@ -40,10 +40,8 @@ struct model_s;
 
 //rww - RAGDOLL_END
 
-//===================================================================
-//
 //   G H O U L  I I  D E F I N E S
-//
+
 // we save the whole surfaceInfo_t struct
 struct surfaceInfo_t
 {
@@ -64,8 +62,6 @@ surfaceInfo_t():
 	{}
 
 };
-
-
 
 #define MDXABONEDEF				// used in the mdxformat.h file to stop redefinitions of the bone struct.
 
@@ -327,7 +323,6 @@ class CGhoul2Info_v;
 #define G2_FRONTFACE 1
 #define	G2_BACKFACE	 0
 
-
 // calling defines for the trace function
 enum EG2_Collision
 {
@@ -335,6 +330,3 @@ enum EG2_Collision
 	G2_COLLIDE,
 	G2_RETURNONHIT
 };
-
-
-//====================================================================

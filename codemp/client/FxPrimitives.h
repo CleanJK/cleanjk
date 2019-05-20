@@ -113,7 +113,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define FX_BRANCH			0x02000000		// enables lightning branching
 #define FX_GROW				0x04000000		// lightning grows from start point to end point over the course of its life
 
-
 // stuff that can occur when an effect is flagged with "materialImpact" and it hits something
 enum EMatImpactEffect
 {
@@ -121,7 +120,6 @@ enum EMatImpactEffect
 	MATIMPACTFX_SHELLSOUND
 };
 
-//------------------------------
 class CEffect
 {
 protected:
@@ -183,11 +181,8 @@ public:
 	inline void SetMatImpactParm(int matParm) { mMatImpactParm = matParm; }
 };
 
-//---------------------------------------------------
 // This class is kind of an exception to the "rule".
-//	For now it exists only for allowing an easy way
-//	to get the saber slash trails rendered.
-//---------------------------------------------------
+// For now it exists only for allowing an easy way to get the saber slash trails rendered.
 class CTrail : public CEffect
 {
 // This is such a specific case thing, just grant public access to the goods.
@@ -221,14 +216,12 @@ public:
 	TVert		mVerts[4];
 	qhandle_t	mShader;
 
-
 	CTrail()			{};
 	virtual ~CTrail()	{};
 
 	virtual bool Update();
 };
 
-//------------------------------
 class CLight : public CEffect
 {
 protected:
@@ -273,12 +266,11 @@ public:
 	inline void SetSizeParm( float parm )	{ mSizeParm = parm;			}
 
 	inline void SetOrgOffset( const vec3_t o )	{ if(o){VectorCopy(o,mOrgOffset);}else{VectorClear(mOrgOffset);}}
-	inline void SetRGBStart( vec3_t rgb )	{ if(rgb){VectorCopy(rgb,mRGBStart);}else{VectorClear(mRGBStart);}	}
-	inline void SetRGBEnd( vec3_t rgb )		{ if(rgb){VectorCopy(rgb,mRGBEnd);}else{VectorClear(mRGBEnd);}		}
+	inline void SetRGBStart( const vec3_t rgb )	{ if(rgb){VectorCopy(rgb,mRGBStart);}else{VectorClear(mRGBStart);}	}
+	inline void SetRGBEnd( const vec3_t rgb )	{ if(rgb){VectorCopy(rgb,mRGBEnd);}else{VectorClear(mRGBEnd);}		}
 	inline void SetRGBParm( float parm )	{ mRGBParm = parm;			}
 };
 
-//------------------------------
 class CParticle : public CEffect
 {
 protected:
@@ -314,7 +306,6 @@ protected:
 	void		UpdateAlpha();
 	void		UpdateRotation();
 
-
 public:
 
 	inline void SetBoltinfo( CGhoul2Info_v *ghoul2,  int entNum, int modelNum = -1, int boltNum = -1 )
@@ -346,8 +337,8 @@ public:
 	inline void SetSizeEnd( float sz )		{ mSizeEnd = sz;			}
 	inline void SetSizeParm( float parm )	{ mSizeParm = parm;			}
 
-	inline void SetRGBStart( vec3_t rgb )	{ if(rgb){VectorCopy(rgb,mRGBStart);}else{VectorClear(mRGBStart);}	}
-	inline void SetRGBEnd( vec3_t rgb )		{ if(rgb){VectorCopy(rgb,mRGBEnd);}else{VectorClear(mRGBEnd);}		}
+	inline void SetRGBStart( const vec3_t rgb )	{ if(rgb){VectorCopy(rgb,mRGBStart);}else{VectorClear(mRGBStart);}	}
+	inline void SetRGBEnd( const vec3_t rgb )	{ if(rgb){VectorCopy(rgb,mRGBEnd);}else{VectorClear(mRGBEnd);}		}
 	inline void SetRGBParm( float parm )	{ mRGBParm = parm;			}
 
 	inline void SetAlphaStart( float al )	{ mAlphaStart = al;			}
@@ -359,7 +350,6 @@ public:
 	inline void SetElasticity( float el )		{ mElasticity = el;			}
 };
 
-//------------------------------
 class CFlash : public CParticle
 {
 public:
@@ -385,7 +375,6 @@ protected:
 	float		mRadiusModifier;
 };
 
-//------------------------------
 class CLine : public CParticle
 {
 protected:
@@ -405,7 +394,6 @@ public:
 	inline void SetOrigin2( vec3_t org2 )	{ VectorCopy( org2, mOrigin2 ); }
 };
 
-//------------------------------
 class CBezier : public CLine
 {
 protected:
@@ -434,7 +422,6 @@ public:
 	inline void SetControlVel( vec3_t ctrl1v, vec3_t ctrl2v )	{ VectorCopy( ctrl1v, mControl1Vel ); VectorCopy( ctrl2v, mControl2Vel ); }
 };
 
-//------------------------------
 class CElectricity : public CLine
 {
 protected:
@@ -456,9 +443,7 @@ public:
 	inline void SetChaos( float chaos )		{ mChaos = chaos; }
 };
 
-
 // Oriented quad
-//------------------------------
 class COrientedParticle : public CParticle
 {
 protected:
@@ -477,7 +462,6 @@ public:
 	inline void SetNormal( vec3_t norm )	{ VectorCopy( norm, mNormal );	}
 };
 
-//------------------------------
 class CTail : public CParticle
 {
 protected:
@@ -506,8 +490,6 @@ public:
 	inline void SetLengthParm( float len )	{ mLengthParm = len;	}
 };
 
-
-//------------------------------
 class CCylinder : public CTail
 {
 protected:
@@ -537,10 +519,8 @@ public:
 	inline void SetNormal( vec3_t norm )	{ VectorCopy( norm, mRefEnt.axis[0] ); }
 };
 
-
-//------------------------------
-// Emitters are derived from particles because, although they don't draw, any effect called
-//	from them can borrow an initial or ending value from the emitters current alpha, rgb, etc..
+// Emitters are derived from particles because, although they don't draw, any effect called from them can borrow an initial or ending value from the emitters
+//	current alpha, rgb, etc..
 class CEmitter : public CParticle
 {
 protected:
@@ -580,9 +560,7 @@ public:
 	inline void SetLastVel( vec3_t vel )	{ if(vel){VectorCopy(vel,mOldVelocity);}else{VectorClear(mOldVelocity);}	}
 };
 
-// We're getting pretty low level here, not the kind of thing to abuse considering how much overhead this
-//	adds to a SINGLE triangle or quad....
-//------------------------------
+// We're getting pretty low level here, not the kind of thing to abuse considering how much overhead this adds to a SINGLE triangle or quad....
 #define MAX_CPOLY_VERTS	5
 
 class CPoly : public CParticle
@@ -600,7 +578,6 @@ public:
 
 	float	mRot[3][3];
 	int		mLastFrameTime;
-
 
 	CPoly() {}
 	virtual ~CPoly() {}

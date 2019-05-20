@@ -44,7 +44,6 @@ void B_TempFree(int size)
 	BG_TempFree(size);
 }
 
-
 void *B_Alloc(int size)
 {
 #ifdef BOT_ZMALLOC

@@ -74,7 +74,6 @@ typedef struct dlight_s {
 	vec3_t			mTransBasis3;
 } dlight_t;
 
-
 // a trMiniRefEntity_t has all the information passed in by
 // the client game, other info will come from it's parent main ref entity
 typedef struct
@@ -98,14 +97,12 @@ typedef struct trRefEntity_s {
 	int			dlightBits;
 } trRefEntity_t;
 
-
 typedef struct orientationr_s {
 	vec3_t		origin;			// in world coordinates
 	matrix3_t	axis;		// orientation in world
 	vec3_t		viewOrigin;		// viewParms->or.origin in local coordinates
 	float		modelMatrix[16];
 } orientationr_t;
-
 
 typedef struct image_s {
 	char		imgName[MAX_QPATH];		// game path, including extension
@@ -123,8 +120,6 @@ typedef struct image_s {
 	short		iLastLevelUsedOn;
 
 } image_t;
-
-//===============================================================================
 
 typedef enum {
 	SS_BAD,
@@ -159,7 +154,6 @@ typedef enum {
 	SS_NEAREST			// blood blobs
 } shaderSort_t;
 
-
 #define MAX_SHADER_STAGES 8
 
 typedef enum {
@@ -175,7 +169,6 @@ typedef enum {
 	GF_RAND
 
 } genFunc_t;
-
 
 typedef enum {
 	DEFORM_NONE,
@@ -292,7 +285,6 @@ typedef struct deformStage_s {
 	float		bulgeSpeed;
 } deformStage_t;
 
-
 typedef struct texModInfo_s {
 	texMod_t		type;
 
@@ -315,11 +307,10 @@ typedef struct texModInfo_s {
 
 	// + = clockwise
 	// - = counterclockwise
-	////(moved to translate[0])
+	//(moved to translate[0])
 //	float			rotateSpeed;
 
 } texModInfo_t;
-
 
 #define SURFSPRITE_NONE			0
 #define SURFSPRITE_VERTICAL		1
@@ -332,7 +323,6 @@ typedef struct texModInfo_s {
 #define SURFSPRITE_FACING_UP		1
 #define SURFSPRITE_FACING_DOWN		2
 #define SURFSPRITE_FACING_ANY		3
-
 
 typedef struct surfaceSprite_s
 {
@@ -361,7 +351,6 @@ typedef struct textureBundle_s {
 
 	int				videoMapHandle;
 } textureBundle_t;
-
 
 #define NUM_TEXTURE_BUNDLES 2
 
@@ -476,9 +465,6 @@ typedef struct shader_s {
 	struct	shader_s	*next;
 } shader_t;
 
-/*
-Ghoul2 Insert Start
-*/
  // bogus little registration system for hit and location based damage files in hunk memory
 typedef struct hitMatReg_s {
 	byte	*loc;
@@ -490,11 +476,6 @@ typedef struct hitMatReg_s {
 #define MAX_HITMAT_ENTRIES 1000
 
 extern hitMatReg_t		hitMatReg[MAX_HITMAT_ENTRIES];
-
-/*
-Ghoul2 Insert End
-*/
-
 
 // trRefdef_t holds everything that comes in refdef_t,
 // as well as the locally generated scene information
@@ -530,11 +511,7 @@ typedef struct trRefdef_s {
 	int			numDrawSurfs;
 	struct drawSurf_s	*drawSurfs;
 
-
 } trRefdef_t;
-
-
-//=================================================================================
 
 // skins allow models to be retextured without modifying the model file
 typedef struct skinSurface_s {
@@ -572,14 +549,7 @@ typedef struct viewParms_s {
 	float		zFar;
 } viewParms_t;
 
-
-/*
-==============================================================================
-
-SURFACES
-
-==============================================================================
-*/
+// SURFACES
 
 // any changes in surfaceType must be mirrored in rb_surfaceTable[]
 typedef enum {
@@ -590,13 +560,7 @@ typedef enum {
 	SF_TRIANGLES,
 	SF_POLY,
 	SF_MD3,
-/*
-Ghoul2 Insert Start
-*/
 	SF_MDX,
-/*
-Ghoul2 Insert End
-*/
 	SF_FLARE,
 	SF_ENTITY,				// beams, rails, lightning, etc that can be determined by entity
 	SF_DISPLAY_LIST,
@@ -705,36 +669,18 @@ typedef struct srfTriangles_s {
 //	vec3_t			*tangents;
 } srfTriangles_t;
 
-
 extern	void (*rb_surfaceTable[SF_NUM_SURFACE_TYPES])(void *);
 
-/*
-==============================================================================
-
-TERRAIN DATA
-
-==============================================================================
-*/
+// TERRAIN DATA
 
 void RE_InitRendererTerrain( const char *info );
 void RB_SurfaceTerrain( surfaceInfo_t *surface );
 void R_TerrainInit (void);
 void R_TerrainShutdown(void);
 
+// BRUSH MODELS
 
-/*
-==============================================================================
-
-BRUSH MODELS
-
-==============================================================================
-*/
-
-
-//
 // in memory representation
-//
-
 #define	SIDE_FRONT	0
 #define	SIDE_BACK	1
 #define	SIDE_ON		2
@@ -746,8 +692,6 @@ typedef struct msurface_s {
 
 	surfaceType_t		*data;			// any of srf*_t
 } msurface_t;
-
-
 
 #define	CONTENTS_NODE		-1
 
@@ -785,7 +729,6 @@ typedef struct
 //	byte		pad[2];								// to align to a cache line
 } mgrid_t;
 
-
 typedef struct world_s {
 	char		name[MAX_QPATH];		// ie: maps/tim_dm2.bsp
 	char		baseName[MAX_QPATH];	// ie: tim_dm2
@@ -814,7 +757,6 @@ typedef struct world_s {
 	fog_t		*fogs;
 	int			globalFog;
 
-
 	vec3_t		lightGridOrigin;
 	vec3_t		lightGridSize;
 	vec3_t		lightGridInverseSize;
@@ -828,7 +770,6 @@ typedef struct world_s {
 	word		*lightGridArray;
 	int			numGridArrayElements;
 
-
 	int			numClusters;
 	int			clusterBytes;
 	const byte	*vis;			// may be passed in by CM_LoadMap to save space
@@ -838,8 +779,6 @@ typedef struct world_s {
 	char		*entityString;
 	char		*entityParsePoint;
 } world_t;
-
-//======================================================================
 
 #define	MAX_MOD_KNOWN	1024
 
@@ -853,13 +792,9 @@ void		R_ModelBounds( qhandle_t handle, vec3_t mins, vec3_t maxs );
 
 void		R_Modellist_f (void);
 
-//====================================================
-
-
 #define	MAX_DRAWIMAGES			2048
 #define	MAX_LIGHTMAPS			256
 #define	MAX_SKINS				1024
-
 
 #define	MAX_DRAWSURFS			0x10000
 #define	DRAWSURF_MASK			(MAX_DRAWSURFS-1)
@@ -885,9 +820,6 @@ the bits are allocated as follows:
 
 extern	int			gl_filter_min, gl_filter_max;
 
-/*
-** performanceCounters_t
-*/
 typedef struct frontEndCounters_s {
 	int		c_sphere_cull_patch_in, c_sphere_cull_patch_clip, c_sphere_cull_patch_out;
 	int		c_box_cull_patch_in, c_box_cull_patch_clip, c_box_cull_patch_out;
@@ -904,7 +836,6 @@ typedef struct frontEndCounters_s {
 #define FUNCTABLE_SIZE2		10
 #define FUNCTABLE_MASK		(FUNCTABLE_SIZE-1)
 
-
 // the renderer front end should never modify glstate_t
 typedef struct glstate_s {
 	int			currenttextures[2];
@@ -914,7 +845,6 @@ typedef struct glstate_s {
 	int			faceCulling;
 	uint32_t	glStateBits;
 } glstate_t;
-
 
 typedef struct backEndCounters_s {
 	int		c_surfaces, c_shaders, c_vertexes, c_indexes, c_totalIndexes;
@@ -947,17 +877,11 @@ typedef struct backEndState_s {
 	trRefEntity_t	entity2D;	// currentEntity will point at this when doing 2D rendering
 } backEndState_t;
 
-/*
-** trGlobals_t
-**
-** Most renderer globals are defined here.
-** backend functions should never modify any of these fields,
-** but may read fields that aren't dynamically modified
-** by the frontend.
-*/
-
 #define NUM_SCRATCH_IMAGES 16
 
+// Most renderer globals are defined here.
+// backend functions should never modify any of these fields, but may read fields that aren't dynamically modified by
+//	the frontend.
 typedef struct trGlobals_s {
 	qboolean				registered;		// cleared at shutdown, set at beginRegistration
 
@@ -1036,10 +960,9 @@ typedef struct trGlobals_s {
 	frontEndCounters_t		pc;
 	int						frontEndMsec;		// not in pc due to clearing issue
 
-	//
 	// put large tables at the end, so most elements will be
 	// within the +/32K indexed range on risc processors
-	//
+
 	model_t					*models[MAX_MOD_KNOWN];
 	int						numModels;
 
@@ -1067,23 +990,18 @@ typedef struct trGlobals_s {
 	float					distanceCull;
 } trGlobals_t;
 
-
 int		 R_Images_StartIteration(void);
 image_t *R_Images_GetNextIteration(void);
 void	 R_Images_Clear(void);
 void	 R_Images_DeleteLightMaps(void);
 void	 R_Images_DeleteImage(image_t *pImage);
 
-
 extern backEndState_t	backEnd;
 extern trGlobals_t	tr;
 extern glconfig_t	glConfig;		// outside of TR since it shouldn't be cleared during ref re-init
 extern glstate_t	glState;		// outside of TR since it shouldn't be cleared during ref re-init
 
-
-//
 // cvars
-//
 extern cvar_t	*r_ignore;				// used for debugging anything
 extern cvar_t	*r_verbose;				// used for verbose debug spew
 
@@ -1218,18 +1136,11 @@ extern	cvar_t	*r_simpleMipMaps;
 extern	cvar_t	*r_showImages;
 extern	cvar_t	*r_debugSort;
 
-/*
-Ghoul2 Insert Start
-*/
 #ifdef _DEBUG
 extern	cvar_t	*r_noPrecacheGLA;
 #endif
 
 extern	cvar_t	*r_noServerGhoul2;
-/*
-Ghoul2 Insert End
-*/
-//====================================================================
 
 float R_NoiseGet4f( float x, float y, float z, float t );
 void  R_NoiseInit( void );
@@ -1250,7 +1161,6 @@ void R_DecomposeSort( unsigned sort, int *entityNum, shader_t **shader, int *fog
 
 void R_AddDrawSurf( surfaceType_t *surface, shader_t *shader, int fogIndex, int dlightMap );
 
-
 #define	CULL_IN		0		// completely unclipped
 #define	CULL_CLIP	1		// clipped by one or more planes
 #define	CULL_OUT	2		// completely outside the clipping planes
@@ -1263,9 +1173,8 @@ int R_CullLocalPointAndRadius( const vec3_t origin, float radius );
 
 void R_RotateForEntity( const trRefEntity_t *ent, const viewParms_t *viewParms, orientationr_t *ori );
 
-/*
-** GL wrapper/helper functions
-*/
+// GL wrapper/helper functions
+
 void	GL_Bind( image_t *image );
 void	GL_SetDefaultState (void);
 void	GL_SelectTexture( int unit );
@@ -1329,15 +1238,14 @@ void		RE_Shutdown( qboolean destroyWindow );
 void		RE_RegisterMedia_LevelLoadBegin(const char *psMapName, ForceReload_e eForceReload);
 void		RE_RegisterMedia_LevelLoadEnd(void);
 int			RE_RegisterMedia_GetLevel(void);
-//
+
 qboolean	RE_RegisterModels_LevelLoadEnd(qboolean bDeleteEverythingNotUsedThisLevel = qfalse);
 void*		RE_RegisterModels_Malloc(int iSize, void *pvDiskBufferIfJustLoaded, const char *psModelFileName, qboolean *pqbAlreadyFound, memtag_t eTag);
 void		RE_RegisterModels_StoreShaderRequest(const char *psModelFileName, const char *psShaderName, int *piShaderIndexPoke);
 void		RE_RegisterModels_Info_f(void);
-//
+
 qboolean	RE_RegisterImages_LevelLoadEnd(void);
 void		RE_RegisterImages_Info_f(void);
-
 
 qboolean	R_GetEntityToken( char *buffer, int size );
 
@@ -1366,10 +1274,7 @@ skin_t	*R_GetSkinByHandle( qhandle_t hSkin );
 const void *RB_TakeVideoFrameCmd( const void *data );
 void RE_HunkClearCrap(void);
 
-
-//
 // tr_shader.c
-//
 extern	const int	lightmapsNone[MAXLIGHTMAPS];
 extern	const int	lightmaps2d[MAXLIGHTMAPS];
 extern	const int	lightmapsVertex[MAXLIGHTMAPS];
@@ -1390,15 +1295,7 @@ void		R_InitShaders(qboolean server);
 void		R_ShaderList_f( void );
 void    R_RemapShader(const char *oldShader, const char *newShader, const char *timeOffset);
 
-
-/*
-====================================================================
-
-IMPLEMENTATION SPECIFIC FUNCTIONS
-
-====================================================================
-*/
-
+// IMPLEMENTATION SPECIFIC FUNCTIONS
 void		GLimp_Init( void );
 void		GLimp_Shutdown( void );
 void		GLimp_EndFrame( void );
@@ -1408,13 +1305,8 @@ void		GLimp_Minimize(void);
 
 void		GLimp_SetGamma( unsigned char red[256], unsigned char green[256], unsigned char blue[256] );
 
-/*
-====================================================================
+// TESSELATOR/SHADER DECLARATIONS
 
-TESSELATOR/SHADER DECLARATIONS
-
-====================================================================
-*/
 typedef byte color4ub_t[4];
 
 typedef struct stageVars
@@ -1474,27 +1366,13 @@ void RB_AddQuadStampExt( vec3_t origin, vec3_t left, vec3_t up, byte *color, flo
 
 void RB_ShowImages( void );
 
-
-/*
-============================================================
-
-WORLD MAP
-
-============================================================
-*/
+// WORLD MAP
 
 void R_AddBrushModelSurfaces( trRefEntity_t *e );
 void R_AddWorldSurfaces( void );
 qboolean R_inPVS( const vec3_t p1, const vec3_t p2, byte *mask );
 
-
-/*
-============================================================
-
-FLARES
-
-============================================================
-*/
+// FLARES
 
 void R_ClearFlares( void );
 
@@ -1502,39 +1380,20 @@ void RB_AddFlare( void *surface, int fogNum, vec3_t point, vec3_t color, vec3_t 
 void RB_AddDlightFlares( void );
 void RB_RenderFlares (void);
 
-/*
-============================================================
-
-LIGHTS
-
-============================================================
-*/
+// LIGHTS
 
 void R_DlightBmodel( bmodel_t *bmodel, bool NoLight );
 void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent );
 void R_TransformDlights( int count, dlight_t *dl, orientationr_t *ori );
 int R_LightForPoint( vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir );
 
-
-/*
-============================================================
-
-SHADOWS
-
-============================================================
-*/
+// SHADOWS
 
 void RB_ShadowTessEnd( void );
 void RB_ShadowFinish( void );
 void RB_ProjectionShadowDeform( void );
 
-/*
-============================================================
-
-CURVE TESSELATION
-
-============================================================
-*/
+// CURVE TESSELATION
 
 #define PATCH_STITCHING
 
@@ -1544,32 +1403,22 @@ srfGridMesh_t *R_SubdividePatchToGrid( int width, int height,
 srfGridMesh_t *R_GridInsertColumn( srfGridMesh_t *grid, int column, int row, vec3_t point, float loderror );
 srfGridMesh_t *R_GridInsertRow( srfGridMesh_t *grid, int row, int column, vec3_t point, float loderror );
 void R_FreeSurfaceGridMesh( srfGridMesh_t *grid );
-/*
-Ghoul2 Insert Start
-*/
 
 float ProjectRadius( float r, vec3_t location );
-/*
-Ghoul2 Insert End
-*/
-/*
-============================================================
 
-MARKERS, POLYGON PROJECTION ON WORLD POLYGONS
+// MARKERS, POLYGON PROJECTION ON WORLD POLYGONS
 
-============================================================
-*/
+int R_MarkFragments(
+	int numPoints,
+	const vec3_t *points,
+	const vec3_t projection,
+	int maxPoints,
+	vec3_t pointBuffer,
+	int maxFragments,
+	markFragment_t *fragmentBuffer
+);
 
-int R_MarkFragments( int numPoints, const vec3_t *points, const vec3_t projection, int maxPoints, vec3_t pointBuffer, int maxFragments, markFragment_t *fragmentBuffer );
-
-
-/*
-============================================================
-
-SCENE GENERATION
-
-============================================================
-*/
+// SCENE GENERATION
 
 void R_InitNextFrame( void );
 
@@ -1583,17 +1432,8 @@ void RE_AddLightToScene( const vec3_t org, float intensity, float r, float g, fl
 void RE_AddAdditiveLightToScene( const vec3_t org, float intensity, float r, float g, float b );
 void RE_RenderScene( const refdef_t *fd );
 
-/*
-=============================================================
+// ANIMATED MODELS
 
-ANIMATED MODELS
-
-=============================================================
-*/
-
-/*
-Ghoul2 Insert Start
-*/
 class CRenderableSurface
 {
 public:
@@ -1652,13 +1492,7 @@ CRenderableSurface():
 
 void R_AddGhoulSurfaces( trRefEntity_t *ent );
 void RB_SurfaceGhoul( CRenderableSurface *surface );
-/*
-Ghoul2 Insert End
-*/
-/*
-=============================================================
-=============================================================
-*/
+
 void	R_TransformModelToClip( const vec3_t src, const float *modelMatrix, const float *projectionMatrix,
 							vec4_t eye, vec4_t dst );
 void	R_TransformClipToWindow( const vec4_t clip, const viewParms_t *view, vec4_t normalized, vec4_t window );
@@ -1688,23 +1522,11 @@ void	RB_CalcDiffuseColor( unsigned char *colors );
 void	RB_CalcDiffuseEntityColor( unsigned char *colors );
 void	RB_CalcDisintegrateVertDeform( void );
 
-/*
-=============================================================
-
-RENDERER BACK END FUNCTIONS
-
-=============================================================
-*/
+// RENDERER BACK END FUNCTIONS
 
 void RB_ExecuteRenderCommands( const void *data );
 
-/*
-=============================================================
-
-RENDERER BACK END COMMAND QUEUE
-
-=============================================================
-*/
+// RENDERER BACK END COMMAND QUEUE
 
 #define	MAX_RENDER_COMMANDS	0x40000
 
@@ -1790,7 +1612,6 @@ typedef enum {
 	RC_VIDEOFRAME
 } renderCommand_t;
 
-
 // all of the information needed by the back end must be
 // contained in a backEndData_t.
 typedef struct backEndData_s {
@@ -1807,7 +1628,6 @@ extern	int		max_polys;
 extern	int		max_polyverts;
 
 extern	backEndData_t	*backEndData;
-
 
 void *R_GetCommandBuffer( int bytes );
 void RB_ExecuteRenderCommands( const void *data );
@@ -1827,17 +1647,11 @@ void RE_BeginFrame( stereoFrame_t stereoFrame );
 void RE_EndFrame( int *frontEndMsec, int *backEndMsec );
 void RE_TakeVideoFrame( int width, int height, byte *captureBuffer, byte *encodeBuffer, qboolean motionJpeg );
 
-/*
-Ghoul2 Insert Start
-*/
 // tr_ghoul2.cpp
 void		Multiply_3x4Matrix(mdxaBone_t *out, mdxaBone_t *in2, mdxaBone_t *in);
 extern qboolean R_LoadMDXM (model_t *mod, void *buffer, const char *name, qboolean &bAlreadyCached );
 extern qboolean R_LoadMDXA (model_t *mod, void *buffer, const char *name, qboolean &bAlreadyCached );
 void		RE_InsertModelIntoHash(const char *name, model_t *mod);
-/*
-Ghoul2 Insert End
-*/
 
 #define	MAX_VERTS_ON_DECAL_POLY	10
 #define	MAX_DECAL_POLYS			500

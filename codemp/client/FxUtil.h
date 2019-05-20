@@ -30,7 +30,6 @@ void	FX_SetRefDef(refdef_t *refdef);
 void	FX_Add( bool portal );		// called every cgame frame to add all fx into the scene.
 void	FX_Stop( void );	// ditches all active effects without touching the templates.
 
-
 CParticle *FX_AddParticle( vec3_t org, vec3_t vel, vec3_t accel,
 							float size1, float size2, float sizeParm,
 							float alpha1, float alpha2, float alphaParm,
@@ -45,7 +44,7 @@ CParticle *FX_AddParticle( vec3_t org, vec3_t vel, vec3_t accel,
 CLine *FX_AddLine( vec3_t start, vec3_t end,
 							float size1, float size2, float sizeParm,
 							float alpha1, float alpha2, float alphaParm,
-							vec3_t rgb1, vec3_t rgb2, float rgbParm,
+							const vec3_t sRGB, const vec3_t eRGB, float rgbParm,
 							int killTime, qhandle_t shader, int flags,
 							EMatImpactEffect matImpactFX = MATIMPACTFX_NONE, int fxParm = -1,
 							CGhoul2Info_v *ghoul2 = NULL, int entNum=-1, int modelNum=-1, int boltNum=-1);

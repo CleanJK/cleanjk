@@ -25,26 +25,17 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "../qcommon/q_shared.h"
 
-//
 // qfiles.h: quake file formats
 // This file must be identical in the quake and utils directories
-//
 
 // surface geometry should not exceed these limits
 #define	SHADER_MAX_VERTEXES	1000
 #define	SHADER_MAX_INDEXES	(6*SHADER_MAX_VERTEXES)
 
-
 // the maximum size of game relative pathnames
 #define	MAX_QPATH		64
 
-/*
-========================================================================
-
-PCX files are used for 8 bit images
-
-========================================================================
-*/
+// PCX files are used for 8 bit images
 
 typedef struct pcx_s {
     char	manufacturer;
@@ -62,14 +53,7 @@ typedef struct pcx_s {
     unsigned char	data;			// unbounded
 } pcx_t;
 
-
-/*
-========================================================================
-
-.MD3 triangle model file format
-
-========================================================================
-*/
+// .MD3 triangle model file format
 
 #define MD3_IDENT			(('3'<<24)+('P'<<16)+('D'<<8)+'I')
 #define MD3_VERSION			15
@@ -99,16 +83,12 @@ typedef struct md3Tag_s {
 	matrix3_t	axis;
 } md3Tag_t;
 
-/*
-** md3Surface_t
-**
-** CHUNK			SIZE
-** header			sizeof( md3Surface_t )
-** shaders			sizeof( md3Shader_t ) * numShaders
-** triangles[0]		sizeof( md3Triangle_t ) * numTriangles
-** st				sizeof( md3St_t ) * numVerts
-** XyzNormals		sizeof( md3XyzNormal_t ) * numVerts * numFrames
-*/
+//	CHUNK			SIZE
+//	header			sizeof( md3Surface_t )
+//	shaders			sizeof( md3Shader_t ) * numShaders
+//	triangles[0]	sizeof( md3Triangle_t ) * numTriangles
+//	st				sizeof( md3St_t ) * numVerts
+//	XyzNormals		sizeof( md3XyzNormal_t ) * numVerts * numFrames
 typedef struct md3Surface_s {
 	int		ident;				//
 
@@ -169,21 +149,12 @@ typedef struct md3Header_s {
 	int			ofsEnd;				// end of file
 } md3Header_t;
 
-
-/*
-==============================================================================
-
-  .BSP file format
-
-==============================================================================
-*/
-
+// .BSP file format
 
 // little-endian "RBSP"
 #define BSP_IDENT				(('P'<<24)+('S'<<16)+('B'<<8)+'R')
 
 #define BSP_VERSION				1
-
 
 // there shouldn't be any problem with increasing these values at the
 // expense of more memory allocation in the utilities
@@ -211,7 +182,6 @@ typedef struct md3Header_s {
 #define	MAX_MAP_DRAW_VERTS	0x80000
 #define	MAX_MAP_DRAW_INDEXES	0x80000
 
-
 // key / value pair sizes in the entities lump
 #define	MAX_KEY				32
 #define	MAX_VALUE			1024
@@ -222,8 +192,6 @@ typedef struct md3Header_s {
 
 #define	LIGHTMAP_WIDTH		128
 #define	LIGHTMAP_HEIGHT		128
-
-//=============================================================================
 
 typedef struct lump_s {
 	int		fileofs, filelen;
@@ -375,8 +343,6 @@ typedef struct dsurface_s {
 	int			patchHeight;
 } dsurface_t;
 
-/////////////////////////////////////////////////////////////
-//
 // Defines and structures required for fonts
 
 #define GLYPH_COUNT			256
@@ -399,10 +365,9 @@ typedef struct
 	float		t2;						// y end tex coord
 } glyphInfo_t;
 
-
 // this file corresponds 1:1 with the "*.fontdat" files, so don't change it unless you're going to
 //	recompile the fontgen util and regenerate all the fonts!
-//
+
 typedef struct dfontdat_s
 {
 	glyphInfo_t		mGlyphs[GLYPH_COUNT];
@@ -414,5 +379,3 @@ typedef struct dfontdat_s
 
 	short			mKoreanHack;
 } dfontdat_t;
-
-/////////////////// fonts end ////////////////////////////////////

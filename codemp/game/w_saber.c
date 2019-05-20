@@ -215,10 +215,6 @@ static QINLINE int G_SaberAttackPower(gentity_t *ent, qboolean attacking)
 	{ //get more power then
 		return baseLevel*2;
 	}
-	else if (attacking && level.gametype == GT_SIEGE)
-	{ //in siege, saber battles should be quicker and more biased toward the attacker
-		return baseLevel*3;
-	}
 
 	return baseLevel;
 }
@@ -261,14 +257,7 @@ void WP_ActivateSaber( gentity_t *self )
 		return;
 	}
 
-	if (self->NPC &&
-		self->client->ps.forceHandExtend == HANDEXTEND_JEDITAUNT &&
-		(self->client->ps.forceHandExtendTime - level.time) > 200)
-	{ //if we're an NPC and in the middle of a taunt then stop it
-		self->client->ps.forceHandExtend = HANDEXTEND_NONE;
-		self->client->ps.forceHandExtendTime = 0;
-	}
-	else if (self->client->ps.fd.forceGripCripple)
+	if (self->client->ps.fd.forceGripCripple)
 	{ //can't activate saber while being gripped
 		return;
 	}
@@ -325,7 +314,7 @@ void SaberUpdateSelf(gentity_t *ent)
 		//RWW ADDED 7-19-03 END
 		g_entities[ent->r.ownerNum].health < 1 ||
 		BG_SabersOff( &g_entities[ent->r.ownerNum].client->ps ) ||
-		(!g_entities[ent->r.ownerNum].client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE] && g_entities[ent->r.ownerNum].s.eType != ET_NPC))
+		!g_entities[ent->r.ownerNum].client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE])
 	{ //owner is not using saber, spectating, dead, saber holstered, or has no attack level
 		ent->r.contents = 0;
 		ent->clipmask = 0;
@@ -392,11 +381,6 @@ static QINLINE void SetSaberBoxSize(gentity_t *saberent)
 	assert(saberent && saberent->inuse);
 
 	if (saberent->r.ownerNum < MAX_CLIENTS && saberent->r.ownerNum >= 0)
-	{
-		owner = &g_entities[saberent->r.ownerNum];
-	}
-	else if (saberent->r.ownerNum >= 0 && saberent->r.ownerNum < ENTITYNUM_WORLD &&
-		g_entities[saberent->r.ownerNum].s.eType == ET_NPC)
 	{
 		owner = &g_entities[saberent->r.ownerNum];
 	}
@@ -643,245 +627,11 @@ void WP_SaberInitBladeData( gentity_t *ent )
 #define LOOK_DEFAULT_SPEED	0.15f
 #define LOOK_TALKING_SPEED	0.15f
 
-static QINLINE qboolean G_CheckLookTarget( gentity_t *ent, vec3_t	lookAngles, float *lookingSpeed )
-{
-	//FIXME: also clamp the lookAngles based on the clamp + the existing difference between
-	//		headAngles and torsoAngles?  But often the tag_torso is straight but the torso itself
-	//		is deformed to not face straight... sigh...
-
-	if (ent->s.eType == ET_NPC &&
-		ent->s.m_iVehicleNum &&
-		ent->s.NPC_class != CLASS_VEHICLE )
-	{ //an NPC bolted to a vehicle should just look around randomly
-		if ( TIMER_Done( ent, "lookAround" ) )
-		{
-			ent->NPC->shootAngles[YAW] = flrand(0,360);
-			TIMER_Set( ent, "lookAround", Q_irand( 500, 3000 ) );
-		}
-		VectorSet( lookAngles, 0, ent->NPC->shootAngles[YAW], 0 );
-		return qtrue;
-	}
-	//Now calc head angle to lookTarget, if any
-	if ( ent->client->renderInfo.lookTarget >= 0 && ent->client->renderInfo.lookTarget < ENTITYNUM_WORLD )
-	{
-		vec3_t	lookDir, lookOrg, eyeOrg;
-		int i;
-
-		if ( ent->client->renderInfo.lookMode == LM_ENT )
-		{
-			gentity_t	*lookCent = &g_entities[ent->client->renderInfo.lookTarget];
-			if ( lookCent )
-			{
-				if ( lookCent != ent->enemy )
-				{//We turn heads faster than headbob speed, but not as fast as if watching an enemy
-					*lookingSpeed = LOOK_DEFAULT_SPEED;
-				}
-
-				//FIXME: Ignore small deltas from current angles so we don't bob our head in synch with theirs?
-
-				/*
-				if ( ent->client->renderInfo.lookTarget == 0 && !cg.renderingThirdPerson )//!cg_thirdPerson.integer )
-				{//Special case- use cg.refdef.vieworg if looking at player and not in third person view
-					VectorCopy( cg.refdef.vieworg, lookOrg );
-				}
-				*/ //No no no!
-				if ( lookCent->client )
-				{
-					VectorCopy( lookCent->client->renderInfo.eyePoint, lookOrg );
-				}
-				else if ( lookCent->inuse && !VectorCompare( lookCent->r.currentOrigin, vec3_origin ) )
-				{
-					VectorCopy( lookCent->r.currentOrigin, lookOrg );
-				}
-				else
-				{//at origin of world
-					return qfalse;
-				}
-				//Look in dir of lookTarget
-			}
-		}
-		else if ( ent->client->renderInfo.lookMode == LM_INTEREST && ent->client->renderInfo.lookTarget > -1 && ent->client->renderInfo.lookTarget < MAX_INTEREST_POINTS )
-		{
-			VectorCopy( level.interestPoints[ent->client->renderInfo.lookTarget].origin, lookOrg );
-		}
-		else
-		{
-			return qfalse;
-		}
-
-		VectorCopy( ent->client->renderInfo.eyePoint, eyeOrg );
-
-		VectorSubtract( lookOrg, eyeOrg, lookDir );
-
-		vectoangles( lookDir, lookAngles );
-
-		for ( i = 0; i < 3; i++ )
-		{
-			lookAngles[i] = AngleNormalize180( lookAngles[i] );
-			ent->client->renderInfo.eyeAngles[i] = AngleNormalize180( ent->client->renderInfo.eyeAngles[i] );
-		}
-		AnglesSubtract( lookAngles, ent->client->renderInfo.eyeAngles, lookAngles );
-		return qtrue;
-	}
-
-	return qfalse;
-}
-
 //rww - attempted "port" of the SP version which is completely client-side and
 //uses illegal gentity access. I am trying to keep this from being too
 //bandwidth-intensive.
 //This is primarily droid stuff I guess, I'm going to try to handle all humanoid
 //NPC stuff in with the actual player stuff if possible.
-void NPC_SetBoneAngles(gentity_t *ent, char *bone, vec3_t angles);
-static QINLINE void G_G2NPCAngles(gentity_t *ent, matrix3_t legs, vec3_t angles)
-{
-	char *craniumBone = "cranium";
-	char *thoracicBone = "thoracic"; //only used by atst so doesn't need a case
-	qboolean looking = qfalse;
-	vec3_t viewAngles;
-	vec3_t lookAngles;
-
-	if ( ent->client )
-	{
-		if ( (ent->client->NPC_class == CLASS_PROBE )
-			|| (ent->client->NPC_class == CLASS_R2D2 )
-			|| (ent->client->NPC_class == CLASS_R5D2)
-			|| (ent->client->NPC_class == CLASS_ATST) )
-		{
-			vec3_t	trailingLegsAngles;
-
-			if (ent->s.eType == ET_NPC &&
-				ent->s.m_iVehicleNum &&
-				ent->s.NPC_class != CLASS_VEHICLE )
-			{ //an NPC bolted to a vehicle should use the full angles
-				VectorCopy(ent->r.currentAngles, angles);
-			}
-			else
-			{
-				VectorCopy( ent->client->ps.viewangles, angles );
-				angles[PITCH] = 0;
-			}
-
-			//FIXME: use actual swing/clamp tolerances?
-			/*
-			if ( ent->client->ps.groundEntityNum != ENTITYNUM_NONE )
-			{//on the ground
-				CG_PlayerLegsYawFromMovement( cent, ent->client->ps.velocity, &angles[YAW], cent->lerpAngles[YAW], -60, 60, qtrue );
-			}
-			else
-			{//face legs to front
-				CG_PlayerLegsYawFromMovement( cent, vec3_origin, &angles[YAW], cent->lerpAngles[YAW], -60, 60, qtrue );
-			}
-			*/
-
-			VectorCopy( ent->client->ps.viewangles, viewAngles );
-	//			viewAngles[YAW] = viewAngles[ROLL] = 0;
-			viewAngles[PITCH] *= 0.5;
-			VectorCopy( viewAngles, lookAngles );
-
-			lookAngles[1] = 0;
-
-			if ( ent->client->NPC_class == CLASS_ATST )
-			{//body pitch
-				NPC_SetBoneAngles(ent, thoracicBone, lookAngles);
-				//BG_G2SetBoneAngles( cent, ent, ent->thoracicBone, lookAngles, BONE_ANGLES_POSTMULT,POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, cgs.model_draw);
-			}
-
-			VectorCopy( viewAngles, lookAngles );
-
-			if ( ent && ent->client && ent->client->NPC_class == CLASS_ATST )
-			{
-				//CG_ATSTLegsYaw( cent, trailingLegsAngles );
-				AnglesToAxis( trailingLegsAngles, legs );
-			}
-			else
-			{
-				//FIXME: this needs to properly set the legs.yawing field so we don't erroneously play the turning anim, but we do play it when turning in place
-				/*
-				if ( angles[YAW] == cent->pe.legs.yawAngle )
-				{
-					cent->pe.legs.yawing = qfalse;
-				}
-				else
-				{
-					cent->pe.legs.yawing = qtrue;
-				}
-
-				cent->pe.legs.yawAngle = angles[YAW];
-				if ( ent->client )
-				{
-					ent->client->renderInfo.legsYaw = angles[YAW];
-				}
-				AnglesToAxis( angles, legs );
-				*/
-			}
-
-	//			if ( ent && ent->client && ent->client->NPC_class == CLASS_ATST )
-	//			{
-	//				looking = qfalse;
-	//			}
-	//			else
-			{	//look at lookTarget!
-				//FIXME: snaps to side when lets go of lookTarget... ?
-				float	lookingSpeed = 0.3f;
-				looking = G_CheckLookTarget( ent, lookAngles, &lookingSpeed );
-				lookAngles[PITCH] = lookAngles[ROLL] = 0;//droids can't pitch or roll their heads
-				if ( looking )
-				{//want to keep doing this lerp behavior for a full second after stopped looking (so don't snap)
-					ent->client->renderInfo.lookingDebounceTime = level.time + 1000;
-				}
-			}
-			if ( ent->client->renderInfo.lookingDebounceTime > level.time )
-			{	//adjust for current body orientation
-				vec3_t	oldLookAngles;
-
-				lookAngles[YAW] -= 0;//ent->client->ps.viewangles[YAW];//cent->pe.torso.yawAngle;
-				//lookAngles[YAW] -= cent->pe.legs.yawAngle;
-
-				//normalize
-				lookAngles[YAW] = AngleNormalize180( lookAngles[YAW] );
-
-				//slowly lerp to this new value
-				//Remember last headAngles
-				VectorCopy( ent->client->renderInfo.lastHeadAngles, oldLookAngles );
-				if( VectorCompare( oldLookAngles, lookAngles ) == qfalse )
-				{
-					//FIXME: This clamp goes off viewAngles,
-					//but really should go off the tag_torso's axis[0] angles, no?
-					lookAngles[YAW] = oldLookAngles[YAW]+(lookAngles[YAW]-oldLookAngles[YAW])*0.4f;
-				}
-				//Remember current lookAngles next time
-				VectorCopy( lookAngles, ent->client->renderInfo.lastHeadAngles );
-			}
-			else
-			{//Remember current lookAngles next time
-				VectorCopy( lookAngles, ent->client->renderInfo.lastHeadAngles );
-			}
-			if ( ent->client->NPC_class == CLASS_ATST )
-			{
-				VectorCopy( ent->client->ps.viewangles, lookAngles );
-				lookAngles[0] = lookAngles[2] = 0;
-				lookAngles[YAW] -= trailingLegsAngles[YAW];
-			}
-			else
-			{
-				lookAngles[PITCH] = lookAngles[ROLL] = 0;
-				lookAngles[YAW] -= ent->client->ps.viewangles[YAW];
-			}
-
-			NPC_SetBoneAngles(ent, craniumBone, lookAngles);
-			//BG_G2SetBoneAngles( cent, ent, ent->craniumBone, lookAngles, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, cgs.model_draw);
-			//return;
-		}
-		else//if ( (ent->client->NPC_class == CLASS_GONK ) || (ent->client->NPC_class == CLASS_INTERROGATOR) || (ent->client->NPC_class == CLASS_SENTRY) )
-		{
-		//	VectorCopy( ent->client->ps.viewangles, angles );
-		//	AnglesToAxis( angles, legs );
-			//return;
-		}
-	}
-}
-
 static QINLINE void G_G2PlayerAngles( gentity_t *ent, matrix3_t legs, vec3_t legsAngles)
 {
 	qboolean tPitching = qfalse,
@@ -896,31 +646,6 @@ static QINLINE void G_G2PlayerAngles( gentity_t *ent, matrix3_t legs, vec3_t leg
 
 	vec3_t turAngles;
 	vec3_t lerpOrg, lerpAng;
-
-	if (ent->s.eType == ET_NPC && ent->client)
-	{ //sort of hacky, but it saves a pretty big load off the server
-		int i = 0;
-		gentity_t *clEnt;
-
-		//If no real clients are in the same PVS then don't do any of this stuff, no one can see him anyway!
-		while (i < MAX_CLIENTS)
-		{
-			clEnt = &g_entities[i];
-
-			if (clEnt && clEnt->inuse && clEnt->client &&
-				trap->InPVS(clEnt->client->ps.origin, ent->client->ps.origin))
-			{ //this client can see him
-				break;
-			}
-
-			i++;
-		}
-
-		if (i == MAX_CLIENTS)
-		{ //no one can see him, just return
-			return;
-		}
-	}
 
 	VectorCopy(ent->client->ps.origin, lerpOrg);
 	VectorCopy(ent->client->ps.viewangles, lerpAng);
@@ -1007,34 +732,6 @@ static QINLINE void G_G2PlayerAngles( gentity_t *ent, matrix3_t legs, vec3_t leg
 			}
 		}
 	}
-	else if ( ent->m_pVehicle && ent->m_pVehicle->m_pVehicleInfo->type == VH_WALKER )
-	{
-		vec3_t lookAngles;
-
-		VectorCopy(ent->client->ps.viewangles, legsAngles);
-		legsAngles[PITCH] = 0;
-		AnglesToAxis( legsAngles, legs );
-
-		VectorCopy(ent->client->ps.viewangles, lookAngles);
-		lookAngles[YAW] = lookAngles[ROLL] = 0;
-
-		BG_G2ATSTAngles( ent->ghoul2, level.time, lookAngles );
-	}
-	else if (ent->NPC)
-	{ //an NPC not using a humanoid skeleton, do special angle stuff.
-		if (ent->s.eType == ET_NPC &&
-			ent->s.NPC_class == CLASS_VEHICLE &&
-			ent->m_pVehicle &&
-			ent->m_pVehicle->m_pVehicleInfo->type == VH_FIGHTER)
-		{ //fighters actually want to take pitch and roll into account for the axial angles
-			VectorCopy(ent->client->ps.viewangles, legsAngles);
-			AnglesToAxis( legsAngles, legs );
-		}
-		else
-		{
-			G_G2NPCAngles(ent, legs, legsAngles);
-		}
-	}
 }
 
 static QINLINE qboolean SaberAttacking( gentity_t *self )
@@ -1086,7 +783,13 @@ int G_SaberLockAnim( int attackerSaberStyle, int defenderSaberStyle, int topOrSi
 	if ( lockOrBreakOrSuperBreak == SABERLOCK_LOCK )
 	{//special case: if we're using the same style and locking
 		if ( attackerSaberStyle == defenderSaberStyle
-			|| (attackerSaberStyle>=SS_FAST&&attackerSaberStyle<=SS_TAVION&&defenderSaberStyle>=SS_FAST&&defenderSaberStyle<=SS_TAVION) )
+			|| (
+				attackerSaberStyle >= SS_FAST
+				&& attackerSaberStyle <= SS_STRONG
+				&& defenderSaberStyle >= SS_FAST
+				&& defenderSaberStyle <= SS_STRONG
+			)
+		)
 		{//using same style
 			if ( winOrLose == SABERLOCK_LOSE )
 			{//you want the defender's stance...
@@ -1219,9 +922,9 @@ static QINLINE qboolean WP_SabersCheckLock2( gentity_t *attacker, gentity_t *def
 		lockMode = (sabersLockMode_t)Q_irand( (int)LOCK_FIRST, (int)(LOCK_RANDOM)-1 );
 	}
 	if ( attacker->client->ps.fd.saberAnimLevel >= SS_FAST
-		&& attacker->client->ps.fd.saberAnimLevel <= SS_TAVION
+		&& attacker->client->ps.fd.saberAnimLevel <= SS_STRONG
 		&& defender->client->ps.fd.saberAnimLevel >= SS_FAST
-		&& defender->client->ps.fd.saberAnimLevel <= SS_TAVION )
+		&& defender->client->ps.fd.saberAnimLevel <= SS_STRONG )
 	{//2 single sabers?  Just do it the old way...
 		switch ( lockMode )
 		{
@@ -1474,15 +1177,6 @@ qboolean WP_SabersCheckLock( gentity_t *ent1, gentity_t *ent2 )
 		return qfalse;
 	}
 
-	if (ent1->s.eType == ET_NPC ||
-		ent2->s.eType == ET_NPC)
-	{ //if either ents is NPC, then never let an NPC lock with someone on the same playerTeam
-		if (ent1->client->playerTeam == ent2->client->playerTeam)
-		{
-			return qfalse;
-		}
-	}
-
 	if (!ent1->client->ps.saberEntityNum ||
 		!ent2->client->ps.saberEntityNum ||
 		ent1->client->ps.saberInFlight ||
@@ -1491,17 +1185,14 @@ qboolean WP_SabersCheckLock( gentity_t *ent1, gentity_t *ent2 )
 		return qfalse;
 	}
 
-	if (ent1->s.eType != ET_NPC && ent2->s.eType != ET_NPC)
-	{ //can always get into locks with NPCs
-		if (!ent1->client->ps.duelInProgress ||
-			!ent2->client->ps.duelInProgress ||
-			ent1->client->ps.duelIndex != ent2->s.number ||
-			ent2->client->ps.duelIndex != ent1->s.number)
-		{ //only allow saber locking if two players are dueling with each other directly
-			if (level.gametype != GT_DUEL && level.gametype != GT_POWERDUEL)
-			{
-				return qfalse;
-			}
+	if (!ent1->client->ps.duelInProgress ||
+		!ent2->client->ps.duelInProgress ||
+		ent1->client->ps.duelIndex != ent2->s.number ||
+		ent2->client->ps.duelIndex != ent1->s.number)
+	{ //only allow saber locking if two players are dueling with each other directly
+		if (level.gametype != GT_DUEL && level.gametype != GT_POWERDUEL)
+		{
+			return qfalse;
 		}
 	}
 
@@ -2284,11 +1975,6 @@ static QINLINE float G_GetAnimPoint(gentity_t *self)
 
 static QINLINE qboolean G_ClientIdleInWorld(gentity_t *ent)
 {
-	if (ent->s.eType == ET_NPC)
-	{
-		return qfalse;
-	}
-
 	if (!ent->client->pers.cmd.upmove && !ent->client->pers.cmd.forwardmove && !ent->client->pers.cmd.rightmove &&
 		!(ent->client->pers.cmd.buttons & BUTTON_GESTURE) &&
 		!(ent->client->pers.cmd.buttons & BUTTON_FORCEGRIP) &&
@@ -2357,17 +2043,10 @@ static QINLINE qboolean G_G2TraceCollide(trace_t *tr, vec3_t lastValidStart, vec
 			angles[YAW] = g2Hit->r.currentAngles[YAW];
 		}
 
-		if (com_optvehtrace.integer &&
-			g2Hit->s.eType == ET_NPC &&
-			g2Hit->s.NPC_class == CLASS_VEHICLE &&
-			g2Hit->m_pVehicle)
-		{
-			trap->G2API_CollisionDetectCache ( G2Trace, g2Hit->ghoul2, angles, g2HitOrigin, level.time, g2Hit->s.number, lastValidStart, lastValidEnd, g2Hit->modelScale, 0, g_g2TraceLod.integer, fRadius );
-		}
-		else
-		{
-			trap->G2API_CollisionDetect ( G2Trace, g2Hit->ghoul2, angles, g2HitOrigin, level.time, g2Hit->s.number, lastValidStart, lastValidEnd, g2Hit->modelScale, 0, g_g2TraceLod.integer, fRadius );
-		}
+		trap->G2API_CollisionDetect(
+			G2Trace, g2Hit->ghoul2, angles, g2HitOrigin, level.time, g2Hit->s.number, lastValidStart, lastValidEnd,
+			g2Hit->modelScale, 0, g_g2TraceLod.integer, fRadius
+		);
 
 		if (G2Trace[0].mEntityNum != g2Hit->s.number)
 		{
@@ -2410,7 +2089,6 @@ static QINLINE qboolean G_SaberInBackAttack(int move)
 qboolean saberCheckKnockdown_Thrown(gentity_t *saberent, gentity_t *saberOwner, gentity_t *other);
 qboolean saberCheckKnockdown_Smashed(gentity_t *saberent, gentity_t *saberOwner, gentity_t *other, int damage);
 qboolean saberCheckKnockdown_BrokenParry(gentity_t *saberent, gentity_t *saberOwner, gentity_t *other);
-
 
 typedef struct saberFace_s
 {
@@ -3320,7 +2998,7 @@ static QINLINE int G_PowerLevelForSaberAnim( gentity_t *ent, int saberNum, qbool
 		case BOTH_A7_HILT:
 			return FORCE_LEVEL_0;
 			break;
-	//===SABERLOCK SUPERBREAKS START===========================================================================
+	//SABERLOCK SUPERBREAKS START
 		case BOTH_LK_S_DL_T_SB_1_W:
 			if ( animTimer < 700 )
 			{//end of anim
@@ -3434,7 +3112,7 @@ static QINLINE int G_PowerLevelForSaberAnim( gentity_t *ent, int saberNum, qbool
 		case BOTH_LK_ST_S_T_SB_1_W:
 			return FORCE_LEVEL_5;
 			break;
-	//===SABERLOCK SUPERBREAKS START===========================================================================
+	//SABERLOCK SUPERBREAKS START
 		case BOTH_HANG_ATTACK:
 			//FIME: break up
 			if ( animTimer < 1000 )
@@ -3573,7 +3251,6 @@ void WP_SaberApplyDamage( gentity_t *self )
 	}
 }
 
-
 void WP_SaberDoHit( gentity_t *self, int saberNum, int bladeNum )
 {
 	int i;
@@ -3584,7 +3261,6 @@ void WP_SaberDoHit( gentity_t *self, int saberNum, int bladeNum )
 	for ( i = 0; i < numVictims; i++ )
 	{
 		gentity_t *te = NULL, *victim = NULL;
-		qboolean isDroid = qfalse;
 
 		if ( victimHitEffectDone[i] )
 		{
@@ -3594,19 +3270,6 @@ void WP_SaberDoHit( gentity_t *self, int saberNum, int bladeNum )
 		victimHitEffectDone[i] = qtrue;
 
 		victim = &g_entities[victimEntityNum[i]];
-
-		if ( victim->client )
-		{
-			class_t npc_class = victim->client->NPC_class;
-
-			if ( npc_class == CLASS_SEEKER || npc_class == CLASS_PROBE || npc_class == CLASS_MOUSE || npc_class == CLASS_REMOTE ||
-					npc_class == CLASS_GONK || npc_class == CLASS_R2D2 || npc_class == CLASS_R5D2 ||
-					npc_class == CLASS_PROTOCOL || npc_class == CLASS_MARK1 || npc_class == CLASS_MARK2 ||
-					npc_class == CLASS_INTERROGATOR || npc_class == CLASS_ATST || npc_class == CLASS_SENTRY )
-			{ //don't make "blood" sparks for droids.
-				isDroid = qtrue;
-			}
-		}
 
 		te = G_TempEntity( dmgSpot[i], EV_SABER_HIT );
 		if ( te )
@@ -3625,9 +3288,7 @@ void WP_SaberDoHit( gentity_t *self, int saberNum, int bladeNum )
 				te->s.angles[1] = 1;
 			}
 
-			if (!isDroid && (victim->client || victim->s.eType == ET_NPC ||
-				victim->s.eType == ET_BODY))
-			{
+			if ( victim->client || victim->s.eType == ET_BODY ) {
 				if ( totalDmg[i] < 5 )
 				{
 					te->s.eventParm = 3;
@@ -3717,11 +3378,6 @@ void WP_SaberRadiusDamage( gentity_t *ent, vec3_t point, float radius, int damag
 				continue;
 			}
 
-			if ( (radiusEnt->client->ps.eFlags2&EF2_HELD_BY_MONSTER) )
-			{//can't be one being held
-				continue;
-			}
-
 			VectorSubtract( radiusEnt->r.currentOrigin, point, entDir );
 			dist = VectorNormalize( entDir );
 			if ( dist <= radius )
@@ -3734,8 +3390,6 @@ void WP_SaberRadiusDamage( gentity_t *ent, vec3_t point, float radius, int damag
 				if ( knockBack > 0 )
 				{//do knockback
 					if ( radiusEnt->client
-						&& radiusEnt->client->NPC_class != CLASS_RANCOR
-						&& radiusEnt->client->NPC_class != CLASS_ATST
 						&& !(radiusEnt->flags&FL_NO_KNOCKBACK) )//don't throw them back
 					{
 						float knockbackStr = knockBack*dist/radius;
@@ -4045,8 +3699,7 @@ static QINLINE qboolean CheckSaberDamage(gentity_t *self, int rSaberNum, int rBl
 		&& (SaberAttacking(self)
 			|| BG_SuperBreakWinAnim(self->client->ps.torsoAnim)
 			|| (d_saberSPStyleDamage.integer&&self->client->ps.saberInFlight&&rSaberNum==0)
-			|| (WP_SaberBladeDoTransitionDamage( &self->client->saber[rSaberNum], rBladeNum )&&BG_SaberInTransitionAny(self->client->ps.saberMove))
-			|| (self->client->ps.m_iVehicleNum && self->client->ps.saberMove > LS_READY) )
+			|| (WP_SaberBladeDoTransitionDamage( &self->client->saber[rSaberNum], rBladeNum )&&BG_SaberInTransitionAny(self->client->ps.saberMove)) )
 	   )
 	{ //this animation is that of the last attack movement, and so it should do full damage
 		qboolean saberInSpecial = BG_SaberInSpecial(self->client->ps.saberMove);
@@ -4128,8 +3781,7 @@ static QINLINE qboolean CheckSaberDamage(gentity_t *self, int rSaberNum, int rBl
 			}
 			*/
 			if ( level.gametype != GT_DUEL
-				&& level.gametype != GT_POWERDUEL
-				&& level.gametype != GT_SIEGE )
+				&& level.gametype != GT_POWERDUEL )
 			{//in faster-paced games, sabers do more damage
 				fDmg *= 2.0f;
 			}
@@ -4405,12 +4057,6 @@ static QINLINE qboolean CheckSaberDamage(gentity_t *self, int rSaberNum, int rBl
 		dmg *= 2;
 	}
 
-	if (dmg > SABER_NONATTACK_DAMAGE && level.gametype == GT_SIEGE &&
-		self->client->siegeClass != -1 && (bgSiegeClasses[self->client->siegeClass].classflags & (1<<CFL_MORESABERDMG)))
-	{ //this class is flagged to do extra saber damage. I guess 2x will do for now.
-		dmg *= 2;
-	}
-
 	if (level.gametype == GT_POWERDUEL &&
 		self->client->sess.duelTeam == DUELTEAM_LONE)
 	{ //always x2 when we're powerdueling alone... er, so, we apparently no longer want this?  So they say.
@@ -4632,28 +4278,18 @@ static QINLINE qboolean CheckSaberDamage(gentity_t *self, int rSaberNum, int rBl
 			{
 				if (g_entities[tr.entityNum].client && g_entities[tr.entityNum].client->ps.weapon == WP_SABER)
 				{ //for jedi using the saber, half the damage (this comes with the increased default dmg debounce time)
-					if (level.gametype != GT_SIEGE)
-					{ //unless siege..
-						if (dmg > SABER_NONATTACK_DAMAGE && !unblockable)
-						{ //don't reduce damage if it's only 1, or if this is an unblockable attack
-							if (dmg == SABER_HITDAMAGE)
-							{ //level 1 attack
-								dmg *= 0.7;
-							}
-							else
-							{
-								dmg *= 0.5;
-							}
+					if (dmg > SABER_NONATTACK_DAMAGE && !unblockable)
+					{ //don't reduce damage if it's only 1, or if this is an unblockable attack
+						if (dmg == SABER_HITDAMAGE)
+						{ //level 1 attack
+							dmg *= 0.7;
+						}
+						else
+						{
+							dmg *= 0.5;
 						}
 					}
 				}
-			}
-
-			if (self->s.eType == ET_NPC &&
-				g_entities[tr.entityNum].client &&
-				self->client->playerTeam == g_entities[tr.entityNum].client->playerTeam)
-			{ //Oops. Since he's an NPC, we'll be forgiving and cut the damage down.
-				dmg *= 0.2f;
 			}
 
 			//store the damage, we'll apply it later
@@ -4757,13 +4393,6 @@ static QINLINE qboolean CheckSaberDamage(gentity_t *self, int rSaberNum, int rBl
 		if (OnSameTeam(self, otherOwner) &&
 			!g_friendlySaber.integer)
 		{
-			return qfalse;
-		}
-
-		if ((self->s.eType == ET_NPC || otherOwner->s.eType == ET_NPC) && //just make sure one of us is an npc
-			self->client->playerTeam == otherOwner->client->playerTeam &&
-			level.gametype != GT_SIEGE)
-		{ //don't hit your teammate's sabers if you are an NPC. It can be rather annoying.
 			return qfalse;
 		}
 
@@ -5442,7 +5071,6 @@ qboolean InFOV3( vec3_t spot, vec3_t from, vec3_t fromAngles, int hFOV, int vFOV
 qboolean Jedi_WaitingAmbush( gentity_t *self );
 void Jedi_Ambush( gentity_t *self );
 evasionType_t Jedi_SaberBlockGo( gentity_t *self, usercmd_t *cmd, vec3_t pHitloc, vec3_t phitDir, gentity_t *incoming, float dist );
-void NPC_SetLookTarget( gentity_t *self, int entNum, int clearTime );
 void WP_SaberStartMissileBlockCheck( gentity_t *self, usercmd_t *ucmd  )
 {
 	float		dist;
@@ -5460,13 +5088,9 @@ void WP_SaberStartMissileBlockCheck( gentity_t *self, usercmd_t *ucmd  )
 	gentity_t	*lookT = NULL;
 	qboolean	doFullRoutine = qtrue;
 
-	//keep this updated even if we don't get below
-	if ( !(self->client->ps.eFlags2&EF2_HELD_BY_MONSTER) )
-	{//lookTarget is set by and to the monster that's holding you, no other operations can change that
-		self->client->ps.hasLookTarget = qfalse;
-	}
+	self->client->ps.hasLookTarget = qfalse;
 
-	if ( self->client->ps.weapon != WP_SABER && self->client->NPC_class != CLASS_BOBAFETT )
+	if ( self->client->ps.weapon != WP_SABER )
 	{
 		doFullRoutine = qfalse;
 	}
@@ -5510,12 +5134,9 @@ void WP_SaberStartMissileBlockCheck( gentity_t *self, usercmd_t *ucmd  )
 		return;
 	}
 
-	if ( BG_SabersOff( &self->client->ps ) && self->client->NPC_class != CLASS_BOBAFETT )
+	if ( BG_SabersOff( &self->client->ps ) )
 	{
-		if ( self->s.eType != ET_NPC )
-		{//player doesn't auto-activate
-			doFullRoutine = qfalse;
-		}
+		doFullRoutine = qfalse;
 	}
 
 	if ( self->s.eType == ET_PLAYER )
@@ -5557,11 +5178,9 @@ void WP_SaberStartMissileBlockCheck( gentity_t *self, usercmd_t *ucmd  )
 		//as long as we're here I'm going to get a looktarget too, I guess. -rww
 		if (self->s.eType == ET_PLAYER &&
 			ent->client &&
-			(ent->s.eType == ET_NPC || ent->s.eType == ET_PLAYER) &&
 			!OnSameTeam(ent, self) &&
 			ent->client->sess.sessionTeam != TEAM_SPECTATOR &&
 			!(ent->client->ps.pm_flags & PMF_FOLLOW) &&
-			(ent->s.eType != ET_NPC || ent->s.NPC_class != CLASS_VEHICLE) && //don't look at vehicle NPCs
 			ent->health > 0)
 		{ //seems like a valid enemy to look at.
 			vec3_t vecSub;
@@ -5636,85 +5255,10 @@ void WP_SaberStartMissileBlockCheck( gentity_t *self, usercmd_t *ucmd  )
 		//FIXME: handle detpacks, proximity mines and tripmines
 		if ( ent->s.weapon == WP_THERMAL )
 		{//thermal detonator!
-			if ( self->NPC && dist < ent->splashRadius )
-			{
-				if ( dist < ent->splashRadius &&
-					ent->nextthink < level.time + 600 &&
-					ent->count &&
-					self->client->ps.groundEntityNum != ENTITYNUM_NONE &&
-						(ent->s.pos.trType == TR_STATIONARY||
-						ent->s.pos.trType == TR_INTERPOLATE||
-						(dot1 = DotProduct( dir, forward )) < SABER_REFLECT_MISSILE_CONE||
-						!WP_ForcePowerUsable( self, FP_PUSH )) )
-				{//TD is close enough to hurt me, I'm on the ground and the thing is at rest or behind me and about to blow up, or I don't have force-push so force-jump!
-					//FIXME: sometimes this might make me just jump into it...?
-					self->client->ps.fd.forceJumpCharge = 480;
-				}
-				else if ( self->client->NPC_class != CLASS_BOBAFETT )
-				{//FIXME: check forcePushRadius[NPC->client->ps.forcePowerLevel[FP_PUSH]]
-					ForceThrow( self, qfalse );
-				}
-			}
 			continue;
 		}
 		else if ( ent->splashDamage && ent->splashRadius )
 		{//exploding missile
-			//FIXME: handle tripmines and detpacks somehow...
-			//			maybe do a force-gesture that makes them explode?
-			//			But what if we're within it's splashradius?
-			if ( self->s.eType == ET_PLAYER )
-			{//players don't auto-handle these at all
-				continue;
-			}
-			else
-			{
-				//if ( ent->s.pos.trType == TR_STATIONARY && (ent->s.eFlags&EF_MISSILE_STICK)
-				//	&& 	self->client->NPC_class != CLASS_BOBAFETT )
-				if (0) //Maybe handle this later?
-				{//a placed explosive like a tripmine or detpack
-					if ( InFOV3( ent->r.currentOrigin, self->client->renderInfo.eyePoint, self->client->ps.viewangles, 90, 90 ) )
-					{//in front of me
-						if ( G_ClearLOS4( self, ent ) )
-						{//can see it
-							vec3_t throwDir;
-							//make the gesture
-							ForceThrow( self, qfalse );
-							//take it off the wall and toss it
-							ent->s.pos.trType = TR_GRAVITY;
-							ent->s.eType = ET_MISSILE;
-							ent->s.eFlags &= ~EF_MISSILE_STICK;
-							ent->flags |= FL_BOUNCE_HALF;
-							AngleVectors( ent->r.currentAngles, throwDir, NULL, NULL );
-							VectorMA( ent->r.currentOrigin, ent->r.maxs[0]+4, throwDir, ent->r.currentOrigin );
-							VectorCopy( ent->r.currentOrigin, ent->s.pos.trBase );
-							VectorScale( throwDir, 300, ent->s.pos.trDelta );
-							ent->s.pos.trDelta[2] += 150;
-							VectorMA( ent->s.pos.trDelta, 800, dir, ent->s.pos.trDelta );
-							ent->s.pos.trTime = level.time;		// move a bit on the very first frame
-							VectorCopy( ent->r.currentOrigin, ent->s.pos.trBase );
-							ent->r.ownerNum = self->s.number;
-							// make it explode, but with less damage
-							ent->splashDamage /= 3;
-							ent->splashRadius /= 3;
-							//ent->think = WP_Explode;
-							ent->nextthink = level.time + Q_irand( 500, 3000 );
-						}
-					}
-				}
-				else if ( dist < ent->splashRadius &&
-				self->client->ps.groundEntityNum != ENTITYNUM_NONE &&
-					(DotProduct( dir, forward ) < SABER_REFLECT_MISSILE_CONE||
-					!WP_ForcePowerUsable( self, FP_PUSH )) )
-				{//NPCs try to evade it
-					self->client->ps.fd.forceJumpCharge = 480;
-				}
-				else if ( self->client->NPC_class != CLASS_BOBAFETT )
-				{//else, try to force-throw it away
-					//FIXME: check forcePushRadius[NPC->client->ps.forcePowerLevel[FP_PUSH]]
-					ForceThrow( self, qfalse );
-				}
-			}
-			//otherwise, can't block it, so we're screwed
 			continue;
 		}
 
@@ -5750,38 +5294,16 @@ void WP_SaberStartMissileBlockCheck( gentity_t *self, usercmd_t *ucmd  )
 					continue;
 				}
 			}
-			if ( self->s.eType == ET_NPC )
-			{//An NPC
-				if ( self->NPC && !self->enemy && ent->r.ownerNum != ENTITYNUM_NONE )
-				{
-					gentity_t *owner = &g_entities[ent->r.ownerNum];
-					if ( owner->health >= 0 && (!owner->client || owner->client->playerTeam != self->client->playerTeam) )
-					{
-						G_SetEnemy( self, owner );
-					}
-				}
-			}
 			//FIXME: if NPC, predict the intersection between my current velocity/path and the missile's, see if it intersects my bounding box (+/-saberLength?), don't try to deflect unless it does?
 			closestDist = dist;
 			incoming = ent;
 		}
 	}
 
-	if (self->s.eType == ET_NPC && self->localAnimIndex <= 1)
-	{ //humanoid NPCs don't set angles based on server angles for looking, unlike other NPCs
-		if (self->client && self->client->renderInfo.lookTarget < ENTITYNUM_WORLD)
-		{
-			lookT = &g_entities[self->client->renderInfo.lookTarget];
-		}
-	}
-
 	if (lookT)
 	{ //we got a looktarget at some point so we'll assign it then.
-		if ( !(self->client->ps.eFlags2&EF2_HELD_BY_MONSTER) )
-		{//lookTarget is set by and to the monster that's holding you, no other operations can change that
-			self->client->ps.hasLookTarget = qtrue;
-			self->client->ps.lookTarget = lookT->s.number;
-		}
+		self->client->ps.hasLookTarget = qtrue;
+		self->client->ps.lookTarget = lookT->s.number;
 	}
 
 	if (!doFullRoutine)
@@ -5791,47 +5313,13 @@ void WP_SaberStartMissileBlockCheck( gentity_t *self, usercmd_t *ucmd  )
 
 	if ( incoming )
 	{
-		if ( self->NPC /*&& !G_ControlledByPlayer( self )*/ )
-		{
-			if ( Jedi_WaitingAmbush( self ) )
-			{
-				Jedi_Ambush( self );
-			}
-			if ( self->client->NPC_class == CLASS_BOBAFETT
-				&& (self->client->ps.eFlags2&EF2_FLYING)//moveType == MT_FLYSWIM
-				&& incoming->methodOfDeath != MOD_ROCKET_HOMING )
-			{//a hovering Boba Fett, not a tracking rocket
-				if ( !Q_irand( 0, 1 ) )
-				{//strafe
-					self->NPC->standTime = 0;
-					self->client->ps.fd.forcePowerDebounce[FP_SABER_DEFENSE] = level.time + Q_irand( 1000, 2000 );
-				}
-				if ( !Q_irand( 0, 1 ) )
-				{//go up/down
-					TIMER_Set( self, "heightChange", Q_irand( 1000, 3000 ) );
-					self->client->ps.fd.forcePowerDebounce[FP_SABER_DEFENSE] = level.time + Q_irand( 1000, 2000 );
-				}
-			}
-			else if ( Jedi_SaberBlockGo( self, &self->NPC->last_ucmd, NULL, NULL, incoming, 0.0f ) != EVASION_NONE )
-			{//make sure to turn on your saber if it's not on
-				if ( self->client->NPC_class != CLASS_BOBAFETT )
-				{
-					//self->client->ps.SaberActivate();
-					WP_ActivateSaber(self);
-				}
-			}
-		}
-		else//player
-		{
-			gentity_t *owner = &g_entities[incoming->r.ownerNum];
+		gentity_t *owner = &g_entities[incoming->r.ownerNum];
 
-			WP_SaberBlockNonRandom( self, incoming->r.currentOrigin, qtrue );
-			if ( owner && owner->client && (!self->enemy || self->enemy->s.weapon != WP_SABER) )//keep enemy jedi over shooters
-			{
-				self->enemy = owner;
-				//NPC_SetLookTarget( self, owner->s.number, level.time+1000 );
-				//player looktargetting done differently
-			}
+		WP_SaberBlockNonRandom( self, incoming->r.currentOrigin, qtrue );
+		if ( owner && owner->client && (!self->enemy || self->enemy->s.weapon != WP_SABER) )//keep enemy jedi over shooters
+		{
+			self->enemy = owner;
+			//player looktargetting done differently
 		}
 	}
 }
@@ -5865,7 +5353,7 @@ static QINLINE qboolean CheckThrownSaberDamaged(gentity_t *saberent, gentity_t *
 		ent->health > 0 && ent->takedamage &&
 		trap->InPVS(ent->client->ps.origin, saberent->r.currentOrigin) &&
 		ent->client->sess.sessionTeam != TEAM_SPECTATOR &&
-		(ent->client->pers.connected || ent->s.eType == ET_NPC))
+		ent->client->pers.connected)
 	{ //hit a client
 		if (ent->inuse && ent->client &&
 			ent->client->ps.duelInProgress &&
@@ -6026,14 +5514,7 @@ static QINLINE qboolean CheckThrownSaberDamaged(gentity_t *saberent, gentity_t *
 					dflags |= DAMAGE_SABER_KNOCKBACK1;
 				}
 
-				if (ent->s.eType == ET_NPC)
-				{ //an animent
-					G_Damage(ent, saberOwner, saberOwner, dir, tr.endpos, 40, dflags, MOD_SABER);
-				}
-				else
-				{
-					G_Damage(ent, saberOwner, saberOwner, dir, tr.endpos, 5, dflags, MOD_SABER);
-				}
+				G_Damage(ent, saberOwner, saberOwner, dir, tr.endpos, 5, dflags, MOD_SABER);
 
 				te = G_TempEntity( tr.endpos, EV_SABER_HIT );
 				te->s.otherEntityNum = ENTITYNUM_NONE; //don't do this for throw damage
@@ -6605,7 +6086,7 @@ void WP_SaberAddG2Model( gentity_t *saberent, const char *saberModel, qhandle_t 
 	}
 	else
 	{
-		saberent->s.modelindex = G_ModelIndex( "models/weapons2/saber/saber_w.glm" );
+		saberent->s.modelindex = G_ModelIndex( DEFAULT_SABER_MODEL );
 	}
 	//FIXME: use customSkin?
 	trap->G2API_InitGhoul2Model( &saberent->ghoul2, saberModel, saberent->s.modelindex, saberSkin, 0, 0, 0 );
@@ -7504,11 +6985,6 @@ static void G_TossTheMofo(gentity_t *ent, vec3_t tossDir, float tossStr)
 		return;
 	}
 
-	if (ent->s.eType == ET_NPC && ent->s.NPC_class == CLASS_VEHICLE)
-	{ //no, silly
-		return;
-	}
-
 	VectorMA(ent->client->ps.velocity, tossStr, tossDir, ent->client->ps.velocity);
 	ent->client->ps.velocity[2] = 200;
 	if (ent->health > 0 && ent->client->ps.forceHandExtend != HANDEXTEND_KNOCKDOWN &&
@@ -7991,7 +7467,7 @@ static void G_GrabSomeMofos(gentity_t *self)
 	{
 		gentity_t *grabbed = &g_entities[trace.entityNum];
 
-		if (grabbed->inuse && (grabbed->s.eType == ET_PLAYER || grabbed->s.eType == ET_NPC) &&
+		if (grabbed->inuse && grabbed->s.eType == ET_PLAYER &&
 			grabbed->client && grabbed->health > 0 &&
 			G_CanBeEnemy(self, grabbed) &&
 			G_PrettyCloseIGuess(grabbed->client->ps.origin[2], self->client->ps.origin[2], 4.0f) &&
@@ -8092,7 +7568,6 @@ void WP_SaberPositionUpdate( gentity_t *self, usercmd_t *ucmd )
 	float animSpeedScale = 1.0f;
 	int saberNum;
 	qboolean clientOverride;
-	gentity_t *vehEnt = NULL;
 	int rSaberNum = 0;
 	int rBladeNum = 0;
 
@@ -8506,23 +7981,7 @@ nextStep:
 	properOrigin[2] += addVel[2]*fVSpeed;
 
 	properAngles[0] = 0;
-	if (self->s.number < MAX_CLIENTS && self->client->ps.m_iVehicleNum)
-	{
-		vehEnt = &g_entities[self->client->ps.m_iVehicleNum];
-		if (vehEnt->inuse && vehEnt->client && vehEnt->m_pVehicle)
-		{
-			properAngles[1] = vehEnt->m_pVehicle->m_vOrientation[YAW];
-		}
-		else
-		{
-			properAngles[1] = self->client->ps.viewangles[YAW];
-			vehEnt = NULL;
-		}
-	}
-	else
-	{
-		properAngles[1] = self->client->ps.viewangles[YAW];
-	}
+	properAngles[1] = self->client->ps.viewangles[YAW];
 	properAngles[2] = 0;
 
 	AnglesToAxis( properAngles, legAxis );
@@ -8532,11 +7991,6 @@ nextStep:
 	if (!clientOverride)
 	{ //if we get the client instance we don't need to do this
 		G_G2PlayerAngles( self, legAxis, properAngles );
-	}
-
-	if (vehEnt)
-	{
-		properAngles[1] = vehEnt->m_pVehicle->m_vOrientation[YAW];
 	}
 
 	if (returnAfterUpdate && saberNum)

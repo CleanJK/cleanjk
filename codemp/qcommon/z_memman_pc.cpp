@@ -24,8 +24,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "client/client.h" // hi i'm bad
 
-////////////////////////////////////////////////
-//
 #ifdef TAGDEF	// itu?
 #undef TAGDEF
 #endif
@@ -34,12 +32,9 @@ const static char *psTagStrings[TAG_COUNT+1]=	// +1 because TAG_COUNT will itsel
 {
 	#include "qcommon/tags.h"
 };
-//
-////////////////////////////////////////////////
 
 static void Z_Details_f(void);
 void CIN_CloseAllVideos();
-
 
 // This handles zone memory allocation.
 // It is a wrapper around malloc with a tag id and a magic number at the start
@@ -70,7 +65,6 @@ static inline zoneTail_t *ZoneTailFromHeader(zoneHeader_t *pHeader)
 map <void*,int> mapAllocatedZones;
 #endif
 
-
 typedef struct zoneStats_s
 {
 	int		iCount;
@@ -79,7 +73,7 @@ typedef struct zoneStats_s
 
 	// I'm keeping these updated on the fly, since it's quicker for cache-pool
 	//	purposes rather than recalculating each time...
-	//
+
 	int		iSizesPerTag [TAG_COUNT];
 	int		iCountsPerTag[TAG_COUNT];
 
@@ -95,9 +89,7 @@ cvar_t	*com_validateZone;
 
 zone_t	TheZone = {};
 
-
 // Scans through the linked list of mallocs and makes sure no data has been overwritten
-
 void Z_Validate(void)
 {
 	if(!com_validateZone || !com_validateZone->integer)
@@ -134,10 +126,7 @@ void Z_Validate(void)
 	}
 }
 
-
-
 // static mem blocks to reduce a lot of small zone overhead
-//
 #pragma pack(push)
 #pragma pack(1)
 typedef struct StaticZeroMem_s {
@@ -182,11 +171,11 @@ void *Z_Malloc(int iSize, memtag_t eTag, qboolean bZeroit /* = qfalse */, int iU
 	}
 
 	// Add in tracking info
-	//
+
 	int iRealSize = (iSize + sizeof(zoneHeader_t) + sizeof(zoneTail_t));
 
 	// Allocate a chunk...
-	//
+
 	zoneHeader_t *pMemory = NULL;
 	while (pMemory == NULL)
 	{
@@ -203,10 +192,9 @@ void *Z_Malloc(int iSize, memtag_t eTag, qboolean bZeroit /* = qfalse */, int iU
 		if (!pMemory)
 		{
 			// new bit, if we fail to malloc memory, try dumping some of the cached stuff that's non-vital and try again...
-			//
 
 			// ditch the BSP cache...
-			//
+
 			extern qboolean CM_DeleteCachedMap(qboolean bGuaranteedOkToDelete);
 			if (CM_DeleteCachedMap(qfalse))
 			{
@@ -214,9 +202,8 @@ void *Z_Malloc(int iSize, memtag_t eTag, qboolean bZeroit /* = qfalse */, int iU
 				continue;		// we've just ditched a whole load of memory, so try again with the malloc
 			}
 
-
 			// ditch any sounds not used on this level...
-			//
+
 			extern qboolean SND_RegisterAudio_LevelLoadEnd(qboolean bDeleteEverythingNotUsedThisLevel);
 			if (SND_RegisterAudio_LevelLoadEnd(qtrue))
 			{
@@ -226,7 +213,7 @@ void *Z_Malloc(int iSize, memtag_t eTag, qboolean bZeroit /* = qfalse */, int iU
 
 #ifndef DEDICATED
 			// ditch any image_t's (and associated GL memory) not used on this level...
-			//
+
 			if (re->RegisterImages_LevelLoadEnd())
 			{
 				gbMemFreeupOccured = qtrue;
@@ -235,7 +222,7 @@ void *Z_Malloc(int iSize, memtag_t eTag, qboolean bZeroit /* = qfalse */, int iU
 #endif
 
 			// ditch the model-binaries cache...  (must be getting desperate here!)
-			//
+
 			if ( re->RegisterModels_LevelLoadEnd(qtrue) )
 			{
 				gbMemFreeupOccured = qtrue;
@@ -245,13 +232,13 @@ void *Z_Malloc(int iSize, memtag_t eTag, qboolean bZeroit /* = qfalse */, int iU
 			// as a last panic measure, dump all the audio memory, but not if we're in the audio loader
 			//	(which is annoying, but I'm not sure how to ensure we're not dumping any memory needed by the sound
 			//	currently being loaded if that was the case)...
-			//
+
 			// note that this keeps querying until it's freed up as many bytes as the requested size, but freeing
 			//	several small blocks might not mean that one larger one is satisfiable after freeup, however that'll
 			//	just make it go round again and try for freeing up another bunch of blocks until the total is satisfied
 			//	again (though this will have freed twice the requested amount in that case), so it'll either work
 			//	eventually or not free up enough and drop through to the final ERR_DROP. No worries...
-			//
+
 			extern qboolean gbInsideLoadSound;
 			extern int SND_FreeOldestSound();
 			if (!gbInsideLoadSound)
@@ -272,7 +259,7 @@ void *Z_Malloc(int iSize, memtag_t eTag, qboolean bZeroit /* = qfalse */, int iU
 			}
 
 			// sigh, dunno what else to try, I guess we'll have to give up and report this as an out-of-mem error...
-			//
+
 			// findlabel:  "recovermem"
 
 			Com_Printf(S_COLOR_RED"Z_Malloc(): Failed to alloc %d bytes (TAG_%s) !!!!!\n", iSize, psTagStrings[eTag]);
@@ -293,13 +280,13 @@ void *Z_Malloc(int iSize, memtag_t eTag, qboolean bZeroit /* = qfalse */, int iU
 		pMemory->pNext->pPrev = pMemory;
 	}
 	pMemory->pPrev = &TheZone.Header;
-	//
+
 	// add tail...
-	//
+
 	ZoneTailFromHeader(pMemory)->iMagic = ZONE_MAGIC;
 
 	// Update stats...
-	//
+
 	TheZone.Stats.iCurrent += iSize;
 	TheZone.Stats.iCount++;
 	TheZone.Stats.iSizesPerTag	[eTag] += iSize;
@@ -320,9 +307,7 @@ void *Z_Malloc(int iSize, memtag_t eTag, qboolean bZeroit /* = qfalse */, int iU
 	return pvReturnMem;
 }
 
-// Special wrapper around Z_Malloc for better separation between the main engine
-// code and the bundled minizip library.
-
+// Special wrapper around Z_Malloc for better separation between the main engine code and the bundled minizip library.
 extern "C" Q_EXPORT void* openjk_minizip_malloc(int size);
 extern "C" Q_EXPORT void openjk_minizip_free(void* to_free);
 
@@ -336,9 +321,7 @@ void openjk_minizip_free(void *to_free)
     Z_Free(to_free);
 }
 
-// used during model cacheing to save an extra malloc, lets us morph the disk-load buffer then
-//	just not fs_freefile() it afterwards.
-//
+// used during model caching to save an extra malloc, lets us morph the disk-load buffer then just not fs_freefile() it afterwards.
 void Z_MorphMallocTag( void *pvAddress, memtag_t eDesiredTag )
 {
 	zoneHeader_t *pMemory = ((zoneHeader_t *)pvAddress) - 1;
@@ -350,18 +333,16 @@ void Z_MorphMallocTag( void *pvAddress, memtag_t eDesiredTag )
 	}
 
 	// DEC existing tag stats...
-	//
 //	TheZone.Stats.iCurrent	- unchanged
 //	TheZone.Stats.iCount	- unchanged
 	TheZone.Stats.iSizesPerTag	[pMemory->eTag] -= pMemory->iSize;
 	TheZone.Stats.iCountsPerTag	[pMemory->eTag]--;
 
 	// morph...
-	//
+
 	pMemory->eTag = eDesiredTag;
 
 	// INC new tag stats...
-	//
 //	TheZone.Stats.iCurrent	- unchanged
 //	TheZone.Stats.iCount	- unchanged
 	TheZone.Stats.iSizesPerTag	[pMemory->eTag] += pMemory->iSize;
@@ -373,26 +354,25 @@ static void Zone_FreeBlock(zoneHeader_t *pMemory)
 	if (pMemory->eTag != TAG_STATIC)	// belt and braces, should never hit this though
 	{
 		// Update stats...
-		//
+
 		TheZone.Stats.iCount--;
 		TheZone.Stats.iCurrent -= pMemory->iSize;
 		TheZone.Stats.iSizesPerTag	[pMemory->eTag] -= pMemory->iSize;
 		TheZone.Stats.iCountsPerTag	[pMemory->eTag]--;
 
 		// Sanity checks...
-		//
+
 		assert(pMemory->pPrev->pNext == pMemory);
 		assert(!pMemory->pNext || (pMemory->pNext->pPrev == pMemory));
 
 		// Unlink and free...
-		//
+
 		pMemory->pPrev->pNext = pMemory->pNext;
 		if(pMemory->pNext)
 		{
 			pMemory->pNext->pPrev = pMemory->pPrev;
 		}
 		free (pMemory);
-
 
 		#ifdef DETAILED_ZONE_DEBUG_CODE
 		// this has already been checked for in execution order, but wtf?
@@ -408,7 +388,6 @@ static void Zone_FreeBlock(zoneHeader_t *pMemory)
 }
 
 // stats-query function to ask how big a malloc is...
-//
 int Z_Size(void *pvAddress)
 {
 	zoneHeader_t *pMemory = ((zoneHeader_t *)pvAddress) - 1;
@@ -427,9 +406,7 @@ int Z_Size(void *pvAddress)
 	return pMemory->iSize;
 }
 
-
 // Frees a block of memory...
-//
 void Z_Free(void *pvAddress)
 {
 	if (pvAddress == NULL)	// I've put this in as a safety measure because of some bits of #ifdef BSPC stuff	-Ste.
@@ -446,9 +423,9 @@ void Z_Free(void *pvAddress)
 	}
 
 	#ifdef DETAILED_ZONE_DEBUG_CODE
-	//
+
 	// check this error *before* barfing on bad magics...
-	//
+
 	int& iAllocCount = mapAllocatedZones[pMemory];
 	if (iAllocCount <= 0)
 	{
@@ -471,14 +448,12 @@ void Z_Free(void *pvAddress)
 	Zone_FreeBlock(pMemory);
 }
 
-
 int Z_MemSize(memtag_t eTag)
 {
 	return TheZone.Stats.iSizesPerTag[eTag];
 }
 
 // Frees all blocks with the specified tag...
-//
 void Z_TagFree(memtag_t eTag)
 {
 //#ifdef _DEBUG
@@ -497,7 +472,6 @@ void Z_TagFree(memtag_t eTag)
 	}
 
 // these stupid pragmas don't work here???!?!?!
-//
 //#ifdef _DEBUG
 //#pragma warning( disable : 4189)
 //	int iBlocksFreed = iZoneBlocks - TheZone.Stats.iCount;
@@ -505,18 +479,16 @@ void Z_TagFree(memtag_t eTag)
 //#endif
 }
 
-
 void *S_Malloc( int iSize ) {
 	return Z_Malloc( iSize, TAG_SMALL );
 }
-
 
 #ifdef _DEBUG
 static void Z_MemRecoverTest_f(void)
 {
 	// needs to be in _DEBUG only, not good for final game!
 	// fixme: findmeste: Remove this sometime
-	//
+
 	int iTotalMalloc = 0;
 	while (1)
 	{
@@ -532,10 +504,7 @@ static void Z_MemRecoverTest_f(void)
 }
 #endif
 
-
-
 // Gives a summary of the zone memory usage
-
 static void Z_Stats_f(void)
 {
 	Com_Printf("\nThe zone is using %d bytes (%.2fMB) in %d memory blocks\n",
@@ -551,7 +520,6 @@ static void Z_Stats_f(void)
 }
 
 // Gives a detailed breakdown of the memory blocks in the zone
-
 static void Z_Details_f(void)
 {
 	Com_Printf("---------------------------------------------------------------------------\n");
@@ -566,7 +534,7 @@ static void Z_Details_f(void)
 		{
 			// can you believe that using %2.2f as a format specifier doesn't bloody work?
 			//	It ignores the left-hand specifier. Sigh, now I've got to do shit like this...
-			//
+
 			float	fSize		= (float)(iThisSize) / 1024.0f / 1024.0f;
 			int		iSize		= fSize;
 			int		iRemainder 	= 100.0f * (fSize - floor(fSize));
@@ -602,7 +570,6 @@ void Com_ShutdownZoneMemory(void)
 }
 
 // Initialises the zone memory system
-
 void Com_InitZoneMemory( void )
 {
 	memset(&TheZone, 0, sizeof(TheZone));
@@ -624,16 +591,7 @@ void Com_InitZoneMemoryVars( void ) {
 #endif
 }
 
-
-
-/*
-========================
-CopyString
-
- NOTE:	never write over the memory CopyString returns because
-		memory from a memstatic_t might be returned
-========================
-*/
+//NOTE:	never write over the memory CopyString returns because memory from a memstatic_t might be returned
 char *CopyString( const char *in ) {
 	char	*out;
 
@@ -651,18 +609,9 @@ char *CopyString( const char *in ) {
 	return out;
 }
 
-
-
 static memtag_t hunk_tag;
 
-
-/*
-===============
-Com_TouchMemory
-
-Touch all known used data to make sure it is paged in
-===============
-*/
+// Touch all known used data to make sure it is paged in
 void Com_TouchMemory( void ) {
 //	int		start, end;
 	int		i, j;
@@ -689,8 +638,6 @@ void Com_TouchMemory( void ) {
 //	Com_Printf( "Com_TouchMemory: %i msec\n", end - start );
 }
 
-
-
 qboolean Com_TheHunkMarkHasBeenMade(void)
 {
 	if (hunk_tag == TAG_HUNK_MARK2)
@@ -700,11 +647,6 @@ qboolean Com_TheHunkMarkHasBeenMade(void)
 	return qfalse;
 }
 
-/*
-=================
-Com_InitHunkMemory
-=================
-*/
 void Com_InitHunkMemory( void ) {
 	hunk_tag = TAG_HUNK_MARK1;
 	Hunk_Clear();
@@ -717,43 +659,21 @@ void Com_ShutdownHunkMemory(void)
 	Z_TagFree(TAG_HUNK_MARK2);
 }
 
-/*
-====================
-Hunk_MemoryRemaining
-====================
-*/
 int	Hunk_MemoryRemaining( void ) {
 	return (64*1024*1024) - (Z_MemSize(TAG_HUNK_MARK1)+Z_MemSize(TAG_HUNK_MARK2));	//Yeah. Whatever. We've got no size now.
 }
 
-/*
-===================
-Hunk_SetMark
-
-The server calls this after the level and game VM have been loaded
-===================
-*/
+// The server calls this after the level and game VM have been loaded
 void Hunk_SetMark( void ) {
 	hunk_tag = TAG_HUNK_MARK2;
 }
 
-/*
-=================
-Hunk_ClearToMark
-
-The client calls this before starting a vid_restart or snd_restart
-=================
-*/
+// The client calls this before starting a vid_restart or snd_restart
 void Hunk_ClearToMark( void ) {
 	assert(hunk_tag == TAG_HUNK_MARK2); //if this is not true then no mark has been made
 	Z_TagFree(TAG_HUNK_MARK2);
 }
 
-/*
-=================
-Hunk_CheckMark
-=================
-*/
 qboolean Hunk_CheckMark( void ) {
 	//if( hunk_low.mark || hunk_high.mark ) {
 	if (hunk_tag != TAG_HUNK_MARK1)
@@ -767,18 +687,12 @@ void CL_ShutdownCGame( void );
 void CL_ShutdownUI( void );
 void SV_ShutdownGameProgs( void );
 
-/*
-=================
-Hunk_Clear
-
-The server calls this before shutting down or loading a new map
-=================
-*/
 void R_HunkClearCrap(void);
 #ifdef _FULL_G2_LEAK_CHECKING
 void G2_DEBUG_ReportLeaks(void);
 #endif
 
+// The server calls this before shutting down or loading a new map
 void Hunk_Clear( void ) {
 
 #ifndef DEDICATED
@@ -813,52 +727,26 @@ void Hunk_Clear( void ) {
 #endif
 }
 
-/*
-=================
-Hunk_Alloc
-
-Allocate permanent (until the hunk is cleared) memory
-=================
-*/
+// Allocate permanent (until the hunk is cleared) memory
 void *Hunk_Alloc( int size, ha_pref preference ) {
 	return Z_Malloc(size, hunk_tag, qtrue);
 }
 
-/*
-=================
-Hunk_AllocateTempMemory
-
-This is used by the file loading system.
-Multiple files can be loaded in temporary memory.
-When the files-in-use count reaches zero, all temp memory will be deleted
-=================
-*/
+// This is used by the file loading system.
+// Multiple files can be loaded in temporary memory.
+// When the files-in-use count reaches zero, all temp memory will be deleted
 void *Hunk_AllocateTempMemory( int size ) {
 	// don't bother clearing, because we are going to load a file over it
 	return Z_Malloc(size, TAG_TEMP_HUNKALLOC, qfalse);
 }
 
-
-/*
-==================
-Hunk_FreeTempMemory
-==================
-*/
 void Hunk_FreeTempMemory( void *buf )
 {
 	Z_Free(buf);
 }
 
-
-/*
-=================
-Hunk_ClearTempMemory
-
-The temp space is no longer needed.  If we have left more
-touched but unused memory on this side, have future
-permanent allocs use this side.
-=================
-*/
+// The temp space is no longer needed.
+// If we have left more touched but unused memory on this side, have future permanent allocs use this side.
 void Hunk_ClearTempMemory( void ) {
 	Z_TagFree(TAG_TEMP_HUNKALLOC);
 }

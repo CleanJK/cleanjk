@@ -22,8 +22,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "g_local.h"
-
-//==========================================================
+#include "g_team.h"
 
 /*QUAKED target_give (1 0 0) (-8 -8 -8) (8 8 8)
 Gives the activator all the items pointed to.
@@ -58,9 +57,6 @@ void SP_target_give( gentity_t *ent ) {
 	ent->use = Use_Target_Give;
 }
 
-
-//==========================================================
-
 /*QUAKED target_remove_powerups (1 0 0) (-8 -8 -8) (8 8 8)
 takes away all the activators powerups.
 Used to drop flight powerups into death puts.
@@ -84,9 +80,6 @@ void Use_target_remove_powerups( gentity_t *ent, gentity_t *other, gentity_t *ac
 void SP_target_remove_powerups( gentity_t *ent ) {
 	ent->use = Use_target_remove_powerups;
 }
-
-
-//==========================================================
 
 /*QUAKED target_delay (1 0 0) (-8 -8 -8) (8 8 8) NO_RETRIGGER
 
@@ -123,9 +116,6 @@ void SP_target_delay( gentity_t *ent ) {
 	ent->use = Use_Target_Delay;
 }
 
-
-//==========================================================
-
 /*QUAKED target_score (1 0 0) (-8 -8 -8) (8 8 8)
 "count" number of points to add, default 1
 
@@ -141,9 +131,6 @@ void SP_target_score( gentity_t *ent ) {
 	}
 	ent->use = Use_Target_Score;
 }
-
-
-//==========================================================
 
 /*QUAKED target_print (1 0 0) (-8 -8 -8) (8 8 8) redteam blueteam private
 "message"	text to print
@@ -263,10 +250,6 @@ void SP_target_print( gentity_t *ent ) {
 	ent->use = Use_Target_Print;
 }
 
-
-//==========================================================
-
-
 /*QUAKED target_speaker (1 0 0) (-8 -8 -8) (8 8 8) looped-on looped-off global activator
 "noise"		wav file to play
 
@@ -342,7 +325,6 @@ void SP_target_speaker( gentity_t *ent ) {
 	ent->s.frame = ent->wait * 10;
 	ent->s.clientNum = ent->random * 10;
 
-
 	// check for prestarted looping sound
 	if ( ent->spawnflags & 1 ) {
 		ent->s.loopSound = ent->noise_index;
@@ -361,10 +343,6 @@ void SP_target_speaker( gentity_t *ent ) {
 	// the server can determine who to send updates to
 	trap->LinkEntity( (sharedEntity_t *)ent );
 }
-
-
-
-//==========================================================
 
 /*QUAKED target_laser (0 .5 .8) (-8 -8 -8) (8 8 8) START_ON
 When triggered, fires a laser.  You can either set a target or a direction.
@@ -457,9 +435,6 @@ void SP_target_laser (gentity_t *self)
 	self->nextthink = level.time + FRAMETIME;
 }
 
-
-//==========================================================
-
 void target_teleporter_use( gentity_t *self, gentity_t *other, gentity_t *activator ) {
 	gentity_t	*dest;
 
@@ -486,9 +461,6 @@ void SP_target_teleporter( gentity_t *self ) {
 
 	self->use = target_teleporter_use;
 }
-
-//==========================================================
-
 
 /*QUAKED target_relay (.5 .5 .5) (-8 -8 -8) (8 8 8) RED_ONLY BLUE_ONLY RANDOM x x x x INACTIVE
 This doesn't perform any actions except fire its targets.
@@ -547,9 +519,6 @@ void SP_target_relay (gentity_t *self) {
 		self->flags |= FL_INACTIVE;
 	}
 }
-
-
-//==========================================================
 
 /*QUAKED target_kill (.5 .5 .5) (-8 -8 -8) (8 8 8)
 Kills the activator.
@@ -875,11 +844,11 @@ void target_scriptrunner_use(gentity_t *self, gentity_t *other, gentity_t *activ
 }
 
 /*QUAKED target_scriptrunner (1 0 0) (-4 -4 -4) (4 4 4) runonactivator x x x x x x INACTIVE
---- SPAWNFLAGS ---
+	SPAWNFLAGS
 runonactivator - Will run the script on the entity that used this or tripped the trigger that used this
 INACTIVE - start off
 
------ KEYS ------
+	KEYS
 Usescript - Script to run when used
 count - how many times to run, -1 = infinite.  Default is once
 wait - can't be used again in this amount of seconds (Default is 1 second if it's multiple-use)

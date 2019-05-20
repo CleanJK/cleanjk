@@ -151,12 +151,9 @@ decode (standard decoder) reduction_code:
 #include "mp3struct.h"
 #include <assert.h>
 
-
 #if !defined(MACOS_X) && !defined(byte) && !defined (__linux__)
 typedef unsigned char byte;
 #endif
-
-
 
 typedef struct id3v1_1 {
     char id[3];
@@ -179,10 +176,6 @@ id3v1_1 *gpTAG;
 	{																								\
 		_iBytesRemaining -= sizeof(id3v1_1);														\
 	}
-
-
-
-
 
 /********  pcm buffer ********/
 
@@ -227,7 +220,6 @@ char PCM_Buffer[PCM_BUFBYTES];	// better off being declared, so we don't do mall
 
    static const AUDIO audio = {audio_decode_init, audio_decode_info, audio_decode};	//audio_table[0][0];
 
-
 // Do NOT change these, ever!!!!!!!!!!!!!!!!!!
 //
 const int reduction_code	= 0;		// unpack at full sample rate output
@@ -240,7 +232,6 @@ const int freq_limit		= 24000;	// no idea what this is about, but it's always th
 MP3STREAM _MP3Stream;
 LP_MP3STREAM pMP3Stream = &_MP3Stream;
 int bFastEstimateOnly = 0;	// MUST DEFAULT TO THIS VALUE!!!!!!!!!
-
 
 // char *return is NZ for any errors (no trailing CR!)
 //
@@ -321,8 +312,6 @@ char *C_MP3_IsValid(void *pvData, int iDataLen, int bStereoDesired)
 	return NULL;
 }
 
-
-
 // char *return is NZ for any errors (no trailing CR!)
 //
 char* C_MP3_GetHeaderData(void *pvData, int iDataLen, int *piRate, int *piWidth, int *piChannels, int bStereoDesired)
@@ -359,9 +348,6 @@ char* C_MP3_GetHeaderData(void *pvData, int iDataLen, int *piRate, int *piWidth,
 	//
 	return NULL;
 }
-
-
-
 
 // this duplicates work done in C_MP3_IsValid(), but it avoids global structs, and means that you can call this anytime
 //	if you just want info for some reason
@@ -457,7 +443,6 @@ char *C_MP3_GetUnpackedSize(void *pvData, int iSourceBytesRemaining, int *piUnpa
 		psReturn = "MP3ERR: Bad or Unsupported MP3 file!";
 	}
 
-
 //	if (pPCM_Buffer)
 //	{
 //		free(pPCM_Buffer);
@@ -468,9 +453,6 @@ char *C_MP3_GetUnpackedSize(void *pvData, int iSourceBytesRemaining, int *piUnpa
 
 #undef iSourceReadIndex
 }
-
-
-
 
 char *C_MP3_UnpackRawPCM( void *pvData, int iSourceBytesRemaining, int *piUnpackedSize, void *pbUnpackBuffer, int bStereoDesired)
 {
@@ -557,7 +539,6 @@ char *C_MP3_UnpackRawPCM( void *pvData, int iSourceBytesRemaining, int *piUnpack
 
 #undef iSourceReadIndex
 }
-
 
 // called once, after we've decided to keep something as MP3. This just sets up the decoder for subsequent stream-calls.
 //
@@ -711,7 +692,6 @@ unsigned int C_MP3Stream_Decode( LP_MP3STREAM pSFX_MP3Stream )
 
 	return uiDecoded;
 }
-
 
 // ret is char* errstring, else NULL for ok
 //

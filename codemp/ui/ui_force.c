@@ -20,13 +20,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-/*
-=======================================================================
-
-FORCE INTERFACE
-
-=======================================================================
-*/
+// FORCE INTERFACE
 
 // use this to get a demo build without an explicit demo build, i.e. to get the demo ui files to build
 #include "ui_local.h"
@@ -302,8 +296,6 @@ void UI_SaveForceTemplate()
 	}
 }
 
-
-//
 extern qboolean UI_TrueJediEnabled( void );
 void UpdateForceUsed()
 {
@@ -476,7 +468,6 @@ void UpdateForceUsed()
 	}
 
 }
-
 
 //Mostly parts of other functions merged into one another.
 //Puts the current UI stuff into a string, legalizes it, and then reads it back out.
@@ -814,9 +805,6 @@ qboolean UI_SkinColor_HandleKey(int flags, float *special, int key, int num, int
   return qfalse;
 }
 
-
-
-
 qboolean UI_ForceSide_HandleKey(int flags, float *special, int key, int num, int min, int max, int type)
 {
 	char info[MAX_INFO_VALUE];
@@ -1002,7 +990,6 @@ qboolean UI_ForceMaxRank_HandleKey(int flags, float *special, int key, int num, 
   return qfalse;
 }
 
-
 // This function will either raise or lower a power by one rank.
 qboolean UI_ForcePowerRank_HandleKey(int flags, float *special, int key, int num, int min, int max, int type)
 {
@@ -1095,7 +1082,6 @@ qboolean UI_ForcePowerRank_HandleKey(int flags, float *special, int key, int num
 	return qfalse;
 }
 
-
 int gCustRank = 0;
 int gCustSide = 0;
 
@@ -1120,11 +1106,6 @@ int gCustPowersRank[NUM_FORCE_POWERS] = {
 	0//FP_SABERTHROW,
 };
 
-/*
-=================
-UI_ForceConfigHandle
-=================
-*/
 void UI_ForceConfigHandle( int oldindex, int newindex )
 {
 	fileHandle_t f;

@@ -55,29 +55,6 @@ if(BuildMPEngine OR BuildMPDed)
 		"${GSLIncludeDirectory}"
 		)
 	set(MPBotlibBotlibFiles
-		"${MPDir}/botlib/aasfile.h"
-		"${MPDir}/botlib/be_aas.h"
-		"${MPDir}/botlib/be_aas_bsp.h"
-		"${MPDir}/botlib/be_aas_cluster.h"
-		"${MPDir}/botlib/be_aas_debug.h"
-		"${MPDir}/botlib/be_aas_def.h"
-		"${MPDir}/botlib/be_aas_entity.h"
-		"${MPDir}/botlib/be_aas_file.h"
-		"${MPDir}/botlib/be_aas_funcs.h"
-		"${MPDir}/botlib/be_aas_main.h"
-		"${MPDir}/botlib/be_aas_move.h"
-		"${MPDir}/botlib/be_aas_optimize.h"
-		"${MPDir}/botlib/be_aas_reach.h"
-		"${MPDir}/botlib/be_aas_route.h"
-		"${MPDir}/botlib/be_aas_routealt.h"
-		"${MPDir}/botlib/be_aas_sample.h"
-		"${MPDir}/botlib/be_ai_char.h"
-		"${MPDir}/botlib/be_ai_chat.h"
-		"${MPDir}/botlib/be_ai_gen.h"
-		"${MPDir}/botlib/be_ai_goal.h"
-		"${MPDir}/botlib/be_ai_move.h"
-		"${MPDir}/botlib/be_ai_weap.h"
-		"${MPDir}/botlib/be_ai_weight.h"
 		"${MPDir}/botlib/be_ea.h"
 		"${MPDir}/botlib/be_interface.h"
 		"${MPDir}/botlib/botlib.h"
@@ -90,25 +67,6 @@ if(BuildMPEngine OR BuildMPDed)
 		"${MPDir}/botlib/l_struct.h"
 		"${MPDir}/botlib/l_utils.h"
 
-		"${MPDir}/botlib/be_aas_bspq3.cpp"
-		"${MPDir}/botlib/be_aas_cluster.cpp"
-		"${MPDir}/botlib/be_aas_debug.cpp"
-		"${MPDir}/botlib/be_aas_entity.cpp"
-		"${MPDir}/botlib/be_aas_file.cpp"
-		"${MPDir}/botlib/be_aas_main.cpp"
-		"${MPDir}/botlib/be_aas_move.cpp"
-		"${MPDir}/botlib/be_aas_optimize.cpp"
-		"${MPDir}/botlib/be_aas_reach.cpp"
-		"${MPDir}/botlib/be_aas_route.cpp"
-		"${MPDir}/botlib/be_aas_routealt.cpp"
-		"${MPDir}/botlib/be_aas_sample.cpp"
-		"${MPDir}/botlib/be_ai_char.cpp"
-		"${MPDir}/botlib/be_ai_chat.cpp"
-		"${MPDir}/botlib/be_ai_gen.cpp"
-		"${MPDir}/botlib/be_ai_goal.cpp"
-		"${MPDir}/botlib/be_ai_move.cpp"
-		"${MPDir}/botlib/be_ai_weap.cpp"
-		"${MPDir}/botlib/be_ai_weight.cpp"
 		"${MPDir}/botlib/be_ea.cpp"
 		"${MPDir}/botlib/be_interface.cpp"
 		"${MPDir}/botlib/l_crc.cpp"
@@ -135,7 +93,7 @@ if(BuildMPEngine OR BuildMPDed)
 		"${MPDir}/qcommon/qcommon.h"
 		"${MPDir}/qcommon/qfiles.h"
 		"${MPDir}/qcommon/tags.h"
-		
+
 		${SharedCommonFiles}
 		)
 	source_group("common" FILES ${MPBotlibCommonFiles})
@@ -263,7 +221,7 @@ if(BuildMPEngine OR BuildMPDed)
 	endif(WIN32)
 	source_group("common" FILES ${MPEngineAndDedCommonFiles})
 	set(MPEngineAndDedFiles ${MPEngineAndDedFiles} ${MPEngineAndDedCommonFiles})
-	
+
 	set(MPEngineAndDedCommonSafeFiles
 		"${SharedDir}/qcommon/safe/files.cpp"
 		"${SharedDir}/qcommon/safe/files.h"
@@ -309,8 +267,6 @@ if(BuildMPEngine OR BuildMPDed)
 	set(MPEngineAndDedFiles ${MPEngineAndDedFiles} ${MPEngineAndDedIcarusFiles})
 
 	set(MPEngineAndDedServerFiles
-		"${MPDir}/server/NPCNav/navigator.cpp"
-		"${MPDir}/server/NPCNav/navigator.h"
 		"${MPDir}/server/server.h"
 		"${MPDir}/server/sv_bot.cpp"
 		"${MPDir}/server/sv_ccmds.cpp"

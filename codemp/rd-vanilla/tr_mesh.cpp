@@ -62,11 +62,6 @@ float ProjectRadius( float r, vec3_t location )
 	return pr;
 }
 
-/*
-=============
-R_CullModel
-=============
-*/
 static int R_CullModel( md3Header_t *header, trRefEntity_t *ent ) {
 	vec3_t		bounds[2];
 	md3Frame_t	*oldFrame, *newFrame;
@@ -148,14 +143,8 @@ static int R_CullModel( md3Header_t *header, trRefEntity_t *ent ) {
 	}
 }
 
-/*
-=================
-RE_GetModelBounds
-
-  Returns the bounds of the current model
-  (qhandle_t)hModel and (int)frame need to be set
-=================
-*/
+// Returns the bounds of the current model
+// hModel and frame need to be set
 //rwwRMG - added
 void RE_GetModelBounds(refEntity_t *refEnt, vec3_t bounds1, vec3_t bounds2)
 {
@@ -176,12 +165,6 @@ void RE_GetModelBounds(refEntity_t *refEnt, vec3_t bounds1, vec3_t bounds2)
 	VectorCopy(frame->bounds[1], bounds2);
 }
 
-/*
-=================
-R_ComputeLOD
-
-=================
-*/
 int R_ComputeLOD( trRefEntity_t *ent ) {
 	float radius;
 	float flod, lodscale;
@@ -247,12 +230,6 @@ int R_ComputeLOD( trRefEntity_t *ent ) {
 	return lod;
 }
 
-/*
-=================
-R_ComputeFogNum
-
-=================
-*/
 int R_ComputeFogNum( md3Header_t *header, trRefEntity_t *ent ) {
 	int				i, j;
 	fog_t			*fog;
@@ -284,12 +261,6 @@ int R_ComputeFogNum( md3Header_t *header, trRefEntity_t *ent ) {
 	return 0;
 }
 
-/*
-=================
-R_AddMD3Surfaces
-
-=================
-*/
 void R_AddMD3Surfaces( trRefEntity_t *ent ) {
 	int				i;
 	md3Header_t		*header = 0;
@@ -309,12 +280,11 @@ void R_AddMD3Surfaces( trRefEntity_t *ent ) {
 		ent->e.oldframe %= tr.currentModel->md3[0]->numFrames;
 	}
 
-	//
 	// Validate the frames so there is no chance of a crash.
 	// This will write directly into the entity structure, so
 	// when the surfaces are rendered, they don't need to be
 	// range checked again.
-	//
+
 	if ( (ent->e.frame >= tr.currentModel->md3[0]->numFrames)
 		|| (ent->e.frame < 0)
 		|| (ent->e.oldframe >= tr.currentModel->md3[0]->numFrames)
@@ -326,37 +296,32 @@ void R_AddMD3Surfaces( trRefEntity_t *ent ) {
 			ent->e.oldframe = 0;
 	}
 
-	//
 	// compute LOD
-	//
+
 	lod = R_ComputeLOD( ent );
 
 	header = tr.currentModel->md3[lod];
 
-	//
 	// cull the entire model if merged bounding box of both frames
 	// is outside the view frustum.
-	//
+
 	cull = R_CullModel ( header, ent );
 	if ( cull == CULL_OUT ) {
 		return;
 	}
 
-	//
 	// set up lighting now that we know we aren't culled
-	//
+
 	if ( !personalModel || r_shadows->integer > 1 ) {
 		R_SetupEntityLighting( &tr.refdef, ent );
 	}
 
-	//
 	// see if we are in a fog volume
-	//
+
 	fogNum = R_ComputeFogNum( header, ent );
 
-	//
 	// draw all surfaces
-	//
+
 	surface = (md3Surface_t *)( (byte *)header + header->ofsSurfaces );
 	for ( i = 0 ; i < header->numSurfaces ; i++ ) {
 
@@ -390,7 +355,6 @@ void R_AddMD3Surfaces( trRefEntity_t *ent ) {
 			md3Shader += ent->e.skinNum % surface->numShaders;
 			shader = tr.shaders[ md3Shader->shaderIndex ];
 		}
-
 
 		// we will add shadows even if the main object isn't visible in the view
 

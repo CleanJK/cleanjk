@@ -21,7 +21,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 // Filename:-	snd_music.cpp
-//
 //  Stuff to parse in special x-fade music format and handle blending etc
 
 #include <algorithm>
@@ -34,7 +33,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "snd_local.h"
 #include "snd_music.h"
 #include "snd_ambient.h"
-
 
 extern qboolean S_FileExists( const char *psFilename );
 
@@ -57,7 +55,6 @@ extern qboolean S_FileExists( const char *psFilename );
 
 #define sFILENAME_DMS	"ext_data/dms.dat"
 
-
 #define MUSIC_PARSE_ERROR(_string)		Music_Parse_Error(_string)	// only use during parse, not run-time use, and bear in mid that data is zapped after error message, so exit any loops immediately
 #define MUSIC_PARSE_WARNING(_string)	Music_Parse_Warning(_string)
 
@@ -73,12 +70,10 @@ struct MusicExitTime_t	// need to declare this way for operator < below
 	int			iExitPoint;
 
 	// I'm defining this '<' operator so STL's sort algorithm will work
-	//
 	bool operator < (const MusicExitTime_t& X) const {return (fTime < X.fTime);}
 };
 
 // it's possible for all 3 of these to be empty if it's boss or death music
-//
 typedef std::vector	<MusicExitPoint_t>	MusicExitPoints_t;
 typedef std::vector	<MusicExitTime_t>	MusicExitTimes_t;
 typedef std::map	<sstring_t, float>	MusicEntryTimes_t;	// key eg "marker1"
@@ -94,7 +89,6 @@ typedef struct MusicFile_s {
 typedef std::map <sstring_t, MusicFile_t>	MusicData_t;			// string is "explore", "action", "boss" etc
 										MusicData_t* MusicData = NULL;
 // there are now 2 of these, because of the new "uses" keyword...
-//
 sstring_t	gsLevelNameForLoad;		// eg "kejim_base", formed from literal BSP name, but also used as dir name for music paths
 sstring_t	gsLevelNameForCompare;	// eg "kejim_base", formed from literal BSP name, but also used as dir name for music paths
 sstring_t	gsLevelNameForBossLoad;	// eg "kejim_base', special case for enabling boss music to come from a different dir - sigh....
@@ -106,7 +100,6 @@ void Music_Free(void)
 }
 
 // some sort of error in the music data...
-//
 static void Music_Parse_Error(const char *psError)
 {
 #ifdef FINAL_BUILD
@@ -122,7 +115,6 @@ static void Music_Parse_Error(const char *psError)
 }
 
 // something to just mention if interested...
-//
 static void Music_Parse_Warning(const char *psError)
 {
 #ifdef FINAL_BUILD
@@ -139,7 +131,6 @@ static void Music_Parse_Warning(const char *psError)
 // the 2nd param here is pretty kludgy (sigh), and only used for testing for the "boss" type.
 // Unfortunately two of the places that calls this doesn't have much other access to the state other than
 //	a string, not an enum, so for those cases they only pass in BOSS or EXPLORE, so don't rely on it totally.
-//
 static const char *Music_BuildFileName(const char *psFileNameBase, MusicState_e eMusicState )
 {
 	static sstring_t sFileName;
@@ -168,7 +159,6 @@ const char *Music_BaseStateToString( MusicState_e eMusicState, qboolean bDebugPr
 		case eBGRNDTRACK_DEATH:		return "death";
 
 		// info only, not map<> lookup keys (unlike above)...
-		//
 		case eBGRNDTRACK_ACTIONTRANS0:		if (bDebugPrintQuery) return "action_tr0";
 		case eBGRNDTRACK_ACTIONTRANS1:		if (bDebugPrintQuery) return "action_tr1";
 		case eBGRNDTRACK_ACTIONTRANS2:		if (bDebugPrintQuery) return "action_tr2";
@@ -194,17 +184,13 @@ static qboolean Music_ParseMusic(CGenericParser2 &Parser, MusicData_t *MusicData
 	if (pgMusicFile)
 	{
 		// read subgroups...
-		//
 		qboolean bEntryFound = qfalse;
 		qboolean bExitFound  = qfalse;
-		//
 		// (read entry points first, so I can check exit points aren't too close in time)
-		//
 		CGPGroup *pEntryGroup = pgMusicFile->FindSubGroup(sKEY_ENTRY);
 		if (pEntryGroup)
 		{
 			// read entry points...
-			//
 			for (CGPValue *pValue = pEntryGroup->GetPairs(); pValue; pValue = pValue->GetNext())
 			{
 				const char *psKey	= pValue->GetName();
@@ -225,15 +211,12 @@ static qboolean Music_ParseMusic(CGenericParser2 &Parser, MusicData_t *MusicData
 			if (!strcmp(psGroupName,sKEY_ENTRY))
 			{
 				// skip entry points, I've already read them in above
-				//
 			}
 			else
 			if (!strcmp(psGroupName,sKEY_EXIT))
 			{
 				int iThisExitPointIndex = MusicFile.MusicExitPoints.size();	// must eval this first, so unaffected by push_back etc
-				//
 				// read this set of exit points...
-				//
 				MusicExitPoint_t MusicExitPoint;
 				for (CGPValue *pValue = pGroup->GetPairs(); pValue; pValue = pValue->GetNext())
 				{
@@ -258,7 +241,6 @@ static qboolean Music_ParseMusic(CGenericParser2 &Parser, MusicData_t *MusicData
 										MusicExitTime.iExitPoint= iThisExitPointIndex;
 
 						// new check, don't keep this this exit point if it's within 1.5 seconds either way of an entry point...
-						//
 						qboolean bTooCloseToEntryPoint = qfalse;
 						for (MusicEntryTimes_t::iterator itEntryTimes = MusicFile.MusicEntryTimes.begin(); itEntryTimes != MusicFile.MusicEntryTimes.end(); ++itEntryTimes)
 						{
@@ -281,7 +263,6 @@ static qboolean Music_ParseMusic(CGenericParser2 &Parser, MusicData_t *MusicData
 				int iNumExitPoints = MusicFile.MusicExitPoints.size();
 
 				// error checking...
-				//
 				switch (eMusicState)
 				{
 					case eBGRNDTRACK_EXPLORE:
@@ -313,7 +294,6 @@ static qboolean Music_ParseMusic(CGenericParser2 &Parser, MusicData_t *MusicData
 		}
 
 		// for now, assume everything was ok unless some obvious things are missing...
-		//
 		bReturn = qtrue;
 
 		if (eMusicState != eBGRNDTRACK_BOSS && eMusicState != eBGRNDTRACK_DEATH)	// boss & death pieces can omit entry/exit stuff
@@ -344,15 +324,9 @@ static qboolean Music_ParseMusic(CGenericParser2 &Parser, MusicData_t *MusicData
 	return bReturn;
 }
 
-
-
-
 // I only need this because GP2 can't cope with trailing whitespace (for !@#$%^'s sake!!!!)...
-//
 // (output buffer will always be just '\n' seperated, regardless of possible "\r\n" pairs)
-//
 // (remember to Z_Free() the returned char * when done with it!!!)
-//
 static char *StripTrailingWhiteSpaceOnEveryLine(char *pText)
 {
 	std::string strNewText;
@@ -362,7 +336,6 @@ static char *StripTrailingWhiteSpaceOnEveryLine(char *pText)
 		char sOneLine[1024];	// BTO: was 16k
 
 		// find end of line...
-		//
 		char *pThisLineEnd = pText;
 		while (*pThisLineEnd && *pThisLineEnd != '\r' && ((unsigned)(pThisLineEnd-pText) < sizeof(sOneLine)-1))
 		{
@@ -376,7 +349,6 @@ static char *StripTrailingWhiteSpaceOnEveryLine(char *pText)
 		while (*pText == '\n' || *pText == '\r') pText++;
 
 		// trim trailing...
-		//
 		qboolean bTrimmed = qfalse;
 		do
 		{
@@ -403,11 +375,8 @@ static char *StripTrailingWhiteSpaceOnEveryLine(char *pText)
 	return pNewText;
 }
 
-
 // called from SV_SpawnServer, but before map load and music start etc.
-//
 // This just initialises the Lucas music structs so the background music player can interrogate them...
-//
 sstring_t gsLevelNameFromServer;
 void Music_SetLevelName(const char *psLevelName)
 {
@@ -424,7 +393,6 @@ static qboolean Music_ParseLeveldata(const char *psLevelName)
 	}
 
 		// already got this data?
-	//
 	if (MusicData->size() && !Q_stricmp(psLevelName,gsLevelNameForCompare.c_str()))
 	{
 		return qtrue;
@@ -459,9 +427,7 @@ static qboolean Music_ParseLeveldata(const char *psLevelName)
 					if (pgLevelMusic)
 					{
 						CGPGroup *pgThisLevelMusic = NULL;
-						//
 						// check for new USE keyword...
-						//
 						int iSanityLimit = 0;
 						sstring_t sSearchName(sLevelName);
 
@@ -477,7 +443,6 @@ static qboolean Music_ParseLeveldata(const char *psLevelName)
 								if (pValue)
 								{
 									// re-search using the USE param...
-									//
 									sSearchName = pValue->GetTopValue();
 									iSanityLimit++;
 //									Com_DPrintf("Using \"%s\"\n",sSearchName.c_str());
@@ -485,29 +450,24 @@ static qboolean Music_ParseLeveldata(const char *psLevelName)
 								else
 								{
 									// no new USE keyword found...
-									//
 									sSearchName = "";
 								}
 							}
 							else
 							{
 								// level entry not found...
-								//
 								break;
 							}
 						}
 
 						// now go ahead and use the final music set we've decided on...
-						//
 						if (pgThisLevelMusic && iSanityLimit < 10)
 						{
 							// these are optional fields, so see which ones we find...
-							//
 							const char *psName_Explore = NULL;
 							const char *psName_Action  = NULL;
 							const char *psName_Boss	  = NULL;
 							//const char *psName_Death	  = NULL;
-							//
 							const char *psName_UseBoss = NULL;
 
 							for (CGPValue *pValue = pgThisLevelMusic->GetPairs(); pValue; pValue = pValue->GetNext())
@@ -570,9 +530,7 @@ static qboolean Music_ParseLeveldata(const char *psLevelName)
 								}
 							}
 
-
 							// done this way in case I want to conditionally pass any bools depending on music type...
-							//
 							if (bReturn && psName_Explore)
 							{
 								bReturn = Music_ParseMusic(Parser, MusicData, pgMusicFiles, psName_Explore,	sKEY_EXPLORE, eBGRNDTRACK_EXPLORE);
@@ -630,14 +588,12 @@ static qboolean Music_ParseLeveldata(const char *psLevelName)
 	if (bReturn)
 	{
 		// sort exit points, and do some error checking...
-		//
 		for (MusicData_t::iterator itMusicData = MusicData->begin(); itMusicData != MusicData->end(); ++itMusicData)
 		{
 			const char *psMusicStateType	= (*itMusicData).first.c_str();
 			MusicFile_t &MusicFile	= (*itMusicData).second;
 
 			// kludge up an enum, only interested in boss or not at the moment, so...
-			//
 			MusicState_e eMusicState = !Q_stricmp(psMusicStateType,"boss") ? eBGRNDTRACK_BOSS : !Q_stricmp(psMusicStateType,"death") ? eBGRNDTRACK_DEATH : eBGRNDTRACK_EXPLORE;
 
 			if (!MusicFile.MusicExitTimes.empty())
@@ -646,7 +602,6 @@ static qboolean Music_ParseLeveldata(const char *psLevelName)
 			}
 
 			// check music exists...
-			//
 			const char *psMusicFileName = Music_BuildFileName( MusicFile.sFileNameBase.c_str(), eMusicState );
 			if (!S_FileExists( psMusicFileName ))
 			{
@@ -655,7 +610,6 @@ static qboolean Music_ParseLeveldata(const char *psLevelName)
 			}
 
 			// check all transition music pieces exist, and that entry points into new pieces after transitions also exist...
-			//
 			for (size_t iExitPoint=0; iExitPoint < MusicFile.MusicExitPoints.size(); iExitPoint++)
 			{
 				MusicExitPoint_t &MusicExitPoint = MusicFile.MusicExitPoints[ iExitPoint ];
@@ -671,11 +625,8 @@ static qboolean Music_ParseLeveldata(const char *psLevelName)
 				if (strlen(psNextMark))	// always NZ ptr
 				{
 					// then this must be "action" music under current rules...
-					//
 					assert( !strcmp(psMusicStateType, Music_BaseStateToString(eBGRNDTRACK_ACTION) ? Music_BaseStateToString(eBGRNDTRACK_ACTION):"") );
-					//
 					// does this marker exist in the explore piece?
-					//
 					MusicData_t::iterator itExploreMusicData = MusicData->find( Music_BaseStateToString(eBGRNDTRACK_EXPLORE) );
 					if (itExploreMusicData != MusicData->end())
 					{
@@ -700,7 +651,6 @@ static qboolean Music_ParseLeveldata(const char *psLevelName)
 #ifdef _DEBUG
 /*
 	// dump the whole thing out to prove it was read in ok...
-	//
 	if (bReturn)
 	{
 		for (MusicData_t::iterator itMusicData = MusicData->begin(); itMusicData != MusicData->end(); ++itMusicData)
@@ -711,7 +661,6 @@ static qboolean Music_ParseLeveldata(const char *psLevelName)
 			Com_OPrintf("Music State:  \"%s\",  File: \"%s\"\n",psMusicState, MusicFile.sFileNameBase.c_str());
 
 			// entry times...
-			//
 			for (MusicEntryTimes_t::iterator itEntryTimes = MusicFile.MusicEntryTimes.begin(); itEntryTimes != MusicFile.MusicEntryTimes.end(); ++itEntryTimes)
 			{
 				const char *psMarkerName	= (*itEntryTimes).first.c_str();
@@ -721,7 +670,6 @@ static qboolean Music_ParseLeveldata(const char *psLevelName)
 			}
 
 			// exit points...
-			//
 			for (int i=0; i<MusicFile.MusicExitPoints.size(); i++)
 			{
 				MusicExitPoint_t &MusicExitPoint = MusicFile.MusicExitPoints[i];
@@ -730,7 +678,6 @@ static qboolean Music_ParseLeveldata(const char *psLevelName)
 			}
 
 			// exit times...
-			//
 			for (i=0; i<MusicFile.MusicExitTimes.size(); i++)
 			{
 				MusicExitTime_t &MusicExitTime = MusicFile.MusicExitTimes[i];
@@ -745,9 +692,7 @@ static qboolean Music_ParseLeveldata(const char *psLevelName)
 	return bReturn;
 }
 
-
 // returns ptr to music file, or NULL for error/missing...
-//
 static MusicFile_t *Music_GetBaseMusicFile( const char *psMusicState )	// where psMusicState is (eg) "explore", "action" or "boss"
 {
 	MusicData_t::iterator it = MusicData->find( psMusicState );
@@ -771,9 +716,7 @@ static MusicFile_t *Music_GetBaseMusicFile( MusicState_e eMusicState )
 	return NULL;
 }
 
-
 // where label is (eg) "kejim_base"...
-//
 qboolean Music_DynamicDataAvailable(const char *psDynamicMusicLabel)
 {
 	char sLevelName[MAX_QPATH];
@@ -853,39 +796,29 @@ const char *Music_GetFileNameForState( MusicState_e eMusicState)
 	return NULL;
 }
 
-
-
 qboolean Music_StateIsTransition( MusicState_e eMusicState )
 {
 	return (qboolean)(eMusicState >= eBGRNDTRACK_FIRSTTRANSITION && eMusicState <= eBGRNDTRACK_LASTTRANSITION);
 }
 
-
 qboolean Music_StateCanBeInterrupted( MusicState_e eMusicState, MusicState_e eProposedMusicState )
 {
 	// death music can interrupt anything...
-	//
 	if (eProposedMusicState == eBGRNDTRACK_DEATH)
 		return qtrue;
-	//
 	// ... and can't be interrupted once started...(though it will internally-switch to silence at the end, rather than loop)
-	//
 	if (eMusicState == eBGRNDTRACK_DEATH)
 	{
 		return qfalse;
 	}
 
 	// boss music can interrupt anything (other than death, but that's already handled above)...
-	//
 	if (eProposedMusicState == eBGRNDTRACK_BOSS)
 		return qtrue;
-	//
 	// ... and can't be interrupted once started...
-	//
 	if (eMusicState == eBGRNDTRACK_BOSS)
 	{
 		// ...except by silence (or death, but again, that's already handled above)
-		//
 		if (eProposedMusicState == eBGRNDTRACK_SILENCE)
 			return qtrue;
 
@@ -893,38 +826,27 @@ qboolean Music_StateCanBeInterrupted( MusicState_e eMusicState, MusicState_e ePr
 	}
 
 	// action music can interrupt anything (after boss & death filters above)...
-	//
 	if (eProposedMusicState == eBGRNDTRACK_ACTION)
 		return qtrue;
 
 	// nothing can interrupt a transition (after above filters)...
-	//
 	if (Music_StateIsTransition( eMusicState ))
 		return qfalse;
 
 	// current state is therefore interruptable...
-	//
 	return qtrue;
 }
 
-
-
 // returns qtrue if music is allowed to transition out of current state, based on current play position...
 // (doesn't bother returning final state after transition (eg action->transition->explore) becuase it's fairly obvious)
-//
 // supply:
-//
-// playing point in float seconds
-// enum of track being queried
-//
+//	playing point in float seconds
+//	enum of track being queried
 // get:
-//
-// enum of transition track to switch to
-// float time of entry point of new track *after* transition
-//
+//	enum of transition track to switch to
+//	float time of entry point of new track *after* transition
 qboolean Music_AllowedToTransition( float			fPlayingTimeElapsed,
 									MusicState_e	eMusicState,
-									//
 									MusicState_e	*peTransition /* = NULL */,
 									float			*pfNewTrackEntryTime /* = NULL */
 									)
@@ -933,7 +855,6 @@ qboolean Music_AllowedToTransition( float			fPlayingTimeElapsed,
 										//		if set too high then music change is sloppy
 										//		if set too low[/precise] then we might miss an exit if client fps is poor
 
-
 	MusicFile_t *pMusicFile = Music_GetBaseMusicFile( eMusicState );
 	if (pMusicFile && !pMusicFile->MusicExitTimes.empty())
 	{
@@ -941,7 +862,6 @@ qboolean Music_AllowedToTransition( float			fPlayingTimeElapsed,
 						T.fTime = fPlayingTimeElapsed;
 
 		// since a MusicExitTimes_t item is a sorted array, we can use the equal_range algorithm...
-		//
 		std::pair <MusicExitTimes_t::iterator, MusicExitTimes_t::iterator> itp = equal_range( pMusicFile->MusicExitTimes.begin(), pMusicFile->MusicExitTimes.end(), T);
 		if (itp.first != pMusicFile->MusicExitTimes.begin())
 			itp.first--;	// encompass the one before, in case we've just missed an exit point by < fTimeEpsilon
@@ -954,16 +874,11 @@ qboolean Music_AllowedToTransition( float			fPlayingTimeElapsed,
 			if ( Q_fabs(pExitTime->fTime - fPlayingTimeElapsed) <= fTimeEpsilon )
 			{
 				// got an exit point!, work out feedback params...
-				//
 				int iExitPoint = pExitTime->iExitPoint;
-				//
 				// the two params to give back...
-				//
 				MusicState_e	eFeedBackTransition			= eBGRNDTRACK_EXPLORETRANS0;	// any old default
 				float			fFeedBackNewTrackEntryTime	= 0.0f;
-				//
 				// check legality in case of crap data...
-				//
 				if ((unsigned)iExitPoint < pMusicFile->MusicExitPoints.size())
 				{
 					MusicExitPoint_t &ExitPoint = pMusicFile->MusicExitPoints[ iExitPoint ];
@@ -984,19 +899,14 @@ qboolean Music_AllowedToTransition( float			fPlayingTimeElapsed,
 							assert(iExitPoint < iMAX_ACTION_TRANSITIONS);	// already been checked, but sanity
 
 							// if there's an entry marker point defined...
-							//
 							if (ExitPoint.sNextMark.c_str()[0])
 							{
 								MusicData_t::iterator itExploreMusicData = MusicData->find( Music_BaseStateToString(eBGRNDTRACK_EXPLORE) );
-								//
 								// find "explore" music...
-								//
 								if (itExploreMusicData != MusicData->end())
 								{
 									MusicFile_t &MusicFile_Explore = (*itExploreMusicData).second;
-									//
 									// find the entry marker within the music and read the time there...
-									//
 									MusicEntryTimes_t::iterator itEntryTime = MusicFile_Explore.MusicEntryTimes.find( ExitPoint.sNextMark.c_str() );
 									if (itEntryTime != MusicFile_Explore.MusicEntryTimes.end())
 									{
@@ -1049,9 +959,7 @@ qboolean Music_AllowedToTransition( float			fPlayingTimeElapsed,
 					return qfalse;
 				}
 
-
 				// feed back answers...
-				//
 				if ( peTransition)
 				{
 					*peTransition = eFeedBackTransition;
@@ -1070,10 +978,8 @@ qboolean Music_AllowedToTransition( float			fPlayingTimeElapsed,
 	return qfalse;
 }
 
-
 // typically used to get a (predefined) random entry point for the action music, but will work on any defined type with entry points,
 //	defaults safely to 0.0f if no info available...
-//
 float Music_GetRandomEntryTime( MusicState_e eMusicState )
 {
 	MusicData_t::iterator itMusicData = MusicData->find( Music_BaseStateToString( eMusicState ) );
@@ -1084,11 +990,8 @@ float Music_GetRandomEntryTime( MusicState_e eMusicState )
 		if (MusicFile.MusicEntryTimes.size())	// make sure at least one defined, else default to start
 		{
 			// Quake's random number generator isn't very good, so instead of this:
-			//
 			// int iRandomEntryNum = Q_irand(0, (MusicFile.MusicEntryTimes.size()-1) );
-			//
 			// ... I'll do this (ensuring we don't get the same result on two consecutive calls, but without while-loop)...
-			//
 			static int	iPrevRandomNumber = -1;
 			static int	iCallCount = 0;
 						iCallCount++;
@@ -1116,18 +1019,14 @@ float Music_GetRandomEntryTime( MusicState_e eMusicState )
 }
 
 // info only, used in "soundinfo" command...
-//
 const char *Music_GetLevelSetName(void)
 {
 	if (Q_stricmp(gsLevelNameForCompare.c_str(), gsLevelNameForLoad.c_str()))
 	{
 		// music remap via USES command...
-		//
 		return va("%s -> %s",gsLevelNameForCompare.c_str(), gsLevelNameForLoad.c_str());
 	}
 
 	return gsLevelNameForLoad.c_str();
 }
-
-///////////////// eof /////////////////////
 

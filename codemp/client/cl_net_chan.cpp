@@ -25,17 +25,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // TTimo: unused, commenting out to make gcc happy
 #if 1
-/*
-==============
-CL_Netchan_Encode
-
-	// first 12 bytes of the data are always:
-	long serverId;
-	long messageAcknowledge;
-	long reliableAcknowledge;
-
-==============
-*/
+// first 12 bytes of the data are always:
+//	long serverId;
+//	long messageAcknowledge;
+//	long reliableAcknowledge;
 static void CL_Netchan_Encode( msg_t *msg ) {
 	int serverId, messageAcknowledge, reliableAcknowledge;
 	int i, index, srdc, sbit, soob;
@@ -63,7 +56,6 @@ static void CL_Netchan_Encode( msg_t *msg ) {
 
 	string = (byte *)clc.serverCommands[ reliableAcknowledge & (MAX_RELIABLE_COMMANDS-1) ];
 	index = 0;
-	//
 	key = clc.challenge ^ serverId ^ messageAcknowledge;
 	for (i = CL_ENCODE_START; i < msg->cursize; i++) {
 		// modify the key with the last received now acknowledged server command
@@ -83,15 +75,8 @@ static void CL_Netchan_Encode( msg_t *msg ) {
 	}
 }
 
-/*
-==============
-CL_Netchan_Decode
-
-	// first four bytes of the data are always:
-	long reliableAcknowledge;
-
-==============
-*/
+// first four bytes of the data are always:
+//	long reliableAcknowledge;
 static void CL_Netchan_Decode( msg_t *msg ) {
 	long reliableAcknowledge, i, index;
 	byte key, *string;
@@ -132,22 +117,12 @@ static void CL_Netchan_Decode( msg_t *msg ) {
 }
 #endif
 
-/*
-=================
-CL_Netchan_TransmitNextFragment
-=================
-*/
 void CL_Netchan_TransmitNextFragment( netchan_t *chan ) {
 	Netchan_TransmitNextFragment( chan );
 }
 
 //byte chksum[65536];
 
-/*
-===============
-CL_Netchan_Transmit
-================
-*/
 void CL_Netchan_Transmit( netchan_t *chan, msg_t* msg ) {
 //	int i;
 	MSG_WriteByte( msg, clc_EOF );
@@ -163,11 +138,6 @@ void CL_Netchan_Transmit( netchan_t *chan, msg_t* msg ) {
 extern 	int oldsize;
 int newsize = 0;
 
-/*
-=================
-CL_Netchan_Process
-=================
-*/
 qboolean CL_Netchan_Process( netchan_t *chan, msg_t *msg ) {
 	int ret;
 //	int i;

@@ -419,4 +419,3 @@ ammoData_t ammoData[AMMO_MAX] =
 	}
 };
 
-

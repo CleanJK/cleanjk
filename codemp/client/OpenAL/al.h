@@ -89,7 +89,6 @@ ALAPI ALenum	ALAPIENTRY alGetError( void );
  */
 ALAPI ALboolean ALAPIENTRY alIsExtensionPresent( ALubyte* fname );
 
-
 /**
  * Extension support.
  * Obtain the address of a function (usually an extension)
@@ -97,15 +96,11 @@ ALAPI ALboolean ALAPIENTRY alIsExtensionPresent( ALubyte* fname );
  */
 ALAPI ALvoid*	ALAPIENTRY alGetProcAddress( ALubyte* fname );
 
-
 /**
  * Extension support.
  * Obtain the integer value of an enumeration (usually an extension) with the name ename.
  */
 ALAPI ALenum	ALAPIENTRY alGetEnumValue( ALubyte* ename );
-
-
-
 
 /**
  * LISTENER
@@ -116,14 +111,11 @@ ALAPI ALenum	ALAPIENTRY alGetEnumValue( ALubyte* ename );
  *  occluder and reflector geometry.
  */
 
-
-
 /**
  *
  * Listener Environment:  default 0.
  */
 ALAPI ALvoid	ALAPIENTRY alListeneri( ALenum param, ALint value );
-
 
 /**
  *
@@ -131,14 +123,12 @@ ALAPI ALvoid	ALAPIENTRY alListeneri( ALenum param, ALint value );
  */
 ALAPI ALvoid	ALAPIENTRY alListenerf( ALenum param, ALfloat value );
 
-
 /**
  *
  * Listener Position.
  * Listener Velocity.
  */
 ALAPI ALvoid	ALAPIENTRY alListener3f( ALenum param, ALfloat v1, ALfloat v2, ALfloat v3 );
-
 
 /**
  *
@@ -153,7 +143,6 @@ ALAPI ALvoid	ALAPIENTRY alGetListenerf( ALenum param, ALfloat* value );
 ALAPI ALvoid	ALAPIENTRY alGetListener3f( ALenum param, ALfloat* v1, ALfloat* v2, ALfloat* v3 );
 ALAPI ALvoid	ALAPIENTRY alGetListenerfv( ALenum param, ALfloat* values );
 
-
 /**
  * SOURCE
  * Source objects are by default localized. Sources
@@ -162,8 +151,6 @@ ALAPI ALvoid	ALAPIENTRY alGetListenerfv( ALenum param, ALfloat* values );
  *  submit them to be mixed according to spatial
  *  arrangement etc.
  */
-
-
 
 /** Create Source objects. */
 ALAPI ALvoid	ALAPIENTRY alGenSources( ALsizei n, ALuint* sources );
@@ -216,8 +203,6 @@ ALAPI ALvoid	ALAPIENTRY alSourceStop( ALuint source );
  */
 ALAPI ALvoid	ALAPIENTRY alSourceRewind( ALuint source );
 
-
-
 /**
  * BUFFER
  * Buffer objects are storage space for sample data.
@@ -227,9 +212,6 @@ ALAPI ALvoid	ALAPIENTRY alSourceRewind( ALuint source );
  *  take care of allocation, copying, and deallocation as well
  *  as propagating buffer data changes.
  */
-
-
-
 
 /** Buffer object generation. */
 ALAPI ALvoid 	ALAPIENTRY alGenBuffers( ALsizei n, ALuint* buffers );
@@ -245,12 +227,8 @@ ALAPI ALvoid	ALAPIENTRY alBufferData( ALuint   buffer,
 										 ALsizei  size,
 										 ALsizei  freq );
 
-
 ALAPI ALvoid	ALAPIENTRY alGetBufferi( ALuint buffer, ALenum param, ALint*   value );
 ALAPI ALvoid	ALAPIENTRY alGetBufferf( ALuint buffer, ALenum param, ALfloat* value );
-
-
-
 
 /**
  * Queue stuff
@@ -258,9 +236,6 @@ ALAPI ALvoid	ALAPIENTRY alGetBufferf( ALuint buffer, ALenum param, ALfloat* valu
 
 ALAPI ALvoid	ALAPIENTRY alSourceQueueBuffers( ALuint source, ALsizei n, ALuint* buffers );
 ALAPI ALvoid	ALAPIENTRY alSourceUnqueueBuffers( ALuint source, ALsizei n, ALuint* buffers );
-
-
-
 
 /**
  * Knobs and dials
@@ -304,14 +279,12 @@ ALAPI ALubyte*	ALAPIENTRY (*alGetString)( ALenum param );
  */
 ALAPI ALenum	ALAPIENTRY (*alGetError)( void );
 
-
 /**
  * Extension support.
  * Obtain the address of a function (usually an extension)
  *  with the name fname. All addresses are context-independent.
  */
 ALAPI ALboolean ALAPIENTRY (*alIsExtensionPresent)( ALubyte* fname );
-
 
 /**
  * Extension support.
@@ -320,15 +293,11 @@ ALAPI ALboolean ALAPIENTRY (*alIsExtensionPresent)( ALubyte* fname );
  */
 ALAPI ALvoid*	ALAPIENTRY (*alGetProcAddress)( ALubyte* fname );
 
-
 /**
  * Extension support.
  * Obtain the integer value of an enumeration (usually an extension) with the name ename.
  */
 ALAPI ALenum	ALAPIENTRY (*alGetEnumValue)( ALubyte* ename );
-
-
-
 
 /**
  * LISTENER
@@ -339,14 +308,11 @@ ALAPI ALenum	ALAPIENTRY (*alGetEnumValue)( ALubyte* ename );
  *  occluder and reflector geometry.
  */
 
-
-
 /**
  *
  * Listener Environment:  default 0.
  */
 ALAPI ALvoid	ALAPIENTRY (*alListeneri)( ALenum param, ALint value );
-
 
 /**
  *
@@ -354,14 +320,12 @@ ALAPI ALvoid	ALAPIENTRY (*alListeneri)( ALenum param, ALint value );
  */
 ALAPI ALvoid	ALAPIENTRY (*alListenerf)( ALenum param, ALfloat value );
 
-
 /**
  *
  * Listener Position.
  * Listener Velocity.
  */
 ALAPI ALvoid	ALAPIENTRY (*alListener3f)( ALenum param, ALfloat v1, ALfloat v2, ALfloat v3 );
-
 
 /**
  *
@@ -376,7 +340,6 @@ ALAPI ALvoid	ALAPIENTRY (*alGetListenerf)( ALenum param, ALfloat* value );
 ALAPI ALvoid	ALAPIENTRY (*alGetListener3f)( ALenum param, ALfloat* v1, ALfloat* v2, ALfloat* v3 );
 ALAPI ALvoid	ALAPIENTRY (*alGetListenerfv)( ALenum param, ALfloat* values );
 
-
 /**
  * SOURCE
  * Source objects are by default localized. Sources
@@ -385,8 +348,6 @@ ALAPI ALvoid	ALAPIENTRY (*alGetListenerfv)( ALenum param, ALfloat* values );
  *  submit them to be mixed according to spatial
  *  arrangement etc.
  */
-
-
 
 /** Create Source objects. */
 ALAPI ALvoid	ALAPIENTRY (*alGenSources)( ALsizei n, ALuint* sources );
@@ -429,8 +390,6 @@ ALAPI ALvoid	ALAPIENTRY (*alSourcePause)( ALuint source );
  */
 ALAPI ALvoid	ALAPIENTRY (*alSourceStop)( ALuint source );
 
-
-
 /**
  * BUFFER
  * Buffer objects are storage space for sample data.
@@ -440,9 +399,6 @@ ALAPI ALvoid	ALAPIENTRY (*alSourceStop)( ALuint source );
  *  take care of allocation, copying, and deallocation as well
  *  as propagating buffer data changes.
  */
-
-
-
 
 /** Buffer object generation. */
 ALAPI ALvoid 	ALAPIENTRY (*alGenBuffers)( ALsizei n, ALuint* buffers );
@@ -460,9 +416,6 @@ ALAPI ALvoid	ALAPIENTRY (*alBufferData)( ALuint   buffer,
 
 ALAPI ALvoid	ALAPIENTRY (*alGetBufferi)( ALuint buffer, ALenum param, ALint*   value );
 ALAPI ALvoid	ALAPIENTRY (*alGetBufferf)( ALuint buffer, ALenum param, ALfloat* value );
-
-
-
 
 /**
  * Queue stuff

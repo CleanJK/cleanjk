@@ -29,7 +29,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "ghoul2/g2_local.h"
 #include <algorithm>
 
-
 cvar_t	*r_verbose;
 cvar_t	*r_ignore;
 
@@ -164,8 +163,7 @@ cvar_t	*r_directedScale;
 cvar_t	*r_debugLight;
 cvar_t	*r_debugSort;
 
-// the limits apply to the sum of all scenes in a frame --
-// the main view, all the 3D icons, etc
+// the limits apply to the sum of all scenes in a frame - the main view, all the 3D icons, etc
 #define	DEFAULT_MAX_POLYS		600
 #define	DEFAULT_MAX_POLYVERTS	3000
 cvar_t	*r_maxpolys;
@@ -175,9 +173,6 @@ int		max_polyverts;
 
 cvar_t	*r_modelpoolmegs;
 
-/*
-Ghoul2 Insert Start
-*/
 #ifdef _DEBUG
 cvar_t	*r_noPrecacheGLA;
 #endif
@@ -205,16 +200,9 @@ cvar_t	*broadsword_effcorr=0;
 cvar_t	*broadsword_ragtobase=0;
 cvar_t	*broadsword_dircap=0;
 
-/*
-Ghoul2 Insert End
-*/
-
 cvar_t *r_aviMotionJpegQuality;
 cvar_t *r_screenshotJpegQuality;
 
-/*
-** R_GetModeInfo
-*/
 typedef struct vidmode_s
 {
     const char *description;
@@ -262,9 +250,6 @@ qboolean R_GetModeInfo( int *width, int *height, int mode ) {
     return qtrue;
 }
 
-/*
-** R_ModeList_f
-*/
 static void R_ModeList_f( void )
 {
 	int i;
@@ -303,16 +288,11 @@ static const size_t numCommands = ARRAY_LEN( commands );
 #define SWAPINTERVAL_FLAGS CVAR_ARCHIVE_ND | CVAR_LATCH
 #endif
 
-/*
-===============
-R_Register
-===============
-*/
 void R_Register( void )
 {
-	//
+
 	// latched and archived variables
-	//
+
 	r_allowExtensions					= ri.Cvar_Get( "r_allowExtensions",				"1",						CVAR_ARCHIVE_ND|CVAR_LATCH, "" );
 	r_ext_compressed_textures			= ri.Cvar_Get( "r_ext_compress_textures",			"1",						CVAR_ARCHIVE_ND|CVAR_LATCH, "" );
 	r_ext_compressed_lightmaps			= ri.Cvar_Get( "r_ext_compress_lightmaps",			"0",						CVAR_ARCHIVE_ND|CVAR_LATCH, "" );
@@ -429,9 +409,6 @@ void R_Register( void )
 	r_shadowRange						= ri.Cvar_Get( "r_shadowRange",					"1000",						CVAR_NONE, "" );
 	r_maxpolys							= ri.Cvar_Get( "r_maxpolys",						XSTRING( DEFAULT_MAX_POLYS ),		CVAR_NONE, "" );
 	r_maxpolyverts						= ri.Cvar_Get( "r_maxpolyverts",					XSTRING( DEFAULT_MAX_POLYVERTS ),	CVAR_NONE, "" );
-/*
-Ghoul2 Insert Start
-*/
 #ifdef _DEBUG
 	r_noPrecacheGLA						= ri.Cvar_Get( "r_noPrecacheGLA",					"0",						CVAR_CHEAT, "" );
 #endif
@@ -450,9 +427,6 @@ Ghoul2 Insert Start
 	broadsword_effcorr					= ri.Cvar_Get( "broadsword_effcorr",				"1",						CVAR_NONE, "" );
 	broadsword_ragtobase				= ri.Cvar_Get( "broadsword_ragtobase",				"2",						CVAR_NONE, "" );
 	broadsword_dircap					= ri.Cvar_Get( "broadsword_dircap",				"64",						CVAR_NONE, "" );
-/*
-Ghoul2 Insert End
-*/
 	r_modelpoolmegs = ri.Cvar_Get("r_modelpoolmegs", "20", CVAR_ARCHIVE, "" );
 	if (ri.Sys_LowPhysicalMemory() )
 		ri.Cvar_Set("r_modelpoolmegs", "0");
@@ -461,12 +435,6 @@ Ghoul2 Insert End
 		ri.Cmd_AddCommand( commands[i].cmd, commands[i].func, "" );
 }
 
-
-/*
-===============
-R_Init
-===============
-*/
 extern void R_InitWorldEffects(void); //tr_WorldEffects.cpp
 void R_Init( void ) {
 	int i;
@@ -479,9 +447,8 @@ void R_Init( void ) {
 
 //	Swap_Init();
 
-	//
 	// init function tables
-	//
+
 	for ( i = 0; i < FUNCTABLE_SIZE; i++ )
 	{
 		tr.sinTable[i]		= sin( DEG2RAD( i * 360.0f / ( ( float ) ( FUNCTABLE_SIZE - 1 ) ) ) );
@@ -520,11 +487,6 @@ void R_Init( void ) {
 //	Com_Printf ("----- finished R_Init -----\n" );
 }
 
-/*
-===============
-RE_Shutdown
-===============
-*/
 void RE_Shutdown( qboolean destroyWindow, qboolean restarting ) {
 
 //	Com_Printf ("RE_Shutdown( %i )\n", destroyWindow );
@@ -543,12 +505,6 @@ extern qboolean gG2_GBMNoReconstruct;
 extern qboolean gG2_GBMUseSPMethod;
 extern qhandle_t RE_RegisterServerSkin( const char *name );
 
-/*
-@@@@@@@@@@@@@@@@@@@@@
-GetRefAPI
-
-@@@@@@@@@@@@@@@@@@@@@
-*/
 refexport_t *GetRefAPI ( int apiVersion, refimport_t *rimp ) {
 	static refexport_t re;
 

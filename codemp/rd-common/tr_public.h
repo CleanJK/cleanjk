@@ -32,25 +32,17 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #define	REF_API_VERSION 9
 
-//
 // these are the functions exported by the refresh module
-//
-
 typedef struct refexport_s {
 	// called before the library is unloaded
 	// if the system is just reconfiguring, pass destroyWindow = qfalse,
 	// which will keep the screen from flashing to the desktop.
 	void				(*Shutdown)								( qboolean destroyWindow, qboolean restarting );
 
-	// All data that will be used in a level should be
-	// registered before rendering any frames to prevent disk hits,
-	// but they can still be registered at a later time
-	// if necessary.
-	//
-	// BeginRegistration makes any existing media pointers invalid
-	// and returns the current gl configuration, including screen width
-	// and height, which can be used by the client to intelligently
-	// size display elements
+	// All data that will be used in a level should be registered before rendering any frames to prevent disk hits, but
+	//	they can still be registered at a later time if necessary.
+	// BeginRegistration makes any existing media pointers invalid and returns the current gl configuration, including
+	//	screen width and height, which can be used by the client to intelligently size display elements
 	void				(*BeginRegistration)					( glconfig_t *config );
 	qhandle_t			(*RegisterModel)						( const char *name );
 	qhandle_t			(*RegisterServerModel)					( const char *name );
@@ -61,12 +53,10 @@ typedef struct refexport_s {
 	const char *		(*ShaderNameFromIndex)					( int index );
 	void				(*LoadWorld)							( const char *name );
 
-	// the vis data is a large enough block of data that we go to the trouble
-	// of sharing it with the clipmodel subsystem
+	// the vis data is a large enough block of data that we go to the trouble of sharing it with the clipmodel subsystem
 	void				(*SetWorldVisData)						( const byte *vis );
 
-	// EndRegistration will draw a tiny polygon with each texture, forcing
-	// them to be loaded into card memory
+	// EndRegistration will draw a tiny polygon with each texture, forcing them to be loaded into card memory
 	void				(*EndRegistration)						( void );
 
 	// a scene is built up by calls to R_ClearScene and the various R_Add functions.
@@ -96,7 +86,6 @@ typedef struct refexport_s {
 
 	// if the pointers are not NULL, timing info will be returned
 	void				(*EndFrame)								( int *frontEndMsec, int *backEndMsec );
-
 
 	int					(*MarkFragments)						( int numPoints, const vec3_t *points, const vec3_t projection, int maxPoints, vec3_t pointBuffer, int maxFragments, markFragment_t *fragmentBuffer );
 
@@ -247,9 +236,7 @@ typedef struct refexport_s {
 
 } refexport_t;
 
-//
 // these are the functions imported by the refresh module
-//
 typedef struct refimport_s {
 	void			(QDECL *Printf)						( int printLevel, const char *fmt, ...) __attribute__ ((format (printf, 2, 3)));
 	void			(QDECL *Error)						( int errorLevel, const char *fmt, ...) NORETURN_PTR __attribute__ ((format (printf, 2, 3)));

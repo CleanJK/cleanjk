@@ -25,27 +25,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "cg_local.h"
 
-/*
-===================================================================
-
-MARK POLYS
-
-===================================================================
-*/
-
-
 markPoly_t	cg_activeMarkPolys;			// double linked list
 markPoly_t	*cg_freeMarkPolys;			// single linked list
 markPoly_t	cg_markPolys[MAX_MARK_POLYS];
 static		int	markTotal;
 
-/*
-===================
-CG_InitMarkPolys
-
-This is called at startup and for tournament restarts
-===================
-*/
+// This is called at startup and for tournament restarts
 void	CG_InitMarkPolys( void ) {
 	int		i;
 
@@ -59,12 +44,6 @@ void	CG_InitMarkPolys( void ) {
 	}
 }
 
-
-/*
-==================
-CG_FreeMarkPoly
-==================
-*/
 void CG_FreeMarkPoly( markPoly_t *le ) {
 	if ( !le->prevMark ) {
 		trap->Error( ERR_DROP, "CG_FreeLocalEntity: not active" );
@@ -79,13 +58,7 @@ void CG_FreeMarkPoly( markPoly_t *le ) {
 	cg_freeMarkPolys = le;
 }
 
-/*
-===================
-CG_AllocMark
-
-Will allways succeed, even if it requires freeing an old active mark
-===================
-*/
+// Will allways succeed, even if it requires freeing an old active mark
 markPoly_t	*CG_AllocMark( void ) {
 	markPoly_t	*le;
 	int time;
@@ -112,19 +85,9 @@ markPoly_t	*CG_AllocMark( void ) {
 	return le;
 }
 
-
-
-/*
-=================
-CG_ImpactMark
-
-origin should be a point within a unit of the plane
-dir should be the plane normal
-
-temporary marks will not be stored or randomly oriented, but immediately
-passed to the renderer.
-=================
-*/
+// origin should be a point within a unit of the plane
+// dir should be the plane normal
+// temporary marks will not be stored or randomly oriented, but immediately passed to the renderer.
 #define	MAX_MARK_FRAGMENTS	128
 #define	MAX_MARK_POINTS		384
 
@@ -141,7 +104,9 @@ void CG_ImpactMark( qhandle_t markShader, const vec3_t origin, const vec3_t dir,
 	vec3_t			markPoints[MAX_MARK_POINTS];
 	vec3_t			projection;
 
-	assert(markShader);
+	if ( !markShader ) {
+		return;
+	}
 
 	if ( !cg_marks.integer ) {
 		return;
@@ -229,12 +194,6 @@ void CG_ImpactMark( qhandle_t markShader, const vec3_t origin, const vec3_t dir,
 	}
 }
 
-
-/*
-===============
-CG_AddMarks
-===============
-*/
 #define	MARK_TOTAL_TIME		10000
 #define	MARK_FADE_TIME		1000
 

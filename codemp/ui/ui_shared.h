@@ -70,7 +70,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //JLF
 #define WINDOW_INTRANSITIONMODEL	0x04000000	// delayed script waiting to run
 
-
 // cgame cursor type bits
 #define CURSOR_NONE					0x00000001
 #define CURSOR_ARROW				0x00000002
@@ -119,7 +118,6 @@ typedef struct scriptDef_s {
   const char *command;
   const char *args[MAX_SCRIPT_ARGS];
 } scriptDef_t;
-
 
 typedef struct rectDef_s {
   float x;    // horiz position
@@ -170,7 +168,7 @@ typedef struct colorRangeDef_s {
 // many of the vars are re-used for different item types, as such they are not always named appropriately
 // the benefits of c++ in DOOM will greatly help crap like this
 // FIXME: need to put a type ptr that points to specific type info per type
-//
+
 #define MAX_LB_COLUMNS 16
 
 typedef struct columnInfo_s {
@@ -243,7 +241,7 @@ typedef struct textScrollDef_s
 	int				drawPadding;
 
 	// changed spelling to make them fall out during compile while I made them asian-aware	-Ste
-	//
+
 	int				iLineCount;
 	const char*		pLines[MAX_TEXTSCROLL_LINES];	// can contain NULL ptrs that you should skip over during paint.
 
@@ -496,7 +494,6 @@ typedef struct displayContextDef_s {
 	} ext;
 } displayContextDef_t;
 
-
 const char *String_Alloc(const char *p);
 void String_Init();
 void String_Report();
@@ -558,9 +555,5 @@ qboolean UI_OutOfMemory();
 void Controls_GetConfig( void );
 void Controls_SetConfig( void );
 void Controls_SetDefaults( void );
-
-/*
-Ghoul2 Insert End
-*/
 
 extern const char *HolocronIcons[NUM_FORCE_POWERS];

@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 // Interpreted Block Stream Functions
-//
+
 //	-- jweier
 
 // this include must remain at the top of every Icarus CPP file
@@ -30,13 +30,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <string.h>
 #include "blockstream.h"
 
-/*
-===================================================================================================
-
-  CBlockMember
-
-===================================================================================================
-*/
+// CBlockMember
 
 CBlockMember::CBlockMember( void )
 {
@@ -50,12 +44,6 @@ CBlockMember::~CBlockMember( void )
 	Free();
 }
 
-/*
--------------------------
-Free
--------------------------
-*/
-
 void CBlockMember::Free( void )
 {
 	if ( m_data != NULL )
@@ -67,24 +55,12 @@ void CBlockMember::Free( void )
 	}
 }
 
-/*
--------------------------
-GetInfo
--------------------------
-*/
-
 void CBlockMember::GetInfo( int *id, int *size, void **data )
 {
 	*id = m_id;
 	*size = m_size;
 	*data = m_data;
 }
-
-/*
--------------------------
-SetData overloads
--------------------------
-*/
 
 void CBlockMember::SetData( const char *data )
 {
@@ -107,12 +83,6 @@ void CBlockMember::SetData( void *data, int size )
 }
 
 //	Member I/O functions
-
-/*
--------------------------
-ReadMember
--------------------------
-*/
 
 int CBlockMember::ReadMember( char **stream, int *streamPos )
 {
@@ -144,12 +114,6 @@ int CBlockMember::ReadMember( char **stream, int *streamPos )
 	return true;
 }
 
-/*
--------------------------
-WriteMember
--------------------------
-*/
-
 int CBlockMember::WriteMember( FILE *m_fileHandle )
 {
 	fwrite( &m_id, sizeof(m_id), 1, m_fileHandle );
@@ -158,12 +122,6 @@ int CBlockMember::WriteMember( FILE *m_fileHandle )
 
 	return true;
 }
-
-/*
--------------------------
-Duplicate
--------------------------
-*/
 
 CBlockMember *CBlockMember::Duplicate( void )
 {
@@ -179,13 +137,7 @@ CBlockMember *CBlockMember::Duplicate( void )
 	return newblock;
 }
 
-/*
-===================================================================================================
-
-  CBlock
-
-===================================================================================================
-*/
+// CBlock
 
 CBlock::CBlock( void )
 {
@@ -198,12 +150,6 @@ CBlock::~CBlock( void )
 	Free();
 }
 
-/*
--------------------------
-Init
--------------------------
-*/
-
 int CBlock::Init( void )
 {
 	m_flags			= 0;
@@ -211,12 +157,6 @@ int CBlock::Init( void )
 
 	return true;
 }
-
-/*
--------------------------
-Create
--------------------------
-*/
 
 int CBlock::Create( int block_id )
 {
@@ -226,12 +166,6 @@ int CBlock::Create( int block_id )
 
 	return true;
 }
-
-/*
--------------------------
-Free
--------------------------
-*/
 
 int CBlock::Free( void )
 {
@@ -254,12 +188,6 @@ int CBlock::Free( void )
 }
 
 //	Write overloads
-
-/*
--------------------------
-Write
--------------------------
-*/
 
 int CBlock::Write( int member_id, const char *member_data )
 {
@@ -316,7 +244,6 @@ int CBlock::Write( int member_id, int member_data )
 	return true;
 }
 
-
 int CBlock::Write( CBlockMember *bMember )
 {
 // findme: this is wrong:	bMember->SetSize( sizeof(bMember->GetData()) );
@@ -328,23 +255,11 @@ int CBlock::Write( CBlockMember *bMember )
 
 // Member list functions
 
-/*
--------------------------
-AddMember
--------------------------
-*/
-
 int	CBlock::AddMember( CBlockMember *member )
 {
 	m_members.insert( m_members.end(), member );
 	return true;
 }
-
-/*
--------------------------
-GetMember
--------------------------
-*/
 
 CBlockMember *CBlock::GetMember( int memberNum )
 {
@@ -355,12 +270,6 @@ CBlockMember *CBlock::GetMember( int memberNum )
 	return m_members[ memberNum ];
 }
 
-/*
--------------------------
-GetMemberData
--------------------------
-*/
-
 void *CBlock::GetMemberData( int memberNum )
 {
 	if ( memberNum >= GetNumMembers() )
@@ -369,12 +278,6 @@ void *CBlock::GetMemberData( int memberNum )
 	}
 	return (void *) ((GetMember( memberNum ))->GetData());
 }
-
-/*
--------------------------
-Duplicate
--------------------------
-*/
 
 CBlock *CBlock::Duplicate( void )
 {
@@ -397,14 +300,6 @@ CBlock *CBlock::Duplicate( void )
 	return newblock;
 }
 
-/*
-===================================================================================================
-
-  CBlockStream
-
-===================================================================================================
-*/
-
 CBlockStream::CBlockStream( void )
 {
 	m_stream = NULL;
@@ -414,12 +309,6 @@ CBlockStream::CBlockStream( void )
 CBlockStream::~CBlockStream( void )
 {
 }
-
-/*
--------------------------
-GetChar
--------------------------
-*/
 
 char CBlockStream::GetChar( void )
 {
@@ -431,12 +320,6 @@ char CBlockStream::GetChar( void )
 	return data;
 }
 
-/*
--------------------------
-GetUnsignedInteger
--------------------------
-*/
-
 unsigned CBlockStream::GetUnsignedInteger( void )
 {
 	unsigned data;
@@ -446,12 +329,6 @@ unsigned CBlockStream::GetUnsignedInteger( void )
 
 	return data;
 }
-
-/*
--------------------------
-GetInteger
--------------------------
-*/
 
 int	CBlockStream::GetInteger( void )
 {
@@ -463,12 +340,6 @@ int	CBlockStream::GetInteger( void )
 	return data;
 }
 
-/*
--------------------------
-GetLong
--------------------------
-*/
-
 long CBlockStream::GetLong( void )
 {
 	long data;
@@ -478,12 +349,6 @@ long CBlockStream::GetLong( void )
 
 	return data;
 }
-
-/*
--------------------------
-GetFloat
--------------------------
-*/
 
 float CBlockStream::GetFloat( void )
 {
@@ -495,12 +360,6 @@ float CBlockStream::GetFloat( void )
 	return data;
 }
 
-/*
--------------------------
-Free
--------------------------
-*/
-
 int CBlockStream::Free( void )
 {
 	//NOTENOTE: It is assumed that the user will free the passed memory block (m_stream) immediately after the run call
@@ -511,12 +370,6 @@ int CBlockStream::Free( void )
 
 	return true;
 }
-
-/*
--------------------------
-Create
--------------------------
-*/
 
 int CBlockStream::Create( char *filename )
 {
@@ -538,12 +391,6 @@ int CBlockStream::Create( char *filename )
 	return true;
 }
 
-/*
--------------------------
-Init
--------------------------
-*/
-
 int CBlockStream::Init( void )
 {
 	m_fileHandle = NULL;
@@ -556,12 +403,6 @@ int CBlockStream::Init( void )
 }
 
 //	Block I/O functions
-
-/*
--------------------------
-WriteBlock
--------------------------
-*/
 
 int CBlockStream::WriteBlock( CBlock *block )
 {
@@ -585,12 +426,6 @@ int CBlockStream::WriteBlock( CBlock *block )
 	return true;
 }
 
-/*
--------------------------
-BlockAvailable
--------------------------
-*/
-
 int CBlockStream::BlockAvailable( void )
 {
 	if ( m_streamPos >= m_fileSize )
@@ -598,12 +433,6 @@ int CBlockStream::BlockAvailable( void )
 
 	return true;
 }
-
-/*
--------------------------
-ReadBlock
--------------------------
-*/
 
 int CBlockStream::ReadBlock( CBlock *get )
 {
@@ -635,12 +464,6 @@ int CBlockStream::ReadBlock( CBlock *get )
 
 	return true;
 }
-
-/*
--------------------------
-Open
--------------------------
-*/
 
 int CBlockStream::Open( char *buffer, long size )
 {

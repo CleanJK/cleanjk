@@ -47,7 +47,6 @@ keyGlobals_t	kg;
 
 // do NOT blithely change any of the key names (3rd field) here, since they have to match the key binds
 //	in the CFG files, they're also prepended with "KEYNAME_" when looking up StringEd references
-//
 keyname_t keynames[MAX_KEYS] =
 {
 	{ 0x00, 0x00, NULL, A_NULL, false									},
@@ -192,9 +191,9 @@ keyname_t keynames[MAX_KEYS] =
 	{ 0x87, 0x87, "F8", A_F8, true										},
 	{ 0x88, 0x88, "CIRCUMFLEX", A_CIRCUMFLEX, false  					},
 	{ 0x89, 0x89, "MWHEELUP", A_MWHEELUP, false							},
-	{ 0x8a, 0x9a, NULL, A_CAP_SCARON, false								},	// ******
+	{ 0x8a, 0x9a, NULL, A_CAP_SCARON, false								},
 	{ 0x8b, 0x8b, "MWHEELDOWN", A_MWHEELDOWN, false						},
-	{ 0x8c, 0x9c, NULL, A_CAP_OE, false									},	// ******
+	{ 0x8c, 0x9c, NULL, A_CAP_OE, false									},
 	{ 0x8d, 0x8d, "MOUSE1", A_MOUSE1, false								},
 	{ 0x8e, 0x8e, "MOUSE2", A_MOUSE2, false								},
 	{ 0x8f, 0x8f, "INS", A_INSERT, false								},
@@ -208,12 +207,12 @@ keyname_t keynames[MAX_KEYS] =
 	{ 0x97, 0x97, "F11", A_F11, true									},
 	{ 0x98, 0x98, "F12", A_F12, true									},
 	{ 0x99, 0x99, NULL, A_TRADEMARK, false								},
-	{ 0x8a, 0x9a, NULL, A_LOW_SCARON, false								},	// ******
+	{ 0x8a, 0x9a, NULL, A_LOW_SCARON, false								},
 	{ 0x9b, 0x9b, "SHIFT_ENTER", A_ENTER, false							},
-	{ 0x8c, 0x9c, NULL, A_LOW_OE, false									},	// ******
+	{ 0x8c, 0x9c, NULL, A_LOW_OE, false									},
 	{ 0x9d, 0x9d, "END", A_END, false									},
 	{ 0x9e, 0x9e, "PGDN", A_PAGE_DOWN, false							},
-	{ 0x9f, 0xff, NULL, A_CAP_YDIERESIS, false							},	// ******
+	{ 0x9f, 0xff, NULL, A_CAP_YDIERESIS, false							},
 
 	{ 0xa0, 0,	  "SHIFT_SPACE", A_SPACE, false							},
 	{ 0xa1, 0xa1, NULL, A_EXCLAMDOWN, false								},	// upside down '!' - undisplayable
@@ -312,7 +311,7 @@ keyname_t keynames[MAX_KEYS] =
 	{ L'\u00DC', L'\u00FC', NULL, A_LOW_UDIERESIS, false	},
 	{ L'\u00DD', L'\u00FD', NULL, A_LOW_YACUTE, false		},
 	{ L'\u00DE', L'\u00FE', NULL, A_LOW_THORN, false		},
-	{ 0x9f, 0xff, NULL, A_LOW_YDIERESIS, false							},	// *******
+	{ 0x9f, 0xff, NULL, A_LOW_YDIERESIS, false							},
 
 	{ 0x100, 0x100, "JOY0", A_JOY0, false								},
 	{ 0x101, 0x101, "JOY1", A_JOY1, false								},
@@ -382,25 +381,10 @@ keyname_t keynames[MAX_KEYS] =
 };
 static const size_t numKeynames = ARRAY_LEN( keynames );
 
+// EDIT FIELDS
 
-
-/*
-=============================================================================
-
-EDIT FIELDS
-
-=============================================================================
-*/
-
-
-/*
-===================
-Field_Draw
-
-Handles horizontal scrolling and cursor blinking
-x, y, amd width are in pixels
-===================
-*/
+// Handles horizontal scrolling and cursor blinking
+// x, y, amd width are in pixels
 void Field_VariableSizeDraw( field_t *edit, int x, int y, int width, int size, qboolean showCursor, qboolean noColorEscape ) {
 	int		len;
 	int		drawLen;
@@ -485,11 +469,6 @@ void Field_BigDraw( field_t *edit, int x, int y, int width, qboolean showCursor,
 	Field_VariableSizeDraw( edit, x, y, width, BIGCHAR_WIDTH, showCursor, noColorEscape );
 }
 
-/*
-================
-Field_Paste
-================
-*/
 void Field_Paste( field_t *edit ) {
 	char	*cbd, *c;
 
@@ -509,16 +488,8 @@ void Field_Paste( field_t *edit ) {
 	Z_Free( cbd );
 }
 
-/*
-=================
-Field_KeyDownEvent
-
-Performs the basic line editing functions for the console,
-in-game talk, and menu fields
-
-Key events are used for non-printable characters, others are gotten from char events.
-=================
-*/
+// Performs the basic line editing functions for the console, in-game talk, and menu fields
+// Key events are used for non-printable characters, others are gotten from char events.
 void Field_KeyDownEvent( field_t *edit, int key ) {
 	int		len;
 
@@ -575,11 +546,6 @@ void Field_KeyDownEvent( field_t *edit, int key ) {
  	}
 }
 
-/*
-==================
-Field_CharEvent
-==================
-*/
 void Field_CharEvent( field_t *edit, int ch ) {
 	int		len;
 
@@ -620,9 +586,7 @@ void Field_CharEvent( field_t *edit, int ch ) {
 		return;
 	}
 
-	//
 	// ignore any other non printable chars
-	//
 	if ( ch < 32 ) {
 		return;
 	}
@@ -653,13 +617,7 @@ void Field_CharEvent( field_t *edit, int ch ) {
 	}
 }
 
-/*
-====================
-Console_Key
-
-Handles history and console scrollback
-====================
-*/
+// Handles history and console scrollback
 void Console_Key( int key ) {
 	// ctrl-L clears screen
 	if ( keynames[key].lower == 'l' && kg.keys[A_CTRL].down ) {
@@ -793,16 +751,7 @@ void Console_Key( int key ) {
 	Field_KeyDownEvent( &g_consoleField, key );
 }
 
-//============================================================================
-
-
-/*
-================
-Message_Key
-
-In game talk message
-================
-*/
+// In game talk message
 void Message_Key( int key ) {
 	char buffer[MAX_STRING_CHARS] = {0};
 
@@ -828,24 +777,14 @@ void Message_Key( int key ) {
 	Field_KeyDownEvent( &chatField, key );
 }
 
-//============================================================================
-
-
 qboolean Key_GetOverstrikeMode( void ) {
 	return kg.key_overstrikeMode;
 }
-
 
 void Key_SetOverstrikeMode( qboolean state ) {
 	kg.key_overstrikeMode = state;
 }
 
-
-/*
-===================
-Key_IsDown
-===================
-*/
 qboolean Key_IsDown( int keynum ) {
 	if ( keynum < 0 || keynum >= MAX_KEYS )
 		return qfalse;
@@ -853,19 +792,9 @@ qboolean Key_IsDown( int keynum ) {
 	return kg.keys[keynames[keynum].upper].down;
 }
 
-
-/*
-===================
-Key_StringToKeynum
-
-Returns a key number to be used to index keys[] by looking at
-the given string.  Single ascii characters return themselves, while
-the K_* names are matched up.
-
-0x11 will be interpreted as raw hex, which will allow new controlers
-to be configured even if they don't have defined names.
-===================
-*/
+// Returns a key number to be used to index keys[] by looking at the given string.
+// Single ascii characters return themselves, while the K_* names are matched up.
+// 0x11 will be interpreted as raw hex, which will allow new controllers to be configured even if they don't have defined names.
 int Key_StringToKeynum( char *str ) {
 	if ( !VALIDSTRING( str ) )
 		return -1;
@@ -903,7 +832,6 @@ static const char *Key_KeynumValid( int keynum ) {
 static const char *Key_KeyToName( int keynum ) {
 	return keynames[keynum].name;
 }
-
 
 static const char *Key_KeyToAscii( int keynum ) {
 	if ( !keynames[keynum].lower )
@@ -950,15 +878,7 @@ const char *Key_KeynumToAscii( int keynum ) {
 	return name;
 }
 
-
-/*
-===================
-Key_KeynumToString
-
-Returns a string (either a single ascii char, a K_* name, or a 0x11 hex string) for the
-given keynum.
-===================
-*/
+// Returns a string (either a single ascii char, a K_* name, or a 0x11 hex string) for the given keynum.
 // Returns a console/config file friendly name for the key
 const char *Key_KeynumToString( int keynum ) {
 	const char *name;
@@ -980,11 +900,6 @@ const char *Key_KeynumToString( int keynum ) {
 	return name;
 }
 
-/*
-===================
-Key_SetBinding
-===================
-*/
 void Key_SetBinding( int keynum, const char *binding ) {
 	if ( keynum < 0 || keynum >= MAX_KEYS )
 		return;
@@ -1004,11 +919,6 @@ void Key_SetBinding( int keynum, const char *binding ) {
 	cvar_modifiedFlags |= CVAR_ARCHIVE;
 }
 
-/*
-===================
-Key_GetBinding
-===================
-*/
 char *Key_GetBinding( int keynum ) {
 	if ( keynum < 0 || keynum >= MAX_KEYS )
 		return "";
@@ -1016,11 +926,6 @@ char *Key_GetBinding( int keynum ) {
 	return kg.keys[keynum].binding;
 }
 
-/*
-===================
-Key_GetKey
-===================
-*/
 int Key_GetKey( const char *binding ) {
 	if ( binding ) {
 		for ( int i=0; i<MAX_KEYS; i++ ) {
@@ -1032,11 +937,6 @@ int Key_GetKey( const char *binding ) {
 	return -1;
 }
 
-/*
-===================
-Key_Unbind_f
-===================
-*/
 void Key_Unbind_f( void ) {
 	if ( Cmd_Argc() != 2 ) {
 		Com_Printf( "unbind <key> : remove commands from a key\n" );
@@ -1052,11 +952,6 @@ void Key_Unbind_f( void ) {
 	Key_SetBinding( b, "" );
 }
 
-/*
-===================
-Key_Unbindall_f
-===================
-*/
 void Key_Unbindall_f( void ) {
 	for ( int i=0; i<MAX_KEYS; i++ ) {
 		if ( kg.keys[i].binding )
@@ -1064,11 +959,6 @@ void Key_Unbindall_f( void ) {
 	}
 }
 
-/*
-===================
-Key_Bind_f
-===================
-*/
 void Key_Bind_f( void ) {
 	int c = Cmd_Argc();
 
@@ -1094,13 +984,7 @@ void Key_Bind_f( void ) {
 	Key_SetBinding( b, Cmd_ArgsFrom( 2 ) );
 }
 
-/*
-============
-Key_WriteBindings
-
-Writes lines containing "bind key value"
-============
-*/
+// Writes lines containing "bind key value"
 void Key_WriteBindings( fileHandle_t f ) {
 	FS_Printf( f, "unbindall\n" );
 	for ( size_t i=0; i<MAX_KEYS; i++ ) {
@@ -1116,12 +1000,6 @@ void Key_WriteBindings( fileHandle_t f ) {
 	}
 }
 
-/*
-============
-Key_Bindlist_f
-
-============
-*/
 void Key_Bindlist_f( void ) {
 	for ( size_t i=0; i<MAX_KEYS; i++ ) {
 		if ( kg.keys[i].binding && kg.keys[i].binding[0] )
@@ -1129,11 +1007,6 @@ void Key_Bindlist_f( void ) {
 	}
 }
 
-/*
-============
-Key_KeynameCompletion
-============
-*/
 void Key_KeynameCompletion( callbackFunc_t callback ) {
 	for ( size_t i=0; i<numKeynames; i++ ) {
 		if ( keynames[i].name )
@@ -1141,11 +1014,6 @@ void Key_KeynameCompletion( callbackFunc_t callback ) {
 	}
 }
 
-/*
-====================
-Key_CompleteUnbind
-====================
-*/
 static void Key_CompleteUnbind( char *args, int argNum ) {
 	if ( argNum == 2 ) {
 		// Skip "unbind "
@@ -1155,11 +1023,6 @@ static void Key_CompleteUnbind( char *args, int argNum ) {
 	}
 }
 
-/*
-====================
-Key_CompleteBind
-====================
-*/
 static void Key_CompleteBind( char *args, int argNum ) {
 	char *p;
 
@@ -1179,11 +1042,6 @@ static void Key_CompleteBind( char *args, int argNum ) {
 	}
 }
 
-/*
-===================
-CL_InitKeyCommands
-===================
-*/
 void CL_InitKeyCommands( void ) {
 	// register our functions
 	Cmd_AddCommand( "bind", Key_Bind_f, "Bind a key to a console command" );
@@ -1194,13 +1052,7 @@ void CL_InitKeyCommands( void ) {
 	Cmd_AddCommand( "bindlist", Key_Bindlist_f, "Show all bindings in the console" );
 }
 
-/*
-===================
-CL_BindUICommand
-
-Returns qtrue if bind command should be executed while user interface is shown
-===================
-*/
+// Returns qtrue if bind command should be executed while user interface is shown
 static qboolean CL_BindUICommand( const char *cmd ) {
 	if ( Key_GetCatcher( ) & KEYCATCH_CONSOLE )
 		return qfalse;
@@ -1213,13 +1065,7 @@ static qboolean CL_BindUICommand( const char *cmd ) {
 	return qfalse;
 }
 
-/*
-===================
-CL_ParseBinding
-
-Execute the commands in the bind string
-===================
-*/
+// Execute the commands in the bind string
 void CL_ParseBinding( int key, qboolean down, unsigned time )
 {
 	char buf[ MAX_STRING_CHARS ], *p = buf, *end;
@@ -1291,13 +1137,7 @@ void CL_ParseBinding( int key, qboolean down, unsigned time )
 	}
 }
 
-/*
-===================
-CL_KeyDownEvent
-
-Called by CL_KeyEvent to handle a keypress
-===================
-*/
+// Called by CL_KeyEvent to handle a keypress
 void CL_KeyDownEvent( int key, unsigned time )
 {
 	kg.keys[keynames[key].upper].down = qtrue;
@@ -1389,13 +1229,7 @@ void CL_KeyDownEvent( int key, unsigned time )
 		Console_Key( key );
 }
 
-/*
-===================
-CL_KeyUpEvent
-
-Called by CL_KeyEvent to handle a keyrelease
-===================
-*/
+// Called by CL_KeyEvent to handle a keyrelease
 void CL_KeyUpEvent( int key, unsigned time )
 {
 	kg.keys[keynames[key].upper].repeats = 0;
@@ -1411,12 +1245,10 @@ void CL_KeyUpEvent( int key, unsigned time )
 	if ( key == A_CONSOLE || ( key == A_ESCAPE && kg.keys[A_SHIFT].down ) )
 		return;
 
-	//
 	// key up events only perform actions if the game key binding is
 	// a button command (leading + sign).  These will be processed even in
 	// console mode and menu mode, to keep the character from continuing
 	// an action started before a mode switch.
-	//
 	CL_ParseBinding( key, qfalse, time );
 
 	if ( Key_GetCatcher( ) & KEYCATCH_UI && cls.uiStarted )
@@ -1425,13 +1257,7 @@ void CL_KeyUpEvent( int key, unsigned time )
 		CGVM_KeyEvent( key, qfalse );
 }
 
-/*
-===================
-CL_KeyEvent
-
-Called by the system for both key up and key down events
-===================
-*/
+// Called by the system for both key up and key down events
 void CL_KeyEvent (int key, qboolean down, unsigned time) {
 	if( down )
 		CL_KeyDownEvent( key, time );
@@ -1439,13 +1265,7 @@ void CL_KeyEvent (int key, qboolean down, unsigned time) {
 		CL_KeyUpEvent( key, time );
 }
 
-/*
-===================
-CL_CharEvent
-
-Normal keyboard characters, already shifted / capslocked / etc
-===================
-*/
+// Normal keyboard characters, already shifted / capslocked / etc
 void CL_CharEvent( int key ) {
 	// delete is not a printable character and is otherwise handled by Field_KeyDownEvent
 	if ( key == 127 )
@@ -1459,11 +1279,6 @@ void CL_CharEvent( int key ) {
 	else if ( cls.state == CA_DISCONNECTED )			Field_CharEvent( &g_consoleField, key );
 }
 
-/*
-===================
-Key_ClearStates
-===================
-*/
 void Key_ClearStates( void ) {
 	kg.anykeydown = qfalse;
 
@@ -1477,20 +1292,10 @@ void Key_ClearStates( void ) {
 
 static int keyCatchers = 0;
 
-/*
-====================
-Key_GetCatcher
-====================
-*/
 int Key_GetCatcher( void ) {
 	return keyCatchers;
 }
 
-/*
-====================
-Key_SetCatcher
-====================
-*/
 void Key_SetCatcher( int catcher ) {
 	// If the catcher state is changing, clear all key states
 	if ( catcher != keyCatchers )

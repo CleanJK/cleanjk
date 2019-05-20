@@ -35,7 +35,6 @@ set(MPUIGameFiles
 	"${MPDir}/game/bg_misc.c"
 	"${MPDir}/game/bg_saberLoad.c"
 	"${MPDir}/game/bg_saga.c"
-	"${MPDir}/game/bg_vehicleLoad.c"
 	"${MPDir}/game/bg_weapons.c"
 	"${MPDir}/game/anims.h"
 	"${MPDir}/game/bg_local.h"
@@ -54,7 +53,7 @@ set(MPUICommonFiles
 	"${MPDir}/qcommon/q_shared.h"
 	"${MPDir}/qcommon/qfiles.h"
 	"${MPDir}/qcommon/tags.h"
-	
+
 	${SharedCommonFiles}
 	)
 source_group("common" FILES ${MPUICommonFiles})
@@ -74,7 +73,6 @@ set(MPUIUIFiles
 	"${MPDir}/ui/ui_main.c"
 	"${MPDir}/ui/ui_saber.c"
 	"${MPDir}/ui/ui_shared.c"
-	"${MPDir}/ui/ui_syscalls.c"
 	"${MPDir}/ui/keycodes.h"
 	"${MPDir}/ui/menudef.h"
 	"${MPDir}/ui/ui_force.h"

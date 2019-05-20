@@ -23,7 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // Filename:-	tags.h
 
 // do NOT include-protect this file, or add any fields or labels, because it's included within enums and tables
-//
+
 // these macro args get "TAG_" prepended on them for enum purposes, and appear as literal strings for "meminfo" command
 
 	TAGDEF(ALL),
@@ -83,7 +83,4 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 	TAGDEF(AVI),
 	TAGDEF(MINIZIP),
 	TAGDEF(COUNT)
-
-
-//////////////// eof //////////////
 

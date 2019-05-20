@@ -21,11 +21,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-/**********************************************************************
-	UI_ATOMS.C
+// User interface building blocks and support functions.
 
-	User interface building blocks and support functions.
-**********************************************************************/
 #include "ui_local.h"
 
 #define NUM_UI_ARGSTRS (4)
@@ -66,14 +63,6 @@ static void UI_OpenMenu_f( void ) {
 		trap->Key_SetCatcher( KEYCATCH_UI );
 }
 
-static void UI_OpenSiegeMenu_f( void ) {
-	if ( trap->Cvar_VariableValue( "g_gametype" ) == GT_SIEGE ) {
-		Menus_CloseAll();
-		if ( Menus_ActivateByName( UI_Argv( 1 ) ) )
-			trap->Key_SetCatcher( KEYCATCH_UI );
-	}
-}
-
 typedef struct consoleCommand_s {
 	const char	*cmd;
 	void		(*func)(void);
@@ -87,20 +76,12 @@ static consoleCommand_t	commands[] = {
 	{ "ui_cache",			UI_Cache_f },
 	{ "ui_load",			UI_Load },
 	{ "ui_openmenu",		UI_OpenMenu_f },
-	{ "ui_opensiegemenu",	UI_OpenSiegeMenu_f },
 	{ "ui_report",			UI_Report },
 };
 
 static const size_t numCommands = ARRAY_LEN( commands );
 
-/*
-=================
-UI_ConsoleCommand
-
-The string has been tokenized and can be retrieved with
-Cmd_Argc() / Cmd_Argv()
-=================
-*/
+// The string has been tokenized and can be retrieved with Cmd_Argc() / Cmd_Argv()
 qboolean UI_ConsoleCommand( int realTime ) {
 	consoleCommand_t *command = NULL;
 
@@ -145,13 +126,7 @@ void UI_DrawHandlePic( float x, float y, float w, float h, qhandle_t hShader ) {
 	trap->R_DrawStretchPic( x, y, w, h, s0, t0, s1, t1, hShader );
 }
 
-/*
-================
-UI_FillRect
-
-Coordinates are 640*480 virtual values
-=================
-*/
+// Coordinates are 640*480 virtual values
 void UI_FillRect( float x, float y, float width, float height, const float *color ) {
 	trap->R_SetColor( color );
 	trap->R_DrawStretchPic( x, y, width, height, 0, 0, 0, 0, uiInfo.uiDC.whiteShader );
@@ -167,13 +142,8 @@ void UI_DrawTopBottom(float x, float y, float w, float h) {
 	trap->R_DrawStretchPic( x, y, w, 1, 0, 0, 0, 0, uiInfo.uiDC.whiteShader );
 	trap->R_DrawStretchPic( x, y + h - 1, w, 1, 0, 0, 0, 0, uiInfo.uiDC.whiteShader );
 }
-/*
-================
-UI_DrawRect
 
-Coordinates are 640*480 virtual values
-=================
-*/
+// Coordinates are 640*480 virtual values
 void UI_DrawRect( float x, float y, float width, float height, const float *color ) {
 	trap->R_SetColor( color );
 

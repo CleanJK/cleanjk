@@ -39,7 +39,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "client/client.h" //while this is all "shared" code, there are some places where we want to make cgame callbacks (for ragdoll) only if the cgvm exists
 //rww - RAGDOLL_END
 
-//=====================================================================================================================
 // Bone List handling routines - so entities can override bone info on a bone by bone level, and also interrogate this info
 
 // Given a bone name, see if that bone is already in our bone list - note the model_t pointer that gets passed in here MUST point at the
@@ -145,7 +144,6 @@ int G2_Add_Bone (const model_t *mod, boneInfo_v &blist, const char *boneName)
 	blist.push_back(tempBone);
 	return blist.size()-1;
 }
-
 
 // Given a model handle, and a bone name, we want to remove this bone from the bone override list
 qboolean G2_Remove_Bone_Index ( boneInfo_v &blist, int index)
@@ -429,9 +427,7 @@ void G2_Generate_Matrix(const model_t *mod, boneInfo_v &blist, int index, const 
 
 }
 
-//=========================================================================================
-//// Public Bone Routines
-
+// Public Bone Routines
 
 // Given a model handle, and a bone name, we want to remove this bone from the bone override list
 qboolean G2_Remove_Bone (CGhoul2Info *ghlInfo, boneInfo_v &blist, const char *boneName)
@@ -445,7 +441,6 @@ qboolean G2_Remove_Bone (CGhoul2Info *ghlInfo, boneInfo_v &blist, const char *bo
 }
 
 #define DEBUG_PCJ (0)
-
 
 // Given a model handle, and a bone name, we want to set angles specifically for overriding
 qboolean G2_Set_Bone_Angles_Index( boneInfo_v &blist, const int index,
@@ -1074,7 +1069,6 @@ qboolean G2_Stop_Bone_Angles(const char *fileName, boneInfo_v &blist, const char
 	return qfalse;
 }
 
-
 // actually walk the bone list and update each and every bone if we have ended an animation for them.
 void G2_Animate_Bone_List(CGhoul2Info_v &ghoul2, const int currentTime, const int index )
 {
@@ -1157,7 +1151,6 @@ void G2_Animate_Bone_List(CGhoul2Info_v &ghoul2, const int currentTime, const in
 
 //rww - RAGDOLL_BEGIN
 /*
-
 
   rag stuff
 
@@ -1255,13 +1248,11 @@ static int				ragState;
 
 static std::vector<boneInfo_t *>		rag;  // once we get the dependents precomputed this can be local
 
-
 static void G2_Generate_MatrixRag(
 			// caution this must not be called before the whole skeleton is "remembered"
 	boneInfo_v			&blist,
 	int					index)
 {
-
 
 	boneInfo_t &bone=blist[index];//.sent;
 
@@ -1502,7 +1493,6 @@ static int G2_Set_Bone_Angles_Rag(
 
 class CRagDollParams;
 const mdxaHeader_t *G2_GetModA(CGhoul2Info &ghoul2);
-
 
 static void G2_RagDollMatchPosition()
 {
@@ -1914,7 +1904,6 @@ if (index>=0)
 	VectorScale(pcjMax, sFactArm, pcjMax);
 	G2_Set_Bone_Angles_Rag(ghoul2, mod_a,blist,"lradius",pcjflags|RAG_BONE_LIGHTWEIGHT,(3.0f*sRadArm)*fRadScale,pcjMin,pcjMax,500);
 
-
 	VectorSet(pcjMin,-80.0f,-50.0f,-20.0f);
 	VectorSet(pcjMax,30.0f,5.0f,20.0f);
 	VectorScale(pcjMin, sFactLeg, pcjMin);
@@ -1986,7 +1975,6 @@ if (index>=0)
 	VectorSet(pcjMax,120.0f,15.0f,15.0f);
 	G2_Set_Bone_Angles_Rag(ghoul2, mod_a,blist,"ltibia",pcjflags|RAG_EFFECTOR|RAG_BONE_LIGHTWEIGHT,4.0f,pcjMin,pcjMax,500);
 #endif
-
 
 	float sRadEArm = 1.2f;
 	float sRadELeg = 1.2f;
@@ -2160,7 +2148,6 @@ void G2_SetRagDollBullet(CGhoul2Info &ghoul2,const vec3_t rayStart,const vec3_t 
 		}
 	}
 }
-
 
 static float G2_RagSetState(CGhoul2Info &ghoul2, boneInfo_t &bone,int frameNum,const vec3_t origin,bool &resetOrigin)
 {
@@ -3265,7 +3252,6 @@ static bool G2_RagDollSettlePositionNumeroTrois(CGhoul2Info_v &ghoul2V, const ve
 			float lwVReductionFactor = 0.1f;
 			float lwVerticalSpeedReductionFactor = 0.3f; //want this to be more obvious
 
-
 			VectorCopy(params->velocity, givenVelocity);
 			vSpeed = VectorNormalize(givenVelocity);
 			vSpeed = -vSpeed; //go in the opposite direction of velocity
@@ -3967,7 +3953,6 @@ static void G2_RagDollSolve(CGhoul2Info_v &ghoul2V,int g2Index,float decay,int f
 	assert(ghoul2.mFileName[0]);
 	boneInfo_v &blist = ghoul2.mBlist;
 
-
 	// END this is the objective function thing
 	for (i=0;i<numRags;i++)
 	{
@@ -3992,7 +3977,6 @@ static void G2_RagDollSolve(CGhoul2Info_v &ghoul2V,int g2Index,float decay,int f
 							Simplifies to:
 								M = ragBones[i] = EntToWorld * [skeletal heirachry1] *
 								MyAnimMatrix * ragBasepose[i] * current_rot_matrix
-
 
 							Enew is:
 
@@ -4025,7 +4009,6 @@ static void G2_RagDollSolve(CGhoul2Info_v &ghoul2V,int g2Index,float decay,int f
 							Ri=new_rot_matrix (for each euler angle)
 							we are gonna use three R's, so will will precompute them as Gi = P * Ri * N
 
-
 							and then Enewi= Gi * Ecur
 
 							we are gonna evaluate Enewi for "goodness" and accumulate changes in delAngles
@@ -4041,8 +4024,6 @@ static void G2_RagDollSolve(CGhoul2Info_v &ghoul2V,int g2Index,float decay,int f
 		Inverse_Matrix(&curRot,&curRotInv);  // dest 2nd arg
 
 		Multiply_3x4Matrix(&P,&ragBones[i],&curRotInv); //dest first arg
-
-
 
 		if (bone.RagFlags & RAG_PCJ_MODEL_ROOT)
 		{
@@ -4319,7 +4300,6 @@ static void G2_IKSolve(CGhoul2Info_v &ghoul2V,int g2Index,float decay,int frameN
 
 		Multiply_3x4Matrix(&P, &ragBones[i], &curRotInv); //dest first arg
 
-
 		vec3_t delAngles;
 		VectorClear(delAngles);
 
@@ -4396,7 +4376,6 @@ static void G2_IKSolve(CGhoul2Info_v &ghoul2V,int g2Index,float decay,int frameN
 		{
 			magicFactor9 = 0.85f; // we don't want this swinging radically, make the whole thing kindof unstable
 		}
-
 
 		if (!bone.maxAngles[0] && !bone.maxAngles[1] && !bone.maxAngles[2] &&
 			!bone.minAngles[0] && !bone.minAngles[1] && !bone.minAngles[2])

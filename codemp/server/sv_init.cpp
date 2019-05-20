@@ -29,14 +29,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "qcommon/stringed_ingame.h"
 #include "sv_gameapi.h"
 
-/*
-===============
-SV_SendConfigstring
-
-Creates and sends the server command necessary to update the CS index for the
-given client
-===============
-*/
+// Creates and sends the server command necessary to update the CS index for the given client
 static void SV_SendConfigstring(client_t *client, int index)
 {
 	int maxChunkSize = MAX_STRING_CHARS - 24;
@@ -76,14 +69,8 @@ static void SV_SendConfigstring(client_t *client, int index)
 	}
 }
 
-/*
-===============
-SV_UpdateConfigstrings
-
-Called when a client goes from CS_PRIMED to CS_ACTIVE.  Updates all
-Configstring indexes that have changed while the client was in CS_PRIMED
-===============
-*/
+// Called when a client goes from CS_PRIMED to CS_ACTIVE.
+// Updates all Configstring indexes that have changed while the client was in CS_PRIMED
 void SV_UpdateConfigstrings(client_t *client)
 {
 	int index;
@@ -103,12 +90,6 @@ void SV_UpdateConfigstrings(client_t *client)
 	}
 }
 
-/*
-===============
-SV_SetConfigstring
-
-===============
-*/
 void SV_SetConfigstring (int index, const char *val) {
 	int		i;
 	client_t	*client;
@@ -151,12 +132,6 @@ void SV_SetConfigstring (int index, const char *val) {
 	}
 }
 
-/*
-===============
-SV_GetConfigstring
-
-===============
-*/
 void SV_GetConfigstring( int index, char *buffer, int bufferSize ) {
 	if ( bufferSize < 1 ) {
 		Com_Error( ERR_DROP, "SV_GetConfigstring: bufferSize == %i", bufferSize );
@@ -172,12 +147,6 @@ void SV_GetConfigstring( int index, char *buffer, int bufferSize ) {
 	Q_strncpyz( buffer, sv.configstrings[index], bufferSize );
 }
 
-/*
-===============
-SV_SetUserinfo
-
-===============
-*/
 void SV_SetUserinfo( int index, const char *val ) {
 	if ( index < 0 || index >= sv_maxclients->integer ) {
 		Com_Error (ERR_DROP, "SV_SetUserinfo: bad index %i\n", index);
@@ -191,12 +160,6 @@ void SV_SetUserinfo( int index, const char *val ) {
 	Q_strncpyz( svs.clients[index].name, Info_ValueForKey( val, "name" ), sizeof(svs.clients[index].name) );
 }
 
-/*
-===============
-SV_GetUserinfo
-
-===============
-*/
 void SV_GetUserinfo( int index, char *buffer, int bufferSize ) {
 	if ( bufferSize < 1 ) {
 		Com_Error( ERR_DROP, "SV_GetUserinfo: bufferSize == %i", bufferSize );
@@ -207,15 +170,8 @@ void SV_GetUserinfo( int index, char *buffer, int bufferSize ) {
 	Q_strncpyz( buffer, svs.clients[ index ].userinfo, bufferSize );
 }
 
-/*
-================
-SV_CreateBaseline
-
-Entity baselines are used to compress non-delta messages
-to the clients -- only the fields that differ from the
-baseline will be transmitted
-================
-*/
+// Entity baselines are used to compress non-delta messages to the clients -- only the fields that differ from the
+//	baseline will be transmitted
 void SV_CreateBaseline( void ) {
 	sharedEntity_t *svent;
 	int				entnum;
@@ -227,19 +183,12 @@ void SV_CreateBaseline( void ) {
 		}
 		svent->s.number = entnum;
 
-		//
 		// take current state as baseline
-		//
+
 		sv.svEntities[entnum].baseline = svent->s;
 	}
 }
 
-/*
-===============
-SV_BoundMaxClients
-
-===============
-*/
 void SV_BoundMaxClients( int minimum ) {
 	// get the current maxclients value
 	Cvar_Get( "sv_maxclients", "8", 0 );
@@ -253,16 +202,8 @@ void SV_BoundMaxClients( int minimum ) {
 	}
 }
 
-/*
-===============
-SV_Startup
-
-Called when a host starts a map when it wasn't running
-one before.  Successive map or map_restart commands will
-NOT cause this to be called, unless the game is exited to
-the menu system first.
-===============
-*/
+// Called when a host starts a map when it wasn't running one before. Successive map or map_restart commands will NOT
+//	cause this to be called, unless the game is exited to the menu system first.
 void SV_Startup( void ) {
 	if ( svs.initialized ) {
 		Com_Error( ERR_FATAL, "SV_Startup: svs.initialized" );
@@ -290,25 +231,13 @@ void SV_Startup( void ) {
 	Cvar_Set( "sv_running", "1" );
 }
 
-/*
-Ghoul2 Insert Start
-*/
-
  void SV_InitSV(void)
 {
 	// clear out most of the sv struct
 	memset(&sv, 0, (sizeof(sv)));
 	sv.mLocalSubBSPIndex = -1;
 }
-/*
-Ghoul2 Insert End
-*/
 
-/*
-==================
-SV_ChangeMaxClients
-==================
-*/
 void SV_ChangeMaxClients( void ) {
 	int		oldMaxClients;
 	int		i;
@@ -370,11 +299,6 @@ void SV_ChangeMaxClients( void ) {
 	}
 }
 
-/*
-================
-SV_ClearServer
-================
-*/
 void SV_ClearServer(void) {
 	int i;
 
@@ -386,26 +310,13 @@ void SV_ClearServer(void) {
 
 //	CM_ClearMap();
 
-	/*
-Ghoul2 Insert Start
-*/
-
 	// nope, can't do this anymore.. sv contains entitystates with STL in them.
 //	memset (&sv, 0, sizeof(sv));
  	SV_InitSV();
-/*
-Ghoul2 Insert End
-*/
 //	Com_Memset (&sv, 0, sizeof(sv));
 }
 
-/*
-================
-SV_TouchCGame
-
-  touch the cgame.vm so that a pure client can load it if it's in a seperate pk3
-================
-*/
+// touch the cgame.vm so that a pure client can load it if it's in a seperate pk3
 void SV_TouchCGame(void) {
 	fileHandle_t	f;
 	char filename[MAX_QPATH];
@@ -439,15 +350,9 @@ void SV_SendMapChange(void)
 }
 
 extern void SV_SendClientGameState( client_t *client );
-/*
-================
-SV_SpawnServer
 
-Change the server to a new map, taking all connected
-clients along with it.
-This is NOT called for map_restart
-================
-*/
+// Change the server to a new map, taking all connected clients along with it.
+// This is NOT called for map_restart
 void SV_SpawnServer( char *server, qboolean killBots, ForceReload_e eForceReload ) {
 	int			i;
 	int			checksum;
@@ -468,18 +373,12 @@ void SV_SpawnServer( char *server, qboolean killBots, ForceReload_e eForceReload
 	Com_Printf ("------ Server Initialization ------\n");
 	Com_Printf ("Server: %s\n",server);
 
-/*
-Ghoul2 Insert Start
-*/
  	// de allocate the snapshot entities
 	if (svs.snapshotEntities)
 	{
 		delete[] svs.snapshotEntities;
 		svs.snapshotEntities = NULL;
 	}
-/*
-Ghoul2 Insert End
-*/
 
 	SV_SendMapChange();
 
@@ -512,9 +411,6 @@ Ghoul2 Insert End
 
 	SV_SendMapChange();
 
-/*
-Ghoul2 Insert Start
-*/
  	// clear out those shaders, images and Models as long as this
 	// isnt a dedicated server.
 	/*
@@ -540,9 +436,6 @@ Ghoul2 Insert Start
 	// clear pak references
 	FS_ClearPakReferences(0);
 
-/*
-Ghoul2 Insert Start
-*/
 	// allocate the snapshot entities on the hunk
 //	svs.snapshotEntities = (struct entityState_s *)Hunk_Alloc( sizeof(entityState_t)*svs.numSnapshotEntities, h_high );
 	svs.nextSnapshotEntities = 0;
@@ -551,10 +444,6 @@ Ghoul2 Insert Start
 	svs.snapshotEntities = new entityState_s[svs.numSnapshotEntities];
 	// we CAN afford to do this here, since we know the STL vectors in Ghoul2 are empty
 	memset(svs.snapshotEntities, 0, sizeof(entityState_t)*svs.numSnapshotEntities);
-
-/*
-Ghoul2 Insert End
-*/
 
 	// toggle the server bit so clients can detect that a
 	// server has changed
@@ -759,14 +648,7 @@ Ghoul2 Insert End
 	SV_BeginAutoRecordDemos();
 }
 
-
-/*
-===============
-SV_Init
-
-Only called at main exe startup, not for each game
-===============
-*/
+// Only called at main exe startup, not for each game
 void SV_BotInitBotLib(void);
 
 #ifdef DEDICATED
@@ -775,14 +657,7 @@ void SV_BotInitBotLib(void);
 IHeapAllocator *G2VertSpaceServer = NULL;
 CMiniHeap IHeapAllocator_singleton(G2_VERT_SPACE_SERVER_SIZE * 1024);
 
-
-/*
-================
-CL_RefPrintf
-
-DLL glue
-================
-*/
+// DLL glue
 void QDECL SV_RefPrintf( int print_level, const char *fmt, ...) {
 	va_list		argptr;
 	char		msg[MAXPRINTMSG];
@@ -928,6 +803,7 @@ void SV_Init (void) {
 	SV_AddOperatorCommands ();
 
 	// serverinfo vars
+	//CJKFIXME: better defaults for game cvars
 	Cvar_Get ("dmflags", "0", CVAR_SERVERINFO);
 	Cvar_Get ("fraglimit", "20", CVAR_SERVERINFO);
 	Cvar_Get ("timelimit", "0", CVAR_SERVERINFO);
@@ -951,7 +827,6 @@ void SV_Init (void) {
 	Cvar_CheckRange( sv_privateClients, 0, MAX_CLIENTS, qtrue );
 	sv_hostname = Cvar_Get ("sv_hostname", "*Jedi*", CVAR_SERVERINFO | CVAR_ARCHIVE, "The name of the server that is displayed in the serverlist" );
 	sv_maxclients = Cvar_Get ("sv_maxclients", "8", CVAR_SERVERINFO | CVAR_LATCH, "Max. connected clients" );
-
 
 	//cvar_t	*sv_ratePolicy;		// 1-2
 	//cvar_t	*sv_clientRate;
@@ -1026,17 +901,9 @@ void SV_Init (void) {
 #endif
 }
 
-
-/*
-==================
-SV_FinalMessage
-
-Used by SV_Shutdown to send a final message to all
-connected clients before the server goes down.  The messages are sent immediately,
-not just stuck on the outgoing message list, because the server is going
-to totally exit after returning from this function.
-==================
-*/
+// Used by SV_Shutdown to send a final message to all connected clients before the server goes down.
+// The messages are sent immediately, not just stuck on the outgoing message list, because the server is going to
+//	totally exit after returning from this function.
 void SV_FinalMessage( char *message ) {
 	int			i, j;
 	client_t	*cl;
@@ -1058,15 +925,7 @@ void SV_FinalMessage( char *message ) {
 	}
 }
 
-
-/*
-================
-SV_Shutdown
-
-Called when each game quits,
-before Sys_Quit or Sys_Error
-================
-*/
+// Called when each game quits, before Sys_Quit or Sys_Error
 void SV_Shutdown( char *finalmsg )
 {
 	if ( !com_sv_running || !com_sv_running->integer )
@@ -1085,9 +944,6 @@ void SV_Shutdown( char *finalmsg )
 	SV_ChallengeShutdown();
 	SV_ShutdownGameProgs();
 	svs.gameStarted = qfalse;
-/*
-Ghoul2 Insert Start
-*/
  	// de allocate the snapshot entities
 	if (svs.snapshotEntities)
 	{
@@ -1106,7 +962,6 @@ Ghoul2 Insert Start
 	Com_Memset( &svs, 0, sizeof( svs ) );
 
 	Cvar_Set( "sv_running", "0" );
-	Cvar_Set("ui_singlePlayerActive", "0");
 
 //	Com_Printf( "---------------------------\n" );
 

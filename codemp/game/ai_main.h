@@ -49,8 +49,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define WPFLAG_GOALPOINT		0x00010000 //make it a goal to get here.. goal points will be decided by setting "weight" values
 #define WPFLAG_RED_FLAG			0x00020000 //red flag
 #define WPFLAG_BLUE_FLAG		0x00040000 //blue flag
-#define WPFLAG_SIEGE_REBELOBJ	0x00080000 //rebel siege objective
-#define WPFLAG_SIEGE_IMPERIALOBJ	0x00100000 //imperial siege objective
+
 #define WPFLAG_NOMOVEFUNC		0x00200000 //don't move over if a func is under
 
 #define WPFLAG_CALCULATED		0x00400000 //don't calculate it again
@@ -86,9 +85,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #define BOT_MAX_WEAPON_CHASE_CTF	5000 //time to spend gathering the weapon before persuing the enemy base (in case it takes longer than expected) [ctf-only]
 
-#define BOT_MIN_SIEGE_GOAL_SHOOT		1024
-#define BOT_MIN_SIEGE_GOAL_TRAVEL	128
-
 #define BASE_GUARD_DISTANCE			256 //guarding the flag
 #define BASE_FLAGWAIT_DISTANCE		256 //has the enemy flag and is waiting in his own base for his flag to be returned
 #define BASE_GETENEMYFLAG_DISTANCE	256 //waiting around to get the enemy's flag
@@ -107,14 +103,6 @@ typedef enum
 	CTFSTATE_GETFLAGHOME,
 	CTFSTATE_MAXCTFSTATES
 } bot_ctf_state_t;
-
-typedef enum
-{
-	SIEGESTATE_NONE,
-	SIEGESTATE_ATTACKER,
-	SIEGESTATE_DEFENDER,
-	SIEGESTATE_MAXSIEGESTATES
-} bot_siege_state_t;
 
 typedef enum
 {
@@ -313,8 +301,6 @@ typedef struct bot_state_s
 	float				botWeaponWeights[WP_NUM_WEAPONS];
 
 	int					ctfState;
-
-	int					siegeState;
 
 	int					teamplayState;
 

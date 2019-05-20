@@ -38,31 +38,16 @@ float cl_mSensitivityOverride = 0.0f;
 qboolean cl_bUseFighterPitch = qfalse;
 qboolean cl_crazyShipControls = qfalse;
 
-#ifdef VEH_CONTROL_SCHEME_4
-#define	OVERRIDE_MOUSE_SENSITIVITY 5.0f//20.0f = 180 degree turn in one mouse swipe across keyboard
-#else// VEH_CONTROL_SCHEME_4
 #define	OVERRIDE_MOUSE_SENSITIVITY 10.0f//20.0f = 180 degree turn in one mouse swipe across keyboard
-#endif// VEH_CONTROL_SCHEME_4
-/*
-===============================================================================
 
-KEY BUTTONS
-
-Continuous button event tracking is complicated by the fact that two different
-input sources (say, mouse button 1 and the control key) can both press the
-same button, but the button should only be released when both of the
-pressing key have been released.
-
-When a key event issues a button command (+forward, +attack, etc), it appends
-its key number as argv(1) so it can be matched up with the release.
-
-argv(2) will be set to the time the event happened, which allows exact
-control even at low framerates when the down and up events may both get qued
-at the same time.
-
-===============================================================================
-*/
-
+// KEY BUTTONS
+// Continuous button event tracking is complicated by the fact that two different input sources (say, mouse button 1 and
+//	the control key) can both press the same button, but the button should only be released when both of the pressing
+//	key have been released.
+// When a key event issues a button command (+forward, +attack, etc), it appends its key number as argv(1) so it can be
+//	matched up with the release.
+// argv(2) will be set to the time the event happened, which allows exact control even at low framerates when the down
+//	and up events may both get queued at the same time.
 
 kbutton_t	in_left, in_right, in_forward, in_back;
 kbutton_t	in_lookup, in_lookdown, in_moveleft, in_moveright;
@@ -72,7 +57,6 @@ kbutton_t	in_up, in_down;
 #define MAX_KBUTTONS 16
 
 kbutton_t	in_buttons[MAX_KBUTTONS];
-
 
 qboolean	in_mlooking;
 
@@ -353,7 +337,6 @@ void IN_GenCMD31( void )
 	cl.gcmdValue = GENCMD_GLOAT;
 }
 
-
 //toggle automap view mode
 static bool g_clAutoMapMode = false;
 void IN_AutoMapButton(void)
@@ -468,15 +451,7 @@ void IN_KeyUp( kbutton_t *b ) {
 	b->active = qfalse;
 }
 
-
-
-/*
-===============
-CL_KeyState
-
-Returns the fraction of the frame that the key was down
-===============
-*/
+// Returns the fraction of the frame that the key was down
 float CL_KeyState( kbutton_t *key ) {
 	float		val;
 	int			msec;
@@ -603,7 +578,6 @@ static void CL_AutoMapKey(int autoMapKey, qboolean up)
 
 	g_clAutoMapInput.goToDefaults = qfalse;
 }
-
 
 void IN_UpDown(void)
 {
@@ -798,8 +772,6 @@ void IN_CenterView (void) {
 	cl.viewangles[PITCH] = -SHORT2ANGLE(cl.snap.ps.delta_angles[PITCH]);
 }
 
-//==========================================================================
-
 cvar_t	*cl_upspeed;
 cvar_t	*cl_forwardspeed;
 cvar_t	*cl_sidespeed;
@@ -811,14 +783,7 @@ cvar_t	*cl_run;
 
 cvar_t	*cl_anglespeedkey;
 
-
-/*
-================
-CL_AdjustAngles
-
-Moves the local angle positions
-================
-*/
+// Moves the local angle positions
 void CL_AdjustAngles( void ) {
 	float	speed;
 
@@ -869,22 +834,14 @@ void CL_AdjustAngles( void ) {
 	}
 }
 
-/*
-================
-CL_KeyMove
-
-Sets the usercmd_t based on key states
-================
-*/
+// Sets the usercmd_t based on key states
 void CL_KeyMove( usercmd_t *cmd ) {
 	int		movespeed;
 	int		forward, side, up;
 
-	//
 	// adjust for speed key / running
 	// the walking flag is to keep animations consistant
 	// even during acceleration and develeration
-	//
 	if ( in_speed.active ^ cl_run->integer ) {
 		movespeed = 127;
 		cmd->buttons &= ~BUTTON_WALKING;
@@ -904,7 +861,6 @@ void CL_KeyMove( usercmd_t *cmd ) {
 	side += movespeed * CL_KeyState (&in_moveright);
 	side -= movespeed * CL_KeyState (&in_moveleft);
 
-
 	up += movespeed * CL_KeyState (&in_up);
 	up -= movespeed * CL_KeyState (&in_down);
 
@@ -916,11 +872,6 @@ void CL_KeyMove( usercmd_t *cmd ) {
 	cmd->upmove = ClampChar( up );
 }
 
-/*
-=================
-CL_MouseEvent
-=================
-*/
 void CL_MouseEvent( int dx, int dy, int time ) {
 	if (g_clAutoMapMode && cls.cgameStarted)
 	{ //automap input
@@ -944,13 +895,7 @@ void CL_MouseEvent( int dx, int dy, int time ) {
 	}
 }
 
-/*
-=================
-CL_JoystickEvent
-
-Joystick values stay set until changed
-=================
-*/
+// Joystick values stay set until changed
 void CL_JoystickEvent( int axis, int value, int time ) {
 	if ( axis < 0 || axis >= MAX_JOYSTICK_AXIS ) {
 		Com_Error( ERR_DROP, "CL_JoystickEvent: bad axis %i", axis );
@@ -958,11 +903,6 @@ void CL_JoystickEvent( int axis, int value, int time ) {
 	cl.joystickAxis[axis] = value;
 }
 
-/*
-=================
-CL_JoystickMove
-=================
-*/
 extern cvar_t *in_joystick;
 void CL_JoystickMove( usercmd_t *cmd ) {
 	float	anglespeed;
@@ -1028,11 +968,6 @@ void CL_JoystickMove( usercmd_t *cmd ) {
 	cmd->upmove = ClampChar( cmd->upmove + cl.joystickAxis[AXIS_UP] );
 }
 
-/*
-=================
-CL_MouseMove
-=================
-*/
 void CL_MouseMove( usercmd_t *cmd ) {
 	float	mx, my;
 	const float	speed = static_cast<float>(frame_msec);
@@ -1190,19 +1125,12 @@ qboolean CL_NoUseableForce(void)
 	return CGVM_NoUseableForce();
 }
 
-/*
-==============
-CL_CmdButtons
-==============
-*/
 void CL_CmdButtons( usercmd_t *cmd ) {
 	int		i;
 
-	//
 	// figure button bits
 	// send a button bit even if the key was pressed and released in
 	// less than a frame
-	//
 	for (i = 0 ; i < MAX_KBUTTONS ; i++) {
 		if ( in_buttons[i].active || in_buttons[i].wasPressed ) {
 			cmd->buttons |= 1 << i;
@@ -1230,12 +1158,6 @@ void CL_CmdButtons( usercmd_t *cmd ) {
 	}
 }
 
-
-/*
-==============
-CL_FinishMove
-==============
-*/
 vec3_t cl_sendAngles={0};
 vec3_t cl_lastViewAngles={0};
 void CL_FinishMove( usercmd_t *cmd ) {
@@ -1323,11 +1245,6 @@ void CL_FinishMove( usercmd_t *cmd ) {
 	VectorCopy( cl.viewangles, cl_lastViewAngles );
 }
 
-/*
-=================
-CL_CreateCmd
-=================
-*/
 usercmd_t CL_CreateCmd( void ) {
 	usercmd_t	cmd;
 	vec3_t		oldAngles;
@@ -1373,14 +1290,7 @@ usercmd_t CL_CreateCmd( void ) {
 	return cmd;
 }
 
-
-/*
-=================
-CL_CreateNewCommands
-
-Create a new usercmd_t structure for this frame
-=================
-*/
+// Create a new usercmd_t structure for this frame
 void CL_CreateNewCommands( void ) {
 	int			cmdNum;
 
@@ -1408,17 +1318,10 @@ void CL_CreateNewCommands( void ) {
 	cl.cmds[cmdNum] = CL_CreateCmd();
 }
 
-/*
-=================
-CL_ReadyToSendPacket
-
-Returns qfalse if we are over the maxpackets limit
-and should choke back the bandwidth a bit by not sending
-a packet this frame.  All the commands will still get
-delivered in the next packet, but saving a header and
-getting more delta compression will reduce total bandwidth.
-=================
-*/
+// Returns qfalse if we are over the maxpackets limit and should choke back the bandwidth a bit by not sending a packet
+//	this frame.
+// All the commands will still get delivered in the next packet, but saving a header and getting more delta compression
+//	will reduce total bandwidth.
 qboolean CL_ReadyToSendPacket( void ) {
 	int		oldPacketNum;
 	int		delta;
@@ -1470,27 +1373,17 @@ qboolean CL_ReadyToSendPacket( void ) {
 	return qtrue;
 }
 
-/*
-===================
-CL_WritePacket
-
-Create and send the command packet to the server
-Including both the reliable commands and the usercmds
-
-During normal gameplay, a client packet will contain something like:
-
-4	sequence number
-2	qport
-4	serverid
-4	acknowledged sequence number
-4	clc.serverCommandSequence
-<optional reliable commands>
-1	clc_move or clc_moveNoDelta
-1	command count
-<count * usercmds>
-
-===================
-*/
+// Create and send the command packet to the server, including both the reliable commands and the usercmds
+// During normal gameplay, a client packet will contain something like:
+//	4	sequence number
+//	2	qport
+//	4	serverid
+//	4	acknowledged sequence number
+//	4	clc.serverCommandSequence
+//	<optional reliable commands>
+//	1	clc_move or clc_moveNoDelta
+//	1	command count
+//	<count * usercmds>
 void CL_WritePacket( void ) {
 	msg_t		buf;
 	byte		data[MAX_MSGLEN];
@@ -1585,9 +1478,7 @@ void CL_WritePacket( void ) {
 		}
 	}
 
-	//
 	// deliver the message
-	//
 	packetNum = clc.netchan.outgoingSequence & PACKET_MASK;
 	cl.outPackets[ packetNum ].p_realtime = cls.realtime;
 	cl.outPackets[ packetNum ].p_serverTime = oldcmd->serverTime;
@@ -1608,13 +1499,7 @@ void CL_WritePacket( void ) {
 	}
 }
 
-/*
-=================
-CL_SendCmd
-
-Called every frame to builds and sends a command packet to the server.
-=================
-*/
+// Called every frame to builds and sends a command packet to the server.
 void CL_SendCmd( void ) {
 	// don't send any message if not connected
 	if ( cls.state < CA_CONNECTED ) {
@@ -1753,11 +1638,6 @@ static const cmdList_t inputCmds[] =
 	{ NULL, NULL, NULL, NULL }
 };
 
-/*
-============
-CL_InitInput
-============
-*/
 void CL_InitInput( void ) {
 	Cmd_AddCommandList( inputCmds );
 
@@ -1765,11 +1645,6 @@ void CL_InitInput( void ) {
 	cl_debugMove = Cvar_Get ("cl_debugMove", "0", 0);
 }
 
-/*
-============
-CL_ShutdownInput
-============
-*/
 void CL_ShutdownInput( void ) {
 	Cmd_RemoveCommandList( inputCmds );
 }

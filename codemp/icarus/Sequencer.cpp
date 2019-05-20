@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 // Script Command Sequencer
-//
+
 //	-- jweier
 
 // this include must remain at the top of every Icarus CPP file
@@ -50,14 +50,7 @@ CSequencer::~CSequencer( void )
 	Free();	//Safe even if already freed
 }
 
-/*
-========================
-Create
-
-Static creation function
-========================
-*/
-
+// Static creation function
 CSequencer *CSequencer::Create ( void )
 {
 	CSequencer *sequencer = new CSequencer;
@@ -65,13 +58,7 @@ CSequencer *CSequencer::Create ( void )
 	return sequencer;
 }
 
-/*
-========================
-Init
-
-Initializes the sequencer
-========================
-*/
+// Initializes the sequencer
 int CSequencer::Init( int ownerID, interface_export_t *ie, CTaskManager *taskManager, ICARUS_Instance *iICARUS )
 {
 	m_ownerID		= ownerID;
@@ -82,13 +69,7 @@ int CSequencer::Init( int ownerID, interface_export_t *ie, CTaskManager *taskMan
 	return SEQ_OK;
 }
 
-/*
-========================
-Free
-
-Releases all resources and re-inits the sequencer
-========================
-*/
+// Releases all resources and re-inits the sequencer
 int CSequencer::Free( void )
 {
 	sequence_l::iterator	sli;
@@ -115,12 +96,6 @@ int CSequencer::Free( void )
 
 	return SEQ_OK;
 }
-
-/*
--------------------------
-Flush
--------------------------
-*/
 
 int CSequencer::Flush( CSequence *owner )
 {
@@ -155,14 +130,7 @@ int CSequencer::Flush( CSequence *owner )
 	return SEQ_OK;
 }
 
-/*
-========================
-AddStream
-
-Creates a stream for parsing
-========================
-*/
-
+// Creates a stream for parsing
 bstream_t *CSequencer::AddStream( void )
 {
 	bstream_t	*stream;
@@ -176,13 +144,7 @@ bstream_t *CSequencer::AddStream( void )
 	return stream;
 }
 
-/*
-========================
-DeleteStream
-
-Deletes parsing stream
-========================
-*/
+// Deletes parsing stream
 void CSequencer::DeleteStream( bstream_t *bstream )
 {
 	std::vector<bstream_t*>::iterator finder = std::find(m_streamsCreated.begin(), m_streamsCreated.end(), bstream);
@@ -199,22 +161,10 @@ void CSequencer::DeleteStream( bstream_t *bstream )
 	bstream = NULL;
 }
 
-/*
--------------------------
-AddTaskSequence
--------------------------
-*/
-
 void CSequencer::AddTaskSequence( CSequence *sequence, CTaskGroup *group )
 {
 	m_taskSequences[ group ] = sequence;
 }
-
-/*
--------------------------
-GetTaskSequence
--------------------------
-*/
 
 CSequence *CSequencer::GetTaskSequence( CTaskGroup *group )
 {
@@ -228,14 +178,7 @@ CSequence *CSequencer::GetTaskSequence( CTaskGroup *group )
 	return (*tsi).second;
 }
 
-/*
-========================
-AddSequence
-
-Creates and adds a sequence to the sequencer
-========================
-*/
-
+// Creates and adds a sequence to the sequencer
 CSequence *CSequencer::AddSequence( void )
 {
 	CSequence	*sequence = m_owner->GetSequence();
@@ -271,14 +214,7 @@ CSequence *CSequencer::AddSequence( CSequence *parent, CSequence *returnSeq, int
 	return sequence;
 }
 
-/*
-========================
-GetSequence
-
-Retrieves a sequence by its ID
-========================
-*/
-
+// Retrieves a sequence by its ID
 CSequence *CSequencer::GetSequence( int id )
 {
 /*	sequenceID_m::iterator mi;
@@ -300,12 +236,6 @@ CSequence *CSequencer::GetSequence( int id )
 	return NULL;
 }
 
-/*
--------------------------
-Interrupt
--------------------------
-*/
-
 void CSequencer::Interrupt( void )
 {
 	CBlock	*command = m_taskManager->GetCurrentTask();
@@ -317,13 +247,7 @@ void CSequencer::Interrupt( void )
 	PushCommand( command, PUSH_BACK );
 }
 
-/*
-========================
-Run
-
-Runs a script
-========================
-*/
+// Runs a script
 int CSequencer::Run( char *buffer, long size )
 {
 	bstream_t		*blockStream;
@@ -352,14 +276,7 @@ int CSequencer::Run( char *buffer, long size )
 	return SEQ_OK;
 }
 
-/*
-========================
-ParseRun
-
-Parses a user triggered run command
-========================
-*/
-
+// Parses a user triggered run command
 int CSequencer::ParseRun( CBlock *block )
 {
 	CSequence	*new_sequence;
@@ -418,14 +335,7 @@ int CSequencer::ParseRun( CBlock *block )
 	return SEQ_OK;
 }
 
-/*
-========================
-ParseIf
-
-Parses an if statement
-========================
-*/
-
+// Parses an if statement
 int CSequencer::ParseIf( CBlock *block, bstream_t *bstream )
 {
 	CSequence	*sequence;
@@ -459,14 +369,7 @@ int CSequencer::ParseIf( CBlock *block, bstream_t *bstream )
 	return SEQ_OK;
 }
 
-/*
-========================
-ParseElse
-
-Parses an else statement
-========================
-*/
-
+// Parses an else statement
 int CSequencer::ParseElse( CBlock *block, bstream_t *bstream )
 {
 	//The else is not retained
@@ -508,14 +411,7 @@ int CSequencer::ParseElse( CBlock *block, bstream_t *bstream )
 	return SEQ_OK;
 }
 
-/*
-========================
-ParseLoop
-
-Parses a loop command
-========================
-*/
-
+// Parses a loop command
 int CSequencer::ParseLoop( CBlock *block, bstream_t *bstream )
 {
 	CSequence		*sequence;
@@ -568,14 +464,7 @@ int CSequencer::ParseLoop( CBlock *block, bstream_t *bstream )
 	return SEQ_OK;
 }
 
-/*
-========================
-AddAffect
-
-Adds a sequence that is saved until the affect is called by the parent
-========================
-*/
-
+// Adds a sequence that is saved until the affect is called by the parent
 int CSequencer::AddAffect( bstream_t *bstream, int retain, int *id )
 {
 	CSequence	*sequence = AddSequence();
@@ -605,14 +494,7 @@ int CSequencer::AddAffect( bstream_t *bstream, int retain, int *id )
 	return SEQ_OK;
 }
 
-/*
-========================
-ParseAffect
-
-Parses an affect command
-========================
-*/
-
+// Parses an affect command
 int CSequencer::ParseAffect( CBlock *block, bstream_t *bstream )
 {
 	CSequencer	*stream_sequencer = NULL;
@@ -631,9 +513,9 @@ int CSequencer::ParseAffect( CBlock *block, bstream_t *bstream )
 		char			*p1 = NULL;
 		char			*name = 0;
 		CBlockMember	*bm = NULL;
-		//
+
 		//	Get the first parameter (this should be the get)
-		//
+
 		bm = block->GetMember( 0 );
 		id = bm->GetID();
 
@@ -744,12 +626,6 @@ int CSequencer::ParseAffect( CBlock *block, bstream_t *bstream )
 	return SEQ_OK;
 }
 
-/*
--------------------------
-ParseTask
--------------------------
-*/
-
 int CSequencer::ParseTask( CBlock *block, bstream_t *bstream )
 {
 	CSequence	*sequence;
@@ -791,18 +667,9 @@ int CSequencer::ParseTask( CBlock *block, bstream_t *bstream )
 	return SEQ_OK;
 }
 
-/*
-========================
-Route
-
-Properly handles and routes commands to the sequencer
-========================
-*/
-
+// Properly handles and routes commands to the sequencer
 //FIXME: Re-entering this code will produce unpredictable results if a script has already been routed and is running currently
-
 //FIXME: A sequencer cannot properly affect itself
-
 int CSequencer::Route( CSequence *sequence, bstream_t *bstream )
 {
 	CBlockStream	*stream;
@@ -967,16 +834,8 @@ int CSequencer::Route( CSequence *sequence, bstream_t *bstream )
 	return SEQ_OK;
 }
 
-/*
-========================
-CheckRun
-
-Checks for run command pre-processing
-========================
-*/
-
-//Directly changes the parameter to avoid excess push/pop
-
+// Checks for run command pre-processing
+// Directly changes the parameter to avoid excess push/pop
 void CSequencer::CheckRun( CBlock **command )
 {
 	CBlock	*block = *command;
@@ -1053,14 +912,7 @@ void CSequencer::CheckRun( CBlock **command )
 	}
 }
 
-/*
--------------------------
-EvaluateConditional
--------------------------
-*/
-
 //FIXME: This function will be written better later once the functionality of the ideas here are tested
-
 int CSequencer::EvaluateConditional( CBlock *block )
 {
 	CBlockMember	*bm;
@@ -1070,9 +922,7 @@ int CSequencer::EvaluateConditional( CBlock *block )
 	char			*p1 = NULL, *p2 = NULL;
 	int				t1, t2;
 
-	//
 	//	Get the first parameter
-	//
 
 	bm = block->GetMember( memberNum++ );
 	id = bm->GetID();
@@ -1218,9 +1068,7 @@ int CSequencer::EvaluateConditional( CBlock *block )
 		break;
 	}
 
-	//
 	//	Get the comparison operator
-	//
 
 	bm = block->GetMember( memberNum++ );
 	id = bm->GetID();
@@ -1240,9 +1088,7 @@ int CSequencer::EvaluateConditional( CBlock *block )
 		break;
 	}
 
-	//
 	//	Get the second parameter
-	//
 
 	bm = block->GetMember( memberNum++ );
 	id = bm->GetID();
@@ -1393,14 +1239,7 @@ int CSequencer::EvaluateConditional( CBlock *block )
 	return m_ie->I_Evaluate( t1, p1, t2, p2, oper );
 }
 
-/*
-========================
-CheckIf
-
-Checks for if statement pre-processing
-========================
-*/
-
+// Checks for if statement pre-processing
 void CSequencer::CheckIf( CBlock **command )
 {
 	CBlock		*block = *command;
@@ -1547,14 +1386,7 @@ void CSequencer::CheckIf( CBlock **command )
 	}
 }
 
-/*
-========================
-CheckLoop
-
-Checks for loop command pre-processing
-========================
-*/
-
+// Checks for loop command pre-processing
 void CSequencer::CheckLoop( CBlock **command )
 {
 	CBlockMember	*bm;
@@ -1685,14 +1517,7 @@ void CSequencer::CheckLoop( CBlock **command )
 	}
 }
 
-/*
-========================
-CheckFlush
-
-Checks for flush command pre-processing
-========================
-*/
-
+// Checks for flush command pre-processing
 void CSequencer::CheckFlush( CBlock **command )
 {
 	CBlock *block =			*command;
@@ -1724,14 +1549,7 @@ void CSequencer::CheckFlush( CBlock **command )
 	}
 }
 
-/*
-========================
-CheckAffect
-
-Checks for affect command pre-processing
-========================
-*/
-
+// Checks for affect command pre-processing
 void CSequencer::CheckAffect( CBlock **command )
 {
 	CBlock *block = *command;
@@ -1758,9 +1576,9 @@ void CSequencer::CheckAffect( CBlock **command )
 			char			*p1 = NULL;
 			char			*name = 0;
 			CBlockMember	*bm = NULL;
-			//
+
 			//	Get the first parameter (this should be the get)
-			//
+
 			bm = block->GetMember( 0 );
 			id = bm->GetID();
 
@@ -1894,12 +1712,6 @@ void CSequencer::CheckAffect( CBlock **command )
 	}
 }
 
-/*
--------------------------
-CheckDo
--------------------------
-*/
-
 void CSequencer::CheckDo( CBlock **command )
 {
 	CBlock *block = *command;
@@ -1994,14 +1806,7 @@ void CSequencer::CheckDo( CBlock **command )
 	}
 }
 
-/*
-========================
-Prep
-
-Handles internal sequencer maintenance
-========================
-*/
-
+// Handles internal sequencer maintenance
 void CSequencer::Prep( CBlock **command )
 {
 	//Check all pre-processes
@@ -2013,14 +1818,7 @@ void CSequencer::Prep( CBlock **command )
 	CheckDo( command );
 }
 
-/*
-========================
-Prime
-
-Starts communication between the task manager and this sequencer
-========================
-*/
-
+// Starts communication between the task manager and this sequencer
 int CSequencer::Prime( CTaskManager *taskManager, CBlock *command )
 {
 	Prep( &command );
@@ -2033,14 +1831,7 @@ int CSequencer::Prime( CTaskManager *taskManager, CBlock *command )
 	return SEQ_OK;
 }
 
-/*
-========================
-Callback
-
-Handles a completed task and returns a new task to be completed
-========================
-*/
-
+// Handles a completed task and returns a new task to be completed
 int CSequencer::Callback( CTaskManager *taskManager, CBlock *block, int returnCode )
 {
 	CBlock	*command;
@@ -2091,12 +1882,6 @@ int CSequencer::Callback( CTaskManager *taskManager, CBlock *block, int returnCo
 	return SEQ_FAILED;
 }
 
-/*
--------------------------
-Recall
--------------------------
-*/
-
 int CSequencer::Recall( void )
 {
 	CBlock	*block	= NULL;
@@ -2122,12 +1907,6 @@ int CSequencer::Recall( void )
 
 	return true;
 }
-
-/*
--------------------------
-Affect
--------------------------
-*/
 
 int CSequencer::Affect( int id, int type )
 {
@@ -2168,7 +1947,6 @@ int CSequencer::Affect( int id, int type )
 
 		break;
 
-
 	default:
 		m_ie->I_DPrintf( WL_ERROR, "unknown affect type found" );
 		break;
@@ -2177,14 +1955,7 @@ int CSequencer::Affect( int id, int type )
 	return SEQ_OK;
 }
 
-/*
-========================
-PushCommand
-
-Pushes a commands onto the current sequence
-========================
-*/
-
+// Pushes a commands onto the current sequence
 int CSequencer::PushCommand( CBlock *command, int flag )
 {
 	//Make sure everything is ok
@@ -2199,14 +1970,7 @@ int CSequencer::PushCommand( CBlock *command, int flag )
 	return SEQ_OK;
 }
 
-/*
-========================
-PopCommand
-
-Pops a command off the current sequence
-========================
-*/
-
+// Pops a command off the current sequence
 CBlock *CSequencer::PopCommand( int flag )
 {
 	//Make sure everything is ok
@@ -2222,14 +1986,7 @@ CBlock *CSequencer::PopCommand( int flag )
 	return block;
 }
 
-/*
--------------------------
-RemoveSequence
--------------------------
-*/
-
 //NOTENOTE: This only removes references to the sequence, IT DOES NOT FREE THE ALLOCATED MEMORY!  You've be warned! =)
-
 int CSequencer::RemoveSequence( CSequence *sequence )
 {
 	CSequence *temp;
@@ -2303,12 +2060,6 @@ int CSequencer::DestroySequence( CSequence *sequence )
 	return SEQ_OK;
 }
 
-/*
--------------------------
-ReturnSequence
--------------------------
-*/
-
 inline CSequence *CSequencer::ReturnSequence( CSequence *sequence )
 {
 	while ( sequence->GetReturn() )
@@ -2326,12 +2077,6 @@ inline CSequence *CSequencer::ReturnSequence( CSequence *sequence )
 }
 
 //Save / Load
-
-/*
--------------------------
-Save
--------------------------
-*/
 
 int	CSequencer::Save( void )
 {
@@ -2389,12 +2134,6 @@ int	CSequencer::Save( void )
 #endif
 	return false;
 }
-
-/*
--------------------------
-Load
--------------------------
-*/
 
 int	CSequencer::Load( void )
 {

@@ -52,11 +52,9 @@ void SetPlaneSignbits (cplane_t *out) {
 
 #define	LL(x) x=LittleLong(x)
 
-
 clipMap_t	cmg; //rwwRMG - changed from cm
 int			c_pointcontents;
 int			c_traces, c_brush_traces, c_patch_traces;
-
 
 byte		*cmod_base;
 
@@ -71,8 +69,6 @@ cmodel_t	box_model;
 cplane_t	*box_planes;
 cbrush_t	*box_brush;
 
-
-
 void	CM_InitBoxHull (void);
 void	CM_FloodAreaConnections (clipMap_t &cm);
 
@@ -80,19 +76,8 @@ void	CM_FloodAreaConnections (clipMap_t &cm);
 clipMap_t	SubBSP[MAX_SUB_BSP];
 int			NumSubBSP, TotalSubModels;
 
-/*
-===============================================================================
+// MAP LOADING
 
-					MAP LOADING
-
-===============================================================================
-*/
-
-/*
-=================
-CMod_LoadShaders
-=================
-*/
 static void CMod_LoadShaders( const lump_t *l, clipMap_t &cm )
 {
 	dshader_t	*in;
@@ -120,12 +105,6 @@ static void CMod_LoadShaders( const lump_t *l, clipMap_t &cm )
 	}
 }
 
-
-/*
-=================
-CMod_LoadSubmodels
-=================
-*/
 static void CMod_LoadSubmodels( const lump_t *l, clipMap_t &cm ) {
 	dmodel_t	*in;
 	cmodel_t	*out;
@@ -185,13 +164,6 @@ static void CMod_LoadSubmodels( const lump_t *l, clipMap_t &cm ) {
 	}
 }
 
-
-/*
-=================
-CMod_LoadNodes
-
-=================
-*/
 static void CMod_LoadNodes( const lump_t *l, clipMap_t &cm ) {
 	dnode_t		*in;
 	int			child;
@@ -222,12 +194,6 @@ static void CMod_LoadNodes( const lump_t *l, clipMap_t &cm ) {
 
 }
 
-/*
-=================
-CM_BoundBrush
-
-=================
-*/
 void CM_BoundBrush( cbrush_t *b ) {
 	b->bounds[0][0] = -b->sides[0].plane->dist;
 	b->bounds[1][0] = b->sides[1].plane->dist;
@@ -239,13 +205,6 @@ void CM_BoundBrush( cbrush_t *b ) {
 	b->bounds[1][2] = b->sides[5].plane->dist;
 }
 
-
-/*
-=================
-CMod_LoadBrushes
-
-=================
-*/
 void CMod_LoadBrushes( const lump_t *l, clipMap_t &cm ) {
 	dbrush_t	*in;
 	cbrush_t	*out;
@@ -277,11 +236,6 @@ void CMod_LoadBrushes( const lump_t *l, clipMap_t &cm ) {
 
 }
 
-/*
-=================
-CMod_LoadLeafs
-=================
-*/
 static void CMod_LoadLeafs (const lump_t *l, clipMap_t &cm)
 {
 	int			i;
@@ -320,11 +274,6 @@ static void CMod_LoadLeafs (const lump_t *l, clipMap_t &cm)
 	cm.areaPortals = (int *)Hunk_Alloc( cm.numAreas * cm.numAreas * sizeof( *cm.areaPortals ), h_high );
 }
 
-/*
-=================
-CMod_LoadPlanes
-=================
-*/
 static void CMod_LoadPlanes (const lump_t *l, clipMap_t &cm)
 {
 	int			i, j;
@@ -361,11 +310,6 @@ static void CMod_LoadPlanes (const lump_t *l, clipMap_t &cm)
 	}
 }
 
-/*
-=================
-CMod_LoadLeafBrushes
-=================
-*/
 static void CMod_LoadLeafBrushes (const lump_t *l, clipMap_t &cm)
 {
 	int			i;
@@ -388,11 +332,6 @@ static void CMod_LoadLeafBrushes (const lump_t *l, clipMap_t &cm)
 	}
 }
 
-/*
-=================
-CMod_LoadLeafSurfaces
-=================
-*/
 static void CMod_LoadLeafSurfaces( const lump_t *l, clipMap_t &cm )
 {
 	int			i;
@@ -415,11 +354,6 @@ static void CMod_LoadLeafSurfaces( const lump_t *l, clipMap_t &cm )
 	}
 }
 
-/*
-=================
-CMod_LoadBrushSides
-=================
-*/
 static void CMod_LoadBrushSides (const lump_t *l, clipMap_t &cm)
 {
 	int				i;
@@ -449,12 +383,6 @@ static void CMod_LoadBrushSides (const lump_t *l, clipMap_t &cm)
 	}
 }
 
-
-/*
-=================
-CMod_LoadEntityString
-=================
-*/
 static void CMod_LoadEntityString( const lump_t *l, clipMap_t &cm, const char* name ) {
 	fileHandle_t h;
 	char entName[MAX_QPATH];
@@ -482,11 +410,6 @@ static void CMod_LoadEntityString( const lump_t *l, clipMap_t &cm, const char* n
 	Com_Memcpy (cm.entityString, cmod_base + l->fileofs, l->filelen);
 }
 
-/*
-=================
-CMod_LoadVisibility
-=================
-*/
 #define	VIS_HEADER	8
 static void CMod_LoadVisibility( const lump_t *l, clipMap_t &cm ) {
 	int		len;
@@ -508,14 +431,6 @@ static void CMod_LoadVisibility( const lump_t *l, clipMap_t &cm ) {
 	Com_Memcpy (cm.visibility, buf + VIS_HEADER, len - VIS_HEADER );
 }
 
-//==================================================================
-
-
-/*
-=================
-CMod_LoadPatches
-=================
-*/
 #define	MAX_PATCH_VERTS		1024
 static void CMod_LoadPatches( const lump_t *surfs, const lump_t *verts, clipMap_t &cm ) {
 	drawVert_t	*dv, *dv_p;
@@ -572,23 +487,14 @@ static void CMod_LoadPatches( const lump_t *surfs, const lump_t *verts, clipMap_
 	}
 }
 
-//==================================================================
+// Loads in the map and all submodels
 
-/*
-==================
-CM_LoadMap
-
-Loads in the map and all submodels
-==================
-*/
 void *gpvCachedMapDiskImage = NULL;
 char  gsCachedMapDiskImage[MAX_QPATH];
 qboolean gbUsingCachedMapDataRightNow = qfalse;	// if true, signifies that you can't delete this at the moment!! (used during z_malloc()-fail recovery attempt)
 
 // called in response to a "devmapbsp blah" or "devmapall blah" command, do NOT use inside CM_Load unless you pass in qtrue
-//
 // new bool return used to see if anything was freed, used during z_malloc failure re-try
-//
 qboolean CM_DeleteCachedMap(qboolean bGuaranteedOkToDelete)
 {
 	qboolean bActuallyFreedSomething = qfalse;
@@ -596,7 +502,7 @@ qboolean CM_DeleteCachedMap(qboolean bGuaranteedOkToDelete)
 	if (bGuaranteedOkToDelete || !gbUsingCachedMapDataRightNow)
 	{
 		// dump cached disk image...
-		//
+
 		if (gpvCachedMapDiskImage)
 		{
 			Z_Free(	gpvCachedMapDiskImage );
@@ -607,16 +513,12 @@ qboolean CM_DeleteCachedMap(qboolean bGuaranteedOkToDelete)
 		gsCachedMapDiskImage[0] = '\0';
 
 		// force map loader to ignore cached internal BSP structures for next level CM_LoadMap() call...
-		//
+
 		cmg.name[0] = '\0';
 	}
 
 	return bActuallyFreedSomething;
 }
-
-
-
-
 
 static void CM_LoadMap_Actual( const char *name, qboolean clientload, int *checksum, clipMap_t &cm )
 { //rwwRMG - function needs heavy modification
@@ -666,9 +568,8 @@ static void CM_LoadMap_Actual( const char *name, qboolean clientload, int *check
 		return;
 	}
 
-	//
 	// load the file
-	//
+
 	//rww - Doesn't this sort of defeat the purpose? We're clearing it even if the map is the same as the last one!
 	//Not touching it though in case I'm just overlooking something.
 	if (gpvCachedMapDiskImage && &cm == &cmg)	// MP code: this'll only be NZ if we got an ERR_DROP during last map load,
@@ -678,11 +579,11 @@ static void CM_LoadMap_Actual( const char *name, qboolean clientload, int *check
 	}
 
 #ifndef BSPC
-	//
+
 	// load the file into a buffer that we either discard as usual at the bottom, or if we've got enough memory
 	//	then keep it long enough to save the renderer re-loading it (if not dedicated server),
 	//	then discard it after that...
-	//
+
 	buf = NULL;
 	fileHandle_t h;
 	const int iBSPLen = FS_FOpenFileRead( name, &h, qfalse );
@@ -700,7 +601,7 @@ static void CM_LoadMap_Actual( const char *name, qboolean clientload, int *check
 		}
 
 		// carry on as before...
-		//
+
 	}
 #else
 	const int iBSPLen = LoadQuakeFile((quakefile_t *) name, (void **)&buf);
@@ -752,11 +653,11 @@ static void CM_LoadMap_Actual( const char *name, qboolean clientload, int *check
 	}
 
 #ifndef BSPC	// I hope we can lose this crap soon
-	//
+
 	// if we've got enough memory, and it's not a dedicated-server, then keep the loaded map binary around
 	//	for the renderer to chew on... (but not if this gets ported to a big-endian machine, because some of the
 	//	map data will have been Little-Long'd, but some hasn't).
-	//
+
 	if (Sys_LowPhysicalMemory()
 		|| com_dedicated->integer
 //		|| we're on a big-endian machine
@@ -768,7 +669,7 @@ static void CM_LoadMap_Actual( const char *name, qboolean clientload, int *check
 	else
 	{
 		// ... do nothing, and let the renderer free it after it's finished playing with it...
-		//
+
 	}
 #else
 	FS_FreeFile (buf);
@@ -782,9 +683,8 @@ static void CM_LoadMap_Actual( const char *name, qboolean clientload, int *check
 	}
 }
 
-
 // need a wrapper function around this because of multiple returns, need to ensure bool is correct...
-//
+
 void CM_LoadMap( const char *name, qboolean clientload, int *checksum )
 {
 	gbUsingCachedMapDataRightNow = qtrue;	// !!!!!!!!!!!!!!!!!!
@@ -794,13 +694,6 @@ void CM_LoadMap( const char *name, qboolean clientload, int *checksum )
 	gbUsingCachedMapDataRightNow = qfalse;	// !!!!!!!!!!!!!!!!!!
 }
 
-
-
-/*
-==================
-CM_ClearMap
-==================
-*/
 void CM_ClearMap( void )
 {
 	int		i;
@@ -816,11 +709,6 @@ void CM_ClearMap( void )
 	TotalSubModels = 0;
 }
 
-/*
-==================
-CM_ClipHandleToModel
-==================
-*/
 cmodel_t	*CM_ClipHandleToModel( clipHandle_t handle, clipMap_t **clipMap ) {
 	int		i;
 	int		count;
@@ -870,11 +758,6 @@ cmodel_t	*CM_ClipHandleToModel( clipHandle_t handle, clipMap_t **clipMap ) {
 	return NULL;
 }
 
-/*
-==================
-CM_InlineModel
-==================
-*/
 clipHandle_t	CM_InlineModel( int index ) {
 	if ( index < 0 || index >= TotalSubModels ) {
 		Com_Error( ERR_DROP, "CM_InlineModel: bad number: %d >= %d (may need to re-BSP map?)", index, TotalSubModels );
@@ -909,17 +792,7 @@ int		CM_LeafArea( int leafnum ) {
 	return cmg.leafs[leafnum].area;
 }
 
-//=======================================================================
-
-
-/*
-===================
-CM_InitBoxHull
-
-Set up the planes and nodes so that the six floats of a bounding box
-can just be stored out and get a proper clipping hull structure.
-===================
-*/
+// Set up the planes and nodes so that the six floats of a bounding box can just be stored out and get a proper clipping hull structure.
 void CM_InitBoxHull (void)
 {
 	int			i;
@@ -966,15 +839,8 @@ void CM_InitBoxHull (void)
 	}
 }
 
-/*
-===================
-CM_TempBoxModel
-
-To keep everything totally uniform, bounding boxes are turned into small
-BSP trees instead of being compared directly.
-Capsules are handled differently though.
-===================
-*/
+// To keep everything totally uniform, bounding boxes are turned into small BSP trees instead of being compared directly.
+// Capsules are handled differently though.
 clipHandle_t CM_TempBoxModel( const vec3_t mins, const vec3_t maxs, int capsule ) {
 
 	VectorCopy( mins, box_model.mins );
@@ -1003,11 +869,6 @@ clipHandle_t CM_TempBoxModel( const vec3_t mins, const vec3_t maxs, int capsule 
 	return BOX_MODEL_HANDLE;
 }
 
-/*
-===================
-CM_ModelBounds
-===================
-*/
 void CM_ModelBounds( clipHandle_t model, vec3_t mins, vec3_t maxs ) {
 	cmodel_t	*cmod;
 

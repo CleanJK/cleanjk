@@ -29,11 +29,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "qcommon/q_shared.h"
 #include "sys/sys_public.h"
 
-//============================================================================
-
-//
 // msg.c
-//
+
 typedef struct msg_s {
 	qboolean	allowoverflow;	// if false, do a Com_Error
 	qboolean	overflowed;		// set to true if the buffer size failed (with allowoverflow set)
@@ -82,7 +79,6 @@ char	*MSG_ReadStringLine (msg_t *sb);
 float	MSG_ReadAngle16 (msg_t *sb);
 void	MSG_ReadData (msg_t *sb, void *buffer, int size);
 
-
 void MSG_WriteDeltaUsercmdKey( msg_t *msg, int key, usercmd_t *from, usercmd_t *to );
 void MSG_ReadDeltaUsercmdKey( msg_t *msg, int key, usercmd_t *from, usercmd_t *to );
 
@@ -92,25 +88,17 @@ void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
 						 int number );
 
 #ifdef _ONEBIT_COMBO
-void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct playerState_s *to, int *bitComboDelta, int *bitNumDelta, qboolean isVehiclePS = qfalse );
+void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct playerState_s *to, int *bitComboDelta, int *bitNumDelta );
 #else
-void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct playerState_s *to, qboolean isVehiclePS = qfalse );
+void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct playerState_s *to );
 #endif
-void MSG_ReadDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct playerState_s *to, qboolean isVehiclePS = qfalse );
+void MSG_ReadDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct playerState_s *to );
 
 #ifndef FINAL_BUILD
 void MSG_ReportChangeVectors_f( void );
 #endif
 
-//============================================================================
-
-/*
-==============================================================
-
-NET
-
-==============================================================
-*/
+// NET
 
 #define NET_ENABLEV4		0x01
 
@@ -155,7 +143,6 @@ qboolean	Sys_StringToAdr( const char *s, netadr_t *a );
 qboolean	Sys_IsLANAddress (netadr_t adr);
 void		Sys_ShowIP(void);
 
-
 #define	MAX_MSGLEN				49152		// max length of a message, which may
 											// be fragmented into multiple packets
 
@@ -163,7 +150,6 @@ void		Sys_ShowIP(void);
 
 #define MAX_DOWNLOAD_WINDOW			8		// max of eight download frames
 #define MAX_DOWNLOAD_BLKSIZE		2048	// 2048 byte block chunks
-
 
 /*
 Netchan handles packet fragmentation and out of order / duplicate suppression
@@ -202,14 +188,7 @@ void Netchan_TransmitNextFragment( netchan_t *chan );
 
 qboolean Netchan_Process( netchan_t *chan, msg_t *msg );
 
-
-/*
-==============================================================
-
-PROTOCOL
-
-==============================================================
-*/
+// PROTOCOL
 
 #define	PROTOCOL_VERSION	26
 
@@ -225,9 +204,7 @@ PROTOCOL
 #define	NUM_SERVER_PORTS	4		// broadcast scan this many ports after PORT_SERVER so a single machine can run multiple servers
 
 // the svc_strings[] array in cl_parse.c should mirror this
-//
 // server to client
-//
 enum svc_ops_e {
 	svc_bad,
 	svc_nop,
@@ -242,10 +219,7 @@ enum svc_ops_e {
 	svc_EOF
 };
 
-
-//
 // client to server
-//
 enum clc_ops_e {
 	clc_bad,
 	clc_nop,
@@ -255,13 +229,7 @@ enum clc_ops_e {
 	clc_EOF
 };
 
-/*
-==============================================================
-
-VIRTUAL MACHINE
-
-==============================================================
-*/
+// VIRTUAL MACHINE
 
 typedef enum vmSlots_e {
 	VM_GAME=0,
@@ -274,16 +242,9 @@ typedef struct vm_s {
 	vmSlots_t	slot; // VM_GAME, VM_CGAME, VM_UI
     char		name[MAX_QPATH];
 	void		*dllHandle;
-	qboolean	isLegacy; // uses the legacy syscall/vm_call api, is set by VM_CreateLegacy
 
 	// fill the import/export tables
 	void *		(*GetModuleAPI)( int apiVersion, ... );
-
-	// legacy stuff
-	struct {
-		VMMainProc* main; // module vmMain
-		intptr_t	(QDECL *syscall)( intptr_t *parms );	// engine syscall handler
-	} legacy;
 } vm_t;
 
 extern vm_t *currentVM;
@@ -299,60 +260,18 @@ public:
 
 extern const char *vmStrs[MAX_VM];
 
-typedef enum {
-	TRAP_MEMSET = 100,
-	TRAP_MEMCPY,
-	TRAP_STRNCPY,
-	TRAP_SIN,
-	TRAP_COS,
-	TRAP_ATAN2,
-	TRAP_SQRT,
-	TRAP_MATRIXMULTIPLY,
-	TRAP_ANGLEVECTORS,
-	TRAP_PERPENDICULARVECTOR,
-	TRAP_FLOOR,
-	TRAP_CEIL,
+void	 VM_Init( void );
+vm_t	*VM_Create( vmSlots_t vmSlot );
+void	 VM_Free( vm_t *vm );
+void	 VM_Clear(void);
+vm_t	*VM_Restart( vm_t *vm );
+void VM_Shifted_Alloc( void **ptr, int size );
+void VM_Shifted_Free( void **ptr );
 
-	TRAP_TESTPRINTINT,
-	TRAP_TESTPRINTFLOAT,
-
-	TRAP_ACOS,
-	TRAP_ASIN
-} sharedTraps_t;
-
-void			VM_Init( void );
-vm_t			*VM_CreateLegacy( vmSlots_t vmSlot, intptr_t (*systemCalls)(intptr_t *) );
-vm_t			*VM_Create( vmSlots_t vmSlot );
-void			 VM_Free( vm_t *vm );
-void			 VM_Clear(void);
-vm_t			*VM_Restart( vm_t *vm );
-intptr_t QDECL	 VM_Call( vm_t *vm, int callNum, intptr_t arg0 = 0, intptr_t arg1 = 0, intptr_t arg2 = 0, intptr_t arg3 = 0, intptr_t arg4 = 0, intptr_t arg5 = 0, intptr_t arg6 = 0, intptr_t arg7 = 0, intptr_t arg8 = 0, intptr_t arg9 = 0, intptr_t arg10 = 0, intptr_t arg11 = 0 );
-void			 VM_Shifted_Alloc( void **ptr, int size );
-void			 VM_Shifted_Free( void **ptr );
-void			*VM_ArgPtr( intptr_t intValue );
-void			*VM_ExplicitArgPtr( vm_t *vm, intptr_t intValue );
-float			_vmf( intptr_t x );
-
-#define	VMA(x) VM_ArgPtr( args[x] )
-#define	VMF(x) _vmf( args[x] )
-
-/*
-==============================================================
-
-CMD
-
-Command text buffering and command execution
-
-==============================================================
-*/
-
-/*
-
-Any number of commands can be added in a frame, from several different sources.
-Most commands come from either keybindings or console line input, but entire text
-files can be execed.
-
-*/
+// CMD
+// Command text buffering and command execution
+// Any number of commands can be added in a frame, from several different sources.
+// Most commands come from either keybindings or console line input, but entire text files can be execed.
 
 void Cbuf_Init (void);
 // allocates an initial text buffer that will grow as needed
@@ -369,14 +288,7 @@ void Cbuf_Execute (void);
 // Normally called once per frame, but may be explicitly invoked.
 // Do not call inside a command function, or current args will be destroyed.
 
-//===========================================================================
-
-/*
-
-Command execution takes a null terminated string, breaks it into tokens,
-then searches for a command or variable that matches the first token.
-
-*/
+// Command execution takes a null terminated string, breaks it into tokens, then searches for a command or variable that matches the first token.
 
 typedef void (*xcommand_t) (void);
 
@@ -434,14 +346,7 @@ void	Cmd_ExecuteString( const char *text );
 // Parses a single line of text into arguments and tries to execute it
 // as if it was typed at the console
 
-
-/*
-==============================================================
-
-CVAR
-
-==============================================================
-*/
+// CVAR
 
 /*
 
@@ -475,7 +380,6 @@ void	Cvar_Update( vmCvar_t *vmCvar );
 // updates an interpreted modules' version of a cvar
 
 cvar_t	*Cvar_Set2(const char *var_name, const char *value, uint32_t defaultFlags, qboolean force);
-//
 
 cvar_t	*Cvar_Set( const char *var_name, const char *value );
 // will create the variable with no flags if it doesn't exist
@@ -546,16 +450,8 @@ extern uint32_t cvar_modifiedFlags;
 // etc, variables have been modified since the last check.  The bit
 // can then be cleared to allow another change detection.
 
-/*
-==============================================================
-
-FILESYSTEM
-
-No stdio calls should be used by any part of the game, because
-we need to deal with all sorts of directory and seperator char
-issues.
-==============================================================
-*/
+// FILESYSTEM
+// No stdio calls should be used by any part of the game, because we need to deal with all sorts of directory and seperator char issues.
 
 // referenced flags
 // these are in loop specific order so don't change the order
@@ -699,21 +595,14 @@ void FS_PureServerSetLoadedPaks( const char *pakSums, const char *pakNames );
 // separated checksums will be checked for files, with the
 // sole exception of .cfg files.
 
-qboolean FS_CheckDirTraversal(const char *checkdir);
+bool FS_CheckDirTraversal(const char *checkdir);
 qboolean FS_idPak( char *pak, char *base );
 qboolean FS_ComparePaks( char *neededpaks, int len, qboolean dlstring );
 void FS_Rename( const char *from, const char *to );
 
 qboolean FS_WriteToTemporaryFile( const void *data, size_t dataLength, char **tempFileName );
 
-
-/*
-==============================================================
-
-Edit fields and command line history/completion
-
-==============================================================
-*/
+// Edit fields and command line history/completion
 
 #define CONSOLE_PROMPT_CHAR ']'
 #define	MAX_EDIT_LINE		256
@@ -732,13 +621,7 @@ void Field_CompleteKeyname( void );
 void Field_CompleteFilename( const char *dir, const char *ext, qboolean stripExt, qboolean allowNonPureFilesOnDisk );
 void Field_CompleteCommand( char *cmd, qboolean doCommands, qboolean doCvars );
 
-/*
-==============================================================
-
-MISC
-
-==============================================================
-*/
+// MISC
 
 #define RoundUp(N, M) ((N) + ((unsigned int)(M)) - (((unsigned int)(N)) % ((unsigned int)(M))))
 #define RoundDown(N, M) ((N) - (((unsigned int)(N)) % ((unsigned int)(M))))
@@ -769,7 +652,6 @@ void		Com_StartupVariable( const char *match );
 // if match is NULL, all set commands will be executed, otherwise
 // only a set with the exact name.  Only used during startup.
 
-
 extern	cvar_t	*com_developer;
 extern	cvar_t	*com_dedicated;
 extern	cvar_t	*com_speeds;
@@ -784,8 +666,6 @@ extern	cvar_t	*com_homepath;
 #ifndef _WIN32
 extern	cvar_t	*com_ansiColor;
 #endif
-
-extern	cvar_t	*com_optvehtrace;
 
 #ifdef G2_PERFORMANCE_ANALYSIS
 extern	cvar_t	*com_G2Report;
@@ -807,7 +687,6 @@ extern	int		com_frameTime;
 
 extern	qboolean	com_errorEntered;
 
-
 extern	fileHandle_t	logfile;
 extern	fileHandle_t	com_journalFile;
 extern	fileHandle_t	com_journalDataFile;
@@ -825,20 +704,18 @@ typedef enum {
 
 /*
 
---- low memory ----
-server vm
-server clipmap
----mark---
-renderer initialization (shaders, etc)
-UI vm
-cgame vm
-renderer map
-renderer models
-
----free---
-
-temp file loading
---- high memory ---
+low memory
+	server vm
+	server clipmap
+mark
+	renderer initialization (shaders, etc)
+	UI vm
+	cgame vm
+	renderer map
+	renderer models
+free
+	temp file loading
+high memory
 
 */
 
@@ -866,7 +743,7 @@ void Z_LogHeap( void );
 */
 
 // later on I'll re-implement __FILE__, __LINE__ etc, but for now...
-//
+
 #ifdef DEBUG_ZONE_ALLOCS
 void *Z_Malloc  ( int iSize, memtag_t eTag, qboolean bZeroit = qfalse, int iAlign = 4);	// return memory NOT zero-filled by default
 void *S_Malloc	( int iSize );					// NOT 0 filled memory only for small allocations
@@ -904,18 +781,9 @@ void Com_Init( char *commandLine );
 void Com_Frame( void );
 void Com_Shutdown( void );
 
+// CLIENT / SERVER SYSTEMS
 
-/*
-==============================================================
-
-CLIENT / SERVER SYSTEMS
-
-==============================================================
-*/
-
-//
 // client interface
-//
 void CL_InitKeyCommands( void );
 // the keyboard binding interface must be setup before execing
 // config files, but the rest of client startup will happen later
@@ -975,10 +843,7 @@ void SCR_DebugGraph (float value, int color);	// FIXME: move logging to common?
 // AVI files have the start of pixel lines 4 byte-aligned
 #define AVI_LINE_PADDING 4
 
-
-//
 // server interface
-//
 void SV_Init( void );
 void SV_Shutdown( char *finalmsg );
 void SV_Frame( int msec );
@@ -986,10 +851,7 @@ void SV_PacketEvent( netadr_t from, msg_t *msg );
 int SV_FrameMsec( void );
 qboolean SV_GameCommand( void );
 
-
-//
 // UI interface
-//
 qboolean UI_GameCommand( void );
 
 /* This is based on the Adaptive Huffman algorithm described in Sayood's Data

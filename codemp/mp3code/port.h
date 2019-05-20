@@ -28,7 +28,6 @@ ____________________________________________________________________________*/
 #define O_BINARY 0
 #endif
 
-
 /*--- no kb function unless DOS ---*/
 
 #ifndef KB_OK
@@ -63,7 +62,6 @@ ____________________________________________________________________________*/
     #define LITTLE_SHORT16
   #endif
 #endif
-
 
 // JDW //
 //#ifdef LITTLE_SHORT16

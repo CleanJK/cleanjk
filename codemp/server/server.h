@@ -29,8 +29,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "game/bg_public.h"
 #include "rd-common/tr_public.h"
 
-//=============================================================================
-
 #define	PERS_SCORE				0		// !!! MUST NOT CHANGE, SERVER AND
 										// GAME BOTH REFERENCE !!!
 
@@ -94,12 +92,9 @@ typedef struct clientSnapshot_s {
 	int				areabytes;
 	byte			areabits[MAX_MAP_AREA_BYTES];		// portalarea visibility bits
 	playerState_t	ps;
-	playerState_t	vps; //vehicle I'm riding's playerstate (if applicable) -rww
 #ifdef _ONEBIT_COMBO
 	int				*pDeltaOneBit;
-	int				*pDeltaOneBitVeh;
 	int				*pDeltaNumBit;
-	int				*pDeltaNumBitVeh;
 #endif
 	int				num_entities;
 	int				first_entity;		// into the circular sv_packet_entities[]
@@ -119,7 +114,6 @@ typedef enum {
 	CS_ACTIVE		// client is fully in game
 } clientState_t;
 
-
 // struct to hold demo data for a single demo
 typedef struct {
 	char		demoName[MAX_OSPATH];
@@ -130,7 +124,6 @@ typedef struct {
 	qboolean	isBot;
 	int			botReliableAcknowledge; // for bots, need to maintain a separate reliableAcknowledge to record server messages into the demo file
 } demoInfo_t;
-
 
 typedef struct client_s {
 	clientState_t	state;
@@ -192,9 +185,6 @@ typedef struct client_s {
 	demoInfo_t		demo;
 } client_t;
 
-//=============================================================================
-
-
 // this structure will be cleared only when the game dll changes
 typedef struct serverStatic_s {
 	qboolean	initialized;				// sv_init has completed
@@ -225,8 +215,6 @@ typedef struct serverBan_s {
 
 	qboolean isexception;
 } serverBan_t;
-
-//=============================================================================
 
 extern	serverStatic_t	svs;				// persistant server info across maps
 extern	server_t		sv;					// cleared each map
@@ -277,11 +265,7 @@ extern	cvar_t	*sv_banFile;
 extern	serverBan_t serverBans[SERVER_MAXBANS];
 extern	int serverBansCount;
 
-//===========================================================
-
-//
 // sv_main.c
-//
 typedef struct leakyBucket_s leakyBucket_t;
 struct leakyBucket_s {
 	netadrtype_t	type;
@@ -305,20 +289,13 @@ qboolean SVC_RateLimitAddress( netadr_t from, int burst, int period );
 void SV_FinalMessage (char *message);
 void QDECL SV_SendServerCommand( client_t *cl, const char *fmt, ...);
 
-
 void SV_AddOperatorCommands (void);
 void SV_RemoveOperatorCommands (void);
-
 
 void SV_MasterHeartbeat (void);
 void SV_MasterShutdown (void);
 
-
-
-
-//
 // sv_init.c
-//
 void SV_SetConfigstring( int index, const char *val );
 void SV_GetConfigstring( int index, char *buffer, int bufferSize );
 void SV_UpdateConfigstrings( client_t *client );
@@ -329,19 +306,13 @@ void SV_GetUserinfo( int index, char *buffer, int bufferSize );
 void SV_ChangeMaxClients( void );
 void SV_SpawnServer( char *server, qboolean killBots, ForceReload_e eForceReload );
 
-
-
-//
 // sv_challenge.cpp
-//
 void SV_ChallengeInit();
 void SV_ChallengeShutdown();
 int SV_CreateChallenge(netadr_t from);
 qboolean SV_VerifyChallenge(int receivedChallenge, netadr_t from);
 
-//
 // sv_client.c
-//
 void SV_GetChallenge( netadr_t from );
 
 void SV_DirectConnect( netadr_t from );
@@ -358,9 +329,7 @@ void SV_ClientThink (client_t *cl, usercmd_t *cmd);
 
 void SV_WriteDownloadToClient( client_t *cl , msg_t *msg );
 
-//
 // sv_ccmds.c
-//
 void SV_Heartbeat_f( void );
 void SV_RecordDemo( client_t *cl, char *demoName );
 void SV_StopRecordDemo( client_t *cl );
@@ -368,9 +337,7 @@ void SV_AutoRecordDemo( client_t *cl );
 void SV_StopAutoRecordDemos();
 void SV_BeginAutoRecordDemos();
 
-//
 // sv_snapshot.c
-//
 void SV_AddServerCommand( client_t *client, const char *cmd );
 void SV_UpdateServerCommandsToClient( client_t *client, msg_t *msg );
 void SV_WriteFrameToClient (client_t *client, msg_t *msg);
@@ -378,9 +345,7 @@ void SV_SendMessageToClient( msg_t *msg, client_t *client );
 void SV_SendClientMessages( void );
 void SV_SendClientSnapshot( client_t *client );
 
-//
 // sv_game.c
-//
 int	SV_NumForGentity( sharedEntity_t *ent );
 sharedEntity_t *SV_GentityNum( int num );
 playerState_t *SV_GameClientNum( int num );
@@ -390,9 +355,7 @@ void		SV_InitGameProgs ( void );
 void		SV_ShutdownGameProgs ( void );
 qboolean	SV_inPVS (const vec3_t p1, const vec3_t p2);
 
-//
 // sv_bot.c
-//
 void		SV_BotFrame( int time );
 int			SV_BotAllocateClient(void);
 void		SV_BotFreeClient( int clientNum );
@@ -407,10 +370,7 @@ void Bot_FreeMemoryGame(void *ptr);
 int BotImport_DebugPolygonCreate(int color, int numPoints, vec3_t *points);
 void BotImport_DebugPolygonDelete(int id);
 
-//============================================================
-//
 // high level object sorting to reduce interaction tests
-//
 
 void SV_ClearWorld (void);
 // called after the world model has been loaded, before linking any entities
@@ -426,12 +386,9 @@ void SV_LinkEntity( sharedEntity_t *ent );
 // sets ent->leafnums[] for pvs determination even if the entity
 // is not solid
 
-
 clipHandle_t SV_ClipHandleForEntity( const sharedEntity_t *ent );
 
-
 void SV_SectorList_f( void );
-
 
 int SV_AreaEntities( const vec3_t mins, const vec3_t maxs, int *entityList, int maxcount );
 // fills in a table of entity numbers with entities that have bounding boxes
@@ -441,10 +398,8 @@ int SV_AreaEntities( const vec3_t mins, const vec3_t maxs, int *entityList, int 
 // returns the number of pointers filled in
 // The world entity is never returned in this list.
 
-
 int SV_PointContents( const vec3_t p, int passEntityNum );
 // returns the CONTENTS_* value from the world and all entities at the given point.
-
 
 void SV_Trace( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask, int capsule, int traceFlags, int useLod );
 // mins and maxs are relative
@@ -457,13 +412,10 @@ void SV_Trace( trace_t *results, const vec3_t start, const vec3_t mins, const ve
 
 // passEntityNum is explicitly excluded from clipping checks (normally ENTITYNUM_NONE)
 
-
 void SV_ClipToEntity( trace_t *trace, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int entityNum, int contentmask, int capsule );
 // clip to a specific entity
 
-//
 // sv_net_chan.c
-//
 void SV_Netchan_Transmit( client_t *client, msg_t *msg);	//int length, const byte *data );
 void SV_Netchan_TransmitNextFragment( netchan_t *chan );
 qboolean SV_Netchan_Process( client_t *client, msg_t *msg );

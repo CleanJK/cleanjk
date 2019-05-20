@@ -29,13 +29,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #define MARKER_OFFSET			0	// 1
 
-/*
-=============
-R_ChopPolyBehindPlane
-
-Out must have space for two more vertexes than in
-=============
-*/
+// Out must have space for two more vertexes than in
 #define	SIDE_FRONT	0
 #define	SIDE_BACK	1
 #define	SIDE_ON		2
@@ -126,12 +120,6 @@ static void R_ChopPolyBehindPlane( int numInPoints, vec3_t inPoints[MAX_VERTS_ON
 	}
 }
 
-/*
-=================
-R_BoxSurfaces_r
-
-=================
-*/
 void R_BoxSurfaces_r(mnode_t *node, vec3_t mins, vec3_t maxs, surfaceType_t **list, int listsize, int *listlength, vec3_t dir) {
 
 	int			s, c;
@@ -154,9 +142,9 @@ void R_BoxSurfaces_r(mnode_t *node, vec3_t mins, vec3_t maxs, surfaceType_t **li
 	mark = node->firstmarksurface;
 	c = node->nummarksurfaces;
 	while (c--) {
-		//
+
 		if (*listlength >= listsize) break;
-		//
+
 		surf = *mark;
 		// check if the surface has NOIMPACT or NOMARKS set
 		if ( ( surf->shader->surfaceFlags & ( SURF_NOIMPACT | SURF_NOMARKS ) )
@@ -188,12 +176,6 @@ void R_BoxSurfaces_r(mnode_t *node, vec3_t mins, vec3_t maxs, surfaceType_t **li
 	}
 }
 
-/*
-=================
-R_AddMarkFragments
-
-=================
-*/
 void R_AddMarkFragments(int numClipPoints, vec3_t clipPoints[2][MAX_VERTS_ON_POLY],
 				   int numPlanes, vec3_t *normals, float *dists,
 				   int maxPoints, vec3_t pointBuffer,
@@ -247,12 +229,6 @@ void R_AddMarkFragments(int numClipPoints, vec3_t clipPoints[2][MAX_VERTS_ON_POL
 	(*returnedFragments)++;
 }
 
-/*
-=================
-R_MarkFragments
-
-=================
-*/
 int R_MarkFragments( int numPoints, const vec3_t *points, const vec3_t projection,
 				   int maxPoints, vec3_t pointBuffer, int maxFragments, markFragment_t *fragmentBuffer ) {
 	int				numsurfaces, numPlanes;
@@ -276,7 +252,6 @@ int R_MarkFragments( int numPoints, const vec3_t *points, const vec3_t projectio
 	//increment view count for double check prevention
 	tr.viewCount++;
 
-	//
 	VectorNormalize2( projection, projectionDir );
 	// find all the brushes that are to be considered
 	ClearBounds( mins, maxs );
@@ -327,7 +302,7 @@ int R_MarkFragments( int numPoints, const vec3_t *points, const vec3_t projectio
 					// We triangulate the grid and chop all triangles within
 					// the bounding planes of the to be projected polygon.
 					// LOD is not taken into account, not such a big deal though.
-					//
+
 					// It's probably much nicer to chop the grid itself and deal
 					// with this grid as a normal SF_GRID surface so LOD will
 					// be applied. However the LOD of that chopped grid must
@@ -337,7 +312,7 @@ int R_MarkFragments( int numPoints, const vec3_t *points, const vec3_t projectio
 					// curve the unused vertices are flagged. Now the chopped curve
 					// should skip the flagged vertices. This still leaves the
 					// problems with the vertices at the chopped grid edges.
-					//
+
 					// To avoid issues when LOD applied to "hollow curves" (like
 					// the ones around many jump pads) we now just add a 2 unit
 					// offset to the triangle vertices.

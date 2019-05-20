@@ -28,15 +28,8 @@ inline void Q_CastShort2Float(float *f, const short *s)
 	*f = ((float)*s);
 }
 
-
-/*
-=================
-R_CullTriSurf
-
-Returns true if the grid is completely culled away.
-Also sets the clipped hint bit in tess
-=================
-*/
+// Returns true if the grid is completely culled away.
+// Also sets the clipped hint bit in tess
 static qboolean	R_CullTriSurf( srfTriangles_t *cv ) {
 	int 	boxCull;
 
@@ -48,14 +41,8 @@ static qboolean	R_CullTriSurf( srfTriangles_t *cv ) {
 	return qfalse;
 }
 
-/*
-=================
-R_CullGrid
-
-Returns true if the grid is completely culled away.
-Also sets the clipped hint bit in tess
-=================
-*/
+// Returns true if the grid is completely culled away.
+// Also sets the clipped hint bit in tess
 static qboolean	R_CullGrid( srfGridMesh_t *cv ) {
 	int 	boxCull;
 	int 	sphereCull;
@@ -106,17 +93,8 @@ static qboolean	R_CullGrid( srfGridMesh_t *cv ) {
 	return qfalse;
 }
 
-
-/*
-================
-R_CullSurface
-
-Tries to back face cull surfaces before they are lighted or
-added to the sorting list.
-
-This will also allow mirrors on both sides of a model without recursion.
-================
-*/
+// Tries to back face cull surfaces before they are lighted or added to the sorting list.
+// This will also allow mirrors on both sides of a model without recursion.
 static qboolean	R_CullSurface( surfaceType_t *surface, shader_t *shader ) {
 	srfSurfaceFace_t *sface;
 	float			d;
@@ -303,7 +281,6 @@ static int R_DlightGrid( srfGridMesh_t *grid, int dlightBits ) {
 	return dlightBits;
 }
 
-
 static int R_DlightTrisurf( srfTriangles_t *surf, int dlightBits ) {
 	// FIXME: more dlight culling to trisurfs...
 	surf->dlightBits = dlightBits;
@@ -337,15 +314,8 @@ static int R_DlightTrisurf( srfTriangles_t *surf, int dlightBits ) {
 #endif
 }
 
-/*
-====================
-R_DlightSurface
-
-The given surface is going to be drawn, and it touches a leaf
-that is touched by one or more dlights, so try to throw out
-more dlights if possible.
-====================
-*/
+// The given surface is going to be drawn, and it touches a leaf that is touched by one or more dlights, so try to throw
+//	out more dlights if possible.
 static int R_DlightSurface( msurface_t *surf, int dlightBits ) {
 	if ( *surf->data == SF_FACE ) {
 		dlightBits = R_DlightFace( (srfSurfaceFace_t *)surf->data, dlightBits );
@@ -364,18 +334,11 @@ static int R_DlightSurface( msurface_t *surf, int dlightBits ) {
 	return dlightBits;
 }
 
-
-
 #ifdef _ALT_AUTOMAP_METHOD
 static bool tr_drawingAutoMap = false;
 #endif
 static float g_playerHeight = 0.0f;
 
-/*
-======================
-R_AddWorldSurface
-======================
-*/
 static void R_AddWorldSurface( msurface_t *surf, int dlightBits, qboolean noViewCount = qfalse )
 {
 	if (!noViewCount)
@@ -520,19 +483,8 @@ static void R_AddWorldSurface( msurface_t *surf, int dlightBits, qboolean noView
 	}
 }
 
-/*
-=============================================================
+// BRUSH MODELS
 
-	BRUSH MODELS
-
-=============================================================
-*/
-
-/*
-=================
-R_AddBrushModelSurfaces
-=================
-*/
 void R_AddBrushModelSurfaces ( trRefEntity_t *ent ) {
 	bmodel_t	*bmodel;
 	int			clip;
@@ -665,19 +617,9 @@ void RE_GetBModelVerts( int bmodelIndex, vec3_t *verts, vec3_t normal )
 	}
 }
 
-/*
-=============================================================
+// WORLD MODEL
 
-	WORLD MODEL
-
-=============================================================
-*/
-
-/*
-=============================================================
-WIREFRAME AUTOMAP GENERATION SYSTEM - BEGIN
-=============================================================
-*/
+// WIREFRAME AUTOMAP GENERATION SYSTEM - BEGIN
 #ifndef _ALT_AUTOMAP_METHOD
 typedef struct wireframeSurfPoint_s
 {
@@ -975,7 +917,6 @@ qboolean R_WriteWireframeMapToFile(void)
 		return qfalse;
 	}
 
-
 	f = ri.FS_FOpenFileWrite("blahblah.bla", qtrue);
 	if (!f)
 	{ //can't create?
@@ -1085,12 +1026,8 @@ qboolean R_InitializeWireframeAutomap(void)
 	return (qboolean)g_autoMapValid;
 }
 #endif //0
-/*
-=============================================================
-WIREFRAME AUTOMAP GENERATION SYSTEM - END
-=============================================================
-*/
 
+// WIREFRAME AUTOMAP GENERATION SYSTEM - END
 void R_AutomapElevationAdjustment(float newHeight)
 {
 	g_playerHeight = newHeight;
@@ -1190,7 +1127,6 @@ const void *R_DrawWireframeAutomap(const void *data)
 
 	//pop back the viewmatrix
 	qglPopMatrix();
-
 
 	//set the mode to line draw
 	if (r_autoMap->integer == 2)
@@ -1348,12 +1284,6 @@ const void *R_DrawWireframeAutomap(const void *data)
 	return (const void *)(cmd + 1);
 }
 
-
-/*
-================
-R_RecursiveWorldNode
-================
-*/
 static void R_RecursiveWorldNode( mnode_t *node, int planeBits, int dlightBits ) {
 
 	do
@@ -1516,11 +1446,6 @@ static void R_RecursiveWorldNode( mnode_t *node, int planeBits, int dlightBits )
 
 }
 
-/*
-===============
-R_PointInLeaf
-===============
-*/
 static mnode_t *R_PointInLeaf( const vec3_t p ) {
 	mnode_t		*node;
 	float		d;
@@ -1547,11 +1472,6 @@ static mnode_t *R_PointInLeaf( const vec3_t p ) {
 	return node;
 }
 
-/*
-==============
-R_ClusterPVS
-==============
-*/
 static const byte *R_ClusterPVS (int cluster) {
 	if (!tr.world || !tr.world->vis || cluster < 0 || cluster >= tr.world->numClusters ) {
 		return tr.world->novis;
@@ -1560,11 +1480,6 @@ static const byte *R_ClusterPVS (int cluster) {
 	return tr.world->vis + cluster * tr.world->clusterBytes;
 }
 
-/*
-=================
-R_inPVS
-=================
-*/
 qboolean R_inPVS( const vec3_t p1, const vec3_t p2, byte *mask ) {
 	int		leafnum;
 	int		cluster;
@@ -1583,14 +1498,7 @@ qboolean R_inPVS( const vec3_t p1, const vec3_t p2, byte *mask ) {
 	return qtrue;
 }
 
-/*
-===============
-R_MarkLeaves
-
-Mark the leaves and nodes that are in the PVS for the current
-cluster
-===============
-*/
+// Mark the leaves and nodes that are in the PVS for the current cluster
 static void R_MarkLeaves (void) {
 	const byte	*vis;
 	mnode_t	*leaf, *parent;
@@ -1663,11 +1571,6 @@ static void R_MarkLeaves (void) {
 	}
 }
 
-/*
-=============
-R_AddWorldSurfaces
-=============
-*/
 void R_AddWorldSurfaces (void) {
 	if ( !r_drawworld->integer ) {
 		return;

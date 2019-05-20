@@ -25,15 +25,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // TTimo: unused, commenting out to make gcc happy
 #if 1
-/*
-==============
-SV_Netchan_Encode
-
-	// first four bytes of the data are always:
-	long reliableAcknowledge;
-
-==============
-*/
+// first four bytes of the data are always:
+//	long reliableAcknowledge;
 static void SV_Netchan_Encode( client_t *client, msg_t *msg ) {
 	long /*reliableAcknowledge,*/ i, index;
 	byte key, *string;
@@ -80,17 +73,10 @@ static void SV_Netchan_Encode( client_t *client, msg_t *msg ) {
 	}
 }
 
-/*
-==============
-SV_Netchan_Decode
-
-	// first 12 bytes of the data are always:
-	long serverId;
-	long messageAcknowledge;
-	long reliableAcknowledge;
-
-==============
-*/
+// first 12 bytes of the data are always:
+//	long serverId;
+//	long messageAcknowledge;
+//	long reliableAcknowledge;
 static void SV_Netchan_Decode( client_t *client, msg_t *msg ) {
 	int serverId, messageAcknowledge, reliableAcknowledge;
 	int i, index, srdc, sbit;
@@ -113,7 +99,7 @@ static void SV_Netchan_Decode( client_t *client, msg_t *msg ) {
 
 	string = (byte *)client->reliableCommands[ reliableAcknowledge & (MAX_RELIABLE_COMMANDS-1) ];
 	index = 0;
-	//
+
 	key = client->challenge ^ serverId ^ messageAcknowledge;
 	for (i = msg->readcount + SV_DECODE_START; i < msg->cursize; i++) {
 		// modify the key with the last sent and acknowledged server command
@@ -134,21 +120,9 @@ static void SV_Netchan_Decode( client_t *client, msg_t *msg ) {
 }
 #endif
 
-/*
-=================
-SV_Netchan_TransmitNextFragment
-=================
-*/
 void SV_Netchan_TransmitNextFragment( netchan_t *chan ) {
 	Netchan_TransmitNextFragment( chan );
 }
-
-
-/*
-===============
-SV_Netchan_Transmit
-================
-*/
 
 void SV_Netchan_Transmit( client_t *client, msg_t *msg) {	//int length, const byte *data ) {
 //	int i;
@@ -161,11 +135,6 @@ void SV_Netchan_Transmit( client_t *client, msg_t *msg) {	//int length, const by
 	Netchan_Transmit( &client->netchan, msg->cursize, msg->data );
 }
 
-/*
-=================
-Netchan_SV_Process
-=================
-*/
 qboolean SV_Netchan_Process( client_t *client, msg_t *msg ) {
 	int ret;
 //	int i;

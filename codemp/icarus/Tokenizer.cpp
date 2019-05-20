@@ -63,9 +63,7 @@ keywordArray_t CTokenizer::errorMessages[] =
 	"",									TKERR_USERERROR,
 };
 
-//
 // CSymbol
-//
 
 CSymbol::CSymbol()
 {
@@ -108,9 +106,7 @@ void CSymbol::Delete()
 	delete this;
 }
 
-//
 // CDirectiveSymbol
-//
 
 CDirectiveSymbol::CDirectiveSymbol()
 {
@@ -158,9 +154,7 @@ LPCTSTR CDirectiveSymbol::GetValue()
 	return m_value;
 }
 
-//
 // CIntSymbol
-//
 
 CIntSymbol::CIntSymbol()
 {
@@ -189,9 +183,7 @@ int CIntSymbol::GetValue()
 	return m_value;
 }
 
-//
 // CSymbolTable
-//
 
 CSymbolTable::CSymbolTable()
 {
@@ -267,9 +259,7 @@ void CSymbolTable::RemoveSymbol(LPCTSTR symbolName)
 	m_symbols.erase(symbolName);
 }
 
-//
 // CParseStream
-//
 
 CParseStream::CParseStream()
 {
@@ -331,9 +321,7 @@ bool CParseStream::IsThisDefinition(void* theDefinition)
 	return false;
 }
 
-//
 // CParsePutBack
-//
 
 CParsePutBack::CParsePutBack()
 {
@@ -416,9 +404,7 @@ void CParsePutBack::GetCurFilename(char** theBuff)
 	strcpy(*theBuff, m_curFile);
 }
 
-//
 // CParseFile
-//
 
 CParseFile::CParseFile()
 {
@@ -604,9 +590,7 @@ void CParseFile::GetCurFilename(char** theBuff)
 	}
 }
 
-//
 // CParseMemory
-//
 
 CParseMemory::CParseMemory()
 {
@@ -674,9 +658,7 @@ void CParseMemory::GetCurFilename(char** theBuff)
 	*theBuff = NULL;
 }
 
-//
 // CParseBlock
-//
 
 CParseBlock::CParseBlock()
 {
@@ -713,9 +695,7 @@ void CParseBlock::Init(byte* data, long datasize)
 	m_datasize = datasize;
 }
 
-//
 // CParseToken
-//
 
 CParseToken::CParseToken()
 {
@@ -798,9 +778,7 @@ void CParseToken::GetCurFilename(char** theBuff)
 	*theBuff = NULL;
 }
 
-//
 // CParseDefine
-//
 
 CParseDefine::CParseDefine()
 {
@@ -833,9 +811,7 @@ bool CParseDefine::IsThisDefinition(void* theDefinition)
 	return (CDirectiveSymbol*)theDefinition == m_defineSymbol;
 }
 
-//
 // CToken
-//
 
 CToken::CToken()
 {
@@ -902,9 +878,7 @@ float CToken::GetFloatValue()
 	return 0.0;
 }
 
-//
 // CCharToken
-//
 
 CCharToken::CCharToken()
 {
@@ -979,9 +953,7 @@ int CCharToken::GetType()
 	return TK_CHAR;
 }
 
-//
 // CStringToken
-//
 
 CStringToken::CStringToken()
 {
@@ -1016,9 +988,7 @@ int CStringToken::GetType()
 	return TK_STRING;
 }
 
-//
 // CIntToken
-//
 
 CIntToken::CIntToken()
 {
@@ -1075,9 +1045,7 @@ LPCTSTR CIntToken::GetStringValue()
 	return m_string;
 }
 
-//
 // CFloatToken
-//
 
 CFloatToken::CFloatToken()
 {
@@ -1129,9 +1097,7 @@ LPCTSTR CFloatToken::GetStringValue()
 	return m_string;
 }
 
-//
 // CIdentifierToken
-//
 
 CIdentifierToken::CIdentifierToken()
 {
@@ -1166,9 +1132,7 @@ int CIdentifierToken::GetType()
 	return TK_IDENTIFIER;
 }
 
-//
 // CCommentToken
-//
 
 CCommentToken::CCommentToken()
 {
@@ -1203,9 +1167,7 @@ int CCommentToken::GetType()
 	return TK_COMMENT;
 }
 
-//
 // CUserToken
-//
 
 CUserToken::CUserToken()
 {
@@ -1240,9 +1202,7 @@ int CUserToken::GetType()
 	return m_value;
 }
 
-//
 // CUndefinedToken
-//
 
 CUndefinedToken::CUndefinedToken()
 {
@@ -1276,9 +1236,7 @@ int CUndefinedToken::GetType()
 	return TK_UNDEFINED;
 }
 
-//
 // CTokenizerState
-//
 
 CTokenizerState::CTokenizerState()
 {
@@ -1332,9 +1290,7 @@ bool CTokenizerState::Skipping()
 	return m_skip;
 }
 
-//
 // CTokenizerHolderState
-//
 
 CTokenizerHolderState::CTokenizerHolderState()
 {
@@ -1370,9 +1326,7 @@ bool CTokenizerHolderState::ProcessElse()
 	return m_elseHit;
 }
 
-//
 // CKeywordTable
-//
 
 CKeywordTable::CKeywordTable(CTokenizer* tokenizer, keywordArray_t* keywords)
 {
@@ -1385,9 +1339,7 @@ CKeywordTable::~CKeywordTable()
 	m_tokenizer->SetKeywords(m_holdKeywords);
 }
 
-//
 // CTokenizer
-//
 
 CTokenizer::CTokenizer()
 {
@@ -1662,7 +1614,7 @@ CToken* CTokenizer::GetToEndOfLine(int tokenType)
 {
 	// update, if you just want the whole line returned as a string, then allow a much bigger size than
 	//	the default string size of only 128 chars...
-	//
+
 	if (tokenType == TK_STRING)
 	{
 		#define iRETURN_STRING_SIZE 2048
@@ -1685,7 +1637,7 @@ CToken* CTokenizer::GetToEndOfLine(int tokenType)
 		}
 
 		// line would maks a string too big to fit in buffer...
-		//
+
 		Error(TKERR_STRINGLENGTHEXCEEDED);
 	}
 	else
@@ -2779,9 +2731,7 @@ COLORREF CTokenizer::ParseRGB()
 	return RGB(red, green, blue);
 }
 
-//
 // CSymbolLookup
-//
 
 CSymbolLookup::CSymbolLookup()
 {

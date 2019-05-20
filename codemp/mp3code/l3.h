@@ -155,7 +155,6 @@ typedef struct
 }
 IS_SF_INFO;
 
-
 #ifndef SAMPLE
 #include "small_header.h"
 #endif

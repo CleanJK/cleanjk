@@ -20,13 +20,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-/*
-=======================================================================
-
-USER INTERFACE SABER LOADING & DISPLAY CODE
-
-=======================================================================
-*/
+// USER INTERFACE SABER LOADING & DISPLAY CODE
 
 #include "ui_local.h"
 #include "ui_shared.h"

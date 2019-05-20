@@ -36,21 +36,12 @@ extern IHeapAllocator *G2VertSpaceClient;
 #include "snd_ambient.h"
 #include "qcommon/timing.h"
 
-/*
-Ghoul2 Insert End
-*/
-
 extern	botlib_export_t	*botlib_export;
 
 extern qboolean loadCamera(const char *name);
 extern void startCamera(int time);
 extern qboolean getCameraInfo(int time, vec3_t *origin, vec3_t *angles);
 
-/*
-====================
-CL_GetUserCmd
-====================
-*/
 qboolean CL_GetUserCmd( int cmdNumber, usercmd_t *ucmd ) {
 	// cmds[cmdNumber] is the last properly generated command
 
@@ -70,11 +61,6 @@ qboolean CL_GetUserCmd( int cmdNumber, usercmd_t *ucmd ) {
 	return qtrue;
 }
 
-/*
-====================
-CL_GetParseEntityState
-====================
-*/
 qboolean	CL_GetParseEntityState( int parseEntityNumber, entityState_t *state ) {
 	// can't return anything that hasn't been parsed yet
 	if ( parseEntityNumber >= cl.parseEntitiesNum ) {
@@ -91,11 +77,6 @@ qboolean	CL_GetParseEntityState( int parseEntityNumber, entityState_t *state ) {
 	return qtrue;
 }
 
-/*
-====================
-CL_GetSnapshot
-====================
-*/
 qboolean CL_GetSnapshot( int snapshotNumber, snapshot_t *snapshot ) {
 	clSnapshot_t	*clSnap;
 	int				i, count;
@@ -166,11 +147,6 @@ qboolean CL_GetDefaultState(int index, entityState_t *state)
 	return qtrue;
 }
 
-/*
-=====================
-CL_SetUserCmdValue
-=====================
-*/
 extern float cl_mPitchOverride;
 extern float cl_mYawOverride;
 extern float cl_mSensitivityOverride;
@@ -198,15 +174,9 @@ void CL_DoAutoLODScale(void)
 		finalLODScaleFactor = (gCLTotalClientNum/-8.0f);
 	}
 
-
 	Cvar_Set( "r_autolodscalevalue", va("%f", finalLODScaleFactor) );
 }
 
-/*
-=====================
-CL_ConfigstringModified
-=====================
-*/
 void CL_ConfigstringModified( void ) {
 	char		*old, *s;
 	int			i, index;
@@ -364,13 +334,8 @@ void CL_CheckSVStringEdRef(char *buf, const char *str)
 
 	buf[b] = 0;
 }
-/*
-===================
-CL_GetServerCommand
 
-Set up argc/argv for the given command
-===================
-*/
+// Set up argc/argv for the given command
 qboolean CL_GetServerCommand( int serverCommandNumber ) {
 	char	*s;
 	char	*cmd;
@@ -485,12 +450,6 @@ rescan:
 	return qtrue;
 }
 
-/*
-====================
-CL_ShutdonwCGame
-
-====================
-*/
 void CL_ShutdownCGame( void ) {
 	Key_SetCatcher( Key_GetCatcher( ) & ~KEYCATCH_CGAME );
 
@@ -502,14 +461,7 @@ void CL_ShutdownCGame( void ) {
 	CL_UnbindCGame();
 }
 
-/*
-====================
-CL_InitCGame
-
-Should only be called by CL_StartHunkUsers
-====================
-*/
-
+// Should only be called by CL_StartHunkUsers
 void CL_InitCGame( void ) {
 	const char			*info;
 	const char			*mapname;
@@ -566,14 +518,7 @@ void CL_InitCGame( void ) {
 	Con_ClearNotify ();
 }
 
-
-/*
-====================
-CL_GameCommand
-
-See if the current console command is claimed by the cgame
-====================
-*/
+// See if the current console command is claimed by the cgame
 qboolean CL_GameCommand( void ) {
 	if ( !cls.cgameStarted )
 		return qfalse;
@@ -581,13 +526,6 @@ qboolean CL_GameCommand( void ) {
 	return CGVM_ConsoleCommand();
 }
 
-
-
-/*
-=====================
-CL_CGameRendering
-=====================
-*/
 void CL_CGameRendering( stereoFrame_t stereo ) {
 	//rww - RAGDOLL_BEGIN
 	if (!com_sv_running->integer)
@@ -600,29 +538,15 @@ void CL_CGameRendering( stereoFrame_t stereo ) {
 	CGVM_DrawActiveFrame( cl.serverTime, stereo, clc.demoplaying );
 }
 
-
-/*
-=================
-CL_AdjustTimeDelta
-
-Adjust the clients view of server time.
-
-We attempt to have cl.serverTime exactly equal the server's view
-of time plus the timeNudge, but with variable latencies over
-the internet it will often need to drift a bit to match conditions.
-
-Our ideal time would be to have the adjusted time approach, but not pass,
-the very latest snapshot.
-
-Adjustments are only made when a new snapshot arrives with a rational
-latency, which keeps the adjustment process framerate independent and
-prevents massive overadjustment during times of significant packet loss
-or bursted delayed packets.
-=================
-*/
-
 #define	RESET_TIME	500
 
+// Adjust the clients view of server time.
+// We attempt to have cl.serverTime exactly equal the server's view of time plus the timeNudge, but with variable
+//	latencies over the internet it will often need to drift a bit to match conditions.
+// Our ideal time would be to have the adjusted time approach, but not pass, the very latest snapshot.
+// Adjustments are only made when a new snapshot arrives with a rational latency, which keeps the adjustment process
+//	framerate independent and prevents massive overadjustment during times of significant packet loss or bursted
+//	delayed packets.
 void CL_AdjustTimeDelta( void ) {
 	int		newDelta;
 	int		deltaDelta;
@@ -672,12 +596,6 @@ void CL_AdjustTimeDelta( void ) {
 	}
 }
 
-
-/*
-==================
-CL_FirstSnapshot
-==================
-*/
 void CL_FirstSnapshot( void ) {
 	// ignore snapshots that don't have entities
 	if ( cl.snap.snapFlags & SNAPFLAG_NOT_ACTIVE ) {
@@ -704,11 +622,6 @@ void CL_FirstSnapshot( void ) {
 	}
 }
 
-/*
-==================
-CL_SetCGameTime
-==================
-*/
 void CL_SetCGameTime( void ) {
 	// getting a valid frame message ends the connection process
 	if ( cls.state != CA_ACTIVE ) {
@@ -748,7 +661,6 @@ void CL_SetCGameTime( void ) {
 		Com_Error( ERR_DROP, "cl.snap.serverTime < cl.oldFrameServerTime" );
 	}
 	cl.oldFrameServerTime = cl.snap.serverTime;
-
 
 	// get our current view of time
 

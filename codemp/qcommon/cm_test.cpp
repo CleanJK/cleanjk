@@ -23,12 +23,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "cm_local.h"
 
-/*
-==================
-CM_PointLeafnum_r
-
-==================
-*/
 int CM_PointLeafnum_r( const vec3_t p, int num, clipMap_t *local ) {
 	float		d;
 	cNode_t		*node;
@@ -61,15 +55,7 @@ int CM_PointLeafnum( const vec3_t p ) {
 	return CM_PointLeafnum_r (p, 0, &cmg);
 }
 
-
-/*
-======================================================================
-
-LEAF LISTING
-
-======================================================================
-*/
-
+// LEAF LISTING
 
 void CM_StoreLeafs( leafList_t *ll, int nodenum ) {
 	int		leafNum;
@@ -131,13 +117,7 @@ void CM_StoreBrushes( leafList_t *ll, int nodenum ) {
 #endif
 }
 
-/*
-=============
-CM_BoxLeafnums
-
-Fills in a list of all the leafs touched
-=============
-*/
+// Fills in a list of all the leafs touched
 void CM_BoxLeafnums_r( leafList_t *ll, int nodenum ) {
 	cplane_t	*plane;
 	cNode_t		*node;
@@ -166,11 +146,6 @@ void CM_BoxLeafnums_r( leafList_t *ll, int nodenum ) {
 	}
 }
 
-/*
-==================
-CM_BoxLeafnums
-==================
-*/
 int	CM_BoxLeafnums( const vec3_t mins, const vec3_t maxs, int *boxList, int listsize, int *lastLeaf) {
 	//rwwRMG - changed to boxList to not conflict with list type
 	leafList_t	ll;
@@ -192,16 +167,6 @@ int	CM_BoxLeafnums( const vec3_t mins, const vec3_t maxs, int *boxList, int list
 	return ll.count;
 }
 
-
-//====================================================================
-
-
-/*
-==================
-CM_PointContents
-
-==================
-*/
 int CM_PointContents( const vec3_t p, clipHandle_t model ) {
 	int			leafnum;
 	int			i, k;
@@ -261,14 +226,7 @@ int CM_PointContents( const vec3_t p, clipHandle_t model ) {
 	return contents;
 }
 
-/*
-==================
-CM_TransformedPointContents
-
-Handles offseting and rotation of the end points for moving and
-rotating entities
-==================
-*/
+// Handles offseting and rotation of the end points for moving and rotating entities
 int	CM_TransformedPointContents( const vec3_t p, clipHandle_t model, const vec3_t origin, const vec3_t angles) {
 	vec3_t		p_l;
 	vec3_t		temp;
@@ -292,15 +250,8 @@ int	CM_TransformedPointContents( const vec3_t p, clipHandle_t model, const vec3_
 	return CM_PointContents( p_l, model );
 }
 
+// PVS
 
-
-/*
-===============================================================================
-
-PVS
-
-===============================================================================
-*/
 byte	*CM_ClusterPVS (int cluster) {
 	if (cluster < 0 || cluster >= cmg.numClusters || !cmg.vised ) {
 		return cmg.visibility;
@@ -309,13 +260,8 @@ byte	*CM_ClusterPVS (int cluster) {
 	return cmg.visibility + cluster * cmg.clusterBytes;
 }
 
-/*
-===============================================================================
+// AREAPORTALS
 
-AREAPORTALS
-
-===============================================================================
-*/
 void CM_FloodArea_r( int areaNum, int floodnum, clipMap_t &cm ) {
 	int		i;
 	cArea_t *area;
@@ -339,12 +285,6 @@ void CM_FloodArea_r( int areaNum, int floodnum, clipMap_t &cm ) {
 	}
 }
 
-/*
-====================
-CM_FloodAreaConnections
-
-====================
-*/
 void	CM_FloodAreaConnections( clipMap_t &cm ) {
 	int		i;
 	cArea_t	*area;
@@ -365,12 +305,6 @@ void	CM_FloodAreaConnections( clipMap_t &cm ) {
 
 }
 
-/*
-====================
-CM_AdjustAreaPortalState
-
-====================
-*/
 void	CM_AdjustAreaPortalState( int area1, int area2, qboolean open ) {
 	if ( area1 < 0 || area2 < 0 ) {
 		return;
@@ -394,12 +328,6 @@ void	CM_AdjustAreaPortalState( int area1, int area2, qboolean open ) {
 	CM_FloodAreaConnections (cmg);
 }
 
-/*
-====================
-CM_AreasConnected
-
-====================
-*/
 qboolean	CM_AreasConnected( int area1, int area2 ) {
 #ifndef BSPC
 	if ( cm_noAreas->integer ) {
@@ -421,21 +349,10 @@ qboolean	CM_AreasConnected( int area1, int area2 ) {
 	return qfalse;
 }
 
-
-/*
-=================
-CM_WriteAreaBits
-
-Writes a bit vector of all the areas
-that are in the same flood as the area parameter
-Returns the number of bytes needed to hold all the bits.
-
-The bits are OR'd in, so you can CM_WriteAreaBits from multiple
-viewpoints and get the union of all visible areas.
-
-This is used to cull non-visible entities from snapshots
-=================
-*/
+// Writes a bit vector of all the areas that are in the same flood as the area parameter
+// Returns the number of bytes needed to hold all the bits.
+// The bits are OR'd in, so you can CM_WriteAreaBits from multiple viewpoints and get the union of all visible areas.
+// This is used to cull non-visible entities from snapshots
 int CM_WriteAreaBits (byte *buffer, int area)
 {
 	int		i;

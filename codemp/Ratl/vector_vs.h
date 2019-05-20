@@ -22,47 +22,27 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-////////////////////////////////////////////////////////////////////////////////////////
 // RAVEN STANDARD TEMPLATE LIBRARY
 //  (c) 2002 Activision
-//
-//
 // Vector
-// ------
-// The vector class is a simple addition to the array.  It supports some useful additions
-// like sort and binary search, as well as keeping track of the number of objects
-// contained within.
-//
-//
-//
-//
-//
+//	The vector class is a simple addition to the array.
+//	It supports some useful additions like sort and binary search, as well as keeping track of the number of objects
+//		contained within.
 // NOTES:
-//
-//
-////////////////////////////////////////////////////////////////////////////////////////
 
-////////////////////////////////////////////////////////////////////////////////////////
-// Includes
-////////////////////////////////////////////////////////////////////////////////////////
 #include "ratl_common.h"
 
 namespace ratl
 {
 
-
-////////////////////////////////////////////////////////////////////////////////////////
 // The Vector Class
-////////////////////////////////////////////////////////////////////////////////////////
 template<class T>
 class vector_base : public ratl_base
 {
 public:
 	typedef T TStorageTraits;
 	typedef typename T::TValue TTValue;
-    ////////////////////////////////////////////////////////////////////////////////////
 	// Capacity Enum
-    ////////////////////////////////////////////////////////////////////////////////////
  	enum
 	{
 		CAPACITY		= T::CAPACITY
@@ -72,17 +52,13 @@ private:
 	int								mSize;
 public:
 
-	////////////////////////////////////////////////////////////////////////////////////
 	// Constructor
-    ////////////////////////////////////////////////////////////////////////////////////
 	vector_base()
 	{
 		mSize = 0;
 	}
 
-	////////////////////////////////////////////////////////////////////////////////////
 	// Copy Constructor
-	////////////////////////////////////////////////////////////////////////////////////
 	vector_base(const vector_base &B)
 	{
 		for (int i=0; i<B.size(); i++)
@@ -92,70 +68,55 @@ public:
 		mSize = B.mSize;
 	}
 
-    ////////////////////////////////////////////////////////////////////////////////////
 	// How Many Objects Can Be Added?
-    ////////////////////////////////////////////////////////////////////////////////////
 	int				capacity() const
 	{
 		assert(mSize>=0&&mSize<=CAPACITY);
 		return (CAPACITY);
 	}
 
-    ////////////////////////////////////////////////////////////////////////////////////
 	// How Many Objects Have Been Added To This Vector?
-    ////////////////////////////////////////////////////////////////////////////////////
 	int				size() const
 	{
 		assert(mSize>=0&&mSize<=CAPACITY);
 		return (mSize);
 	}
 
-    ////////////////////////////////////////////////////////////////////////////////////
 	// Have Any Objects Have Been Added To This Vector?
-    ////////////////////////////////////////////////////////////////////////////////////
 	bool			empty() const
 	{
 		assert(mSize>=0&&mSize<=CAPACITY);
 		return (!mSize);
 	}
 
-    ////////////////////////////////////////////////////////////////////////////////////
 	// Have Any Objects Have Been Added To This Vector?
-    ////////////////////////////////////////////////////////////////////////////////////
 	bool			full() const
 	{
 		assert(mSize>=0&&mSize<=CAPACITY);
 		return (mSize==CAPACITY);
 	}
 
-	////////////////////////////////////////////////////////////////////////////////////
 	// Clear Out Entire Array
-	////////////////////////////////////////////////////////////////////////////////////
 	void			clear()
 	{
 		mArray.clear();
 		mSize = 0;
 	}
 	// Constant Access Operator
-	////////////////////////////////////////////////////////////////////////////////////
 	const TTValue&		operator[](int index) const
 	{
 		assert(index>=0&&index<mSize);
 		return mArray[index];
 	}
 
-	////////////////////////////////////////////////////////////////////////////////////
 	// Access Operator
-	////////////////////////////////////////////////////////////////////////////////////
 	TTValue&				operator[](int index)
 	{
 		assert(index>=0&&index<mSize);
 		return mArray[index];
 	}
 
-	////////////////////////////////////////////////////////////////////////////////////
 	// Access To The Raw Array Pointer
-	////////////////////////////////////////////////////////////////////////////////////
 	TTValue *				raw_array()
 	{
 		  // this (intentionally) won't compile for anything except value semantics
@@ -163,9 +124,7 @@ public:
 		  return T::raw_array(mArray);
 	}
 
-	////////////////////////////////////////////////////////////////////////////////////
 	// Access To The Raw Array Pointer
-	////////////////////////////////////////////////////////////////////////////////////
 	const TTValue*				raw_array() const
 	{
 		  // this (intentionally) won't compile for anything except value semantics
@@ -173,10 +132,7 @@ public:
 		  return T::raw_array(mArray);
 	}
 
-
-	////////////////////////////////////////////////////////////////////////////////////
 	// Assignment Operator
-	////////////////////////////////////////////////////////////////////////////////////
 	vector_base&		operator=(const vector_base& val)
 	{
 		for (int i=0; i<val.size(); i++)
@@ -187,9 +143,7 @@ public:
 		return *this;
 	}
 
-	////////////////////////////////////////////////////////////////////////////////////
 	// Add
-	////////////////////////////////////////////////////////////////////////////////////
 	TTValue &				push_back()
 	{
 		assert(mSize>=0&&mSize<CAPACITY);
@@ -198,9 +152,7 @@ public:
 		return (mArray[mSize-1]);
 	}
 
-	////////////////////////////////////////////////////////////////////////////////////
 	// Add (And Set)
-	////////////////////////////////////////////////////////////////////////////////////
 	void			push_back(const TTValue& value)
 	{
 		assert(mSize>=0&&mSize<CAPACITY);
@@ -208,9 +160,7 @@ public:
 		mSize++;
 	}
 
-	////////////////////////////////////////////////////////////////////////////////////
 	// Add raw
-	////////////////////////////////////////////////////////////////////////////////////
 	TRatlNew *			push_back_raw()
 	{
 		assert(mSize>=0&&mSize<CAPACITY);
@@ -218,9 +168,7 @@ public:
 		return mArray.alloc_raw(mSize-1);
 	}
 
-	////////////////////////////////////////////////////////////////////////////////////
 	// Remove
-	////////////////////////////////////////////////////////////////////////////////////
 	void			pop_back()
 	{
 		assert(mSize>0);
@@ -228,9 +176,7 @@ public:
 		mArray.destruct(mSize);
 	}
 
-	////////////////////////////////////////////////////////////////////////////////////
 	// Resizes The Array.  If New Elements Are Needed, It Uses The (value) Param
-	////////////////////////////////////////////////////////////////////////////////////
 	void			resize(int nSize, const TTValue& value)
 	{
 		int i;
@@ -246,9 +192,7 @@ public:
 		mSize = nSize;
 	}
 
-	////////////////////////////////////////////////////////////////////////////////////
 	// Resizes The Array.  If New Elements Are Needed, It Uses The (value) Param
-	////////////////////////////////////////////////////////////////////////////////////
 	void			resize(int nSize)
 	{
 		int i;
@@ -264,20 +208,14 @@ public:
 		mSize = nSize;
 	}
 
-	////////////////////////////////////////////////////////////////////////////////////
 	// Swap the values at two locations
-	////////////////////////////////////////////////////////////////////////////////////
 	void swap(int i,int j)
 	{
 		assert(i<mSize && j<mSize);
 		mArray.swap(i, j);
 	}
 
-
-
-	////////////////////////////////////////////////////////////////////////////////////
 	// Erase An Iterator Location... NOTE: THIS DOES NOT PRESERVE ORDER IN THE VECTOR!!
-	////////////////////////////////////////////////////////////////////////////////////
 	void erase_swap(int Index)
 	{
 		assert(Index>=0 && Index<mSize);
@@ -288,10 +226,7 @@ public:
 		pop_back();
 	}
 
-
-	////////////////////////////////////////////////////////////////////////////////////
 	// Binary Search
-	////////////////////////////////////////////////////////////////////////////////////
 	int				find_index(const TTValue& value) const
 	{
 		int base = 0;
@@ -327,80 +262,58 @@ public:
 		return mSize; //not found!
 	}
 
-
-	////////////////////////////////////////////////////////////////////////////////////
 	// Heap Sort
-	//
+
 	// This sort algorithm has all the advantages of merge sort in terms of guarenteeing
 	// O(n log n) worst case, as well as all the advantages of quick sort in that it is
 	// "in place" and requires no additional storage.
-	//
-	////////////////////////////////////////////////////////////////////////////////////
+
 	void			sort()
 	{
 		// Temporary Data
-		//----------------
 		int	HeapSize;	// How Large The Heap Is (Grows In PHASE 1, Shrinks In PHASE 2)
 		int	Pos;		// The Location We Are AT During "re-heapify" Loops
 		int	Compare;	// The Location We Are Comparing AGAINST During "re-heapify" Loops
 
-
-
-
 		// PHASE 1, CONSTRUCT THE HEAP										  O(n log n)
-		//===============================================================================
 		for (HeapSize=1; HeapSize<mSize; HeapSize++)
 		{
 			// We Now Have An Element At Heap Size Which Is Not In It's Correct Place
-			//------------------------------------------------------------------------
 			Pos		= HeapSize;
 			Compare	= parent(Pos);
 			while (mArray[Compare]<mArray[Pos])
 			{
 				// Swap The Compare Element With The Pos Element
-				//-----------------------------------------------
 				mArray.swap(Compare, Pos);
 
 				// Move Pos To The Current Compare, And Recalc Compare
-				//------------------------------------------------------
 				Pos		= Compare;
 				Compare = parent(Pos);
 			}
 		}
 
-
-
-
 		// PHASE 2, POP OFF THE TOP OF THE HEAP ONE AT A TIME (AND FIX)       O(n log n)
-		//===============================================================================
 		for (HeapSize=(mSize-1); HeapSize>0; HeapSize--)
 		{
 			// Swap The End And Front Of The "Heap" Half Of The Array
-			//--------------------------------------------------------
 			mArray.swap(0, HeapSize);
 
 			// We Now Have A Bogus Element At The Root, So Fix The Heap
-			//----------------------------------------------------------
 			Pos		= 0;
 			Compare = largest_child(Pos, HeapSize);
 			while (mArray[Pos]<mArray[Compare])
 			{
 				// Swap The Compare Element With The Pos Element
-				//-----------------------------------------------
 				mArray.swap(Compare, Pos);
 
 				// Move Pos To The Current Compare, And Recalc Compare
-				//------------------------------------------------------
 				Pos		= Compare;
 				Compare	= largest_child(Pos, HeapSize);
 			}
 		}
 	}
 
-
-	////////////////////////////////////////////////////////////////////////////////////
 	// THIS IS A QUICK VALIDATION OF A SORTED LIST
-	////////////////////////////////////////////////////////////////////////////////////
 #ifdef _DEBUG
 	void			sort_validate() const
 	{
@@ -412,37 +325,29 @@ public:
 #endif
 
 private:
-	////////////////////////////////////////////////////////////////////////////////////
 	// For Heap Sort
 	// Returns The Location Of Node (i)'s Parent Node (The Parent Node Of Zero Is Zero)
-	////////////////////////////////////////////////////////////////////////////////////
 	static int			parent(int i)
 	{
 		return ((i-1)/2);
 	}
 
-	////////////////////////////////////////////////////////////////////////////////////
 	// For Heap Sort
 	// Returns The Location Of Node (i)'s Left Child (The Child Of A Leaf Is The Leaf)
-	////////////////////////////////////////////////////////////////////////////////////
 	static int			left(int i)
 	{
 		return ((2*i)+1);
 	}
 
-	////////////////////////////////////////////////////////////////////////////////////
 	// For Heap Sort
 	// Returns The Location Of Node (i)'s Right Child (The Child Of A Leaf Is The Leaf)
-	////////////////////////////////////////////////////////////////////////////////////
 	static int			right(int i)
 	{
 		return ((2*i)+2);
 	}
 
-	////////////////////////////////////////////////////////////////////////////////////
 	// For Heap Sort
 	// Returns The Location Of Largest Child Of Node (i)
-	////////////////////////////////////////////////////////////////////////////////////
 	int			largest_child(int i, int Size) const
 	{
 		if (left(i)<Size)
@@ -457,22 +362,18 @@ private:
 	}
 
 public:
-    ////////////////////////////////////////////////////////////////////////////////////
 	// Iterator
-    ////////////////////////////////////////////////////////////////////////////////////
 	class const_iterator;
 	class iterator
 	{
 		friend class vector_base<T>;
 		friend class const_iterator;
 		// Data
-		//------
 		int						mLoc;
 		vector_base<T>*			mOwner;
 
 	public:
 		// Constructors
-		//--------------
 		iterator()						: mOwner(0), mLoc(0)
 		{}
 		iterator(vector_base<T>* p, int t)	: mOwner(p), mLoc(t)
@@ -482,16 +383,13 @@ public:
 		{}
 
 		// Assignment Operator
-		//---------------------
 		void		operator= (const iterator &t)
 		{
 			mOwner	= t.mOwner;
 			mLoc	= t.mLoc;
 		}
 
-
 		// Equality Operators
-		//--------------------
 		bool		operator!=(const iterator &t)	const
 		{
 			return (mLoc!=t.mLoc  || mOwner!=t.mOwner);
@@ -502,14 +400,12 @@ public:
 		}
 
 		// DeReference Operator
-		//----------------------
 		TTValue&			operator* ()	const
 		{
 			assert(mLoc>=0 && mLoc<mOwner->mSize);
 			return (mOwner->mArray[mLoc]);
 		}
 		// DeReference Operator
-		//----------------------
 		TTValue&			value()	const
 		{
 			assert(mLoc>=0 && mLoc<mOwner->mSize);
@@ -517,7 +413,6 @@ public:
 		}
 
 		// DeReference Operator
-		//----------------------
 		TTValue*			operator-> ()	const
 		{
 			assert(mLoc>=0 && mLoc<mOwner->mSize);
@@ -525,7 +420,6 @@ public:
 		}
 
 		// Inc Operator
-		//--------------
 		iterator	operator++(int) //postfix
 		{
 			assert(mLoc>=0 && mLoc<mOwner->mSize);
@@ -535,7 +429,6 @@ public:
 		}
 
 		// Inc Operator
-		//--------------
 		iterator	operator++()
 		{
 			assert(mLoc>=0 && mLoc<mOwner->mSize);
@@ -545,9 +438,7 @@ public:
 
 	};
 
-    ////////////////////////////////////////////////////////////////////////////////////
 	// Constant Iterator
-    ////////////////////////////////////////////////////////////////////////////////////
 	class const_iterator
 	{
 		friend class vector_base<T>;
@@ -557,7 +448,6 @@ public:
 
 	public:
 		// Constructors
-		//--------------
 		const_iterator()							: mOwner(0), mLoc(0)
 		{}
 		const_iterator(const vector_base<T>* p, int t)	: mOwner(p), mLoc(t)
@@ -568,24 +458,19 @@ public:
 		{}
 
 		// Assignment Operator
-		//---------------------
 		void		operator= (const const_iterator &t)
 		{
 			mOwner	= t.mOwner;
 			mLoc	= t.mLoc;
 		}
 		// Assignment Operator
-		//---------------------
 		void		operator= (const iterator &t)
 		{
 			mOwner	= t.mOwner;
 			mLoc	= t.mLoc;
 		}
 
-
-
 		// Equality Operators
-		//--------------------
 		bool		operator!=(const iterator &t)		const
 		{
 			return (mLoc!=t.mLoc  || mOwner!=t.mOwner);
@@ -596,7 +481,6 @@ public:
 		}
 
 		// Equality Operators
-		//--------------------
 		bool		operator!=(const const_iterator &t)		const
 		{
 			return (mLoc!=t.mLoc || mOwner!=t.mOwner);
@@ -607,7 +491,6 @@ public:
 		}
 
 		// DeReference Operator
-		//----------------------
 		const TTValue&			operator* ()		const
 		{
 			assert(mLoc>=0 && mLoc<mOwner->mSize);
@@ -615,7 +498,6 @@ public:
 		}
 
 		// DeReference Operator
-		//----------------------
 		const TTValue&			value()		const
 		{
 			assert(mLoc>=0 && mLoc<mOwner->mSize);
@@ -623,7 +505,6 @@ public:
 		}
 
 		// DeReference Operator
-		//----------------------
 		const TTValue*			operator-> ()		const
 		{
 			assert(mLoc>=0 && mLoc<mOwner->mSize);
@@ -631,7 +512,6 @@ public:
 		}
 
 		// Inc Operator
-		//--------------
 		const_iterator operator++(int)
 		{
 			assert(mLoc>=0 && mLoc<mOwner->mSize);
@@ -641,7 +521,6 @@ public:
 		}
 
 		// Inc Operator
-		//--------------
 		const_iterator operator++()
 		{
 			assert(mLoc>=0 && mLoc<mOwner->mSize);
@@ -649,47 +528,35 @@ public:
 			return *this;
 		}
 
-
 	};
 	friend class				iterator;
 	friend class				const_iterator;
 
-
-    ////////////////////////////////////////////////////////////////////////////////////
 	// Iterator Begin (Starts At Address 0)
-    ////////////////////////////////////////////////////////////////////////////////////
 	iterator	begin()
 	{
 		return iterator(this, 0);
 	}
 
-    ////////////////////////////////////////////////////////////////////////////////////
 	// Iterator End (Set To Address mSize)
-    ////////////////////////////////////////////////////////////////////////////////////
 	iterator	end()
 	{
 		return iterator(this, mSize);
 	}
 
-    ////////////////////////////////////////////////////////////////////////////////////
 	// Iterator Begin (Starts At Address 0)
-    ////////////////////////////////////////////////////////////////////////////////////
 	const_iterator	begin() const
 	{
 		return const_iterator(this, 0);
 	}
 
-    ////////////////////////////////////////////////////////////////////////////////////
 	// Iterator End (Set To Address mSize)
-    ////////////////////////////////////////////////////////////////////////////////////
 	const_iterator	end() const
 	{
 		return const_iterator(this, mSize);
 	}
 
-	////////////////////////////////////////////////////////////////////////////////////
 	// Iterator Find (If Fails To Find, Returns iterator end()
-	////////////////////////////////////////////////////////////////////////////////////
 	iterator	find(const TTValue& value)
 	{
 		int		index = find_index(value);		// Call Find By Index
@@ -700,9 +567,7 @@ public:
 		return end();							// Return "end" Iterator If Not Found
 	}
 
-	////////////////////////////////////////////////////////////////////////////////////
 	// Iterator Find (If Fails To Find, Returns iterator end()
-	////////////////////////////////////////////////////////////////////////////////////
 	const_iterator	find(const TTValue& value) const
 	{
 		int		index = find_index(value);		// Call Find By Index
@@ -713,9 +578,7 @@ public:
 		return end();							// Return "end" Iterator If Not Found
 	}
 
-	////////////////////////////////////////////////////////////////////////////////////
 	// Erase An Iterator Location... NOTE: THIS DOES NOT PRESERVE ORDER IN THE VECTOR!!
-	////////////////////////////////////////////////////////////////////////////////////
 	iterator erase_swap(const iterator &it)
 	{
 		assert(it.mLoc>=0 && it.mLoc<it.mOwner->mSize);

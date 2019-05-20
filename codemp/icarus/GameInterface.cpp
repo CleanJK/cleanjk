@@ -40,14 +40,7 @@ extern	void	Q3_DebugPrint( int level, const char *format, ... );
 
 int			ICARUS_entFilter = -1;
 
-/*
-=============
-ICARUS_GetScript
-
-gets the named script from the cache or disk if not already loaded
-=============
-*/
-
+// gets the named script from the cache or disk if not already loaded
 int ICARUS_GetScript( const char *name, char **buf )
 {
 	bufferlist_t::iterator		ei;
@@ -77,13 +70,7 @@ int ICARUS_GetScript( const char *name, char **buf )
 	return (*ei).second->length;
 }
 
-/*
-=============
-ICARUS_RunScript
-
-Runs the script by the given name
-=============
-*/
+// Runs the script by the given name
 int ICARUS_RunScript( sharedEntity_t *ent, const char *name )
 {
 	char *buf;
@@ -150,14 +137,7 @@ int ICARUS_RunScript( sharedEntity_t *ent, const char *name )
 	return true;
 }
 
-/*
-=================
-ICARUS_Init
-
-Allocates a new ICARUS instance
-=================
-*/
-
+// Allocates a new ICARUS instance
 void ICARUS_Init( void )
 {
 	//Link all interface functions
@@ -173,14 +153,7 @@ void ICARUS_Init( void )
 	}
 }
 
-/*
-=================
-ICARUS_Shutdown
-
-Frees up ICARUS resources from all entities
-=================
-*/
-
+// Frees up ICARUS resources from all entities
 void ICARUS_Shutdown( void )
 {
 	bufferlist_t::iterator	ei;
@@ -224,17 +197,9 @@ void ICARUS_Shutdown( void )
 	}
 }
 
-/*
-==============
-ICARUS_FreeEnt
-
-Frees all ICARUS resources on an entity
-
-WARNING!!! DO NOT DO THIS WHILE RUNNING A SCRIPT, ICARUS WILL CRASH!!!
-FIXME: shouldn't ICARUS handle this internally?
-
-==============
-*/
+// Frees all ICARUS resources on an entity
+// WARNING!!! DO NOT DO THIS WHILE RUNNING A SCRIPT, ICARUS WILL CRASH!!!
+// FIXME: shouldn't ICARUS handle this internally?
 void ICARUS_FreeEnt( sharedEntity_t *ent )
 {
 	assert( iICARUS );
@@ -274,15 +239,7 @@ void ICARUS_FreeEnt( sharedEntity_t *ent )
 	gTaskManagers[ent->s.number]	= NULL;
 }
 
-
-/*
-==============
-ICARUS_ValidEnt
-
-Determines whether or not an entity needs ICARUS information
-==============
-*/
-
+// Determines whether or not an entity needs ICARUS information
 bool ICARUS_ValidEnt( sharedEntity_t *ent )
 {
 	int i;
@@ -314,14 +271,7 @@ bool ICARUS_ValidEnt( sharedEntity_t *ent )
 	return false;
 }
 
-/*
-==============
-ICARUS_AssociateEnt
-
-Associate the entity's id and name so that it can be referenced later
-==============
-*/
-
+// Associate the entity's id and name so that it can be referenced later
 void ICARUS_AssociateEnt( sharedEntity_t *ent )
 {
 	char	temp[1024];
@@ -335,14 +285,7 @@ void ICARUS_AssociateEnt( sharedEntity_t *ent )
 	ICARUS_EntList[ Q_strupr( (char *) temp ) ] = ent->s.number;
 }
 
-/*
-==============
-ICARUS_RegisterScript
-
-Loads and caches a script
-==============
-*/
-
+// Loads and caches a script
 bool ICARUS_RegisterScript( const char *name, qboolean bCalledDuringInterrogate /* = false */ )
 {
 	bufferlist_t::iterator	ei;
@@ -357,19 +300,18 @@ bool ICARUS_RegisterScript( const char *name, qboolean bCalledDuringInterrogate 
 	// note special return condition here, if doing interrogate and we already have this file then we MUST return
 	//	false (which stops the interrogator proceeding), this not only saves some time, but stops a potential
 	//	script recursion bug which could lock the program in an infinite loop...   Return TRUE for normal though!
-	//
+
 	if ( ei != ICARUS_BufferList.end() )
 		return (bCalledDuringInterrogate)?false:true;
 
 	Com_sprintf( newname, sizeof(newname), "%s%s", name, IBI_EXT );
 
-
 	// small update here, if called during interrogate, don't let gi.FS_ReadFile() complain because it can't
 	//	find stuff like BS_RUN_AND_SHOOT as scriptname...   During FINALBUILD the message won't appear anyway, hence
 	//	the ifndef, this just cuts down on internal error reports while testing release mode...
-	//
+
 	qboolean qbIgnoreFileRead = qfalse;
-	//
+
 	// NOTENOTE: For the moment I've taken this back out, to avoid doubling the number of fopen()'s per file.
 #if 0//#ifndef FINAL_BUILD
 	if (bCalledDuringInterrogate)
@@ -394,7 +336,7 @@ bool ICARUS_RegisterScript( const char *name, qboolean bCalledDuringInterrogate 
 	if ( length <= 0 )
 	{
 		// File not found, but keep quiet during interrogate stage, because of stuff like BS_RUN_AND_SHOOT as scriptname
-		//
+
 		if (!bCalledDuringInterrogate)
 		{
 			Com_Printf(S_COLOR_RED"Could not open file '%s'\n", newname );
@@ -433,14 +375,7 @@ int ICARUS_GetIDForString( const char *string )
 	return GVM_ICARUS_GetSetIDForString();
 }
 
-/*
--------------------------
-ICARUS_InterrogateScript
--------------------------
-*/
-
 // at this point the filename should have had the "scripts" (Q3_SCRIPT_DIR) added to it (but not the IBI extension)
-//
 void ICARUS_InterrogateScript( const char *filename )
 {
 	CBlockStream	stream;
@@ -450,10 +385,8 @@ void ICARUS_InterrogateScript( const char *filename )
 	if (!Q_stricmp(filename,"NULL") || !Q_stricmp(filename,"default"))
 		return;
 
-	//////////////////////////////////
-	//
 	// ensure "scripts" (Q3_SCRIPT_DIR), which will be missing if this was called recursively...
-	//
+
 	char sFilename[MAX_FILENAME_LENGTH];	// should really be MAX_QPATH (and 64 bytes instead of 1024), but this fits the rest of the code
 
 	if (!Q_stricmpn(filename,Q3_SCRIPT_DIR,strlen(Q3_SCRIPT_DIR)))
@@ -464,9 +397,6 @@ void ICARUS_InterrogateScript( const char *filename )
 	{
 		Q_strncpyz(sFilename,va("%s/%s",Q3_SCRIPT_DIR,filename),sizeof(sFilename));
 	}
-	//
-	//////////////////////////////////
-
 
 	//Attempt to register this script
 	if ( ICARUS_RegisterScript( sFilename, qtrue ) == false )	// true = bCalledDuringInterrogate
@@ -620,14 +550,7 @@ stringID_table_t BSTable[] =
 	{ "",				-1 }
 };
 
-/*
-==============
-ICARUS_PrecacheEnt
-
-Precache all scripts being used by the entity
-==============
-*/
-
+// Precache all scripts being used by the entity
 void ICARUS_PrecacheEnt( sharedEntity_t *ent )
 {
 	char	newname[MAX_FILENAME_LENGTH];
@@ -648,15 +571,9 @@ void ICARUS_PrecacheEnt( sharedEntity_t *ent )
 	}
 }
 
-/*
-==============
-ICARUS_InitEnt
-
-Allocates a sequencer and task manager only if an entity is a potential script user
-==============
-*/
-
 void Q3_TaskIDClear( int *taskID );
+
+// Allocates a sequencer and task manager only if an entity is a potential script user
 void ICARUS_InitEnt( sharedEntity_t *ent )
 {
 	//Make sure this is a fresh ent
@@ -684,12 +601,6 @@ void ICARUS_InitEnt( sharedEntity_t *ent )
 	ICARUS_PrecacheEnt( ent );
 }
 
-/*
--------------------------
-ICARUS_LinkEntity
--------------------------
-*/
-
 int ICARUS_LinkEntity( int entID, CSequencer *sequencer, CTaskManager *taskManager )
 {
 	sharedEntity_t	*ent = SV_GentityNum(entID);
@@ -704,12 +615,6 @@ int ICARUS_LinkEntity( int entID, CSequencer *sequencer, CTaskManager *taskManag
 
 	return true;
 }
-
-/*
--------------------------
-Svcmd_ICARUS_f
--------------------------
-*/
 
 void Svcmd_ICARUS_f( void )
 {

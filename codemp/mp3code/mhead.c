@@ -56,12 +56,9 @@ static const int mp_br_tableL3[2][16] =
 {{0, 8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160, 0},      /* mpeg 2 */
  {0, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320, 0}};
 
-
-
 static int find_sync(unsigned char *buf, int n);
 static int sync_scan(unsigned char *buf, int n, int i0);
 static int sync_test(unsigned char *buf, int n, int isync, int padbytes);
-
 
 /*--------------------------------------------------------------*/
 int head_info(unsigned char *buf, unsigned int n, MPEG_HEAD * h)
@@ -71,8 +68,6 @@ int head_info(unsigned char *buf, unsigned int n, MPEG_HEAD * h)
 
    if (n > 10000)
       n = 10000;		/* limit scan for free format */
-
-
 
    h->sync = 0;
    //if ((buf[0] == 0xFF) && ((buf[1] & 0xF0) == 0xF0))
@@ -107,11 +102,9 @@ int head_info(unsigned char *buf, unsigned int n, MPEG_HEAD * h)
    h->original = (buf[0+3] & 0x04) >> 2;
    h->emphasis = (buf[0+3] & 0x03);
 
-
 // if( mpeg25_flag ) {
  //    if( h->sr_index == 2 ) return 0;   // fail 8khz
  //}
-
 
 /* compute framebytes for Layer I, II, III */
    if (h->option < 1)
@@ -246,7 +239,6 @@ int head_info2(unsigned char *buf, unsigned int n, MPEG_HEAD * h, int *br)
 
 			return 0;	// fuck knows what this is, but it ain't one of ours...
 	}
-
 
 	return framebytes;
 }

@@ -20,9 +20,7 @@ cvar_t		*r_terrainWaterOffset;
 static int		TerrainFog = 0;
 static float	TerrainDistanceCull;
 
-//
 // Render the tree.
-//
 void CTRPatch::RenderCorner(ivec5_t corner)
 {
 	if((corner[3] < 0) || (tess.registration != corner[4]))
@@ -108,11 +106,8 @@ void CTRPatch::RecurseRender(int depth, ivec5_t left, ivec5_t right, ivec5_t ape
 	}
 }
 
-//
 // Render the mesh.
-//
 // The order of triangles is critical to the subdivision working
-
 void CTRPatch::Render(int Part)
 {
 	ivec5_t		TL, TR, BL, BR;
@@ -147,9 +142,7 @@ void CTRPatch::Render(int Part)
 	}
 }
 
-//
 // At this point the patch is visible and at least part of it is below water level
-//
 int CTRPatch::RenderWaterVert(int x, int y)
 {
 	CTerVert	*vert;
@@ -254,9 +247,9 @@ void CTRPatch::CalcNormal(void)
 	mDistance[1] = DotProduct (vert1->coords, mNormal[1]);
 }
 */
-//
+
 // Reset all patches, recompute variance if needed
-//
+
 void CTRLandScape::Reset(bool visCheck)
 {
 	int			x, y;
@@ -276,11 +269,7 @@ void CTRLandScape::Reset(bool visCheck)
 	}
 }
 
-
-//
 // Render each patch of the landscape & adjust the frame variance.
-//
-
 void CTRLandScape::Render(void)
 {
 	int			x, y;
@@ -921,8 +910,6 @@ CTRLandScape::CTRLandScape(const char *configstring)
 	mCycleCount = 0;
 #endif
 }
-
-// ---------------------------------------------------------------------
 
 void RB_SurfaceTerrain( surfaceInfo_t *surf )
 {

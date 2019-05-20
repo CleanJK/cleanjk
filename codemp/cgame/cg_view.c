@@ -29,50 +29,33 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define MASK_CAMERACLIP (MASK_SOLID|CONTENTS_PLAYERCLIP)
 #define CAMERA_SIZE	4
 
-
 /*
-=============================================================================
+	MODEL TESTING
 
-  MODEL TESTING
-
-The viewthing and gun positioning tools from Q2 have been integrated and
-enhanced into a single model testing facility.
+The viewthing and gun positioning tools from Q2 have been integrated and enhanced into a single model testing facility.
 
 Model viewing can begin with either "testmodel <modelname>" or "testgun <modelname>".
 
-The names must be the full pathname after the basedir, like
-"models/weapons/v_launch/tris.md3" or "players/male/tris.md3"
+The names must be the full pathname after the basedir, like:
+	- "models/weapons/v_launch/tris.md3"
+	- "players/male/tris.md3"
 
-Testmodel will create a fake entity 100 units in front of the current view
-position, directly facing the viewer.  It will remain immobile, so you can
-move around it to view it from different angles.
+Testmodel will create a fake entity 100 units in front of the current view position, directly facing the viewer.
+It will remain immobile, so you can move around it to view it from different angles.
 
-Testgun will cause the model to follow the player around and supress the real
-view weapon model.  The default frame 0 of most guns is completely off screen,
-so you will probably have to cycle a couple frames to see it.
+Testgun will cause the model to follow the player around and supress the real view weapon model.
+The default frame 0 of most guns is completely off screen, so you will probably have to cycle a couple frames to see it.
 
-"nextframe", "prevframe", "nextskin", and "prevskin" commands will change the
-frame or skin of the testmodel.  These are bound to F5, F6, F7, and F8 in
-q3default.cfg.
+"nextframe", "prevframe", "nextskin", and "prevskin" commands will change the frame or skin of the testmodel.
+These are bound to F5, F6, F7, and F8 in q3default.cfg.
 
-If a gun is being tested, the "gun_x", "gun_y", and "gun_z" variables will let
-you adjust the positioning.
+If a gun is being tested, the "gun_x", "gun_y", and "gun_z" variables will let you adjust the positioning.
 
-Note that none of the model testing features update while the game is paused, so
-it may be convenient to test with deathmatch set to 1 so that bringing down the
-console doesn't pause the game.
-
-=============================================================================
+Note that none of the model testing features update while the game is paused, so it may be convenient to test with
+	deathmatch set to 1 so that bringing down the console doesn't pause the game.
 */
 
-/*
-=================
-CG_TestModel_f
-
-Creates an entity in front of the current position, which
-can then be moved around
-=================
-*/
+// Creates an entity in front of the current position, which can then be moved around
 void CG_TestModel_f (void) {
 	vec3_t		angles;
 
@@ -104,13 +87,7 @@ void CG_TestModel_f (void) {
 	cg.testGun = qfalse;
 }
 
-/*
-=================
-CG_TestGun_f
-
-Replaces the current view weapon with the given model
-=================
-*/
+// Replaces the current view weapon with the given model
 void CG_TestGun_f (void) {
 	CG_TestModel_f();
 	cg.testGun = qtrue;
@@ -119,7 +96,6 @@ void CG_TestGun_f (void) {
 	// rww - 9-13-01 [1-26-01-sof2]
 	cg.testModelEntity.renderfx = RF_DEPTHHACK | RF_FIRST_PERSON;
 }
-
 
 void CG_TestModelNextFrame_f (void) {
 	cg.testModelEntity.frame++;
@@ -166,27 +142,16 @@ static void CG_AddTestModel (void) {
 
 		// allow the position to be adjusted
 		for (i=0 ; i<3 ; i++) {
-			cg.testModelEntity.origin[i] += cg.refdef.viewaxis[0][i] * cg_gunX.value;
-			cg.testModelEntity.origin[i] += cg.refdef.viewaxis[1][i] * cg_gunY.value;
-			cg.testModelEntity.origin[i] += cg.refdef.viewaxis[2][i] * cg_gunZ.value;
+			cg.testModelEntity.origin[i] += cg.refdef.viewaxis[0][i] * cg.gunAlign[0];
+			cg.testModelEntity.origin[i] += cg.refdef.viewaxis[1][i] * cg.gunAlign[1];
+			cg.testModelEntity.origin[i] += cg.refdef.viewaxis[2][i] * cg.gunAlign[2];
 		}
 	}
 
 	trap->R_AddRefEntityToScene( &cg.testModelEntity );
 }
 
-
-
-//============================================================================
-
-
-/*
-=================
-CG_CalcVrect
-
-Sets the coordinates of the rendered window
-=================
-*/
+// Sets the coordinates of the rendered window
 static void CG_CalcVrect (void) {
 	int		size;
 
@@ -218,10 +183,6 @@ static void CG_CalcVrect (void) {
 	cg.refdef.y = (cgs.glconfig.vidHeight - cg.refdef.height)/2;
 }
 
-//==============================================================================
-
-//==============================================================================
-//==============================================================================
 // this causes a compiler bug on mac MrC compiler
 static void CG_StepOffset( void ) {
 	int		timeDelta;
@@ -249,39 +210,22 @@ int		cameraLastFrame=0;
 float	cameraLastYaw=0;
 float	cameraStiffFactor=0.0f;
 
-/*
-===============
-Notes on the camera viewpoint in and out...
-
-cg.refdef.vieworg
---at the start of the function holds the player actor's origin (center of player model).
---it is set to the final view location of the camera at the end of the camera code.
-cg.refdef.viewangles
---at the start holds the client's view angles
---it is set to the final view angle of the camera at the end of the camera code.
-
-===============
-*/
+// Notes on the camera viewpoint in and out...
+// cg.refdef.vieworg		at the start holds the player actor's origin (center of player model).
+//							it is set to the final view location of the camera at the end of the camera code.
+// cg.refdef.viewangles		at the start holds the client's view angles
+//							it is set to the final view angle of the camera at the end of the camera code.
 
 extern qboolean gCGHasFallVector;
 extern vec3_t gCGFallVector;
 
-/*
-===============
-CG_CalcTargetThirdPersonViewLocation
-
-===============
-*/
-static void CG_CalcIdealThirdPersonViewTarget(void)
-{
+static void CG_CalcIdealThirdPersonViewTarget( void ) {
 	// Initialize IdealTarget
-	if (gCGHasFallVector)
-	{
-		VectorCopy(gCGFallVector, cameraFocusLoc);
+	if ( gCGHasFallVector ) {
+		VectorCopy( gCGFallVector, cameraFocusLoc );
 	}
-	else
-	{
-		VectorCopy(cg.refdef.vieworg, cameraFocusLoc);
+	else {
+		VectorCopy( cg.refdef.vieworg, cameraFocusLoc );
 	}
 
 	// Add in the new viewheight
@@ -293,94 +237,13 @@ static void CG_CalcIdealThirdPersonViewTarget(void)
 	// Add in a vertical offset from the viewpoint, which puts the actual target above the head, regardless of angle.
 	VectorCopy( cameraFocusLoc, cameraIdealTarget );
 
-	{
-		float vertOffset = cg_thirdPersonVertOffset.value;
-
-		if (cg.snap && cg.snap->ps.m_iVehicleNum)
-		{
-			centity_t *veh = &cg_entities[cg.snap->ps.m_iVehicleNum];
-			if (veh->m_pVehicle &&
-				veh->m_pVehicle->m_pVehicleInfo->cameraOverride)
-			{ //override the range with what the vehicle wants it to be
-				if ( veh->m_pVehicle->m_pVehicleInfo->cameraPitchDependantVertOffset )
-				{
-					if ( cg.snap->ps.viewangles[PITCH] > 0 )
-					{
-						vertOffset = 130+cg.predictedPlayerState.viewangles[PITCH]*-10;
-						if ( vertOffset < -170 )
-						{
-							vertOffset = -170;
-						}
-					}
-					else if ( cg.snap->ps.viewangles[PITCH] < 0 )
-					{
-						vertOffset = 130+cg.predictedPlayerState.viewangles[PITCH]*-5;
-						if ( vertOffset > 130 )
-						{
-							vertOffset = 130;
-						}
-					}
-					else
-					{
-						vertOffset = 30;
-					}
-				}
-				else
-				{
-					vertOffset = veh->m_pVehicle->m_pVehicleInfo->cameraVertOffset;
-				}
-			}
-			else if ( veh->m_pVehicle
-				&& veh->m_pVehicle->m_pVehicleInfo
-				&& veh->m_pVehicle->m_pVehicleInfo->type == VH_ANIMAL )
-			{
-				vertOffset = 0;
-			}
-		}
-		cameraIdealTarget[2] += vertOffset;
-	}
+	cameraIdealTarget[2] += cg_thirdPersonVertOffset.value;
 	//VectorMA(cameraFocusLoc, cg_thirdPersonVertOffset.value, cameraup, cameraIdealTarget);
 }
 
-
-
-/*
-===============
-CG_CalcTargetThirdPersonViewLocation
-
-===============
-*/
-static void CG_CalcIdealThirdPersonViewLocation(void)
-{
-	float thirdPersonRange = cg_thirdPersonRange.value;
-
-	if (cg.snap && cg.snap->ps.m_iVehicleNum)
-	{
-		centity_t *veh = &cg_entities[cg.snap->ps.m_iVehicleNum];
-		if (veh->m_pVehicle &&
-			veh->m_pVehicle->m_pVehicleInfo->cameraOverride)
-		{ //override the range with what the vehicle wants it to be
-			thirdPersonRange = veh->m_pVehicle->m_pVehicleInfo->cameraRange;
-			if ( veh->playerState->hackingTime )
-			{
-				thirdPersonRange += fabs(((float)veh->playerState->hackingTime)/MAX_STRAFE_TIME) * 100.0f;
-			}
-		}
-	}
-
-	if ( cg.snap
-		&& (cg.snap->ps.eFlags2&EF2_HELD_BY_MONSTER)
-		&& cg.snap->ps.hasLookTarget
-		&& cg_entities[cg.snap->ps.lookTarget].currentState.NPC_class == CLASS_RANCOR )//only possibility for now, may add Wampa and sand creature later
-	{//stay back
-		//thirdPersonRange = 180.0f;
-		thirdPersonRange = 120.0f;
-	}
-
-	VectorMA(cameraIdealTarget, -(thirdPersonRange), camerafwd, cameraIdealLoc);
+static void CG_CalcIdealThirdPersonViewLocation( void ) {
+	VectorMA( cameraIdealTarget, -cg_thirdPersonRange.value, camerafwd, cameraIdealLoc );
 }
-
-
 
 static void CG_ResetThirdPersonViewDamp(void)
 {
@@ -438,17 +301,11 @@ static void CG_UpdateThirdPersonTargetDamp(void)
 	// Automatically get the ideal target, to avoid jittering.
 	CG_CalcIdealThirdPersonViewTarget();
 
-	if ( cg.predictedVehicleState.hyperSpaceTime
-		&& (cg.time-cg.predictedVehicleState.hyperSpaceTime) < HYPERSPACE_TIME )
-	{//hyperspacing, no damp
+	if ( cg_thirdPersonTargetDamp.value >= 1.0 || cg.thisFrameTeleport ) {
+		// No damping.
 		VectorCopy(cameraIdealTarget, cameraCurTarget);
 	}
-	else if (cg_thirdPersonTargetDamp.value>=1.0||cg.thisFrameTeleport||cg.predictedPlayerState.m_iVehicleNum)
-	{	// No damping.
-		VectorCopy(cameraIdealTarget, cameraCurTarget);
-	}
-	else if (cg_thirdPersonTargetDamp.value>=0.0)
-	{
+	else if ( cg_thirdPersonTargetDamp.value >= 0.0 ) {
 		// Calculate the difference from the current position to the new one.
 		VectorSubtract(cameraIdealTarget, cameraCurTarget, targetdiff);
 
@@ -466,7 +323,6 @@ static void CG_UpdateThirdPersonTargetDamp(void)
 
 		// This value is how much distance is "left" from the ideal.
 		VectorMA(cameraIdealTarget, -ratio, targetdiff, cameraCurTarget);
-		/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	}
 
 	// Now we trace to see if the new location is cool or not.
@@ -495,27 +351,14 @@ static void CG_UpdateThirdPersonCameraDamp(void)
 	// Set the cameraIdealLoc
 	CG_CalcIdealThirdPersonViewLocation();
 
-
 	// First thing we do is calculate the appropriate damping factor for the camera.
 	dampfactor=0.0;
-	if ( cg.predictedVehicleState.hyperSpaceTime
-		&& (cg.time-cg.predictedVehicleState.hyperSpaceTime) < HYPERSPACE_TIME )
-	{//hyperspacing - don't damp camera
-		dampfactor = 1.0f;
-	}
-	else if (cg_thirdPersonCameraDamp.value != 0.0)
+	if (cg_thirdPersonCameraDamp.value != 0.0)
 	{
 		float pitch;
 		float dFactor;
 
-		if (!cg.predictedPlayerState.m_iVehicleNum)
-		{
-			dFactor = cg_thirdPersonCameraDamp.value;
-		}
-		else
-		{
-			dFactor = 1.0f;
-		}
+		dFactor = cg_thirdPersonCameraDamp.value;
 
 		// Note that the camera pitch has already been capped off to 89.
 		pitch = Q_fabs(cameraFocusAngles[PITCH]);
@@ -556,7 +399,6 @@ static void CG_UpdateThirdPersonCameraDamp(void)
 
 		// This value is how much distance is "left" from the ideal.
 		VectorMA(cameraIdealLoc, -ratio, locdiff, cameraCurLoc);
-		/////////////////////////////////////////////////////////////////////////////////////////////////////////
 	}
 
 	// Now we trace from the new target location to the new view location, to make sure there is nothing in the way.
@@ -613,36 +455,12 @@ static void CG_UpdateThirdPersonCameraDamp(void)
 	// however two full volume traces each frame is a bit scary to think about.
 }
 
-
-
-
-/*
-===============`
-CG_OffsetThirdPersonView
-
-===============
-*/
 extern vmCvar_t cg_thirdPersonHorzOffset;
-extern qboolean BG_UnrestrainedPitchRoll( playerState_t *ps, Vehicle_t *pVeh );
 static void CG_OffsetThirdPersonView( void )
 {
 	vec3_t diff;
 	float thirdPersonHorzOffset = cg_thirdPersonHorzOffset.value;
 	float deltayaw;
-
-	if (cg.snap && cg.snap->ps.m_iVehicleNum)
-	{
-		centity_t *veh = &cg_entities[cg.snap->ps.m_iVehicleNum];
-		if (veh->m_pVehicle &&
-			veh->m_pVehicle->m_pVehicleInfo->cameraOverride)
-		{ //override the range with what the vehicle wants it to be
-			thirdPersonHorzOffset = veh->m_pVehicle->m_pVehicleInfo->cameraHorzOffset;
-			if ( veh->playerState->hackingTime )
-			{
-				thirdPersonHorzOffset += (((float)veh->playerState->hackingTime)/MAX_STRAFE_TIME) * -80.0f;
-			}
-		}
-	}
 
 	cameraStiffFactor = 0.0;
 
@@ -650,77 +468,13 @@ static void CG_OffsetThirdPersonView( void )
 	VectorCopy( cg.refdef.viewangles, cameraFocusAngles );
 
 	// if dead, look at killer
-	if ( cg.snap
-		&& (cg.snap->ps.eFlags2&EF2_HELD_BY_MONSTER)
-		&& cg.snap->ps.hasLookTarget
-		&& cg_entities[cg.snap->ps.lookTarget].currentState.NPC_class == CLASS_RANCOR )//only possibility for now, may add Wampa and sand creature later
-	{//being held
-		//vec3_t monsterPos, dir2Me;
-		centity_t	*monster = &cg_entities[cg.snap->ps.lookTarget];
-		VectorSet( cameraFocusAngles, 0, AngleNormalize180(monster->lerpAngles[YAW]+180), 0 );
-		//make the look angle the vector from his mouth to me
-		/*
-		VectorCopy( monster->lerpOrigin, monsterPos );
-		monsterPos[2] = cg.snap->ps.origin[2];
-		VectorSubtract( monsterPos, cg.snap->ps.origin, dir2Me );
-		vectoangles( dir2Me, cameraFocusAngles );
-		*/
-	}
-	else if ( cg.snap->ps.stats[STAT_HEALTH] <= 0 )
-	{
+	if ( cg.snap->ps.stats[STAT_HEALTH] <= 0 ) {
 		cameraFocusAngles[YAW] = cg.snap->ps.stats[STAT_DEAD_YAW];
 	}
 	else
 	{	// Add in the third Person Angle.
 		cameraFocusAngles[YAW] += cg_thirdPersonAngle.value;
-		{
-			float pitchOffset = cg_thirdPersonPitchOffset.value;
-			if (cg.snap && cg.snap->ps.m_iVehicleNum)
-			{
-				centity_t *veh = &cg_entities[cg.snap->ps.m_iVehicleNum];
-				if (veh->m_pVehicle &&
-					veh->m_pVehicle->m_pVehicleInfo->cameraOverride)
-				{ //override the range with what the vehicle wants it to be
-					if ( veh->m_pVehicle->m_pVehicleInfo->cameraPitchDependantVertOffset )
-					{
-						if ( cg.snap->ps.viewangles[PITCH] > 0 )
-						{
-							pitchOffset = cg.predictedPlayerState.viewangles[PITCH]*-0.75;
-						}
-						else if ( cg.snap->ps.viewangles[PITCH] < 0 )
-						{
-							pitchOffset = cg.predictedPlayerState.viewangles[PITCH]*-0.75;
-						}
-						else
-						{
-							pitchOffset = 0;
-						}
-					}
-					else
-					{
-						pitchOffset = veh->m_pVehicle->m_pVehicleInfo->cameraPitchOffset;
-					}
-				}
-			}
-			/*if ( 0 && cg.predictedPlayerState.m_iVehicleNum //in a vehicle
-				&& BG_UnrestrainedPitchRoll( &cg.predictedPlayerState, cg_entities[cg.predictedPlayerState.m_iVehicleNum].m_pVehicle ) )//can roll/pitch without restriction
-			{
-				float pitchPerc = ((90.0f-fabs(cameraFocusAngles[ROLL]))/90.0f);
-				cameraFocusAngles[PITCH] += pitchOffset*pitchPerc;
-				if ( cameraFocusAngles[ROLL] > 0 )
-				{
-					cameraFocusAngles[YAW] -= pitchOffset-(pitchOffset*pitchPerc);
-				}
-				else
-				{
-					cameraFocusAngles[YAW] += pitchOffset-(pitchOffset*pitchPerc);
-				}
-			}
-			else*/
-			{
-				cameraFocusAngles[PITCH] += pitchOffset;
-			}
-		}
+		cameraFocusAngles[PITCH] += cg_thirdPersonPitchOffset.value;
 	}
 
 	// The next thing to do is to see if we need to calculate a new camera target location.
@@ -733,21 +487,11 @@ static void CG_OffsetThirdPersonView( void )
 	else
 	{
 		// Cap the pitch within reasonable limits
-		if ( cg.predictedPlayerState.m_iVehicleNum //in a vehicle
-			&& BG_UnrestrainedPitchRoll( &cg.predictedPlayerState, cg_entities[cg.predictedPlayerState.m_iVehicleNum].m_pVehicle ) )//can roll/pitch without restriction
-		{//no clamp on pitch
-			//FIXME: when pitch >= 90 or <= -90, camera rotates oddly... need to CrossProduct not just vectoangles
+		if ( cameraFocusAngles[PITCH] > 80.0 ) {
+			cameraFocusAngles[PITCH] = 80.0;
 		}
-		else
-		{
-			if (cameraFocusAngles[PITCH] > 80.0)
-			{
-				cameraFocusAngles[PITCH] = 80.0;
-			}
-			else if (cameraFocusAngles[PITCH] < -80.0)
-			{
-				cameraFocusAngles[PITCH] = -80.0;
-			}
+		else if ( cameraFocusAngles[PITCH] < -80.0 ) {
+			cameraFocusAngles[PITCH] = -80.0;
 		}
 
 		AngleVectors(cameraFocusAngles, camerafwd, NULL, cameraup);
@@ -818,108 +562,6 @@ static void CG_OffsetThirdPersonView( void )
 	cameraLastFrame=cg.time;
 }
 
-void CG_GetVehicleCamPos( vec3_t camPos )
-{
-	VectorCopy( cg.refdef.vieworg, camPos );
-}
-
-/*
-===============
-CG_OffsetThirdPersonView
-
-===============
-*//*
-#define	FOCUS_DISTANCE	512
-static void CG_OffsetThirdPersonView( void ) {
-	vec3_t		forward, right, up;
-	vec3_t		view;
-	vec3_t		focusAngles;
-	trace_t		trace;
-	static vec3_t	mins = { -4, -4, -4 };
-	static vec3_t	maxs = { 4, 4, 4 };
-	vec3_t		focusPoint;
-	float		focusDist;
-	float		forwardScale, sideScale;
-
-	cg.refdef.vieworg[2] += cg.predictedPlayerState.viewheight;
-
-	VectorCopy( cg.refdef.viewangles, focusAngles );
-
-	// if dead, look at killer
-	if ( cg.predictedPlayerState.stats[STAT_HEALTH] <= 0 ) {
-		focusAngles[YAW] = cg.predictedPlayerState.stats[STAT_DEAD_YAW];
-		cg.refdef.viewangles[YAW] = cg.predictedPlayerState.stats[STAT_DEAD_YAW];
-	}
-
-	if ( focusAngles[PITCH] > 45 ) {
-		focusAngles[PITCH] = 45;		// don't go too far overhead
-	}
-	AngleVectors( focusAngles, forward, NULL, NULL );
-
-	VectorMA( cg.refdef.vieworg, FOCUS_DISTANCE, forward, focusPoint );
-
-	VectorCopy( cg.refdef.vieworg, view );
-
-	view[2] += 8;
-
-	cg.refdef.viewangles[PITCH] *= 0.5;
-
-	AngleVectors( cg.refdef.viewangles, forward, right, up );
-
-	forwardScale = cos( cg_thirdPersonAngle.value / 180 * M_PI );
-	sideScale = sin( cg_thirdPersonAngle.value / 180 * M_PI );
-	VectorMA( view, -cg_thirdPersonRange.value * forwardScale, forward, view );
-	VectorMA( view, -cg_thirdPersonRange.value * sideScale, right, view );
-
-	// trace a ray from the origin to the viewpoint to make sure the view isn't
-	// in a solid block.  Use an 8 by 8 block to prevent the view from near clipping anything
-
-	if (!cg_cameraMode.integer) {
-		CG_Trace( &trace, cg.refdef.vieworg, mins, maxs, view, cg.predictedPlayerState.clientNum, MASK_CAMERACLIP);
-
-		if ( trace.fraction != 1.0 ) {
-			VectorCopy( trace.endpos, view );
-			view[2] += (1.0 - trace.fraction) * 32;
-			// try another trace to this position, because a tunnel may have the ceiling
-			// close enogh that this is poking out
-
-			CG_Trace( &trace, cg.refdef.vieworg, mins, maxs, view, cg.predictedPlayerState.clientNum, MASK_CAMERACLIP);
-			VectorCopy( trace.endpos, view );
-		}
-	}
-
-
-	VectorCopy( view, cg.refdef.vieworg );
-
-	// select pitch to look at focus point from vieword
-	VectorSubtract( focusPoint, cg.refdef.vieworg, focusPoint );
-	focusDist = sqrt( focusPoint[0] * focusPoint[0] + focusPoint[1] * focusPoint[1] );
-	if ( focusDist < 1 ) {
-		focusDist = 1;	// should never happen
-	}
-	cg.refdef.viewangles[PITCH] = -180 / M_PI * atan2( focusPoint[2], focusDist );
-	cg.refdef.viewangles[YAW] -= cg_thirdPersonAngle.value;
-}
-
-
-// this causes a compiler bug on mac MrC compiler
-static void CG_StepOffset( void ) {
-	int		timeDelta;
-
-	// smooth out stair climbing
-	timeDelta = cg.time - cg.stepTime;
-	if ( timeDelta < STEP_TIME ) {
-		cg.refdef.vieworg[2] -= cg.stepChange
-			* (STEP_TIME - timeDelta) / STEP_TIME;
-	}
-}*/
-
-/*
-===============
-CG_OffsetFirstPersonView
-
-===============
-*/
 static void CG_OffsetFirstPersonView( void ) {
 	float			*origin;
 	float			*angles;
@@ -1013,8 +655,6 @@ static void CG_OffsetFirstPersonView( void ) {
 		delta = -delta;
 	angles[ROLL] += delta;
 
-//===================================
-
 	// add view height
 	origin[2] += cg.predictedPlayerState.viewheight;
 
@@ -1032,7 +672,6 @@ static void CG_OffsetFirstPersonView( void ) {
 	}
 
 	origin[2] += bob;
-
 
 	// add fall height
 	delta = cg.time - cg.landTime;
@@ -1066,77 +705,11 @@ static void CG_OffsetFirstPersonView( void ) {
 #endif
 }
 
-static void CG_OffsetFighterView( void )
-{
-	vec3_t vehFwd, vehRight, vehUp, backDir;
-	vec3_t	camOrg, camBackOrg;
-	float horzOffset = cg_thirdPersonHorzOffset.value;
-	float vertOffset = cg_thirdPersonVertOffset.value;
-	float pitchOffset = cg_thirdPersonPitchOffset.value;
-	float yawOffset = cg_thirdPersonAngle.value;
-	float range = cg_thirdPersonRange.value;
-	trace_t	trace;
-	centity_t *veh = &cg_entities[cg.predictedPlayerState.m_iVehicleNum];
-
-	AngleVectors( cg.refdef.viewangles, vehFwd, vehRight, vehUp );
-
-	if ( veh->m_pVehicle &&
-		veh->m_pVehicle->m_pVehicleInfo->cameraOverride )
-	{ //override the horizontal offset with what the vehicle wants it to be
-		horzOffset = veh->m_pVehicle->m_pVehicleInfo->cameraHorzOffset;
-		vertOffset = veh->m_pVehicle->m_pVehicleInfo->cameraVertOffset;
-		//NOTE: no yaw offset?
-		pitchOffset = veh->m_pVehicle->m_pVehicleInfo->cameraPitchOffset;
-		range = veh->m_pVehicle->m_pVehicleInfo->cameraRange;
-		if ( veh->playerState->hackingTime )
-		{
-			horzOffset += (((float)veh->playerState->hackingTime)/MAX_STRAFE_TIME) * -80.0f;
-			range += fabs(((float)veh->playerState->hackingTime)/MAX_STRAFE_TIME) * 100.0f;
-		}
-	}
-
-	//Set camera viewing position
-	VectorMA( cg.refdef.vieworg, horzOffset, vehRight, camOrg );
-	VectorMA( camOrg, vertOffset, vehUp, camOrg );
-
-	//trace to that pos
-	CG_Trace(&trace, cg.refdef.vieworg, cameramins, cameramaxs, camOrg, cg.snap->ps.clientNum, MASK_CAMERACLIP);
-	if ( trace.fraction < 1.0 )
-	{
-		VectorCopy( trace.endpos, camOrg );
-	}
-
-	// Set camera viewing direction.
-	cg.refdef.viewangles[YAW] += yawOffset;
-	cg.refdef.viewangles[PITCH] += pitchOffset;
-
-	//Now bring the cam back from that pos and angles at range
-	AngleVectors( cg.refdef.viewangles, backDir, NULL, NULL );
-	VectorScale( backDir, -1, backDir );
-
-	VectorMA( camOrg, range, backDir, camBackOrg );
-
-	//trace to that pos
-	CG_Trace(&trace, camOrg, cameramins, cameramaxs, camBackOrg, cg.snap->ps.clientNum, MASK_CAMERACLIP);
-	VectorCopy( trace.endpos, camOrg );
-
-	//FIXME: do we need to smooth the org?
-	// ...and of course we should copy the new view location to the proper spot too.
-	VectorCopy(camOrg, cg.refdef.vieworg);
-}
-//======================================================================
-
-/*
-====================
-CG_CalcFov
-
-Fixed fov at intermissions, otherwise account for fov variable and zooms.
-====================
-*/
 #define	WAVE_AMPLITUDE	1
 #define	WAVE_FREQUENCY	0.4
 float zoomFov; //this has to be global client-side
 
+// Fixed fov at intermissions, otherwise account for fov variable and zooms.
 static int CG_CalcFov( void ) {
 	float	x;
 	float	phase;
@@ -1282,13 +855,6 @@ static int CG_CalcFov( void ) {
 	return inwater;
 }
 
-
-/*
-===============
-CG_DamageBlendBlob
-
-===============
-*/
 static void CG_DamageBlendBlob( void )
 {
 	int			t;
@@ -1422,88 +988,9 @@ static qboolean CG_ThirdPersonActionCam(void)
 	return qtrue;
 }
 
-vec3_t	cg_lastTurretViewAngles={0};
-qboolean CG_CheckPassengerTurretView( void )
-{
-	if ( cg.predictedPlayerState.m_iVehicleNum //in a vehicle
-		&& cg.predictedPlayerState.generic1 )//as a passenger
-	{//passenger in a vehicle
-		centity_t *vehCent = &cg_entities[cg.predictedPlayerState.m_iVehicleNum];
-		if ( vehCent->m_pVehicle
-			&& vehCent->m_pVehicle->m_pVehicleInfo
-			&& vehCent->m_pVehicle->m_pVehicleInfo->maxPassengers )
-		{//a vehicle capable of carrying passengers
-			int turretNum;
-			for ( turretNum = 0; turretNum < MAX_VEHICLE_TURRETS; turretNum++ )
-			{
-				if ( vehCent->m_pVehicle->m_pVehicleInfo->turret[turretNum].iAmmoMax )
-				{// valid turret
-					if ( vehCent->m_pVehicle->m_pVehicleInfo->turret[turretNum].passengerNum == cg.predictedPlayerState.generic1 )
-					{//I control this turret
-						int boltIndex = -1;
-						qboolean hackPosAndAngle = qfalse;
-						if ( vehCent->m_pVehicle->m_iGunnerViewTag[turretNum] != -1 )
-						{
-							boltIndex = vehCent->m_pVehicle->m_iGunnerViewTag[turretNum];
-						}
-						else
-						{//crap... guess?
-							hackPosAndAngle = qtrue;
-							if ( vehCent->m_pVehicle->m_pVehicleInfo->turret[turretNum].yawBone )
-							{
-								boltIndex = trap->G2API_AddBolt( vehCent->ghoul2, 0, vehCent->m_pVehicle->m_pVehicleInfo->turret[turretNum].yawBone );
-							}
-							else if ( vehCent->m_pVehicle->m_pVehicleInfo->turret[turretNum].pitchBone )
-							{
-								boltIndex = trap->G2API_AddBolt( vehCent->ghoul2, 0, vehCent->m_pVehicle->m_pVehicleInfo->turret[turretNum].pitchBone );
-							}
-							else
-							{//well, no way of knowing, so screw it
-								return qfalse;
-							}
-						}
-						if ( boltIndex != -1 )
-						{
-							mdxaBone_t boltMatrix;
-							vec3_t fwd, up;
-							trap->G2API_GetBoltMatrix_NoRecNoRot(vehCent->ghoul2, 0, boltIndex, &boltMatrix, vehCent->lerpAngles,
-								vehCent->lerpOrigin, cg.time, NULL, vehCent->modelScale);
-							BG_GiveMeVectorFromMatrix(&boltMatrix, ORIGIN, cg.refdef.vieworg);
-							if ( hackPosAndAngle )
-							{
-								//FIXME: these are assumptions, externalize?  BETTER YET: give me a controller view bolt/tag for each turret
-								BG_GiveMeVectorFromMatrix(&boltMatrix, NEGATIVE_X, fwd);
-								BG_GiveMeVectorFromMatrix(&boltMatrix, NEGATIVE_Y, up);
-								VectorMA( cg.refdef.vieworg, 8.0f, fwd, cg.refdef.vieworg );
-								VectorMA( cg.refdef.vieworg, 4.0f, up, cg.refdef.vieworg );
-							}
-							else
-							{
-								BG_GiveMeVectorFromMatrix(&boltMatrix, NEGATIVE_Y, fwd);
-							}
-							{
-								vec3_t	newAngles, deltaAngles;
-								vectoangles( fwd, newAngles );
-								AnglesSubtract( newAngles, cg_lastTurretViewAngles, deltaAngles );
-								VectorMA( cg_lastTurretViewAngles, 0.5f*(float)cg.frametime/100.0f, deltaAngles, cg.refdef.viewangles );
-							}
-							return qtrue;
-						}
-					}
-				}
-			}
-		}
-	}
-	return qfalse;
-}
-/*
-===============
-CG_CalcViewValues
-
-Sets cg.refdef view values
-===============
-*/
 void CG_EmplacedView(vec3_t angles);
+
+// Sets cg.refdef view values
 static int CG_CalcViewValues( void ) {
 	qboolean manningTurret = qfalse;
 	playerState_t	*ps;
@@ -1550,43 +1037,8 @@ static int CG_CalcViewValues( void ) {
 		cg.xyspeed = 270;
 	}
 
-	manningTurret = CG_CheckPassengerTurretView();
-	if ( !manningTurret )
-	{//not manning a turret on a vehicle
-		VectorCopy( ps->origin, cg.refdef.vieworg );
-#ifdef VEH_CONTROL_SCHEME_4
-		if ( cg.predictedPlayerState.m_iVehicleNum )//in a vehicle
-		{
-			Vehicle_t *pVeh = cg_entities[cg.predictedPlayerState.m_iVehicleNum].m_pVehicle;
-			if ( BG_UnrestrainedPitchRoll( &cg.predictedPlayerState, pVeh ) )//can roll/pitch without restriction
-			{//use the vehicle's viewangles to render view!
-				VectorCopy( cg.predictedVehicleState.viewangles, cg.refdef.viewangles );
-			}
-			else if ( pVeh //valid vehicle data pointer
-				&& pVeh->m_pVehicleInfo//valid vehicle info
-				&& pVeh->m_pVehicleInfo->type == VH_FIGHTER )//fighter
-			{
-				VectorCopy( cg.predictedVehicleState.viewangles, cg.refdef.viewangles );
-				cg.refdef.viewangles[PITCH] = AngleNormalize180( cg.refdef.viewangles[PITCH] );
-			}
-			else
-			{
-				VectorCopy( ps->viewangles, cg.refdef.viewangles );
-			}
-		}
-#else// VEH_CONTROL_SCHEME_4
-		if ( cg.predictedPlayerState.m_iVehicleNum //in a vehicle
-			&& BG_UnrestrainedPitchRoll( &cg.predictedPlayerState, cg_entities[cg.predictedPlayerState.m_iVehicleNum].m_pVehicle ) )//can roll/pitch without restriction
-		{//use the vehicle's viewangles to render view!
-			VectorCopy( cg.predictedVehicleState.viewangles, cg.refdef.viewangles );
-		}
-#endif// VEH_CONTROL_SCHEME_4
-		else
-		{
-			VectorCopy( ps->viewangles, cg.refdef.viewangles );
-		}
-	}
-	VectorCopy( cg.refdef.viewangles, cg_lastTurretViewAngles );
+	VectorCopy( ps->origin, cg.refdef.vieworg );
+	VectorCopy( ps->viewangles, cg.refdef.viewangles );
 
 	if (cg_cameraOrbit.integer) {
 		if (cg.time > cg.nextOrbitTime) {
@@ -1616,12 +1068,7 @@ static int CG_CalcViewValues( void ) {
 
 	if ( !manningTurret )
 	{
-		if ( cg.predictedPlayerState.m_iVehicleNum //in a vehicle
-			&& BG_UnrestrainedPitchRoll( &cg.predictedPlayerState, cg_entities[cg.predictedPlayerState.m_iVehicleNum].m_pVehicle ) )//can roll/pitch without restriction
-		{//use the vehicle's viewangles to render view!
-			CG_OffsetFighterView();
-		}
-		else if ( cg.renderingThirdPerson ) {
+		if ( cg.renderingThirdPerson ) {
 			// back away from character
 			if (cg_thirdPersonSpecialCam.integer &&
 				BG_SaberInSpecial(cg.snap->ps.saberMove))
@@ -1652,12 +1099,6 @@ static int CG_CalcViewValues( void ) {
 	return CG_CalcFov();
 }
 
-
-/*
-=====================
-CG_PowerupTimerSounds
-=====================
-*/
 static void CG_PowerupTimerSounds( void ) {
 	int		i;
 	int		t;
@@ -1677,11 +1118,6 @@ static void CG_PowerupTimerSounds( void ) {
 	}
 }
 
-/*
-==============
-CG_DrawSkyBoxPortal
-==============
-*/
 extern qboolean cg_skyOri;
 extern vec3_t cg_skyOriPos;
 extern float cg_skyOriScale;
@@ -1821,11 +1257,6 @@ void CG_DrawSkyBoxPortal(const char *cstr)
 	cg.refdef = backuprefdef;
 }
 
-/*
-=====================
-CG_AddBufferedSound
-=====================
-*/
 void CG_AddBufferedSound( sfxHandle_t sfx ) {
 	if ( !sfx )
 		return;
@@ -1836,11 +1267,6 @@ void CG_AddBufferedSound( sfxHandle_t sfx ) {
 	}
 }
 
-/*
-=====================
-CG_PlayBufferedSounds
-=====================
-*/
 static void CG_PlayBufferedSounds( void ) {
 	if ( cg.soundTime < cg.time ) {
 		if (cg.soundBufferOut != cg.soundBufferIn && cg.soundBuffer[cg.soundBufferOut]) {
@@ -1883,13 +1309,8 @@ void CG_UpdateSoundTrackers()
 	}
 }
 
-//=========================================================================
+// Screen Effect stuff starts here
 
-/*
-================================
-Screen Effect stuff starts here
-================================
-*/
 #define	CAMERA_DEFAULT_FOV			90.0f
 #define MAX_SHAKE_INTENSITY			16.0f
 
@@ -1981,13 +1402,7 @@ void CG_SE_UpdateMusic(void)
 	}
 }
 
-/*
-=================
-CG_CalcScreenEffects
-
-Currently just for screen shaking (and music volume management)
-=================
-*/
+// Currently just for screen shaking (and music volume management)
 void CG_CalcScreenEffects(void)
 {
 	CG_SE_UpdateShake(cg.refdef.vieworg, cg.refdef.viewangles);
@@ -2001,7 +1416,6 @@ void CGCam_Shake( float intensity, int duration )
 
 	cgScreenEffects.shake_intensity = intensity;
 	cgScreenEffects.shake_duration = duration;
-
 
 	cgScreenEffects.shake_start = cg.time;
 }
@@ -2045,21 +1459,10 @@ void CGCam_SetMusicMult( float multiplier, int duration )
 	cgScreenEffects.music_volume_set = qfalse;
 }
 
-/*
-================================
-Screen Effect stuff ends here
-================================
-*/
+// Screen Effect stuff ends here
 
-/*
-=================
-CG_EmplacedView
-
-Keep view reasonably constrained in relation to gun -rww
-=================
-*/
 int BG_EmplacedView(vec3_t baseAngles, vec3_t angles, float *newYaw, float constraint);
-
+// Keep view reasonably constrained in relation to gun -rww
 void CG_EmplacedView(vec3_t angles)
 {
 	float yaw;
@@ -2111,7 +1514,6 @@ static void CG_AddRefentForAutoMap(centity_t *cent)
 
 	if (cent->ghoul2 &&
 		(cent->currentState.eType == ET_PLAYER ||
-		cent->currentState.eType == ET_NPC ||
 		cent->currentState.modelGhoul2))
 	{ //using a ghoul2 model
 		ent.ghoul2 = cent->ghoul2;
@@ -2145,13 +1547,6 @@ void CG_AddRadarAutomapEnts(void)
 	}
 }
 
-/*
-================
-CG_DrawAutoMap
-
-Draws the automap scene. -rww
-================
-*/
 float cg_autoMapZoom = 512.0f;
 float cg_autoMapZoomMainOffset = 0.0f;
 vec3_t cg_autoMapAngle = {90.0f, 0.0f, 0.0f};
@@ -2159,6 +1554,8 @@ autoMapInput_t cg_autoMapInput;
 int cg_autoMapInputTime = 0;
 #define	SIDEFRAME_WIDTH			16
 #define	SIDEFRAME_HEIGHT		32
+
+// Draws the automap scene. -rww
 void CG_DrawAutoMap(void)
 {
 	clientInfo_t	*local;
@@ -2276,37 +1673,21 @@ void CG_DrawAutoMap(void)
 	trap->R_ClearScene();
 	CG_AddRadarAutomapEnts();
 
-	if (cg.predictedPlayerState.m_iVehicleNum &&
-		cg_entities[cg.predictedPlayerState.m_iVehicleNum].currentState.eType == ET_NPC &&
-		cg_entities[cg.predictedPlayerState.m_iVehicleNum].currentState.NPC_class == CLASS_VEHICLE &&
-		cg_entities[cg.predictedPlayerState.m_iVehicleNum].m_pVehicle &&
-		cg_entities[cg.predictedPlayerState.m_iVehicleNum].m_pVehicle->m_pVehicleInfo->type == VH_FIGHTER)
-	{ //constantly adjust to current height
-		trap->R_AutomapElevationAdjustment(cg.predictedPlayerState.origin[2]);
-	}
-	else
-	{
-		//Trace down and set the ground elevation as the main automap elevation point
-		VectorSet(playerMins, -15, -15, DEFAULT_MINS_2);
-		VectorSet(playerMaxs, 15, 15, DEFAULT_MAXS_2);
+	//Trace down and set the ground elevation as the main automap elevation point
+	VectorSet(playerMins, -15, -15, DEFAULT_MINS_2);
+	VectorSet(playerMaxs, 15, 15, DEFAULT_MAXS_2);
 
-		VectorCopy(cg.predictedPlayerState.origin, fwd);
-		fwd[2] -= 4096.0f;
-		CG_Trace(&tr, cg.predictedPlayerState.origin, playerMins, playerMaxs, fwd, cg.predictedPlayerState.clientNum, MASK_SOLID);
+	VectorCopy(cg.predictedPlayerState.origin, fwd);
+	fwd[2] -= 4096.0f;
+	CG_Trace(&tr, cg.predictedPlayerState.origin, playerMins, playerMaxs, fwd, cg.predictedPlayerState.clientNum, MASK_SOLID);
 
-		if (!tr.startsolid && !tr.allsolid)
-		{
-			trap->R_AutomapElevationAdjustment(tr.endpos[2]);
-		}
+	if ( !tr.startsolid && !tr.allsolid ) {
+		trap->R_AutomapElevationAdjustment( tr.endpos[2] );
 	}
 	trap->R_RenderScene( &refdef );
 }
 
-//=========================================================================
-
-/*
-**  Frustum code
-*/
+// Frustum code
 
 // some culling bits
 typedef struct plane_s {
@@ -2316,9 +1697,7 @@ typedef struct plane_s {
 
 static plane_t frustum[4];
 
-//
 //	CG_SetupFrustum
-//
 void CG_SetupFrustum( void ) {
 	int i;
 	float xs, xc;
@@ -2349,9 +1728,7 @@ void CG_SetupFrustum( void ) {
 	}
 }
 
-//
 //	CG_CullPoint - returns true if culled
-//
 qboolean CG_CullPoint( vec3_t pt ) {
 	int i;
 	plane_t *frust;
@@ -2384,25 +1761,14 @@ qboolean CG_CullPointAndRadius( const vec3_t pt, float radius ) {
 	return( qfalse );
 }
 
-//=========================================================================
-
-/*
-=================
-CG_DrawActiveFrame
-
-Generates and draws a game scene and status information at the given time.
-=================
-*/
+// Generates and draws a game scene and status information at the given time.
 static qboolean cg_rangedFogging = qfalse; //so we know if we should go back to normal fog
 float cg_linearFogOverride = 0.0f; //designer-specified override for linear fogging style
 
-extern void BG_VehicleTurnRateForSpeed( Vehicle_t *pVeh, float speed, float *mPitchOverride, float *mYawOverride );
 extern qboolean PM_InKnockDown( playerState_t *ps );
 
 extern qboolean cgQueueLoad;
 extern void CG_ActualLoadDeferredPlayers( void );
-
-static int cg_siegeClassIndex = -2;
 
 void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demoPlayback ) {
 	int		inwater;
@@ -2410,12 +1776,6 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 	float mSensitivity = cg.zoomSensitivity;
 	float mPitchOverride = 0.0f;
 	float mYawOverride = 0.0f;
-	static centity_t *veh = NULL;
-#ifdef VEH_CONTROL_SCHEME_4
-	float mSensitivityOverride = 0.0f;
-	qboolean bUseFighterPitch = qfalse;
-	qboolean	isFighter = qfalse;
-#endif
 
 	if (cgQueueLoad)
 	{ //do this before you start messing around with adding ghoul2 refents and crap
@@ -2429,20 +1789,6 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 	if (cg.snap && ui_myteam.integer != cg.snap->ps.persistant[PERS_TEAM])
 	{
 		trap->Cvar_Set ( "ui_myteam", va("%i", cg.snap->ps.persistant[PERS_TEAM]) );
-	}
-	if (cgs.gametype == GT_SIEGE &&
-		cg.snap &&
-		cg_siegeClassIndex != cgs.clientinfo[cg.snap->ps.clientNum].siegeIndex)
-	{
-		cg_siegeClassIndex = cgs.clientinfo[cg.snap->ps.clientNum].siegeIndex;
-		if (cg_siegeClassIndex == -1)
-		{
-			trap->Cvar_Set("ui_mySiegeClass", "<none>");
-		}
-		else
-		{
-			trap->Cvar_Set("ui_mySiegeClass", bgSiegeClasses[cg_siegeClassIndex].name);
-		}
 	}
 
 	// update cvars
@@ -2503,54 +1849,16 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 	}
 
 	// let the client system know what our weapon and zoom settings are
-	if (cg.snap && cg.snap->ps.saberLockTime > cg.time)
-	{
+	//CJKFIXME: don't nerf this shit
+	if ( cg.snap && cg.snap->ps.saberLockTime > cg.time ) {
 		mSensitivity = 0.01f;
 	}
-	else if (cg.predictedPlayerState.weapon == WP_EMPLACED_GUN)
-	{ //lower sens for emplaced guns and vehicles
+	else if ( cg.predictedPlayerState.weapon == WP_EMPLACED_GUN ) {
+		// lower sens for emplaced guns and vehicles
 		mSensitivity = 0.2f;
 	}
-#ifdef VEH_CONTROL_SCHEME_4
-	else if (cg.predictedPlayerState.m_iVehicleNum//in a vehicle
-		&& !cg.predictedPlayerState.generic1 )//not as a passenger
-	{
-		centity_t *cent = &cg_entities[cg.predictedPlayerState.m_iVehicleNum];
-		if ( cent->m_pVehicle
-			&& cent->m_pVehicle->m_pVehicleInfo
-			&& cent->m_pVehicle->m_pVehicleInfo->type == VH_FIGHTER )
-		{
-			BG_VehicleTurnRateForSpeed( cent->m_pVehicle, cent->currentState.speed, &mPitchOverride, &mYawOverride );
-			//mSensitivityOverride = 5.0f;//old default value
-			mSensitivityOverride = 0.0f;
-			bUseFighterPitch = qtrue;
-			trap->SetUserCmdValue( cg.weaponSelect, mSensitivity, mPitchOverride, mYawOverride, mSensitivityOverride, cg.forceSelect, cg.itemSelect, bUseFighterPitch );
-			isFighter = qtrue;
-		}
-	}
 
-	if ( !isFighter )
-#endif //VEH_CONTROL_SCHEME_4
-	{
-		if (cg.predictedPlayerState.m_iVehicleNum)
-		{
-			veh = &cg_entities[cg.predictedPlayerState.m_iVehicleNum];
-		}
-		if (veh &&
-			veh->currentState.eType == ET_NPC &&
-			veh->currentState.NPC_class == CLASS_VEHICLE &&
-			veh->m_pVehicle &&
-			veh->m_pVehicle->m_pVehicleInfo->type == VH_FIGHTER &&
-			bg_fighterAltControl.integer)
-		{
-			trap->SetUserCmdValue( cg.weaponSelect, mSensitivity, mPitchOverride, mYawOverride, 0.0f, cg.forceSelect, cg.itemSelect, qtrue );
-			veh = NULL; //this is done because I don't want an extra assign each frame because I am so perfect and super efficient.
-		}
-		else
-		{
-			trap->SetUserCmdValue( cg.weaponSelect, mSensitivity, mPitchOverride, mYawOverride, 0.0f, cg.forceSelect, cg.itemSelect, qfalse );
-		}
-	}
+	trap->SetUserCmdValue( cg.weaponSelect, mSensitivity, mPitchOverride, mYawOverride, 0.0f, cg.forceSelect, cg.itemSelect, qfalse );
 
 	// this counter will be bumped for every valid scene we generate
 	cg.clientFrame++;
@@ -2568,10 +1876,14 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 		{ //force third person for e-web and emplaced use
 			cg.renderingThirdPerson = 1;
 		}
-		else if (cg.predictedPlayerState.weapon == WP_SABER || cg.predictedPlayerState.weapon == WP_MELEE ||
-			BG_InGrappleMove(cg.predictedPlayerState.torsoAnim) || BG_InGrappleMove(cg.predictedPlayerState.legsAnim) ||
-			cg.predictedPlayerState.forceHandExtend == HANDEXTEND_KNOCKDOWN || cg.predictedPlayerState.fallingToDeath ||
-			cg.predictedPlayerState.m_iVehicleNum || PM_InKnockDown(&cg.predictedPlayerState))
+		else if ( cg.predictedPlayerState.weapon == WP_SABER
+			|| cg.predictedPlayerState.weapon == WP_MELEE
+			|| BG_InGrappleMove( cg.predictedPlayerState.torsoAnim )
+			|| BG_InGrappleMove( cg.predictedPlayerState.legsAnim )
+			|| cg.predictedPlayerState.forceHandExtend == HANDEXTEND_KNOCKDOWN
+			|| cg.predictedPlayerState.fallingToDeath
+			|| PM_InKnockDown( &cg.predictedPlayerState )
+		)
 		{
 #if 0
 			if (cg_fpls.integer && cg.predictedPlayerState.weapon == WP_SABER)
@@ -2584,7 +1896,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 				cg.renderingThirdPerson = 1;
 			}
 		}
-		else if (cg.snap->ps.zoomMode)
+		else if (cg.predictedPlayerState.zoomMode)
 		{ //always force first person when zoomed
 			cg.renderingThirdPerson = 0;
 		}
@@ -2720,4 +2032,3 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 		trap->Print( "cg.clientFrame:%i\n", cg.clientFrame );
 	}
 }
-

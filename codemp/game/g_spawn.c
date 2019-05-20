@@ -89,9 +89,7 @@ qboolean	G_SpawnBoolean( const char *key, const char *defaultString, qboolean *o
 	return present;
 }
 
-//
 // fields are needed for spawning from the entity string
-//
 typedef enum {
 	F_INT,
 	F_FLOAT,
@@ -148,18 +146,12 @@ field_t fields[] = {
 	{ "healingrate",			FOFS( healingrate ),					F_INT },
 	{ "healingsound",			FOFS( healingsound ),					F_STRING },
 	{ "health",					FOFS( health ),							F_INT },
-	{ "idealclass",				FOFS( idealclass ),						F_STRING },//for siege spawnpoints
 	{ "linear",					FOFS( alt_fire ),						F_INT },//for movers to use linear movement
 	{ "lostenemyscript",		FOFS( behaviorSet[BSET_LOSTENEMY] ),	F_STRING },//name of script to run
 	{ "message",				FOFS( message ),						F_STRING },
 	{ "mindtrickscript",		FOFS( behaviorSet[BSET_MINDTRICK] ),	F_STRING },//name of script to run
 	{ "model",					FOFS( model ),							F_STRING },
 	{ "model2",					FOFS( model2 ),							F_STRING },
-	{ "npc_target",				FOFS( NPC_target ),						F_STRING },
-	{ "npc_target2",			FOFS( target2 ),						F_STRING },//NPC_spawner only
-	{ "npc_target4",			FOFS( target4 ),						F_STRING },//NPC_spawner only
-	{ "npc_targetname",			FOFS( NPC_targetname ),					F_STRING },
-	{ "npc_type",				FOFS( NPC_type ),						F_STRING },
 	{ "numchunks",				FOFS( radius ),							F_FLOAT },//for func_breakables
 	{ "opentarget",				FOFS( opentarget ),						F_STRING },//for doors
 	{ "origin",					FOFS( s.origin ),						F_VECTOR },
@@ -219,8 +211,6 @@ void SP_info_player_duel( gentity_t *ent );
 void SP_info_player_duel1( gentity_t *ent );
 void SP_info_player_duel2( gentity_t *ent );
 void SP_info_player_deathmatch (gentity_t *ent);
-void SP_info_player_siegeteam1 (gentity_t *ent);
-void SP_info_player_siegeteam2 (gentity_t *ent);
 void SP_info_player_intermission (gentity_t *ent);
 void SP_info_player_intermission_red (gentity_t *ent);
 void SP_info_player_intermission_blue (gentity_t *ent);
@@ -231,12 +221,6 @@ void SP_info_firstplace(gentity_t *ent);
 void SP_info_secondplace(gentity_t *ent);
 void SP_info_thirdplace(gentity_t *ent);
 void SP_info_podium(gentity_t *ent);
-
-void SP_info_siege_objective (gentity_t *ent);
-void SP_info_siege_radaricon (gentity_t *ent);
-void SP_info_siege_decomplete (gentity_t *ent);
-void SP_target_siege_end (gentity_t *ent);
-void SP_misc_siege_item (gentity_t *ent);
 
 void SP_func_plat (gentity_t *ent);
 void SP_func_static (gentity_t *ent);
@@ -261,8 +245,6 @@ void SP_trigger_push (gentity_t *ent);
 void SP_trigger_teleport (gentity_t *ent);
 void SP_trigger_hurt (gentity_t *ent);
 void SP_trigger_space(gentity_t *self);
-void SP_trigger_shipboundary(gentity_t *self);
-void SP_trigger_hyperspace(gentity_t *self);
 void SP_trigger_asteroid_field(gentity_t *self);
 
 void SP_target_remove_powerups( gentity_t *ent );
@@ -281,7 +263,6 @@ void SP_target_location (gentity_t *ent);
 void SP_target_counter (gentity_t *self);
 void SP_target_random (gentity_t *self);
 void SP_target_scriptrunner( gentity_t *self );
-void SP_target_interest (gentity_t *self);
 void SP_target_activate (gentity_t *self);
 void SP_target_deactivate (gentity_t *self);
 void SP_target_level_change( gentity_t *self );
@@ -317,7 +298,6 @@ void SP_misc_model_health_power_converter( gentity_t *ent );
 void SP_fx_runner( gentity_t *ent );
 
 void SP_target_screenshake(gentity_t *ent);
-void SP_target_escapetrig(gentity_t *ent);
 
 void SP_misc_maglock ( gentity_t *self );
 
@@ -331,77 +311,6 @@ void SP_misc_weapon_shooter( gentity_t *self );
 
 void SP_misc_cubemap( gentity_t *ent );
 
-void SP_NPC_spawner( gentity_t *self );
-
-void SP_NPC_Vehicle( gentity_t *self);
-
-void SP_NPC_Kyle( gentity_t *self );
-void SP_NPC_Lando( gentity_t *self );
-void SP_NPC_Jan( gentity_t *self );
-void SP_NPC_Luke( gentity_t *self );
-void SP_NPC_MonMothma( gentity_t *self );
-void SP_NPC_Tavion( gentity_t *self );
-void SP_NPC_Tavion_New( gentity_t *self );
-void SP_NPC_Alora( gentity_t *self );
-void SP_NPC_Reelo( gentity_t *self );
-void SP_NPC_Galak( gentity_t *self );
-void SP_NPC_Desann( gentity_t *self );
-void SP_NPC_Bartender( gentity_t *self );
-void SP_NPC_MorganKatarn( gentity_t *self );
-void SP_NPC_Jedi( gentity_t *self );
-void SP_NPC_Prisoner( gentity_t *self );
-void SP_NPC_Rebel( gentity_t *self );
-void SP_NPC_Human_Merc( gentity_t *self );
-void SP_NPC_Stormtrooper( gentity_t *self );
-void SP_NPC_StormtrooperOfficer( gentity_t *self );
-void SP_NPC_Snowtrooper( gentity_t *self);
-void SP_NPC_Tie_Pilot( gentity_t *self );
-void SP_NPC_Ugnaught( gentity_t *self );
-void SP_NPC_Jawa( gentity_t *self );
-void SP_NPC_Gran( gentity_t *self );
-void SP_NPC_Rodian( gentity_t *self );
-void SP_NPC_Weequay( gentity_t *self );
-void SP_NPC_Trandoshan( gentity_t *self );
-void SP_NPC_Tusken( gentity_t *self );
-void SP_NPC_Noghri( gentity_t *self );
-void SP_NPC_SwampTrooper( gentity_t *self );
-void SP_NPC_Imperial( gentity_t *self );
-void SP_NPC_ImpWorker( gentity_t *self );
-void SP_NPC_BespinCop( gentity_t *self );
-void SP_NPC_Reborn( gentity_t *self );
-void SP_NPC_ShadowTrooper( gentity_t *self );
-void SP_NPC_Monster_Murjj( gentity_t *self );
-void SP_NPC_Monster_Swamp( gentity_t *self );
-void SP_NPC_Monster_Howler( gentity_t *self );
-void SP_NPC_Monster_Claw( gentity_t *self );
-void SP_NPC_Monster_Glider( gentity_t *self );
-void SP_NPC_Monster_Flier2( gentity_t *self );
-void SP_NPC_Monster_Lizard( gentity_t *self );
-void SP_NPC_Monster_Fish( gentity_t *self );
-void SP_NPC_Monster_Wampa( gentity_t *self );
-void SP_NPC_Monster_Rancor( gentity_t *self );
-void SP_NPC_MineMonster( gentity_t *self );
-void SP_NPC_Droid_Interrogator( gentity_t *self );
-void SP_NPC_Droid_Probe( gentity_t *self );
-void SP_NPC_Droid_Mark1( gentity_t *self );
-void SP_NPC_Droid_Mark2( gentity_t *self );
-void SP_NPC_Droid_ATST( gentity_t *self );
-void SP_NPC_Droid_Seeker( gentity_t *self );
-void SP_NPC_Droid_Remote( gentity_t *self );
-void SP_NPC_Droid_Sentry( gentity_t *self );
-void SP_NPC_Droid_Gonk( gentity_t *self );
-void SP_NPC_Droid_Mouse( gentity_t *self );
-void SP_NPC_Droid_R2D2( gentity_t *self );
-void SP_NPC_Droid_R5D2( gentity_t *self );
-void SP_NPC_Droid_Protocol( gentity_t *self );
-
-void SP_NPC_Reborn_New( gentity_t *self);
-void SP_NPC_Cultist( gentity_t *self );
-void SP_NPC_Cultist_Saber( gentity_t *self );
-void SP_NPC_Cultist_Saber_Powers( gentity_t *self );
-void SP_NPC_Cultist_Destroyer( gentity_t *self );
-void SP_NPC_Cultist_Commando( gentity_t *self );
-
 void SP_waypoint (gentity_t *ent);
 void SP_waypoint_small (gentity_t *ent);
 void SP_waypoint_navgoal (gentity_t *ent);
@@ -414,8 +323,6 @@ void SP_CreateWind( gentity_t *ent );
 void SP_CreateSpaceDust( gentity_t *ent );
 void SP_CreateSnow( gentity_t *ent );
 void SP_CreateRain( gentity_t *ent );
-
-void SP_point_combat( gentity_t *self );
 
 void SP_shooter_blaster( gentity_t *ent );
 
@@ -526,14 +433,9 @@ spawn_t	spawns[] = {
 	{ "info_player_intermission",			SP_info_player_intermission },
 	{ "info_player_intermission_blue",		SP_info_player_intermission_blue },
 	{ "info_player_intermission_red",		SP_info_player_intermission_red },
-	{ "info_player_siegeteam1",				SP_info_player_siegeteam1 },
-	{ "info_player_siegeteam2",				SP_info_player_siegeteam2 },
 	{ "info_player_start",					SP_info_player_start },
 	{ "info_player_start_blue",				SP_info_player_start_blue },
 	{ "info_player_start_red",				SP_info_player_start_red },
-	{ "info_siege_decomplete",				SP_info_siege_decomplete },
-	{ "info_siege_objective",				SP_info_siege_objective },
-	{ "info_siege_radaricon",				SP_info_siege_radaricon },
 	{ "item_botroam",						SP_item_botroam },
 	{ "light",								SP_light },
 	{ "misc_ammo_floor_unit",				SP_misc_ammo_floor_unit },
@@ -552,7 +454,6 @@ spawn_t	spawns[] = {
 	{ "misc_portal_camera",					SP_misc_portal_camera },
 	{ "misc_portal_surface",				SP_misc_portal_surface },
 	{ "misc_shield_floor_unit",				SP_misc_shield_floor_unit },
-	{ "misc_siege_item",					SP_misc_siege_item },
 	{ "misc_skyportal",						SP_misc_skyportal },
 	{ "misc_skyportal_orient",				SP_misc_skyportal_orient },
 	{ "misc_teleporter_dest",				SP_misc_teleporter_dest },
@@ -560,79 +461,7 @@ spawn_t	spawns[] = {
 	{ "misc_turretG2",						SP_misc_turretG2 },
 	{ "misc_weapon_shooter",				SP_misc_weapon_shooter },
 	{ "misc_weather_zone",					SP_misc_weather_zone },
-	{ "npc_alora",							SP_NPC_Alora },
-	{ "npc_bartender",						SP_NPC_Bartender },
-	{ "npc_bespincop",						SP_NPC_BespinCop },
-	{ "npc_colombian_emplacedgunner",		SP_NPC_ShadowTrooper },
-	{ "npc_colombian_rebel",				SP_NPC_Reborn },
-	{ "npc_colombian_soldier",				SP_NPC_Reborn },
-	{ "npc_cultist",						SP_NPC_Cultist },
-	{ "npc_cultist_commando",				SP_NPC_Cultist_Commando },
-	{ "npc_cultist_destroyer",				SP_NPC_Cultist_Destroyer },
-	{ "npc_cultist_saber",					SP_NPC_Cultist_Saber },
-	{ "npc_cultist_saber_powers",			SP_NPC_Cultist_Saber_Powers },
-	{ "npc_desann",							SP_NPC_Desann },
-	{ "npc_droid_atst",						SP_NPC_Droid_ATST },
-	{ "npc_droid_gonk",						SP_NPC_Droid_Gonk },
-	{ "npc_droid_interrogator",				SP_NPC_Droid_Interrogator },
-	{ "npc_droid_mark1",					SP_NPC_Droid_Mark1 },
-	{ "npc_droid_mark2",					SP_NPC_Droid_Mark2 },
-	{ "npc_droid_mouse",					SP_NPC_Droid_Mouse },
-	{ "npc_droid_probe",					SP_NPC_Droid_Probe },
-	{ "npc_droid_protocol",					SP_NPC_Droid_Protocol },
-	{ "npc_droid_r2d2",						SP_NPC_Droid_R2D2 },
-	{ "npc_droid_r5d2",						SP_NPC_Droid_R5D2 },
-	{ "npc_droid_remote",					SP_NPC_Droid_Remote },
-	{ "npc_droid_seeker",					SP_NPC_Droid_Seeker },
-	{ "npc_droid_sentry",					SP_NPC_Droid_Sentry },
-	{ "npc_galak",							SP_NPC_Galak },
-	{ "npc_gran",							SP_NPC_Gran },
-	{ "npc_human_merc",						SP_NPC_Human_Merc },
-	{ "npc_imperial",						SP_NPC_Imperial },
-	{ "npc_impworker",						SP_NPC_ImpWorker },
-	{ "npc_jan",							SP_NPC_Jan },
-	{ "npc_jawa",							SP_NPC_Jawa },
-	{ "npc_jedi",							SP_NPC_Jedi },
-	{ "npc_kyle",							SP_NPC_Kyle },
-	{ "npc_lando",							SP_NPC_Lando },
-	{ "npc_luke",							SP_NPC_Luke },
-	{ "npc_manuel_vergara_rmg",				SP_NPC_Desann },
-	{ "npc_minemonster",					SP_NPC_MineMonster },
-	{ "npc_monmothma",						SP_NPC_MonMothma },
-	{ "npc_monster_claw",					SP_NPC_Monster_Claw },
-	{ "npc_monster_fish",					SP_NPC_Monster_Fish },
-	{ "npc_monster_flier2",					SP_NPC_Monster_Flier2 },
-	{ "npc_monster_glider",					SP_NPC_Monster_Glider },
-	{ "npc_monster_howler",					SP_NPC_Monster_Howler },
-	{ "npc_monster_lizard",					SP_NPC_Monster_Lizard },
-	{ "npc_monster_murjj",					SP_NPC_Monster_Murjj },
-	{ "npc_monster_rancor",					SP_NPC_Monster_Rancor },
-	{ "npc_monster_swamp",					SP_NPC_Monster_Swamp },
-	{ "npc_monster_wampa",					SP_NPC_Monster_Wampa },
-	{ "npc_morgankatarn",					SP_NPC_MorganKatarn },
-	{ "npc_noghri",							SP_NPC_Noghri },
-	{ "npc_prisoner",						SP_NPC_Prisoner },
-	{ "npc_rebel",							SP_NPC_Rebel },
-	{ "npc_reborn",							SP_NPC_Reborn },
-	{ "npc_reborn_new",						SP_NPC_Reborn_New },
-	{ "npc_reelo",							SP_NPC_Reelo },
-	{ "npc_rodian",							SP_NPC_Rodian },
-	{ "npc_shadowtrooper",					SP_NPC_ShadowTrooper },
-	{ "npc_snowtrooper",					SP_NPC_Snowtrooper },
-	{ "npc_spawner",						SP_NPC_spawner },
-	{ "npc_stormtrooper",					SP_NPC_Stormtrooper },
-	{ "npc_stormtrooperofficer",			SP_NPC_StormtrooperOfficer },
-	{ "npc_swamptrooper",					SP_NPC_SwampTrooper },
-	{ "npc_tavion",							SP_NPC_Tavion },
-	{ "npc_tavion_new",						SP_NPC_Tavion_New },
-	{ "npc_tie_pilot",						SP_NPC_Tie_Pilot },
-	{ "npc_trandoshan",						SP_NPC_Trandoshan },
-	{ "npc_tusken",							SP_NPC_Tusken },
-	{ "npc_ugnaught",						SP_NPC_Ugnaught },
-	{ "npc_vehicle",						SP_NPC_Vehicle },
-	{ "npc_weequay",						SP_NPC_Weequay },
 	{ "path_corner",						SP_path_corner },
-	{ "point_combat",						SP_point_combat },
 	{ "ref_tag",							SP_reference_tag },
 	{ "ref_tag_huge",						SP_reference_tag },
 	{ "shooter_blaster",					SP_shooter_blaster },
@@ -640,9 +469,7 @@ spawn_t	spawns[] = {
 	{ "target_counter",						SP_target_counter },
 	{ "target_deactivate",					SP_target_deactivate },
 	{ "target_delay",						SP_target_delay },
-	{ "target_escapetrig",					SP_target_escapetrig },
 	{ "target_give",						SP_target_give },
-	{ "target_interest",					SP_target_interest },
 	{ "target_kill",						SP_target_kill },
 	{ "target_laser",						SP_target_laser },
 	{ "target_level_change",				SP_target_level_change },
@@ -657,7 +484,6 @@ spawn_t	spawns[] = {
 	{ "target_score",						SP_target_score },
 	{ "target_screenshake",					SP_target_screenshake },
 	{ "target_scriptrunner",				SP_target_scriptrunner },
-	{ "target_siege_end",					SP_target_siege_end },
 	{ "target_speaker",						SP_target_speaker },
 	{ "target_teleporter",					SP_target_teleporter },
 	{ "team_CTF_blueplayer",				SP_team_CTF_blueplayer },
@@ -668,12 +494,10 @@ spawn_t	spawns[] = {
 	{ "trigger_always",						SP_trigger_always },
 	{ "trigger_asteroid_field",				SP_trigger_asteroid_field },
 	{ "trigger_hurt",						SP_trigger_hurt },
-	{ "trigger_hyperspace",					SP_trigger_hyperspace },
 	{ "trigger_lightningstrike",			SP_trigger_lightningstrike },
 	{ "trigger_multiple",					SP_trigger_multiple },
 	{ "trigger_once",						SP_trigger_once },
 	{ "trigger_push",						SP_trigger_push },
-	{ "trigger_shipboundary",				SP_trigger_shipboundary },
 	{ "trigger_space",						SP_trigger_space },
 	{ "trigger_teleport",					SP_trigger_teleport },
 	{ "waypoint",							SP_waypoint },
@@ -685,14 +509,7 @@ spawn_t	spawns[] = {
 	{ "waypoint_small",						SP_waypoint_small },
 };
 
-/*
-===============
-G_CallSpawn
-
-Finds the spawn function for the entity and calls it,
-returning qfalse if not found
-===============
-*/
+// Finds the spawn function for the entity and calls it, returning qfalse if not found
 static int spawncmp( const void *a, const void *b ) {
 	return Q_stricmp( (const char *)a, ((spawn_t*)b)->name );
 }
@@ -730,14 +547,7 @@ qboolean G_CallSpawn( gentity_t *ent ) {
 	return qfalse;
 }
 
-/*
-=============
-G_NewString
-
-Builds a copy of the string, translating \n to real linefeeds
-so message texts can be multi-line
-=============
-*/
+// Builds a copy of the string, translating \n to real linefeeds so message texts can be multi-line
 char *G_NewString( const char *string )
 {
 	char *newb=NULL, *new_p=NULL;
@@ -795,20 +605,12 @@ char *G_NewString_Safe( const char *string )
 	return newb;
 }
 
-/*
-===============
-G_ParseField
-
-Takes a key/value pair and sets the binary values
-in a gentity
-===============
-*/
-
 static int fieldcmp( const void *a, const void *b ) {
 	return Q_stricmp( (const char *)a, ((field_t*)b)->name );
 }
 
 void Q3_SetParm ( int entID, int parmNum, const char *parmValue );
+// Takes a key/value pair and sets the binary values in a gentity
 void G_ParseField( const char *key, const char *value, gentity_t *ent )
 {
 	field_t	*f;
@@ -871,26 +673,20 @@ void G_ParseField( const char *key, const char *value, gentity_t *ent )
 	}
 }
 
-#define ADJUST_AREAPORTAL() \
-	if(ent->s.eType == ET_MOVER) \
-	{ \
-		trap->LinkEntity((sharedEntity_t *)ent); \
-		trap->AdjustAreaPortalState((sharedEntity_t *)ent, qtrue); \
+static void Adjust_AreaPortal( gentity_t *ent ) {
+	if ( ent->s.eType == ET_MOVER ) {
+		trap->LinkEntity( (sharedEntity_t *)ent );
+		trap->AdjustAreaPortalState( (sharedEntity_t *)ent, qtrue );
 	}
+}
 
-/*
-===================
-G_SpawnGEntityFromSpawnVars
-
-Spawn an entity and fill in all of the level fields from
-level.spawnVars[], then call the class specfic spawn function
-===================
-*/
+// Spawn an entity and fill in all of the level fields from level.spawnVars[], then call the class specfic spawn
+//	function
 void G_SpawnGEntityFromSpawnVars( qboolean inSubBSP ) {
 	int			i;
 	gentity_t	*ent;
 	char		*s, *value, *gametypeName;
-	static char *gametypeNames[] = {"ffa", "holocron", "jedimaster", "duel", "powerduel", "single", "team", "siege", "ctf", "cty"};
+	static char *gametypeNames[GT_MAX_GAME_TYPE] = {"ffa", "holocron", "jedimaster", "duel", "powerduel", "team", "ctf", "cty"};
 
 	// get the next free entity
 	ent = G_Spawn();
@@ -899,27 +695,18 @@ void G_SpawnGEntityFromSpawnVars( qboolean inSubBSP ) {
 		G_ParseField( level.spawnVars[i][0], level.spawnVars[i][1], ent );
 	}
 
-	// check for "notsingle" flag
-	if ( level.gametype == GT_SINGLE_PLAYER ) {
-		G_SpawnInt( "notsingle", "0", &i );
-		if ( i ) {
-			ADJUST_AREAPORTAL();
-			G_FreeEntity( ent );
-			return;
-		}
-	}
-	// check for "notteam" flag (GT_FFA, GT_DUEL, GT_SINGLE_PLAYER)
+	// check for "notteam" flag (GT_FFA, GT_DUEL)
 	if ( level.gametype >= GT_TEAM ) {
 		G_SpawnInt( "notteam", "0", &i );
 		if ( i ) {
-			ADJUST_AREAPORTAL();
+			Adjust_AreaPortal( ent );
 			G_FreeEntity( ent );
 			return;
 		}
 	} else {
 		G_SpawnInt( "notfree", "0", &i );
 		if ( i ) {
-			ADJUST_AREAPORTAL();
+			Adjust_AreaPortal( ent );
 			G_FreeEntity( ent );
 			return;
 		}
@@ -931,7 +718,7 @@ void G_SpawnGEntityFromSpawnVars( qboolean inSubBSP ) {
 
 			s = strstr( value, gametypeName );
 			if( !s ) {
-				ADJUST_AREAPORTAL();
+				Adjust_AreaPortal( ent );
 				G_FreeEntity( ent );
 				return;
 			}
@@ -954,19 +741,11 @@ void G_SpawnGEntityFromSpawnVars( qboolean inSubBSP ) {
 
 		if ( ent->classname && ent->classname[0] )
 		{
-			if ( Q_strncmp( "NPC_", ent->classname, 4 ) != 0 )
-			{//Not an NPC_spawner (rww - probably don't even care for MP, but whatever)
-				G_ActivateBehavior( ent, BSET_SPAWN );
-			}
+			G_ActivateBehavior( ent, BSET_SPAWN );
 		}
 	}
 }
 
-/*
-====================
-G_AddSpawnVarToken
-====================
-*/
 char *G_AddSpawnVarToken( const char *string ) {
 	int		l;
 	char	*dest;
@@ -1080,7 +859,6 @@ static void HandleEntityAdjustment(void)
 	Com_sprintf(temp, sizeof( temp ), "%0.0f %0.0f %0.0f", angles[0], angles[1], angles[2]);
 	AddSpawnField("direction", temp);
 
-
 	AddSpawnField("BSPInstanceID", level.mTargetAdjust);
 
 	G_SpawnString("targetname", NOVALUE, &value);
@@ -1133,16 +911,8 @@ static void HandleEntityAdjustment(void)
 	}
 }
 
-/*
-====================
-G_ParseSpawnVars
-
-Parses a brace bounded set of key / value pairs out of the
-level's entity strings into level.spawnVars[]
-
-This does not actually spawn an entity.
-====================
-*/
+// Parses a brace bounded set of key / value pairs out of the level's entity strings into level.spawnVars[]
+// This does not actually spawn an entity.
 qboolean G_ParseSpawnVars( qboolean inSubBSP ) {
 	char		keyname[MAX_TOKEN_CHARS];
 	char		com_token[MAX_TOKEN_CHARS];
@@ -1193,7 +963,6 @@ qboolean G_ParseSpawnVars( qboolean inSubBSP ) {
 
 	return qtrue;
 }
-
 
 static	char *defaultStyles[32][3] =
 {
@@ -1418,18 +1187,18 @@ void SP_worldspawn( void )
 	{
 		int defSkin;
 
-		trap->G2API_InitGhoul2Model(&precachedKyle, "models/players/kyle/model.glm", 0, 0, -20, 0, 0);
+		trap->G2API_InitGhoul2Model(&precachedKyle, "models/players/" DEFAULT_MODEL "/model.glm", 0, 0, -20, 0, 0);
 
 		if (precachedKyle)
 		{
-			defSkin = trap->R_RegisterSkin("models/players/kyle/model_default.skin");
+			defSkin = trap->R_RegisterSkin("models/players/" DEFAULT_MODEL "/model_default.skin");
 			trap->G2API_SetSkin(precachedKyle, 0, defSkin, defSkin);
 		}
 	}
 
 	if (!g2SaberInstance)
 	{
-		trap->G2API_InitGhoul2Model(&g2SaberInstance, "models/weapons2/saber/saber_w.glm", 0, 0, -20, 0, 0);
+		trap->G2API_InitGhoul2Model(&g2SaberInstance, DEFAULT_SABER_MODEL, 0, 0, -20, 0, 0);
 
 		if (g2SaberInstance)
 		{
@@ -1438,11 +1207,6 @@ void SP_worldspawn( void )
 			// now set up the gun bolt on it
 			trap->G2API_AddBolt(g2SaberInstance, 0, "*blade1");
 		}
-	}
-
-	if (level.gametype == GT_SIEGE)
-	{ //a tad bit of a hack, but..
-		EWebPrecache();
 	}
 
 	// make some data visible to connecting client
@@ -1482,7 +1246,7 @@ void SP_worldspawn( void )
 		trap->Cvar_Update( &g_restarted );
 		level.warmupTime = 0;
 	}
-	else if ( g_doWarmup.integer && level.gametype != GT_DUEL && level.gametype != GT_POWERDUEL && level.gametype != GT_SIEGE ) { // Turn it on
+	else if ( g_doWarmup.integer && level.gametype != GT_DUEL && level.gametype != GT_POWERDUEL ) { // Turn it on
 		level.warmupTime = -1;
 		trap->SetConfigstring( CS_WARMUP, va("%i", level.warmupTime) );
 		G_LogPrintf( "Warmup:\n" );
@@ -1564,13 +1328,7 @@ void G_LinkLocations( void ) {
 	// All linked together now
 }
 
-/*
-==============
-G_SpawnEntitiesFromString
-
-Parses textual entity definitions out of an entstring and spawns gentities.
-==============
-*/
+// Parses textual entity definitions out of an entstring and spawns gentities.
 void G_SpawnEntitiesFromString( qboolean inSubBSP ) {
 	// allow calls to G_Spawn*()
 	level.spawning = qtrue;

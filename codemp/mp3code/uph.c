@@ -29,7 +29,6 @@ ____________________________________________________________________________*/
 Layer 3 audio
  huffman decode
 
-
 ******************************************************************/
 #include <stdlib.h>
 #include <stdio.h>
@@ -64,7 +63,6 @@ static const unsigned char quad_table_a[][2] =
   {1, 0},
 };
 
-
 typedef struct
 {
    const HUFF_ELEMENT *table;
@@ -79,7 +77,6 @@ HUFF_SETUP;
 #define have_linbits  3
 #define quad_a        4
 #define quad_b        5
-
 
 static const HUFF_SETUP table_look[] =
 {
@@ -160,9 +157,6 @@ static unsigned int bitget_lb(int n)
    bitdat.bitbuf -= x << bitdat.bits;
    return x;
 }
-
-
-
 
 /*------------- get n bits but DO NOT remove from bitstream --*/
 static unsigned int bitget2(int n)

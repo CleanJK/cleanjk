@@ -41,7 +41,6 @@
 #define USE_EPSILON_TEST 1
 #define EPSILON 0.000001
 
-
 /* some macros */
 #define CROSS(dest,v1,v2)                      \
               dest[0]=v1[1]*v2[2]-v1[2]*v2[1]; \
@@ -68,7 +67,6 @@
 #define ISECT(VV0,VV1,VV2,D0,D1,D2,isect0,isect1) \
               isect0=VV0+(VV1-VV0)*D0/(D0-D1);    \
               isect1=VV0+(VV2-VV0)*D0/(D0-D2);
-
 
 #define COMPUTE_INTERVALS(VV0,VV1,VV2,D0,D1,D2,D0D1,D0D2,isect0,isect1) \
   if(D0D1>0.0f)                                         \
@@ -100,8 +98,6 @@
     /* triangles are coplanar */                        \
     return coplanar_tri_tri(N1,V0,V1,V2,U0,U1,U2);      \
   }
-
-
 
 /* this edge to edge test is based on Franlin Antonio's gem:
    "Faster Line Segment Intersection", in Graphics Gems III,

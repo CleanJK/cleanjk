@@ -21,18 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-/*****************************************************************************
- * name:		be_interface.h
- *
- * desc:		botlib interface
- *
- * $Archive: /source/code/botlib/be_interface.h $
- * $Author: Mrelusive $
- * $Revision: 2 $
- * $Modtime: 10/05/99 3:32p $
- * $Date: 10/05/99 3:42p $
- *
- *****************************************************************************/
+// botlib interface
 
 #pragma once
 
@@ -54,10 +43,8 @@ typedef struct botlib_globals_s
 #endif
 } botlib_globals_t;
 
-
 extern botlib_globals_t botlibglobals;
 extern botlib_import_t botimport;
 extern int botDeveloper;					//true if developer is on
 
-//
 int Sys_MilliSeconds(void);

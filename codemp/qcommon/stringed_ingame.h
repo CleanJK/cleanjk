@@ -25,10 +25,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "qcommon/q_shared.h"
 
 // Filename:-	stringed_ingame.h
-//
 
 // alter these to suit your own game...
-//
+
 #define SE_BOOL					qboolean
 #define SE_TRUE					qtrue
 #define SE_FALSE				qfalse
@@ -40,7 +39,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 extern cvar_t	*se_language;
 
 // some needed text-equates, do not alter these under any circumstances !!!! (unless you're me. Which you're not)
-//
+
 #define iSE_VERSION					1
 #define sSE_KEYWORD_VERSION			"VERSION"
 #define sSE_KEYWORD_CONFIG			"CONFIG"
@@ -55,10 +54,8 @@ extern cvar_t	*se_language;
 #define sSE_INGAME_FILE_EXTENSION	".str"
 #define sSE_EXPORT_SAME				"#same"
 
-
-
 // available API calls...
-//
+
 void	SE_Init				( void );
 void	SE_ShutDown			( void );
 void	SE_CheckForLanguageUpdates(void);
@@ -67,27 +64,20 @@ const char *SE_GetLanguageName	( int iLangIndex );	// eg "german"
 const char *SE_GetLanguageDir	( int iLangIndex );	// eg "strings/german"
 const char *SE_LoadLanguage		( const char *psLanguage, SE_BOOL bLoadDebug = SE_TRUE );
 void	SE_NewLanguage		( void );
-//
 // for convenience, two ways of getting at the same data...
-//
 const char *SE_GetString		( const char *psPackageReference, const char *psStringReference);
 const char *SE_GetString		( const char *psPackageAndStringReference);
-//
 // ditto...
-//
 int		SE_GetFlags			( const char *psPackageReference, const char *psStringReference );
 int		SE_GetFlags			( const char *psPackageAndStringReference );
-//
 // general flag functions... (SEP_GetFlagMask() return should be used with SEP_GetFlags() return)
-//
 int		SE_GetNumFlags		( void );
 const char *SE_GetFlagName		( int iFlagIndex );
 int		SE_GetFlagMask		( const char *psFlagName );
 
-
 // note that so far the only place in the game that needs to know these is the font system so it can know how to
 //	interpret char codes, for this reason I'm only exposing these simple bool queries...
-//
+
 inline SE_BOOL Language_IsRussian(void)
 {
 	return (se_language && !Q_stricmp(se_language->string, "russian")) ? SE_TRUE : SE_FALSE;
@@ -123,4 +113,3 @@ inline SE_BOOL Language_IsThai(void)
 	return (se_language && !Q_stricmp(se_language->string, "thai")) ? SE_TRUE : SE_FALSE;
 }
 
-/////////////////// eof ////////////////

@@ -22,37 +22,19 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "tr_local.h"
 
-/*
-============================================================================
-
-SKINS
-
-============================================================================
-*/
+// SKINS
 
 static char *CommaParse( char **data_p );
 //can't be dec'd here since we need it for non-dedicated builds now as well.
 
-/*
-===============
-RE_RegisterSkin
-
-===============
-*/
-
 bool gServerSkinHack = false;
-
 
 shader_t *R_FindServerShader( const char *name, const int *lightmapIndex, const byte *styles, qboolean mipRawImage );
 static char *CommaParse( char **data_p );
-/*
-===============
-RE_SplitSkins
-input = skinname, possibly being a macro for three skins
-return= true if three part skins found
-output= qualified names to three skins if return is true, undefined if false
-===============
-*/
+
+// input = skinname, possibly being a macro for three skins
+// returns true if three part skins found
+//	skinhead, skintorso, skinlower	qualified names to three skins if return is true, undefined if false
 bool RE_SplitSkins(const char *INname, char *skinhead, char *skintorso, char *skinlower)
 {	//INname= "models/players/jedi_tf/|head01_skin1|torso01|lower01";
 	if (strchr(INname, '|'))
@@ -79,7 +61,6 @@ bool RE_SplitSkins(const char *INname, char *skinhead, char *skintorso, char *sk
 		p2++;
 		strcat (skinhead, p);
 		strcat (skinhead, ".skin");
-
 
 		//advance to third
 		p = strchr(p2, '|');
@@ -171,7 +152,6 @@ qhandle_t RE_RegisterIndividualSkin( const char *name , qhandle_t hSkin)
 
 	ri.FS_FreeFile( text );
 
-
 	// never let a skin have 0 shaders
 	if ( skin->numSurfaces == 0 ) {
 		return 0;		// use default skin
@@ -251,16 +231,7 @@ qhandle_t RE_RegisterSkin( const char *name ) {
 	return(hSkin);
 }
 
-
-
-/*
-==================
-CommaParse
-
-This is unfortunate, but the skin files aren't
-compatible with our normal parsing rules.
-==================
-*/
+// This is unfortunate, but the skin files aren't compatible with our normal parsing rules.
 static char *CommaParse( char **data_p ) {
 	int c = 0, len;
 	char *data;
@@ -284,7 +255,6 @@ static char *CommaParse( char **data_p ) {
 			}
 			data++;
 		}
-
 
 		c = *data;
 
@@ -355,13 +325,7 @@ static char *CommaParse( char **data_p ) {
 	return com_token;
 }
 
-/*
-===============
-RE_RegisterServerSkin
-
-Mangled version of the above function to load .skin files on the server.
-===============
-*/
+// Mangled version of the above function to load .skin files on the server.
 qhandle_t RE_RegisterServerSkin( const char *name ) {
 	qhandle_t r;
 
@@ -379,11 +343,6 @@ qhandle_t RE_RegisterServerSkin( const char *name ) {
 	return r;
 }
 
-/*
-===============
-R_InitSkins
-===============
-*/
 void	R_InitSkins( void ) {
 	skin_t		*skin;
 
@@ -397,11 +356,6 @@ void	R_InitSkins( void ) {
 	skin->surfaces[0]->shader = tr.defaultShader;
 }
 
-/*
-===============
-R_GetSkinByHandle
-===============
-*/
 skin_t	*R_GetSkinByHandle( qhandle_t hSkin ) {
 	if ( hSkin < 1 || hSkin >= tr.numSkins ) {
 		return tr.skins[0];
@@ -409,11 +363,6 @@ skin_t	*R_GetSkinByHandle( qhandle_t hSkin ) {
 	return tr.skins[ hSkin ];
 }
 
-/*
-===============
-R_SkinList_f
-===============
-*/
 void	R_SkinList_f( void ) {
 	int			i, j;
 	skin_t		*skin;

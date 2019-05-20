@@ -24,42 +24,19 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "g_local.h"
 
-/*
-=======================================================================
-
-  SESSION DATA
-
-Session data is the only data that stays persistant across level loads
-and tournament restarts.
-=======================================================================
-*/
-
+// SESSION DATA
+// Session data is the only data that stays persistant across level loads and tournament restarts.
 //TODO: Replace with reading/writing to file(s)
 
-/*
-================
-G_WriteClientSessionData
-
-Called on game shutdown
-================
-*/
+// Called on game shutdown
 void G_WriteClientSessionData( gclient_t *client )
 {
 	char		s[MAX_CVAR_VALUE_STRING] = {0},
-				siegeClass[64] = {0}, IP[NET_ADDRSTRMAXLEN] = {0};
+				IP[NET_ADDRSTRMAXLEN] = {0};
 	const char	*var;
 	int			i = 0;
 
 	// for the strings, replace ' ' with 1
-
-	Q_strncpyz( siegeClass, client->sess.siegeClass, sizeof( siegeClass ) );
-	for ( i=0; siegeClass[i]; i++ ) {
-		if (siegeClass[i] == ' ')
-			siegeClass[i] = 1;
-	}
-	if ( !siegeClass[0] )
-		Q_strncpyz( siegeClass, "none", sizeof( siegeClass ) );
-
 	Q_strncpyz( IP, client->sess.IP, sizeof( IP ) );
 	for ( i=0; IP[i]; i++ ) {
 		if (IP[i] == ' ')
@@ -78,8 +55,6 @@ void G_WriteClientSessionData( gclient_t *client )
 	Q_strcat( s, sizeof( s ), va( "%i ", client->sess.saberLevel ) );
 	Q_strcat( s, sizeof( s ), va( "%i ", client->sess.selectedFP ) );
 	Q_strcat( s, sizeof( s ), va( "%i ", client->sess.duelTeam ) );
-	Q_strcat( s, sizeof( s ), va( "%i ", client->sess.siegeDesiredTeam ) );
-	Q_strcat( s, sizeof( s ), va( "%s ", siegeClass ) );
 	Q_strcat( s, sizeof( s ), va( "%s", IP ) );
 
 	var = va( "session%i", client - level.clients );
@@ -87,13 +62,7 @@ void G_WriteClientSessionData( gclient_t *client )
 	trap->Cvar_Set( var, s );
 }
 
-/*
-================
-G_ReadSessionData
-
-Called on a reconnect
-================
-*/
+// Called on a reconnect
 void G_ReadSessionData( gclient_t *client )
 {
 	char			s[MAX_CVAR_VALUE_STRING] = {0};
@@ -103,7 +72,7 @@ void G_ReadSessionData( gclient_t *client )
 	var = va( "session%i", client - level.clients );
 	trap->Cvar_VariableStringBuffer( var, s, sizeof(s) );
 
-	sscanf( s, "%i %i %i %i %i %i %i %i %i %i %i %i %s %s",
+	sscanf( s, "%i %i %i %i %i %i %i %i %i %i %i %s",
 		&tempSessionTeam, //&client->sess.sessionTeam,
 		&client->sess.spectatorNum,
 		&tempSpectatorState, //&client->sess.spectatorState,
@@ -115,8 +84,6 @@ void G_ReadSessionData( gclient_t *client )
 		&client->sess.saberLevel,
 		&client->sess.selectedFP,
 		&client->sess.duelTeam,
-		&client->sess.siegeDesiredTeam,
-		client->sess.siegeClass,
 		client->sess.IP
 		);
 
@@ -125,12 +92,6 @@ void G_ReadSessionData( gclient_t *client )
 	client->sess.teamLeader		= (qboolean)tempTeamLeader;
 
 	// convert back to spaces from unused chars, as session data is written that way.
-	for ( i=0; client->sess.siegeClass[i]; i++ )
-	{
-		if (client->sess.siegeClass[i] == 1)
-			client->sess.siegeClass[i] = ' ';
-	}
-
 	for ( i=0; client->sess.IP[i]; i++ )
 	{
 		if (client->sess.IP[i] == 1)
@@ -142,21 +103,12 @@ void G_ReadSessionData( gclient_t *client )
 	client->ps.fd.forcePowerSelected = client->sess.selectedFP;
 }
 
-
-/*
-================
-G_InitSessionData
-
-Called on a first-time connect
-================
-*/
+// Called on a first-time connect
 void G_InitSessionData( gclient_t *client, char *userinfo, qboolean isBot ) {
 	clientSession_t	*sess;
 	const char		*value;
 
 	sess = &client->sess;
-
-	client->sess.siegeDesiredTeam = TEAM_FREE;
 
 	// initial team determination
 	if ( level.gametype >= GT_TEAM ) {
@@ -198,7 +150,6 @@ void G_InitSessionData( gclient_t *client, char *userinfo, qboolean isBot ) {
 			case GT_FFA:
 			case GT_HOLOCRON:
 			case GT_JEDIMASTER:
-			case GT_SINGLE_PLAYER:
 				if ( g_maxGameClients.integer > 0 &&
 					level.numNonSpectatorClients >= g_maxGameClients.integer ) {
 					sess->sessionTeam = TEAM_SPECTATOR;
@@ -240,18 +191,9 @@ void G_InitSessionData( gclient_t *client, char *userinfo, qboolean isBot ) {
 	sess->spectatorState = SPECTATOR_FREE;
 	AddTournamentQueue(client);
 
-	sess->siegeClass[0] = 0;
-
 	G_WriteClientSessionData( client );
 }
 
-
-/*
-==================
-G_InitWorldSession
-
-==================
-*/
 void G_InitWorldSession( void ) {
 	char	s[MAX_STRING_CHARS];
 	int			gt;
@@ -267,12 +209,6 @@ void G_InitWorldSession( void ) {
 	}
 }
 
-/*
-==================
-G_WriteSessionData
-
-==================
-*/
 void G_WriteSessionData( void ) {
 	int		i;
 

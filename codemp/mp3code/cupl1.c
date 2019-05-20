@@ -31,7 +31,6 @@ MPEG audio decoder Layer I mpeg1 and mpeg2
 
 include to clup.c
 
-
 ******************************************************************/
 /*======================================================================*/
 static const int bat_bit_masterL1[] =
@@ -197,7 +196,6 @@ IN_OUT L1audio_decode(unsigned char *bs, signed short *pcm)
    if (sync != 0xFFF)
       return in_out;		/* sync fail */
 
-
    load(3);			/* skip id and option (checked by init) */
    prot = load(1);		/* load prot bit */
    load(6);			/* skip to pad */
@@ -252,7 +250,6 @@ int L1audio_decode_init(MPEG_HEAD * h, int framebytes_arg,
    if (freq_limit < 1000)
       freq_limit = 1000;
 
-
    pMP3Stream->framebytes = framebytes_arg;
 /* check if code handles */
    if (h->option != 3)
@@ -306,11 +303,9 @@ int L1audio_decode_init(MPEG_HEAD * h, int framebytes_arg,
    decinfo.framebytes = pMP3Stream->framebytes;
    decinfo.type = 0;
 
-
 /* clear sample buffer, unused sub bands must be 0 */
    for (i = 0; i < 768; i++)
       sample[i] = 0.0F;
-
 
 /* init sub-band transform */
    sbt_init();

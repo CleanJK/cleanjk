@@ -21,18 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-/*****************************************************************************
- * name:		l_struct.c
- *
- * desc:		structure reading / writing
- *
- * $Archive: /MissionPack/CODE/botlib/l_struct.c $
- * $Author: Raduffy $
- * $Revision: 1 $
- * $Modtime: 12/20/99 8:43p $
- * $Date: 3/08/00 11:28a $
- *
- *****************************************************************************/
+// structure reading / writing
 
 #ifdef BOTLIB
 #include "qcommon/q_shared.h"
@@ -56,12 +45,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define qfalse	false
 #endif //BSPC
 
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
 fielddef_t *FindField(fielddef_t *defs, char *name)
 {
 	int i;
@@ -72,12 +55,7 @@ fielddef_t *FindField(fielddef_t *defs, char *name)
 	} //end for
 	return NULL;
 } //end of the function FindField
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 qboolean ReadNumber(source_t *source, fielddef_t *fd, void *p)
 {
 	token_t token;
@@ -132,7 +110,7 @@ qboolean ReadNumber(source_t *source, fielddef_t *fd, void *p)
 		*(float *) p = (float) floatval;
 		return (qboolean)1;
 	} //end if
-	//
+
 	intval = token.intvalue;
 	if (negative) intval = -intval;
 	//check bounds
@@ -187,12 +165,7 @@ qboolean ReadNumber(source_t *source, fielddef_t *fd, void *p)
 	} //end else
 	return (qboolean)1;
 } //end of the function ReadNumber
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 qboolean ReadChar(source_t *source, fielddef_t *fd, void *p)
 {
 	token_t token;
@@ -212,12 +185,7 @@ qboolean ReadChar(source_t *source, fielddef_t *fd, void *p)
 	} //end if
 	return (qboolean)1;
 } //end of the function ReadChar
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 int ReadString(source_t *source, fielddef_t *fd, void *p)
 {
 	token_t token;
@@ -229,15 +197,10 @@ int ReadString(source_t *source, fielddef_t *fd, void *p)
 	strncpy((char *) p, token.string, MAX_STRINGFIELD);
 	//make sure the string is closed with a zero
 	((char *)p)[MAX_STRINGFIELD-1] = '\0';
-	//
+
 	return 1;
 } //end of the function ReadString
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 int ReadStructure(source_t *source, structdef_t *def, char *structure)
 {
 	token_t token;
@@ -326,12 +289,7 @@ int ReadStructure(source_t *source, structdef_t *def, char *structure)
 	} //end while
 	return qtrue;
 } //end of the function ReadStructure
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 int WriteIndent(FILE *fp, int indent)
 {
 	while(indent-- > 0)
@@ -340,12 +298,7 @@ int WriteIndent(FILE *fp, int indent)
 	} //end while
 	return qtrue;
 } //end of the function WriteIndent
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 int WriteFloat(FILE *fp, float value)
 {
 	char buf[128];
@@ -368,12 +321,7 @@ int WriteFloat(FILE *fp, float value)
 	if (fprintf(fp, "%s", buf) < 0) return 0;
 	return 1;
 } //end of the function WriteFloat
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 int WriteStructWithIndent(FILE *fp, structdef_t *def, char *structure, int indent)
 {
 	int i, num;
@@ -454,12 +402,7 @@ int WriteStructWithIndent(FILE *fp, structdef_t *def, char *structure, int inden
 	if (fprintf(fp, "}\r\n") < 0) return qfalse;
 	return qtrue;
 } //end of the function WriteStructWithIndent
-//===========================================================================
-//
-// Parameter:				-
-// Returns:					-
-// Changes Globals:		-
-//===========================================================================
+
 int WriteStructure(FILE *fp, structdef_t *def, char *structure)
 {
 	return WriteStructWithIndent(fp, def, structure, 0);

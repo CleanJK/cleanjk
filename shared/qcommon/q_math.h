@@ -24,7 +24,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "q_platform.h"
 
-
 #if defined(__cplusplus)
 extern "C" {
 #endif
@@ -43,22 +42,12 @@ typedef	int	fixed4_t, fixed8_t, fixed16_t;
 #define	MAX_QINT			0x7fffffff
 #define	MIN_QINT			(-MAX_QINT-1)
 
-
-///////////////////////////////////////////////////////////////////////////
-//
-//      DIRECTION ENCODING
-//
-///////////////////////////////////////////////////////////////////////////
+// DIRECTION ENCODING
 int DirToByte( vec3_t dir );
 void ByteToDir( int b, vec3_t dir );
 void NormalToLatLong( const vec3_t normal, byte bytes[2] );
 
-
-///////////////////////////////////////////////////////////////////////////
-//
-//      RANDOM NUMBER GENERATION
-//
-///////////////////////////////////////////////////////////////////////////
+// RANDOM NUMBER GENERATION
 #define QRAND_MAX 32768
 
 int   Q_rand( int *seed );
@@ -73,12 +62,7 @@ int   irand( int min, int max );
 
 float erandom( float mean );
 
-
-///////////////////////////////////////////////////////////////////////////
-//
-//      MATH UTILITIES
-//
-///////////////////////////////////////////////////////////////////////////
+// MATH UTILITIES
 #define minimum( x, y ) ((x) < (y) ? (x) : (y))
 #define maximum( x, y ) ((x) > (y) ? (x) : (y))
 
@@ -129,12 +113,8 @@ float AngleNormalize360 ( float angle );
 float AngleNormalize180 ( float angle );
 float AngleDelta( float angle1, float angle2 );
 
+// GEOMETRIC UTILITIES
 
-///////////////////////////////////////////////////////////////////////////
-//
-//      GEOMETRIC UTILITIES
-//
-///////////////////////////////////////////////////////////////////////////
 // angle indexes
 #define	PITCH	0		// up / down
 #define	YAW		1		// left / right
@@ -151,22 +131,14 @@ qboolean G_FindClosestPointOnLineSegment( const vec3_t start, const vec3_t end, 
 float G_PointDistFromLineSegment( const vec3_t start, const vec3_t end, const vec3_t from );
 void MatrixMultiply(float in1[3][3], float in2[3][3], float out[3][3]);
 
+// BOUNDING BOX
 
-///////////////////////////////////////////////////////////////////////////
-//
-//      BOUNDING BOX
-//
-///////////////////////////////////////////////////////////////////////////
 float RadiusFromBounds( const vec3_t mins, const vec3_t maxs );
 void ClearBounds( vec3_t mins, vec3_t maxs );
 void AddPointToBounds( const vec3_t v, vec3_t mins, vec3_t maxs );
 
+// PLANE
 
-///////////////////////////////////////////////////////////////////////////
-//
-//      PLANE
-//
-///////////////////////////////////////////////////////////////////////////
 // plane types are used to speed some tests
 // 0-2 are axial planes
 #define	PLANE_X			0
@@ -187,24 +159,16 @@ void SetPlaneSignbits( cplane_t *out );
 int	PlaneTypeForNormal( vec3_t normal );
 int BoxOnPlaneSide(vec3_t emins, vec3_t emaxs, cplane_t *p);
 
+// AXIS
 
-///////////////////////////////////////////////////////////////////////////
-//
-//      AXIS
-//
-///////////////////////////////////////////////////////////////////////////
 extern matrix3_t axisDefault;
 
 void AxisClear( matrix3_t axis );
 void AxisCopy( matrix3_t in, matrix3_t out );
 void AnglesToAxis( const vec3_t angles, matrix3_t axis );
 
+// VEC2
 
-///////////////////////////////////////////////////////////////////////////
-//
-//      VEC2
-//
-///////////////////////////////////////////////////////////////////////////
 extern vec2_t vec3_zero;
 
 #define VectorScale2M(v, factor, dst) \
@@ -224,12 +188,8 @@ void VectorSet2( vec2_t vec, float x, float y );
 void VectorClear2( vec2_t vec );
 void VectorCopy2( const vec2_t vecIn, vec2_t vecOut );
 
+// VEC3
 
-///////////////////////////////////////////////////////////////////////////
-//
-//      VEC3
-//
-///////////////////////////////////////////////////////////////////////////
 extern vec3_t vec3_origin;
 
 #define VectorScaleM(v, factor, dst) \
@@ -281,24 +241,16 @@ float DotProductNormalize( const vec3_t inVec1, const vec3_t inVec2 );
 #define VectorAverage(a,b,c)			(((c)[0]=((a)[0]+(b)[0])*0.5f),((c)[1]=((a)[1]+(b)[1])*0.5f),((c)[2]=((a)[2]+(b)[2])*0.5f))
 #define VectorNegate(a,b)				((b)[0]=-(a)[0],(b)[1]=-(a)[1],(b)[2]=-(a)[2])
 
+// VEC4
 
-///////////////////////////////////////////////////////////////////////////
-//
-//      VEC4
-//
-///////////////////////////////////////////////////////////////////////////
 void VectorScale4( const vec4_t vecIn, float scale, vec4_t vecOut );
 void VectorCopy4( const vec4_t vecIn, vec4_t vecOut );
 void VectorSet4( vec4_t vec, float x, float y, float z, float w );
 void VectorClear4( vec4_t vec );
 
-///////////////////////////////////////////////////////////////////////////
-//
-//      VEC5
-//
-///////////////////////////////////////////////////////////////////////////
-void VectorSet5( vec5_t vec, float x, float y, float z, float w, float u );
+// VEC5
 
+void VectorSet5( vec5_t vec, float x, float y, float z, float w, float u );
 
 #if defined(__cplusplus)
 } // extern "C"

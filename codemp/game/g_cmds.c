@@ -24,6 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "g_local.h"
 #include "bg_saga.h"
+#include "g_team.h"
 
 #include "ui/menudef.h"			// for the voice chats
 
@@ -33,15 +34,8 @@ int AcceptBotCommand(char *cmd, gentity_t *pl);
 
 void WP_SetSaber( int entNum, saberInfo_t *sabers, int saberNum, const char *saberName );
 
-void Cmd_NPC_f( gentity_t *ent );
 void SetTeamQuick(gentity_t *ent, int team, qboolean doBegin);
 
-/*
-==================
-DeathmatchScoreboardMessage
-
-==================
-*/
 void DeathmatchScoreboardMessage( gentity_t *ent ) {
 	char		entry[1024];
 	char		string[1400];
@@ -107,23 +101,11 @@ void DeathmatchScoreboardMessage( gentity_t *ent ) {
 		string ) );
 }
 
-
-/*
-==================
-Cmd_Score_f
-
-Request current scoreboard information
-==================
-*/
+// Request current scoreboard information
 void Cmd_Score_f( gentity_t *ent ) {
 	DeathmatchScoreboardMessage( ent );
 }
 
-/*
-==================
-ConcatArgs
-==================
-*/
 char	*ConcatArgs( int start ) {
 	int		i, c, tlen;
 	static char	line[MAX_STRING_CHARS];
@@ -151,11 +133,6 @@ char	*ConcatArgs( int start ) {
 	return line;
 }
 
-/*
-==================
-StringIsInteger
-==================
-*/
 qboolean StringIsInteger( const char *s ) {
 	int			i=0, len=0;
 	qboolean	foundDigit=qfalse;
@@ -171,14 +148,8 @@ qboolean StringIsInteger( const char *s ) {
 	return foundDigit;
 }
 
-/*
-==================
-ClientNumberFromString
-
-Returns a player number for either a number or name string
-Returns -1 if invalid
-==================
-*/
+// Returns a player number for either a number or name string
+// Returns -1 if invalid
 int ClientNumberFromString( gentity_t *to, const char *s, qboolean allowconnecting ) {
 	gclient_t	*cl;
 	int			idnum;
@@ -214,13 +185,7 @@ int ClientNumberFromString( gentity_t *to, const char *s, qboolean allowconnecti
 	return -1;
 }
 
-/*
-==================
-Cmd_Give_f
-
-Give items to a client
-==================
-*/
+// Give items to a client
 void G_Give( gentity_t *ent, const char *name, const char *args, int argc )
 {
 	gitem_t		*it;
@@ -244,10 +209,7 @@ void G_Give( gentity_t *ent, const char *name, const char *args, int argc )
 			ent->health = Com_Clampi( 1, ent->client->ps.stats[STAT_MAX_HEALTH], atoi( args ) );
 		else
 		{
-			if ( level.gametype == GT_SIEGE && ent->client->siegeClass != -1 )
-				ent->health = bgSiegeClasses[ent->client->siegeClass].maxhealth;
-			else
-				ent->health = ent->client->ps.stats[STAT_MAX_HEALTH];
+			ent->health = ent->client->ps.stats[STAT_MAX_HEALTH];
 		}
 		if ( !give_all )
 			return;
@@ -259,10 +221,7 @@ void G_Give( gentity_t *ent, const char *name, const char *args, int argc )
 			ent->client->ps.stats[STAT_ARMOR] = Com_Clampi( 0, ent->client->ps.stats[STAT_MAX_HEALTH], atoi( args ) );
 		else
 		{
-			if ( level.gametype == GT_SIEGE && ent->client->siegeClass != -1 )
-				ent->client->ps.stats[STAT_ARMOR] = bgSiegeClasses[ent->client->siegeClass].maxarmor;
-			else
-				ent->client->ps.stats[STAT_ARMOR] = ent->client->ps.stats[STAT_MAX_HEALTH];
+			ent->client->ps.stats[STAT_ARMOR] = ent->client->ps.stats[STAT_MAX_HEALTH];
 		}
 
 		if ( !give_all )
@@ -390,15 +349,7 @@ void Cmd_GiveOther_f( gentity_t *ent )
 	G_Give( otherEnt, name, ConcatArgs( 3 ), trap->Argc()-1 );
 }
 
-/*
-==================
-Cmd_God_f
-
-Sets client to godmode
-
-argv(0) god
-==================
-*/
+// Sets client to godmode
 void Cmd_God_f( gentity_t *ent ) {
 	char *msg = NULL;
 
@@ -411,16 +362,7 @@ void Cmd_God_f( gentity_t *ent ) {
 	trap->SendServerCommand( ent-g_entities, va( "print \"%s\n\"", msg ) );
 }
 
-
-/*
-==================
-Cmd_Notarget_f
-
-Sets client to notarget
-
-argv(0) notarget
-==================
-*/
+// Sets client to notarget
 void Cmd_Notarget_f( gentity_t *ent ) {
 	char *msg = NULL;
 
@@ -433,14 +375,6 @@ void Cmd_Notarget_f( gentity_t *ent ) {
 	trap->SendServerCommand( ent-g_entities, va( "print \"%s\n\"", msg ) );
 }
 
-
-/*
-==================
-Cmd_Noclip_f
-
-argv(0) noclip
-==================
-*/
 void Cmd_Noclip_f( gentity_t *ent ) {
 	char *msg = NULL;
 
@@ -453,17 +387,9 @@ void Cmd_Noclip_f( gentity_t *ent ) {
 	trap->SendServerCommand( ent-g_entities, va( "print \"%s\n\"", msg ) );
 }
 
-
-/*
-==================
-Cmd_LevelShot_f
-
-This is just to help generate the level pictures
-for the menus.  It goes to the intermission immediately
-and sends over a command to the client to resize the view,
-hide the scoreboard, and take a special screenshot
-==================
-*/
+// This is just to help generate the level pictures for the menus.
+// It goes to the intermission immediately and sends over a command to the client to resize the view, hide the
+//	scoreboard, and take a special screenshot
 void Cmd_LevelShot_f( gentity_t *ent )
 {
 	if ( !ent->client->pers.localClient )
@@ -472,25 +398,12 @@ void Cmd_LevelShot_f( gentity_t *ent )
 		return;
 	}
 
-	// doesn't work in single player
-	if ( level.gametype == GT_SINGLE_PLAYER )
-	{
-		trap->SendServerCommand(ent-g_entities, "print \"Must not be in singleplayer mode for levelshot\n\"" );
-		return;
-	}
-
 	BeginIntermission();
 	trap->SendServerCommand( ent-g_entities, "clientLevelShot" );
 }
 
 #if 0
-/*
-==================
-Cmd_TeamTask_f
-
-From TA.
-==================
-*/
+// From TA.
 void Cmd_TeamTask_f( gentity_t *ent ) {
 	char userinfo[MAX_INFO_STRING];
 	char		arg[MAX_TOKEN_CHARS];
@@ -526,11 +439,6 @@ void G_Kill( gentity_t *ent ) {
 	player_die (ent, ent, ent, 100000, MOD_SUICIDE);
 }
 
-/*
-=================
-Cmd_Kill_f
-=================
-*/
 void Cmd_Kill_f( gentity_t *ent ) {
 	G_Kill( ent );
 }
@@ -567,21 +475,10 @@ void Cmd_KillOther_f( gentity_t *ent )
 	G_Kill( otherEnt );
 }
 
-/*
-=================
-BroadCastTeamChange
-
-Let everyone know about a team change
-=================
-*/
+// Let everyone know about a team change
 void BroadcastTeamChange( gclient_t *client, int oldTeam )
 {
 	client->ps.fd.forceDoInit = 1; //every time we change teams make sure our force powers are set right
-
-	if (level.gametype == GT_SIEGE)
-	{ //don't announce these things in siege
-		return;
-	}
 
 	if ( client->sess.sessionTeam == TEAM_RED ) {
 		trap->SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " %s\n\"",
@@ -625,11 +522,6 @@ qboolean G_PowerDuelCheckFail(gentity_t *ent)
 	return qfalse;
 }
 
-/*
-=================
-SetTeam
-=================
-*/
 qboolean g_dontPenalizeTeam = qfalse;
 qboolean g_preventTeamBegin = qfalse;
 void SetTeam( gentity_t *ent, char *s ) {
@@ -646,9 +538,8 @@ void SetTeam( gentity_t *ent, char *s ) {
 		return;
 	}
 
-	//
 	// see what change is requested
-	//
+
 	client = ent->client;
 
 	clientNum = client - level.clients;
@@ -767,63 +658,6 @@ void SetTeam( gentity_t *ent, char *s ) {
 
 	oldTeam = client->sess.sessionTeam;
 
-	if (level.gametype == GT_SIEGE)
-	{
-		if (client->tempSpectate >= level.time &&
-			team == TEAM_SPECTATOR)
-		{ //sorry, can't do that.
-			return;
-		}
-
-		if ( team == oldTeam && team != TEAM_SPECTATOR )
-			return;
-
-		client->sess.siegeDesiredTeam = team;
-		//oh well, just let them go.
-		/*
-		if (team != TEAM_SPECTATOR)
-		{ //can't switch to anything in siege unless you want to switch to being a fulltime spectator
-			//fill them in on their objectives for this team now
-			trap->SendServerCommand(ent-g_entities, va("sb %i", client->sess.siegeDesiredTeam));
-
-			trap->SendServerCommand( ent-g_entities, va("print \"You will be on the selected team the next time the round begins.\n\"") );
-			return;
-		}
-		*/
-		if (client->sess.sessionTeam != TEAM_SPECTATOR &&
-			team != TEAM_SPECTATOR)
-		{ //not a spectator now, and not switching to spec, so you have to wait til you die.
-			//trap->SendServerCommand( ent-g_entities, va("print \"You will be on the selected team the next time you respawn.\n\"") );
-			qboolean doBegin;
-			if (ent->client->tempSpectate >= level.time)
-			{
-				doBegin = qfalse;
-			}
-			else
-			{
-				doBegin = qtrue;
-			}
-
-			if (doBegin)
-			{
-				// Kill them so they automatically respawn in the team they wanted.
-				if (ent->health > 0)
-				{
-					ent->flags &= ~FL_GODMODE;
-					ent->client->ps.stats[STAT_HEALTH] = ent->health = 0;
-					player_die( ent, ent, ent, 100000, MOD_TEAM_CHANGE );
-				}
-			}
-
-			if (ent->client->sess.sessionTeam != ent->client->sess.siegeDesiredTeam)
-			{
-				SetTeamQuick(ent, ent->client->sess.siegeDesiredTeam, qfalse);
-			}
-
-			return;
-		}
-	}
-
 	// override decision if limiting the players
 	if ( (level.gametype == GT_DUEL)
 		&& level.numNonSpectatorClients >= 2 )
@@ -841,22 +675,13 @@ void SetTeam( gentity_t *ent, char *s ) {
 		team = TEAM_SPECTATOR;
 	}
 
-	//
 	// decide if we will allow the change
-	//
+
 	if ( team == oldTeam && team != TEAM_SPECTATOR ) {
 		return;
 	}
 
-	//
 	// execute the team change
-	//
-
-	//If it's siege then show the mission briefing for the team you just joined.
-//	if (level.gametype == GT_SIEGE && team != TEAM_SPECTATOR)
-//	{
-//		trap->SendServerCommand(clientNum, va("sb %i", team));
-//	}
 
 	// if the player was dead leave the body
 	if ( client->ps.stats[STAT_HEALTH] <= 0 && client->sess.sessionTeam != TEAM_SPECTATOR ) {
@@ -921,15 +746,7 @@ void SetTeam( gentity_t *ent, char *s ) {
 	}
 }
 
-/*
-=================
-StopFollowing
-
-If the client being followed leaves the game, or you just want to drop
-to free floating spectator mode
-=================
-*/
-extern void G_LeaveVehicle( gentity_t *ent, qboolean ConCheck );
+// If the client being followed leaves the game, or you just want to drop to free floating spectator mode
 void StopFollowing( gentity_t *ent ) {
 	int i=0;
 	ent->client->ps.persistant[ PERS_TEAM ] = TEAM_SPECTATOR;
@@ -939,7 +756,6 @@ void StopFollowing( gentity_t *ent ) {
 	ent->r.svFlags &= ~SVF_BOT;
 	ent->client->ps.clientNum = ent - g_entities;
 	ent->client->ps.weapon = WP_NONE;
-	G_LeaveVehicle( ent, qfalse ); // clears m_iVehicleNum as well
 	ent->client->ps.emplacedIndex = 0;
 	//ent->client->ps.m_iVehicleNum = 0;
 	ent->client->ps.viewangles[ROLL] = 0.0f;
@@ -964,11 +780,6 @@ void StopFollowing( gentity_t *ent ) {
 		ent->client->ps.powerups[i] = 0;
 }
 
-/*
-=================
-Cmd_Team_f
-=================
-*/
 void Cmd_Team_f( gentity_t *ent ) {
 	int			oldTeam;
 	char		s[MAX_TOKEN_CHARS];
@@ -1028,11 +839,6 @@ void Cmd_Team_f( gentity_t *ent ) {
 		ent->client->switchTeamTime = level.time + 5000;
 }
 
-/*
-=================
-Cmd_DuelTeam_f
-=================
-*/
 void Cmd_DuelTeam_f(gentity_t *ent)
 {
 	int			oldTeam;
@@ -1121,156 +927,6 @@ void Cmd_DuelTeam_f(gentity_t *ent)
 	ent->client->switchDuelTeamTime = level.time + 5000;
 }
 
-int G_TeamForSiegeClass(const char *clName)
-{
-	int i = 0;
-	int team = SIEGETEAM_TEAM1;
-	siegeTeam_t *stm = BG_SiegeFindThemeForTeam(team);
-	siegeClass_t *scl;
-
-	if (!stm)
-	{
-		return 0;
-	}
-
-	while (team <= SIEGETEAM_TEAM2)
-	{
-		scl = stm->classes[i];
-
-		if (scl && scl->name[0])
-		{
-			if (!Q_stricmp(clName, scl->name))
-			{
-				return team;
-			}
-		}
-
-		i++;
-		if (i >= MAX_SIEGE_CLASSES || i >= stm->numClasses)
-		{
-			if (team == SIEGETEAM_TEAM2)
-			{
-				break;
-			}
-			team = SIEGETEAM_TEAM2;
-			stm = BG_SiegeFindThemeForTeam(team);
-			i = 0;
-		}
-	}
-
-	return 0;
-}
-
-/*
-=================
-Cmd_SiegeClass_f
-=================
-*/
-void Cmd_SiegeClass_f( gentity_t *ent )
-{
-	char className[64];
-	int team = 0;
-	int preScore;
-	qboolean startedAsSpec = qfalse;
-
-	if (level.gametype != GT_SIEGE)
-	{ //classes are only valid for this gametype
-		return;
-	}
-
-	if (!ent->client)
-	{
-		return;
-	}
-
-	if (trap->Argc() < 1)
-	{
-		return;
-	}
-
-	if ( ent->client->switchClassTime > level.time )
-	{
-		trap->SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOCLASSSWITCH")) );
-		return;
-	}
-
-	if (ent->client->sess.sessionTeam == TEAM_SPECTATOR)
-	{
-		startedAsSpec = qtrue;
-	}
-
-	trap->Argv( 1, className, sizeof( className ) );
-
-	team = G_TeamForSiegeClass(className);
-
-	if (!team)
-	{ //not a valid class name
-		return;
-	}
-
-	if (ent->client->sess.sessionTeam != team)
-	{ //try changing it then
-		g_preventTeamBegin = qtrue;
-		if (team == TEAM_RED)
-		{
-			SetTeam(ent, "red");
-		}
-		else if (team == TEAM_BLUE)
-		{
-			SetTeam(ent, "blue");
-		}
-		g_preventTeamBegin = qfalse;
-
-		if (ent->client->sess.sessionTeam != team)
-		{ //failed, oh well
-			if (ent->client->sess.sessionTeam != TEAM_SPECTATOR ||
-				ent->client->sess.siegeDesiredTeam != team)
-			{
-				trap->SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NOCLASSTEAM")) );
-				return;
-			}
-		}
-	}
-
-	//preserve 'is score
-	preScore = ent->client->ps.persistant[PERS_SCORE];
-
-	//Make sure the class is valid for the team
-	BG_SiegeCheckClassLegality(team, className);
-
-	//Set the session data
-	strcpy(ent->client->sess.siegeClass, className);
-
-	// get and distribute relevent paramters
-	if ( !ClientUserinfoChanged( ent->s.number ) )
-		return;
-
-	if (ent->client->tempSpectate < level.time)
-	{
-		// Kill him (makes sure he loses flags, etc)
-		if (ent->health > 0 && !startedAsSpec)
-		{
-			ent->flags &= ~FL_GODMODE;
-			ent->client->ps.stats[STAT_HEALTH] = ent->health = 0;
-			player_die (ent, ent, ent, 100000, MOD_SUICIDE);
-		}
-
-		if (ent->client->sess.sessionTeam == TEAM_SPECTATOR || startedAsSpec)
-		{ //respawn them instantly.
-			ClientBegin( ent->s.number, qfalse );
-		}
-	}
-	//set it back after we do all the stuff
-	ent->client->ps.persistant[PERS_SCORE] = preScore;
-
-	ent->client->switchClassTime = level.time + 5000;
-}
-
-/*
-=================
-Cmd_ForceChanged_f
-=================
-*/
 void Cmd_ForceChanged_f( gentity_t *ent )
 {
 	char fpChStr[1024];
@@ -1312,15 +968,9 @@ argCheck:
 
 extern qboolean WP_SaberStyleValidForSaber( saberInfo_t *saber1, saberInfo_t *saber2, int saberHolstered, int saberAnimLevel );
 extern qboolean WP_UseFirstValidSaberStyle( saberInfo_t *saber1, saberInfo_t *saber2, int saberHolstered, int *saberAnimLevel );
-qboolean G_SetSaber(gentity_t *ent, int saberNum, char *saberName, qboolean siegeOverride)
+qboolean G_SetSaber(gentity_t *ent, int saberNum, char *saberName)
 {
 	char truncSaberName[MAX_QPATH] = {0};
-
-	if ( !siegeOverride && level.gametype == GT_SIEGE && ent->client->siegeClass != -1 &&
-		(bgSiegeClasses[ent->client->siegeClass].saberStance || bgSiegeClasses[ent->client->siegeClass].saber1[0] || bgSiegeClasses[ent->client->siegeClass].saber2[0]) )
-	{ //don't let it be changed if the siege class has forced any saber-related things
-		return qfalse;
-	}
 
 	Q_strncpyz( truncSaberName, saberName, sizeof( truncSaberName ) );
 
@@ -1355,11 +1005,6 @@ qboolean G_SetSaber(gentity_t *ent, int saberNum, char *saberName, qboolean sieg
 	return qtrue;
 }
 
-/*
-=================
-Cmd_Follow_f
-=================
-*/
 void Cmd_Follow_f( gentity_t *ent ) {
 	int		i;
 	char	arg[MAX_TOKEN_CHARS];
@@ -1415,11 +1060,6 @@ void Cmd_Follow_f( gentity_t *ent ) {
 	ent->client->sess.spectatorClient = i;
 }
 
-/*
-=================
-Cmd_FollowCycle_f
-=================
-*/
 void Cmd_FollowCycle_f( gentity_t *ent, int dir ) {
 	int		clientnum;
 	int		original;
@@ -1512,12 +1152,6 @@ void Cmd_FollowPrev_f( gentity_t *ent ) {
 	Cmd_FollowCycle_f( ent, -1 );
 }
 
-/*
-==================
-G_Say
-==================
-*/
-
 static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, const char *name, const char *message, char *locMsg )
 {
 	if (!other) {
@@ -1545,14 +1179,6 @@ static void G_SayTo( gentity_t *ent, gentity_t *other, int mode, int color, cons
 	}
 	*/
 	//They've requested I take this out.
-
-	if (level.gametype == GT_SIEGE &&
-		ent->client && (ent->client->tempSpectate >= level.time || ent->client->sess.sessionTeam == TEAM_SPECTATOR) &&
-		other->client->sess.sessionTeam != TEAM_SPECTATOR &&
-		other->client->tempSpectate < level.time)
-	{ //siege temp spectators should not communicate to ingame players
-		return;
-	}
 
 	if (locMsg)
 	{
@@ -1641,12 +1267,6 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText ) 
 	}
 }
 
-
-/*
-==================
-Cmd_Say_f
-==================
-*/
 static void Cmd_Say_f( gentity_t *ent ) {
 	char *p = NULL;
 
@@ -1663,11 +1283,6 @@ static void Cmd_Say_f( gentity_t *ent ) {
 	G_Say( ent, NULL, SAY_ALL, p );
 }
 
-/*
-==================
-Cmd_SayTeam_f
-==================
-*/
 static void Cmd_SayTeam_f( gentity_t *ent ) {
 	char *p = NULL;
 
@@ -1684,11 +1299,6 @@ static void Cmd_SayTeam_f( gentity_t *ent ) {
 	G_Say( ent, NULL, (level.gametype>=GT_TEAM) ? SAY_TEAM : SAY_ALL, p );
 }
 
-/*
-==================
-Cmd_Tell_f
-==================
-*/
 static void Cmd_Tell_f( gentity_t *ent ) {
 	int			targetNum;
 	gentity_t	*target;
@@ -1787,7 +1397,6 @@ static void Cmd_VoiceCommand_f(gentity_t *ent)
 	te->r.svFlags |= SVF_BROADCAST;
 }
 
-
 static char	*gc_orders[] = {
 	"hold your position",
 	"hold this position",
@@ -1835,11 +1444,6 @@ void Cmd_GameCommand_f( gentity_t *ent ) {
 		G_Say( ent, ent, SAY_TELL, gc_orders[order] );
 }
 
-/*
-==================
-Cmd_Where_f
-==================
-*/
 void Cmd_Where_f( gentity_t *ent ) {
 	//JAC: This wasn't working for non-spectators since s.origin doesn't update for active players.
 	if(ent->client && ent->client->sess.sessionTeam != TEAM_SPECTATOR )
@@ -1853,25 +1457,18 @@ void Cmd_Where_f( gentity_t *ent ) {
 	//trap->SendServerCommand( ent-g_entities, va("print \"%s\n\"", vtos( ent->s.origin ) ) );
 }
 
-static const char *gameNames[] = {
+static const char *gameNames[GT_MAX_GAME_TYPE] = {
 	"Free For All",
 	"Holocron FFA",
 	"Jedi Master",
 	"Duel",
 	"Power Duel",
-	"Single Player",
+	//"Single Player",
 	"Team FFA",
-	"Siege",
+	//"Siege",
 	"Capture the Flag",
 	"Capture the Ysalamiri"
 };
-
-/*
-==================
-Cmd_CallVote_f
-==================
-*/
-extern void SiegeClearSwitchData(void); //g_saga.c
 
 qboolean G_VoteCapturelimit( gentity_t *ent, int numArgs, const char *arg1, const char *arg2 ) {
 	int n = Com_Clampi( 0, 0x7FFFFFFF, atoi( arg2 ) );
@@ -1924,12 +1521,6 @@ qboolean G_VoteGametype( gentity_t *ent, int numArgs, const char *arg1, const ch
 	else if ( gt < 0 || gt >= GT_MAX_GAME_TYPE ) {
 		trap->SendServerCommand( ent-g_entities, va( "print \"Gametype (%i) is out of range, defaulting to FFA/Deathmatch\n\"", gt ) );
 		gt = GT_FFA;
-	}
-
-	// logically invalid gametypes, or gametypes not fully implemented in MP
-	if ( gt == GT_SINGLE_PLAYER ) {
-		trap->SendServerCommand( ent-g_entities, va( "print \"This gametype is not supported (%s).\n\"", arg2 ) );
-		return qfalse;
 	}
 
 	level.votingGametype = qtrue;
@@ -2055,7 +1646,6 @@ qboolean G_VoteNextmap( gentity_t *ent, int numArgs, const char *arg1, const cha
 		trap->SendServerCommand( ent-g_entities, "print \"nextmap not set.\n\"" );
 		return qfalse;
 	}
-	SiegeClearSwitchData();
 	Com_sprintf( level.voteString, sizeof( level.voteString ), "vstr nextmap");
 	Q_strncpyz( level.voteDisplayString, level.voteString, sizeof( level.voteDisplayString ) );
 	Q_strncpyz( level.voteStringClean, level.voteString, sizeof( level.voteStringClean ) );
@@ -2095,14 +1685,14 @@ static voteString_t validVoteStrings[] = {
 	//	vote string				aliases										# args	valid gametypes							exec delay		short help
 	{	"capturelimit",			"caps",				G_VoteCapturelimit,		1,		GTB_CTF|GTB_CTY,						qtrue,			"<num>" },
 	{	"clientkick",			NULL,				G_VoteClientkick,		1,		GTB_ALL,								qfalse,			"<clientnum>" },
-	{	"fraglimit",			"frags",			G_VoteFraglimit,		1,		GTB_ALL & ~(GTB_SIEGE|GTB_CTF|GTB_CTY),	qtrue,			"<num>" },
+	{	"fraglimit",			"frags",			G_VoteFraglimit,		1,		GTB_ALL & ~(GTB_CTF|GTB_CTY),			qtrue,			"<num>" },
 	{	"g_doWarmup",			"dowarmup warmup",	G_VoteWarmup,			1,		GTB_ALL,								qtrue,			"<0-1>" },
 	{	"g_gametype",			"gametype gt mode",	G_VoteGametype,			1,		GTB_ALL,								qtrue,			"<num or name>" },
 	{	"kick",					NULL,				G_VoteKick,				1,		GTB_ALL,								qfalse,			"<client name>" },
 	{	"map",					NULL,				G_VoteMap,				0,		GTB_ALL,								qtrue,			"<name>" },
 	{	"map_restart",			"restart",			G_VoteMapRestart,		0,		GTB_ALL,								qtrue,			"<optional delay>" },
 	{	"nextmap",				NULL,				G_VoteNextmap,			0,		GTB_ALL,								qtrue,			NULL },
-	{	"timelimit",			"time",				G_VoteTimelimit,		1,		GTB_ALL &~GTB_SIEGE,					qtrue,			"<num>" },
+	{	"timelimit",			"time",				G_VoteTimelimit,		1,		GTB_ALL,								qtrue,			"<num>" },
 };
 static const int validVoteStringsSize = ARRAY_LEN( validVoteStrings );
 
@@ -2278,11 +1868,6 @@ validVote:
 	trap->SetConfigstring( CS_VOTE_NO,		va( "%i", level.voteNo ) );
 }
 
-/*
-==================
-Cmd_Vote_f
-==================
-*/
 void Cmd_Vote_f( gentity_t *ent ) {
 	char		msg[64] = {0};
 
@@ -2345,11 +1930,6 @@ qboolean G_TeamVoteLeader( gentity_t *ent, int cs_offset, team_t team, int numAr
 	return qtrue;
 }
 
-/*
-==================
-Cmd_CallTeamVote_f
-==================
-*/
 void Cmd_CallTeamVote_f( gentity_t *ent ) {
 	team_t	team = ent->client->sess.sessionTeam;
 	int		i=0, cs_offset=0, numArgs=0;
@@ -2435,11 +2015,6 @@ void Cmd_CallTeamVote_f( gentity_t *ent ) {
 	trap->SetConfigstring( CS_TEAMVOTE_NO + cs_offset, va("%i", level.teamVoteNo[cs_offset] ) );
 }
 
-/*
-==================
-Cmd_TeamVote_f
-==================
-*/
 void Cmd_TeamVote_f( gentity_t *ent ) {
 	team_t		team = ent->client->sess.sessionTeam;
 	int			cs_offset=0;
@@ -2485,12 +2060,6 @@ void Cmd_TeamVote_f( gentity_t *ent ) {
 	// for players entering or leaving
 }
 
-
-/*
-=================
-Cmd_SetViewpos_f
-=================
-*/
 void Cmd_SetViewpos_f( gentity_t *ent ) {
 	vec3_t		origin, angles;
 	char		buffer[MAX_TOKEN_CHARS];
@@ -2513,28 +2082,6 @@ void Cmd_SetViewpos_f( gentity_t *ent ) {
 	TeleportPlayer( ent, origin, angles );
 }
 
-void G_LeaveVehicle( gentity_t* ent, qboolean ConCheck ) {
-
-	if (ent->client->ps.m_iVehicleNum)
-	{ //tell it I'm getting off
-		gentity_t *veh = &g_entities[ent->client->ps.m_iVehicleNum];
-
-		if (veh->inuse && veh->client && veh->m_pVehicle)
-		{
-			if ( ConCheck ) { // check connection
-				clientConnected_t pCon = ent->client->pers.connected;
-				ent->client->pers.connected = CON_DISCONNECTED;
-				veh->m_pVehicle->m_pVehicleInfo->Eject(veh->m_pVehicle, (bgEntity_t *)ent, qtrue);
-				ent->client->pers.connected = pCon;
-			} else { // or not.
-				veh->m_pVehicle->m_pVehicleInfo->Eject(veh->m_pVehicle, (bgEntity_t *)ent, qtrue);
-			}
-		}
-	}
-
-	ent->client->ps.m_iVehicleNum = 0;
-}
-
 int G_ItemUsable(playerState_t *ps, int forcedUse)
 {
 	vec3_t fwd, fwdorg, dest, pos;
@@ -2545,11 +2092,6 @@ int G_ItemUsable(playerState_t *ps, int forcedUse)
 
 	// fix: dead players shouldn't use items
 	if (ps->stats[STAT_HEALTH] <= 0) {
-		return 0;
-	}
-
-	if (ps->m_iVehicleNum)
-	{
 		return 0;
 	}
 
@@ -2749,8 +2291,6 @@ extern qboolean WP_SaberCanTurnOffSomeBlades( saberInfo_t *saber );
 void Cmd_SaberAttackCycle_f(gentity_t *ent)
 {
 	int selectLevel = 0;
-	qboolean usingSiegeStyle = qfalse;
-
 	if ( !ent || !ent->client )
 	{
 		return;
@@ -2769,7 +2309,6 @@ void Cmd_SaberAttackCycle_f(gentity_t *ent)
 		trap->SendServerCommand( ent-g_entities, va( "print \"%s\n\"", G_GetStringEdString( "MP_SVGAME", "MUSTBEALIVE" ) ) );
 		return;
 	}
-
 
 	if ( ent->client->ps.weapon != WP_SABER )
 	{
@@ -2894,45 +2433,14 @@ void Cmd_SaberAttackCycle_f(gentity_t *ent)
 		selectLevel = ent->client->ps.fd.saberAnimLevel;
 	}
 
-	if (level.gametype == GT_SIEGE &&
-		ent->client->siegeClass != -1 &&
-		bgSiegeClasses[ent->client->siegeClass].saberStance)
-	{ //we have a flag of useable stances so cycle through it instead
-		int i = selectLevel+1;
-
-		usingSiegeStyle = qtrue;
-
-		while (i != selectLevel)
-		{ //cycle around upward til we hit the next style or end up back on this one
-			if (i >= SS_NUM_SABER_STYLES)
-			{ //loop back around to the first valid
-				i = SS_FAST;
-			}
-
-			if (bgSiegeClasses[ent->client->siegeClass].saberStance & (1 << i))
-			{ //we can use this one, select it and break out.
-				selectLevel = i;
-				break;
-			}
-			i++;
-		}
-
-		if (d_saberStanceDebug.integer)
-		{
-			trap->SendServerCommand( ent-g_entities, va("print \"SABERSTANCEDEBUG: Attempted to cycle given class stance.\n\"") );
-		}
-	}
-	else
+	selectLevel++;
+	if ( selectLevel > ent->client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE] )
 	{
-		selectLevel++;
-		if ( selectLevel > ent->client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE] )
-		{
-			selectLevel = FORCE_LEVEL_1;
-		}
-		if (d_saberStanceDebug.integer)
-		{
-			trap->SendServerCommand( ent-g_entities, va("print \"SABERSTANCEDEBUG: Attempted to cycle stance normally.\n\"") );
-		}
+		selectLevel = FORCE_LEVEL_1;
+	}
+	if (d_saberStanceDebug.integer)
+	{
+		trap->SendServerCommand( ent-g_entities, va("print \"SABERSTANCEDEBUG: Attempted to cycle stance normally.\n\"") );
 	}
 /*
 #ifndef FINAL_BUILD
@@ -2950,11 +2458,8 @@ void Cmd_SaberAttackCycle_f(gentity_t *ent)
 	}
 #endif
 */
-	if ( !usingSiegeStyle )
-	{
-		//make sure it's valid, change it if not
-		WP_UseFirstValidSaberStyle( &ent->client->saber[0], &ent->client->saber[1], ent->client->ps.saberHolstered, &selectLevel );
-	}
+	//make sure it's valid, change it if not
+	WP_UseFirstValidSaberStyle( &ent->client->saber[0], &ent->client->saber[1], ent->client->ps.saberHolstered, &selectLevel );
 
 	if (ent->client->ps.weaponTime <= 0)
 	{ //not busy, set it now
@@ -3001,7 +2506,6 @@ void Cmd_EngageDuel_f(gentity_t *ent)
 		return;
 	}
 
-	//if (level.gametype >= GT_TEAM && level.gametype != GT_SIEGE)
 	if (level.gametype >= GT_TEAM)
 	{ //no private dueling in team modes
 		trap->SendServerCommand( ent-g_entities, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "NODUEL_GAMETYPE")) );
@@ -3216,7 +2720,6 @@ void Bot_SetForcedMovement(int bot, int forward, int right, int up);
 
 #ifndef FINAL_BUILD
 extern void DismembermentByNum(gentity_t *self, int num);
-extern void G_SetVehDamageFlags( gentity_t *veh, int shipSurf, int damageLevel );
 #endif
 
 qboolean TryGrapple(gentity_t *ent)
@@ -3361,12 +2864,6 @@ void Cmd_AddBot_f( gentity_t *ent ) {
 	trap->SendServerCommand( ent-g_entities, va( "print \"%s.\n\"", G_GetStringEdString( "MP_SVGAME", "ONLY_ADD_BOTS_AS_SERVER" ) ) );
 }
 
-/*
-=================
-ClientCommand
-=================
-*/
-
 #define CMD_NOINTERMISSION		(1<<0)
 #define CMD_CHEAT				(1<<1)
 #define CMD_ALIVE				(1<<2)
@@ -3406,12 +2903,10 @@ command_t commands[] = {
 	{ "maplist",			Cmd_MapList_f,				CMD_NOINTERMISSION },
 	{ "noclip",				Cmd_Noclip_f,				CMD_CHEAT|CMD_ALIVE|CMD_NOINTERMISSION },
 	{ "notarget",			Cmd_Notarget_f,				CMD_CHEAT|CMD_ALIVE|CMD_NOINTERMISSION },
-	{ "npc",				Cmd_NPC_f,					CMD_CHEAT|CMD_ALIVE },
 	{ "say",				Cmd_Say_f,					0 },
 	{ "say_team",			Cmd_SayTeam_f,				0 },
 	{ "score",				Cmd_Score_f,				0 },
 	{ "setviewpos",			Cmd_SetViewpos_f,			CMD_CHEAT|CMD_NOINTERMISSION },
-	{ "siegeclass",			Cmd_SiegeClass_f,			CMD_NOINTERMISSION },
 	{ "team",				Cmd_Team_f,					CMD_NOINTERMISSION },
 //	{ "teamtask",			Cmd_TeamTask_f,				CMD_NOINTERMISSION },
 	{ "teamvote",			Cmd_TeamVote_f,				CMD_NOINTERMISSION },

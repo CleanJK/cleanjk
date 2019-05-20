@@ -23,9 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "cg_local.h"
 
-//
 // Cvar callbacks
-//
 
 static void CG_SVRunningChange( void ) {
 	cgs.localServer = sv_running.integer;
@@ -47,16 +45,41 @@ static void CG_ForceModelChange( void ) {
 static void CG_TeamOverlayChange( void ) {
 	// If team overlay is on, ask for updates from the server.  If its off,
 	// let the server know so we don't receive it
-	if ( cg_drawTeamOverlay.integer > 0 && cgs.gametype >= GT_SINGLE_PLAYER)
+	if ( cg_drawTeamOverlay.integer > 0 && cgs.gametype >= GT_TEAM)
 		trap->Cvar_Set( "teamoverlay", "1" );
 	else
 		trap->Cvar_Set( "teamoverlay", "0" );
 }
 
+static void CVU_GunAlign( void ) {
+	float *v = &cg.gunAlign[0];
+	if ( sscanf( cg_gunAlign.string, "%f %f %f", &v[0], &v[1], &v[2] ) != 3 ) {
+		v[0] = 0.0f;
+		v[1] = 0.0f;
+		v[2] = 0.0f;
+	}
+}
 
-//
+static void CVU_GunBob( void ) {
+	float *v = &cg.gunBob[0];
+	if ( sscanf( cg_gunBob.string, "%f %f %f", &v[0], &v[1], &v[2] ) != 3 ) {
+		v[0] = 0.005f;
+		v[1] = 0.01f;
+		v[2] = 0.005f;
+	}
+}
+
+static void CVU_GunDrift( void ) {
+	float *v = &cg.gunIdleDrift.amount[0];
+	if ( sscanf( cg_gunIdleDrift.string, "%f %f %f %f", &v[0], &v[1], &v[2], &cg.gunIdleDrift.speed ) != 4 ) {
+		v[0] = 0.01f;
+		v[1] = 0.01f;
+		v[2] = 0.01f;
+		cg.gunIdleDrift.speed = 0.001f;
+	}
+}
+
 // Cvar table
-//
 
 typedef struct cvarTable_s {
 	vmCvar_t	*vmCvar;

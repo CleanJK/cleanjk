@@ -38,14 +38,12 @@ void HolocronThink(gentity_t *ent);
 Used to group brushes together just for editor convenience.  They are turned into normal brushes by the utilities.
 */
 
-
 /*QUAKED info_camp (0 0.5 0) (-4 -4 -4) (4 4 4)
 Used as a positional target for calculations in the utilities (spotlights, etc), but removed during gameplay.
 */
 void SP_info_camp( gentity_t *self ) {
 	G_SetOrigin( self, self->s.origin );
 }
-
 
 /*QUAKED info_null (0 0.5 0) (-4 -4 -4) (4 4 4)
 Used as a positional target for calculations in the utilities (spotlights, etc), but removed during gameplay.
@@ -54,7 +52,6 @@ void SP_info_null( gentity_t *self ) {
 	G_FreeEntity( self );
 }
 
-
 /*QUAKED info_notnull (0 0.5 0) (-4 -4 -4) (4 4 4)
 Used as a positional target for in-game calculation, like jumppad targets.
 target_position does the same thing
@@ -62,7 +59,6 @@ target_position does the same thing
 void SP_info_notnull( gentity_t *self ){
 	G_SetOrigin( self, self->s.origin );
 }
-
 
 /*QUAKED lightJunior (0 0.7 0.3) (-8 -8 -8) (8 8 8) nonlinear angle negative_spot negative_point
 Non-displayed light that only affects dynamic game models, but does not contribute to lightmaps
@@ -185,23 +181,11 @@ void SP_light( gentity_t *self ) {
 	misc_lightstyle_set (self);
 }
 
-
-/*
-=================================================================================
-
-TELEPORTERS
-
-=================================================================================
-*/
+// TELEPORTERS
 
 void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles ) {
 	gentity_t	*tent;
-	qboolean	isNPC = qfalse;
 	qboolean	noAngles;
-	if (player->s.eType == ET_NPC)
-	{
-		isNPC = qtrue;
-	}
 
 	noAngles = (angles[0] > 999999.0) ? qtrue : qfalse;
 
@@ -242,10 +226,6 @@ void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles ) {
 
 	// save results of pmove
 	BG_PlayerStateToEntityState( &player->client->ps, &player->s, qtrue );
-	if (isNPC)
-	{
-		player->s.eType = ET_NPC;
-	}
 
 	// use the precise origin for linking
 	VectorCopy( player->client->ps.origin, player->r.currentOrigin );
@@ -255,7 +235,6 @@ void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles ) {
 	}
 }
 
-
 /*QUAKED misc_teleporter_dest (1 0 0) (-32 -32 -24) (32 32 -16)
 Point teleporters at these.
 Now that we don't have teleport destination pads, this is just
@@ -263,9 +242,6 @@ an info_notnull
 */
 void SP_misc_teleporter_dest( gentity_t *ent ) {
 }
-
-
-//===========================================================
 
 /*QUAKED misc_model (1 0 0) (-16 -16 -16) (16 16 16)
 "model"		arbitrary .md3 or .ase file to display
@@ -414,7 +390,7 @@ void misc_model_breakable_gravity_init( gentity_t *ent, qboolean dropToFloor )
 		top[2] += 1;
 		VectorCopy( ent->r.currentOrigin, bottom );
 		bottom[2] = MIN_WORLD_COORD;
-		trap->Trace( &tr, top, ent->r.mins, ent->r.maxs, bottom, ent->s.number, MASK_NPCSOLID, qfalse, 0, 0 );
+		trap->Trace( &tr, top, ent->r.mins, ent->r.maxs, bottom, ent->s.number, MASK_PLAYERSOLID, qfalse, 0, 0 );
 		if ( !tr.allsolid && !tr.startsolid && tr.fraction < 1.0 )
 		{
 			G_SetOrigin( ent, tr.endpos );
@@ -494,8 +470,6 @@ void SP_misc_G2model( gentity_t *ent ) {
 	G_FreeEntity( ent );
 #endif
 }
-
-//===========================================================
 
 void locateCamera( gentity_t *ent ) {
 	vec3_t		dir;
@@ -703,7 +677,7 @@ void G_PortalifyEntities(gentity_t *ent)
 
 			if (tr.fraction == 1.0 || (tr.entityNum == scan->s.number && tr.entityNum != ENTITYNUM_NONE && tr.entityNum != ENTITYNUM_WORLD))
 			{
-				if (!scan->client || scan->s.eType == ET_NPC)
+				if (!scan->client)
 				{ //making a client a portal entity would be bad.
 					scan->s.isPortalEnt = qtrue; //he's flagged now
 				}
@@ -727,7 +701,6 @@ void SP_misc_skyportal_orient (gentity_t *ent)
 {
 	G_FreeEntity(ent);
 }
-
 
 /*QUAKED misc_skyportal (.6 .7 .7) (-8 -8 0) (8 8 16)
 "fov" for the skybox default is 80
@@ -1147,13 +1120,7 @@ void SP_misc_holocron(gentity_t *ent)
 	ent->nextthink = level.time + 50;
 }
 
-/*
-======================================================================
-
-  SHOOTERS
-
-======================================================================
-*/
+// SHOOTERS
 
 void Use_Shooter( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 	vec3_t		dir;
@@ -1188,7 +1155,6 @@ void Use_Shooter( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 
 	G_AddEvent( ent, EV_FIRE_WEAPON, 0 );
 }
-
 
 static void InitShooter_Finish( gentity_t *ent ) {
 	ent->enemy = G_PickTarget( ent->target );
@@ -1256,11 +1222,6 @@ void check_recharge(gentity_t *ent)
 	ent->nextthink = level.time;
 }
 
-/*
-================
-EnergyShieldStationSettings
-================
-*/
 void EnergyShieldStationSettings(gentity_t *ent)
 {
 	G_SpawnInt( "count", "200", &ent->count );
@@ -1273,11 +1234,6 @@ void EnergyShieldStationSettings(gentity_t *ent)
 	}
 }
 
-/*
-================
-shield_power_converter_use
-================
-*/
 void shield_power_converter_use( gentity_t *self, gentity_t *other, gentity_t *activator)
 {
 	int dif,add;
@@ -1286,18 +1242,6 @@ void shield_power_converter_use( gentity_t *self, gentity_t *other, gentity_t *a
 	if (!activator || !activator->client)
 	{
 		return;
-	}
-
-	if ( level.gametype == GT_SIEGE
-		&& other
-		&& other->client
-		&& other->client->siegeClass )
-	{
-		if ( !bgSiegeClasses[other->client->siegeClass].maxarmor )
-		{//can't use it!
-			G_Sound(self, CHAN_AUTO, G_SoundIndex("sound/interface/shieldcon_empty"));
-			return;
-		}
 	}
 
 	if (self->setTime < level.time)
@@ -1310,17 +1254,7 @@ void shield_power_converter_use( gentity_t *self, gentity_t *other, gentity_t *a
 		}
 		self->setTime = level.time + 100;
 
-		if ( level.gametype == GT_SIEGE
-			&& other
-			&& other->client
-			&& other->client->siegeClass != -1 )
-		{
-			maxArmor = bgSiegeClasses[other->client->siegeClass].maxarmor;
-		}
-		else
-		{
-			maxArmor = activator->client->ps.stats[STAT_MAX_HEALTH];
-		}
+		maxArmor = activator->client->ps.stats[STAT_MAX_HEALTH];
 		dif = maxArmor - activator->client->ps.stats[STAT_ARMOR];
 
 		if (dif > 0)					// Already at full armor?
@@ -1482,16 +1416,8 @@ void ammo_generic_power_converter_use( gentity_t *self, gentity_t *other, gentit
 				( activator->client->ps.ammo[i] < ammoData[i].max ) )
 			{
 				gaveSome = qtrue;
-				if ( level.gametype == GT_SIEGE  && i == AMMO_ROCKETS && activator->client->ps.ammo[i] >= 10 )
-				{ //this stuff is already a freaking mess, so..
-					gaveSome = qfalse;
-				}
 				activator->client->ps.ammo[i] += add;
-				if ( level.gametype == GT_SIEGE  && i == AMMO_ROCKETS && activator->client->ps.ammo[i] >= 10 )
-				{	// fixme - this should SERIOUSLY be externed.
-					activator->client->ps.ammo[i] = 10;
-				}
-				else if ( activator->client->ps.eFlags & EF_DOUBLE_AMMO )
+				if ( activator->client->ps.eFlags & EF_DOUBLE_AMMO )
 				{
 					if (activator->client->ps.ammo[i] >= ammoData[i].max * 2)
 					{	// yuck.
@@ -1633,13 +1559,6 @@ void SP_misc_ammo_floor_unit(gentity_t *ent)
 	G_SoundIndex("sound/interface/ammocon_run");
 	ent->genericValue7 = G_SoundIndex("sound/interface/ammocon_done");
 	G_SoundIndex("sound/interface/ammocon_empty");
-
-	if (level.gametype == GT_SIEGE)
-	{ //show on radar from everywhere
-		ent->r.svFlags |= SVF_BROADCAST;
-		ent->s.eFlags |= EF_RADAROBJECT;
-		ent->s.genericenemyindex = G_IconIndex("gfx/mp/siegeicons/desert/weapon_recharge");
-	}
 }
 
 /*QUAKED misc_shield_floor_unit (1 0 0) (-16 -16 0) (16 16 40)
@@ -1656,8 +1575,7 @@ void SP_misc_shield_floor_unit( gentity_t *ent )
 	trace_t tr;
 
 	if (level.gametype != GT_CTF &&
-		level.gametype != GT_CTY &&
-		level.gametype != GT_SIEGE)
+		level.gametype != GT_CTY)
 	{
 		G_FreeEntity( ent );
 		return;
@@ -1728,15 +1646,7 @@ void SP_misc_shield_floor_unit( gentity_t *ent )
 	G_SoundIndex("sound/interface/shieldcon_run");
 	ent->genericValue7 = G_SoundIndex("sound/interface/shieldcon_done");
 	G_SoundIndex("sound/interface/shieldcon_empty");
-
-	if (level.gametype == GT_SIEGE)
-	{ //show on radar from everywhere
-		ent->r.svFlags |= SVF_BROADCAST;
-		ent->s.eFlags |= EF_RADAROBJECT;
-		ent->s.genericenemyindex = G_IconIndex("gfx/mp/siegeicons/desert/shield_recharge");
-	}
 }
-
 
 /*QUAKED misc_model_shield_power_converter (1 0 0) (-16 -16 -16) (16 16 16)
 model="models/items/psd_big.md3"
@@ -1744,7 +1654,6 @@ Gives shield energy when used.
 
 "count" - the amount of ammo given when used (default 200)
 */
-//------------------------------------------------------------
 void SP_misc_model_shield_power_converter( gentity_t *ent )
 {
 	if (!ent->health)
@@ -1785,22 +1694,10 @@ void SP_misc_model_shield_power_converter( gentity_t *ent )
 	ent->s.modelindex2 = G_ModelIndex("/models/items/psd_big.md3");	// Precache model
 }
 
-
-/*
-================
-EnergyAmmoShieldStationSettings
-================
-*/
-void EnergyAmmoStationSettings(gentity_t *ent)
-{
+void EnergyAmmoStationSettings( gentity_t *ent ) {
 	G_SpawnInt( "count", "200", &ent->count );
 }
 
-/*
-================
-ammo_power_converter_use
-================
-*/
 void ammo_power_converter_use( gentity_t *self, gentity_t *other, gentity_t *activator)
 {
 	int			add = 0.0f;//,highest;
@@ -1900,7 +1797,6 @@ void ammo_power_converter_use( gentity_t *self, gentity_t *other, gentity_t *act
 	}
 }
 
-
 /*QUAKED misc_model_ammo_power_converter (1 0 0) (-16 -16 -16) (16 16 16)
 model="models/items/power_converter.md3"
 Gives ammo energy when used.
@@ -1908,7 +1804,6 @@ Gives ammo energy when used.
 "count" - the amount of ammo given when used (default 200)
 "nodrain" - don't drain power from me
 */
-//------------------------------------------------------------
 void SP_misc_model_ammo_power_converter( gentity_t *ent )
 {
 	if (!ent->health)
@@ -1951,21 +1846,11 @@ void SP_misc_model_ammo_power_converter( gentity_t *ent )
 	//G_SoundIndex("sound/movers/objects/useshieldstation.wav");
 }
 
-/*
-================
-EnergyHealthStationSettings
-================
-*/
 void EnergyHealthStationSettings(gentity_t *ent)
 {
 	G_SpawnInt( "count", "200", &ent->count );
 }
 
-/*
-================
-health_power_converter_use
-================
-*/
 void health_power_converter_use( gentity_t *self, gentity_t *other, gentity_t *activator)
 {
 	int dif,add;
@@ -2019,14 +1904,12 @@ void health_power_converter_use( gentity_t *self, gentity_t *other, gentity_t *a
 	}
 }
 
-
 /*QUAKED misc_model_health_power_converter (1 0 0) (-16 -16 -16) (16 16 16)
 model="models/items/power_converter.md3"
 Gives ammo energy when used.
 
 "count" - the amount of ammo given when used (default 200)
 */
-//------------------------------------------------------------
 void SP_misc_model_health_power_converter( gentity_t *ent )
 {
 	if (!ent->health)
@@ -2065,13 +1948,6 @@ void SP_misc_model_health_power_converter( gentity_t *ent )
 	//G_SoundIndex("sound/movers/objects/useshieldstation.wav");
 	G_SoundIndex("sound/player/pickuphealth.wav");
 	ent->genericValue7 = G_SoundIndex("sound/interface/shieldcon_done");
-
-	if (level.gametype == GT_SIEGE)
-	{ //show on radar from everywhere
-		ent->r.svFlags |= SVF_BROADCAST;
-		ent->s.eFlags |= EF_RADAROBJECT;
-		ent->s.genericenemyindex = G_IconIndex("gfx/mp/siegeicons/desert/bacta");
-	}
 }
 
 #if 0 //damage box stuff
@@ -2287,8 +2163,6 @@ int G_PlayerBecomeATST(gentity_t *ent)
 }
 #endif
 
-//----------------------------------------------------------
-
 /*QUAKED fx_runner (0 0 1) (-8 -8 -8) (8 8 8) STARTOFF ONESHOT DAMAGE
 Runs the specified effect, can also be targeted at an info_notnull to orient the effect
 
@@ -2310,7 +2184,6 @@ Runs the specified effect, can also be targeted at an info_notnull to orient the
 extern int	BMS_START;
 extern int	BMS_MID;
 extern int	BMS_END;
-//----------------------------------------------------------
 void fx_runner_think( gentity_t *ent )
 {
 	BG_EvaluateTrajectory( &ent->s.pos, level.time, ent->r.currentOrigin );
@@ -2357,7 +2230,6 @@ void fx_runner_think( gentity_t *ent )
 
 }
 
-//----------------------------------------------------------
 void fx_runner_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 {
 	if (self->s.isPortalEnt)
@@ -2431,7 +2303,6 @@ void fx_runner_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 	}
 }
 
-//----------------------------------------------------------
 void fx_runner_link( gentity_t *ent )
 {
 	vec3_t	dir;
@@ -2500,7 +2371,6 @@ void fx_runner_link( gentity_t *ent )
 	}
 }
 
-//----------------------------------------------------------
 void SP_fx_runner( gentity_t *ent )
 {
 	char *fxFile;
@@ -2564,14 +2434,12 @@ void SP_CreateWind( gentity_t *ent )
 	char	temp[256];
 
 	// Normal Wind
-	//-------------
 	if ( ent->spawnflags & 1 )
 	{
 		G_EffectIndex( "*wind" );
 	}
 
 	// Constant Wind
-	//---------------
 	if ( ent->spawnflags & 2 )
 	{
 		vec3_t	windDir;
@@ -2584,29 +2452,24 @@ void SP_CreateWind( gentity_t *ent )
 	}
 
 	// Gusting Wind
-	//--------------
 	if ( ent->spawnflags & 4 )
 	{
 		G_EffectIndex( "*gustingwind" );
 	}
 
 	// Swirling Wind
-	//---------------
 	/*if ( ent->spawnflags & 8 )
 	{
 		G_EffectIndex( "*swirlingwind" );
 	}*/
 
-
 	// MISTY FOG
-	//===========
 	if ( ent->spawnflags & 32 )
 	{
 		G_EffectIndex( "*fog" );
 	}
 
 	// MISTY FOG
-	//===========
 	if ( ent->spawnflags & 64 )
 	{
 		G_EffectIndex( "*light_fog" );
@@ -2618,20 +2481,17 @@ This world effect will spawn space dust globally into the level.
 
 "count" the number of snow particles (default of 1000)
 */
-//----------------------------------------------------------
 void SP_CreateSpaceDust( gentity_t *ent )
 {
 	G_EffectIndex(va("*spacedust %i", ent->count));
 	//G_EffectIndex("*constantwind ( 10 -10 0 )");
 }
 
-
 /*QUAKED fx_snow (1 0 0) (-16 -16 -16) (16 16 16)
 This world effect will spawn snow globally into the level.
 
 "count" the number of snow particles (default of 1000)
 */
-//----------------------------------------------------------
 void SP_CreateSnow( gentity_t *ent )
 {
 	G_EffectIndex("*snow");
@@ -2649,7 +2509,6 @@ ACID    create acid rain
 
 MISTY_FOG      causes clouds of misty fog to float through the level
 */
-//----------------------------------------------------------
 void SP_CreateRain( gentity_t *ent )
 {
 	if ( ent->spawnflags == 0 )
@@ -2659,7 +2518,6 @@ void SP_CreateRain( gentity_t *ent )
 	}
 
 	// Different Types Of Rain
-	//-------------------------
 	if ( ent->spawnflags & 1 )
 	{
 		G_EffectIndex( "*lightrain" );
@@ -2673,7 +2531,6 @@ void SP_CreateRain( gentity_t *ent )
 		G_EffectIndex( "*heavyrain" );
 
 		// Automatically Get Heavy Fog
-		//-----------------------------
 		G_EffectIndex( "*heavyrainfog" );
 	}
 	else if ( ent->spawnflags & 8 )
@@ -2683,7 +2540,6 @@ void SP_CreateRain( gentity_t *ent )
 	}
 
 	// MISTY FOG
-	//===========
 	if ( ent->spawnflags & 32 )
 	{
 		G_EffectIndex( "*fog" );
@@ -2747,22 +2603,6 @@ void Use_Target_Escapetrig( gentity_t *ent, gentity_t *other, gentity_t *activat
 
 		LogExit("Escaped!");
 	}
-}
-
-void SP_target_escapetrig(gentity_t *ent)
-{
-	if (level.gametype != GT_SINGLE_PLAYER)
-	{
-		G_FreeEntity(ent);
-		return;
-	}
-
-	G_SpawnInt( "escapetime", "60000", &ent->genericValue5);
-	//time given (in ms) for the escape
-	G_SpawnInt( "escapegoal", "0", &ent->genericValue6);
-	//if non-0, when used, will end an ongoing escape instead of start it
-
-	ent->use = Use_Target_Escapetrig;
 }
 
 /*QUAKED misc_maglock (0 .5 .8) (-8 -8 -8) (8 8 8) x x x x x x x x
@@ -3074,12 +2914,6 @@ reference_tag_t *FirstFreeRefTag(tagOwner_t *tagOwner)
 	return NULL;
 }
 
-/*
--------------------------
-TAG_Init
--------------------------
-*/
-
 void TAG_Init( void )
 {
 	int i = 0;
@@ -3097,12 +2931,6 @@ void TAG_Init( void )
 	}
 }
 
-/*
--------------------------
-TAG_FindOwner
--------------------------
-*/
-
 tagOwner_t	*TAG_FindOwner( const char *owner )
 {
 	int i = 0;
@@ -3118,12 +2946,6 @@ tagOwner_t	*TAG_FindOwner( const char *owner )
 
 	return NULL;
 }
-
-/*
--------------------------
-TAG_Find
--------------------------
-*/
 
 reference_tag_t	*TAG_Find( const char *owner, const char *name )
 {
@@ -3180,12 +3002,6 @@ reference_tag_t	*TAG_Find( const char *owner, const char *name )
 	return NULL;
 }
 
-/*
--------------------------
-TAG_Add
--------------------------
-*/
-
 reference_tag_t	*TAG_Add( const char *name, const char *owner, vec3_t origin, vec3_t angles, int radius, int flags )
 {
 	reference_tag_t	*tag = NULL;
@@ -3241,7 +3057,6 @@ reference_tag_t	*TAG_Add( const char *name, const char *owner, vec3_t origin, ve
 		return NULL;
 	}
 
-
 	//Copy the name
 	Q_strncpyz( (char *) tagOwner->name, owner, MAX_REFNAME );
 	Q_strlwr( (char *) tagOwner->name );	//NOTENOTE: For case insensitive searches on a map
@@ -3255,12 +3070,6 @@ reference_tag_t	*TAG_Add( const char *name, const char *owner, vec3_t origin, ve
 
 	return tag;
 }
-
-/*
--------------------------
-TAG_GetOrigin
--------------------------
-*/
 
 int	TAG_GetOrigin( const char *owner, const char *name, vec3_t origin )
 {
@@ -3277,13 +3086,7 @@ int	TAG_GetOrigin( const char *owner, const char *name, vec3_t origin )
 	return 1;
 }
 
-/*
--------------------------
-TAG_GetOrigin2
-Had to get rid of that damn assert for dev
--------------------------
-*/
-
+// Had to get rid of that damn assert for dev
 int	TAG_GetOrigin2( const char *owner, const char *name, vec3_t origin )
 {
 	reference_tag_t	*tag = TAG_Find( owner, name );
@@ -3297,11 +3100,6 @@ int	TAG_GetOrigin2( const char *owner, const char *name, vec3_t origin )
 
 	return 1;
 }
-/*
--------------------------
-TAG_GetAngles
--------------------------
-*/
 
 int	TAG_GetAngles( const char *owner, const char *name, vec3_t angles )
 {
@@ -3318,12 +3116,6 @@ int	TAG_GetAngles( const char *owner, const char *name, vec3_t angles )
 	return 1;
 }
 
-/*
--------------------------
-TAG_GetRadius
--------------------------
-*/
-
 int TAG_GetRadius( const char *owner, const char *name )
 {
 	reference_tag_t	*tag = TAG_Find( owner, name );
@@ -3336,12 +3128,6 @@ int TAG_GetRadius( const char *owner, const char *name )
 
 	return tag->radius;
 }
-
-/*
--------------------------
-TAG_GetFlags
--------------------------
-*/
 
 int TAG_GetFlags( const char *owner, const char *name )
 {
@@ -3356,13 +3142,7 @@ int TAG_GetFlags( const char *owner, const char *name )
 	return tag->flags;
 }
 
-/*
-==============================================================================
-
-Spawn functions
-
-==============================================================================
-*/
+// Spawn functions
 
 /*QUAKED ref_tag_huge (0.5 0.5 1) (-128 -128 -128) (128 128 128)
 SAME AS ref_tag, JUST BIGGER SO YOU CAN SEE THEM IN EDITOR ON HUGE MAPS!

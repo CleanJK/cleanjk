@@ -21,18 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-/*****************************************************************************
- * name:		l_libvar.h
- *
- * desc:		botlib vars
- *
- * $Archive: /source/code/botlib/l_libvar.h $
- * $Author: Mrelusive $
- * $Revision: 2 $
- * $Modtime: 10/05/99 3:32p $
- * $Date: 10/05/99 3:42p $
- *
- *****************************************************************************/
+// botlib vars
 
 #pragma once
 

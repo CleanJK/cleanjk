@@ -25,7 +25,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "cm_local.h"
 #include "qcommon/qcommon.h"
 
-
 // counters are only bumped when running single threaded,
 // because they are an awefull coherence problem
 int	c_active_windings;
@@ -40,12 +39,6 @@ void pw(winding_t *w)
 		printf ("(%5.1f, %5.1f, %5.1f)\n",w->p[i][0], w->p[i][1],w->p[i][2]);
 }
 
-
-/*
-=============
-AllocWinding
-=============
-*/
 winding_t	*AllocWinding (int points)
 {
 	winding_t	*w;
@@ -94,11 +87,6 @@ void	WindingBounds (winding_t *w, vec3_t mins, vec3_t maxs)
 	}
 }
 
-/*
-=================
-BaseWindingForPlane
-=================
-*/
 winding_t *BaseWindingForPlane (vec3_t normal, float dist)
 {
 	int		i, x;
@@ -165,11 +153,6 @@ winding_t *BaseWindingForPlane (vec3_t normal, float dist)
 	return w;
 }
 
-/*
-==================
-CopyWinding
-==================
-*/
 winding_t	*CopyWinding (winding_t *w)
 {
 	intptr_t	size;
@@ -181,11 +164,6 @@ winding_t	*CopyWinding (winding_t *w)
 	return c;
 }
 
-/*
-=============
-ChopWindingInPlace
-=============
-*/
 void ChopWindingInPlace (winding_t **inout, vec3_t normal, float dist, float epsilon)
 {
 	winding_t	*in;

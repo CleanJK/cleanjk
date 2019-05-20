@@ -24,6 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "g_local.h"
 #include "ghoul2/G2.h"
 #include "qcommon/q_shared.h"
+#include "g_team.h"
 
 /*
 
@@ -38,7 +39,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
   movers and respawn appropriately.
 */
 
-
 #define	RESPAWN_ARMOR		20
 #define	RESPAWN_TEAM_WEAPON	30
 #define	RESPAWN_HEALTH		30
@@ -48,18 +48,16 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define	RESPAWN_POWERUP		120
 
 // Item Spawn flags
-#define ITMSF_SUSPEND		1
-#define ITMSF_NOPLAYER		2
-#define ITMSF_ALLOWNPC		4
-#define ITMSF_NOTSOLID		8
-#define ITMSF_VERTICAL		16
-#define ITMSF_INVISIBLE		32
+#define ITMSF_SUSPEND				1
+#define ITMSF_NOPLAYER				2
+#define ITMSF__DEPRECATED_ALLOWNPC	4
+#define ITMSF_NOTSOLID			8
+#define ITMSF_VERTICAL			16
+#define ITMSF_INVISIBLE			32
 
 extern gentity_t *droppedRedFlag;
 extern gentity_t *droppedBlueFlag;
 
-
-//======================================================================
 #define MAX_MEDPACK_HEAL_AMOUNT		25
 #define MAX_MEDPACK_BIG_HEAL_AMOUNT	50
 #define MAX_SENTRY_DISTANCE			256
@@ -108,7 +106,6 @@ int adjustRespawnTime(float preRespawnTime, int itemType, int itemTag)
 	return ((int)respawnTime);
 }
 
-
 #define SHIELD_HEALTH				250
 #define SHIELD_HEALTH_DEC			10		// 25 seconds
 #define MAX_SHIELD_HEIGHT			254
@@ -116,15 +113,11 @@ int adjustRespawnTime(float preRespawnTime, int itemType, int itemTag)
 #define SHIELD_HALFTHICKNESS		4
 #define SHIELD_PLACEDIST			64
 
-#define SHIELD_SIEGE_HEALTH			2000
-#define SHIELD_SIEGE_HEALTH_DEC		(SHIELD_SIEGE_HEALTH/25)	// still 25 seconds.
-
 static qhandle_t	shieldLoopSound=0;
 static qhandle_t	shieldAttachSound=0;
 static qhandle_t	shieldActivateSound=0;
 static qhandle_t	shieldDeactivateSound=0;
 static qhandle_t	shieldDamageSound=0;
-
 
 void ShieldRemove(gentity_t *self)
 {
@@ -139,20 +132,12 @@ void ShieldRemove(gentity_t *self)
 	return;
 }
 
-
 // Count down the health of the shield.
 void ShieldThink(gentity_t *self)
 {
 	self->s.trickedentindex = 0;
 
-	if ( level.gametype == GT_SIEGE )
-	{
-		self->health -= SHIELD_SIEGE_HEALTH_DEC;
-	}
-	else
-	{
-		self->health -= SHIELD_HEALTH_DEC;
-	}
+	self->health -= SHIELD_HEALTH_DEC;
 	self->nextthink = level.time + 1000;
 	if (self->health <= 0)
 	{
@@ -160,7 +145,6 @@ void ShieldThink(gentity_t *self)
 	}
 	return;
 }
-
 
 // The shield was damaged to below zero health.
 void ShieldDie(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod)
@@ -170,7 +154,6 @@ void ShieldDie(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int d
 
 	ShieldRemove(self);
 }
-
 
 // The shield had damage done to it.  Make it flicker.
 void ShieldPain(gentity_t *self, gentity_t *attacker, int damage)
@@ -186,7 +169,6 @@ void ShieldPain(gentity_t *self, gentity_t *attacker, int damage)
 
 	return;
 }
-
 
 // Try to turn the shield back on after a delay.
 void ShieldGoSolid(gentity_t *self)
@@ -227,7 +209,6 @@ void ShieldGoSolid(gentity_t *self)
 	return;
 }
 
-
 // Turn the shield off to allow a friend to pass through.
 void ShieldGoNotSolid(gentity_t *self)
 {
@@ -245,7 +226,6 @@ void ShieldGoNotSolid(gentity_t *self)
 	self->s.loopSound = 0;
 	self->s.loopIsSoundset = qfalse;
 }
-
 
 // Somebody (a player) has touched the shield.  See if it is a "friend".
 void ShieldTouch(gentity_t *self, gentity_t *other, trace_t *trace)
@@ -269,7 +249,6 @@ void ShieldTouch(gentity_t *self, gentity_t *other, trace_t *trace)
 		}
 	}
 }
-
 
 // After a short delay, create the shield by expanding in all directions.
 void CreateShield(gentity_t *ent)
@@ -351,14 +330,7 @@ void CreateShield(gentity_t *ent)
 	paramData = (xaxis << 24) | (height << 16) | (posWidth << 8) | (negWidth);
 	ent->s.time2 = paramData;
 
-	if ( level.gametype == GT_SIEGE )
-	{
-		ent->health = ceil((float)(SHIELD_SIEGE_HEALTH*1));
-	}
-	else
-	{
-		ent->health = ceil((float)(SHIELD_HEALTH*1));
-	}
+	ent->health = ceil((float)(SHIELD_HEALTH*1));
 
 	ent->s.time = ent->health;//???
 	ent->pain = ShieldPain;
@@ -529,9 +501,7 @@ void ItemUse_Shield(gentity_t *ent)
 	PlaceShield(ent);
 }
 
-//--------------------------
 // PERSONAL ASSAULT SENTRY
-//--------------------------
 
 #define PAS_DAMAGE	2
 
@@ -540,9 +510,7 @@ void SentryTouch(gentity_t *ent, gentity_t *other, trace_t *trace)
 	return;
 }
 
-//----------------------------------------------------------------
 void pas_fire( gentity_t *ent )
-//----------------------------------------------------------------
 {
 	vec3_t fwd, myOrg, enOrg;
 
@@ -566,9 +534,7 @@ void pas_fire( gentity_t *ent )
 
 #define TURRET_RADIUS 800
 
-//-----------------------------------------------------
 static qboolean pas_find_enemies( gentity_t *self )
-//-----------------------------------------------------
 {
 	qboolean	found = qfalse;
 	int			count, i;
@@ -617,12 +583,6 @@ static qboolean pas_find_enemies( gentity_t *self )
 			continue;
 		}
 
-		if (target->s.eType == ET_NPC &&
-			target->s.NPC_class == CLASS_VEHICLE)
-		{ //don't get mad at vehicles, silly.
-			continue;
-		}
-
 		if ( target->client )
 		{
 			VectorCopy( target->client->ps.origin, org );
@@ -651,7 +611,6 @@ static qboolean pas_find_enemies( gentity_t *self )
 					self->attackDebounceTime = level.time + 900 + Q_flrand(0.0f, 1.0f) * 200;
 				}
 
-				G_SetEnemy( self, target );
 				bestDist = enemyDist;
 				found = qtrue;
 			}
@@ -661,9 +620,7 @@ static qboolean pas_find_enemies( gentity_t *self )
 	return found;
 }
 
-//---------------------------------
 void pas_adjust_enemy( gentity_t *ent )
-//---------------------------------
 {
 	trace_t	tr;
 	qboolean keep = qtrue;
@@ -727,9 +684,7 @@ void sentryExpire(gentity_t *self)
 	turret_die(self, self, self, 1000, MOD_UNKNOWN);
 }
 
-//---------------------------------
 void pas_think( gentity_t *ent )
-//---------------------------------
 {
 	qboolean	moved;
 	float		diffYaw, diffPitch;
@@ -901,7 +856,6 @@ void pas_think( gentity_t *ent )
 		}
 	}
 
-
 	if ( fabs(diffPitch) > 0.25f )
 	{
 		moved = qtrue;
@@ -959,9 +913,7 @@ void pas_think( gentity_t *ent )
 	}
 }
 
-//------------------------------------------------------------------------------------------------------------
 void turret_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod)
-//------------------------------------------------------------------------------------------------------------
 {
 	// Turn off the thinking of the base & use it's targets
 	self->think = 0;//NULL;
@@ -1010,9 +962,7 @@ void turret_free(gentity_t *self)
 
 #define TURRET_AMMO_COUNT 40
 
-//---------------------------------
 void SP_PAS( gentity_t *base )
-//---------------------------------
 {
 	if ( base->count == 0 )
 	{
@@ -1046,9 +996,7 @@ void SP_PAS( gentity_t *base )
 	G_Sound( base, CHAN_BODY, G_SoundIndex( "sound/chars/turret/startup.wav" ));
 }
 
-//------------------------------------------------------------------------
 void ItemUse_Sentry( gentity_t *ent )
-//------------------------------------------------------------------------
 {
 	vec3_t fwd, fwdorg;
 	vec3_t yawonly;
@@ -1062,7 +1010,6 @@ void ItemUse_Sentry( gentity_t *ent )
 
 	VectorSet( mins, -8, -8, 0 );
 	VectorSet( maxs, 8, 8, 24 );
-
 
 	yawonly[ROLL] = 0;
 	yawonly[PITCH] = 0;
@@ -1129,36 +1076,11 @@ void ItemUse_Sentry( gentity_t *ent )
 	SP_PAS( sentry );
 }
 
-extern gentity_t *NPC_SpawnType( gentity_t *ent, char *npc_type, char *targetname, qboolean isVehicle );
 void ItemUse_Seeker(gentity_t *ent)
 {
-	if ( level.gametype == GT_SIEGE && d_siegeSeekerNPC.integer )
-	{//actualy spawn a remote NPC
-		gentity_t *remote = NPC_SpawnType( ent, "remote", NULL, qfalse );
-		if ( remote && remote->client )
-		{//set it to my team
-			remote->s.owner = remote->r.ownerNum = ent->s.number;
-			remote->activator = ent;
-			if ( ent->client->sess.sessionTeam == TEAM_BLUE )
-			{
-				remote->client->playerTeam = NPCTEAM_PLAYER;
-			}
-			else if ( ent->client->sess.sessionTeam == TEAM_RED )
-			{
-				remote->client->playerTeam = NPCTEAM_ENEMY;
-			}
-			else
-			{
-				remote->client->playerTeam = NPCTEAM_NEUTRAL;
-			}
-		}
-	}
-	else
-	{
-		ent->client->ps.eFlags |= EF_SEEKERDRONE;
-		ent->client->ps.droneExistTime = level.time + 30000;
-		ent->client->ps.droneFireTime = level.time + 1500;
-	}
+	ent->client->ps.eFlags |= EF_SEEKERDRONE;
+	ent->client->ps.droneExistTime = level.time + 30000;
+	ent->client->ps.droneFireTime = level.time + 1500;
 }
 
 static void MedPackGive(gentity_t *ent, int amount)
@@ -1271,8 +1193,6 @@ void ItemUse_Jetpack( gentity_t *ent )
 }
 
 #define CLOAK_TOGGLE_TIME			1000
-extern void Jedi_Cloak( gentity_t *self );
-extern void Jedi_Decloak( gentity_t *self );
 void ItemUse_UseCloak( gentity_t *ent )
 {
 	assert(ent && ent->client);
@@ -1446,10 +1366,8 @@ void ItemUse_UseDisp(gentity_t *ent, int type)
 	}
 }
 
+// Portable E-Web -rww
 
-//===============================================
-//Portable E-Web -rww
-//===============================================
 //put the e-web away/remove it from the owner
 void EWebDisattach(gentity_t *owner, gentity_t *eweb)
 {
@@ -2044,10 +1962,6 @@ void ItemUse_UseEWeb(gentity_t *ent)
 
 	ent->client->ewebTime = level.time + EWEB_USE_DEBOUNCE;
 }
-//===============================================
-//End E-Web
-//===============================================
-
 
 int Pickup_Powerup( gentity_t *ent, gentity_t *other ) {
 	int			quantity;
@@ -2127,8 +2041,6 @@ int Pickup_Powerup( gentity_t *ent, gentity_t *other ) {
 	return RESPAWN_POWERUP;
 }
 
-//======================================================================
-
 int Pickup_Holdable( gentity_t *ent, gentity_t *other ) {
 
 	other->client->ps.stats[STAT_HOLDABLE_ITEM] = ent->item - bg_itemlist;
@@ -2139,9 +2051,6 @@ int Pickup_Holdable( gentity_t *ent, gentity_t *other ) {
 
 	return adjustRespawnTime(RESPAWN_HOLDABLE, ent->item->giType, ent->item->giTag);
 }
-
-
-//======================================================================
 
 void Add_Ammo (gentity_t *ent, int weapon, int count)
 {
@@ -2174,32 +2083,10 @@ int Pickup_Ammo (gentity_t *ent, gentity_t *other)
 
 	if (ent->item->giTag == -1)
 	{ //an ammo_all, give them a bit of everything
-		if ( level.gametype == GT_SIEGE )	// complaints that siege tech's not giving enough ammo.  Does anything else use ammo all?
-		{
-			Add_Ammo(other, AMMO_BLASTER, 100);
-			Add_Ammo(other, AMMO_POWERCELL, 100);
-			Add_Ammo(other, AMMO_METAL_BOLTS, 100);
-			Add_Ammo(other, AMMO_ROCKETS, 5);
-			if (other->client->ps.stats[STAT_WEAPONS] & (1<<WP_DET_PACK))
-			{
-				Add_Ammo(other, AMMO_DETPACK, 2);
-			}
-			if (other->client->ps.stats[STAT_WEAPONS] & (1<<WP_THERMAL))
-			{
-				Add_Ammo(other, AMMO_THERMAL, 2);
-			}
-			if (other->client->ps.stats[STAT_WEAPONS] & (1<<WP_TRIP_MINE))
-			{
-				Add_Ammo(other, AMMO_TRIPMINE, 2);
-			}
-		}
-		else
-		{
-			Add_Ammo(other, AMMO_BLASTER, 50);
-			Add_Ammo(other, AMMO_POWERCELL, 50);
-			Add_Ammo(other, AMMO_METAL_BOLTS, 50);
-			Add_Ammo(other, AMMO_ROCKETS, 2);
-		}
+		Add_Ammo(other, AMMO_BLASTER, 50);
+		Add_Ammo(other, AMMO_POWERCELL, 50);
+		Add_Ammo(other, AMMO_METAL_BOLTS, 50);
+		Add_Ammo(other, AMMO_ROCKETS, 2);
 	}
 	else
 	{
@@ -2208,9 +2095,6 @@ int Pickup_Ammo (gentity_t *ent, gentity_t *other)
 
 	return adjustRespawnTime(RESPAWN_AMMO, ent->item->giType, ent->item->giTag);
 }
-
-//======================================================================
-
 
 int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
 	int		quantity;
@@ -2266,9 +2150,6 @@ int Pickup_Weapon (gentity_t *ent, gentity_t *other) {
 	return adjustRespawnTime(g_weaponRespawn.integer, ent->item->giType, ent->item->giTag);
 }
 
-
-//======================================================================
-
 int Pickup_Health (gentity_t *ent, gentity_t *other) {
 	int			max;
 	int			quantity;
@@ -2300,8 +2181,6 @@ int Pickup_Health (gentity_t *ent, gentity_t *other) {
 	return adjustRespawnTime(RESPAWN_HEALTH, ent->item->giType, ent->item->giTag);
 }
 
-//======================================================================
-
 int Pickup_Armor( gentity_t *ent, gentity_t *other )
 {
 	other->client->ps.stats[STAT_ARMOR] += ent->item->quantity;
@@ -2313,13 +2192,6 @@ int Pickup_Armor( gentity_t *ent, gentity_t *other )
 	return adjustRespawnTime(RESPAWN_ARMOR, ent->item->giType, ent->item->giTag);
 }
 
-//======================================================================
-
-/*
-===============
-RespawnItem
-===============
-*/
 void RespawnItem( gentity_t *ent ) {
 	// randomly select from teamed entities
 	if (ent->team) {
@@ -2368,32 +2240,6 @@ void RespawnItem( gentity_t *ent ) {
 	ent->nextthink = 0;
 }
 
-qboolean CheckItemCanBePickedUpByNPC( gentity_t *item, gentity_t *pickerupper )
-{
-	if ( (item->flags&FL_DROPPED_ITEM)
-		&& item->activator != &g_entities[0]
-		&& pickerupper->s.number
-		&& pickerupper->s.weapon == WP_NONE
-		&& pickerupper->enemy
-		&& pickerupper->painDebounceTime < level.time
-		&& pickerupper->NPC && pickerupper->NPC->surrenderTime < level.time //not surrendering
-		&& !(pickerupper->NPC->scriptFlags&SCF_FORCED_MARCH) //not being forced to march
-		/*&& item->item->giTag != INV_SECURITY_KEY*/ )
-	{//non-player, in combat, picking up a dropped item that does NOT belong to the player and it *not* a security key
-		if ( level.time - item->s.time < 3000 )//was 5000
-		{
-			return qfalse;
-		}
-		return qtrue;
-	}
-	return qfalse;
-}
-
-/*
-===============
-Touch_Item
-===============
-*/
 void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 	int			respawn;
 	qboolean	predict;
@@ -2450,67 +2296,6 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 	// the same pickup rules are used for client side and server side
 	if ( !BG_CanItemBeGrabbed( level.gametype, &ent->s, &other->client->ps ) ) {
 		return;
-	}
-
-
-	if ( other->client->NPC_class == CLASS_ATST ||
-		other->client->NPC_class == CLASS_GONK ||
-		other->client->NPC_class == CLASS_MARK1 ||
-		other->client->NPC_class == CLASS_MARK2 ||
-		other->client->NPC_class == CLASS_MOUSE ||
-		other->client->NPC_class == CLASS_PROBE ||
-		other->client->NPC_class == CLASS_PROTOCOL ||
-		other->client->NPC_class == CLASS_R2D2 ||
-		other->client->NPC_class == CLASS_R5D2 ||
-		other->client->NPC_class == CLASS_SEEKER ||
-		other->client->NPC_class == CLASS_REMOTE ||
-		other->client->NPC_class == CLASS_RANCOR ||
-		other->client->NPC_class == CLASS_WAMPA ||
-		//other->client->NPC_class == CLASS_JAWA || //FIXME: in some cases it's okay?
-		other->client->NPC_class == CLASS_UGNAUGHT || //FIXME: in some cases it's okay?
-		other->client->NPC_class == CLASS_SENTRY )
-	{//FIXME: some flag would be better
-		//droids can't pick up items/weapons!
-		return;
-	}
-
-	if ( CheckItemCanBePickedUpByNPC( ent, other ) )
-	{
-		if ( other->NPC && other->NPC->goalEntity && other->NPC->goalEntity->enemy == ent )
-		{//they were running to pick me up, they did, so clear goal
-			other->NPC->goalEntity = NULL;
-			other->NPC->squadState = SQUAD_STAND_AND_SHOOT;
-		}
-	}
-	else if ( !(ent->spawnflags &  ITMSF_ALLOWNPC) )
-	{// NPCs cannot pick it up
-		if ( other->s.eType == ET_NPC )
-		{// Not the player?
-			qboolean dontGo = qfalse;
-			if (ent->item->giType == IT_AMMO &&
-				ent->item->giTag == -1 &&
-				other->s.NPC_class == CLASS_VEHICLE &&
-				other->m_pVehicle &&
-				other->m_pVehicle->m_pVehicleInfo->type == VH_WALKER)
-			{ //yeah, uh, atst gets healed by these things
-                if (other->maxHealth &&
-					other->health < other->maxHealth)
-				{
-					other->health += 80;
-					if (other->health > other->maxHealth)
-					{
-						other->health = other->maxHealth;
-					}
-					G_ScaleNetHealth(other);
-					dontGo = qtrue;
-				}
-			}
-
-			if (!dontGo)
-			{
-				return;
-			}
-		}
 	}
 
 	G_LogPrintf( "Item: %i %s\n", other->s.number, ent->item->classname );
@@ -2680,16 +2465,7 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 	trap->LinkEntity( (sharedEntity_t *)ent );
 }
 
-
-//======================================================================
-
-/*
-================
-LaunchItem
-
-Spawns an item and tosses it forward
-================
-*/
+// Spawns an item and tosses it forward
 gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity ) {
 	gentity_t	*dropped;
 
@@ -2767,13 +2543,7 @@ gentity_t *LaunchItem( gitem_t *item, vec3_t origin, vec3_t velocity ) {
 	return dropped;
 }
 
-/*
-================
-Drop_Item
-
-Spawns an item and tosses it forward
-================
-*/
+// Spawns an item and tosses it forward
 gentity_t *Drop_Item( gentity_t *ent, gitem_t *item, float angle ) {
 	vec3_t	velocity;
 	vec3_t	angles;
@@ -2789,28 +2559,12 @@ gentity_t *Drop_Item( gentity_t *ent, gitem_t *item, float angle ) {
 	return LaunchItem( item, ent->s.pos.trBase, velocity );
 }
 
-
-/*
-================
-Use_Item
-
-Respawn the item
-================
-*/
+// Respawn the item
 void Use_Item( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 	RespawnItem( ent );
 }
 
-//======================================================================
-
-/*
-================
-FinishSpawningItem
-
-Traces down to find where an item should rest, instead of letting them
-free fall from their spawn points
-================
-*/
+// Traces down to find where an item should rest, instead of letting them free fall from their spawn points
 void FinishSpawningItem( gentity_t *ent ) {
 	trace_t		tr;
 	vec3_t		dest;
@@ -2818,15 +2572,6 @@ void FinishSpawningItem( gentity_t *ent ) {
 
 //	VectorSet( ent->r.mins, -ITEM_RADIUS, -ITEM_RADIUS, -ITEM_RADIUS );
 //	VectorSet( ent->r.maxs, ITEM_RADIUS, ITEM_RADIUS, ITEM_RADIUS );
-
-	if (level.gametype == GT_SIEGE)
-	{ //in siege remove all powerups
-		if (ent->item->giType == IT_POWERUP)
-		{
-			G_FreeEntity(ent);
-			return;
-		}
-	}
 
 	if (level.gametype != GT_JEDIMASTER)
 	{
@@ -2997,14 +2742,8 @@ void FinishSpawningItem( gentity_t *ent ) {
 	trap->LinkEntity ((sharedEntity_t *)ent);
 }
 
-
 qboolean	itemRegistered[MAX_ITEMS];
 
-/*
-==================
-G_CheckTeamItems
-==================
-*/
 void G_CheckTeamItems( void ) {
 
 	// Set up team stuff
@@ -3025,11 +2764,6 @@ void G_CheckTeamItems( void ) {
 	}
 }
 
-/*
-==============
-ClearRegisteredItems
-==============
-*/
 void ClearRegisteredItems( void ) {
 	memset( itemRegistered, 0, sizeof( itemRegistered ) );
 
@@ -3038,20 +2772,9 @@ void ClearRegisteredItems( void ) {
 	RegisterItem( BG_FindItemForWeapon( WP_STUN_BATON ) );
 	RegisterItem( BG_FindItemForWeapon( WP_MELEE ) );
 	RegisterItem( BG_FindItemForWeapon( WP_SABER ) );
-
-	if (level.gametype == GT_SIEGE)
-	{ //kind of cheesy, maybe check if siege class with disp's is gonna be on this map too
-		G_PrecacheDispensers();
-	}
 }
 
-/*
-===============
-RegisterItem
-
-The item will be added to the precache list
-===============
-*/
+// The item will be added to the precache list
 void RegisterItem( gitem_t *item ) {
 	if ( !item ) {
 		trap->Error( ERR_DROP, "RegisterItem: NULL" );
@@ -3059,15 +2782,7 @@ void RegisterItem( gitem_t *item ) {
 	itemRegistered[ item - bg_itemlist ] = qtrue;
 }
 
-
-/*
-===============
-SaveRegisteredItems
-
-Write the needed items to a config string
-so the client will know which ones to precache
-===============
-*/
+// Write the needed items to a config string so the client will know which ones to precache
 void SaveRegisteredItems( void ) {
 	char	string[MAX_ITEMS+1];
 	int		i;
@@ -3088,11 +2803,6 @@ void SaveRegisteredItems( void ) {
 	trap->SetConfigstring(CS_ITEMS, string);
 }
 
-/*
-============
-G_ItemDisabled
-============
-*/
 int G_ItemDisabled( gitem_t *item ) {
 
 	char name[128];
@@ -3101,16 +2811,8 @@ int G_ItemDisabled( gitem_t *item ) {
 	return trap->Cvar_VariableIntegerValue( name );
 }
 
-/*
-============
-G_SpawnItem
-
-Sets the clipping size and plants the object on the floor.
-
-Items can't be immediately dropped to floor, because they might
-be on an entity that hasn't spawned yet.
-============
-*/
+// Sets the clipping size and plants the object on the floor.
+// Items can't be immediately dropped to floor, because they might be on an entity that hasn't spawned yet.
 void G_SpawnItem (gentity_t *ent, gitem_t *item) {
 	int wDisable = 0;
 
@@ -3155,13 +2857,6 @@ void G_SpawnItem (gentity_t *ent, gitem_t *item) {
 	}
 }
 
-
-/*
-================
-G_BounceItem
-
-================
-*/
 void G_BounceItem( gentity_t *ent, trace_t *trace ) {
 	vec3_t	velocity;
 	float	dot;
@@ -3208,13 +2903,6 @@ void G_BounceItem( gentity_t *ent, trace_t *trace ) {
 	}
 }
 
-
-/*
-================
-G_RunItem
-
-================
-*/
 void G_RunItem( gentity_t *ent ) {
 	vec3_t		origin;
 	trace_t		tr;

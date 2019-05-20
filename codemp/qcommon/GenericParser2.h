@@ -84,8 +84,6 @@ public:
 	bool		WriteText(CTextPool **textPool, const char *text);
 };
 
-
-
 class CGPValue : public CGPObject
 {
 private:
@@ -108,8 +106,6 @@ public:
 
 	bool			Write(CTextPool **textPool, int depth);
 };
-
-
 
 class CGPGroup : public CGPObject
 {
@@ -178,11 +174,8 @@ public:
 	bool	Write(CTextPool *textPool);
 };
 
-
-
 // The following groups of routines are used for a C interface into GP2.
 // C++ users should just use the objects as normally and not call these routines below
-//
 
 typedef		void	*TGenericParser2;
 typedef		void	*TGPGroup;

@@ -30,18 +30,17 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "bg_weapons.h"
 #include "anims.h"
-#include "bg_vehicles.h"
 
 //these two defs are shared now because we do clientside ent parsing
 #define	MAX_SPAWN_VARS			64
 #define	MAX_SPAWN_VARS_CHARS	4096
 
+#define	GAME_VERSION		"cleanjk-1"
 
-#define	GAME_VERSION		"basejka-1"
-
-#define DEFAULT_SABER			"Kyle"
+#define DEFAULT_SABER			"single_1"
 #define DEFAULT_SABER_STAFF		"dual_1"
-#define DEFAULT_SABER_MODEL		"models/weapons2/saber/saber_w.glm"
+#define DEFAULT_SABER_MODEL		"models/weapons/saber_1/model.glm"
+#define DEFAULT_SABER_VIEWMODEL	"models/weapons/saber_1/model.md3"
 #define	DEFAULT_MODEL			"kyle"
 #define DEFAULT_MODEL_FEMALE	"jan"
 
@@ -83,10 +82,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #define MAX_CLIENT_SCORE_SEND 20
 
-//
-// config strings are a general means of communicating variable length strings
-// from the server to all connected clients.
-//
+// config strings are a general means of communicating variable length strings from the server to all connected clients.
 
 // CS_SERVERINFO and CS_SYSTEMINFO are defined in q_shared.h
 #define	CS_MUSIC				2
@@ -122,25 +118,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #define CS_AMBIENT_SET			37
 
-#define CS_SIEGE_STATE			(CS_AMBIENT_SET+MAX_AMBIENT_SETS)
-#define CS_SIEGE_OBJECTIVES		(CS_SIEGE_STATE+1)
-#define CS_SIEGE_TIMEOVERRIDE	(CS_SIEGE_OBJECTIVES+1)
-#define CS_SIEGE_WINTEAM		(CS_SIEGE_TIMEOVERRIDE+1)
-#define CS_SIEGE_ICONS			(CS_SIEGE_WINTEAM+1)
-
-#define	CS_MODELS				(CS_SIEGE_ICONS+1)
+#define	CS_MODELS				(CS_AMBIENT_SET+1)
 #define	CS_SKYBOXORG			(CS_MODELS+MAX_MODELS)		//rww - skybox info
 #define	CS_SOUNDS				(CS_SKYBOXORG+1)
 #define CS_ICONS				(CS_SOUNDS+MAX_SOUNDS)
 #define	CS_PLAYERS				(CS_ICONS+MAX_ICONS)
-/*
-Ghoul2 Insert Start
-*/
 #define CS_G2BONES				(CS_PLAYERS+MAX_CLIENTS)
 //rww - used to be CS_CHARSKINS, but I have eliminated the need for that.
-/*
-Ghoul2 Insert End
-*/
 #define CS_LOCATIONS			(CS_G2BONES+MAX_G2BONES)
 #define CS_PARTICLES			(CS_LOCATIONS+MAX_LOCATIONS)
 #define CS_EFFECTS				(CS_PARTICLES+MAX_LOCATIONS)
@@ -217,12 +201,15 @@ typedef enum {
 	GT_JEDIMASTER,		// jedi master
 	GT_DUEL,		// one on one tournament
 	GT_POWERDUEL,
-	GT_SINGLE_PLAYER,	// single player ffa
+	//GT_SINGLE_PLAYER,	// single player ffa
 
-	//-- team games go after this --
+	// team games go after this
 
 	GT_TEAM,			// team deathmatch
-	GT_SIEGE,			// siege
+
+	// non-score based games go after this
+
+	//GT_SIEGE,			// siege
 	GT_CTF,				// capture the flag
 	GT_CTY,
 	GT_MAX_GAME_TYPE
@@ -238,7 +225,6 @@ typedef enum {
 #define GTB_SINGLE_PLAYER	0x020 // single player ffa
 #define GTB_NOTTEAM			0x03F // **SPECIAL: All of the above gametypes, i.e. not team-based
 #define GTB_TEAM			0x040 // team deathmatch
-#define GTB_SIEGE			0x080 // siege
 #define GTB_CTF				0x100 // capture the flag
 #define GTB_CTY				0x200 // capture the ysalimiri
 #define GTB_ALL				0x1FF // all
@@ -276,17 +262,8 @@ typedef enum direction_e
 	DIR_BACK
 } direction_t;
 
-/*
-===================================================================================
-
-PMOVE MODULE
-
-The pmove code takes a playerState_t and a usercmd_t and generates a new playerState_t
-and some other output data.  Used for local prediction on the client game and true
-movement on the server game.
-===================================================================================
-*/
-
+// The pmove code takes a playerState_t and a usercmd_t and generates a new playerState_t and some other output data.
+// Used for local prediction on the client game and true movement on the server game.
 
 #pragma pack(push, 1)
 typedef struct animation_s {
@@ -387,7 +364,6 @@ typedef struct bgLoadedEvents_s {
 	qboolean		eventsParsed;
 } bgLoadedEvents_t;
 
-
 extern bgLoadedAnim_t bgAllAnims[MAX_ANIM_FILES];
 
 //In SP this is shared in with the anim stuff, and humanoid anim sets can be loaded
@@ -401,7 +377,6 @@ extern bgLoadedEvents_t bgAllEvents[MAX_ANIM_FILES];
 extern int bgNumAnimEvents;
 #endif
 
-
 typedef enum {
 	PM_NORMAL,		// can accelerate and turn
 	PM_JETPACK,		// special jetpack movement
@@ -411,7 +386,6 @@ typedef enum {
 	PM_DEAD,		// no acceleration or turning, but free falling
 	PM_FREEZE,		// stuck in place with no control
 	PM_INTERMISSION,	// no movement or status bar
-	PM_SPINTERMISSION	// no movement or status bar
 } pmtype_t;
 
 typedef enum {
@@ -423,7 +397,6 @@ typedef enum {
 	WEAPON_CHARGING_ALT,
 	WEAPON_IDLE, //lowered		// NOTENOTE Added with saber
 } weaponstate_t;
-
 
 typedef enum forceMasteries_e {
 	FORCE_MASTERY_UNINITIATED,
@@ -465,19 +438,15 @@ extern int bgForcePowerCost[NUM_FORCE_POWERS][NUM_FORCE_POWER_LEVELS];
 
 typedef struct bgEntity_s
 {
+	//CJKFIXME: bgentity_t substruct
 	entityState_t	s;
 	playerState_t	*playerState;
-	Vehicle_t		*m_pVehicle; //vehicle data
 	void			*ghoul2; //g2 instance
 	int				localAnimIndex; //index locally (game/cgame) to anim data for this skel
 	vec3_t			modelScale; //needed for g2 collision
 
 	//Data type(s) must directly correspond to the head of the gentity and centity structures
-#if defined(__GNUC__) || defined(__GCC__) || defined(MINGW32) || defined(MACOS_X)
-	} _bgEntity_t;
-#else
-	} bgEntity_t;
-#endif
+} bgEntity_t;
 
 typedef struct pmove_s {
 	// state (in / out)
@@ -539,12 +508,11 @@ typedef struct pmove_s {
 	int			entSize; //size of the struct (gentity_t or centity_t) so things can be dynamic
 } pmove_t;
 
-
 extern	pmove_t		*pm;
 
 #define SETANIM_TORSO 1
 #define SETANIM_LEGS  2
-#define SETANIM_BOTH  SETANIM_TORSO|SETANIM_LEGS//3
+#define SETANIM_BOTH  (SETANIM_TORSO|SETANIM_LEGS)//3
 
 #define SETANIM_FLAG_NORMAL		0//Only set if timer is 0
 #define SETANIM_FLAG_OVERRIDE	1//Override previous
@@ -552,14 +520,9 @@ extern	pmove_t		*pm;
 #define SETANIM_FLAG_RESTART	4//Allow restarting the anim if playing the same one (weapon fires)
 #define SETANIM_FLAG_HOLDLESS	8//Set the new timer
 
-
 // if a full pmove isn't done on the client, you can just update the angles
 void PM_UpdateViewAngles( playerState_t *ps, const usercmd_t *cmd );
 void Pmove (pmove_t *pmove);
-
-
-//===================================================================================
-
 
 // playerState_t->stats[] indexes
 // NOTE: may not have more than 16
@@ -576,7 +539,6 @@ typedef enum {
 	STAT_CLIENTS_READY,				// bit mask of clients wishing to exit the intermission (FIXME: configstring?)
 	STAT_MAX_HEALTH					// health / armor limit, changable by handicap
 } statIndex_t;
-
 
 // playerState_t->persistant[] indexes
 // these fields are the only part of playerState_t that isn't
@@ -601,7 +563,6 @@ typedef enum {
 	PERS_CAPTURES					// captures
 } persEnum_t;
 
-
 // entityState_t->eFlags
 #define	EF_G2ANIMATING			(1<<0)		//perform g2 bone anims based on torsoAnim and legsAnim, works for ET_GENERAL -rww
 #define	EF_DEAD					(1<<1)		// don't draw a foe marker over players with EF_DEAD
@@ -620,7 +581,6 @@ typedef enum {
 //am using these flags for rag stuff -rww
 
 #define EF_RAG					(1<<6)		//ragdoll him even if he's alive
-
 
 #define EF_PERMANENT			(1<<7)		// rww - I am claiming this. (for permanent entities)
 
@@ -659,16 +619,15 @@ typedef enum {
 
 //These new EF2_??? flags were added for NPCs, they really should not be used often.
 //NOTE: we only allow 10 of these!
-#define	EF2_HELD_BY_MONSTER		(1<<0)		// Being held by something, like a Rancor or a Wampa
-#define	EF2_USE_ALT_ANIM		(1<<1)		// For certain special runs/stands for creatures like the Rancor and Wampa whose runs/stands are conditional
-#define	EF2_ALERTED				(1<<2)		// For certain special anims, for Rancor: means you've had an enemy, so use the more alert stand
-#define	EF2_GENERIC_NPC_FLAG	(1<<3)		// So far, used for Rancor...
-#define	EF2_FLYING				(1<<4)		// Flying FIXME: only used on NPCs doesn't *really* have to be passed over, does it?
-#define	EF2_HYPERSPACE			(1<<5)		// Used to both start the hyperspace effect on the predicted client and to let the vehicle know it can now jump into hyperspace (after turning to face the proper angle)
-#define	EF2_BRACKET_ENTITY		(1<<6)		// Draw as bracketed
-#define	EF2_SHIP_DEATH			(1<<7)		// "died in ship" mode
-#define	EF2_NOT_USED_1			(1<<8)		// not used
-
+#define	EF2_USE_ALT_ANIM				(1<<0) // For certain special runs/stands for creatures like the Rancor and Wampa whose runs/stands are conditional
+#define	EF2_ALERTED						(1<<1) // For certain special anims, for Rancor: means you've had an enemy, so use the more alert stand
+#define	EF2_GENERIC_NPC_FLAG			(1<<2) // So far, used for Rancor...
+#define	EF2_BRACKET_ENTITY				(1<<3) // Draw as bracketed
+#define	EF2_NOT_USED_1					(1<<4) // not used
+#define	EF2__DEPRECATED_HYPERSPACE		(1<<5) // Used to both start the hyperspace effect on the predicted client and to let the vehicle know it can now jump into hyperspace (after turning to face the proper angle)
+#define	EF2__DEPRECATED_HELD_BY_MONSTER	(1<<6) // Being held by something, like a Rancor or a Wampa
+#define	EF2__DEPRECATED_FLYING			(1<<7) //
+#define	EF2__DEPRECATED_SHIP_DEATH		(1<<8) // "died in ship" mode
 
 typedef enum {
 	EFFECT_NONE = 0,
@@ -698,10 +657,8 @@ typedef enum {
 typedef enum {
 	PW_NONE,
 
-	#ifdef BASE_COMPAT
-		PW_QUAD,
-		PW_BATTLESUIT,
-	#endif // BASE_COMPAT
+	PW_QUAD,
+	PW_BATTLESUIT,
 
 	PW_PULL,
 
@@ -742,7 +699,6 @@ typedef enum {
 
 	HI_NUM_HOLDABLE
 } holdable_t;
-
 
 typedef enum {
 	CTFMESSAGE_FRAGGED_FLAG_CARRIER,
@@ -818,8 +774,6 @@ typedef enum {
 
 	EV_ITEM_PICKUP,			// normal item pickups are predictable
 	EV_GLOBAL_ITEM_PICKUP,	// powerup / team sounds are broadcast to everyone
-
-	EV_VEH_FIRE,
 
 	EV_NOAMMO,
 	EV_CHANGE_WEAPON,
@@ -908,10 +862,8 @@ typedef enum {
 	EV_DEATH3,
 	EV_OBITUARY,
 
-	#ifdef BASE_COMPAT
-		EV_POWERUP_QUAD,
-		EV_POWERUP_BATTLESUIT,
-	#endif // BASE_COMPAT
+	EV_POWERUP_QUAD,
+	EV_POWERUP_BATTLESUIT,
 
 	EV_FORCE_DRAINED,
 
@@ -921,9 +873,6 @@ typedef enum {
 	EV_CTFMESSAGE,
 
 	EV_BODYFADE,
-
-	EV_SIEGE_ROUNDOVER,
-	EV_SIEGE_OBJECTIVECOMPLETE,
 
 	EV_DESTROY_GHOUL2_INSTANCE,
 
@@ -1028,10 +977,9 @@ typedef enum {
 	EV_GLOAT3,
 	EV_PUSHFAIL,
 
-	EV_SIEGESPEC,
+	EV_NUM_ENTITY_EVENTS
 
 } entity_event_t;			// There is a maximum of 256 events (8 bits transmission, 2 high bits for uniqueness)
-
 
 typedef enum {
 	GTS_RED_CAPTURE,
@@ -1046,8 +994,6 @@ typedef enum {
 	GTS_BLUETEAM_TOOK_LEAD,
 	GTS_TEAMS_ARE_TIED
 } global_team_sound_t;
-
-
 
 typedef enum {
 	TEAM_FREE,
@@ -1114,7 +1060,6 @@ typedef enum {
 	MOD_TRIP_MINE_SPLASH,
 	MOD_TIMED_MINE_SPLASH,
 	MOD_DET_PACK_SPLASH,
-	MOD_VEHICLE,
 	MOD_CONC,
 	MOD_CONC_ALT,
 	MOD_FORCE_DARK,
@@ -1137,9 +1082,6 @@ typedef enum {
 	// I put it back in for now, if it becomes a problem we'll work around it later (it shouldn't though)...
 	MOD_MAX
 } meansOfDeath_t;
-
-
-//---------------------------------------------------------
 
 // gitem_t->type
 typedef enum {
@@ -1191,11 +1133,7 @@ gitem_t	*BG_FindItemForHoldable( holdable_t pw );
 
 qboolean	BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const playerState_t *ps );
 
-
-
 #define SABER_BLOCK_DUR 150		// number of milliseconds a block animation should take.
-
-
 
 // g_dmflags->integer flags
 #define	DF_NO_FALLING			8
@@ -1207,12 +1145,10 @@ qboolean	BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 #define	MASK_ALL				(0xFFFFFFFFu)
 #define	MASK_SOLID				(CONTENTS_SOLID|CONTENTS_TERRAIN)
 #define	MASK_PLAYERSOLID		(CONTENTS_SOLID|CONTENTS_PLAYERCLIP|CONTENTS_BODY|CONTENTS_TERRAIN)
-#define	MASK_NPCSOLID			(CONTENTS_SOLID|CONTENTS_MONSTERCLIP|CONTENTS_BODY|CONTENTS_TERRAIN)
 #define	MASK_DEADSOLID			(CONTENTS_SOLID|CONTENTS_PLAYERCLIP|CONTENTS_TERRAIN)
 #define	MASK_WATER				(CONTENTS_WATER|CONTENTS_LAVA|CONTENTS_SLIME)
 #define	MASK_OPAQUE				(CONTENTS_SOLID|CONTENTS_SLIME|CONTENTS_LAVA|CONTENTS_TERRAIN)
 #define	MASK_SHOT				(CONTENTS_SOLID|CONTENTS_BODY|CONTENTS_CORPSE|CONTENTS_TERRAIN)
-
 
 // ET_FX States (stored in modelindex2)
 
@@ -1221,9 +1157,7 @@ qboolean	BG_CanItemBeGrabbed( int gametype, const entityState_t *ent, const play
 #define FX_STATE_ONE_SHOT_LIMIT	10
 #define FX_STATE_CONTINUOUS		20
 
-//
 // entityState_t->eType
-//
 typedef enum {
 	ET_GENERAL,
 	ET_PLAYER,
@@ -1238,7 +1172,6 @@ typedef enum {
 	ET_PUSH_TRIGGER,
 	ET_TELEPORT_TRIGGER,
 	ET_INVISIBLE,
-	ET_NPC,					// ghoul2 player-like entity
 	ET_TEAM,
 	ET_BODY,
 	ET_TERRAIN,
@@ -1480,7 +1413,6 @@ typedef struct saberMoveData_s {
 } saberMoveData_t;
 extern saberMoveData_t	saberMoveData[LS_MOVE_MAX];
 
-
 typedef enum saberType_e {
 	SABER_NONE = 0,
 	SABER_SINGLE,
@@ -1533,8 +1465,6 @@ typedef enum saber_styles_e {
 	SS_FAST,
 	SS_MEDIUM,
 	SS_STRONG,
-	SS_DESANN,
-	SS_TAVION,
 	SS_DUAL,
 	SS_STAFF,
 	SS_NUM_SABER_STYLES
@@ -1559,6 +1489,7 @@ typedef enum saber_styles_e {
 #define SFL_NO_PULL_ATTACK			(1<<10)//if set, cannot do pull+attack move (move not available in MP anyway)
 #define SFL_NO_BACK_ATTACK			(1<<11)//if set, cannot do back-stab moves
 #define SFL_NO_STABDOWN				(1<<12)//if set, cannot do stabdown move (when enemy is on ground)
+//CJKFIXME: global acrobatics
 #define SFL_NO_WALL_RUNS			(1<<13)//if set, cannot side-run or forward-run on walls
 #define SFL_NO_WALL_FLIPS			(1<<14)//if set, cannot do backflip off wall or side-flips off walls
 #define SFL_NO_WALL_GRAB			(1<<15)//if set, cannot grab wall & jump off
@@ -1640,10 +1571,10 @@ typedef struct saberInfo_s {
 	int				flourishAnim;							// -1 - anim to use when hit "flourish"
 	int				gloatAnim;								// -1 - anim to use when hit "gloat"
 
-	//***NOTE: you can only have a maximum of 2 "styles" of blades, so this next value, "bladeStyle2Start" is the number of the first blade to use these value on... all blades before this use the normal values above, all blades at and after this number use the secondary values below***
+	//NOTE: you can only have a maximum of 2 "styles" of blades, so this next value, "bladeStyle2Start" is the number of the first blade to use these value on... all blades before this use the normal values above, all blades at and after this number use the secondary values below
 	int				bladeStyle2Start;						// 0 - if set, blades from this number and higher use the following values (otherwise, they use the normal values already set)
 
-	//***The following can be different for the extra blades - not setting them individually defaults them to the value for the whole saber (and first blade)***
+	// The following can be different for the extra blades - not setting them individually defaults them to the value for the whole saber (and first blade)
 
 	//done in cgame (client-side code)
 	int				trailStyle, trailStyle2;				// 0 - default (0) is normal, 1 is a motion blur and 2 is no trail at all (good for real-sword type mods)
@@ -1666,11 +1597,9 @@ typedef struct saberInfo_s {
 } saberInfo_t;
 #define MAX_SABERS 2
 
-
 bgEntity_t *PM_BGEntForNum( int num );
 qboolean BG_KnockDownable(playerState_t *ps);
 qboolean BG_LegalizedForcePowers(char *powerOut, size_t powerOutSize, int maxRank, qboolean freeSaber, int teamForce, int gametype, int fpDisabled);
-
 
 // given a boltmatrix, return in vec a normalised vector for the axis requested in flags
 void BG_GiveMeVectorFromMatrix(mdxaBone_t *boltMatrix, int flags, vec3_t vec);
@@ -1769,14 +1698,12 @@ float BG_SI_Length(saberInfo_t *saber);
 float BG_SI_LengthMax(saberInfo_t *saber);
 void BG_SI_ActivateTrail ( saberInfo_t *saber, float duration );
 void BG_SI_DeactivateTrail ( saberInfo_t *saber, float duration );
-extern void BG_AttachToRancor( void *ghoul2,float rancYaw,vec3_t rancOrigin,int time,qhandle_t *modelList,vec3_t modelScale,qboolean inMouth,vec3_t out_origin,vec3_t out_angles,matrix3_t out_axis );
 void BG_ClearRocketLock( playerState_t *ps );
 
 extern int WeaponReadyAnim[WP_NUM_WEAPONS];
 extern int WeaponAttackAnim[WP_NUM_WEAPONS];
 
 extern int forcePowerDarkLight[NUM_FORCE_POWERS];
-
 
 #define ARENAS_PER_TIER		4
 #define MAX_ARENAS			1024

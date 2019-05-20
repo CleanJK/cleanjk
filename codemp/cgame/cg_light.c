@@ -31,11 +31,6 @@ typedef struct clightstyle_s {
 static	clightstyle_t	cl_lightstyle[MAX_LIGHT_STYLES];
 static	int				lastofs;
 
-/*
-================
-CG_ClearLightStyles
-================
-*/
 void CG_ClearLightStyles (void)
 {
 	int	i;
@@ -47,11 +42,6 @@ void CG_ClearLightStyles (void)
 		CG_SetLightstyle( i );
 }
 
-/*
-================
-CG_RunLightStyles
-================
-*/
 void CG_RunLightStyles (void)
 {
 	int ofs, i;

@@ -22,28 +22,17 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-/*
-
-packet header
--------------
-4	outgoing sequence.  high bit will be set if this is a fragmented message
-[2	qport (only for client to server)]
-[2	fragment start byte]
-[2	fragment length. if < FRAGMENT_SIZE, this is the last fragment]
-
-if the sequence number is -1, the packet should be handled as an out-of-band
-message instead of as part of a netcon.
-
-All fragments will have the same sequence numbers.
-
-The qport field is a workaround for bad address translating routers that
-sometimes remap the client's source port on a packet during gameplay.
-
-If the base part of the net address matches and the qport matches, then the
-channel matches even if the IP port differs.  The IP port should be updated
-to the new value before sending out any replies.
-
-*/
+// packet header:
+//	4	outgoing sequence.  high bit will be set if this is a fragmented message
+//	[2	qport (only for client to server)]
+//	[2	fragment start byte]
+//	[2	fragment length. if < FRAGMENT_SIZE, this is the last fragment]
+// if the sequence number is -1, the packet should be handled as an out-of-band message instead of as part of a netcon.
+// All fragments will have the same sequence numbers.
+// The qport field is a workaround for bad address translating routers that sometimes remap the client's source port on
+//	a packet during gameplay.
+// If the base part of the net address matches and the qport matches, then the channel matches even if the IP port
+//	differs. The IP port should be updated to the new value before sending out any replies.
 
 #include "qcommon/qcommon.h"
 
@@ -62,12 +51,6 @@ static char *netsrcString[2] = {
 	"server"
 };
 
-/*
-===============
-Netchan_Init
-
-===============
-*/
 void Netchan_Init( int port ) {
 	port &= 0xffff;
 	showpackets = Cvar_Get ("showpackets", "0", CVAR_TEMP );
@@ -75,13 +58,7 @@ void Netchan_Init( int port ) {
 	qport = Cvar_Get ("net_qport", va("%i", port), CVAR_INIT );
 }
 
-/*
-==============
-Netchan_Setup
-
-called to open a channel to a remote system
-==============
-*/
+// called to open a channel to a remote system
 void Netchan_Setup( netsrc_t sock, netchan_t *chan, netadr_t adr, int qport ) {
 	Com_Memset (chan, 0, sizeof(*chan));
 
@@ -92,13 +69,7 @@ void Netchan_Setup( netsrc_t sock, netchan_t *chan, netadr_t adr, int qport ) {
 	chan->outgoingSequence = 1;
 }
 
-/*
-=================
-Netchan_TransmitNextFragment
-
-Send one fragment of the current message
-=================
-*/
+// Send one fragment of the current message
 void Netchan_TransmitNextFragment( netchan_t *chan ) {
 	msg_t		send;
 	byte		send_buf[MAX_PACKETLEN];
@@ -111,7 +82,7 @@ void Netchan_TransmitNextFragment( netchan_t *chan ) {
 
 	// send the qport if we are a client
 	if ( chan->sock == NS_CLIENT ) {
-		MSG_WriteShort( &send, qport->integer );
+		MSG_WriteShort( &send, qport->integer & 0xffff );
 	}
 
 	// copy the reliable message to the packet first
@@ -147,15 +118,8 @@ void Netchan_TransmitNextFragment( netchan_t *chan ) {
 	}
 }
 
-
-/*
-===============
-Netchan_Transmit
-
-Sends a message to a connection, fragmenting if necessary
-A 0 length will still generate a packet.
-================
-*/
+// Sends a message to a connection, fragmenting if necessary
+// A 0 length will still generate a packet.
 void Netchan_Transmit( netchan_t *chan, int length, const byte *data ) {
 	msg_t		send;
 	byte		send_buf[MAX_PACKETLEN];
@@ -190,7 +154,7 @@ void Netchan_Transmit( netchan_t *chan, int length, const byte *data ) {
 
 	// send the qport if we are a client
 	if ( chan->sock == NS_CLIENT ) {
-		MSG_WriteShort( &send, qport->integer );
+		MSG_WriteShort( &send, qport->integer & 0xffff );
 	}
 
 	MSG_WriteData( &send, data, length );
@@ -207,18 +171,8 @@ void Netchan_Transmit( netchan_t *chan, int length, const byte *data ) {
 	}
 }
 
-/*
-=================
-Netchan_Process
-
-Returns qfalse if the message should not be processed due to being
-out of order or a fragment.
-
-Msg must be large enough to hold MAX_MSGLEN, because if this is the
-final fragment of a multi-part message, the entire thing will be
-copied out.
-=================
-*/
+// Returns qfalse if the message should not be processed due to being out of order or a fragment.
+// Msg must be large enough to hold MAX_MSGLEN, because if this is the final fragment of a multi-part message, the entire thing will be copied out.
 qboolean Netchan_Process( netchan_t *chan, msg_t *msg ) {
 	int			sequence;
 	//int			qport;
@@ -266,9 +220,8 @@ qboolean Netchan_Process( netchan_t *chan, msg_t *msg ) {
 		}
 	}
 
-	//
 	// discard out of order or duplicated packets
-	//
+
 	if ( sequence <= chan->incomingSequence ) {
 		if ( showdrop->integer || showpackets->integer ) {
 			Com_Printf( "%s:Out of order packet %i at %i\n"
@@ -279,9 +232,8 @@ qboolean Netchan_Process( netchan_t *chan, msg_t *msg ) {
 		return qfalse;
 	}
 
-	//
 	// dropped packets don't keep the message from being used
-	//
+
 	chan->dropped = sequence - (chan->incomingSequence+1);
 	if ( chan->dropped > 0 ) {
 		if ( showdrop->integer || showpackets->integer ) {
@@ -292,11 +244,9 @@ qboolean Netchan_Process( netchan_t *chan, msg_t *msg ) {
 		}
 	}
 
-
-	//
 	// if this is the final framgent of a reliable message,
 	// bump incoming_reliable_sequence
-	//
+
 	if ( fragmented ) {
 		// make sure we
 		if ( sequence != chan->fragmentSequence ) {
@@ -371,24 +321,14 @@ qboolean Netchan_Process( netchan_t *chan, msg_t *msg ) {
 		return qtrue;
 	}
 
-	//
 	// the message can now be read from the current message pointer
-	//
+
 	chan->incomingSequence = sequence;
 
 	return qtrue;
 }
 
-
-//==============================================================================
-
-/*
-===================
-NET_CompareBaseAdrMask
-
-Compare without port, and up to the bit number given in netmask.
-===================
-*/
+// Compare without port, and up to the bit number given in netmask.
 qboolean NET_CompareBaseAdrMask( netadr_t a, netadr_t b, int netmask )
 {
 	byte cmpmask, *addra, *addrb;
@@ -434,13 +374,7 @@ qboolean NET_CompareBaseAdrMask( netadr_t a, netadr_t b, int netmask )
 	return qfalse;
 }
 
-/*
-===================
-NET_CompareBaseAdr
-
-Compares without the port
-===================
-*/
+// Compares without the port
 qboolean NET_CompareBaseAdr( netadr_t a, netadr_t b )
 {
 	return NET_CompareBaseAdrMask( a, b, -1 );
@@ -464,7 +398,6 @@ const char	*NET_AdrToString (netadr_t a)
 	return s;
 }
 
-
 qboolean	NET_CompareAdr (netadr_t a, netadr_t b)
 {
 	if (a.type != b.type)
@@ -484,23 +417,13 @@ qboolean	NET_CompareAdr (netadr_t a, netadr_t b)
 	return qfalse;
 }
 
-
 qboolean	NET_IsLocalAddress( netadr_t adr ) {
 	return (qboolean)(adr.type == NA_LOOPBACK);
 }
 
+// LOOPBACK BUFFERS FOR LOCAL PLAYER
 
-
-/*
-=============================================================================
-
-LOOPBACK BUFFERS FOR LOCAL PLAYER
-
-=============================================================================
-*/
-
-// there needs to be enough loopback messages to hold a complete
-// gamestate of maximum size
+// there needs to be enough loopback messages to hold a complete gamestate of maximum size
 #define	MAX_LOOPBACK	16
 
 typedef struct loopmsg_s {
@@ -514,7 +437,6 @@ typedef struct loopback_s {
 } loopback_t;
 
 loopback_t	loopbacks[2];
-
 
 qboolean	NET_GetLoopPacket (netsrc_t sock, netadr_t *net_from, msg_t *net_message)
 {
@@ -540,7 +462,6 @@ qboolean	NET_GetLoopPacket (netsrc_t sock, netadr_t *net_from, msg_t *net_messag
 
 }
 
-
 void NET_SendLoopPacket (netsrc_t sock, int length, const void *data, netadr_t to)
 {
 	int		i;
@@ -554,9 +475,6 @@ void NET_SendLoopPacket (netsrc_t sock, int length, const void *data, netadr_t t
 	Com_Memcpy (loop->msgs[i].data, data, length);
 	loop->msgs[i].datalen = length;
 }
-
-//=============================================================================
-
 
 void NET_SendPacket( netsrc_t sock, int length, const void *data, netadr_t to ) {
 
@@ -579,17 +497,10 @@ void NET_SendPacket( netsrc_t sock, int length, const void *data, netadr_t to ) 
 	Sys_SendPacket( length, data, to );
 }
 
-/*
-===============
-NET_OutOfBandPrint
-
-Sends a text message in an out-of-band datagram
-================
-*/
+// Sends a text message in an out-of-band datagram
 void QDECL NET_OutOfBandPrint( netsrc_t sock, netadr_t adr, const char *format, ... ) {
 	va_list		argptr;
 	char		string[MAX_MSGLEN];
-
 
 	// set the header
 	string[0] = -1;
@@ -605,13 +516,7 @@ void QDECL NET_OutOfBandPrint( netsrc_t sock, netadr_t adr, const char *format, 
 	NET_SendPacket( sock, strlen( string ), string, adr );
 }
 
-/*
-===============
-NET_OutOfBandPrint
-
-Sends a data message in an out-of-band datagram (only used for "connect")
-================
-*/
+// Sends a data message in an out-of-band datagram (only used for "connect")
 void QDECL NET_OutOfBandData( netsrc_t sock, netadr_t adr, byte *format, int len ) {
 	byte		string[MAX_MSGLEN*2];
 	int			i;
@@ -634,16 +539,7 @@ void QDECL NET_OutOfBandData( netsrc_t sock, netadr_t adr, byte *format, int len
 	NET_SendPacket( sock, mbuf.cursize, mbuf.data, adr );
 }
 
-
-
-
-/*
-=============
-NET_StringToAdr
-
-Traps "localhost" for loopback, passes everything else to system
-=============
-*/
+// Traps "localhost" for loopback, passes everything else to system
 qboolean	NET_StringToAdr( const char *s, netadr_t *a ) {
 	char	base[MAX_STRING_CHARS];
 	char	*port = NULL;

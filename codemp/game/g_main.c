@@ -22,17 +22,15 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-
 #include "g_local.h"
 #include "g_ICARUScb.h"
-#include "g_nav.h"
 #include "bg_saga.h"
 #include "b_local.h"
+#include "g_team.h"
 
 level_locals_t	level;
 
 int		eventClearTime = 0;
-static int navCalcPathTime = 0;
 extern int fatalErrors;
 
 int killPlayerTimer = 0;
@@ -53,28 +51,17 @@ extern stringID_table_t setTable[];
 qboolean G_ParseSpawnVars( qboolean inSubBSP );
 void G_SpawnGEntityFromSpawnVars( qboolean inSubBSP );
 
-
-qboolean NAV_ClearPathToPoint( gentity_t *self, vec3_t pmins, vec3_t pmaxs, vec3_t point, int clipmask, int okToHitEntNum );
-qboolean NPC_ClearLOS2( gentity_t *ent, const vec3_t end );
 int NAVNEW_ClearPathBetweenPoints(vec3_t start, vec3_t end, vec3_t mins, vec3_t maxs, int ignore, int clipmask);
-qboolean NAV_CheckNodeFailedForEnt( gentity_t *ent, int nodeNum );
 qboolean G_EntIsUnlockedDoor( int entityNum );
 qboolean G_EntIsDoor( int entityNum );
 qboolean G_EntIsBreakable( int entityNum );
 qboolean G_EntIsRemovableUsable( int entNum );
 void CP_FindCombatPointWaypoints( void );
 
-/*
-================
-G_FindTeams
-
-Chain together all entities with a matching team field.
-Entity teams are used for item groups and multi-entity mover groups.
-
-All but the first will have the FL_TEAMSLAVE flag set and teammaster field set
-All but the last will have the teamchain field set to the next one
-================
-*/
+// Chain together all entities with a matching team field.
+// Entity teams are used for item groups and multi-entity mover groups.
+// All but the first will have the FL_TEAMSLAVE flag set and teammaster field set
+// All but the last will have the teamchain field set to the next one
 void G_FindTeams( void ) {
 	gentity_t	*e, *e2;
 	int		i, j;
@@ -125,7 +112,6 @@ void G_FindTeams( void ) {
 sharedBuffer_t gSharedBuffer;
 
 void WP_SaberLoadParms( void );
-void BG_VehicleLoadParms( void );
 
 void G_CacheGametype( void )
 {
@@ -159,14 +145,7 @@ void G_CacheMapname( const vmCvar_t *mapname )
 	Com_sprintf( level.rawmapname, sizeof( level.rawmapname ), "maps/%s", mapname->string );
 }
 
-/*
-============
-G_InitGame
-
-============
-*/
 extern void RemoveAllWP(void);
-extern void BG_ClearVehicleParseParms(void);
 gentity_t *SelectRandomDeathmatchSpawnPoint( void );
 void SP_info_jedimaster_start( gentity_t *ent );
 void G_InitGame( int levelTime, int randomSeed, int restart ) {
@@ -187,9 +166,6 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	B_InitAlloc(); //make sure everything is clean
 
 	trap->SV_RegisterSharedMemory( gSharedBuffer.raw );
-
-	//Load external vehicle data
-	BG_VehicleLoadParms();
 
 	trap->Print ("------- Game Initialization -------\n");
 	trap->Print ("gamename: %s\n", GAMEVERSION);
@@ -248,7 +224,6 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	else
 		trap->Print( "Not logging security events to disk.\n" );
 
-
 	G_LogWeaponInit();
 
 	G_CacheGametype();
@@ -285,10 +260,8 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	//Load sabers.cfg data
 	WP_SaberLoadParms();
 
-	NPC_InitGame();
-
 	TIMER_Clear();
-	//
+
 	//ICARUS INIT START
 
 //	Com_Printf("------ ICARUS Initialization ------\n");
@@ -298,21 +271,15 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 //	Com_Printf ("-----------------------------------\n");
 
 	//ICARUS INIT END
-	//
 
 	// reserve some spots for dead player bodies
 	InitBodyQue();
 
 	ClearRegisteredItems();
 
-	//make sure saber data is loaded before this! (so we can precache the appropriate hilts)
-	InitSiegeMode();
-
 	trap->Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
 	G_CacheMapname( &mapname );
 	trap->Cvar_Register( &ckSum, "sv_mapChecksum", "", CVAR_ROM );
-
-	navCalculatePaths	= ( trap->Nav_Load( mapname.string, ckSum.integer ) == qfalse );
 
 	// parse the key/value pairs and spawn gentities
 	G_SpawnEntitiesFromString(qfalse);
@@ -345,12 +312,6 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 
 	//trap->Print ("-----------------------------------\n");
 
-	if( level.gametype == GT_SINGLE_PLAYER || trap->Cvar_VariableIntegerValue( "com_buildScript" ) ) {
-		G_ModelIndex( SP_PODIUM_MODEL );
-		G_SoundIndex( "sound/player/gurp1.wav" );
-		G_SoundIndex( "sound/player/gurp2.wav" );
-	}
-
 	if ( trap->Cvar_VariableIntegerValue( "bot_enable" ) ) {
 		BotAISetup( restart );
 		BotAILoadMap( restart );
@@ -362,43 +323,6 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	if ( level.gametype == GT_DUEL || level.gametype == GT_POWERDUEL )
 	{
 		G_LogPrintf("Duel Tournament Begun: kill limit %d, win limit: %d\n", fraglimit.integer, duel_fraglimit.integer );
-	}
-
-	if ( navCalculatePaths )
-	{//not loaded - need to calc paths
-		navCalcPathTime = level.time + START_TIME_NAV_CALC;//make sure all ents are in and linked
-	}
-	else
-	{//loaded
-		//FIXME: if this is from a loadgame, it needs to be sure to write this
-		//out whenever you do a savegame since the edges and routes are dynamic...
-		//OR: always do a navigator.CheckBlockedEdges() on map startup after nav-load/calc-paths
-		//navigator.pathsCalculated = qtrue;//just to be safe?  Does this get saved out?  No... assumed
-		trap->Nav_SetPathsCalculated(qtrue);
-		//need to do this, because combatpoint waypoints aren't saved out...?
-		CP_FindCombatPointWaypoints();
-		navCalcPathTime = 0;
-
-		/*
-		if ( g_eSavedGameJustLoaded == eNO )
-		{//clear all the failed edges unless we just loaded the game (which would include failed edges)
-			trap->Nav_ClearAllFailedEdges();
-		}
-		*/
-		//No loading games in MP.
-	}
-
-	if (level.gametype == GT_SIEGE)
-	{ //just get these configstrings registered now...
-		while (i < MAX_CUSTOM_SIEGE_SOUNDS)
-		{
-			if (!bg_customSiegeSoundNames[i])
-			{
-				break;
-			}
-			G_SoundIndex((char *)bg_customSiegeSoundNames[i]);
-			i++;
-		}
 	}
 
 	if ( level.gametype == GT_JEDIMASTER ) {
@@ -425,20 +349,11 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	}
 }
 
-
-
-/*
-=================
-G_ShutdownGame
-=================
-*/
 void G_ShutdownGame( int restart ) {
 	int i = 0;
 	gentity_t *ent;
 
 //	trap->Print ("==== ShutdownGame ====\n");
-
-	G_CleanAllFakeClients(); //get rid of dynamically allocated fake client structs.
 
 	BG_ClearAnimsets(); //free all dynamic allocations made through the engine
 
@@ -511,22 +426,9 @@ void G_ShutdownGame( int restart ) {
 	B_CleanupAlloc(); //clean up all allocations made with B_Alloc
 }
 
-/*
-========================================================================
+// PLAYER COUNTING / SCORE SORTING
 
-PLAYER COUNTING / SCORE SORTING
-
-========================================================================
-*/
-
-/*
-=============
-AddTournamentPlayer
-
-If there are less than two tournament players, put a
-spectator in the game and restart
-=============
-*/
+// If there are less than two tournament players, put a spectator in the game and restart
 void AddTournamentPlayer( void ) {
 	int			i;
 	gclient_t	*client;
@@ -575,14 +477,7 @@ void AddTournamentPlayer( void ) {
 	SetTeam( &g_entities[ nextInLine - level.clients ], "f" );
 }
 
-/*
-=======================
-AddTournamentQueue
-
-Add client to end of tournament queue
-=======================
-*/
-
+// Add client to end of tournament queue
 void AddTournamentQueue( gclient_t *client )
 {
 	int index;
@@ -602,13 +497,7 @@ void AddTournamentQueue( gclient_t *client )
 	}
 }
 
-/*
-=======================
-RemoveTournamentLoser
-
-Make the loser a spectator at the back of the line
-=======================
-*/
+// Make the loser a spectator at the back of the line
 void RemoveTournamentLoser( void ) {
 	int			clientNum;
 
@@ -818,11 +707,6 @@ void RemoveDuelDrawLoser(void)
 	}
 }
 
-/*
-=======================
-RemoveTournamentWinner
-=======================
-*/
 void RemoveTournamentWinner( void ) {
 	int			clientNum;
 
@@ -840,11 +724,6 @@ void RemoveTournamentWinner( void ) {
 	SetTeam( &g_entities[ clientNum ], "s" );
 }
 
-/*
-=======================
-AdjustTournamentScores
-=======================
-*/
 void AdjustTournamentScores( void ) {
 	int			clientNum;
 
@@ -922,12 +801,6 @@ void AdjustTournamentScores( void ) {
 	}
 }
 
-/*
-=============
-SortRanks
-
-=============
-*/
 int QDECL SortRanks( const void *a, const void *b ) {
 	gclient_t	*ca, *cb;
 
@@ -964,7 +837,6 @@ int QDECL SortRanks( const void *a, const void *b ) {
 	if ( cb->pers.connected == CON_CONNECTING ) {
 		return -1;
 	}
-
 
 	// then spectators
 	if ( ca->sess.sessionTeam == TEAM_SPECTATOR && cb->sess.sessionTeam == TEAM_SPECTATOR ) {
@@ -1041,15 +913,8 @@ void G_ResetDuelists(void)
 	}
 }
 
-/*
-============
-CalculateRanks
-
-Recalculates the score ranks of all players
-This will be called on every client connect, begin, disconnect, death,
-and team change.
-============
-*/
+// Recalculates the score ranks of all players
+// This will be called on every client connect, begin, disconnect, death, and team change.
 void CalculateRanks( void ) {
 	int		i;
 	int		rank;
@@ -1109,7 +974,7 @@ void CalculateRanks( void ) {
 		}
 	}
 
-	if ( !g_warmup.integer || level.gametype == GT_SIEGE )
+	if ( !g_warmup.integer )
 		level.warmupTime = 0;
 
 	qsort( level.sortedClients, level.numConnectedClients,
@@ -1144,9 +1009,6 @@ void CalculateRanks( void ) {
 				level.clients[ level.sortedClients[i] ].ps.persistant[PERS_RANK] = rank | RANK_TIED_FLAG;
 			}
 			score = newScore;
-			if ( level.gametype == GT_SINGLE_PLAYER && level.numPlayingClients == 1 ) {
-				level.clients[ level.sortedClients[i] ].ps.persistant[PERS_RANK] = rank | RANK_TIED_FLAG;
-			}
 		}
 	}
 
@@ -1191,23 +1053,9 @@ void CalculateRanks( void ) {
 	}
 }
 
+// MAP CHANGING
 
-/*
-========================================================================
-
-MAP CHANGING
-
-========================================================================
-*/
-
-/*
-========================
-SendScoreboardMessageToAllClients
-
-Do this at BeginIntermission time and whenever ranks are recalculated
-due to enters/exits/forced team changes
-========================
-*/
+// Do this at BeginIntermission time and whenever ranks are recalculated due to enters/exits/forced team changes
 void SendScoreboardMessageToAllClients( void ) {
 	int		i;
 
@@ -1218,15 +1066,8 @@ void SendScoreboardMessageToAllClients( void ) {
 	}
 }
 
-/*
-========================
-MoveClientToIntermission
-
-When the intermission starts, this will be called for all players.
-If a new client connects, this will be called after the spawn function.
-========================
-*/
-extern void G_LeaveVehicle( gentity_t *ent, qboolean ConCheck );
+// When the intermission starts, this will be called for all players.
+// If a new client connects, this will be called after the spawn function.
 void MoveClientToIntermission( gentity_t *ent ) {
 	// take out of follow mode if needed
 	if ( ent->client->sess.spectatorState == SPECTATOR_FOLLOW ) {
@@ -1243,8 +1084,6 @@ void MoveClientToIntermission( gentity_t *ent ) {
 	// clean up powerup info
 	memset( ent->client->ps.powerups, 0, sizeof(ent->client->ps.powerups) );
 
-	G_LeaveVehicle( ent, qfalse );
-
 	ent->client->ps.rocketLockIndex = ENTITYNUM_NONE;
 	ent->client->ps.rocketLockTime = 0;
 
@@ -1260,48 +1099,12 @@ void MoveClientToIntermission( gentity_t *ent ) {
 	ent->r.contents = 0;
 }
 
-/*
-==================
-FindIntermissionPoint
-
-This is also used for spectator spawns
-==================
-*/
-extern qboolean	gSiegeRoundBegun;
-extern qboolean	gSiegeRoundEnded;
-extern int	gSiegeRoundWinningTeam;
+// This is also used for spectator spawns
 void FindIntermissionPoint( void ) {
-	gentity_t	*ent = NULL;
 	gentity_t	*target;
 	vec3_t		dir;
+	gentity_t *ent = G_Find (NULL, FOFS(classname), "info_player_intermission");
 
-	// find the intermission spot
-	if ( level.gametype == GT_SIEGE
-		&& level.intermissiontime
-		&& level.intermissiontime <= level.time
-		&& gSiegeRoundEnded )
-	{
-	   	if (gSiegeRoundWinningTeam == SIEGETEAM_TEAM1)
-		{
-			ent = G_Find (NULL, FOFS(classname), "info_player_intermission_red");
-			if ( ent && ent->target2 )
-			{
-				G_UseTargets2( ent, ent, ent->target2 );
-			}
-		}
-	   	else if (gSiegeRoundWinningTeam == SIEGETEAM_TEAM2)
-		{
-			ent = G_Find (NULL, FOFS(classname), "info_player_intermission_blue");
-			if ( ent && ent->target2 )
-			{
-				G_UseTargets2( ent, ent, ent->target2 );
-			}
-		}
-	}
-	if ( !ent )
-	{
-		ent = G_Find (NULL, FOFS(classname), "info_player_intermission");
-	}
 	if ( !ent ) {	// the map creator forgot to put in an intermission point...
 		SelectSpawnPoint ( vec3_origin, level.intermission_origin, level.intermission_angle, TEAM_SPECTATOR, qfalse );
 	} else {
@@ -1320,11 +1123,6 @@ void FindIntermissionPoint( void ) {
 
 qboolean DuelLimitHit(void);
 
-/*
-==================
-BeginIntermission
-==================
-*/
 void BeginIntermission( void ) {
 	int			i;
 	gentity_t	*client;
@@ -1410,17 +1208,8 @@ void DuelResetWinsLosses(void)
 	}
 }
 
-/*
-=============
-ExitLevel
-
-When the intermission has been exited, the server is either killed
-or moved to a new level based on the "nextmap" cvar
-
-=============
-*/
-extern void SiegeDoTeamAssign(void); //g_saga.c
-extern siegePers_t g_siegePersistant; //g_saga.c
+// When the intermission has been exited, the server is either killed or moved to a new level based on the "nextmap"
+//	cvar
 void ExitLevel (void) {
 	int		i;
 	gclient_t *cl;
@@ -1442,25 +1231,9 @@ void ExitLevel (void) {
 		DuelResetWinsLosses();
 	}
 
-
-	if (level.gametype == GT_SIEGE &&
-		g_siegeTeamSwitch.integer &&
-		g_siegePersistant.beatingTime)
-	{ //restart same map...
-		trap->SendConsoleCommand( EXEC_APPEND, "map_restart 0\n" );
-	}
-	else
-	{
-		trap->SendConsoleCommand( EXEC_APPEND, "vstr nextmap\n" );
-	}
+	trap->SendConsoleCommand( EXEC_APPEND, "vstr nextmap\n" );
 	level.changemap = NULL;
 	level.intermissiontime = 0;
-
-	if (level.gametype == GT_SIEGE &&
-		g_siegeTeamSwitch.integer)
-	{ //switch out now
-		SiegeDoTeamAssign();
-	}
 
 	// reset all the scores so we don't enter the intermission again
 	level.teamScores[TEAM_RED] = 0;
@@ -1486,13 +1259,7 @@ void ExitLevel (void) {
 
 }
 
-/*
-=================
-G_LogPrintf
-
-Print to the logfile with a time stamp if it is open
-=================
-*/
+// Print to the logfile with a time stamp if it is open
 void QDECL G_LogPrintf( const char *fmt, ... ) {
 	va_list		argptr;
 	char		string[1024] = {0};
@@ -1521,13 +1288,8 @@ void QDECL G_LogPrintf( const char *fmt, ... ) {
 
 	trap->FS_Write( string, strlen( string ), level.logFile );
 }
-/*
-=================
-G_SecurityLogPrintf
 
-Print to the security logfile with a time stamp if it is open
-=================
-*/
+// Print to the security logfile with a time stamp if it is open
 void QDECL G_SecurityLogPrintf( const char *fmt, ... ) {
 	va_list		argptr;
 	char		string[1024] = {0};
@@ -1552,13 +1314,7 @@ void QDECL G_SecurityLogPrintf( const char *fmt, ... ) {
 	trap->FS_Write( string, strlen( string ), level.security.log );
 }
 
-/*
-================
-LogExit
-
-Append information about this game to the log file
-================
-*/
+// Append information about this game to the log file
 void LogExit( const char *string ) {
 	int				i, numSorted;
 	gclient_t		*cl;
@@ -1601,36 +1357,14 @@ void LogExit( const char *string ) {
 		} else {
 			G_LogPrintf( "score: %i  ping: %i  client: [%s] %i \"%s^7\"\n", cl->ps.persistant[PERS_SCORE], ping, cl->pers.guid, level.sortedClients[i], cl->pers.netname );
 		}
-//		if (g_singlePlayer.integer && (level.gametype == GT_DUEL || level.gametype == GT_POWERDUEL)) {
-//			if (g_entities[cl - level.clients].r.svFlags & SVF_BOT && cl->ps.persistant[PERS_RANK] == 0) {
-//				won = qfalse;
-//			}
-//		}
 	}
-
-	//yeah.. how about not.
-	/*
-	if (g_singlePlayer.integer) {
-		if (level.gametype >= GT_CTF) {
-			won = level.teamScores[TEAM_RED] > level.teamScores[TEAM_BLUE];
-		}
-		trap->SendConsoleCommand( EXEC_APPEND, (won) ? "spWin\n" : "spLose\n" );
-	}
-	*/
 }
 
 qboolean gDidDuelStuff = qfalse; //gets reset on game reinit
 
-/*
-=================
-CheckIntermissionExit
-
-The level will stay at the intermission for a minimum of 5 seconds
-If all players wish to continue, the level will then exit.
-If one or more players have not acknowledged the continue, the game will
-wait 10 seconds before going on.
-=================
-*/
+// The level will stay at the intermission for a minimum of 5 seconds
+// If all players wish to continue, the level will then exit.
+// If one or more players have not acknowledged the continue, the game will wait 10 seconds before going on.
 void CheckIntermissionExit( void ) {
 	int			ready, notReady;
 	int			i;
@@ -1870,11 +1604,6 @@ void CheckIntermissionExit( void ) {
 	ExitLevel();
 }
 
-/*
-=============
-ScoreIsTied
-=============
-*/
 qboolean ScoreIsTied( void ) {
 	int		a, b;
 
@@ -1892,16 +1621,10 @@ qboolean ScoreIsTied( void ) {
 	return a == b;
 }
 
-/*
-=================
-CheckExitRules
-
-There will be a delay between the time the exit is qualified for
-and the time everyone is moved to the intermission spot, so you
-can see the last frag.
-=================
-*/
 qboolean g_endPDuel = qfalse;
+
+// There will be a delay between the time the exit is qualified for and the time everyone is moved to the intermission
+//	spot, so you can see the last frag.
 void CheckExitRules( void ) {
  	int			i;
 	gclient_t	*cl;
@@ -1949,7 +1672,6 @@ void CheckExitRules( void ) {
 	}
 
 	if ( level.intermissionQueued ) {
-		//int time = (g_singlePlayer.integer) ? SP_INTERMISSION_DELAY_TIME : INTERMISSION_DELAY_TIME;
 		int time = INTERMISSION_DELAY_TIME;
 		if ( level.time - level.intermissionQueued >= time ) {
 			level.intermissionQueued = 0;
@@ -1977,33 +1699,26 @@ void CheckExitRules( void ) {
 	*/
 
 	// check for sudden death
-	if (level.gametype != GT_SIEGE)
-	{
-		if ( ScoreIsTied() ) {
-			// always wait for sudden death
-			if ((level.gametype != GT_DUEL) || !timelimit.value)
+	if ( ScoreIsTied() ) {
+		// always wait for sudden death
+		if ((level.gametype != GT_DUEL) || !timelimit.value)
+		{
+			if (level.gametype != GT_POWERDUEL)
 			{
-				if (level.gametype != GT_POWERDUEL)
-				{
-					return;
-				}
+				return;
 			}
 		}
 	}
 
-	if (level.gametype != GT_SIEGE)
-	{
-		if ( timelimit.value > 0.0f && !level.warmupTime ) {
-			if ( level.time - level.startTime >= timelimit.value*60000 ) {
-//				trap->SendServerCommand( -1, "print \"Timelimit hit.\n\"");
-				trap->SendServerCommand( -1, va("print \"%s.\n\"",G_GetStringEdString("MP_SVGAME", "TIMELIMIT_HIT")));
-				if (d_powerDuelPrint.integer)
-				{
-					Com_Printf("POWERDUEL WIN CONDITION: Timelimit hit (1)\n");
-				}
-				LogExit( "Timelimit hit." );
-				return;
+	if ( timelimit.value > 0.0f && !level.warmupTime ) {
+		if ( level.time - level.startTime >= timelimit.value*60000 ) {
+			trap->SendServerCommand( -1, va("print \"%s.\n\"",G_GetStringEdString("MP_SVGAME", "TIMELIMIT_HIT")));
+			if (d_powerDuelPrint.integer)
+			{
+				Com_Printf("POWERDUEL WIN CONDITION: Timelimit hit (1)\n");
 			}
+			LogExit( "Timelimit hit." );
+			return;
 		}
 	}
 
@@ -2141,7 +1856,7 @@ void CheckExitRules( void ) {
 	{
 		sKillLimit = "Kill limit hit.";
 	}
-	if ( level.gametype < GT_SIEGE && fraglimit.integer ) {
+	if ( level.gametype <= GT_TEAM && fraglimit.integer ) {
 		if ( level.teamScores[TEAM_RED] >= fraglimit.integer ) {
 			trap->SendServerCommand( -1, va("print \"Red %s\n\"", G_GetStringEdString("MP_SVGAME", "HIT_THE_KILL_LIMIT")) );
 			if (d_powerDuelPrint.integer)
@@ -2223,15 +1938,7 @@ void CheckExitRules( void ) {
 	}
 }
 
-
-
-/*
-========================================================================
-
-FUNCTIONS CALLED EVERY FRAME
-
-========================================================================
-*/
+// FUNCTIONS CALLED EVERY FRAME
 
 void G_RemoveDuelist(int team)
 {
@@ -2250,13 +1957,7 @@ void G_RemoveDuelist(int team)
 	}
 }
 
-/*
-=============
-CheckTournament
-
-Once a frame, check for changes in tournament player state
-=============
-*/
+// Once a frame, check for changes in tournament player state
 int g_duelPrintTimer = 0;
 void CheckTournament( void ) {
 	// check because we run 3 game frames before calling Connect and/or ClientBegin
@@ -2553,11 +2254,6 @@ void G_KickAllBots(void)
 	}
 }
 
-/*
-==================
-CheckVote
-==================
-*/
 void CheckVote( void ) {
 	if ( level.voteExecuteTime && level.voteExecuteTime < level.time ) {
 		level.voteExecuteTime = 0;
@@ -2568,13 +2264,6 @@ void CheckVote( void ) {
 			if (level.gametype != level.votingGametypeTo)
 			{ //If we're voting to a different game type, be sure to refresh all the map stuff
 				const char *nextMap = G_RefreshNextMap(level.votingGametypeTo, qtrue);
-
-				if (level.votingGametypeTo == GT_SIEGE)
-				{ //ok, kick all the bots, cause the aren't supported!
-                    G_KickAllBots();
-					//just in case, set this to 0 too... I guess...maybe?
-					//trap->Cvar_Set("bot_minplayers", "0");
-				}
 
 				if (nextMap && nextMap[0])
 				{
@@ -2641,11 +2330,6 @@ void CheckVote( void ) {
 	trap->SetConfigstring( CS_VOTE_TIME, "" );
 }
 
-/*
-==================
-PrintTeam
-==================
-*/
 void PrintTeam(int team, char *message) {
 	int i;
 
@@ -2656,11 +2340,6 @@ void PrintTeam(int team, char *message) {
 	}
 }
 
-/*
-==================
-SetLeader
-==================
-*/
 void SetLeader(int team, int client) {
 	int i;
 
@@ -2685,11 +2364,6 @@ void SetLeader(int team, int client) {
 	PrintTeam(team, va("print \"%s %s\n\"", level.clients[client].pers.netname, G_GetStringEdString("MP_SVGAME", "NEWTEAMLEADER")) );
 }
 
-/*
-==================
-CheckTeamLeader
-==================
-*/
 void CheckTeamLeader( int team ) {
 	int i;
 
@@ -2719,11 +2393,6 @@ void CheckTeamLeader( int team ) {
 	}
 }
 
-/*
-==================
-CheckTeamVote
-==================
-*/
 void CheckTeamVote( int team ) {
 	int cs_offset;
 
@@ -2770,12 +2439,6 @@ void CheckTeamVote( int team ) {
 	trap->SetConfigstring( CS_TEAMVOTE_TIME + cs_offset, "" );
 }
 
-
-/*
-==================
-CheckCvars
-==================
-*/
 void CheckCvars( void ) {
 	static int lastMod = -1;
 
@@ -2803,13 +2466,7 @@ void CheckCvars( void ) {
 	}
 }
 
-/*
-=============
-G_RunThink
-
-Runs thinking code for this frame if necessary
-=============
-*/
+// Runs thinking code for this frame if necessary
 void G_RunThink (gentity_t *ent) {
 	float	thinktime;
 
@@ -2829,15 +2486,8 @@ void G_RunThink (gentity_t *ent) {
 	ent->think (ent);
 
 runicarus:
-	if ( ent->inuse )
-	{
-		SaveNPCGlobals();
-		if(NPCS.NPCInfo == NULL && ent->NPC != NULL)
-		{
-			SetNPCGlobals( ent );
-		}
-		trap->ICARUS_MaintainTaskManager(ent->s.number);
-		RestoreNPCGlobals();
+	if ( ent->inuse ) {
+		trap->ICARUS_MaintainTaskManager( ent->s.number );
 	}
 }
 
@@ -2849,63 +2499,20 @@ int gSlowMoDuelTime = 0;
 
 //#define _G_FRAME_PERFANAL
 
-void NAV_CheckCalcPaths( void )
-{
-	if ( navCalcPathTime && navCalcPathTime < level.time )
-	{//first time we've ever loaded this map...
-		vmCvar_t	mapname;
-		vmCvar_t	ckSum;
-
-		trap->Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
-		trap->Cvar_Register( &ckSum, "sv_mapChecksum", "", CVAR_ROM );
-
-		//clear all the failed edges
-		trap->Nav_ClearAllFailedEdges();
-
-		//Calculate all paths
-		NAV_CalculatePaths( mapname.string, ckSum.integer );
-
-		trap->Nav_CalculatePaths(qfalse);
-
-#ifndef FINAL_BUILD
-		if ( fatalErrors )
-		{
-			Com_Printf( S_COLOR_RED"Not saving .nav file due to fatal nav errors\n" );
-		}
-		else
-#endif
-		if ( trap->Nav_Save( mapname.string, ckSum.integer ) == qfalse )
-		{
-			Com_Printf("Unable to save navigations data for map \"%s\" (checksum:%d)\n", mapname.string, ckSum.integer );
-		}
-		navCalcPathTime = 0;
-	}
-}
-
-//so shared code can get the local time depending on the side it's executed on
-int BG_GetTime(void)
-{
+// so shared code can get the local time depending on the side it's executed on
+int BG_GetTime( void ) {
 	return level.time;
 }
 
-/*
-================
-G_RunFrame
-
-Advances the non-player objects in the world
-================
-*/
 void ClearNPCGlobals( void );
 void AI_UpdateGroups( void );
 void ClearPlayerAlertEvents( void );
-void SiegeCheckTimers(void);
 void WP_SaberStartMissileBlockCheck( gentity_t *self, usercmd_t *ucmd );
-extern void Jedi_Decloak( gentity_t *self );
 qboolean G_PointInBounds( vec3_t point, vec3_t mins, vec3_t maxs );
 
-int g_siegeRespawnCheck = 0;
 void SetMoverState( gentity_t *ent, moverState_t moverState, int time );
 
+// Advances the non-player objects in the world
 void G_RunFrame( int levelTime ) {
 	int			i;
 	gentity_t	*ent;
@@ -2921,27 +2528,6 @@ void G_RunFrame( int levelTime ) {
 	void		*timer_GameChecks;
 	void		*timer_Queues;
 #endif
-
-	if (level.gametype == GT_SIEGE &&
-		g_siegeRespawn.integer &&
-		g_siegeRespawnCheck < level.time)
-	{ //check for a respawn wave
-		gentity_t *clEnt;
-		for ( i=0; i < MAX_CLIENTS; i++ )
-		{
-			clEnt = &g_entities[i];
-
-			if (clEnt->inuse && clEnt->client &&
-				clEnt->client->tempSpectate >= level.time &&
-				clEnt->client->sess.sessionTeam != TEAM_SPECTATOR)
-			{
-				ClientRespawn(clEnt);
-				clEnt->client->tempSpectate = 0;
-			}
-		}
-
-		g_siegeRespawnCheck = level.time + g_siegeRespawn.integer * 1000;
-	}
 
 	if (gDoSlowMoDuel)
 	{
@@ -3009,58 +2595,17 @@ void G_RunFrame( int levelTime ) {
 	level.previousTime = level.time;
 	level.time = levelTime;
 
-	if (g_allowNPC.integer)
-	{
-		NAV_CheckCalcPaths();
-	}
-
-	AI_UpdateGroups();
-
-	if (g_allowNPC.integer)
-	{
-		if ( d_altRoutes.integer )
-		{
-			trap->Nav_CheckAllFailedEdges();
-		}
-		trap->Nav_ClearCheckedNodes();
-
-		//remember last waypoint, clear current one
-		for ( i = 0; i < level.num_entities ; i++)
-		{
-			ent = &g_entities[i];
-
-			if ( !ent->inuse )
-				continue;
-
-			if ( ent->waypoint != WAYPOINT_NONE
-				&& ent->noWaypointTime < level.time )
-			{
-				ent->lastWaypoint = ent->waypoint;
-				ent->waypoint = WAYPOINT_NONE;
-			}
-			if ( d_altRoutes.integer )
-			{
-				trap->Nav_CheckFailedNodes( (sharedEntity_t *)ent );
-			}
-		}
-
-		//Look to clear out old events
-		ClearPlayerAlertEvents();
-	}
-
 	g_TimeSinceLastFrame = (level.time - g_LastFrameTime);
 
 	// get any cvar changes
 	G_UpdateCvars();
 
-
-
 #ifdef _G_FRAME_PERFANAL
 	trap->PrecisionTimer_Start(&timer_ItemRun);
 #endif
-	//
+
 	// go through all allocated objects
-	//
+
 	ent = &g_entities[0];
 	for (i=0 ; i<level.num_entities ; i++, ent++) {
 		if ( !ent->inuse ) {
@@ -3135,24 +2680,6 @@ void G_RunFrame( int levelTime ) {
 
 		if ( ent->s.eType == ET_MOVER ) {
 			G_RunMover( ent );
-			continue;
-		}
-
-		//fix for self-deactivating areaportals in Siege
-		if ( ent->s.eType == ET_MOVER && level.gametype == GT_SIEGE && level.intermissiontime)
-		{
-			if ( !Q_stricmp("func_door", ent->classname) && ent->moverState != MOVER_POS1 )
-			{
-				SetMoverState( ent, MOVER_POS1, level.time );
-				if ( ent->teammaster == ent || !ent->teammaster )
-				{
-					trap->AdjustAreaPortalState( (sharedEntity_t *)ent, qfalse );
-				}
-
-				//stop the looping sound
-				ent->s.loopSound = 0;
-				ent->s.loopIsSoundset = qfalse;
-			}
 			continue;
 		}
 
@@ -3290,17 +2817,6 @@ void G_RunFrame( int levelTime ) {
 				}
 			}
 
-			if (level.gametype == GT_SIEGE &&
-				ent->client->siegeClass != -1 &&
-				(bgSiegeClasses[ent->client->siegeClass].classflags & (1<<CFL_STATVIEWER)))
-			{ //see if it's time to send this guy an update of extended info
-				if (ent->client->siegeEDataSend < level.time)
-				{
-                    G_SiegeClientExData(ent);
-					ent->client->siegeEDataSend = level.time + 1000; //once every sec seems ok
-				}
-			}
-
 			if((!level.intermissiontime)&&!(ent->client->ps.pm_flags&PMF_FOLLOW) && ent->client->sess.sessionTeam != TEAM_SPECTATOR)
 			{
 				WP_ForcePowersUpdate(ent, &ent->client->pers.cmd );
@@ -3308,45 +2824,17 @@ void G_RunFrame( int levelTime ) {
 				WP_SaberStartMissileBlockCheck(ent, &ent->client->pers.cmd);
 			}
 
-			if (g_allowNPC.integer)
-			{
-				//This was originally intended to only be done for client 0.
-				//Make sure it doesn't slow things down too much with lots of clients in game.
-				NAV_FindPlayerWaypoint(i);
-			}
-
 			trap->ICARUS_MaintainTaskManager(ent->s.number);
 
 			G_RunClient( ent );
 			continue;
 		}
-		else if (ent->s.eType == ET_NPC)
-		{
-			int j;
-			// turn off any expired powerups
-			for ( j = 0 ; j < MAX_POWERUPS ; j++ ) {
-				if ( ent->client->ps.powerups[ j ] < level.time ) {
-					ent->client->ps.powerups[ j ] = 0;
-				}
-			}
-
-			WP_ForcePowersUpdate(ent, &ent->client->pers.cmd );
-			WP_SaberPositionUpdate(ent, &ent->client->pers.cmd);
-			WP_SaberStartMissileBlockCheck(ent, &ent->client->pers.cmd);
-		}
 
 		G_RunThink( ent );
-
-		if (g_allowNPC.integer)
-		{
-			ClearNPCGlobals();
-		}
 	}
 #ifdef _G_FRAME_PERFANAL
 	iTimer_ItemRun = trap->PrecisionTimer_End(timer_ItemRun);
 #endif
-
-	SiegeCheckTimers();
 
 #ifdef _G_FRAME_PERFANAL
 	trap->PrecisionTimer_Start(&timer_ROFF);
@@ -3355,8 +2843,6 @@ void G_RunFrame( int levelTime ) {
 #ifdef _G_FRAME_PERFANAL
 	iTimer_ROFF = trap->PrecisionTimer_End(timer_ROFF);
 #endif
-
-
 
 #ifdef _G_FRAME_PERFANAL
 	trap->PrecisionTimer_Start(&timer_ClientEndframe);
@@ -3371,8 +2857,6 @@ void G_RunFrame( int levelTime ) {
 #ifdef _G_FRAME_PERFANAL
 	iTimer_ClientEndframe = trap->PrecisionTimer_End(timer_ClientEndframe);
 #endif
-
-
 
 #ifdef _G_FRAME_PERFANAL
 	trap->PrecisionTimer_Start(&timer_GameChecks);
@@ -3400,8 +2884,6 @@ void G_RunFrame( int levelTime ) {
 	iTimer_GameChecks = trap->PrecisionTimer_End(timer_GameChecks);
 #endif
 
-
-
 #ifdef _G_FRAME_PERFANAL
 	trap->PrecisionTimer_Start(&timer_Queues);
 #endif
@@ -3421,8 +2903,6 @@ void G_RunFrame( int levelTime ) {
 #ifdef _G_FRAME_PERFANAL
 	iTimer_Queues = trap->PrecisionTimer_End(timer_Queues);
 #endif
-
-
 
 #ifdef _G_FRAME_PERFANAL
 	Com_Printf("---------------\nItemRun: %i\nROFF: %i\nClientEndframe: %i\nGameChecks: %i\nQueues: %i\n---------------\n",
@@ -3538,21 +3018,6 @@ static int G_ICARUS_GetSetIDForString( void ) {
 	T_G_ICARUS_GETSETIDFORSTRING *sharedMem = &gSharedBuffer.getSetIDForString;
 	return GetIDForString( setTable, sharedMem->string );
 }
-static qboolean G_NAV_ClearPathToPoint( int entID, vec3_t pmins, vec3_t pmaxs, vec3_t point, int clipmask, int okToHitEnt ) {
-	return NAV_ClearPathToPoint( &g_entities[entID], pmins, pmaxs, point, clipmask, okToHitEnt );
-}
-static qboolean G_NPC_ClearLOS2( int entID, const vec3_t end ) {
-	return NPC_ClearLOS2( &g_entities[entID], end );
-}
-static qboolean	G_NAV_CheckNodeFailedForEnt( int entID, int nodeNum ) {
-	return NAV_CheckNodeFailedForEnt( &g_entities[entID], nodeNum );
-}
-
-/*
-============
-GetModuleAPI
-============
-*/
 
 gameImport_t *trap = NULL;
 
@@ -3602,173 +3067,7 @@ Q_EXPORT gameExport_t* QDECL GetModuleAPI( int apiVersion, gameImport_t *import 
 	ge.ICARUS_GetString					= G_ICARUS_GetString;
 	ge.ICARUS_SoundIndex				= G_ICARUS_SoundIndex;
 	ge.ICARUS_GetSetIDForString			= G_ICARUS_GetSetIDForString;
-	ge.NAV_ClearPathToPoint				= G_NAV_ClearPathToPoint;
-	ge.NPC_ClearLOS2					= G_NPC_ClearLOS2;
-	ge.NAVNEW_ClearPathBetweenPoints	= NAVNEW_ClearPathBetweenPoints;
-	ge.NAV_CheckNodeFailedForEnt		= G_NAV_CheckNodeFailedForEnt;
-	ge.NAV_EntIsUnlockedDoor			= G_EntIsUnlockedDoor;
-	ge.NAV_EntIsDoor					= G_EntIsDoor;
-	ge.NAV_EntIsBreakable				= G_EntIsBreakable;
-	ge.NAV_EntIsRemovableUsable			= G_EntIsRemovableUsable;
-	ge.NAV_FindCombatPointWaypoints		= CP_FindCombatPointWaypoints;
 	ge.BG_GetItemIndexByTag				= BG_GetItemIndexByTag;
 
 	return &ge;
-}
-
-/*
-================
-vmMain
-
-This is the only way control passes into the module.
-This must be the very first function compiled into the .q3vm file
-================
-*/
-Q_EXPORT intptr_t vmMain( int command, intptr_t arg0, intptr_t arg1, intptr_t arg2, intptr_t arg3, intptr_t arg4,
-	intptr_t arg5, intptr_t arg6, intptr_t arg7, intptr_t arg8, intptr_t arg9, intptr_t arg10, intptr_t arg11 )
-{
-	switch ( command ) {
-	case GAME_INIT:
-		G_InitGame( arg0, arg1, arg2 );
-		return 0;
-
-	case GAME_SHUTDOWN:
-		G_ShutdownGame( arg0 );
-		return 0;
-
-	case GAME_CLIENT_CONNECT:
-		return (intptr_t)ClientConnect( arg0, arg1, arg2 );
-
-	case GAME_CLIENT_THINK:
-		ClientThink( arg0, NULL );
-		return 0;
-
-	case GAME_CLIENT_USERINFO_CHANGED:
-		ClientUserinfoChanged( arg0 );
-		return 0;
-
-	case GAME_CLIENT_DISCONNECT:
-		ClientDisconnect( arg0 );
-		return 0;
-
-	case GAME_CLIENT_BEGIN:
-		ClientBegin( arg0, qtrue );
-		return 0;
-
-	case GAME_CLIENT_COMMAND:
-		ClientCommand( arg0 );
-		return 0;
-
-	case GAME_RUN_FRAME:
-		G_RunFrame( arg0 );
-		return 0;
-
-	case GAME_CONSOLE_COMMAND:
-		return ConsoleCommand();
-
-	case BOTAI_START_FRAME:
-		return BotAIStartFrame( arg0 );
-
-	case GAME_ROFF_NOTETRACK_CALLBACK:
-		_G_ROFF_NotetrackCallback( arg0, (const char *)arg1 );
-		return 0;
-
-	case GAME_SPAWN_RMG_ENTITY:
-		G_SpawnRMGEntity();
-		return 0;
-
-	case GAME_ICARUS_PLAYSOUND:
-		return G_ICARUS_PlaySound();
-
-	case GAME_ICARUS_SET:
-		return G_ICARUS_Set();
-
-	case GAME_ICARUS_LERP2POS:
-		G_ICARUS_Lerp2Pos();
-		return 0;
-
-	case GAME_ICARUS_LERP2ORIGIN:
-		G_ICARUS_Lerp2Origin();
-		return 0;
-
-	case GAME_ICARUS_LERP2ANGLES:
-		G_ICARUS_Lerp2Angles();
-		return 0;
-
-	case GAME_ICARUS_GETTAG:
-		return G_ICARUS_GetTag();
-
-	case GAME_ICARUS_LERP2START:
-		G_ICARUS_Lerp2Start();
-		return 0;
-
-	case GAME_ICARUS_LERP2END:
-		G_ICARUS_Lerp2End();
-		return 0;
-
-	case GAME_ICARUS_USE:
-		G_ICARUS_Use();
-		return 0;
-
-	case GAME_ICARUS_KILL:
-		G_ICARUS_Kill();
-		return 0;
-
-	case GAME_ICARUS_REMOVE:
-		G_ICARUS_Remove();
-		return 0;
-
-	case GAME_ICARUS_PLAY:
-		G_ICARUS_Play();
-		return 0;
-
-	case GAME_ICARUS_GETFLOAT:
-		return G_ICARUS_GetFloat();
-
-	case GAME_ICARUS_GETVECTOR:
-		return G_ICARUS_GetVector();
-
-	case GAME_ICARUS_GETSTRING:
-		return G_ICARUS_GetString();
-
-	case GAME_ICARUS_SOUNDINDEX:
-		G_ICARUS_SoundIndex();
-		return 0;
-
-	case GAME_ICARUS_GETSETIDFORSTRING:
-		return G_ICARUS_GetSetIDForString();
-
-	case GAME_NAV_CLEARPATHTOPOINT:
-		return G_NAV_ClearPathToPoint( arg0, (float *)arg1, (float *)arg2, (float *)arg3, arg4, arg5 );
-
-	case GAME_NAV_CLEARLOS:
-		return G_NPC_ClearLOS2( arg0, (const float *)arg1 );
-
-	case GAME_NAV_CLEARPATHBETWEENPOINTS:
-		return NAVNEW_ClearPathBetweenPoints((float *)arg0, (float *)arg1, (float *)arg2, (float *)arg3, arg4, arg5);
-
-	case GAME_NAV_CHECKNODEFAILEDFORENT:
-		return NAV_CheckNodeFailedForEnt(&g_entities[arg0], arg1);
-
-	case GAME_NAV_ENTISUNLOCKEDDOOR:
-		return G_EntIsUnlockedDoor(arg0);
-
-	case GAME_NAV_ENTISDOOR:
-		return G_EntIsDoor(arg0);
-
-	case GAME_NAV_ENTISBREAKABLE:
-		return G_EntIsBreakable(arg0);
-
-	case GAME_NAV_ENTISREMOVABLEUSABLE:
-		return G_EntIsRemovableUsable(arg0);
-
-	case GAME_NAV_FINDCOMBATPOINTWAYPOINTS:
-		CP_FindCombatPointWaypoints();
-		return 0;
-
-	case GAME_GETITEMINDEXBYTAG:
-		return BG_GetItemIndexByTag(arg0, arg1);
-	}
-
-	return -1;
 }

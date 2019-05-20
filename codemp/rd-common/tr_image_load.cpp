@@ -32,11 +32,7 @@ struct ImageLoaderMap
 } imageLoaders[MAX_IMAGE_LOADERS];
 int numImageLoaders;
 
-/*
-=================
-Finds the image loader associated with the given extension.
-=================
-*/
+// Finds the image loader associated with the given extension.
 const ImageLoaderMap *FindImageLoader ( const char *extension )
 {
 	for ( int i = 0; i < numImageLoaders; i++ )
@@ -50,12 +46,8 @@ const ImageLoaderMap *FindImageLoader ( const char *extension )
 	return NULL;
 }
 
-/*
-=================
-Adds a new image loader to load the specified image file extension.
-The 'extension' string should not begin with a period (full stop).
-=================
-*/
+// Adds a new image loader to load the specified image file extension.
+// The 'extension' string should not begin with a period (full stop).
 qboolean R_ImageLoader_Add ( const char *extension, ImageLoaderFn imageLoader )
 {
 	if ( numImageLoaders >= MAX_IMAGE_LOADERS )
@@ -79,12 +71,7 @@ qboolean R_ImageLoader_Add ( const char *extension, ImageLoaderFn imageLoader )
 	return qtrue;
 }
 
-/*
-=================
-Initializes the image loader, and adds the built-in
-image loaders
-=================
-*/
+// Initializes the image loader, and adds the built-in image loaders
 void R_ImageLoader_Init()
 {
 	Com_Memset (imageLoaders, 0, sizeof (imageLoaders));
@@ -95,12 +82,7 @@ void R_ImageLoader_Init()
 	R_ImageLoader_Add ("tga", LoadTGA);
 }
 
-/*
-=================
-Loads any of the supported image types into a cannonical
-32 bit format.
-=================
-*/
+// Loads any of the supported image types into a cannonical 32 bit format.
 void R_LoadImage( const char *shortname, byte **pic, int *width, int *height ) {
 	*pic = NULL;
 	*width = 0;

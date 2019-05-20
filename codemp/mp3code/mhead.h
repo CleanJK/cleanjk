@@ -1,7 +1,6 @@
 #ifndef MHEAD_H
 #define MHEAD_H
 
-
 /*____________________________________________________________________________
 
 	FreeAmp - The Free MP3 Player
@@ -65,7 +64,6 @@ typedef struct
 }
 DEC_INFO;
 
-
 #ifdef __cplusplus
 extern "C"
 {
@@ -90,7 +88,6 @@ extern "C"
 			  int freq_limit);
    void audio_decode8_info(DEC_INFO * info);
    IN_OUT audio_decode8(unsigned char *bs, short *pcmbuf);
-
 
 #ifdef __cplusplus
 }

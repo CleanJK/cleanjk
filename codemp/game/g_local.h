@@ -28,7 +28,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "qcommon/q_shared.h"
 #include "bg_public.h"
-#include "bg_vehicles.h"
 #include "g_public.h"
 
 typedef struct gentity_s gentity_t;
@@ -41,10 +40,8 @@ extern int gPainMOD;
 extern int gPainHitLoc;
 extern vec3_t gPainPoint;
 
-//==================================================================
-
 // the "gameversion" client command will print this plus compile date
-#define	GAMEVERSION	"OpenJK"
+#define	GAMEVERSION	"CleanJK"
 
 #define SECURITY_LOG "security.log"
 
@@ -167,7 +164,6 @@ typedef enum
 	HL_MAX
 } hitLocation_t;
 
-//============================================================================
 extern void *precachedKyle;
 extern void *g2SaberInstance;
 
@@ -175,10 +171,10 @@ extern qboolean gEscaping;
 extern int gEscapeTime;
 
 struct gentity_s {
+	//CJKFIXME: bgentity_t substruct
 	//rww - entstate must be first, to correspond with the bg shared entity structure
 	entityState_t	s;				// communicated by server to clients
 	playerState_t	*playerState;	//ptr to playerstate if applicable (for bg ents)
-	Vehicle_t		*m_pVehicle; //vehicle data
 	void			*ghoul2; //g2 instance
 	int				localAnimIndex; //index locally (game/cgame) to anim data for this skel
 	vec3_t			modelScale; //needed for g2 collision
@@ -210,13 +206,10 @@ struct gentity_s {
 
 	int				next_roff_time; //rww - npc's need to know when they're getting roff'd
 
-	// DO NOT MODIFY ANYTHING ABOVE THIS, THE SERVER
-	// EXPECTS THE FIELDS IN THAT ORDER!
-	//================================
+	// DO NOT MODIFY ANYTHING ABOVE THIS, THE SERVER EXPECTS THE FIELDS IN THAT ORDER!
 
 	struct gclient_s	*client;			// NULL if not a client
 
-	gNPC_t		*NPC;//Only allocated if the entity becomes an NPC
 	int			cantHitEnemyCounter;//HACK - Makes them look for another enemy on the same team if the one they're after can't be hit
 
 	qboolean	noLumbar; //see note in cg_local.h
@@ -271,11 +264,6 @@ struct gentity_s {
 									// when moving.  items and corpses do not collide against
 									// players, for instance
 
-//Only used by NPC_spawners
-	char		*NPC_type;
-	char		*NPC_targetname;
-	char		*NPC_target;
-
 	// movers
 	moverState_t moverState;
 	int			soundPos1;
@@ -313,7 +301,6 @@ struct gentity_s {
 	char		*paintarget;
 
 	char		*goaltarget;
-	char		*idealclass;
 
 	float		radius;
 
@@ -466,9 +453,7 @@ typedef struct clientSession_s {
 	int			setForce;			// set to true once player is given the chance to set force powers
 	int			updateUITime;		// only update userinfo for FP/SL if < level.time
 	qboolean	teamLeader;			// true when this client is a team leader
-	char		siegeClass[64];
 	int			duelTeam;
-	int			siegeDesiredTeam;
 
 	char		IP[NET_ADDRSTRMAXLEN];
 } clientSession_t;
@@ -477,7 +462,6 @@ typedef struct clientSession_s {
 #define	PSG_VOTED				(1<<0)		// already cast a vote
 #define PSG_TEAMVOTED			(1<<1)		// already cast a team vote
 
-//
 #define MAX_NETNAME			36
 #define	MAX_VOTE_COUNT		3
 
@@ -533,7 +517,6 @@ typedef struct renderInfo_s
 	//RF?
 	int			renderFlags;
 
-	//
 	vec3_t		muzzlePoint;
 	vec3_t		muzzleDir;
 	vec3_t		muzzlePointOld;
@@ -542,10 +525,8 @@ typedef struct renderInfo_s
 	//vec3_t		muzzleDirNext;
 	int			mPCalcTime;//Last time muzzle point was calced
 
-	//
 	float		lockYaw;//
 
-	//
 	vec3_t		headPoint;//Where your tag_head is
 	vec3_t		headAngles;//where the tag_head in the torso is pointing
 	vec3_t		handRPoint;//where your right hand is
@@ -558,7 +539,6 @@ typedef struct renderInfo_s
 	vec3_t		eyePoint;//Where your eyes are
 	vec3_t		eyeAngles;//Where your eyes face
 	int			lookTarget;//Which ent to look at with lookAngles
-	lookMode_t	lookMode;
 	int			lookTargetClearTime;//Time to clear the lookTarget
 	int			lastVoiceVolume;//Last frame's voice volume
 	vec3_t		lastHeadAngles;//Last headAngles, NOT actual facing of head model
@@ -640,7 +620,6 @@ struct gclient_s {
 	int			accuracy_shots;		// total number of shots
 	int			accuracy_hits;		// total number of hits
 
-	//
 	int			lastkilled_client;	// last client that this client killed
 	int			lasthurt_client;	// last client that damaged this client
 	int			lasthurt_mod;		// type of damage the client did
@@ -730,23 +709,8 @@ struct gclient_s {
 
 	renderInfo_t	renderInfo;
 
-	//mostly NPC stuff:
-	npcteam_t	playerTeam;
-	npcteam_t	enemyTeam;
-	char		*squadname;
-	gentity_t	*team_leader;
-	gentity_t	*leader;
-	gentity_t	*follower;
-	int			numFollowers;
-	gentity_t	*formationGoal;
-	int			nextFormGoal;
-	class_t		NPC_class;
-
 	vec3_t		pushVec;
 	int			pushVecTime;
-
-	int			siegeClass;
-	int			holdingObjectiveItem;
 
 	//time values for when being healed/supplied by supplier class
 	int			isMedHealed;
@@ -758,9 +722,6 @@ struct gclient_s {
 	//used in conjunction with ps.hackingTime
 	int			isHacking;
 	vec3_t		hackingAngles;
-
-	//debounce time for sending extended siege data to certain classes
-	int			siegeEDataSend;
 
 	int			ewebIndex; //index of e-web gun if spawned
 	int			ewebTime; //e-web use debounce
@@ -855,9 +816,7 @@ typedef struct alertEvent_s
 	int					timestamp;	//when it was created
 } alertEvent_t;
 
-//
 // this structure is cleared as each map is entered
-//
 typedef struct waypointData_s {
 	char	targetname[MAX_QPATH];
 	char	target[MAX_QPATH];
@@ -962,20 +921,6 @@ typedef struct level_locals_s {
 	gentity_t	*bodyQue[BODY_QUEUE_SIZE];
 	int			portalSequence;
 
-	alertEvent_t	alertEvents[ MAX_ALERT_EVENTS ];
-	int				numAlertEvents;
-	int				curAlertID;
-
-	AIGroupInfo_t	groups[MAX_FRAME_GROUPS];
-
-	//Interest points- squadmates automatically look at these if standing around and close to them
-	interestPoint_t	interestPoints[MAX_INTEREST_POINTS];
-	int			numInterestPoints;
-
-	//Combat points- NPCs in bState BS_COMBAT_POINT will find their closest empty combat_point
-	combatPoint_t	combatPoints[MAX_COMBAT_POINTS];
-	int			numCombatPoints;
-
 	//rwwRMG - added:
 	int			mNumBSPInstances;
 	int			mBSPInstanceDepth;
@@ -1010,10 +955,7 @@ typedef struct level_locals_s {
 	char		rawmapname[MAX_QPATH];
 } level_locals_t;
 
-
-//
 // g_spawn.c
-//
 qboolean	G_SpawnString( const char *key, const char *defaultString, char **out );
 // spawn string returns a temporary reference, you must CopyString() if you want to keep it
 qboolean	G_SpawnFloat( const char *key, const char *defaultString, float *out );
@@ -1023,9 +965,7 @@ qboolean	G_SpawnBoolean( const char *key, const char *defaultString, qboolean *o
 void		G_SpawnEntitiesFromString( qboolean inSubBSP );
 char *G_NewString( const char *string );
 
-//
 // g_cmds.c
-//
 void Cmd_Score_f (gentity_t *ent);
 void StopFollowing( gentity_t *ent );
 void BroadcastTeamChange( gclient_t *client, int oldTeam );
@@ -1036,9 +976,7 @@ int G_ItemUsable(playerState_t *ps, int forcedUse);
 void Cmd_ToggleSaber_f(gentity_t *ent);
 void Cmd_EngageDuel_f(gentity_t *ent);
 
-//
 // g_items.c
-//
 void ItemUse_Binoculars(gentity_t *ent);
 void ItemUse_Shield(gentity_t *ent);
 void ItemUse_Sentry(gentity_t *ent);
@@ -1070,17 +1008,13 @@ void ClearRegisteredItems( void );
 void RegisterItem( gitem_t *item );
 void SaveRegisteredItems( void );
 
-//
 // g_utils.c
-//
 int		G_ModelIndex( const char *name );
 int		G_SoundIndex( const char *name );
 int		G_SoundSetIndex(const char *name);
 int		G_EffectIndex( const char *name );
 int		G_BSPIndex( const char *name );
 int		G_IconIndex( const char* name );
-
-qboolean	G_PlayerHasCustomSkeleton(gentity_t *ent);
 
 void	G_TeamCommand( team_t team, char *cmd );
 void	G_ScaleNetHealth(gentity_t *self);
@@ -1089,10 +1023,6 @@ gentity_t *G_Find (gentity_t *from, int fieldofs, const char *match);
 int		G_RadiusList ( vec3_t origin, float radius,	gentity_t *ignore, qboolean takeDamage, gentity_t *ent_list[MAX_GENTITIES]);
 
 void	G_Throw( gentity_t *targ, vec3_t newDir, float push );
-
-void	G_FreeFakeClient(gclient_t **cl);
-void	G_CreateFakeClient(int entNum, gclient_t **cl);
-void	G_CleanAllFakeClients(void);
 
 void	G_SetAnim(gentity_t *ent, usercmd_t *ucmd, int setAnimParts, int anim, int setAnimFlags, int blendTime);
 gentity_t *G_PickTarget (char *targetname);
@@ -1124,12 +1054,11 @@ void	G_TouchTriggers (gentity_t *ent);
 void	G_TouchSolids (gentity_t *ent);
 void	GetAnglesForDirection( const vec3_t p1, const vec3_t p2, vec3_t out );
 
-//
+void	Jedi_Cloak( gentity_t *self );
+void	Jedi_Decloak( gentity_t *self );
+
 // g_object.c
-//
-
-extern void G_RunObject			( gentity_t *ent );
-
+void G_RunObject			( gentity_t *ent );
 
 float	*tv (float x, float y, float z);
 char	*vtos( const vec3_t v );
@@ -1140,18 +1069,9 @@ void G_SetOrigin( gentity_t *ent, vec3_t origin );
 qboolean G_CheckInSolid (gentity_t *self, qboolean fix);
 void AddRemap(const char *oldShader, const char *newShader, float timeOffset);
 const char *BuildShaderStateConfig(void);
-/*
-Ghoul2 Insert Start
-*/
 int G_BoneIndex( const char *name );
 
-/*
-Ghoul2 Insert End
-*/
-
-//
 // g_combat.c
-//
 qboolean CanDamage (gentity_t *targ, vec3_t origin);
 void G_Damage (gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_t dir, vec3_t point, int damage, int dflags, int mod);
 qboolean G_RadiusDamage (vec3_t origin, gentity_t *attacker, float damage, float radius, gentity_t *ignore, gentity_t *missile, int mod);
@@ -1162,7 +1082,6 @@ void TossClientCubes( gentity_t *self );
 void ExplodeDeath( gentity_t *self );
 void G_CheckForDismemberment(gentity_t *ent, gentity_t *enemy, vec3_t point, int damage, int deathAnim, qboolean postDeath);
 extern int gGAvoidDismember;
-
 
 // damage flags
 #define DAMAGE_NORMAL				0x00000000	// No flags set.
@@ -1186,14 +1105,10 @@ extern int gGAvoidDismember;
 #define DAMAGE_SABER_KNOCKBACK2		0x00020000	// Check the attacker's second saber for a knockbackScale
 #define DAMAGE_SABER_KNOCKBACK1_B2	0x00040000	// Check the attacker's first saber for a knockbackScale2
 #define DAMAGE_SABER_KNOCKBACK2_B2	0x00080000	// Check the attacker's second saber for a knockbackScale2
-//
 // g_exphysics.c
-//
 void G_RunExPhys(gentity_t *ent, float gravity, float mass, float bounce, qboolean autoKill, int *g2Bolts, int numG2Bolts);
 
-//
 // g_missile.c
-//
 void G_ReflectMissile( gentity_t *ent, gentity_t *missile, vec3_t forward );
 
 void G_RunMissile( gentity_t *ent );
@@ -1205,10 +1120,7 @@ void G_ExplodeMissile( gentity_t *ent );
 
 void WP_FireBlasterMissile( gentity_t *ent, vec3_t start, vec3_t dir, qboolean altFire );
 
-
-//
 // g_mover.c
-//
 extern int	BMS_START;
 extern int	BMS_MID;
 extern int	BMS_END;
@@ -1220,15 +1132,10 @@ void G_PlayDoorSound( gentity_t *ent, int type );
 void G_RunMover( gentity_t *ent );
 void Touch_DoorTrigger( gentity_t *ent, gentity_t *other, trace_t *trace );
 
-//
 // g_trigger.c
-//
 void trigger_teleporter_touch (gentity_t *self, gentity_t *other, trace_t *trace );
 
-
-//
 // g_misc.c
-//
 #define MAX_REFNAME	32
 #define	START_TIME_LINK_ENTS		FRAMETIME*1
 
@@ -1256,9 +1163,7 @@ int TAG_GetFlags( const char *owner, const char *name );
 
 void TeleportPlayer( gentity_t *player, vec3_t origin, vec3_t angles );
 
-//
 // g_weapon.c
-//
 void WP_FireTurretMissile( gentity_t *ent, vec3_t start, vec3_t dir, qboolean altFire, int damage, int velocity, int mod, gentity_t *ignore );
 void WP_FireGenericBlasterMissile( gentity_t *ent, vec3_t start, vec3_t dir, qboolean altFire, int damage, int velocity, int mod );
 qboolean LogAccuracyHit( gentity_t *target, gentity_t *attacker );
@@ -1266,10 +1171,7 @@ void CalcMuzzlePoint ( gentity_t *ent, const vec3_t inForward, const vec3_t inRi
 void SnapVectorTowards( vec3_t v, vec3_t to );
 qboolean CheckGauntletAttack( gentity_t *ent );
 
-
-//
 // g_client.c
-//
 int TeamCount( int ignoreClientNum, team_t team );
 int TeamLeader( int team );
 team_t PickTeam( int ignoreClientNum );
@@ -1287,39 +1189,26 @@ qboolean SpotWouldTelefrag( gentity_t *spot );
 
 extern gentity_t *gJMSaberEnt;
 
-//
 // g_svcmds.c
-//
 qboolean	ConsoleCommand( void );
 void G_ProcessIPBans(void);
 qboolean G_FilterPacket (char *from);
 
-//
 // g_weapon.c
-//
 void FireWeapon( gentity_t *ent, qboolean altFire );
 void BlowDetpacks(gentity_t *ent);
 void RemoveDetpacks(gentity_t *ent);
 
-//
 // p_hud.c
-//
 void MoveClientToIntermission (gentity_t *client);
 void G_SetStats (gentity_t *ent);
 void DeathmatchScoreboardMessage (gentity_t *client);
 
-//
 // g_cmds.c
-//
 
-//
 // g_pweapon.c
-//
 
-
-//
 // g_main.c
-//
 extern vmCvar_t g_ff_objectives;
 extern qboolean gDoSlowMoDuel;
 extern int gSlowMoDuelTime;
@@ -1336,9 +1225,7 @@ void QDECL G_SecurityLogPrintf( const char *fmt, ... );
 void SendScoreboardMessageToAllClients( void );
 const char *G_GetStringEdString(char *refSection, char *refName);
 
-//
 // g_client.c
-//
 char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot );
 qboolean ClientUserinfoChanged( int clientNum );
 void ClientDisconnect( int clientNum );
@@ -1349,53 +1236,41 @@ void ClientCommand( int clientNum );
 void G_ClearVote( gentity_t *ent );
 void G_ClearTeamVote( gentity_t *ent, int team );
 
-//
 // g_active.c
-//
 void G_CheckClientTimeouts	( gentity_t *ent );
 void ClientThink			( int clientNum, usercmd_t *ucmd );
 void ClientEndFrame			( gentity_t *ent );
 void G_RunClient			( gentity_t *ent );
 
-//
 // g_team.c
-//
 qboolean OnSameTeam( gentity_t *ent1, gentity_t *ent2 );
 void Team_CheckDroppedItem( gentity_t *dropped );
 
-//
 // g_mem.c
-//
 void *G_Alloc( int size );
 void G_InitMemory( void );
 void Svcmd_GameMem_f( void );
 
-//
 // g_session.c
-//
 void G_ReadSessionData( gclient_t *client );
 void G_InitSessionData( gclient_t *client, char *userinfo, qboolean isBot );
 
 void G_InitWorldSession( void );
 void G_WriteSessionData( void );
 
-//
 // NPC_senses.cpp
-//
-extern void AddSightEvent( gentity_t *owner, vec3_t position, float radius, alertEventLevel_e alertLevel, float addLight ); //addLight = 0.0f
-extern void AddSoundEvent( gentity_t *owner, vec3_t position, float radius, alertEventLevel_e alertLevel, qboolean needLOS ); //needLOS = qfalse
-extern qboolean G_CheckForDanger( gentity_t *self, int alertEvent );
-extern int G_CheckAlertEvents( gentity_t *self, qboolean checkSight, qboolean checkSound, float maxSeeDist, float maxHearDist, int ignoreAlert, qboolean mustHaveOwner, int minAlertLevel ); //ignoreAlert = -1, mustHaveOwner = qfalse, minAlertLevel = AEL_MINOR
-extern qboolean G_CheckForDanger( gentity_t *self, int alertEvent );
-extern qboolean G_ClearLOS( gentity_t *self, const vec3_t start, const vec3_t end );
-extern qboolean G_ClearLOS2( gentity_t *self, gentity_t *ent, const vec3_t end );
-extern qboolean G_ClearLOS3( gentity_t *self, const vec3_t start, gentity_t *ent );
-extern qboolean G_ClearLOS4( gentity_t *self, gentity_t *ent );
-extern qboolean G_ClearLOS5( gentity_t *self, const vec3_t end );
+void AddSightEvent( gentity_t *owner, vec3_t position, float radius, alertEventLevel_e alertLevel, float addLight ); //addLight = 0.0f
+void AddSoundEvent( gentity_t *owner, vec3_t position, float radius, alertEventLevel_e alertLevel, qboolean needLOS ); //needLOS = qfalse
+qboolean G_CheckForDanger( gentity_t *self, int alertEvent );
+int G_CheckAlertEvents( gentity_t *self, qboolean checkSight, qboolean checkSound, float maxSeeDist, float maxHearDist, int ignoreAlert, qboolean mustHaveOwner, int minAlertLevel ); //ignoreAlert = -1, mustHaveOwner = qfalse, minAlertLevel = AEL_MINOR
+qboolean G_CheckForDanger( gentity_t *self, int alertEvent );
+qboolean G_ClearLOS( gentity_t *self, const vec3_t start, const vec3_t end );
+qboolean G_ClearLOS2( gentity_t *self, gentity_t *ent, const vec3_t end );
+qboolean G_ClearLOS3( gentity_t *self, const vec3_t start, gentity_t *ent );
+qboolean G_ClearLOS4( gentity_t *self, gentity_t *ent );
+qboolean G_ClearLOS5( gentity_t *self, const vec3_t end );
 
-//
 // g_bot.c
-//
 void G_InitBots( void );
 char *G_GetBotInfoByNumber( int num );
 char *G_GetBotInfoByName( const char *name );
@@ -1447,10 +1322,6 @@ void QDECL G_LogWeaponOutput(void);
 void QDECL G_LogExit( const char *string );
 void QDECL G_ClearClientLog(int client);
 
-// g_siege.c
-void InitSiegeMode(void);
-void G_SiegeClientExData(gentity_t *msgTarg);
-
 // g_timer
 //Timing information
 void		TIMER_Clear( void );
@@ -1463,11 +1334,6 @@ qboolean	TIMER_Done2( gentity_t *ent, const char *identifier, qboolean remove );
 qboolean	TIMER_Exists( gentity_t *ent, const char *identifier );
 void		TIMER_Remove( gentity_t *ent, const char *identifier );
 
-float NPC_GetHFOVPercentage( vec3_t spot, vec3_t from, vec3_t facing, float hFOV );
-float NPC_GetVFOVPercentage( vec3_t spot, vec3_t from, vec3_t facing, float vFOV );
-
-
-extern void G_SetEnemy (gentity_t *self, gentity_t *enemy);
 qboolean InFront( vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHold );
 
 // ai_main.c
@@ -1495,9 +1361,6 @@ int BotAILoadMap( int restart );
 int BotAISetupClient(int client, struct bot_settings_s *settings, qboolean restart);
 int BotAIShutdownClient( int client, qboolean restart );
 int BotAIStartFrame( int time );
-
-#include "g_team.h" // teamplay specific stuff
-
 
 extern	level_locals_t	level;
 extern	gentity_t		g_entities[MAX_GENTITIES];

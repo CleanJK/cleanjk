@@ -20,15 +20,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-/*****************************************************************************
- * name:		g_exphysics.c
- *
- * desc:		Custom physics system (Expensive Physics)
- *
- * $Author: osman $
- * $Revision: 1.4 $
- *
- *****************************************************************************/
+// Custom physics system (Expensive Physics)
+
 #include "g_local.h"
 
 #define MAX_GRAVITY_PULL 512

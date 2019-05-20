@@ -21,35 +21,16 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-/*****************************************************************************
- * name:		ai_main.c
- *
- * desc:		Quake3 bot AI
- *
- * $Archive: /MissionPack/code/game/ai_main.c $
- * $Author: osman $
- * $Revision: 1.5 $
- * $Modtime: 6/06/01 1:11p $
- * $Date: 2003/03/15 23:43:59 $
- *
- *****************************************************************************/
-
+// Quake3 bot AI
 
 #include "g_local.h"
 #include "qcommon/q_shared.h"
 #include "botlib/botlib.h"		//bot lib interface
-#include "botlib/be_aas.h"
 #include "botlib/be_ea.h"
-#include "botlib/be_ai_char.h"
-#include "botlib/be_ai_chat.h"
-#include "botlib/be_ai_gen.h"
-#include "botlib/be_ai_goal.h"
-#include "botlib/be_ai_move.h"
-#include "botlib/be_ai_weap.h"
-//
+
 #include "ai_main.h"
 #include "w_saber.h"
-//
+
 #include "chars.h"
 #include "inv.h"
 
@@ -67,11 +48,6 @@ int numbots;
 float floattime;
 //time to do a regular update
 float regularupdate_time;
-//
-
-//for siege:
-extern int rebel_attackers;
-extern int imperial_attackers;
 
 boteventtracker_t gBotEventTracker[MAX_CLIENTS];
 
@@ -129,12 +105,6 @@ char *ctfStateDescriptions[] = {
 	"I've got the enemy's flag"
 };
 
-char *siegeStateDescriptions[] = {
-	"I'm not occupied",
-	"I'm attempting to complete the current objective",
-	"I'm preventing the enemy from completing their objective"
-};
-
 char *teamplayStateDescriptions[] = {
 	"I'm not occupied",
 	"I'm following my squad commander",
@@ -187,10 +157,6 @@ void BotReportStatus(bot_state_t *bs)
 	{
 		trap->EA_SayTeam(bs->client, teamplayStateDescriptions[bs->teamplayState]);
 	}
-	else if (level.gametype == GT_SIEGE)
-	{
-		trap->EA_SayTeam(bs->client, siegeStateDescriptions[bs->siegeState]);
-	}
 	else if (level.gametype == GT_CTF || level.gametype == GT_CTY)
 	{
 		trap->EA_SayTeam(bs->client, ctfStateDescriptions[bs->ctfState]);
@@ -219,7 +185,7 @@ void BotOrder(gentity_t *ent, int clientnum, int ordernum)
 		return;
 	}
 
-	if (level.gametype != GT_CTF && level.gametype != GT_CTY && level.gametype != GT_SIEGE && level.gametype != GT_TEAM)
+	if (level.gametype != GT_CTF && level.gametype != GT_CTY && level.gametype != GT_TEAM)
 	{
 		return;
 	}
@@ -228,11 +194,6 @@ void BotOrder(gentity_t *ent, int clientnum, int ordernum)
 	{
 		stateMin = CTFSTATE_NONE;
 		stateMax = CTFSTATE_MAXCTFSTATES;
-	}
-	else if (level.gametype == GT_SIEGE)
-	{
-		stateMin = SIEGESTATE_NONE;
-		stateMax = SIEGESTATE_MAXSIEGESTATES;
 	}
 	else if (level.gametype == GT_TEAM)
 	{
@@ -359,11 +320,6 @@ int IsTeamplay(void)
 	return 1;
 }
 
-/*
-==================
-BotAI_GetClientState
-==================
-*/
 int BotAI_GetClientState( int clientNum, playerState_t *state ) {
 	gentity_t	*ent;
 
@@ -379,11 +335,6 @@ int BotAI_GetClientState( int clientNum, playerState_t *state ) {
 	return qtrue;
 }
 
-/*
-==================
-BotAI_GetEntityState
-==================
-*/
 int BotAI_GetEntityState( int entityNum, entityState_t *state ) {
 	gentity_t	*ent;
 
@@ -396,11 +347,6 @@ int BotAI_GetEntityState( int entityNum, entityState_t *state ) {
 	return qtrue;
 }
 
-/*
-==================
-BotAI_GetSnapshotEntity
-==================
-*/
 int BotAI_GetSnapshotEntity( int clientNum, int sequence, entityState_t *state ) {
 	int		entNum;
 
@@ -415,29 +361,10 @@ int BotAI_GetSnapshotEntity( int clientNum, int sequence, entityState_t *state )
 	return sequence + 1;
 }
 
-/*
-==============
-BotEntityInfo
-==============
-*/
-void BotEntityInfo(int entnum, aas_entityinfo_t *info) {
-	trap->AAS_EntityInfo(entnum, info);
-}
-
-/*
-==============
-NumBots
-==============
-*/
 int NumBots(void) {
 	return numbots;
 }
 
-/*
-==============
-AngleDifference
-==============
-*/
 float AngleDifference(float ang1, float ang2) {
 	float diff;
 
@@ -451,11 +378,6 @@ float AngleDifference(float ang1, float ang2) {
 	return diff;
 }
 
-/*
-==============
-BotChangeViewAngle
-==============
-*/
 float BotChangeViewAngle(float angle, float ideal_angle, float speed) {
 	float move;
 
@@ -478,11 +400,6 @@ float BotChangeViewAngle(float angle, float ideal_angle, float speed) {
 	return AngleMod(angle + move);
 }
 
-/*
-==============
-BotChangeViewAngles
-==============
-*/
 void BotChangeViewAngles(bot_state_t *bs, float thinktime) {
 	float diff, factor, maxchange, anglespeed, disired_speed;
 	int i;
@@ -545,11 +462,6 @@ void BotChangeViewAngles(bot_state_t *bs, float thinktime) {
 	trap->EA_View(bs->client, bs->viewangles);
 }
 
-/*
-==============
-BotInputToUserCommand
-==============
-*/
 void BotInputToUserCommand(bot_input_t *bi, usercmd_t *ucmd, int delta_angles[3], int time, int useTime) {
 	vec3_t angles, forward, right;
 	short temp;
@@ -560,7 +472,7 @@ void BotInputToUserCommand(bot_input_t *bi, usercmd_t *ucmd, int delta_angles[3]
 	memset(ucmd, 0, sizeof(usercmd_t));
 	//the duration for the user command in milli seconds
 	ucmd->serverTime = time;
-	//
+
 	if (bi->actionflags & ACTION_DELAYEDJUMP) {
 		bi->actionflags |= ACTION_JUMP;
 		bi->actionflags &= ~ACTION_DELAYEDJUMP;
@@ -600,7 +512,6 @@ void BotInputToUserCommand(bot_input_t *bi, usercmd_t *ucmd, int delta_angles[3]
 		bi->weapon = WP_BRYAR_PISTOL;
 	}
 
-	//
 	ucmd->weapon = bi->weapon;
 	//set the view angles
 	//NOTE: the ucmd->angles are the angles WITHOUT the delta angles
@@ -656,11 +567,6 @@ void BotInputToUserCommand(bot_input_t *bi, usercmd_t *ucmd, int delta_angles[3]
 	if (bi->actionflags & ACTION_CROUCH) ucmd->upmove = -127;
 }
 
-/*
-==============
-BotUpdateInput
-==============
-*/
 void BotUpdateInput(bot_state_t *bs, int time, int elapsed_time) {
 	bot_input_t bi;
 	int j;
@@ -685,11 +591,6 @@ void BotUpdateInput(bot_state_t *bs, int time, int elapsed_time) {
 	}
 }
 
-/*
-==============
-BotAIRegularUpdate
-==============
-*/
 void BotAIRegularUpdate(void) {
 	if (regularupdate_time < FloatTime()) {
 		trap->BotUpdateEntityItems();
@@ -697,11 +598,6 @@ void BotAIRegularUpdate(void) {
 	}
 }
 
-/*
-==============
-RemoveColorEscapeSequences
-==============
-*/
 void RemoveColorEscapeSequences( char *text ) {
 	int i, l;
 
@@ -718,12 +614,6 @@ void RemoveColorEscapeSequences( char *text ) {
 	text[l] = '\0';
 }
 
-
-/*
-==============
-BotAI
-==============
-*/
 int BotAI(int client, float thinktime) {
 	bot_state_t *bs;
 	char buf[1024], *args;
@@ -734,7 +624,7 @@ int BotAI(int client, float thinktime) {
 #endif
 
 	trap->EA_ResetInput(client);
-	//
+
 	bs = botstates[client];
 	if (!bs || !bs->inuse) {
 		BotAI_Print(PRT_FATAL, "BotAI: client %d is not setup\n", client);
@@ -769,7 +659,7 @@ int BotAI(int client, float thinktime) {
 	}
 	//increase the local time of the bot
 	bs->ltime += thinktime;
-	//
+
 	bs->thinktime = thinktime;
 	//origin of the bot
 	VectorCopy(bs->cur_ps.origin, bs->origin);
@@ -801,11 +691,6 @@ int BotAI(int client, float thinktime) {
 	return qtrue;
 }
 
-/*
-==================
-BotScheduleBotThink
-==================
-*/
 void BotScheduleBotThink(void) {
 	int i, botnum;
 
@@ -842,11 +727,6 @@ int PlayersInGame(void)
 	return pl;
 }
 
-/*
-==============
-BotAISetupClient
-==============
-*/
 int BotAISetupClient(int client, struct bot_settings_s *settings, qboolean restart) {
 	bot_state_t *bs;
 
@@ -914,11 +794,6 @@ int BotAISetupClient(int client, struct bot_settings_s *settings, qboolean resta
 	return qtrue;
 }
 
-/*
-==============
-BotAIShutdownClient
-==============
-*/
 int BotAIShutdownClient(int client, qboolean restart) {
 	bot_state_t *bs;
 
@@ -933,7 +808,7 @@ int BotAIShutdownClient(int client, qboolean restart) {
 	trap->BotFreeGoalState(bs->gs);
 	//free the weapon weights
 	trap->BotFreeWeaponState(bs->ws);
-	//
+
 	//clear the bot state
 	memset(bs, 0, sizeof(bot_state_t));
 	//set the inuse flag to qfalse
@@ -944,14 +819,7 @@ int BotAIShutdownClient(int client, qboolean restart) {
 	return qtrue;
 }
 
-/*
-==============
-BotResetState
-
-called when a bot enters the intermission or observer mode and
-when the level is changed
-==============
-*/
+// called when a bot enters the intermission or observer mode and when the level is changed
 void BotResetState(bot_state_t *bs) {
 	int client, entitynum, inuse;
 	int movestate, goalstate, weaponstate;
@@ -989,11 +857,6 @@ void BotResetState(bot_state_t *bs) {
 	if (bs->ms) trap->BotResetAvoidReach(bs->ms);
 }
 
-/*
-==============
-BotAILoadMap
-==============
-*/
 int BotAILoadMap( int restart ) {
 	int			i;
 
@@ -2331,11 +2194,6 @@ int BotIsAChickenWuss(bot_state_t *bs)
 		return 0;
 	}
 
-	if (level.gametype == GT_SINGLE_PLAYER)
-	{ //"coop" (not really)
-		return 0;
-	}
-
 	if (level.gametype == GT_JEDIMASTER && !bs->cur_ps.isJediMaster)
 	{ //Then you may know no fear.
 		//Well, unless he's strong.
@@ -3099,374 +2957,6 @@ int EntityVisibleBox(vec3_t org1, vec3_t mins, vec3_t maxs, vec3_t org2, int ign
 	return 0;
 }
 
-//Get the closest objective for siege and go after it
-int Siege_TargetClosestObjective(bot_state_t *bs, int flag)
-{
-	int i = 0;
-	int bestindex = -1;
-	float testdistance = 0;
-	float bestdistance = 999999999.9f;
-	gentity_t *goalent;
-	vec3_t a, dif;
-	vec3_t mins, maxs;
-
-	mins[0] = -1;
-	mins[1] = -1;
-	mins[2] = -1;
-
-	maxs[0] = 1;
-	maxs[1] = 1;
-	maxs[2] = 1;
-
-	if ( bs->wpDestination && (bs->wpDestination->flags & flag) && bs->wpDestination->associated_entity != ENTITYNUM_NONE &&
-		 &g_entities[bs->wpDestination->associated_entity] && g_entities[bs->wpDestination->associated_entity].use )
-	{
-		goto hasPoint;
-	}
-
-	while (i < gWPNum)
-	{
-		if ( gWPArray[i] && gWPArray[i]->inuse && (gWPArray[i]->flags & flag) && gWPArray[i]->associated_entity != ENTITYNUM_NONE &&
-			 &g_entities[gWPArray[i]->associated_entity] && g_entities[gWPArray[i]->associated_entity].use )
-		{
-			VectorSubtract(gWPArray[i]->origin, bs->origin, a);
-			testdistance = VectorLength(a);
-
-			if (testdistance < bestdistance)
-			{
-				bestdistance = testdistance;
-				bestindex = i;
-			}
-		}
-
-		i++;
-	}
-
-	if (bestindex != -1)
-	{
-		bs->wpDestination = gWPArray[bestindex];
-	}
-	else
-	{
-		return 0;
-	}
-hasPoint:
-	goalent = &g_entities[bs->wpDestination->associated_entity];
-
-	if (!goalent)
-	{
-		return 0;
-	}
-
-	VectorSubtract(bs->origin, bs->wpDestination->origin, a);
-
-	testdistance = VectorLength(a);
-
-	dif[0] = (goalent->r.absmax[0]+goalent->r.absmin[0])/2;
-	dif[1] = (goalent->r.absmax[1]+goalent->r.absmin[1])/2;
-	dif[2] = (goalent->r.absmax[2]+goalent->r.absmin[2])/2;
-	//brush models can have tricky origins, so this is our hacky method of getting the center point
-
-	if (goalent->takedamage && testdistance < BOT_MIN_SIEGE_GOAL_SHOOT &&
-		EntityVisibleBox(bs->origin, mins, maxs, dif, bs->client, goalent->s.number))
-	{
-		bs->shootGoal = goalent;
-		bs->touchGoal = NULL;
-	}
-	else if (goalent->use && testdistance < BOT_MIN_SIEGE_GOAL_TRAVEL)
-	{
-		bs->shootGoal = NULL;
-		bs->touchGoal = goalent;
-	}
-	else
-	{ //don't know how to handle this goal object!
-		bs->shootGoal = NULL;
-		bs->touchGoal = NULL;
-	}
-
-	if (BotGetWeaponRange(bs) == BWEAPONRANGE_MELEE ||
-		BotGetWeaponRange(bs) == BWEAPONRANGE_SABER)
-	{
-		bs->shootGoal = NULL; //too risky
-	}
-
-	if (bs->touchGoal)
-	{
-		//trap->Print("Please, master, let me touch it!\n");
-		VectorCopy(dif, bs->goalPosition);
-	}
-
-	return 1;
-}
-
-void Siege_DefendFromAttackers(bot_state_t *bs)
-{ //this may be a little cheap, but the best way to find our defending point is probably
-  //to just find the nearest person on the opposing team since they'll most likely
-  //be on offense in this situation
-	int wpClose = -1;
-	int i = 0;
-	float testdist = 999999;
-	int bestindex = -1;
-	float bestdist = 999999;
-	gentity_t *ent;
-	vec3_t a;
-
-	while (i < MAX_CLIENTS)
-	{
-		ent = &g_entities[i];
-
-		if (ent && ent->client && ent->client->sess.sessionTeam != g_entities[bs->client].client->sess.sessionTeam &&
-			ent->health > 0 && ent->client->sess.sessionTeam != TEAM_SPECTATOR)
-		{
-			VectorSubtract(ent->client->ps.origin, bs->origin, a);
-
-			testdist = VectorLength(a);
-
-			if (testdist < bestdist)
-			{
-				bestindex = i;
-				bestdist = testdist;
-			}
-		}
-
-		i++;
-	}
-
-	if (bestindex == -1)
-	{
-		return;
-	}
-
-	wpClose = GetNearestVisibleWP(g_entities[bestindex].client->ps.origin, -1);
-
-	if (wpClose != -1 && gWPArray[wpClose] && gWPArray[wpClose]->inuse)
-	{
-		bs->wpDestination = gWPArray[wpClose];
-		bs->destinationGrabTime = level.time + 10000;
-	}
-}
-
-//how many defenders on our team?
-int Siege_CountDefenders(bot_state_t *bs)
-{
-	int i = 0;
-	int num = 0;
-	gentity_t *ent;
-	bot_state_t *bot;
-
-	while (i < MAX_CLIENTS)
-	{
-		ent = &g_entities[i];
-		bot = botstates[i];
-
-		if (ent && ent->client && bot)
-		{
-			if (bot->siegeState == SIEGESTATE_DEFENDER &&
-				ent->client->sess.sessionTeam == g_entities[bs->client].client->sess.sessionTeam)
-			{
-				num++;
-			}
-		}
-
-		i++;
-	}
-
-	return num;
-}
-
-//how many other players on our team?
-int Siege_CountTeammates(bot_state_t *bs)
-{
-	int i = 0;
-	int num = 0;
-	gentity_t *ent;
-
-	while (i < MAX_CLIENTS)
-	{
-		ent = &g_entities[i];
-
-		if (ent && ent->client)
-		{
-			if (ent->client->sess.sessionTeam == g_entities[bs->client].client->sess.sessionTeam)
-			{
-				num++;
-			}
-		}
-
-		i++;
-	}
-
-	return num;
-}
-
-//see if siege objective completion should take priority in our
-//nav routines.
-int SiegeTakesPriority(bot_state_t *bs)
-{
-	int attacker;
-	//int flagForDefendableObjective;
-	int flagForAttackableObjective;
-	int defenders, teammates;
-	int idleWP;
-	wpobject_t *dest_sw = NULL;
-	int dosw = 0;
-	gclient_t *bcl;
-	vec3_t dif;
-	trace_t tr;
-
-	if (level.gametype != GT_SIEGE)
-	{
-		return 0;
-	}
-
-	bcl = g_entities[bs->client].client;
-
-	if (!bcl)
-	{
-		return 0;
-	}
-
-	if (bs->cur_ps.weapon == WP_BRYAR_PISTOL &&
-		(level.time - bs->lastDeadTime) < BOT_MAX_WEAPON_GATHER_TIME)
-	{ //get the nearest weapon laying around base before heading off for battle
-		idleWP = GetBestIdleGoal(bs);
-
-		if (idleWP != -1 && gWPArray[idleWP] && gWPArray[idleWP]->inuse)
-		{
-			if (bs->wpDestSwitchTime < level.time)
-			{
-				bs->wpDestination = gWPArray[idleWP];
-			}
-			return 1;
-		}
-	}
-	else if (bs->cur_ps.weapon == WP_BRYAR_PISTOL &&
-		(level.time - bs->lastDeadTime) < BOT_MAX_WEAPON_CHASE_TIME &&
-		bs->wpDestination && bs->wpDestination->weight)
-	{
-		dest_sw = bs->wpDestination;
-		dosw = 1;
-	}
-
-	if (bcl->sess.sessionTeam == SIEGETEAM_TEAM1)
-	{
-		attacker = imperial_attackers;
-		//flagForDefendableObjective = WPFLAG_SIEGE_REBELOBJ;
-		flagForAttackableObjective = WPFLAG_SIEGE_IMPERIALOBJ;
-	}
-	else
-	{
-		attacker = rebel_attackers;
-		//flagForDefendableObjective = WPFLAG_SIEGE_IMPERIALOBJ;
-		flagForAttackableObjective = WPFLAG_SIEGE_REBELOBJ;
-	}
-
-	if (attacker)
-	{
-		bs->siegeState = SIEGESTATE_ATTACKER;
-	}
-	else
-	{
-		bs->siegeState = SIEGESTATE_DEFENDER;
-		defenders = Siege_CountDefenders(bs);
-		teammates = Siege_CountTeammates(bs);
-
-		if (defenders > teammates/3 && teammates > 1)
-		{ //devote around 1/4 of our team to completing our own side goals even if we're a defender.
-		  //If we have no side goals we will realize that later on and join the defenders
-			bs->siegeState = SIEGESTATE_ATTACKER;
-		}
-	}
-
-	if (bs->state_Forced)
-	{
-		bs->siegeState = bs->state_Forced;
-	}
-
-	if (bs->siegeState == SIEGESTATE_ATTACKER)
-	{
-		if (!Siege_TargetClosestObjective(bs, flagForAttackableObjective))
-		{ //looks like we have no goals other than to keep the other team from completing objectives
-			Siege_DefendFromAttackers(bs);
-			if (bs->shootGoal)
-			{
-				dif[0] = (bs->shootGoal->r.absmax[0]+bs->shootGoal->r.absmin[0])/2;
-				dif[1] = (bs->shootGoal->r.absmax[1]+bs->shootGoal->r.absmin[1])/2;
-				dif[2] = (bs->shootGoal->r.absmax[2]+bs->shootGoal->r.absmin[2])/2;
-
-				if (!BotPVSCheck(bs->origin, dif))
-				{
-					bs->shootGoal = NULL;
-				}
-				else
-				{
-					trap->Trace(&tr, bs->origin, NULL, NULL, dif, bs->client, MASK_SOLID, qfalse, 0, 0);
-
-					if (tr.fraction != 1 && tr.entityNum != bs->shootGoal->s.number)
-					{
-						bs->shootGoal = NULL;
-					}
-				}
-			}
-		}
-	}
-	else if (bs->siegeState == SIEGESTATE_DEFENDER)
-	{
-		Siege_DefendFromAttackers(bs);
-		if (bs->shootGoal)
-		{
-			dif[0] = (bs->shootGoal->r.absmax[0]+bs->shootGoal->r.absmin[0])/2;
-			dif[1] = (bs->shootGoal->r.absmax[1]+bs->shootGoal->r.absmin[1])/2;
-			dif[2] = (bs->shootGoal->r.absmax[2]+bs->shootGoal->r.absmin[2])/2;
-
-			if (!BotPVSCheck(bs->origin, dif))
-			{
-				bs->shootGoal = NULL;
-			}
-			else
-			{
-				trap->Trace(&tr, bs->origin, NULL, NULL, dif, bs->client, MASK_SOLID, qfalse, 0, 0);
-
-				if (tr.fraction != 1 && tr.entityNum != bs->shootGoal->s.number)
-				{
-					bs->shootGoal = NULL;
-				}
-			}
-		}
-	}
-	else
-	{ //get busy!
-		Siege_TargetClosestObjective(bs, flagForAttackableObjective);
-		if (bs->shootGoal)
-		{
-			dif[0] = (bs->shootGoal->r.absmax[0]+bs->shootGoal->r.absmin[0])/2;
-			dif[1] = (bs->shootGoal->r.absmax[1]+bs->shootGoal->r.absmin[1])/2;
-			dif[2] = (bs->shootGoal->r.absmax[2]+bs->shootGoal->r.absmin[2])/2;
-
-			if (!BotPVSCheck(bs->origin, dif))
-			{
-				bs->shootGoal = NULL;
-			}
-			else
-			{
-				trap->Trace(&tr, bs->origin, NULL, NULL, dif, bs->client, MASK_SOLID, qfalse, 0, 0);
-
-				if (tr.fraction != 1 && tr.entityNum != bs->shootGoal->s.number)
-				{
-					bs->shootGoal = NULL;
-				}
-			}
-		}
-	}
-
-	if (dosw)
-	{ //allow siege objective code to run, but if after a particular item then keep going after it
-		bs->wpDestination = dest_sw;
-	}
-
-	return 1;
-}
-
 //see if jedi master priorities should take priority in our nav
 //routines.
 int JMTakesPriority(bot_state_t *bs)
@@ -3749,14 +3239,6 @@ void GetIdealDestination(bot_state_t *bs)
 		}
 		return;
 	}
-	else if (!badthing && SiegeTakesPriority(bs))
-	{
-		if (bs->siegeState)
-		{
-			bs->runningToEscapeThreat = 1;
-		}
-		return;
-	}
 	else if (!badthing && JMTakesPriority(bs))
 	{
 		bs->runningToEscapeThreat = 1;
@@ -3930,14 +3412,7 @@ void GetIdealDestination(bot_state_t *bs)
 			{
 				bs->wpDestination = gWPArray[tempInt];
 
-				if (level.gametype == GT_SINGLE_PLAYER)
-				{ //be more aggressive
-					bs->wpDestSwitchTime = level.time + Q_irand(300, 1000);
-				}
-				else
-				{
-					bs->wpDestSwitchTime = level.time + Q_irand(1000, 5000);
-				}
+				bs->wpDestSwitchTime = level.time + Q_irand(1000, 5000);
 			}
 		}
 	}
@@ -4121,72 +3596,6 @@ void CommanderBotCTFAI(bot_state_t *bs)
 	}
 }
 
-//similar to ctf ai, for siege
-void CommanderBotSiegeAI(bot_state_t *bs)
-{
-	int i = 0;
-	int squadmates = 0;
-	int commanded = 0;
-	int teammates = 0;
-	gentity_t *squad[MAX_CLIENTS];
-	gentity_t *ent;
-	bot_state_t *bst;
-
-	while (i < MAX_CLIENTS)
-	{
-		ent = &g_entities[i];
-
-		if (ent && ent->client && OnSameTeam(&g_entities[bs->client], ent) && botstates[ent->s.number])
-		{
-			bst = botstates[ent->s.number];
-
-			if (bst && !bst->isSquadLeader && !bst->state_Forced)
-			{
-				squad[squadmates] = ent;
-				squadmates++;
-			}
-			else if (bst && !bst->isSquadLeader && bst->state_Forced)
-			{ //count them as commanded
-				commanded++;
-			}
-		}
-
-		if (ent && ent->client && OnSameTeam(&g_entities[bs->client], ent))
-		{
-			teammates++;
-		}
-
-		i++;
-	}
-
-	if (!squadmates)
-	{
-		return;
-	}
-
-	//tell squad mates to do what I'm doing, up to half of team, let the other half make their own decisions
-	i = 0;
-
-	while (i < squadmates && squad[i])
-	{
-		bst = botstates[squad[i]->s.number];
-
-		if (commanded > teammates/2)
-		{
-			break;
-		}
-
-		if (bst)
-		{
-			bst->state_Forced = bs->siegeState;
-			bst->siegeState = bs->siegeState;
-			commanded++;
-		}
-
-		i++;
-	}
-}
-
 //teamplay ffa squad ai
 void BotDoTeamplayAI(bot_state_t *bs)
 {
@@ -4302,10 +3711,6 @@ void CommanderBotAI(bot_state_t *bs)
 	if (level.gametype == GT_CTF || level.gametype == GT_CTY)
 	{
 		CommanderBotCTFAI(bs);
-	}
-	else if (level.gametype == GT_SIEGE)
-	{
-		CommanderBotSiegeAI(bs);
 	}
 	else if (level.gametype == GT_TEAM)
 	{
@@ -6004,64 +5409,6 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 		return;
 	}
 
-
-#ifndef FINAL_BUILD
-	if (bot_getinthecarrr.integer)
-	{ //stupid vehicle debug, I tire of having to connect another client to test passengers.
-		gentity_t *botEnt = &g_entities[bs->client];
-
-		if (botEnt->inuse && botEnt->client && botEnt->client->ps.m_iVehicleNum)
-		{ //in a vehicle, so...
-			bs->noUseTime = level.time + 5000;
-
-			if (bot_getinthecarrr.integer != 2)
-			{
-				trap->EA_MoveForward(bs->client);
-
-				if (bot_getinthecarrr.integer == 3)
-				{ //use alt fire
-					trap->EA_Alt_Attack(bs->client);
-				}
-			}
-		}
-		else
-		{ //find one, get in
-			int i = 0;
-			gentity_t *vehicle = NULL;
-			//find the nearest, manned vehicle
-			while (i < MAX_GENTITIES)
-			{
-				vehicle = &g_entities[i];
-
-				if (vehicle->inuse && vehicle->client && vehicle->s.eType == ET_NPC &&
-					vehicle->s.NPC_class == CLASS_VEHICLE && vehicle->m_pVehicle &&
-					(vehicle->client->ps.m_iVehicleNum || bot_getinthecarrr.integer == 2))
-				{ //ok, this is a vehicle, and it has a pilot/passengers
-					break;
-				}
-				i++;
-			}
-			if (i != MAX_GENTITIES && vehicle)
-			{ //broke before end so we must've found something
-				vec3_t v;
-
-				VectorSubtract(vehicle->client->ps.origin, bs->origin, v);
-				VectorNormalize(v);
-				vectoangles(v, bs->goalAngles);
-				MoveTowardIdealAngles(bs);
-				trap->EA_Move(bs->client, v, 5000.0f);
-
-				if (bs->noUseTime < (level.time-400))
-				{
-					bs->noUseTime = level.time + 500;
-				}
-			}
-		}
-
-		return;
-	}
-#endif
-
 	if (bot_forgimmick.integer)
 	{
 		bs->wpCurrent = NULL;
@@ -6583,7 +5930,6 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 			vecC[1] = bs->wpCurrent->origin[1];
 			vecC[2] = vecB[2];
 
-
 			VectorSubtract(vecC, vecB, a);
 		}
 		else
@@ -7044,11 +6390,6 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 						Cmd_SaberAttackCycle_f(&g_entities[bs->client]);
 					}
 				}
-			}
-
-			if (level.gametype == GT_SINGLE_PLAYER)
-			{
-				saberRange *= 3;
 			}
 
 			if (bs->frame_Enemy_Len <= saberRange)
@@ -7518,11 +6859,6 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 
 int gUpdateVars = 0;
 
-/*
-==================
-BotAIStartFrame
-==================
-*/
 int BotAIStartFrame(int time) {
 	int i;
 	int elapsed_time, thinktime;
@@ -7573,9 +6909,9 @@ int BotAIStartFrame(int time) {
 		if( !botstates[i] || !botstates[i]->inuse ) {
 			continue;
 		}
-		//
+
 		botstates[i]->botthink_residual += elapsed_time;
-		//
+
 		if ( botstates[i]->botthink_residual >= thinktime ) {
 			botstates[i]->botthink_residual -= thinktime;
 
@@ -7601,11 +6937,6 @@ int BotAIStartFrame(int time) {
 	return qtrue;
 }
 
-/*
-==============
-BotAISetup
-==============
-*/
 int BotAISetup( int restart ) {
 	//rww - new bot cvars..
 	trap->Cvar_Register(&bot_forcepowers, "bot_forcepowers", "1", CVAR_CHEAT);
@@ -7649,11 +6980,6 @@ int BotAISetup( int restart ) {
 	return qtrue;
 }
 
-/*
-==============
-BotAIShutdown
-==============
-*/
 int BotAIShutdown( int restart ) {
 
 	int i;

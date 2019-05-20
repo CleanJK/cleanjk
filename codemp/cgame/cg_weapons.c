@@ -23,11 +23,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // cg_weapons.c -- events and effects dealing with weapons
 #include "cg_local.h"
-#include "fx_local.h"
+#include "cg_weaponfx.h"
 
-/*
-Ghoul2 Insert Start
-*/
 // set up the appropriate ghoul2 info to a refent
 void CG_SetGhoul2InfoRef( refEntity_t *ent, refEntity_t	*s1)
 {
@@ -37,17 +34,7 @@ void CG_SetGhoul2InfoRef( refEntity_t *ent, refEntity_t	*s1)
 	VectorCopy( s1->angles, ent->angles);
 }
 
-/*
-Ghoul2 Insert End
-*/
-
-/*
-=================
-CG_RegisterItemVisuals
-
-The server says this item is used on this level
-=================
-*/
+// The server says this item is used on this level
 void CG_RegisterItemVisuals( int itemNum ) {
 	itemInfo_t		*itemInfo;
 	gitem_t			*item;
@@ -82,9 +69,6 @@ void CG_RegisterItemVisuals( int itemNum ) {
 	{
 		itemInfo->models[0] = trap->R_RegisterModel( item->world_model[0] );
 	}
-/*
-Ghoul2 Insert Start
-*/
 	if (!Q_stricmp(&item->world_model[0][strlen(item->world_model[0]) - 4], ".glm"))
 	{
 		handle = trap->G2API_InitGhoul2Model(&itemInfo->g2Models[0], item->world_model[0], 0 , 0, 0, 0, 0);
@@ -97,9 +81,6 @@ Ghoul2 Insert Start
 			itemInfo->radius[0] = 60;
 		}
 	}
-/*
-Ghoul2 Insert End
-*/
 	if (item->icon)
 	{
 		if (item->giType == IT_HEALTH)
@@ -120,9 +101,8 @@ Ghoul2 Insert End
 		CG_RegisterWeapon( item->giTag );
 	}
 
-	//
 	// powerups have an accompanying ring or sphere
-	//
+
 	if ( item->giType == IT_POWERUP || item->giType == IT_HEALTH ||
 		item->giType == IT_ARMOR || item->giType == IT_HOLDABLE ) {
 		if ( item->world_model[1] ) {
@@ -131,14 +111,7 @@ Ghoul2 Insert End
 	}
 }
 
-
-/*
-========================================================================================
-
-VIEW WEAPON
-
-========================================================================================
-*/
+// VIEW WEAPON
 
 #define WEAPON_FORCE_BUSY_HOLSTER
 
@@ -148,12 +121,6 @@ static int cgWeapFrame = 0;
 static int cgWeapFrameTime = 0;
 #endif
 
-/*
-=================
-CG_MapTorsoToWeaponFrame
-
-=================
-*/
 static int CG_MapTorsoToWeaponFrame( clientInfo_t *ci, int frame, int animNum ) {
 	animation_t *animations = bgHumanoidAnimations;
 #ifdef WEAPON_FORCE_BUSY_HOLSTER
@@ -211,16 +178,9 @@ static int CG_MapTorsoToWeaponFrame( clientInfo_t *ci, int frame, int animNum ) 
 	return -1;
 }
 
-
-/*
-==============
-CG_CalculateWeaponPosition
-==============
-*/
 static void CG_CalculateWeaponPosition( vec3_t origin, vec3_t angles ) {
-	float	scale;
+	float	scale, fracsin;
 	int		delta;
-	float	fracsin;
 
 	VectorCopy( cg.refdef.vieworg, origin );
 	VectorCopy( cg.refdef.viewangles, angles );
@@ -232,56 +192,65 @@ static void CG_CalculateWeaponPosition( vec3_t origin, vec3_t angles ) {
 		scale = cg.xyspeed;
 	}
 
-	if ( cg_weaponBob.value ) {
-		// gun angles from bobbing
-		angles[ROLL] += scale * cg.bobfracsin * 0.005;
-		angles[YAW] += scale * cg.bobfracsin * 0.01;
-		angles[PITCH] += cg.xyspeed * cg.bobfracsin * 0.005;
-	}
+	// gun angles from bobbing
+	if ( cg_gunBobEnable.integer ) {
+		angles[0] += cg.xyspeed	* cg.bobfracsin * cg.gunBob[0];
+		angles[1] += scale		* cg.bobfracsin * cg.gunBob[1];
+		angles[2] += scale		* cg.bobfracsin * cg.gunBob[2];
 
-	if ( cg_fallingBob.value ) {
 		// drop the weapon when landing
 		delta = cg.time - cg.landTime;
-		if ( delta < LAND_DEFLECT_TIME ) {
-			origin[2] += cg.landChange*0.25 * delta / LAND_DEFLECT_TIME;
-		} else if ( delta < LAND_DEFLECT_TIME + LAND_RETURN_TIME ) {
-			origin[2] += cg.landChange*0.25 *
-				(LAND_DEFLECT_TIME + LAND_RETURN_TIME - delta) / LAND_RETURN_TIME;
-		}
-	}
+		if ( delta < LAND_DEFLECT_TIME )
+			origin[2] += cg.landChange*0.25f * delta / LAND_DEFLECT_TIME;
+		else if ( delta < LAND_DEFLECT_TIME + LAND_RETURN_TIME )
+			origin[2] += cg.landChange*0.25f * (LAND_DEFLECT_TIME + LAND_RETURN_TIME - delta) / LAND_RETURN_TIME;
 
 #if 0
-	// drop the weapon when stair climbing
-	delta = cg.time - cg.stepTime;
-	if ( delta < STEP_TIME/2 ) {
-		origin[2] -= cg.stepChange*0.25 * delta / (STEP_TIME/2);
-	} else if ( delta < STEP_TIME ) {
-		origin[2] -= cg.stepChange*0.25 * (STEP_TIME - delta) / (STEP_TIME/2);
-	}
+		// drop the weapon when stair climbing
+		delta = cg.time - cg.stepTime;
+		if ( delta < STEP_TIME/2 )
+			origin[2] -= cg.stepChange*0.25f * delta / (STEP_TIME/2);
+		else if ( delta < STEP_TIME )
+			origin[2] -= cg.stepChange*0.25f * (STEP_TIME - delta) / (STEP_TIME/2);
 #endif
+	}
 
-	if ( cg_weaponBob.value ) {
-		// idle drift
+	// idle drift
+	if ( cg_gunIdleDriftEnable.integer ) {
 		scale = cg.xyspeed + 40;
-		fracsin = sin( cg.time * 0.001 );
-		angles[ROLL] += scale * fracsin * 0.01;
-		angles[YAW] += scale * fracsin * 0.01;
-		angles[PITCH] += scale * fracsin * 0.01;
+		fracsin = sinf( cg.time * cg.gunIdleDrift.speed );
+		angles[0] += scale * fracsin * cg.gunIdleDrift.amount[0];
+		angles[1] += scale * fracsin * cg.gunIdleDrift.amount[1];
+		angles[2] += scale * fracsin * cg.gunIdleDrift.amount[2];
+	}
+
+	if ( cg_gunMomentumEnable.integer ) {
+		// sway viewmodel when changing viewangles
+		static vec3_t previousAngles ={};
+
+		vec3_t deltaAngles;
+		AnglesSubtract( angles, previousAngles, deltaAngles );
+		VectorScale( deltaAngles, 1.0f, deltaAngles );
+
+		const double f = fabs( 1.0 / (double)cg_gunMomentumDamp.value );
+		const double y = (double)cg_gunMomentumInterval.value;
+		const double dampRatio = 1.0 / powf( f, y );
+		VectorMA( previousAngles, dampRatio, deltaAngles, angles );
+		VectorCopy( angles, previousAngles );
+
+		// move viewmodel downwards when jumping etc
+		static float previousOriginZ = 0.0f;
+		const float deltaZ = origin[2] - previousOriginZ;
+		if ( deltaZ > 0.0f ) {
+			origin[2] = origin[2] - deltaZ * cg_gunMomentumFall.value;
+		}
+		previousOriginZ = origin[2];
 	}
 }
 
-
-/*
-===============
-CG_LightningBolt
-
-Origin will be the exact tag point, which is slightly
-different than the muzzle point used for determining hits.
-The cent should be the non-predicted cent if it is from the player,
-so the endpoint will reflect the simulated strike (lagging the predicted
-angle)
-===============
-*/
+// Origin will be the exact tag point, which is slightly different than the muzzle point used for determining hits.
+// The cent should be the non-predicted cent if it is from the player, so the endpoint will reflect the simulated strike
+//	(lagging the predicted angle)
 static void CG_LightningBolt( centity_t *cent, vec3_t origin ) {
 //	trace_t  trace;
 	refEntity_t  beam;
@@ -381,12 +350,6 @@ static void CG_LightningBolt( centity_t *cent, vec3_t origin ) {
 */
 }
 
-
-/*
-========================
-CG_AddWeaponWithPowerups
-========================
-*/
 static void CG_AddWeaponWithPowerups( refEntity_t *gun, int powerups ) {
 	// add powerup effects
 	trap->R_AddRefEntityToScene( gun );
@@ -407,16 +370,8 @@ static void CG_AddWeaponWithPowerups( refEntity_t *gun, int powerups ) {
 	}
 }
 
-
-/*
-=============
-CG_AddPlayerWeapon
-
-Used for both the view weapon (ps is valid) and the world modelother character models (ps is NULL)
-The main player will have this called for BOTH cases, so effects like light and
-sound should only be done on the world model case.
-=============
-*/
+// Used for both the view weapon (ps is valid) and the world modelother character models (ps is NULL)
+// The main player will have this called for BOTH cases, so effects like light and sound should only be done on the world model case.
 void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent, int team, vec3_t newAngles, qboolean thirdPerson ) {
 	refEntity_t	gun;
 	refEntity_t	barrel;
@@ -441,9 +396,6 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 
 	CG_RegisterWeapon( weaponNum );
 	weapon = &cg_weapons[weaponNum];
-/*
-Ghoul2 Insert Start
-*/
 
 	memset( &gun, 0, sizeof( gun ) );
 
@@ -514,15 +466,15 @@ Ghoul2 Insert Start
 
 				if (i == 0)
 				{
-					barrel.hModel = trap->R_RegisterModel("models/weapons2/stun_baton/baton_barrel.md3");
+					barrel.hModel = trap->R_RegisterModel("models/weapons/stun_baton/baton_barrel.md3");
 				}
 				else if (i == 1)
 				{
-					barrel.hModel = trap->R_RegisterModel("models/weapons2/stun_baton/baton_barrel2.md3");
+					barrel.hModel = trap->R_RegisterModel("models/weapons/stun_baton/baton_barrel2.md3");
 				}
 				else
 				{
-					barrel.hModel = trap->R_RegisterModel("models/weapons2/stun_baton/baton_barrel3.md3");
+					barrel.hModel = trap->R_RegisterModel("models/weapons/stun_baton/baton_barrel3.md3");
 				}
 				angles[YAW] = 0;
 				angles[PITCH] = 0;
@@ -569,9 +521,6 @@ Ghoul2 Insert Start
 			}
 		}
 	}
-/*
-Ghoul2 Insert End
-*/
 
 	memset (&flash, 0, sizeof(flash));
 	CG_PositionEntityOnTag( &flash, &gun, gun.hModel, "tag_flash");
@@ -579,7 +528,6 @@ Ghoul2 Insert End
 	VectorCopy(flash.origin, cg.lastFPFlashPoint);
 
 	// Do special charge bits
-	//-----------------------
 	if ( (ps || cg.renderingThirdPerson || cg.predictedPlayerState.clientNum != cent->currentState.number) &&
 		( ( cent->currentState.modelindex2 == WEAPON_CHARGING_ALT && cent->currentState.weapon == WP_BRYAR_PISTOL ) ||
 		  ( cent->currentState.modelindex2 == WEAPON_CHARGING_ALT && cent->currentState.weapon == WP_BRYAR_OLD ) ||
@@ -772,38 +720,16 @@ Ghoul2 Insert End
 	}
 }
 
-/*
-==============
-CG_AddViewWeapon
-
-Add the weapon, and flash for the player's view
-==============
-*/
+// Add the weapon, and flash for the player's view
 void CG_AddViewWeapon( playerState_t *ps ) {
 	refEntity_t	hand;
 	centity_t	*cent;
 	clientInfo_t	*ci;
-	float		fovOffset;
 	vec3_t		angles;
 	weaponInfo_t	*weapon;
-	float cgFov = cg_fovViewmodel.integer ? cg_fovViewmodel.value : cg_fov.value;
+	float cgFov = Com_Clampi( 1, cg_fovViewmodel.integer ? cg_fovViewmodel.value : cg_fov.value, 180 );
 
-	if (cgFov < 1)
-		cgFov = 1;
-	if (cgFov > 130)
-		cgFov = 130;
-
-	if ( ps->persistant[PERS_TEAM] == TEAM_SPECTATOR ) {
-		return;
-	}
-
-	if ( ps->pm_type == PM_INTERMISSION ) {
-		return;
-	}
-
-	// no gun if in third person view or a camera is active
-	//if ( cg.renderingThirdPerson || cg.cameraMode) {
-	if ( cg.renderingThirdPerson ) {
+	if ( ps->persistant[PERS_TEAM] == TEAM_SPECTATOR || ps->pm_type == PM_INTERMISSION || cg.renderingThirdPerson ) {
 		return;
 	}
 
@@ -825,12 +751,6 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 		return;
 	}
 
-	// drop gun lower at higher fov
-	if ( cg_fovViewmodelAdjust.integer && cgFov > 90 )
-		fovOffset = -0.2f * ( cgFov - 90 );
-	else
-		fovOffset = 0;
-
 	cent = &cg_entities[cg.predictedPlayerState.clientNum];
 	CG_RegisterWeapon( ps->weapon );
 	weapon = &cg_weapons[ ps->weapon ];
@@ -840,9 +760,9 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 	// set up gun position
 	CG_CalculateWeaponPosition( hand.origin, angles );
 
-	VectorMA( hand.origin, cg_gunX.value, cg.refdef.viewaxis[0], hand.origin );
-	VectorMA( hand.origin, cg_gunY.value, cg.refdef.viewaxis[1], hand.origin );
-	VectorMA( hand.origin, (cg_gunZ.value+fovOffset), cg.refdef.viewaxis[2], hand.origin );
+	VectorMA( hand.origin, cg.gunAlign[0], cg.refdef.viewaxis[0], hand.origin );
+	VectorMA( hand.origin, cg.gunAlign[1], cg.refdef.viewaxis[1], hand.origin );
+	VectorMA( hand.origin, cg.gunAlign[2], cg.refdef.viewaxis[2], hand.origin );
 
 	AnglesToAxis( angles, hand.axis );
 
@@ -861,19 +781,7 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 	} else {
 		float currentFrame;
 		// get clientinfo for animation map
-		if (cent->currentState.eType == ET_NPC)
-		{
-			if (!cent->npcClient)
-			{
-				return;
-			}
-
-			ci = cent->npcClient;
-		}
-		else
-		{
-			ci = &cgs.clientinfo[ cent->currentState.clientNum ];
-		}
+		ci = &cgs.clientinfo[ cent->currentState.clientNum ];
 
 		trap->G2API_GetBoneFrame(cent->ghoul2, "lower_lumbar", cg.time, &currentFrame, cgs.gameModels, 0);
 		hand.frame = CG_MapTorsoToWeaponFrame( ci, ceil( currentFrame ), ps->torsoAnim );
@@ -901,17 +809,10 @@ void CG_AddViewWeapon( playerState_t *ps ) {
 	CG_AddPlayerWeapon( &hand, ps, &cg_entities[cg.predictedPlayerState.clientNum], ps->persistant[PERS_TEAM], angles, qfalse );
 }
 
-/*
-==============================================================================
-
-WEAPON SELECTION
-
-==============================================================================
-*/
+// WEAPON SELECTION
 #define ICON_WEAPONS	0
 #define ICON_FORCE		1
 #define ICON_INVENTORY	2
-
 
 void CG_DrawIconBackground(void)
 {
@@ -1049,11 +950,6 @@ qboolean CG_WeaponCheck(int weap)
 	return qtrue;
 }
 
-/*
-===============
-CG_WeaponSelectable
-===============
-*/
 static qboolean CG_WeaponSelectable( int i ) {
 	/*if ( !cg.snap->ps.ammo[weaponData[i].ammoIndex] ) {
 		return qfalse;
@@ -1082,11 +978,6 @@ static qboolean CG_WeaponSelectable( int i ) {
 	return qtrue;
 }
 
-/*
-===================
-CG_DrawWeaponSelect
-===================
-*/
 void CG_DrawWeaponSelect( void ) {
 	int				i;
 	int				bits;
@@ -1344,7 +1235,6 @@ void CG_DrawWeaponSelect( void ) {
 				CG_DrawPic( holdX, y+10+yOffset, smallIconSize, smallIconSize, cgs.media.weaponIcons[i] );
 			}
 
-
 			holdX += (smallIconSize+pad);
 		}
 		if ( i == WP_CONCUSSION )
@@ -1376,12 +1266,6 @@ void CG_DrawWeaponSelect( void ) {
 	trap->R_SetColor( NULL );
 }
 
-
-/*
-===============
-CG_NextWeapon_f
-===============
-*/
 void CG_NextWeapon_f( void ) {
 	int		i;
 	int		original;
@@ -1443,11 +1327,6 @@ void CG_NextWeapon_f( void ) {
 	}
 }
 
-/*
-===============
-CG_PrevWeapon_f
-===============
-*/
 void CG_PrevWeapon_f( void ) {
 	int		i;
 	int		original;
@@ -1509,11 +1388,6 @@ void CG_PrevWeapon_f( void ) {
 	}
 }
 
-/*
-===============
-CG_Weapon_f
-===============
-*/
 void CG_Weapon_f( void ) {
 	int		num;
 
@@ -1635,7 +1509,6 @@ void CG_Weapon_f( void ) {
 	cg.weaponSelect = num;
 }
 
-
 //Version of the above which doesn't add +2 to a weapon.  The above can't
 //triger WP_MELEE or WP_STUN_BATON.  Derogatory comments go here.
 void CG_WeaponClean_f( void ) {
@@ -1751,15 +1624,7 @@ void CG_WeaponClean_f( void ) {
 	cg.weaponSelect = num;
 }
 
-
-
-/*
-===================
-CG_OutOfAmmoChange
-
-The current weapon has just run out of ammo
-===================
-*/
+// The current weapon has just run out of ammo
 void CG_OutOfAmmoChange( int oldWeapon )
 {
 	int		i;
@@ -1789,15 +1654,7 @@ void CG_OutOfAmmoChange( int oldWeapon )
 	trap->S_MuteSound(cg.snap->ps.clientNum, CHAN_WEAPON);
 }
 
-
-
-/*
-===================================================================================================
-
-WEAPON EVENTS
-
-===================================================================================================
-*/
+// WEAPON EVENTS
 
 void CG_GetClientWeaponMuzzleBoltPoint(int clIndex, vec3_t to)
 {
@@ -1821,13 +1678,7 @@ void CG_GetClientWeaponMuzzleBoltPoint(int clIndex, vec3_t to)
 	BG_GiveMeVectorFromMatrix(&boltMatrix, ORIGIN, to);
 }
 
-/*
-================
-CG_FireWeapon
-
-Caused by an EV_FIRE_WEAPON event
-================
-*/
+// Caused by an EV_FIRE_WEAPON event
 void CG_FireWeapon( centity_t *cent, qboolean altFire ) {
 	entityState_t *ent;
 	int				c;
@@ -1910,13 +1761,10 @@ void CG_FireWeapon( centity_t *cent, qboolean altFire ) {
 		}
 	}
 
-	#ifdef BASE_COMPAT
-		// play quad sound if needed
-		if ( cent->currentState.powerups & ( 1 << PW_QUAD ) ) {
-			//trap->S_StartSound (NULL, cent->currentState.number, CHAN_ITEM, cgs.media.quadSound );
-		}
-	#endif // BASE_COMPAT
-
+	// play quad sound if needed
+	if ( cent->currentState.powerups & ( 1 << PW_QUAD ) ) {
+		//trap->S_StartSound (NULL, cent->currentState.number, CHAN_ITEM, cgs.media.quadSound );
+	}
 
 	// play a sound
 	if (altFire)
@@ -1957,28 +1805,7 @@ void CG_FireWeapon( centity_t *cent, qboolean altFire ) {
 	}
 }
 
-qboolean CG_VehicleWeaponImpact( centity_t *cent )
-{//see if this is a missile entity that's owned by a vehicle and should do a special, overridden impact effect
-	if ((cent->currentState.eFlags&EF_JETPACK_ACTIVE)//hack so we know we're a vehicle Weapon shot
-		&& cent->currentState.otherEntityNum2
-		&& g_vehWeaponInfo[cent->currentState.otherEntityNum2].iImpactFX)
-	{//missile is from a special vehWeapon
-		vec3_t normal;
-		ByteToDir( cent->currentState.eventParm, normal );
-
-		trap->FX_PlayEffectID( g_vehWeaponInfo[cent->currentState.otherEntityNum2].iImpactFX, cent->lerpOrigin, normal, -1, -1, qfalse );
-		return qtrue;
-	}
-	return qfalse;
-}
-
-/*
-=================
-CG_MissileHitWall
-
-Caused by an EV_MISSILE_MISS event, or directly by local bullet tracing
-=================
-*/
+// Caused by an EV_MISSILE_MISS event, or directly by local bullet tracing
 void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, impactSound_t soundType, qboolean altFire, int charge)
 {
 	int parm;
@@ -2081,12 +1908,6 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 	}
 }
 
-
-/*
-=================
-CG_MissileHitPlayer
-=================
-*/
 void CG_MissileHitPlayer(int weapon, vec3_t origin, vec3_t dir, int entityNum, qboolean altFire)
 {
 	qboolean	humanoid = qtrue;
@@ -2203,21 +2024,8 @@ void CG_MissileHitPlayer(int weapon, vec3_t origin, vec3_t dir, int entityNum, q
 	}
 }
 
+// BULLETS
 
-/*
-============================================================================
-
-BULLETS
-
-============================================================================
-*/
-
-
-/*
-======================
-CG_CalcMuzzlePoint
-======================
-*/
 qboolean CG_CalcMuzzlePoint( int entityNum, vec3_t muzzle ) {
 	vec3_t		forward, right;
 	vec3_t		gunpoint;
@@ -2318,12 +2126,6 @@ qboolean CG_CalcMuzzlePoint( int entityNum, vec3_t muzzle ) {
 
 }
 
-
-
-/*
-Ghoul2 Insert Start
-*/
-
 // create one instance of all the weapons we are going to use so we can just copy this info into each clients gun ghoul2 object in fast way
 static void *g2WeaponInstances[MAX_WEAPONS];
 
@@ -2378,26 +2180,16 @@ void CG_ShutDownG2Weapons(void)
 
 void *CG_G2WeaponInstance(centity_t *cent, int weapon)
 {
-	clientInfo_t *ci = NULL;
+	clientInfo_t *ci = &cgs.clientinfo[cent->currentState.number];
 
 	if (weapon != WP_SABER)
 	{
 		return g2WeaponInstances[weapon];
 	}
 
-	if (cent->currentState.eType != ET_PLAYER &&
-		cent->currentState.eType != ET_NPC)
+	if (cent->currentState.eType != ET_PLAYER)
 	{
 		return g2WeaponInstances[weapon];
-	}
-
-	if (cent->currentState.eType == ET_NPC)
-	{
-		ci = cent->npcClient;
-	}
-	else
-	{
-		ci = &cgs.clientinfo[cent->currentState.number];
 	}
 
 	if (!ci)
@@ -2425,44 +2217,23 @@ void CG_CopyG2WeaponInstance(centity_t *cent, int weaponNum, void *toGhoul2)
 	{
 		if (weaponNum == WP_SABER)
 		{
-			clientInfo_t *ci = NULL;
-
-			if (cent->currentState.eType == ET_NPC)
-			{
-				ci = cent->npcClient;
-			}
-			else
-			{
-				ci = &cgs.clientinfo[cent->currentState.number];
-			}
-
-			if (!ci)
-			{
-				trap->G2API_CopySpecificGhoul2Model(CG_G2WeaponInstance(cent, weaponNum/*-1*/), 0, toGhoul2, 1);
-			}
-			else
-			{ //Try both the left hand saber and the right hand saber
-				int i = 0;
-
-				while (i < MAX_SABERS)
+			clientInfo_t *ci = &cgs.clientinfo[cent->currentState.number];
+			int i = 0;
+			for ( i=0; i<MAX_SABERS; i++ ) {
+				if (ci->saber[i].model[0] &&
+					ci->ghoul2Weapons[i])
 				{
-					if (ci->saber[i].model[0] &&
-						ci->ghoul2Weapons[i])
-					{
-						trap->G2API_CopySpecificGhoul2Model(ci->ghoul2Weapons[i], 0, toGhoul2, i+1);
-					}
-					else if (ci->ghoul2Weapons[i])
-					{ //if the second saber has been removed, then be sure to remove it and free the instance.
-						qboolean g2HasSecondSaber = trap->G2API_HasGhoul2ModelOnIndex(&(toGhoul2), 2);
+					trap->G2API_CopySpecificGhoul2Model(ci->ghoul2Weapons[i], 0, toGhoul2, i+1);
+				}
+				else if (ci->ghoul2Weapons[i])
+				{ //if the second saber has been removed, then be sure to remove it and free the instance.
+					qboolean g2HasSecondSaber = trap->G2API_HasGhoul2ModelOnIndex(&(toGhoul2), 2);
 
-						if (g2HasSecondSaber)
-						{ //remove it now since we're switching away from sabers
-							trap->G2API_RemoveGhoul2Model(&(toGhoul2), 2);
-						}
-						trap->G2API_CleanGhoul2Models(&ci->ghoul2Weapons[i]);
+					if (g2HasSecondSaber)
+					{ //remove it now since we're switching away from sabers
+						trap->G2API_RemoveGhoul2Model(&(toGhoul2), 2);
 					}
-
-					i++;
+					trap->G2API_CleanGhoul2Models(&ci->ghoul2Weapons[i]);
 				}
 			}
 		}
@@ -2507,12 +2278,6 @@ void CG_CheckPlayerG2Weapons(playerState_t *ps, centity_t *cent)
 
 	if (ps->pm_flags & PMF_FOLLOW)
 	{
-		return;
-	}
-
-	if (cent->currentState.eType == ET_NPC)
-	{
-		assert(0);
 		return;
 	}
 
@@ -2582,7 +2347,3 @@ void CG_CheckPlayerG2Weapons(playerState_t *ps, centity_t *cent)
 	}
 }
 
-
-/*
-Ghoul2 Insert End
-*/

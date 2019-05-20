@@ -23,7 +23,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // g_mem.c
 // Simple linear memory allocator
-//
 
 #include "g_local.h"
 

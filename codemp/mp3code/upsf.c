@@ -29,8 +29,6 @@ ____________________________________________________________________________*/
 Layer III
     unpack scale factors
 
-
-
 ******************************************************************/
 
 #include <stdlib.h>
@@ -93,14 +91,12 @@ void unpack_sf_sub_MPEG1(SCALEFACT sf[],
    int slen0, slen1;
    int block_type, mixed_block_flag, scalefac_compress;
 
-
    block_type = grdat->block_type;
    mixed_block_flag = grdat->mixed_block_flag;
    scalefac_compress = grdat->scalefac_compress;
 
    slen0 = slen_table[scalefac_compress][0];
    slen1 = slen_table[scalefac_compress][1];
-
 
    if (block_type == 2)
    {
@@ -174,8 +170,6 @@ void unpack_sf_sub_MPEG1(SCALEFACT sf[],
       for (; sfb < 21; sfb++)
 	 sf[0].l[sfb] = bitget(slen1);
 
-
-
    return;
 }
 /*=============================================================*/
@@ -189,7 +183,6 @@ void unpack_sf_sub_MPEG2(SCALEFACT sf[],
    int i, k;
    int preflag, intensity_scale;
    int block_type, mixed_block_flag, scalefac_compress;
-
 
    block_type = grdat->block_type;
    mixed_block_flag = grdat->mixed_block_flag;
@@ -274,7 +267,6 @@ void unpack_sf_sub_MPEG2(SCALEFACT sf[],
    nr2 = nr_table[k][i][1];
    nr3 = nr_table[k][i][2];
    nr4 = nr_table[k][i][3];
-
 
 /* return is scale factor info (for right chan is mode) */
    if (is_and_ch)
@@ -366,7 +358,6 @@ void unpack_sf_sub_MPEG2(SCALEFACT sf[],
       return;
    }
 
-
 /* long blocks types 0 1 3 */
    sfb = 0;
    if (slen1 != 0)
@@ -396,7 +387,6 @@ void unpack_sf_sub_MPEG2(SCALEFACT sf[],
    else
       for (i = 0; i < nr4; i++, sfb++)
 	 sf[0].l[sfb] = 0;
-
 
 }
 /*-------------------------------------------------*/

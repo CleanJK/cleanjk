@@ -63,12 +63,12 @@ void multi_trigger_run( gentity_t *ent )
 
 	if (ent->genericValue4)
 	{ //we want to activate target3 for team1 or target4 for team2
-		if (ent->genericValue4 == SIEGETEAM_TEAM1 &&
+		if (ent->genericValue4 == TEAM_RED &&
 			ent->target3 && ent->target3[0])
 		{
 			G_UseTargets2(ent, ent->activator, ent->target3);
 		}
-		else if (ent->genericValue4 == SIEGETEAM_TEAM2 &&
+		else if (ent->genericValue4 == TEAM_BLUE &&
 			ent->target4 && ent->target4[0])
 		{
 			G_UseTargets2(ent, ent->activator, ent->target4);
@@ -146,8 +146,6 @@ qboolean G_NameInTriggerClassList(char *list, char *str)
 	return qfalse;
 }
 
-extern qboolean gSiegeRoundBegun;
-void SiegeItemRemoveOwner(gentity_t *ent, gentity_t *carrier);
 void multi_trigger( gentity_t *ent, gentity_t *activator )
 {
 	qboolean haltTrigger = qfalse;
@@ -157,161 +155,14 @@ void multi_trigger( gentity_t *ent, gentity_t *activator )
 		return;
 	}
 
-	if (level.gametype == GT_SIEGE &&
-		!gSiegeRoundBegun)
-	{ //nothing can be used til the round starts.
-		return;
-	}
-
-	if (level.gametype == GT_SIEGE &&
-		activator && activator->client &&
-		ent->alliedTeam &&
-		activator->client->sess.sessionTeam != ent->alliedTeam)
-	{ //this team can't activate this trigger.
-		return;
-	}
-
-	if (level.gametype == GT_SIEGE &&
-		ent->idealclass && ent->idealclass[0])
-	{ //only certain classes can activate it
-		if (!activator ||
-			!activator->client ||
-			activator->client->siegeClass < 0)
-		{ //no class
-			return;
-		}
-
-		if (!G_NameInTriggerClassList(bgSiegeClasses[activator->client->siegeClass].name, ent->idealclass))
-		{ //wasn't in the list
-			return;
-		}
-	}
-
-	if (level.gametype == GT_SIEGE && ent->genericValue1)
-	{
-		haltTrigger = qtrue;
-
-		if (activator && activator->client &&
-			activator->client->holdingObjectiveItem &&
-			ent->targetname && ent->targetname[0])
-		{
-			gentity_t *objItem = &g_entities[activator->client->holdingObjectiveItem];
-
-			if (objItem && objItem->inuse)
-			{
-				if (objItem->goaltarget && objItem->goaltarget[0] &&
-					!Q_stricmp(ent->targetname, objItem->goaltarget))
-				{
-					if (objItem->genericValue7 != activator->client->sess.sessionTeam)
-					{ //The carrier of the item is not on the team which disallows objective scoring for it
-						if (objItem->target3 && objItem->target3[0])
-						{ //if it has a target3, fire it off instead of using the trigger
-							G_UseTargets2(objItem, objItem, objItem->target3);
-
-                            //3-24-03 - want to fire off the target too I guess, if we have one.
-							if (ent->targetname && ent->targetname[0])
-							{
-								haltTrigger = qfalse;
-							}
-						}
-						else
-						{
-							haltTrigger = qfalse;
-						}
-
-						//now that the item has been delivered, it can go away.
-						SiegeItemRemoveOwner(objItem, activator);
-						objItem->nextthink = 0;
-						objItem->neverFree = qfalse;
-						G_FreeEntity(objItem);
-					}
-				}
-			}
-		}
-	}
-	else if (ent->genericValue1)
+	if (ent->genericValue1)
 	{ //Never activate in non-siege gametype I guess.
 		return;
 	}
 
 	if (ent->genericValue2)
 	{ //has "teambalance" property
-		int i = 0;
-		int team1ClNum = 0;
-		int team2ClNum = 0;
-		int owningTeam = ent->genericValue3;
-		int newOwningTeam = 0;
-		int numEnts = 0;
-		int entityList[MAX_GENTITIES];
-		gentity_t *cl;
-
-		if (level.gametype != GT_SIEGE)
-		{
-			return;
-		}
-
-		if (!activator->client ||
-			(activator->client->sess.sessionTeam != SIEGETEAM_TEAM1 && activator->client->sess.sessionTeam != SIEGETEAM_TEAM2))
-		{ //activator must be a valid client to begin with
-			return;
-		}
-
-		//Count up the number of clients standing within the bounds of the trigger and the number of them on each team
-		numEnts = trap->EntitiesInBox( ent->r.absmin, ent->r.absmax, entityList, MAX_GENTITIES );
-		while (i < numEnts)
-		{
-			if (entityList[i] < MAX_CLIENTS)
-			{ //only care about clients
-				cl = &g_entities[entityList[i]];
-
-				//the client is valid
-				if (cl->inuse && cl->client &&
-					(cl->client->sess.sessionTeam == SIEGETEAM_TEAM1 || cl->client->sess.sessionTeam == SIEGETEAM_TEAM2) &&
-					cl->health > 0 &&
-					!(cl->client->ps.eFlags & EF_DEAD))
-				{
-					//See which team he's on
-					if (cl->client->sess.sessionTeam == SIEGETEAM_TEAM1)
-					{
-						team1ClNum++;
-					}
-					else
-					{
-						team2ClNum++;
-					}
-				}
-			}
-			i++;
-		}
-
-		if (!team1ClNum && !team2ClNum)
-		{ //no one in the box? How did we get activated? Oh well.
-			return;
-		}
-
-		if (team1ClNum == team2ClNum)
-		{ //if equal numbers the ownership will remain the same as it is now
-			return;
-		}
-
-		//decide who owns it now
-		if (team1ClNum > team2ClNum)
-		{
-			newOwningTeam = SIEGETEAM_TEAM1;
-		}
-		else
-		{
-			newOwningTeam = SIEGETEAM_TEAM2;
-		}
-
-		if (owningTeam == newOwningTeam)
-		{ //it's the same one it already was, don't care then.
-			return;
-		}
-
-		//Set the new owner and set the variable which will tell us to activate a team-specific target
-		ent->genericValue3 = newOwningTeam;
-		ent->genericValue4 = newOwningTeam;
+		return;
 	}
 
 	if (haltTrigger)
@@ -396,36 +247,12 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 //		return;
 //	}
 
-	if ( self->spawnflags & 1 )
-	{
-		if ( other->s.eType == ET_NPC )
-		{
-			return;
-		}
+	if ( self->spawnflags & 1 ) {
 	}
-	else
-	{
-		if ( self->spawnflags & 16 )
-		{//NPCONLY
-			if ( other->NPC == NULL )
-			{
-				return;
-			}
-		}
-
-		if ( self->NPC_targetname && self->NPC_targetname[0] )
-		{
-			if ( other->script_targetname && other->script_targetname[0] )
-			{
-				if ( Q_stricmp( self->NPC_targetname, other->script_targetname ) != 0 )
-				{//not the right guy to fire me off
-					return;
-				}
-			}
-			else
-			{
-				return;
-			}
+	else {
+		if ( self->spawnflags & 16 ) {
+			//NPCONLY
+			return;
 		}
 	}
 
@@ -457,22 +284,6 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 
 		if (self->genericValue7)
 		{ //we have to be holding the use key in this trigger for x milliseconds before firing
-			if (level.gametype == GT_SIEGE &&
-				self->idealclass && self->idealclass[0])
-			{ //only certain classes can activate it
-				if (!other ||
-					!other->client ||
-					other->client->siegeClass < 0)
-				{ //no class
-					return;
-				}
-
-				if (!G_NameInTriggerClassList(bgSiegeClasses[other->client->siegeClass].name, self->idealclass))
-				{ //wasn't in the list
-					return;
-				}
-			}
-
 			if (!G_PointInBounds( other->client->ps.origin, self->r.absmin, self->r.absmax ))
 			{
 				return;
@@ -620,10 +431,6 @@ teambalance	-	if non-0, is "owned" by the last team that activated. Can only be 
 				trigger.
 target3		-	fire when activated by team1
 target4		-	fire when activated by team2
-
-idealclass	-	Can only be used by this class/these classes. You can specify use by
-				multiple classes with the use of |, e.g.:
-				"Imperial Medic|Imperial Assassin|Imperial Demolitionist"
 */
 void SP_trigger_multiple( gentity_t *ent )
 {
@@ -676,7 +483,6 @@ void SP_trigger_multiple( gentity_t *ent )
 	trap->LinkEntity ((sharedEntity_t *)ent);
 }
 
-
 /*QUAKED trigger_once (.5 1 .5) ? CLIENTONLY FACING USE_BUTTON FIRE_BUTTON x x x INACTIVE MULTIPLE
 CLIENTONLY - only a player can trigger this by touch
 FACING - Won't fire unless triggering ent's view angles are within 45 degrees of trigger's angles (in addition to any other conditions)
@@ -707,10 +513,6 @@ Applicable only during Siege gametype:
 teamuser - if 1, team 2 can't use this. If 2, team 1 can't use this.
 siegetrig - if non-0, can only be activated by players carrying a misc_siege_item
 			which is associated with this trigger by the item's goaltarget value.
-
-idealclass	-	Can only be used by this class/these classes. You can specify use by
-				multiple classes with the use of |, e.g.:
-				"Imperial Medic|Imperial Assassin|Imperial Demolitionist"
 */
 void SP_trigger_once( gentity_t *ent )
 {
@@ -751,12 +553,7 @@ void SP_trigger_once( gentity_t *ent )
 	trap->LinkEntity ((sharedEntity_t *)ent);
 }
 
-/*
-======================================================================
-trigger_lightningstrike -rww
-======================================================================
-*/
-//lightning strike trigger lightning strike event
+// lightning strike trigger lightning strike event
 void Do_Strike(gentity_t *ent)
 {
 	trace_t localTrace;
@@ -881,15 +678,6 @@ void SP_trigger_lightningstrike( gentity_t *ent )
 	trap->LinkEntity ((sharedEntity_t *)ent);
 }
 
-
-/*
-==============================================================================
-
-trigger_always
-
-==============================================================================
-*/
-
 void trigger_always_think( gentity_t *ent ) {
 	G_UseTargets(ent, ent);
 	G_FreeEntity( ent );
@@ -904,14 +692,6 @@ void SP_trigger_always (gentity_t *ent) {
 	ent->think = trigger_always_think;
 }
 
-
-/*
-==============================================================================
-
-trigger_push
-
-==============================================================================
-*/
 //trigger_push
 #define PUSH_LINEAR		4
 #define PUSH_RELATIVE	16
@@ -1049,14 +829,7 @@ void trigger_push_touch (gentity_t *self, gentity_t *other, trace_t *trace ) {
 	*/
 }
 
-
-/*
-=================
-AimAtTarget
-
-Calculate origin2 so the target apogee will be hit
-=================
-*/
+// Calculate origin2 so the target apogee will be hit
 void AimAtTarget( gentity_t *self ) {
 	gentity_t	*ent;
 	vec3_t		origin;
@@ -1116,7 +889,6 @@ void AimAtTarget( gentity_t *self ) {
 
 	self->s.origin2[2] = time * gravity;
 }
-
 
 /*QUAKED trigger_push (.5 .5 .5) ? x x LINEAR x RELATIVE x x INACTIVE MULTIPLE
 Must point at a target_position, which will be the apex of the leap.
@@ -1207,14 +979,6 @@ void SP_target_push( gentity_t *self ) {
 	self->use = Use_target_push;
 }
 
-/*
-==============================================================================
-
-trigger_teleport
-
-==============================================================================
-*/
-
 void trigger_teleporter_touch (gentity_t *self, gentity_t *other, trace_t *trace ) {
 	gentity_t	*dest;
 
@@ -1235,7 +999,6 @@ void trigger_teleporter_touch (gentity_t *self, gentity_t *other, trace_t *trace
 		return;
 	}
 
-
 	dest = 	G_PickTarget( self->target );
 	if (!dest) {
 		trap->Print ("Couldn't find teleporter destination\n");
@@ -1244,7 +1007,6 @@ void trigger_teleporter_touch (gentity_t *self, gentity_t *other, trace_t *trace
 
 	TeleportPlayer( other, dest->s.origin, dest->s.angles );
 }
-
 
 /*QUAKED trigger_teleport (.5 .5 .5) ? SPECTATOR
 Allows client side prediction of teleportation events.
@@ -1273,15 +1035,6 @@ void SP_trigger_teleport( gentity_t *self ) {
 
 	trap->LinkEntity ((sharedEntity_t *)self);
 }
-
-
-/*
-==============================================================================
-
-trigger_hurt
-
-==============================================================================
-*/
 
 /*QUAKED trigger_hurt (.5 .5 .5) ? START_OFF CAN_TARGET SILENT NO_PROTECTION SLOW
 Any entity that touches this will be hurt.
@@ -1319,22 +1072,6 @@ void hurt_use( gentity_t *self, gentity_t *other, gentity_t *activator ) {
 
 void hurt_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 	int		dflags;
-
-	if (level.gametype == GT_SIEGE && self->team && self->team[0])
-	{
-		int team = atoi(self->team);
-
-		if (other->inuse && other->s.number < MAX_CLIENTS && other->client &&
-			other->client->sess.sessionTeam != team)
-		{ //real client don't hurt
-			return;
-		}
-		else if (other->inuse && other->client && other->s.eType == ET_NPC &&
-			other->s.NPC_class == CLASS_VEHICLE && other->s.teamowner != team)
-		{ //vehicle owned by team don't hurt
-			return;
-		}
-	}
 
 	if ( self->flags & FL_INACTIVE )
 	{//set by target_deactivate
@@ -1394,17 +1131,7 @@ void hurt_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 		//make sure his jetpack is off
 		Jetpack_Off(other);
 
-		if (other->NPC)
-		{ //kill it now
-			vec3_t vDir;
-
-			VectorSet(vDir, 0, 1, 0);
-			G_Damage(other, other, other, vDir, other->client->ps.origin, Q3_INFINITE, 0, MOD_FALLING);
-		}
-		else
-		{
-			G_EntitySound(other, CHAN_VOICE, G_SoundIndex("*falling1.wav"));
-		}
+		G_EntitySound(other, CHAN_VOICE, G_SoundIndex("*falling1.wav"));
 
 		self->timestamp = 0; //do not ignore others
 	}
@@ -1466,21 +1193,6 @@ void space_touch( gentity_t *self, gentity_t *other, trace_t *trace )
 		return;
 	}
 
-	if ( other->s.number < MAX_CLIENTS//player
-		&& other->client->ps.m_iVehicleNum//in a vehicle
-		&& other->client->ps.m_iVehicleNum >= MAX_CLIENTS )
-	{//a player client inside a vehicle
-		gentity_t *veh = &g_entities[other->client->ps.m_iVehicleNum];
-
-		if (veh->inuse && veh->client && veh->m_pVehicle &&
-			veh->m_pVehicle->m_pVehicleInfo->hideRider)
-		{ //if they are "inside" a vehicle, then let that protect them from THE HORRORS OF SPACE.
-			other->client->inSpaceSuffocation = 0;
-			other->client->inSpaceIndex = ENTITYNUM_NONE;
-			return;
-		}
-	}
-
 	if (!G_PointInBounds(other->client->ps.origin, self->r.absmin, self->r.absmax))
 	{ //his origin must be inside the trigger
 		return;
@@ -1508,254 +1220,6 @@ void SP_trigger_space(gentity_t *self)
 
     trap->LinkEntity((sharedEntity_t *)self);
 }
-
-void shipboundary_touch( gentity_t *self, gentity_t *other, trace_t *trace )
-{
-	gentity_t *ent;
-
-	if (!other || !other->inuse || !other->client ||
-		other->s.number < MAX_CLIENTS ||
-		!other->m_pVehicle)
-	{ //only let vehicles touch
-		return;
-	}
-
-	if ( other->client->ps.hyperSpaceTime && level.time - other->client->ps.hyperSpaceTime < HYPERSPACE_TIME )
-	{//don't interfere with hyperspacing ships
-		return;
-	}
-
-	ent = G_Find (NULL, FOFS(targetname), self->target);
-	if (!ent || !ent->inuse)
-	{ //this is bad
-		trap->Error( ERR_DROP, "trigger_shipboundary has invalid target '%s'\n", self->target );
-		return;
-	}
-
-	if (!other->client->ps.m_iVehicleNum || other->m_pVehicle->m_iRemovedSurfaces)
-	{ //if a vehicle touches a boundary without a pilot in it or with parts missing, just blow the thing up
-		G_Damage(other, other, other, NULL, other->client->ps.origin, 99999, DAMAGE_NO_PROTECTION, MOD_SUICIDE);
-		return;
-	}
-
-	//make sure this sucker is linked so the prediction knows where to go
-	trap->LinkEntity((sharedEntity_t *)ent);
-
-	other->client->ps.vehTurnaroundIndex = ent->s.number;
-	other->client->ps.vehTurnaroundTime = level.time + (self->genericValue1*2);
-
-	//keep up the detailed checks for another 2 seconds
-	self->genericValue7 = level.time + 2000;
-}
-
-void shipboundary_think(gentity_t *ent)
-{
-	int			iEntityList[MAX_GENTITIES];
-	int			numListedEntities;
-	int			i = 0;
-	gentity_t	*listedEnt;
-
-	ent->nextthink = level.time + 100;
-
-	if (ent->genericValue7 < level.time)
-	{ //don't need to be doing this check, no one has touched recently
-		return;
-	}
-
-	numListedEntities = trap->EntitiesInBox( ent->r.absmin, ent->r.absmax, iEntityList, MAX_GENTITIES );
-	while (i < numListedEntities)
-	{
-		listedEnt = &g_entities[iEntityList[i]];
-		if (listedEnt->inuse && listedEnt->client && listedEnt->client->ps.m_iVehicleNum)
-		{
-            if (listedEnt->s.eType == ET_NPC &&
-				listedEnt->s.NPC_class == CLASS_VEHICLE)
-			{
-				Vehicle_t *pVeh = listedEnt->m_pVehicle;
-				if (pVeh && pVeh->m_pVehicleInfo->type == VH_FIGHTER)
-				{
-                    shipboundary_touch(ent, listedEnt, NULL);
-				}
-			}
-		}
-		i++;
-	}
-}
-
-/*QUAKED trigger_shipboundary (.5 .5 .5) ?
-causes vehicle to turn toward target and travel in that direction for a set time when hit.
-
-"target"		name of entity to turn toward (can be info_notnull, or whatever).
-"traveltime"	time to travel in this direction
-
-*/
-void SP_trigger_shipboundary(gentity_t *self)
-{
-	InitTrigger(self);
-	self->r.contents = CONTENTS_TRIGGER;
-
-	if (!self->target || !self->target[0])
-	{
-		trap->Error( ERR_DROP, "trigger_shipboundary without a target." );
-	}
-	G_SpawnInt("traveltime", "0", &self->genericValue1);
-
-	if (!self->genericValue1)
-	{
-		trap->Error( ERR_DROP, "trigger_shipboundary without traveltime." );
-	}
-
-	self->think = shipboundary_think;
-	self->nextthink = level.time + 500;
-	self->touch = shipboundary_touch;
-
-    trap->LinkEntity((sharedEntity_t *)self);
-}
-
-void hyperspace_touch( gentity_t *self, gentity_t *other, trace_t *trace )
-{
-	gentity_t *ent;
-
-	if (!other || !other->inuse || !other->client ||
-		other->s.number < MAX_CLIENTS ||
-		!other->m_pVehicle)
-	{ //only let vehicles touch
-		return;
-	}
-
-	if ( other->client->ps.hyperSpaceTime && level.time - other->client->ps.hyperSpaceTime < HYPERSPACE_TIME )
-	{//already hyperspacing, just keep us moving
-		if ( (other->client->ps.eFlags2&EF2_HYPERSPACE) )
-		{//they've started the hyperspace but haven't been teleported yet
-			float timeFrac = ((float)(level.time-other->client->ps.hyperSpaceTime))/HYPERSPACE_TIME;
-			if ( timeFrac >= HYPERSPACE_TELEPORT_FRAC )
-			{//half-way, now teleport them!
-				vec3_t	diff, fwd, right, up, newOrg;
-				float	fDiff, rDiff, uDiff;
-				//take off the flag so we only do this once
-				other->client->ps.eFlags2 &= ~EF2_HYPERSPACE;
-				//Get the offset from the local position
-				ent = G_Find (NULL, FOFS(targetname), self->target);
-				if (!ent || !ent->inuse)
-				{ //this is bad
-					trap->Error( ERR_DROP, "trigger_hyperspace has invalid target '%s'\n", self->target );
-					return;
-				}
-				VectorSubtract( other->client->ps.origin, ent->s.origin, diff );
-				AngleVectors( ent->s.angles, fwd, right, up );
-				fDiff = DotProduct( fwd, diff );
-				rDiff = DotProduct( right, diff );
-				uDiff = DotProduct( up, diff );
-				//Now get the base position of the destination
-				ent = G_Find (NULL, FOFS(targetname), self->target2);
-				if (!ent || !ent->inuse)
-				{ //this is bad
-					trap->Error( ERR_DROP, "trigger_hyperspace has invalid target2 '%s'\n", self->target2 );
-					return;
-				}
-				VectorCopy( ent->s.origin, newOrg );
-				//finally, add the offset into the new origin
-				AngleVectors( ent->s.angles, fwd, right, up );
-				VectorMA( newOrg, fDiff, fwd, newOrg );
-				VectorMA( newOrg, rDiff, right, newOrg );
-				VectorMA( newOrg, uDiff, up, newOrg );
-				//trap->Print("hyperspace from %s to %s\n", vtos(other->client->ps.origin), vtos(newOrg) );
-				//now put them in the offset position, facing the angles that position wants them to be facing
-				TeleportPlayer( other, newOrg, ent->s.angles );
-				if ( other->m_pVehicle && other->m_pVehicle->m_pPilot )
-				{//teleport the pilot, too
-					TeleportPlayer( (gentity_t*)other->m_pVehicle->m_pPilot, newOrg, ent->s.angles );
-					//FIXME: and the passengers?
-				}
-				//make them face the new angle
-				//other->client->ps.hyperSpaceIndex = ent->s.number;
-				VectorCopy( ent->s.angles, other->client->ps.hyperSpaceAngles );
-				//sound
-				G_Sound( other, CHAN_LOCAL, G_SoundIndex( "sound/vehicles/common/hyperend.wav" ) );
-			}
-		}
-		return;
-	}
-	else
-	{
-		ent = G_Find (NULL, FOFS(targetname), self->target);
-		if (!ent || !ent->inuse)
-		{ //this is bad
-			trap->Error( ERR_DROP, "trigger_hyperspace has invalid target '%s'\n", self->target );
-			return;
-		}
-
-		if (!other->client->ps.m_iVehicleNum || other->m_pVehicle->m_iRemovedSurfaces)
-		{ //if a vehicle touches a boundary without a pilot in it or with parts missing, just blow the thing up
-			G_Damage(other, other, other, NULL, other->client->ps.origin, 99999, DAMAGE_NO_PROTECTION, MOD_SUICIDE);
-			return;
-		}
-		//other->client->ps.hyperSpaceIndex = ent->s.number;
-		VectorCopy( ent->s.angles, other->client->ps.hyperSpaceAngles );
-		other->client->ps.hyperSpaceTime = level.time;
-	}
-}
-
-/*
-void trigger_hyperspace_find_targets( gentity_t *self )
-{
-	gentity_t *targEnt = NULL;
-	targEnt = G_Find (NULL, FOFS(targetname), self->target);
-	if (!targEnt || !targEnt->inuse)
-	{ //this is bad
-		trap->Error( ERR_DROP, "trigger_hyperspace has invalid target '%s'\n", self->target );
-		return;
-	}
-	targEnt->r.svFlags |= SVF_BROADCAST;//crap, need to tell the cgame about the target_position
-	targEnt = G_Find (NULL, FOFS(targetname), self->target2);
-	if (!targEnt || !targEnt->inuse)
-	{ //this is bad
-		trap->Error( ERR_DROP, "trigger_hyperspace has invalid target2 '%s'\n", self->target2 );
-		return;
-	}
-	targEnt->r.svFlags |= SVF_BROADCAST;//crap, need to tell the cgame about the target_position
-}
-*/
-/*QUAKED trigger_hyperspace (.5 .5 .5) ?
-Ship will turn to face the angles of the first target_position then fly forward, playing the hyperspace effect, then pop out at a relative point around the target
-
-"target"		whatever position the ship teleports from in relation to the target_position specified here, that's the relative position the ship will spawn at around the target2 target_position
-"target2"		name of target_position to teleport the ship to (will be relative to it's origin)
-*/
-void SP_trigger_hyperspace(gentity_t *self)
-{
-	//register the hyperspace end sound (start sounds are customized)
-	G_SoundIndex( "sound/vehicles/common/hyperend.wav" );
-
-	InitTrigger(self);
-	self->r.contents = CONTENTS_TRIGGER;
-
-	if (!self->target || !self->target[0])
-	{
-		trap->Error( ERR_DROP, "trigger_hyperspace without a target." );
-	}
-	if (!self->target2 || !self->target2[0])
-	{
-		trap->Error( ERR_DROP, "trigger_hyperspace without a target2." );
-	}
-
-	self->delay = Distance( self->r.absmax, self->r.absmin );//my size
-
-	self->touch = hyperspace_touch;
-
-    trap->LinkEntity((sharedEntity_t *)self);
-
-	//self->think = trigger_hyperspace_find_targets;
-	//self->nextthink = level.time + FRAMETIME;
-}
-/*
-==============================================================================
-
-timer
-
-==============================================================================
-*/
-
 
 /*QUAKED func_timer (0.3 0.1 0.6) (-8 -8 -8) (8 8 8) START_ON
 This should be renamed trigger_timer...

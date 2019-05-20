@@ -24,13 +24,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "tr_common.h"
 
-/*
- * Include file for users of JPEG library.
- * You will need to have included system headers that define at least
- * the typedefs FILE and size_t before you can include jpeglib.h.
- * (stdio.h is sufficient on ANSI-conforming systems.)
- * You may also wish to include "jerror.h".
- */
+// Include file for users of JPEG library.
+// You will need to have included system headers that define at least the typedefs FILE and size_t before you can
+//	include jpeglib.h (stdio.h is sufficient on ANSI-conforming systems)
+// You may also wish to include "jerror.h".
 
 #include <jpeglib.h>
 
@@ -122,7 +119,6 @@ void LoadJPG( const char *filename, unsigned char **pic, int *width, int *height
 	*/
 
 	/* Step 4: set parameters for decompression */
-
 
 	/* Make sure it always converts images to RGB color space. This will
 	* automatically convert 8-bit greyscale images to RGB as well.	*/
@@ -221,7 +217,6 @@ void LoadJPG( const char *filename, unsigned char **pic, int *width, int *height
 	/* And we're done! */
 }
 
-
 /* Expanded data destination object for stdio output */
 
 typedef struct my_destination_mgr_s {
@@ -233,12 +228,7 @@ typedef struct my_destination_mgr_s {
 
 typedef my_destination_mgr * my_dest_ptr;
 
-
-/*
-* Initialize destination --- called by jpeg_start_compress
-* before any data is actually written.
-*/
-
+// Initialize destination --- called by jpeg_start_compress before any data is actually written.
 static void init_destination (j_compress_ptr cinfo)
 {
 	my_dest_ptr dest = (my_dest_ptr) cinfo->dest;
@@ -247,30 +237,19 @@ static void init_destination (j_compress_ptr cinfo)
 	dest->pub.free_in_buffer = dest->size;
 }
 
-
-/*
-* Empty the output buffer --- called whenever buffer fills up.
-*
-* In typical applications, this should write the entire output buffer
-* (ignoring the current state of next_output_byte & free_in_buffer),
-* reset the pointer & count to the start of the buffer, and return TRUE
-* indicating that the buffer has been dumped.
-*
-* In applications that need to be able to suspend compression due to output
-* overrun, a FALSE return indicates that the buffer cannot be emptied now.
-* In this situation, the compressor will return to its caller (possibly with
-* an indication that it has not accepted all the supplied scanlines).  The
-* application should resume compression after it has made more room in the
-* output buffer.  Note that there are substantial restrictions on the use of
-* suspension --- see the documentation.
-*
-* When suspending, the compressor will back up to a convenient restart point
-* (typically the start of the current MCU). next_output_byte & free_in_buffer
-* indicate where the restart point will be if the current call returns FALSE.
-* Data beyond this point will be regenerated after resumption, so do not
-* write it out when emptying the buffer externally.
-*/
-
+// Empty the output buffer --- called whenever buffer fills up.
+// In typical applications, this should write the entire output buffer (ignoring the current state of next_output_byte &
+//	free_in_buffer), reset the pointer & count to the start of the buffer, and return TRUE indicating that the buffer
+//	has been dumped.
+// In applications that need to be able to suspend compression due to output overrun, a FALSE return indicates that the
+//	buffer cannot be emptied now.
+// In this situation, the compressor will return to its caller (possibly with an indication that it has not accepted all
+//	the supplied scanlines). The application should resume compression after it has made more room in the output buffer.
+// Note that there are substantial restrictions on the use of suspension --- see the documentation.
+// When suspending, the compressor will back up to a convenient restart point (typically the start of the current MCU).
+// next_output_byte & free_in_buffer indicate where the restart point will be if the current call returns FALSE.
+// Data beyond this point will be regenerated after resumption, so do not write it out when emptying the buffer
+//	externally.
 static boolean empty_output_buffer (j_compress_ptr cinfo)
 {
 	my_dest_ptr dest = (my_dest_ptr) cinfo->dest;
@@ -283,26 +262,16 @@ static boolean empty_output_buffer (j_compress_ptr cinfo)
 	return FALSE;
 }
 
-/*
-* Terminate destination --- called by jpeg_finish_compress
-* after all data has been written.  Usually needs to flush buffer.
-*
-* NB: *not* called by jpeg_abort or jpeg_destroy; surrounding
-* application must deal with any cleanup that should happen even
-* for error exit.
-*/
-
+// Terminate destination --- called by jpeg_finish_compress after all data has been written.
+// Usually needs to flush buffer.
+//NB: *not* called by jpeg_abort or jpeg_destroy; surrounding application must deal with any cleanup that should happen
+//	even for error exit.
 static void term_destination(j_compress_ptr cinfo)
 {
 }
 
-
-/*
-* Prepare for output to a stdio stream.
-* The caller must have already opened the stream, and is responsible
-* for closing it after finishing compression.
-*/
-
+// Prepare for output to a stdio stream.
+// The caller must have already opened the stream, and is responsible for closing it after finishing compression.
 static void jpegDest (j_compress_ptr cinfo, byte* outfile, int size)
 {
 	my_dest_ptr dest;
@@ -327,14 +296,8 @@ static void jpegDest (j_compress_ptr cinfo, byte* outfile, int size)
 	dest->size = size;
 }
 
-/*
-=================
-SaveJPGToBuffer
-
-Encodes JPEG from image in image_buffer and writes to buffer.
-Expects RGB input data
-=================
-*/
+// Encodes JPEG from image in image_buffer and writes to buffer.
+// Expects RGB input data
 size_t RE_SaveJPGToBuffer(byte *buffer, size_t bufSize, int quality,
 	int image_width, int image_height, byte *image_buffer, int padding)
 {
@@ -403,7 +366,6 @@ size_t RE_SaveJPGToBuffer(byte *buffer, size_t bufSize, int quality,
 	/* And we're done! */
 	return outcount;
 }
-
 
 void RE_SaveJPG(const char * filename, int quality, int image_width, int image_height, byte *image_buffer, int padding)
 {

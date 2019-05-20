@@ -26,13 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "cg_local.h"
 
-/*
-==================
-CG_BubbleTrail
-
-Bullets shot underwater
-==================
-*/
+// Bullets shot underwater
 void CG_BubbleTrail( vec3_t start, vec3_t end, float spacing ) {
 	vec3_t		move;
 	vec3_t		vec;
@@ -89,13 +83,7 @@ void CG_BubbleTrail( vec3_t start, vec3_t end, float spacing ) {
 	}
 }
 
-/*
-=====================
-CG_SmokePuff
-
-Adds a smoke puff or blood trail localEntity.
-=====================
-*/
+// Adds a smoke puff or blood trail localEntity.
 localEntity_t *CG_SmokePuff( const vec3_t p, const vec3_t vel,
 				   float radius,
 				   float r, float g, float b, float a,
@@ -132,7 +120,6 @@ localEntity_t *CG_SmokePuff( const vec3_t p, const vec3_t vel,
 	le->color[1] = g;
 	le->color[2] = b;
 	le->color[3] = a;
-
 
 	le->pos.trType = TR_LINEAR;
 	le->pos.trTime = startTime;
@@ -224,11 +211,7 @@ void CG_TestLine( vec3_t start, vec3_t end, int time, unsigned int color, int ra
 	//re->renderfx |= RF_DEPTHHACK;
 }
 
-//----------------------------
-//
 // Breaking Glass Technology
-//
-//----------------------------
 
 // Since we have shared verts when we tesselate the glass sheet, it helps to have a
 //	random offset table set up up front.
@@ -380,8 +363,7 @@ static void CG_CalcBiLerp( vec3_t verts[4], vec3_t subVerts[4], vec2_t uv[4] )
 	VectorMA( temp,			uv[3][1],			subVerts[3], subVerts[3] );
 }
 // bilinear
-//f(p',q') = (1 - y) × {[(1 - x) × f(p,q)] + [x × f(p,q+1)]} + y × {[(1 - x) × f(p+1,q)] + [x × f(p+1,q+1)]}.
-
+//f(p',q') = (1 - y) ï¿½ {[(1 - x) ï¿½ f(p,q)] + [x ï¿½ f(p,q+1)]} + y ï¿½ {[(1 - x) ï¿½ f(p+1,q)] + [x ï¿½ f(p+1,q+1)]}.
 
 static void CG_CalcHeightWidth( vec3_t verts[4], float *height, float *width )
 {
@@ -623,12 +605,7 @@ void CG_DoGlass( vec3_t verts[4], vec3_t normal, vec3_t dmgPt, vec3_t dmgDir, fl
 	}
 }
 
-/*
-==================
-CG_GlassShatter
-Break glass with fancy method
-==================
-*/
+// Break glass with fancy method
 void CG_GlassShatter(int entnum, vec3_t dmgPt, vec3_t dmgDir, float dmgRadius, int maxShards)
 {
 	vec3_t		verts[4], normal;
@@ -641,19 +618,10 @@ void CG_GlassShatter(int entnum, vec3_t dmgPt, vec3_t dmgDir, float dmgRadius, i
 	//otherwise something awful has happened.
 }
 
-//==========================================================
-//SP-style chunks
-//==========================================================
+// SP-style chunks
 
-/*
--------------------------
-CG_ExplosionEffects
-
-Used to find the player and shake the camera if close enough
-intensity ranges from 1 (minor tremble) to 16 (major quake)
--------------------------
-*/
-
+// Used to find the player and shake the camera if close enough
+// intensity ranges from 1 (minor tremble) to 16 (major quake)
 void CG_ExplosionEffects( vec3_t origin, float intensity, int radius, int time )
 {
 	//FIXME: When exactly is the vieworg calculated in relation to the rest of the frame?s
@@ -676,14 +644,7 @@ void CG_ExplosionEffects( vec3_t origin, float intensity, int radius, int time )
 	CGCam_Shake( realIntensity, time );
 }
 
-/*
--------------------------
-CG_MiscModelExplosion
-
-Adds an explosion to a misc model breakables
--------------------------
-*/
-
+// Adds an explosion to a misc model breakables
 void CG_MiscModelExplosion( vec3_t mins, vec3_t maxs, int size, material_t chunkType )
 {
 	int		ct = 13;
@@ -790,13 +751,7 @@ void CG_MiscModelExplosion( vec3_t mins, vec3_t maxs, int size, material_t chunk
 	}
 }
 
-/*
--------------------------
-CG_Chunks
-
-Fun chunk spewer
--------------------------
-*/
+// Fun chunk spewer
 
 void CG_Chunks( int owner, vec3_t origin, const vec3_t normal, const vec3_t mins, const vec3_t maxs,
 						float speed, int numChunks, material_t chunkType, int customChunk, float baseScale )
@@ -997,11 +952,6 @@ void CG_Chunks( int owner, vec3_t origin, const vec3_t normal, const vec3_t mins
 	}
 }
 
-/*
-==================
-CG_ScorePlum
-==================
-*/
 void CG_ScorePlum( int client, vec3_t org, int score ) {
 	localEntity_t	*le;
 	refEntity_t		*re;
@@ -1020,7 +970,6 @@ void CG_ScorePlum( int client, vec3_t org, int score ) {
 	le->endTime = cg.time + 4000;
 	le->lifeRate = 1.0 / ( le->endTime - le->startTime );
 
-
 	le->color[0] = le->color[1] = le->color[2] = le->color[3] = 1.0;
 	le->radius = score;
 
@@ -1032,7 +981,6 @@ void CG_ScorePlum( int client, vec3_t org, int score ) {
 	//trap->Print( "Plum origin %i %i %i -- %i\n", (int)org[0], (int)org[1], (int)org[2], (int)Distance(org, lastPos));
 	VectorCopy(org, lastPos);
 
-
 	re = &le->refEntity;
 
 	re->reType = RT_SPRITE;
@@ -1042,11 +990,6 @@ void CG_ScorePlum( int client, vec3_t org, int score ) {
 	AnglesToAxis( angles, re->axis );
 }
 
-/*
-====================
-CG_MakeExplosion
-====================
-*/
 localEntity_t *CG_MakeExplosion( vec3_t origin, vec3_t dir,
 								qhandle_t hModel, int numFrames, qhandle_t shader,
 								int msec, qboolean isSprite, float scale, int flags )
@@ -1116,19 +1059,11 @@ localEntity_t *CG_MakeExplosion( vec3_t origin, vec3_t dir,
 	return ex;
 }
 
-
-/*
--------------------------
-CG_SurfaceExplosion
-
-Adds an explosion to a surface
--------------------------
-*/
-
 #define NUM_SPARKS		12
 #define NUM_PUFFS		1
 #define NUM_EXPLOSIONS	4
 
+// Adds an explosion to a surface
 void CG_SurfaceExplosion( vec3_t origin, vec3_t normal, float radius, float shake_speed, qboolean smoke )
 {
 	localEntity_t	*le;
@@ -1170,10 +1105,19 @@ void CG_SurfaceExplosion( vec3_t origin, vec3_t normal, float radius, float shak
 	VectorMA( origin, 4, normal, new_org );
 	VectorSet( velocity, 0.0f, 0.0f, 16.0f );
 
-	for ( i = 0; i < 4; i++ )
-	{
-		VectorSet( temp_org, new_org[0] + (Q_flrand(-1.0f, 1.0f) * 16.0f), new_org[1] + (Q_flrand(-1.0f, 1.0f) * 16.0f), new_org[2] + (Q_flrand(0.0f, 1.0f) * 4.0f) );
-		VectorSet( temp_vel, velocity[0] + (Q_flrand(-1.0f, 1.0f) * 8.0f), velocity[1] + (Q_flrand(-1.0f, 1.0f) * 8.0f), velocity[2] + (Q_flrand(-1.0f, 1.0f) * 8.0f) );
+	for ( i = 0; i < 4; i++ ) {
+		VectorSet(
+			temp_org,
+			new_org[0] + (Q_flrand( -1.0f, 1.0f ) * 16.0f),
+			new_org[1] + (Q_flrand( -1.0f, 1.0f ) * 16.0f),
+			new_org[2] + (Q_flrand(  0.0f, 1.0f ) *  4.0f)
+		);
+		VectorSet(
+			temp_vel,
+			velocity[0] + (Q_flrand(-1.0f, 1.0f) * 8.0f),
+			velocity[1] + (Q_flrand(-1.0f, 1.0f) * 8.0f),
+			velocity[2] + (Q_flrand(-1.0f, 1.0f) * 8.0f)
+		);
 
 /*		FX_AddSprite(	temp_org,
 						temp_vel,
@@ -1222,11 +1166,6 @@ void CG_SurfaceExplosion( vec3_t origin, vec3_t normal, float radius, float shak
 	}
 }
 
-/*
-==================
-CG_LaunchGib
-==================
-*/
 void CG_LaunchGib( vec3_t origin, vec3_t velocity, qhandle_t hModel ) {
 	localEntity_t	*le;
 	refEntity_t		*re;

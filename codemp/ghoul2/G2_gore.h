@@ -123,7 +123,6 @@ public:
 #endif
 };
 
-
 class CRagDollParams
 {
 public:

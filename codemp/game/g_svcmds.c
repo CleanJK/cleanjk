@@ -26,33 +26,20 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "g_local.h"
 
-/*
-==============================================================================
-
-PACKET FILTERING
-
-
-You can add or remove addresses from the filter list with:
-
-addip <ip>
-removeip <ip>
-
-The ip address is specified in dot format, and any unspecified digits will match any value, so you can specify an entire class C network with "addip 192.246.40".
-
-Removeip will only remove an address specified exactly the same way.  You cannot addip a subnet, then removeip a single host.
-
-listip
-Prints the current list of filters.
-
-g_filterban <0 or 1>
-
-If 1 (the default), then ip addresses matching the current list will be prohibited from entering the game.  This is the default setting.
-
-If 0, then only addresses matching the list will be allowed.  This lets you easily set up a private game, or a game that only allows players from your local network.
-
-
-==============================================================================
-*/
+// PACKET FILTERING
+// You can add or remove addresses from the filter list with:
+//	addip <ip>
+//	removeip <ip>
+//	listip			Prints the current list of filters.
+//	g_filterban		If 1 (the default), then ip addresses matching the current list will be prohibited from entering
+//						the game. This is the default setting.
+//					If 0, then only addresses matching the list will be allowed.
+//					This lets you easily set up a private game, or a game that only allows players from your local
+//						network.
+// The ip address is specified in dot format, and any unspecified digits will match any value, so you can specify an
+//	entire class C network with "addip 192.246.40".
+// Removeip will only remove an address specified exactly the same way.
+// You cannot addip a subnet, then removeip a single host.
 
 typedef struct ipFilter_s {
 	uint32_t mask, compare;
@@ -63,11 +50,6 @@ typedef struct ipFilter_s {
 static ipFilter_t	ipFilters[MAX_IPFILTERS];
 static int			numIPFilters;
 
-/*
-=================
-StringToFilter
-=================
-*/
 static qboolean StringToFilter( char *s, ipFilter_t *f ) {
 	char num[128];
 	int i, j;
@@ -110,11 +92,6 @@ static qboolean StringToFilter( char *s, ipFilter_t *f ) {
 	return qtrue;
 }
 
-/*
-=================
-UpdateIPBans
-=================
-*/
 static void UpdateIPBans( void ) {
 	byteAlias_t b, m;
 	int i, j;
@@ -146,11 +123,6 @@ static void UpdateIPBans( void ) {
 	trap->Cvar_Set( "g_banIPs", iplist_final );
 }
 
-/*
-=================
-G_FilterPacket
-=================
-*/
 qboolean G_FilterPacket( char *from ) {
 	int i;
 	uint32_t in;
@@ -180,11 +152,6 @@ qboolean G_FilterPacket( char *from ) {
 	return g_filterBan.integer == 0;
 }
 
-/*
-=================
-AddIP
-=================
-*/
 static void AddIP( char *str ) {
 	int i;
 
@@ -206,11 +173,6 @@ static void AddIP( char *str ) {
 	UpdateIPBans();
 }
 
-/*
-=================
-G_ProcessIPBans
-=================
-*/
 void G_ProcessIPBans( void ) {
 	char *s = NULL, *t = NULL, str[MAX_CVAR_VALUE_STRING] = {0};
 
@@ -229,11 +191,6 @@ void G_ProcessIPBans( void ) {
 	}
 }
 
-/*
-=================
-Svcmd_AddIP_f
-=================
-*/
 void Svcmd_AddIP_f (void)
 {
 	char		str[MAX_TOKEN_CHARS];
@@ -248,11 +205,6 @@ void Svcmd_AddIP_f (void)
 	AddIP( str );
 }
 
-/*
-=================
-Svcmd_RemoveIP_f
-=================
-*/
 void Svcmd_RemoveIP_f (void)
 {
 	ipFilter_t	f;
@@ -299,11 +251,6 @@ void Svcmd_ListIP_f (void)
 	trap->Print ("%i bans.\n", count);
 }
 
-/*
-===================
-Svcmd_EntityList_f
-===================
-*/
 void	Svcmd_EntityList_f (void) {
 	int			e;
 	gentity_t		*check;
@@ -354,9 +301,6 @@ void	Svcmd_EntityList_f (void) {
 		case ET_INVISIBLE:
 			trap->Print("ET_INVISIBLE        ");
 			break;
-		case ET_NPC:
-			trap->Print("ET_NPC              ");
-			break;
 		case ET_BODY:
 			trap->Print("ET_BODY             ");
 			break;
@@ -379,11 +323,7 @@ void	Svcmd_EntityList_f (void) {
 }
 
 qboolean StringIsInteger( const char *s );
-/*
-===================
-ClientForString
-===================
-*/
+
 gclient_t	*ClientForString( const char *s ) {
 	gclient_t	*cl;
 	int			idnum;
@@ -417,13 +357,7 @@ gclient_t	*ClientForString( const char *s ) {
 	return NULL;
 }
 
-/*
-===================
-Svcmd_ForceTeam_f
-
-forceteam <player> <team>
-===================
-*/
+// forceteam <player> <team>
 void	Svcmd_ForceTeam_f( void ) {
 	gclient_t	*cl;
 	char		str[MAX_TOKEN_CHARS];
@@ -493,12 +427,6 @@ svcmd_t svcmds[] = {
 };
 static const size_t numsvcmds = ARRAY_LEN( svcmds );
 
-/*
-=================
-ConsoleCommand
-
-=================
-*/
 qboolean	ConsoleCommand( void ) {
 	char	cmd[MAX_TOKEN_CHARS] = {0};
 	svcmd_t	*command = NULL;

@@ -70,7 +70,6 @@ void		CM_CalcExtents(const vec3_t start, const vec3_t end, const struct traceWor
 int			CM_LerpTag( orientation_t *tag,  clipHandle_t model, int startFrame, int endFrame,
 					 float frac, const char *tagName );
 
-
 // cm_marks.c
 int	CM_MarkFragments( int numPoints, const vec3_t *points, const vec3_t projection,
 				   int maxPoints, vec3_t pointBuffer, int maxFragments, markFragment_t *fragmentBuffer );

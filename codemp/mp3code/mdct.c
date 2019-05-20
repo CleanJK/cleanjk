@@ -33,7 +33,6 @@ Layer III
 computes  c[k] =  Sum( cos((pi/4*n)*(2*k+1)*(2*p+1))*f[p] )
                 k = 0, ...n-1,  p = 0...n-1
 
-
 inplace ok.
 
 ******************************************************************/
@@ -42,7 +41,6 @@ inplace ok.
 #include <stdio.h>
 #include <float.h>
 #include <math.h>
-
 
 /*------ 18 point xform -------*/
 float mdct18w[18];		// effectively constant
@@ -66,8 +64,6 @@ static const IMDCT_INIT_BLOCK imdct_info_18 =
 static const IMDCT_INIT_BLOCK imdct_info_6 =
 {mdct6_3v, mdct6_3v2, &coef87};
 
-
-
 /*====================================================================*/
 const IMDCT_INIT_BLOCK *imdct_init_addr_18()
 {
@@ -84,7 +80,6 @@ void imdct18(float f[18])	/* 18 point */
    float a[9], b[9];
    float ap, bp, a8p, b8p;
    float g1, g2;
-
 
    for (p = 0; p < 4; p++)
    {
@@ -109,7 +104,6 @@ void imdct18(float f[18])	/* 18 point */
    g2 = mdct18w[17 - p] * f[17 - p];
    a[p] = g1 + g2;
    b[p] = mdct18w2[p] * (g1 - g2);
-
 
    f[0] = 0.5f * (a[0] + a[1] + a[2] + a[3] + a[4]);
    f[1] = 0.5f * (b[0] + b[1] + b[2] + b[3] + b[4]);
@@ -166,7 +160,6 @@ void imdct18(float f[18])	/* 18 point */
    f[15] = f[15] - f[14];
    f[16] = f[16] - f[15];
    f[17] = f[17] - f[16];
-
 
    return;
 }

@@ -23,15 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-//===========================================================================
-//
-// Name:			match.h
-// Function:		match template defines
-// Programmer:		Mr Elusive
-// Last update:
-// Tab Size:		4 (real tabs)
-//
-//===========================================================================
+// match template defines
 
 // make sure this is the same character as we use in chats in g_cmd.c
 #define EC	"\x19"
@@ -80,7 +72,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define MSG_ATTACKENEMYBASE				31		//attack the enemy base
 #define MSG_HARVEST						32		//go harvest
 #define MSG_SUICIDE						33		//order to suicide
-//
+
 #define MSG_ME							100
 #define MSG_EVERYONE					101
 #define MSG_MULTIPLENAMES				102
@@ -91,11 +83,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define MSG_FOREVER						107
 #define MSG_FORALONGTIME				108
 #define MSG_FORAWHILE					109
-//
+
 #define MSG_CHATALL						200
 #define MSG_CHATTEAM					201
 #define MSG_CHATTELL					202
-//
+
 #define MSG_CTF							300		//ctf message
 
 //command sub types
@@ -122,7 +114,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define ST_ATTACKER						2
 #define ST_ROAMER						4
 
-
 //word replacement variables
 #define THE_ENEMY						7
 #define THE_TEAM						7
@@ -143,5 +134,4 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define TIME							6
 #define NAME							6
 #define MORE							6
-
 

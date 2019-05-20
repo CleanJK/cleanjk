@@ -23,7 +23,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "ghoul2/G2.h"
 #include "ghoul2/g2_local.h"
 
-//=====================================================================================================================
 // Bolt List handling routines - so entities can attach themselves to any part of the model in question
 
 // Given a bone number, see if that bone is already in our bone list
@@ -70,8 +69,7 @@ int G2_Find_Bolt_Surface_Num(boltInfo_v &bltlist, const int surfaceNum, const in
 	return -1;
 }
 
-//=========================================================================================
-//// Public Bolt Routines
+// Public Bolt Routines
 int G2_Add_Bolt_Surf_Num(CGhoul2Info *ghlInfo, boltInfo_v &bltlist, surfaceInfo_v &slist, const int surfNum)
 {
 	assert(ghlInfo && ghlInfo->mValid);

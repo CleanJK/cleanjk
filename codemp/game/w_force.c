@@ -27,13 +27,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #define METROID_JUMP 1
 
-//NEEDED FOR MIND-TRICK on NPCS=========================================================
-extern void NPC_PlayConfusionSound( gentity_t *self );
-extern void NPC_Jedi_PlayConfusionSound( gentity_t *self );
-extern void NPC_UseResponse( gentity_t *self, gentity_t *user, qboolean useWhenDone );
-//NEEDED FOR MIND-TRICK on NPCS=========================================================
-extern void Jedi_Decloak( gentity_t *self );
-
 extern qboolean BG_FullBodyTauntAnim( int anim );
 
 extern bot_state_t *botstates[MAX_CLIENTS];
@@ -189,9 +182,6 @@ void WP_InitForcePowers( gentity_t *ent ) {
 	if ( !ysalamiriLoopSound )
 		ysalamiriLoopSound = G_SoundIndex( "sound/player/nullifyloop.wav" );
 
-	if ( ent->s.eType == ET_NPC )
-		return;
-
 	for ( i=0; i<NUM_FORCE_POWERS; i++ ) {
 		ent->client->ps.fd.forcePowerLevel[i] = 0;
 		ent->client->ps.fd.forcePowersKnown &= ~(1<<i);
@@ -200,29 +190,7 @@ void WP_InitForcePowers( gentity_t *ent ) {
 	ent->client->ps.fd.forcePowerSelected = -1;
 	ent->client->ps.fd.forceSide = 0;
 
-	// if in siege, then use the powers for this class, and skip all this nonsense.
-	if ( level.gametype == GT_SIEGE && ent->client->siegeClass != -1 ) {
-		for ( i=0; i<NUM_FORCE_POWERS; i++ ) {
-			ent->client->ps.fd.forcePowerLevel[i] = bgSiegeClasses[ent->client->siegeClass].forcePowerLevels[i];
-			if ( !ent->client->ps.fd.forcePowerLevel[i] )
-				ent->client->ps.fd.forcePowersKnown &= ~(1 << i);
-			else
-				ent->client->ps.fd.forcePowersKnown |= (1 << i);
-		}
-
-		// bring up the class selection menu
-		if ( !ent->client->sess.setForce )
-			trap->SendServerCommand( ent-g_entities, "scl" );
-		ent->client->sess.setForce = qtrue;
-
-		return;
-	}
-
-	//rwwFIXMEFIXME: Temp
-	if ( ent->s.eType == ET_NPC && ent->s.number >= MAX_CLIENTS )
-		Q_strncpyz( userinfo, "forcepowers\\7-1-333003000313003120", sizeof( userinfo ) );
-	else
-		trap->GetUserinfo( ent->s.number, userinfo, sizeof( userinfo ) );
+	trap->GetUserinfo( ent->s.number, userinfo, sizeof( userinfo ) );
 
 	Q_strncpyz( forcePowers, Info_ValueForKey( userinfo, "forcepowers" ), sizeof( forcePowers ) );
 
@@ -270,7 +238,7 @@ void WP_InitForcePowers( gentity_t *ent ) {
 	ent->client->ps.fd.forceSide = atoi( readBuf );
 	i++;
 
-	if ( level.gametype != GT_SIEGE && (ent->r.svFlags & SVF_BOT) && botstates[ent->s.number] ) {
+	if ( (ent->r.svFlags & SVF_BOT) && botstates[ent->s.number] ) {
 		// hmm..I'm going to cheat here.
 		int oldI = i;
 		i_r = 0;
@@ -331,72 +299,58 @@ void WP_InitForcePowers( gentity_t *ent ) {
 	}
 	//THE POWERS
 
-	if ( ent->s.eType != ET_NPC ) {
-		if ( HasSetSaberOnly() ) {
-			gentity_t *te = G_TempEntity( vec3_origin, EV_SET_FREE_SABER );
-			te->r.svFlags |= SVF_BROADCAST;
-			te->s.eventParm = 1;
-		}
-		else {
-			gentity_t *te = G_TempEntity( vec3_origin, EV_SET_FREE_SABER );
-			te->r.svFlags |= SVF_BROADCAST;
-			te->s.eventParm = 0;
-		}
-
-		if ( g_forcePowerDisable.integer ) {
-			gentity_t *te = G_TempEntity( vec3_origin, EV_SET_FORCE_DISABLE );
-			te->r.svFlags |= SVF_BROADCAST;
-			te->s.eventParm = 1;
-		}
-		else {
-			gentity_t *te = G_TempEntity( vec3_origin, EV_SET_FORCE_DISABLE );
-			te->r.svFlags |= SVF_BROADCAST;
-			te->s.eventParm = 0;
-		}
-	}
-
-	if ( ent->s.eType == ET_NPC )
-		ent->client->sess.setForce = qtrue;
-	else if ( level.gametype == GT_SIEGE ) {
-		if ( !ent->client->sess.setForce ) {
-			ent->client->sess.setForce = qtrue;
-			// bring up the class selection menu
-			trap->SendServerCommand( ent-g_entities, "scl" );
-		}
+	if ( HasSetSaberOnly() ) {
+		gentity_t *te = G_TempEntity( vec3_origin, EV_SET_FREE_SABER );
+		te->r.svFlags |= SVF_BROADCAST;
+		te->s.eventParm = 1;
 	}
 	else {
-		if ( warnClient || !ent->client->sess.setForce ) {
-			// the client's rank is too high for the server and has been autocapped, so tell them
-			if ( level.gametype != GT_HOLOCRON && level.gametype != GT_JEDIMASTER ) {
-				didEvent = qtrue;
-
-				if ( !(ent->r.svFlags & SVF_BOT) && ent->s.eType != ET_NPC ) {
-					if ( !g_teamAutoJoin.integer ) {
-						// make them a spectator so they can set their powerups up without being bothered.
-						ent->client->sess.sessionTeam = TEAM_SPECTATOR;
-						ent->client->sess.spectatorState = SPECTATOR_FREE;
-						ent->client->sess.spectatorClient = 0;
-
-						ent->client->pers.teamState.state = TEAM_BEGIN;
-						trap->SendServerCommand( ent-g_entities, "spc" ); // Fire up the profile menu
-					}
-				}
-
-				// event isn't very reliable, I made it a string. This way I can send it to just one client also,
-				//	as opposed to making a broadcast event.
-				trap->SendServerCommand( ent->s.number, va( "nfr %i %i %i", g_maxForceRank.integer, 1, ent->client->sess.sessionTeam ) );
-				// arg1 is new max rank, arg2 is non-0 if force menu should be shown, arg3 is the current team
-			}
-			ent->client->sess.setForce = qtrue;
-		}
-
-		if ( !didEvent )
-			trap->SendServerCommand( ent->s.number, va( "nfr %i %i %i", g_maxForceRank.integer, 0, ent->client->sess.sessionTeam ) );
-
-		// the server has one or more force powers disabled and the client is using them in his config
-		if ( warnClientLimit )
-			trap->SendServerCommand( ent-g_entities, va( "print \"The server has one or more force powers that you have chosen disabled.\nYou will not be able to use the disable force power(s) while playing on this server.\n\"" ) );
+		gentity_t *te = G_TempEntity( vec3_origin, EV_SET_FREE_SABER );
+		te->r.svFlags |= SVF_BROADCAST;
+		te->s.eventParm = 0;
 	}
+
+	if ( g_forcePowerDisable.integer ) {
+		gentity_t *te = G_TempEntity( vec3_origin, EV_SET_FORCE_DISABLE );
+		te->r.svFlags |= SVF_BROADCAST;
+		te->s.eventParm = 1;
+	}
+	else {
+		gentity_t *te = G_TempEntity( vec3_origin, EV_SET_FORCE_DISABLE );
+		te->r.svFlags |= SVF_BROADCAST;
+		te->s.eventParm = 0;
+	}
+
+	if ( warnClient || !ent->client->sess.setForce ) {
+		// the client's rank is too high for the server and has been autocapped, so tell them
+		if ( level.gametype != GT_HOLOCRON && level.gametype != GT_JEDIMASTER ) {
+			didEvent = qtrue;
+
+			if ( !(ent->r.svFlags & SVF_BOT) ) {
+				if ( !g_teamAutoJoin.integer ) {
+					// make them a spectator so they can set their powerups up without being bothered.
+					ent->client->sess.sessionTeam = TEAM_SPECTATOR;
+					ent->client->sess.spectatorState = SPECTATOR_FREE;
+					ent->client->sess.spectatorClient = 0;
+
+					ent->client->pers.teamState.state = TEAM_BEGIN;
+				}
+			}
+
+			// event isn't very reliable, I made it a string. This way I can send it to just one client also,
+			//	as opposed to making a broadcast event.
+			trap->SendServerCommand( ent->s.number, va( "nfr %i %i %i", g_maxForceRank.integer, 1, ent->client->sess.sessionTeam ) );
+			// arg1 is new max rank, arg2 is non-0 if force menu should be shown, arg3 is the current team
+		}
+		ent->client->sess.setForce = qtrue;
+	}
+
+	if ( !didEvent )
+		trap->SendServerCommand( ent->s.number, va( "nfr %i %i %i", g_maxForceRank.integer, 0, ent->client->sess.sessionTeam ) );
+
+	// the server has one or more force powers disabled and the client is using them in his config
+	if ( warnClientLimit )
+		trap->SendServerCommand( ent-g_entities, va( "print \"The server has one or more force powers that you have chosen disabled.\nYou will not be able to use the disable force power(s) while playing on this server.\n\"" ) );
 
 	for ( i=0; i<NUM_FORCE_POWERS; i++ ) {
 		if ( (ent->client->ps.fd.forcePowersKnown & (1 << i)) && !ent->client->ps.fd.forcePowerLevel[i] )
@@ -515,27 +469,6 @@ void WP_SpawnInitForcePowers( gentity_t *ent )
 
 		i++;
 	}
-
-	if (level.gametype == GT_SIEGE &&
-		ent->client->siegeClass != -1)
-	{ //Then use the powers for this class.
-		i = 0;
-
-		while (i < NUM_FORCE_POWERS)
-		{
-			ent->client->ps.fd.forcePowerLevel[i] = bgSiegeClasses[ent->client->siegeClass].forcePowerLevels[i];
-
-			if (!ent->client->ps.fd.forcePowerLevel[i])
-			{
-				ent->client->ps.fd.forcePowersKnown &= ~(1 << i);
-			}
-			else
-			{
-				ent->client->ps.fd.forcePowersKnown |= (1 << i);
-			}
-			i++;
-		}
-	}
 }
 
 extern qboolean BG_InKnockDown( int anim ); //bg_pmove.c
@@ -593,25 +526,6 @@ int ForcePowerUsableOn(gentity_t *attacker, gentity_t *other, forcePowers_t forc
 		{
 			return 0;
 		}
-	}
-
-	if (other && other->client && other->s.eType == ET_NPC &&
-		other->s.NPC_class == CLASS_VEHICLE)
-	{ //can't use the force on vehicles.. except lightning
-		if (forcePower == FP_LIGHTNING)
-		{
-			return 1;
-		}
-		else
-		{
-			return 0;
-		}
-	}
-
-	if (other && other->client && other->s.eType == ET_NPC &&
-		level.gametype == GT_SIEGE)
-	{ //can't use powers at all on npc's normally in siege...
-		return 0;
 	}
 
 	return 1;
@@ -1418,18 +1332,6 @@ void ForceGrip( gentity_t *self )
 		ForcePowerUsableOn(self, &g_entities[tr.entityNum], FP_GRIP) &&
 		(g_friendlyFire.integer || !OnSameTeam(self, &g_entities[tr.entityNum])) ) //don't grip someone who's still crippled
 	{
-		if (g_entities[tr.entityNum].s.number < MAX_CLIENTS && g_entities[tr.entityNum].client->ps.m_iVehicleNum)
-		{ //a player on a vehicle
-			gentity_t *vehEnt = &g_entities[g_entities[tr.entityNum].client->ps.m_iVehicleNum];
-			if (vehEnt->inuse && vehEnt->client && vehEnt->m_pVehicle)
-			{
-				if (vehEnt->m_pVehicle->m_pVehicleInfo->type == VH_SPEEDER ||
-					vehEnt->m_pVehicle->m_pVehicleInfo->type == VH_ANIMAL)
-				{ //push the guy off
-					vehEnt->m_pVehicle->m_pVehicleInfo->Eject(vehEnt->m_pVehicle, (bgEntity_t *)&g_entities[tr.entityNum], qfalse);
-				}
-			}
-		}
 		self->client->ps.fd.forceGripEntityNum = tr.entityNum;
 		g_entities[tr.entityNum].client->ps.fd.forceGripStarted = level.time;
 		self->client->ps.fd.forceGripDamageDebounceTime = 0;
@@ -1461,15 +1363,6 @@ void ForceSpeed( gentity_t *self, int forceDuration )
 	if ( !WP_ForcePowerUsable( self, FP_SPEED ) )
 	{
 		return;
-	}
-
-	if ( self->client->holdingObjectiveItem >= MAX_CLIENTS
-		&& self->client->holdingObjectiveItem < ENTITYNUM_WORLD )
-	{//holding Siege item
-		if ( g_entities[self->client->holdingObjectiveItem].genericValue15 )
-		{//disables force powers
-			return;
-		}
 	}
 
 	self->client->ps.forceAllowDeactivateTime = level.time + 1500;
@@ -1671,13 +1564,6 @@ void ForceLightningDamage( gentity_t *self, gentity_t *traceEnt, vec3_t dir, vec
 
 	if ( traceEnt && traceEnt->takedamage )
 	{
-		if (!traceEnt->client && traceEnt->s.eType == ET_NPC)
-		{ //g2animent
-			if (traceEnt->s.genericenemyindex < level.time)
-			{
-				traceEnt->s.genericenemyindex = level.time + 2000;
-			}
-		}
 		if ( traceEnt->client )
 		{//an enemy or object
 			if (traceEnt->client->noLightningTime >= level.time)
@@ -1921,13 +1807,6 @@ void ForceDrainDamage( gentity_t *self, gentity_t *traceEnt, vec3_t dir, vec3_t 
 	{
 		if ( traceEnt->client && (!OnSameTeam(self, traceEnt) || g_friendlyFire.integer) && self->client->ps.fd.forceDrainTime < level.time && traceEnt->client->ps.fd.forcePower )
 		{//an enemy or object
-			if (!traceEnt->client && traceEnt->s.eType == ET_NPC)
-			{ //g2animent
-				if (traceEnt->s.genericenemyindex < level.time)
-				{
-					traceEnt->s.genericenemyindex = level.time + 2000;
-				}
-			}
 			if (ForcePowerUsableOn(self, traceEnt, FP_DRAIN))
 			{
 				int modPowerLevel = -1;
@@ -2382,206 +2261,10 @@ void WP_AddAsMindtricked(forcedata_t *fd, int entNum)
 	}
 }
 
-qboolean ForceTelepathyCheckDirectNPCTarget( gentity_t *self, trace_t *tr, qboolean *tookPower )
-{
-	gentity_t	*traceEnt;
-	qboolean	targetLive = qfalse;
-	vec3_t		tfrom, tto, fwd;
-	float		radius = MAX_TRICK_DISTANCE;
-
-	//Check for a direct usage on NPCs first
-	VectorCopy(self->client->ps.origin, tfrom);
-	tfrom[2] += self->client->ps.viewheight;
-	AngleVectors(self->client->ps.viewangles, fwd, NULL, NULL);
-	tto[0] = tfrom[0] + fwd[0]*radius/2;
-	tto[1] = tfrom[1] + fwd[1]*radius/2;
-	tto[2] = tfrom[2] + fwd[2]*radius/2;
-
-	trap->Trace( tr, tfrom, NULL, NULL, tto, self->s.number, MASK_PLAYERSOLID, qfalse, 0, 0 );
-
-
-	if ( tr->entityNum == ENTITYNUM_NONE
-		|| tr->fraction == 1.0f
-		|| tr->allsolid
-		|| tr->startsolid )
-	{
-		return qfalse;
-	}
-
-	traceEnt = &g_entities[tr->entityNum];
-
-	if( traceEnt->NPC
-		&& traceEnt->NPC->scriptFlags & SCF_NO_FORCE )
-	{
-		return qfalse;
-	}
-
-	if ( traceEnt && traceEnt->client  )
-	{
-		switch ( traceEnt->client->NPC_class )
-		{
-		case CLASS_GALAKMECH://cant grip him, he's in armor
-		case CLASS_ATST://much too big to grip!
-		//no droids either
-		case CLASS_PROBE:
-		case CLASS_GONK:
-		case CLASS_R2D2:
-		case CLASS_R5D2:
-		case CLASS_MARK1:
-		case CLASS_MARK2:
-		case CLASS_MOUSE:
-		case CLASS_SEEKER:
-		case CLASS_REMOTE:
-		case CLASS_PROTOCOL:
-		case CLASS_BOBAFETT:
-		case CLASS_RANCOR:
-			break;
-		default:
-			targetLive = qtrue;
-			break;
-		}
-	}
-
-	if ( traceEnt->s.number < MAX_CLIENTS )
-	{//a regular client
-		return qfalse;
-	}
-
-	if ( targetLive && traceEnt->NPC )
-	{//hit an organic non-player
-		vec3_t	eyeDir;
-		if ( G_ActivateBehavior( traceEnt, BSET_MINDTRICK ) )
-		{//activated a script on him
-			//FIXME: do the visual sparkles effect on their heads, still?
-			WP_ForcePowerStart( self, FP_TELEPATHY, 0 );
-		}
-		else if ( (self->NPC && traceEnt->client->playerTeam != self->client->playerTeam)
-			|| (!self->NPC && traceEnt->client->playerTeam != (npcteam_t)self->client->sess.sessionTeam) )
-		{//an enemy
-			int override = 0;
-			if ( (traceEnt->NPC->scriptFlags&SCF_NO_MIND_TRICK) )
-			{
-			}
-			else if ( traceEnt->s.weapon != WP_SABER
-				&& traceEnt->client->NPC_class != CLASS_REBORN )
-			{//haha!  Jedi aren't easily confused!
-				if ( self->client->ps.fd.forcePowerLevel[FP_TELEPATHY] > FORCE_LEVEL_2 )
-				{//turn them to our side
-					//if mind trick 3 and aiming at an enemy need more force power
-					if ( traceEnt->s.weapon != WP_NONE )
-					{//don't charm people who aren't capable of fighting... like ugnaughts and droids
-						int newPlayerTeam, newEnemyTeam;
-
-						if ( traceEnt->enemy )
-						{
-							G_ClearEnemy( traceEnt );
-						}
-						if ( traceEnt->NPC )
-						{
-							//traceEnt->NPC->tempBehavior = BS_FOLLOW_LEADER;
-							traceEnt->client->leader = self;
-						}
-						//FIXME: maybe pick an enemy right here?
-						if ( self->NPC )
-						{//NPC
-							newPlayerTeam = self->client->playerTeam;
-							newEnemyTeam = self->client->enemyTeam;
-						}
-						else
-						{//client/bot
-							if ( self->client->sess.sessionTeam == TEAM_BLUE )
-							{//rebel
-								newPlayerTeam = NPCTEAM_PLAYER;
-								newEnemyTeam = NPCTEAM_ENEMY;
-							}
-							else if ( self->client->sess.sessionTeam == TEAM_RED )
-							{//imperial
-								newPlayerTeam = NPCTEAM_ENEMY;
-								newEnemyTeam = NPCTEAM_PLAYER;
-							}
-							else
-							{//neutral - wan't attack anyone
-								newPlayerTeam = NPCTEAM_NEUTRAL;
-								newEnemyTeam = NPCTEAM_NEUTRAL;
-							}
-						}
-						//store these for retrieval later
-						traceEnt->genericValue1 = traceEnt->client->playerTeam;
-						traceEnt->genericValue2 = traceEnt->client->enemyTeam;
-						traceEnt->genericValue3 = traceEnt->s.teamowner;
-						//set the new values
-						traceEnt->client->playerTeam = newPlayerTeam;
-						traceEnt->client->enemyTeam = newEnemyTeam;
-						traceEnt->s.teamowner = newPlayerTeam;
-						//FIXME: need a *charmed* timer on this...?  Or do TEAM_PLAYERS assume that "confusion" means they should switch to team_enemy when done?
-						traceEnt->NPC->charmedTime = level.time + mindTrickTime[self->client->ps.fd.forcePowerLevel[FP_TELEPATHY]];
-					}
-				}
-				else
-				{//just confuse them
-					//somehow confuse them?  Set don't fire to true for a while?  Drop their aggression?  Maybe just take their enemy away and don't let them pick one up for a while unless shot?
-					traceEnt->NPC->confusionTime = level.time + mindTrickTime[self->client->ps.fd.forcePowerLevel[FP_TELEPATHY]];//confused for about 10 seconds
-					NPC_PlayConfusionSound( traceEnt );
-					if ( traceEnt->enemy )
-					{
-						G_ClearEnemy( traceEnt );
-					}
-				}
-			}
-			else
-			{
-				NPC_Jedi_PlayConfusionSound( traceEnt );
-			}
-			WP_ForcePowerStart( self, FP_TELEPATHY, override );
-		}
-		else if ( traceEnt->client->playerTeam == self->client->playerTeam )
-		{//an ally
-			//maybe just have him look at you?  Respond?  Take your enemy?
-			if ( traceEnt->client->ps.pm_type < PM_DEAD && traceEnt->NPC!=NULL && !(traceEnt->NPC->scriptFlags&SCF_NO_RESPONSE) )
-			{
-				NPC_UseResponse( traceEnt, self, qfalse );
-				WP_ForcePowerStart( self, FP_TELEPATHY, 1 );
-			}
-		}//NOTE: no effect on TEAM_NEUTRAL?
-		AngleVectors( traceEnt->client->renderInfo.eyeAngles, eyeDir, NULL, NULL );
-		VectorNormalize( eyeDir );
-		G_PlayEffectID( G_EffectIndex( "force/force_touch" ), traceEnt->client->renderInfo.eyePoint, eyeDir );
-
-		//make sure this plays and that you cannot press fire for about 1 second after this
-		//FIXME: BOTH_FORCEMINDTRICK or BOTH_FORCEDISTRACT
-		//NPC_SetAnim( self, SETANIM_TORSO, BOTH_MINDTRICK1, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_RESTART|SETANIM_FLAG_HOLD );
-		//FIXME: build-up or delay this until in proper part of anim
-	}
-	else
-	{
-		if ( self->client->ps.fd.forcePowerLevel[FP_TELEPATHY] > FORCE_LEVEL_1 && tr->fraction * 2048 > 64 )
-		{//don't create a diversion less than 64 from you of if at power level 1
-			//use distraction anim instead
-			G_PlayEffectID( G_EffectIndex( "force/force_touch" ), tr->endpos, tr->plane.normal );
-			//FIXME: these events don't seem to always be picked up...?
-			AddSoundEvent( self, tr->endpos, 512, AEL_SUSPICIOUS, qtrue );//, qtrue );
-			AddSightEvent( self, tr->endpos, 512, AEL_SUSPICIOUS, 50 );
-			WP_ForcePowerStart( self, FP_TELEPATHY, 0 );
-			*tookPower = qtrue;
-		}
-		//NPC_SetAnim( self, SETANIM_TORSO, BOTH_MINDTRICK2, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_RESTART|SETANIM_FLAG_HOLD );
-	}
-	//self->client->ps.saberMove = self->client->ps.saberBounceMove = LS_READY;//don't finish whatever saber anim you may have been in
-	self->client->ps.saberBlocked = BLOCKED_NONE;
-	self->client->ps.weaponTime = 1000;
-	/*
-	if ( self->client->ps.fd.forcePowersActive&(1<<FP_SPEED) )
-	{
-		self->client->ps.weaponTime = floor( self->client->ps.weaponTime * g_timescale->value );
-	}
-	*/
-	return qtrue;
-}
-
 void ForceTelepathy(gentity_t *self)
 {
 	trace_t tr;
-	vec3_t tto, thispush_org, a;
+	vec3_t tto, tfrom, thispush_org, a;
 	vec3_t mins, maxs, fwdangles, forward, right, center;
 	int i;
 	float visionArc = 0;
@@ -2624,15 +2307,6 @@ void ForceTelepathy(gentity_t *self)
 	// fix: rocket lock bug
 	BG_ClearRocketLock(&self->client->ps);
 
-	if ( ForceTelepathyCheckDirectNPCTarget( self, &tr, &tookPower ) )
-	{//hit an NPC directly
-		self->client->ps.forceAllowDeactivateTime = level.time + 1500;
-		G_Sound( self, CHAN_AUTO, G_SoundIndex("sound/weapons/force/distract.wav") );
-		self->client->ps.forceHandExtend = HANDEXTEND_FORCEPUSH;
-		self->client->ps.forceHandExtendTime = level.time + 1000;
-		return;
-	}
-
 	if (self->client->ps.fd.forcePowerLevel[FP_TELEPATHY] == FORCE_LEVEL_2)
 	{
 		visionArc = 180;
@@ -2643,8 +2317,6 @@ void ForceTelepathy(gentity_t *self)
 		radius = MAX_TRICK_DISTANCE*2.0f;
 	}
 
-	VectorCopy( self->client->ps.viewangles, fwdangles );
-	AngleVectors( fwdangles, forward, right, NULL );
 	VectorCopy( self->client->ps.origin, center );
 
 	for ( i = 0 ; i < 3 ; i++ )
@@ -2652,6 +2324,16 @@ void ForceTelepathy(gentity_t *self)
 		mins[i] = center[i] - radius;
 		maxs[i] = center[i] + radius;
 	}
+
+	// check for direct target
+	VectorCopy( self->client->ps.viewangles, fwdangles );
+	AngleVectors( fwdangles, forward, right, NULL );
+	VectorCopy( self->client->ps.origin, tfrom );
+	tfrom[2] += self->client->ps.viewheight;
+	tto[0] = tfrom[0] + forward[0]*MAX_TRICK_DISTANCE/2;
+	tto[1] = tfrom[1] + forward[1]*MAX_TRICK_DISTANCE/2;
+	tto[2] = tfrom[2] + forward[2]*MAX_TRICK_DISTANCE/2;
+	trap->Trace( &tr, tfrom, NULL, NULL, tto, self->s.number, MASK_PLAYERSOLID, qfalse, 0, 0 );
 
 	if (self->client->ps.fd.forcePowerLevel[FP_TELEPATHY] == FORCE_LEVEL_1)
 	{
@@ -2786,24 +2468,6 @@ qboolean CanCounterThrow(gentity_t *self, gentity_t *thrower, qboolean pull)
 		self->client->ps.weaponstate == WEAPON_CHARGING_ALT)
 	{ //don't autodefend when charging a weapon
 		return 0;
-	}
-
-	if (level.gametype == GT_SIEGE &&
-		pull &&
-		thrower && thrower->client)
-	{ //in siege, pull will affect people if they are not facing you, so they can't run away so much
-		vec3_t d;
-		float a;
-
-        VectorSubtract(thrower->client->ps.origin, self->client->ps.origin, d);
-		vectoangles(d, d);
-
-        a = AngleSubtract(d[YAW], self->client->ps.viewangles[YAW]);
-
-		if (a > 60.0f || a < -60.0f)
-		{ //if facing more than 60 degrees away they cannot defend
-			return 0;
-		}
 	}
 
 	if (pull)
@@ -2999,14 +2663,7 @@ void ForceThrow( gentity_t *self, qboolean pull )
 		if (self->client->ps.forceHandExtend == HANDEXTEND_NONE)
 		{
 			self->client->ps.forceHandExtend = HANDEXTEND_FORCEPULL;
-			if ( level.gametype == GT_SIEGE && self->client->ps.weapon == WP_SABER )
-			{//hold less so can attack right after a pull
-				self->client->ps.forceHandExtendTime = level.time + 200;
-			}
-			else
-			{
-				self->client->ps.forceHandExtendTime = level.time + 400;
-			}
+			self->client->ps.forceHandExtendTime = level.time + 400;
 		}
 		self->client->ps.powerups[PW_DISINT_4] = self->client->ps.forceHandExtendTime + 200;
 		self->client->ps.powerups[PW_PULL] = self->client->ps.powerups[PW_DISINT_4];
@@ -3040,7 +2697,6 @@ void ForceThrow( gentity_t *self, qboolean pull )
 		mins[i] = center[i] - radius;
 		maxs[i] = center[i] + radius;
 	}
-
 
 	if (pull)
 	{
@@ -3081,14 +2737,6 @@ void ForceThrow( gentity_t *self, qboolean pull )
 		if (tr.fraction != 1.0 &&
 			tr.entityNum != ENTITYNUM_NONE)
 		{
-			if (!g_entities[tr.entityNum].client && g_entities[tr.entityNum].s.eType == ET_NPC)
-			{ //g2animent
-				if (g_entities[tr.entityNum].s.genericenemyindex < level.time)
-				{
-					g_entities[tr.entityNum].s.genericenemyindex = level.time + 2000;
-				}
-			}
-
 			numListedEntities = 0;
 			entityList[numListedEntities] = tr.entityNum;
 
@@ -3123,14 +2771,6 @@ void ForceThrow( gentity_t *self, qboolean pull )
 		while (e < numListedEntities)
 		{
 			ent = &g_entities[entityList[e]];
-
-			if (!ent->client && ent->s.eType == ET_NPC)
-			{ //g2animent
-				if (ent->s.genericenemyindex < level.time)
-				{
-					ent->s.genericenemyindex = level.time + 2000;
-				}
-			}
 
 			if (ent)
 			{
@@ -3239,12 +2879,6 @@ void ForceThrow( gentity_t *self, qboolean pull )
 							}
 						}
 					}
-					else if ( ent->client->NPC_class == CLASS_GALAKMECH
-						|| ent->client->NPC_class == CLASS_ATST
-						|| ent->client->NPC_class == CLASS_RANCOR )
-					{//can't push ATST or Galak or Rancor
-						continue;
-					}
 				}
 			}
 		}
@@ -3327,7 +2961,6 @@ void ForceThrow( gentity_t *self, qboolean pull )
 		for ( x = 0; x < ent_count; x++ )
 		{
 			int modPowerLevel = powerLevel;
-
 
 			if (push_list[x]->client)
 			{
@@ -3475,7 +3108,7 @@ void ForceThrow( gentity_t *self, qboolean pull )
 					VectorSubtract( thispush_org, self->client->ps.origin, pushDir );
 				}
 
-				if ((modPowerLevel > otherPushPower || push_list[x]->client->ps.m_iVehicleNum) && push_list[x]->client)
+				if (modPowerLevel > otherPushPower && push_list[x]->client)
 				{
 					if (modPowerLevel == FORCE_LEVEL_3 &&
 						push_list[x]->client->ps.forceHandExtend != HANDEXTEND_KNOCKDOWN)
@@ -3489,19 +3122,6 @@ void ForceThrow( gentity_t *self, qboolean pull )
 							push_list[x]->client->ps.forceHandExtendTime = level.time + 700;
 							push_list[x]->client->ps.forceDodgeAnim = 0; //this toggles between 1 and 0, when it's 1 we should play the get up anim
 							push_list[x]->client->ps.quickerGetup = qtrue;
-						}
-						else if (push_list[x]->s.number < MAX_CLIENTS && push_list[x]->client->ps.m_iVehicleNum &&
-							dirLen <= 128.0f )
-						{ //a player on a vehicle
-							gentity_t *vehEnt = &g_entities[push_list[x]->client->ps.m_iVehicleNum];
-							if (vehEnt->inuse && vehEnt->client && vehEnt->m_pVehicle)
-							{
-								if (vehEnt->m_pVehicle->m_pVehicleInfo->type == VH_SPEEDER ||
-									vehEnt->m_pVehicle->m_pVehicleInfo->type == VH_ANIMAL)
-								{ //push the guy off
-									vehEnt->m_pVehicle->m_pVehicleInfo->Eject(vehEnt->m_pVehicle, (bgEntity_t *)push_list[x], qfalse);
-								}
-							}
 						}
 					}
 				}
@@ -4181,14 +3801,6 @@ static void WP_ForcePowerRun( gentity_t *self, forcePowers_t forcePower, usercmd
 		break;
 	case FP_SPEED:
 		//This is handled in PM_WalkMove and PM_StepSlideMove
-		if ( self->client->holdingObjectiveItem >= MAX_CLIENTS
-			&& self->client->holdingObjectiveItem < ENTITYNUM_WORLD )
-		{
-			if ( g_entities[self->client->holdingObjectiveItem].genericValue15 )
-			{//disables force powers
-				WP_ForcePowerStop( self, forcePower );
-			}
-		}
 		/*
 		if ( self->client->ps.powerups[PW_REDFLAG]
 			|| self->client->ps.powerups[PW_BLUEFLAG]
@@ -4320,16 +3932,7 @@ static void WP_ForcePowerRun( gentity_t *self, forcePowers_t forcePower, usercmd
 		}
 		break;
 	case FP_TELEPATHY:
-		if ( self->client->holdingObjectiveItem >= MAX_CLIENTS
-			&& self->client->holdingObjectiveItem < ENTITYNUM_WORLD
-			&& g_entities[self->client->holdingObjectiveItem].genericValue15 )
-		{ //if force hindered can't mindtrick whilst carrying a siege item
-			WP_ForcePowerStop( self, FP_TELEPATHY );
-		}
-		else
-		{
-			WP_UpdateMindtrickEnts(self);
-		}
+		WP_UpdateMindtrickEnts(self);
 		break;
 	case FP_SABER_OFFENSE:
 		break;
@@ -5006,17 +4609,14 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 		self->client->ps.fd.saberAnimLevel = FORCE_LEVEL_1;
 	}
 
-	if (level.gametype != GT_SIEGE)
+	if (!(self->client->ps.fd.forcePowersKnown & (1 << FP_LEVITATION)))
 	{
-		if (!(self->client->ps.fd.forcePowersKnown & (1 << FP_LEVITATION)))
-		{
-			self->client->ps.fd.forcePowersKnown |= (1 << FP_LEVITATION);
-		}
+		self->client->ps.fd.forcePowersKnown |= (1 << FP_LEVITATION);
+	}
 
-		if (self->client->ps.fd.forcePowerLevel[FP_LEVITATION] < FORCE_LEVEL_1)
-		{
-			self->client->ps.fd.forcePowerLevel[FP_LEVITATION] = FORCE_LEVEL_1;
-		}
+	if (self->client->ps.fd.forcePowerLevel[FP_LEVITATION] < FORCE_LEVEL_1)
+	{
+		self->client->ps.fd.forcePowerLevel[FP_LEVITATION] = FORCE_LEVEL_1;
 	}
 
 	if (self->client->ps.fd.forcePowerSelected < 0 || self->client->ps.fd.forcePowerSelected >= NUM_FORCE_POWERS)
@@ -5445,27 +5045,15 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 				WP_ForcePowerRegenerate(self, holoregen);
 			}
 
-			if (level.gametype == GT_SIEGE)
+			if ( level.gametype == GT_POWERDUEL && self->client->sess.duelTeam == DUELTEAM_LONE )
 			{
-				if ( self->client->holdingObjectiveItem && g_entities[self->client->holdingObjectiveItem].inuse && g_entities[self->client->holdingObjectiveItem].genericValue15 )
-					self->client->ps.fd.forcePowerRegenDebounceTime += 7000; //1 point per 7 seconds.. super slow
-				else if (self->client->siegeClass != -1 && (bgSiegeClasses[self->client->siegeClass].classflags & (1<<CFL_FASTFORCEREGEN)))
-					self->client->ps.fd.forcePowerRegenDebounceTime += Q_max(g_forceRegenTime.integer*0.2, 1); //if this is siege and our player class has the fast force regen ability, then recharge with 1/5th the usual delay
+				if ( duel_fraglimit.integer )
+					self->client->ps.fd.forcePowerRegenDebounceTime += Q_max(g_forceRegenTime.integer * (0.6 + (.3 * (float)self->client->sess.wins / (float)duel_fraglimit.integer)), 1);
 				else
-					self->client->ps.fd.forcePowerRegenDebounceTime += Q_max(g_forceRegenTime.integer, 1);
+					self->client->ps.fd.forcePowerRegenDebounceTime += Q_max(g_forceRegenTime.integer*0.7, 1);
 			}
 			else
-			{
-				if ( level.gametype == GT_POWERDUEL && self->client->sess.duelTeam == DUELTEAM_LONE )
-				{
-					if ( duel_fraglimit.integer )
-						self->client->ps.fd.forcePowerRegenDebounceTime += Q_max(g_forceRegenTime.integer * (0.6 + (.3 * (float)self->client->sess.wins / (float)duel_fraglimit.integer)), 1);
-					else
-						self->client->ps.fd.forcePowerRegenDebounceTime += Q_max(g_forceRegenTime.integer*0.7, 1);
-				}
-				else
-					self->client->ps.fd.forcePowerRegenDebounceTime += Q_max(g_forceRegenTime.integer, 1);
-			}
+				self->client->ps.fd.forcePowerRegenDebounceTime += Q_max(g_forceRegenTime.integer, 1);
 		}
 	}
 	else

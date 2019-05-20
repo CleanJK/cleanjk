@@ -63,7 +63,6 @@ int SV_OrgVisibleBox(vec3_t org1, vec3_t mins, vec3_t maxs, vec3_t org2, int ign
 {
 	trace_t tr;
 
-
 	SV_Trace(&tr, org1, mins, maxs, org2, ignore, MASK_SOLID, 0, 0, 10);
 
 	if (tr.fraction == 1 && !tr.startsolid && !tr.allsolid)
@@ -89,11 +88,6 @@ void SV_BotWaypointReception(int wpnum, wpobject_t **wps)
 	}
 }
 
-/*
-==================
-SV_BotCalculatePaths
-==================
-*/
 void SV_BotCalculatePaths( int /*rmg*/ )
 {
 	int i;
@@ -181,11 +175,6 @@ void SV_BotCalculatePaths( int /*rmg*/ )
 	}
 }
 
-/*
-==================
-SV_BotAllocateClient
-==================
-*/
 int SV_BotAllocateClient(void) {
 	int			i;
 	client_t	*cl;
@@ -212,11 +201,6 @@ int SV_BotAllocateClient(void) {
 	return i;
 }
 
-/*
-==================
-SV_BotFreeClient
-==================
-*/
 void SV_BotFreeClient( int clientNum ) {
 	client_t	*cl;
 
@@ -235,11 +219,6 @@ void SV_BotFreeClient( int clientNum ) {
 	}
 }
 
-/*
-==================
-BotDrawDebugPolygons
-==================
-*/
 void BotDrawDebugPolygons(void (*drawPoly)(int color, int numPoints, float *points), int value) {
 	static cvar_t *bot_debug, *bot_groundonly, *bot_reachability, *bot_highlightarea;
 	bot_debugpoly_t *poly;
@@ -249,7 +228,7 @@ void BotDrawDebugPolygons(void (*drawPoly)(int color, int numPoints, float *poin
 		return;
 	//bot debugging
 	if (!bot_debug) bot_debug = Cvar_Get("bot_debug", "0", 0);
-	//
+
 	if (bot_enable && bot_debug->integer) {
 		//show reachabilities
 		if (!bot_reachability) bot_reachability = Cvar_Get("bot_reachability", "0", 0);
@@ -257,7 +236,7 @@ void BotDrawDebugPolygons(void (*drawPoly)(int color, int numPoints, float *poin
 		if (!bot_groundonly) bot_groundonly = Cvar_Get("bot_groundonly", "1", 0);
 		//get the hightlight area
 		if (!bot_highlightarea) bot_highlightarea = Cvar_Get("bot_highlightarea", "0", 0);
-		//
+
 		parm0 = 0;
 		if (svs.clients[0].lastUsercmd.buttons & BUTTON_ATTACK) parm0 |= 1;
 		if (bot_reachability->integer) parm0 |= 2;
@@ -275,11 +254,6 @@ void BotDrawDebugPolygons(void (*drawPoly)(int color, int numPoints, float *poin
 	}
 }
 
-/*
-==================
-BotImport_Print
-==================
-*/
 void QDECL BotImport_Print(int type, char *fmt, ...)
 {
 	char str[2048];
@@ -317,11 +291,6 @@ void QDECL BotImport_Print(int type, char *fmt, ...)
 	}
 }
 
-/*
-==================
-BotImport_Trace
-==================
-*/
 void BotImport_Trace(bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int passent, int contentmask) {
 	trace_t trace;
 
@@ -342,11 +311,6 @@ void BotImport_Trace(bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec3_t ma
 	bsptrace->contents = 0;
 }
 
-/*
-==================
-BotImport_EntityTrace
-==================
-*/
 void BotImport_EntityTrace(bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int entnum, int contentmask) {
 	trace_t trace;
 
@@ -367,39 +331,18 @@ void BotImport_EntityTrace(bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec
 	bsptrace->contents = 0;
 }
 
-
-/*
-==================
-BotImport_PointContents
-==================
-*/
 int BotImport_PointContents(vec3_t point) {
 	return SV_PointContents(point, -1);
 }
 
-/*
-==================
-BotImport_inPVS
-==================
-*/
 int BotImport_inPVS(vec3_t p1, vec3_t p2) {
 	return SV_inPVS (p1, p2);
 }
 
-/*
-==================
-BotImport_BSPEntityData
-==================
-*/
 char *BotImport_BSPEntityData(void) {
 	return CM_EntityString();
 }
 
-/*
-==================
-BotImport_BSPModelMinsMaxsOrigin
-==================
-*/
 void BotImport_BSPModelMinsMaxsOrigin(int modelnum, vec3_t angles, vec3_t outmins, vec3_t outmaxs, vec3_t origin) {
 	clipHandle_t h;
 	vec3_t mins, maxs;
@@ -423,11 +366,6 @@ void BotImport_BSPModelMinsMaxsOrigin(int modelnum, vec3_t angles, vec3_t outmin
 	if (origin) VectorClear(origin);
 }
 
-/*
-==================
-BotImport_GetMemoryGame
-==================
-*/
 void *Bot_GetMemoryGame(int size) {
 	void *ptr;
 
@@ -436,20 +374,10 @@ void *Bot_GetMemoryGame(int size) {
 	return ptr;
 }
 
-/*
-==================
-BotImport_FreeMemoryGame
-==================
-*/
 void Bot_FreeMemoryGame(void *ptr) {
 	Z_Free(ptr);
 }
 
-/*
-==================
-BotImport_GetMemory
-==================
-*/
 void *BotImport_GetMemory(int size) {
 	void *ptr;
 
@@ -457,20 +385,10 @@ void *BotImport_GetMemory(int size) {
 	return ptr;
 }
 
-/*
-==================
-BotImport_FreeMemory
-==================
-*/
 void BotImport_FreeMemory(void *ptr) {
 	Z_Free(ptr);
 }
 
-/*
-=================
-BotImport_HunkAlloc
-=================
-*/
 void *BotImport_HunkAlloc( int size ) {
 	if( Hunk_CheckMark() ) {
 		Com_Error( ERR_DROP, "SV_Bot_HunkAlloc: Alloc with marks already set\n" );
@@ -478,11 +396,6 @@ void *BotImport_HunkAlloc( int size ) {
 	return Hunk_Alloc( size, h_high );
 }
 
-/*
-==================
-BotImport_DebugPolygonCreate
-==================
-*/
 int BotImport_DebugPolygonCreate(int color, int numPoints, vec3_t *points) {
 	bot_debugpoly_t *poly;
 	int i;
@@ -501,15 +414,10 @@ int BotImport_DebugPolygonCreate(int color, int numPoints, vec3_t *points) {
 	poly->color = color;
 	poly->numPoints = numPoints;
 	Com_Memcpy(poly->points, points, numPoints * sizeof(vec3_t));
-	//
+
 	return i;
 }
 
-/*
-==================
-BotImport_DebugPolygonShow
-==================
-*/
 void BotImport_DebugPolygonShow(int id, int color, int numPoints, vec3_t *points) {
 	bot_debugpoly_t *poly;
 
@@ -521,41 +429,21 @@ void BotImport_DebugPolygonShow(int id, int color, int numPoints, vec3_t *points
 	Com_Memcpy(poly->points, points, numPoints * sizeof(vec3_t));
 }
 
-/*
-==================
-BotImport_DebugPolygonDelete
-==================
-*/
 void BotImport_DebugPolygonDelete(int id)
 {
 	if (!debugpolygons) return;
 	debugpolygons[id].inuse = qfalse;
 }
 
-/*
-==================
-BotImport_DebugLineCreate
-==================
-*/
 int BotImport_DebugLineCreate(void) {
 	vec3_t points[1];
 	return BotImport_DebugPolygonCreate(0, 0, points);
 }
 
-/*
-==================
-BotImport_DebugLineDelete
-==================
-*/
 void BotImport_DebugLineDelete(int line) {
 	BotImport_DebugPolygonDelete(line);
 }
 
-/*
-==================
-BotImport_DebugLineShow
-==================
-*/
 void BotImport_DebugLineShow(int line, vec3_t start, vec3_t end, int color) {
 	vec3_t points[4], dir, cross, up = {0, 0, 1};
 	float dot;
@@ -566,7 +454,6 @@ void BotImport_DebugLineShow(int line, vec3_t start, vec3_t end, int color) {
 	VectorCopy(end, points[2]);
 	//points[2][2] -= 2;
 	VectorCopy(end, points[3]);
-
 
 	VectorSubtract(end, start, dir);
 	VectorNormalize(dir);
@@ -584,20 +471,10 @@ void BotImport_DebugLineShow(int line, vec3_t start, vec3_t end, int color) {
 	BotImport_DebugPolygonShow(line, color, 4, points);
 }
 
-/*
-==================
-SV_BotClientCommand
-==================
-*/
 void BotClientCommand( int client, char *command ) {
 	SV_ExecuteClientCommand( &svs.clients[client], command, qtrue );
 }
 
-/*
-==================
-SV_BotFrame
-==================
-*/
 void SV_BotFrame( int time ) {
 	if (!bot_enable)
 		return;
@@ -607,11 +484,6 @@ void SV_BotFrame( int time ) {
 	GVM_BotAIStartFrame( time );
 }
 
-/*
-===============
-SV_BotLibSetup
-===============
-*/
 int SV_BotLibSetup( void ) {
 	if (!bot_enable) {
 		return 0;
@@ -625,14 +497,7 @@ int SV_BotLibSetup( void ) {
 	return botlib_export->BotLibSetup();
 }
 
-/*
-===============
-SV_ShutdownBotLib
-
-Called when either the entire server is being killed, or
-it is changing to a different game directory.
-===============
-*/
+// Called when either the entire server is being killed, or it is changing to a different game directory.
 int SV_BotLibShutdown( void ) {
 
 	if ( !botlib_export ) {
@@ -642,11 +507,6 @@ int SV_BotLibShutdown( void ) {
 	return botlib_export->BotLibShutdown();
 }
 
-/*
-==================
-SV_BotInitCvars
-==================
-*/
 void SV_BotInitCvars(void) {
 
 	Cvar_Get("bot_enable", "1", 0);						//enable the bot
@@ -686,18 +546,13 @@ extern botlib_export_t *GetBotLibAPI( int apiVersion, botlib_import_t *import );
 // there's no such thing as this now, since the zone is unlimited, but I have to provide something
 //	so it doesn't run out of control alloc-wise (since the bot code calls this in a while() loop to free
 //	up bot mem until zone has > 1MB available again. So, simulate a reasonable limit...
-//
+
 static int bot_Z_AvailableMemory(void)
 {
 	const int iMaxBOTLIBMem = 8 * 1024 * 1024;	// adjust accordingly.
 	return iMaxBOTLIBMem - Z_MemSize( TAG_BOTLIB );
 }
 
-/*
-==================
-SV_BotInitBotLib
-==================
-*/
 void SV_BotInitBotLib(void) {
 	botlib_import_t	botlib_import;
 
@@ -740,16 +595,8 @@ void SV_BotInitBotLib(void) {
 	assert(botlib_export);
 }
 
+// BOT AI CODE IS BELOW THIS POINT
 
-//
-//  * * * BOT AI CODE IS BELOW THIS POINT * * *
-//
-
-/*
-==================
-SV_BotGetConsoleMessage
-==================
-*/
 int SV_BotGetConsoleMessage( int client, char *buf, int size )
 {
 	client_t	*cl;
@@ -774,11 +621,6 @@ int SV_BotGetConsoleMessage( int client, char *buf, int size )
 }
 
 #if 0
-/*
-==================
-EntityInPVS
-==================
-*/
 int EntityInPVS( int client, int entityNum ) {
 	client_t			*cl;
 	clientSnapshot_t	*frame;
@@ -795,11 +637,6 @@ int EntityInPVS( int client, int entityNum ) {
 }
 #endif
 
-/*
-==================
-SV_BotGetSnapshotEntity
-==================
-*/
 int SV_BotGetSnapshotEntity( int client, int sequence ) {
 	client_t			*cl;
 	clientSnapshot_t	*frame;

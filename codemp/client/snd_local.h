@@ -48,14 +48,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // Added for Open AL to know when to mute all sounds (e.g when app. loses focus)
 void S_AL_MuteAllSounds(qboolean bMute);
 
-
 //from SND_AMBIENT
 extern void AS_Init( void );
 extern void AS_Free( void );
 
-
 #define	PAINTBUFFER_SIZE	1024
-
 
 // !!! if this is changed, the asm code must change !!!
 typedef struct portable_samplepair_s {
@@ -63,18 +60,14 @@ typedef struct portable_samplepair_s {
 	int			right;
 } portable_samplepair_t;
 
-
 // keep this enum in sync with the table "sSoundCompressionMethodStrings"	-ste
-//
 typedef enum
 {
 	ct_16 = 0,		// formerly ct_NONE in EF1, now indicates 16-bit samples (the default)
 	ct_MP3,
-	//
 	ct_NUMBEROF		// used only for array sizing
 
 } SoundCompressionMethod_t;
-
 
 typedef struct sfx_s {
 	short			*pSoundData;
@@ -106,7 +99,6 @@ typedef struct dma_s {
 	byte		*buffer;
 } dma_t;
 
-
 #define START_SAMPLE_IMMEDIATE	0x7fffffff
 
 // Open AL specific
@@ -124,11 +116,9 @@ typedef struct STREAMINGBUFFER_s {
 #define QUEUED		1
 #define UNQUEUED	2
 
-
 typedef struct channel_s {
 // back-indented fields new in TA codebase, will re-format when MP3 code finished -ste
 // note: field missing in TA: qboolean	loopSound;		// from an S_AddLoopSound call, cleared each frame
-//
 	unsigned int startSample;	// START_SAMPLE_IMMEDIATE = set immediately on next mix
 	int			entnum;			// to allow overriding a specific sound
 	int			entchannel;		// to allow overriding a specific sound
@@ -136,13 +126,11 @@ typedef struct channel_s {
 	int			rightvol;		// 0-255 volume after spatialization
 	int			master_vol;		// 0-255 volume before spatialization
 
-
 	vec3_t		origin;			// only use if fixed_origin is set
 
 	qboolean	fixed_origin;	// use origin instead of fetching entnum's origin
 	sfx_t		*thesfx;		// sfx structure
 	qboolean	loopSound;		// from an S_AddLoopSound call, cleared each frame
-	//
 	MP3STREAM	MP3StreamHeader;
 	byte		MP3SlidingDecodeBuffer[50000/*12000*/];	// typical back-request = -3072, so roughly double is 6000 (safety), then doubled again so the 6K pos is in the middle of the buffer)
 	int			iMP3SlidingDecodeWritePos;
@@ -165,11 +153,9 @@ typedef struct channel_s {
 	int			lSlotID;		// ID of Slot rendering Source's environment (enables a send to this FXSlot)
 } channel_t;
 
-
 #define	WAV_FORMAT_PCM		1
 #define WAV_FORMAT_ADPCM	2	// not actually implemented, but is the value that you get in a header
 #define WAV_FORMAT_MP3		3	// not actually used this way, but just ensures we don't match one of the legit formats
-
 
 typedef struct wavinfo_s {
 	int			format;
@@ -179,8 +165,6 @@ typedef struct wavinfo_s {
 	int			samples;
 	int			dataofs;		// chunk starts this many bytes from file start
 } wavinfo_t;
-
-//====================================================================
 
 #define	MAX_CHANNELS			32
 extern	channel_t   s_channels[MAX_CHANNELS];
@@ -211,7 +195,6 @@ wavinfo_t GetWavinfo (const char *name, byte *wav, int wavlength);
 
 qboolean S_LoadSound( sfx_t *sfx );
 
-
 void S_PaintChannels(int endtime);
 
 // picks a channel based on priorities, empty slots, number of channels
@@ -220,9 +203,6 @@ channel_t *S_PickChannel(int entnum, int entchannel);
 // spatializes a channel
 void S_Spatialize(channel_t *ch);
 
-
-//////////////////////////////////
-//
 // new stuff from TA codebase
 
 byte	*SND_malloc(int iSize, sfx_t *sfx);
@@ -234,7 +214,5 @@ qboolean SND_RegisterAudio_LevelLoadEnd(qboolean bDeleteEverythingNotUsedThisLev
 
 void S_DisplayFreeMemory(void);
 void S_memoryLoad(sfx_t *sfx);
-//
-//////////////////////////////////
 
 #include "snd_mp3.h"

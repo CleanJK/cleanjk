@@ -27,14 +27,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "server/sv_gameapi.h"
 #include "qcommon/game_version.h"
 
-/*
-===============================================================================
-
-OPERATOR CONSOLE ONLY COMMANDS
-
-These commands can only be entered from stdin or by a remote operator datagram
-===============================================================================
-*/
+// OPERATOR CONSOLE ONLY COMMANDS
+// These commands can only be entered from stdin or by a remote operator datagram
 
 const char *SV_GetStringEdString(char *refSection, char *refName)
 {
@@ -48,13 +42,7 @@ const char *SV_GetStringEdString(char *refSection, char *refName)
 	return text;
 }
 
-/*
-==================
-SV_GetPlayerByHandle
-
-Returns the player with player id or name from Cmd_Argv(1)
-==================
-*/
+// Returns the player with player id or name from Cmd_Argv(1)
 static client_t *SV_GetPlayerByHandle( void ) {
 	client_t	*cl;
 	int			i;
@@ -112,13 +100,7 @@ static client_t *SV_GetPlayerByHandle( void ) {
 	return NULL;
 }
 
-/*
-==================
-SV_GetPlayerByNum
-
-Returns the player with idnum from Cmd_Argv(1)
-==================
-*/
+// Returns the player with idnum from Cmd_Argv(1)
 static client_t *SV_GetPlayerByNum( void ) {
 	client_t	*cl;
 	int			i;
@@ -157,15 +139,7 @@ static client_t *SV_GetPlayerByNum( void ) {
 	return cl;
 }
 
-//=========================================================
-
-/*
-==================
-SV_Map_f
-
-Restart the server on a different map
-==================
-*/
+// Restart the server on a different map
 static void SV_Map_f( void ) {
 	char		*cmd = NULL, *map = NULL;
 	qboolean	killBots=qfalse, cheat=qfalse;
@@ -228,15 +202,8 @@ static void SV_Map_f( void ) {
 	Cvar_Set( "sv_cheats", cheat ? "1" : "0" );
 }
 
-
-/*
-================
-SV_MapRestart_f
-
-Completely restarts a level, but doesn't send a new gamestate to the clients.
-This allows fair starts with variable load times.
-================
-*/
+// Completely restarts a level, but doesn't send a new gamestate to the clients.
+// This allows fair starts with variable load times.
 static void SV_MapRestart_f( void ) {
 	int			i;
 	client_t	*client;
@@ -372,13 +339,6 @@ static void SV_MapRestart_f( void ) {
 	SV_BeginAutoRecordDemos();
 }
 
-//===============================================================
-
-/*
-==================
-SV_KickBlankPlayers
-==================
-*/
 static void SV_KickBlankPlayers( void ) {
 	client_t	*cl;
 	int			i;
@@ -413,13 +373,7 @@ static void SV_KickBlankPlayers( void ) {
 	}
 }
 
-/*
-==================
-SV_Kick_f
-
-Kick a user off of the server
-==================
-*/
+// Kick a user off of the server
 static void SV_Kick_f( void ) {
 	client_t	*cl;
 	int			i;
@@ -477,13 +431,7 @@ static void SV_Kick_f( void ) {
 	cl->lastPacketTime = svs.time;	// in case there is a funny zombie
 }
 
-/*
-==================
-SV_KickBots_f
-
-Kick all bots off of the server
-==================
-*/
+// Kick all bots off of the server
 static void SV_KickBots_f( void ) {
 	client_t	*cl;
 	int			i;
@@ -507,13 +455,8 @@ static void SV_KickBots_f( void ) {
 		cl->lastPacketTime = svs.time; // in case there is a funny zombie
 	}
 }
-/*
-==================
-SV_KickAll_f
 
-Kick all users off of the server
-==================
-*/
+// Kick all users off of the server
 static void SV_KickAll_f( void ) {
 	client_t *cl;
 	int i;
@@ -538,13 +481,7 @@ static void SV_KickAll_f( void ) {
 	}
 }
 
-/*
-==================
-SV_KickNum_f
-
-Kick a user off of the server
-==================
-*/
+// Kick a user off of the server
 static void SV_KickNum_f( void ) {
 	client_t	*cl;
 
@@ -572,13 +509,7 @@ static void SV_KickNum_f( void ) {
 	cl->lastPacketTime = svs.time;	// in case there is a funny zombie
 }
 
-/*
-==================
-SV_RehashBans_f
-
-Load saved bans from file.
-==================
-*/
+// Load saved bans from file.
 static void SV_RehashBans_f( void )
 {
 	int index, filelen;
@@ -654,13 +585,7 @@ static void SV_RehashBans_f( void )
 	}
 }
 
-/*
-==================
-SV_WriteBans
-
-Save bans to file.
-==================
-*/
+// Save bans to file.
 static void SV_WriteBans( void )
 {
 	int index;
@@ -690,14 +615,7 @@ static void SV_WriteBans( void )
 	}
 }
 
-/*
-==================
-SV_DelBanEntryFromList
-
-Remove a ban or an exception from the list.
-==================
-*/
-
+// Remove a ban or an exception from the list.
 static qboolean SV_DelBanEntryFromList( int index ) {
 	if ( index == serverBansCount - 1 )
 		serverBansCount--;
@@ -712,14 +630,7 @@ static qboolean SV_DelBanEntryFromList( int index ) {
 	return qfalse;
 }
 
-/*
-==================
-SV_ParseCIDRNotation
-
-Parse a CIDR notation type string and return a netadr_t and suffix by reference
-==================
-*/
-
+// Parse a CIDR notation type string and return a netadr_t and suffix by reference
 static qboolean SV_ParseCIDRNotation( netadr_t *dest, int *mask, char *adrstr )
 {
 	char *suffix;
@@ -754,14 +665,7 @@ static qboolean SV_ParseCIDRNotation( netadr_t *dest, int *mask, char *adrstr )
 	return qfalse;
 }
 
-/*
-==================
-SV_AddBanToList
-
-Ban a user from being able to play on this server based on his ip address.
-==================
-*/
-
+// Ban a user from being able to play on this server based on his ip address.
 static void SV_AddBanToList( qboolean isexception )
 {
 	char *banstring;
@@ -895,14 +799,7 @@ static void SV_AddBanToList( qboolean isexception )
 		NET_AdrToString( ip ), mask );
 }
 
-/*
-==================
-SV_DelBanFromList
-
-Remove a ban or an exception from the list.
-==================
-*/
-
+// Remove a ban or an exception from the list.
 static void SV_DelBanFromList( qboolean isexception )
 {
 	int index, count = 0, todel, mask;
@@ -986,15 +883,7 @@ static void SV_DelBanFromList( qboolean isexception )
 	SV_WriteBans();
 }
 
-
-/*
-==================
-SV_ListBans_f
-
-List all bans and exceptions on console
-==================
-*/
-
+// List all bans and exceptions on console
 static void SV_ListBans_f( void )
 {
 	int index, count;
@@ -1032,14 +921,7 @@ static void SV_ListBans_f( void )
 	}
 }
 
-/*
-==================
-SV_FlushBans_f
-
-Delete all bans and exceptions.
-==================
-*/
-
+// Delete all bans and exceptions.
 static void SV_FlushBans_f( void )
 {
 	// make sure server is running
@@ -1105,11 +987,6 @@ static const char *SV_CalcUptime( void ) {
 	return buf;
 }
 
-/*
-================
-SV_Status_f
-================
-*/
 static void SV_Status_f( void )
 {
 	int				i, humans, bots;
@@ -1225,11 +1102,6 @@ static void SV_Status_f( void )
 char	*SV_ExpandNewlines( char *in );
 #define SVSAY_PREFIX "Server^7\x19: "
 
-/*
-==================
-SV_ConSay_f
-==================
-*/
 static void SV_ConSay_f(void) {
 	char	text[MAX_SAY_TEXT] = {0};
 
@@ -1256,11 +1128,6 @@ static void SV_ConSay_f(void) {
 
 #define SVTELL_PREFIX "\x19[Server^7\x19]\x19: "
 
-/*
-==================
-SV_ConTell_f
-==================
-*/
 static void SV_ConTell_f(void) {
 	char	text[MAX_SAY_TEXT] = {0};
 	client_t	*cl;
@@ -1437,24 +1304,12 @@ static void SV_WeaponToggle_f( void ) {
 	}
 }
 
-/*
-==================
-SV_Heartbeat_f
-
-Also called by SV_DropClient, SV_DirectConnect, and SV_SpawnServer
-==================
-*/
+// Also called by SV_DropClient, SV_DirectConnect, and SV_SpawnServer
 void SV_Heartbeat_f( void ) {
 	svs.nextHeartbeatTime = -9999999;
 }
 
-/*
-===========
-SV_Serverinfo_f
-
-Examine the serverinfo string
-===========
-*/
+// Examine the serverinfo string
 static void SV_Serverinfo_f( void ) {
 	// make sure server is running
 	if ( !com_sv_running->integer ) {
@@ -1466,13 +1321,7 @@ static void SV_Serverinfo_f( void ) {
 	Info_Print ( Cvar_InfoString( CVAR_SERVERINFO ) );
 }
 
-/*
-===========
-SV_Systeminfo_f
-
-Examine or change the serverinfo string
-===========
-*/
+// Examine or change the serverinfo string
 static void SV_Systeminfo_f( void ) {
 	// make sure server is running
 	if ( !com_sv_running->integer ) {
@@ -1484,13 +1333,7 @@ static void SV_Systeminfo_f( void ) {
 	Info_Print ( Cvar_InfoString_Big( CVAR_SYSTEMINFO ) );
 }
 
-/*
-===========
-SV_DumpUser_f
-
-Examine all a users info strings FIXME: move to game
-===========
-*/
+// Examine all a users info strings FIXME: move to game
 static void SV_DumpUser_f( void ) {
 	client_t	*cl;
 
@@ -1515,11 +1358,6 @@ static void SV_DumpUser_f( void ) {
 	Info_Print( cl->userinfo );
 }
 
-/*
-=================
-SV_KillServer
-=================
-*/
 static void SV_KillServer_f( void ) {
 	SV_Shutdown( "killserver" );
 }
@@ -1568,13 +1406,7 @@ void SV_StopAutoRecordDemos() {
 	}
 }
 
-/*
-====================
-SV_StopRecording_f
-
-stop recording a demo
-====================
-*/
+// stop recording a demo
 void SV_StopRecord_f( void ) {
 	int		i;
 
@@ -1601,11 +1433,6 @@ void SV_StopRecord_f( void ) {
 	SV_StopRecordDemo( cl );
 }
 
-/*
-==================
-SV_DemoFilename
-==================
-*/
 void SV_DemoFilename( char *buf, int bufSize ) {
 	time_t rawtime;
 	char timeStr[32] = {0}; // should really only reach ~19 chars
@@ -1844,7 +1671,6 @@ static void SV_Record_f( void ) {
 		return;
 	}
 
-
 	if ( Cmd_Argc() == 3 ) {
 		int clIndex = atoi( Cmd_Argv( 2 ) );
 		if ( clIndex < 0 || clIndex >= sv_maxclients->integer ) {
@@ -1906,23 +1732,11 @@ static void SV_Record_f( void ) {
 	SV_RecordDemo( cl, demoName );
 }
 
-//===========================================================
-
-/*
-==================
-SV_CompleteMapName
-==================
-*/
 static void SV_CompleteMapName( char *args, int argNum ) {
 	if ( argNum == 2 )
 		Field_CompleteFilename( "maps", "bsp", qtrue, qfalse );
 }
 
-/*
-==================
-SV_AddOperatorCommands
-==================
-*/
 void SV_AddOperatorCommands( void ) {
 	static qboolean	initialized;
 
@@ -1968,11 +1782,6 @@ void SV_AddOperatorCommands( void ) {
 	Cmd_AddCommand ("sv_flushbans", SV_FlushBans_f, "Removes all bans and exceptions" );
 }
 
-/*
-==================
-SV_RemoveOperatorCommands
-==================
-*/
 void SV_RemoveOperatorCommands( void ) {
 #if 0
 	// removing these won't let the server start again

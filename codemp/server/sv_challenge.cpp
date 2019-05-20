@@ -31,13 +31,8 @@ static qboolean challengerInitialized = qfalse;
 static hmacMD5Context_t challenger;
 
 #ifdef DEBUG_SV_CHALLENGE
-/*
-====================
-BufferToHexString
 
-Format a byte buffer as a lower-case hex string.
-====================
-*/
+// Format a byte buffer as a lower-case hex string.
 static const char *BufferToHexString(byte *buffer, size_t bufferLen)
 {
 	static char hexString[1023];
@@ -55,13 +50,7 @@ static const char *BufferToHexString(byte *buffer, size_t bufferLen)
 }
 #endif
 
-/*
-====================
-SV_ChallengeInit
-
-Initialize the HMAC context for generating challenges.
-====================
-*/
+// Initialize the HMAC context for generating challenges.
 void SV_ChallengeInit()
 {
 	if (challengerInitialized) {
@@ -83,13 +72,7 @@ void SV_ChallengeInit()
 	challengerInitialized = qtrue;
 }
 
-/*
-====================
-SV_ChallengeShutdown
-
-Clear the HMAC context used to generate challenges.
-====================
-*/
+// Clear the HMAC context used to generate challenges.
 void SV_ChallengeShutdown()
 {
 	if (challengerInitialized) {
@@ -98,13 +81,7 @@ void SV_ChallengeShutdown()
 	}
 }
 
-/*
-====================
-SV_CreateChallenge (internal)
-
-Create a challenge for the given client address and timestamp.
-====================
-*/
+// Create a challenge for the given client address and timestamp.
 static int SV_CreateChallenge(int timestamp, netadr_t from)
 {
 	const char *clientParams = NET_AdrToString(from);
@@ -134,13 +111,7 @@ static int SV_CreateChallenge(int timestamp, netadr_t from)
 	return challenge;
 }
 
-/*
-====================
-SV_CreateChallenge
-
-Create an unforgeable, temporal challenge for the given client address.
-====================
-*/
+// Create an unforgeable, temporal challenge for the given client address.
 int SV_CreateChallenge(netadr_t from)
 {
 	if (!challengerInitialized) {
@@ -153,13 +124,7 @@ int SV_CreateChallenge(netadr_t from)
 	return SV_CreateChallenge(currentTimestamp, from);
 }
 
-/*
-====================
-SV_VerifyChallenge
-
-Verify a challenge received by the client matches the expected challenge.
-====================
-*/
+// Verify a challenge received by the client matches the expected challenge.
 qboolean SV_VerifyChallenge(int receivedChallenge, netadr_t from)
 {
 	if (!challengerInitialized) {

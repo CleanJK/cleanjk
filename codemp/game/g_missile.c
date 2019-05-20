@@ -28,18 +28,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define	MISSILE_PRESTEP_TIME	50
 
 extern void laserTrapStick( gentity_t *ent, vec3_t endpos, vec3_t normal );
-extern void Jedi_Decloak( gentity_t *self );
 
-extern qboolean FighterIsLanded( Vehicle_t *pVeh, playerState_t *parentPS );
-
-/*
-================
-G_ReflectMissile
-
-  Reflect the missile roughly back at it's owner
-================
-*/
 float RandFloat(float min, float max);
+// Reflect the missile roughly back at it's owner
 void G_ReflectMissile( gentity_t *ent, gentity_t *missile, vec3_t forward )
 {
 	vec3_t	bounce_dir;
@@ -145,12 +136,6 @@ void G_DeflectMissile( gentity_t *ent, gentity_t *missile, vec3_t forward )
 	}
 }
 
-/*
-================
-G_BounceMissile
-
-================
-*/
 void G_BounceMissile( gentity_t *ent, trace_t *trace ) {
 	vec3_t	velocity;
 	float	dot;
@@ -161,7 +146,6 @@ void G_BounceMissile( gentity_t *ent, trace_t *trace ) {
 	BG_EvaluateTrajectoryDelta( &ent->s.pos, hitTime, velocity );
 	dot = DotProduct( velocity, trace->plane.normal );
 	VectorMA( velocity, -2*dot, trace->plane.normal, ent->s.pos.trDelta );
-
 
 	if ( ent->flags & FL_BOUNCE_SHRAPNEL )
 	{
@@ -210,14 +194,7 @@ void G_BounceMissile( gentity_t *ent, trace_t *trace ) {
 	}
 }
 
-
-/*
-================
-G_ExplodeMissile
-
-Explode a missile without an impact
-================
-*/
+// Explode a missile without an impact
 void G_ExplodeMissile( gentity_t *ent ) {
 	vec3_t		dir;
 	vec3_t		origin;
@@ -275,11 +252,6 @@ void G_RunStuckMissile( gentity_t *ent )
 	G_RunThink( ent );
 }
 
-/*
-================
-G_BounceProjectile
-================
-*/
 void G_BounceProjectile( vec3_t start, vec3_t impact, vec3_t dir, vec3_t endout ) {
 	vec3_t v, newv;
 	float dot;
@@ -292,12 +264,7 @@ void G_BounceProjectile( vec3_t start, vec3_t impact, vec3_t dir, vec3_t endout 
 	VectorMA(impact, 8192, newv, endout);
 }
 
-
-//-----------------------------------------------------------------------------
-gentity_t *CreateMissile( vec3_t org, vec3_t dir, float vel, int life,
-							gentity_t *owner, qboolean altFire)
-//-----------------------------------------------------------------------------
-{
+gentity_t *CreateMissile( vec3_t org, vec3_t dir, float vel, int life, gentity_t *owner, qboolean altFire ) {
 	gentity_t	*missile;
 
 	missile = G_Spawn();
@@ -352,11 +319,6 @@ void G_MissileBounceEffect( gentity_t *ent, vec3_t org, vec3_t dir )
 	}
 }
 
-/*
-================
-G_MissileImpact
-================
-*/
 void WP_SaberBlockNonRandom( gentity_t *self, vec3_t hitloc, qboolean missileBlock );
 void WP_flechette_alt_blow( gentity_t *ent );
 void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
@@ -441,7 +403,6 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 			ent->methodOfDeath != MOD_TRIP_MINE_SPLASH &&
 			ent->methodOfDeath != MOD_TIMED_MINE_SPLASH &&
 			ent->methodOfDeath != MOD_DET_PACK_SPLASH &&
-			ent->methodOfDeath != MOD_VEHICLE &&
 			ent->methodOfDeath != MOD_CONC &&
 			ent->methodOfDeath != MOD_CONC_ALT &&
 			ent->methodOfDeath != MOD_SABER &&
@@ -474,7 +435,6 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		ent->methodOfDeath != MOD_REPEATER_ALT &&
 		ent->methodOfDeath != MOD_FLECHETTE_ALT_SPLASH &&
 		ent->methodOfDeath != MOD_TURBLAST &&
-		ent->methodOfDeath != MOD_VEHICLE &&
 		ent->methodOfDeath != MOD_CONC &&
 		ent->methodOfDeath != MOD_CONC_ALT &&
 		!(ent->dflags&DAMAGE_HEAVY_WEAP_CLASS) )
@@ -655,8 +615,6 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		// FIXME: wrong damage direction?
 		if ( ent->damage ) {
 			vec3_t	velocity;
-			qboolean didDmg = qfalse;
-
 			if( LogAccuracyHit( other, &g_entities[ent->r.ownerNum] ) ) {
 				g_entities[ent->r.ownerNum].client->accuracy_hits++;
 				hitClient = qtrue;
@@ -688,7 +646,6 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 					G_Damage (other, ent, &g_entities[ent->r.ownerNum], velocity,
 						/*ent->s.origin*/ent->r.currentOrigin, ent->damage,
 						DAMAGE_HALF_ABSORB, ent->methodOfDeath);
-					didDmg = qtrue;
 				}
 			}
 			else
@@ -696,58 +653,12 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 				G_Damage (other, ent, &g_entities[ent->r.ownerNum], velocity,
 					/*ent->s.origin*/ent->r.currentOrigin, ent->damage,
 					0, ent->methodOfDeath);
-				didDmg = qtrue;
-			}
-
-			if (didDmg && other && other->client)
-			{ //What I'm wondering is why this isn't in the NPC pain funcs. But this is what SP does, so whatever.
-				class_t	npc_class = other->client->NPC_class;
-
-				// If we are a robot and we aren't currently doing the full body electricity...
-				if ( npc_class == CLASS_SEEKER || npc_class == CLASS_PROBE || npc_class == CLASS_MOUSE ||
-					   npc_class == CLASS_GONK || npc_class == CLASS_R2D2 || npc_class == CLASS_R5D2 || npc_class == CLASS_REMOTE ||
-					   npc_class == CLASS_MARK1 || npc_class == CLASS_MARK2 || //npc_class == CLASS_PROTOCOL ||//no protocol, looks odd
-					   npc_class == CLASS_INTERROGATOR || npc_class == CLASS_ATST || npc_class == CLASS_SENTRY )
-				{
-					// special droid only behaviors
-					if ( other->client->ps.electrifyTime < level.time + 100 )
-					{
-						// ... do the effect for a split second for some more feedback
-						other->client->ps.electrifyTime = level.time + 450;
-					}
-					//FIXME: throw some sparks off droids,too
-				}
 			}
 		}
 
 		if ( ent->s.weapon == WP_DEMP2 )
 		{//a hit with demp2 decloaks people, disables ships
-			if ( other && other->client && other->client->NPC_class == CLASS_VEHICLE )
-			{//hit a vehicle
-				if ( other->m_pVehicle //valid vehicle ent
-					&& other->m_pVehicle->m_pVehicleInfo//valid stats
-					&& (other->m_pVehicle->m_pVehicleInfo->type == VH_SPEEDER//always affect speeders
-						||(other->m_pVehicle->m_pVehicleInfo->type == VH_FIGHTER && ent->classname && Q_stricmp("vehicle_proj", ent->classname ) == 0) )//only vehicle ion weapons affect a fighter in this manner
-					&& !FighterIsLanded( other->m_pVehicle , &other->client->ps )//not landed
-					&& !(other->spawnflags&2) )//and not suspended
-				{//vehicles hit by "ion cannons" lose control
-					if ( other->client->ps.electrifyTime > level.time )
-					{//add onto it
-						//FIXME: extern the length of the "out of control" time?
-						other->client->ps.electrifyTime += Q_irand(200,500);
-						if ( other->client->ps.electrifyTime > level.time + 4000 )
-						{//cap it
-							other->client->ps.electrifyTime = level.time + 4000;
-						}
-					}
-					else
-					{//start it
-						//FIXME: extern the length of the "out of control" time?
-						other->client->ps.electrifyTime = level.time + Q_irand(200,500);
-					}
-				}
-			}
-			else if ( other && other->client && other->client->ps.powerups[PW_CLOAKED] )
+			if ( other && other->client && other->client->ps.powerups[PW_CLOAKED] )
 			{
 				Jedi_Decloak( other );
 				if ( ent->methodOfDeath == MOD_DEMP2_ALT )
@@ -807,11 +718,6 @@ killProj:
 	trap->LinkEntity( (sharedEntity_t *)ent );
 }
 
-/*
-================
-G_RunMissile
-================
-*/
 void G_RunMissile( gentity_t *ent ) {
 	vec3_t		origin, groundSpot;
 	trace_t		tr;
@@ -965,9 +871,8 @@ void G_RunMissile( gentity_t *ent ) {
 			}
 		}
 #else
-		if (ent->s.weapon > WP_NONE && ent->s.weapon < WP_NUM_WEAPONS &&
-			(tr.entityNum < MAX_CLIENTS || g_entities[tr.entityNum].s.eType == ET_NPC))
-		{ //player or NPC, try making a mark on him
+		if ( ent->s.weapon > WP_NONE && ent->s.weapon < WP_NUM_WEAPONS && tr.entityNum < MAX_CLIENTS ) {
+			//player or NPC, try making a mark on him
 			//copy current pos to s.origin, and current projected traj to origin2
 			VectorCopy(ent->r.currentOrigin, ent->s.origin);
 			BG_EvaluateTrajectory( &ent->s.pos, level.time, ent->s.origin2 );
@@ -1024,10 +929,3 @@ passthrough:
 	// check think function after bouncing
 	G_RunThink( ent );
 }
-
-
-//=============================================================================
-
-
-
-

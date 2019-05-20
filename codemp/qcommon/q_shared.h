@@ -24,19 +24,21 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
+#define PARANOID // cry over spilled milk
+
 // q_shared.h -- included first by ALL program modules.
 // A user mod should never modify this file
 
-#define PRODUCT_NAME			"openjk"
+#define PRODUCT_NAME			"cleanjoke"
 
-#define CLIENT_WINDOW_TITLE "OpenJK (MP)"
-#define CLIENT_CONSOLE_TITLE "OpenJK Console (MP)"
-#define HOMEPATH_NAME_UNIX "openjk"
-#define HOMEPATH_NAME_WIN "OpenJK"
+#define CLIENT_WINDOW_TITLE "CleanJoKe (MP)"
+#define CLIENT_CONSOLE_TITLE "CleanJoKe Console (MP)"
+#define HOMEPATH_NAME_UNIX "cleanjoke"
+#define HOMEPATH_NAME_WIN "cleanjoke"
 #define HOMEPATH_NAME_MACOSX HOMEPATH_NAME_WIN
 
 #define	BASEGAME "base"
-#define OPENJKGAME "OpenJK"
+#define OPENJKGAME "cleanjoke"
 
 //NOTENOTE: Only change this to re-point ICARUS to a new script directory
 #define Q3_SCRIPT_DIR	"scripts"
@@ -44,16 +46,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define MAX_TEAMNAME 32
 #define MAX_MASTER_SERVERS      5	// number of supported master servers
 
-#define BASE_COMPAT // some unused and leftover code has been stripped out, but this breaks compatibility
-					//	between base<->modbase clients and servers (mismatching events, powerups, etc)
-					// leave this defined to ensure compatibility
-
 #include "qcommon/q_math.h"
 #include "qcommon/q_color.h"
 #include "qcommon/q_string.h"
 #include "qcommon/disablewarnings.h"
-
-#include "game/teams.h" //npc team stuff
 
 #define MAX_WORLD_COORD		( 64 * 1024 )
 #define MIN_WORLD_COORD		( -64 * 1024 )
@@ -219,12 +215,8 @@ typedef enum {
 	EXEC_APPEND			// add to end of the command buffer (normal case)
 } cbufExec_t;
 
-
-//
 // these aren't needed by any of the VMs.  put in another header?
-//
 #define	MAX_MAP_AREA_BYTES		32		// bit vector of area visibility
-
 
 #define LS_STYLES_START			0
 #define LS_NUM_STYLES			32
@@ -252,7 +244,6 @@ typedef enum {
 	PRINT_ERROR
 } printParm_t;
 
-
 #ifdef ERR_FATAL
 #undef ERR_FATAL			// this is be defined in malloc.h
 #endif
@@ -265,7 +256,6 @@ typedef enum {
 	ERR_DISCONNECT,				// client disconnected from the server
 	ERR_NEED_CD					// pop up the need-cd dialog
 } errorParm_t;
-
 
 // font rendering values used by ui and cgame
 
@@ -482,7 +472,6 @@ typedef struct sharedIKMoveParams_s {
 	float movementSpeed; //how fast the bone should move toward the destination
 } sharedIKMoveParams_t;
 
-
 typedef struct sharedSetBoneIKStateParams_s {
 	vec3_t pcjMins; //ik joint limit
 	vec3_t pcjMaxs; //ik joint limit
@@ -575,8 +564,6 @@ typedef struct wpobject_s
 #define	GIANTCHAR_WIDTH		32
 #define	GIANTCHAR_HEIGHT	48
 
-//=============================================
-
 char	*COM_SkipPath( char *pathname );
 const char	*COM_GetExtension( const char *name );
 void	COM_StripExtension( const char *in, char *out, int destsize );
@@ -650,8 +637,6 @@ typedef enum {
 	FS_SEEK_SET
 } fsOrigin_t;
 
-//=============================================
-
 // 64-bit integers for global rankings interface
 // implemented as a struct for qvm compatibility
 typedef struct qint64_s {
@@ -672,11 +657,7 @@ char	* QDECL va(const char *format, ...);
 #define TRUNCATE_LENGTH	64
 void Com_TruncateLongString( char *buffer, const char *s );
 
-//=============================================
-
-//
 // key / value info strings
-//
 char *Info_ValueForKey( const char *s, const char *key );
 void Info_RemoveKey( char *s, const char *key );
 void Info_RemoveKey_Big( char *s, const char *key );
@@ -694,17 +675,8 @@ qboolean Info_NextPair( const char **s, char *key, char *value );
 	void QDECL Com_Printf( const char *msg, ... );
 #endif
 
-
-/*
-==========================================================
-
-CVARS (console variables)
-
-Many variables can be used for cheating purposes, so when cheats is zero,
-	force all unspecified variables to their cefault values.
-
-==========================================================
-*/
+// CVARS (console variables)
+// Many variables can be used for cheating purposes, so when cheats is zero, force all unspecified variables to their cefault values.
 
 #define	CVAR_NONE			(0x00000000u)
 #define	CVAR_ARCHIVE		(0x00000001u)	// set to cause it to be saved to configuration file. used for system variables,
@@ -768,19 +740,10 @@ typedef struct vmCvar_s {
 	char		string[MAX_CVAR_VALUE_STRING];
 } vmCvar_t;
 
-/*
-==============================================================
-
-COLLISION DETECTION
-
-==============================================================
-*/
+// COLLISION DETECTION
 
 #include "game/surfaceflags.h"			// shared with the q3map utility
 
-/*
-Ghoul2 Insert Start
-*/
 typedef struct CollisionRecord_s {
 	float		mDistance;
 	int			mEntityNum;
@@ -800,9 +763,6 @@ typedef struct CollisionRecord_s {
 
 typedef CollisionRecord_t G2Trace_t[MAX_G2_COLLISIONS];	// map that describes all of the parts of ghoul2 models that got hit
 
-/*
-Ghoul2 Insert End
-*/
 // a trace is returned when a box is swept through the world
 typedef struct trace_s {
 	byte		allsolid;	// if true, plane is not valid
@@ -814,19 +774,12 @@ typedef struct trace_s {
 	cplane_t	plane;		// surface normal at impact, transformed to world space
 	int			surfaceFlags;	// surface hit
 	int			contents;	// contents on other side of surface hit
-/*
-Ghoul2 Insert Start
-*/
 	//rww - removed this for now, it's just wasting space in the trace structure.
 //	CollisionRecord_t G2CollisionMap[MAX_G2_COLLISIONS];	// map that describes all of the parts of ghoul2 models that got hit
-/*
-Ghoul2 Insert End
-*/
 } trace_t;
 
 // trace->entityNum can also be 0 to (MAX_GENTITIES-1)
 // or ENTITYNUM_NONE, ENTITYNUM_WORLD
-
 
 // markfragments are returned by CM_MarkFragments()
 typedef struct markFragment_s {
@@ -834,15 +787,10 @@ typedef struct markFragment_s {
 	int		numPoints;
 } markFragment_t;
 
-
-
 typedef struct orientation_s {
 	vec3_t		origin;
 	matrix3_t	axis;
 } orientation_t;
-
-//=====================================================================
-
 
 // in order from highest priority to lowest
 // if none of the catchers are active, bound key strings will be executed
@@ -850,7 +798,6 @@ typedef struct orientation_s {
 #define	KEYCATCH_UI					0x0002
 #define	KEYCATCH_MESSAGE		0x0004
 #define	KEYCATCH_CGAME			0x0008
-
 
 // sound channels
 // channel 0 never willingly overrides
@@ -872,14 +819,7 @@ typedef enum {
 	CHAN_MUSIC,	//## %s !!"W:\game\base\!!sound\*.wav;*.mp3" #music played as a looping sound - added by BTO (VV)
 } soundChannel_t;
 
-
-/*
-========================================================================
-
-  ELEMENTS COMMUNICATED ACROSS THE NET
-
-========================================================================
-*/
+// ELEMENTS COMMUNICATED ACROSS THE NET
 
 #define	ANGLE2SHORT(x)	((int)((x)*65536/360) & 65535)
 #define	SHORT2ANGLE(x)	((x)*(360.0/65536))
@@ -888,9 +828,7 @@ typedef enum {
 #define	SNAPFLAG_NOT_ACTIVE		2	// snapshot used during connection and for zombies
 #define SNAPFLAG_SERVERCOUNT	4	// toggled every map_restart so transitions can be detected
 
-//
 // per-level limits
-//
 #define	MAX_CLIENTS			32		// absolute limit
 #define MAX_RADAR_ENTITIES	MAX_GENTITIES
 #define MAX_TERRAINS		1//32 //rwwRMG: inserted
@@ -919,7 +857,6 @@ typedef enum {
 #define	ENTITYNUM_WORLD		(MAX_GENTITIES-2)
 #define	ENTITYNUM_MAX_NORMAL	(MAX_GENTITIES-2)
 
-
 // these are also in be_aas_def.h - argh (rjr)
 #define	MAX_MODELS			512		// these are sent over the net as -12 bits
 #define	MAX_SOUNDS			256		// so they cannot be blindly increased
@@ -928,13 +865,7 @@ typedef enum {
 
 #define MAX_SUB_BSP			32 //rwwRMG - added
 
-/*
-Ghoul2 Insert Start
-*/
 #define	MAX_G2BONES		64		//rww - changed from MAX_CHARSKINS to MAX_G2BONES. value still equal.
-/*
-Ghoul2 Insert End
-*/
 
 #define MAX_AMBIENT_SETS		256 //rww - ambient soundsets must be sent over in config strings.
 
@@ -953,8 +884,6 @@ typedef struct gameState_s {
 	char		stringData[MAX_GAMESTATE_CHARS];
 	int			dataCount;
 } gameState_t;
-
-//=========================================================
 
 // all the different tracking "channels"
 typedef enum {
@@ -1026,7 +955,6 @@ typedef struct forcedata_s {
 	int			privateDuelTime;
 } forcedata_t;
 
-
 typedef enum {
 	SENTRY_NOROOM = 1,
 	SENTRY_ALREADYPLACED,
@@ -1054,24 +982,14 @@ typedef enum {
 #define FALL_FADE_TIME			3000
 
 //#define _ONEBIT_COMBO
-//Crazy optimization attempt to take all those 1 bit values and shove them into a single
-//send. May help us not have to send so many 1/0 bits to acknowledge modified values. -rww
+// crazy optimization attempt to take all those 1 bit values and shove them into a single send.
+// may help us not have to send so many 1/0 bits to acknowledge modified values. -rww
 
-#define _OPTIMIZED_VEHICLE_NETWORKING
-//Instead of sending 2 full playerStates for the pilot and the vehicle, send a smaller,
-//specialized pilot playerState and vehicle playerState.  Also removes some vehicle
-//fields from the normal playerState -mcg
-
-// playerState_t is the information needed by both the client and server
-// to predict player motion and actions
-// nothing outside of pmove should modify these, or some degree of prediction error
-// will occur
-
-// you can't add anything to this without modifying the code in msg.c
-
-// playerState_t is a full superset of entityState_t as it is used by players,
-// so if a playerState_t is transmitted, the entityState_t can be fully derived
-// from it.
+// playerState_t is the information needed by both the client and server to predict player motion and actions
+// nothing outside of pmove should modify these, or some degree of prediction error will occur
+// playerState_t is a full superset of entityState_t as it is used by players, so if a playerState_t is transmitted,
+//	the entityState_t can be fully derived from it.
+//NOTE: you can't add anything to this without modifying the code in msg.c
 typedef struct playerState_s {
 	int			commandTime;	// cmd->serverTime of last executed command
 	int			pm_type;
@@ -1288,21 +1206,6 @@ typedef struct playerState_s {
 	int			standheight;
 	int			crouchheight;
 
-	//If non-0, this is the index of the vehicle a player/NPC is riding.
-	int			m_iVehicleNum;
-
-	//lovely hack for keeping vehicle orientation in sync with prediction
-	vec3_t		vehOrientation;
-	qboolean	vehBoarding;
-	int			vehSurfaces;
-
-	//vehicle turnaround stuff (need this in ps so it doesn't jerk too much in prediction)
-	int			vehTurnaroundIndex;
-	int			vehTurnaroundTime;
-
-	//vehicle has weapons linked
-	qboolean	vehWeaponsLinked;
-
 	//when hyperspacing, you just go forward really fast for HYPERSPACE_TIME
 	int			hyperSpaceTime;
 	vec3_t		hyperSpaceAngles;
@@ -1338,20 +1241,7 @@ typedef struct playerState_s {
 #endif
 } playerState_t;
 
-typedef struct siegePers_s
-{
-	qboolean	beatingTime;
-	int			lastTeam;
-	int			lastTime;
-} siegePers_t;
-
-//====================================================================
-
-
-//
-// usercmd_t->button bits, many of which are generated by the client system,
-// so they aren't game/cgame only definitions
-//
+// usercmd_t->button bits, many of which are generated by the client system, so they aren't game/cgame only definitions
 #define	BUTTON_ATTACK			1
 #define	BUTTON_TALK				2			// displays talk balloon and disables actions
 #define	BUTTON_USE_HOLDABLE		4
@@ -1435,8 +1325,6 @@ typedef struct usercmd_s {
 	byte			generic_cmd;
 	signed char	forwardmove, rightmove, upmove;
 } usercmd_t;
-
-//===================================================================
 
 //rww - unsightly hack to allow us to make an FX call that takes a horrible amount of args
 typedef struct addpolyArgStruct_s {
@@ -1540,8 +1428,13 @@ typedef struct addElectricityArgStruct_s {
 	int flags;
 } addElectricityArgStruct_t;
 
-// if entityState->solid == SOLID_BMODEL, modelindex is an inline model number
-#define	SOLID_BMODEL	0xffffff
+typedef enum solid_e {
+	SOLID_NOT,					// no interaction with other objects
+	SOLID_TRIGGER,				// only touch when inside, after moving
+	SOLID_BBOX,					// touch on edge
+	SOLID_BSP,					// bsp clip, touch on edge
+	SOLID_BMODEL	= 0xffffff,	// if entityState->solid == SOLID_BMODEL, modelindex is an inline model number
+} solid_t;
 
 typedef enum {
 	TR_STATIONARY,
@@ -1678,11 +1571,6 @@ typedef struct entityState_s {
 	int			health;
 	int			maxhealth; //so I know how to draw the stupid health bar
 
-	//NPC-SPECIFIC FIELDS
-	//------------------------------------------------------------
-	int		npcSaber1;
-	int		npcSaber2;
-
 	//index values for each type of sound, gets the folder the sounds
 	//are in. I wish there were a better way to do this,
 	int		csSounds_Std;
@@ -1713,11 +1601,6 @@ typedef struct entityState_s {
 	vec3_t	boneAngles3; //angles of boneIndex3
 	vec3_t	boneAngles4; //angles of boneIndex4
 
-	int		NPC_class; //we need to see what it is on the client for a few effects.
-
-	//If non-0, this is the index of the vehicle a player/NPC is riding.
-	int		m_iVehicleNum;
-
 	//rww - spare values specifically for use by mod authors.
 	//See netf_overrides.txt if you want to increase the send
 	//amount of any of these above 1 bit.
@@ -1744,12 +1627,9 @@ typedef enum {
 	CA_CINEMATIC		// playing a cinematic or a static pic, not connected to a server
 } connstate_t;
 
-
 #define Square(x) ((x)*(x))
 
 // real time
-//=============================================
-
 
 typedef struct qtime_s {
 	int tm_sec;     /* seconds after the minute - [0,59] */
@@ -1762,7 +1642,6 @@ typedef struct qtime_s {
 	int tm_yday;    /* days since January 1 - [0,365] */
 	int tm_isdst;   /* daylight savings time flag */
 } qtime_t;
-
 
 // server browser sources
 #define AS_LOCAL			0
@@ -1791,10 +1670,6 @@ typedef enum {
 #define SAY_TEAM	1
 #define SAY_TELL	2
 
-/*
-Ghoul2 Insert Start
-*/
-
 typedef struct mdxaBone_s {
 	float		matrix[3][4];
 } mdxaBone_t;
@@ -1811,12 +1686,9 @@ typedef enum Eorientations
 	NEGATIVE_Z,
 	NEGATIVE_Y
 } orientations_t;
-/*
-Ghoul2 Insert End
-*/
 
 // define the new memory tags for the zone, used by all modules now
-//
+
 #define TAGDEF(blah) TAG_ ## blah
 typedef enum {
 	#include "qcommon/tags.h"
@@ -1860,13 +1732,8 @@ typedef struct SSkinGoreData_s
 	qboolean		fadeRGB; //specify fade method to modify RGB (by default, the alpha is set instead)
 } SSkinGoreData;
 
-/*
-========================================================================
+// String ID Tables
 
-String ID Tables
-
-========================================================================
-*/
 #define ENUM2STRING(arg)   { #arg, arg }
 typedef struct stringID_table_s
 {
@@ -1877,9 +1744,8 @@ typedef struct stringID_table_s
 int GetIDForString ( stringID_table_t *table, const char *string );
 const char *GetStringForID( stringID_table_t *table, int id );
 
-
 // stuff to help out during development process, force reloading/uncacheing of certain filetypes...
-//
+
 typedef enum
 {
 	eForceReload_NOTHING,
@@ -1888,7 +1754,6 @@ typedef enum
 	eForceReload_ALL
 
 } ForceReload_e;
-
 
 enum {
 	FONT_NONE,

@@ -106,13 +106,6 @@ static SOCKET	socks_socket = INVALID_SOCKET;
 static	int		numIP;
 static	byte	localIP[MAX_IPS][4];
 
-//=============================================================================
-
-/*
-====================
-NET_ErrorString
-====================
-*/
 char *NET_ErrorString( void ) {
 #ifdef _WIN32
 	switch( socketError ) {
@@ -190,11 +183,6 @@ static void SockadrToNetadr( struct sockaddr_in *s, netadr_t *a ) {
 	a->port = s->sin_port;
 }
 
-/*
-=============
-Sys_StringToSockaddr
-=============
-*/
 static qboolean Sys_StringToSockaddr( const char *s, struct sockaddr_in *sadr )
 {
 	struct hostent	*h;
@@ -218,11 +206,6 @@ static qboolean Sys_StringToSockaddr( const char *s, struct sockaddr_in *sadr )
 	return qtrue;
 }
 
-/*
-=============
-Sys_StringToAdr
-=============
-*/
 qboolean Sys_StringToAdr( const char *s, netadr_t *a ) {
 	struct sockaddr_in sadr;
 
@@ -234,15 +217,7 @@ qboolean Sys_StringToAdr( const char *s, netadr_t *a ) {
 	return qtrue;
 }
 
-//=============================================================================
-
-/*
-==================
-NET_GetPacket
-
-Receive one packet
-==================
-*/
+// Receive one packet
 #ifdef _DEBUG
 int	recvfromCount;
 #endif
@@ -300,15 +275,8 @@ qboolean NET_GetPacket( netadr_t *net_from, msg_t *net_message, fd_set *fdr ) {
 	return qtrue;
 }
 
-//=============================================================================
-
 static char socksBuf[4096];
 
-/*
-==================
-Sys_SendPacket
-==================
-*/
 void Sys_SendPacket( int length, const void *data, netadr_t to ) {
 	int					ret;
 	struct sockaddr_in	addr;
@@ -354,15 +322,7 @@ void Sys_SendPacket( int length, const void *data, netadr_t to ) {
 	}
 }
 
-//=============================================================================
-
-/*
-==================
-Sys_IsLANAddress
-
-LAN clients will have their rate var ignored
-==================
-*/
+// LAN clients will have their rate var ignored
 qboolean Sys_IsLANAddress( netadr_t adr ) {
 	if ( !net_forcenonlocal )
 		net_forcenonlocal = Cvar_Get( "net_forcenonlocal", "0", 0 );
@@ -401,23 +361,11 @@ qboolean Sys_IsLANAddress( netadr_t adr ) {
 	return qfalse;
 }
 
-/*
-==================
-Sys_ShowIP
-==================
-*/
 void Sys_ShowIP(void) {
 	for ( int i=0; i<numIP; i++ )
 		Com_Printf( "IP: %i.%i.%i.%i\n", localIP[i][0], localIP[i][1], localIP[i][2], localIP[i][3] );
 }
 
-//=============================================================================
-
-/*
-====================
-NET_IPSocket
-====================
-*/
 SOCKET NET_IPSocket( char *net_interface, int port, int *err ) {
 	SOCKET				newsocket;
 	struct sockaddr_in	address;
@@ -481,11 +429,6 @@ SOCKET NET_IPSocket( char *net_interface, int port, int *err ) {
 	return newsocket;
 }
 
-/*
-====================
-NET_OpenSocks
-====================
-*/
 void NET_OpenSocks( int port ) {
 	struct sockaddr_in	address;
 	struct hostent		*h;
@@ -650,11 +593,6 @@ void NET_OpenSocks( int port ) {
 	usingSocks = qtrue;
 }
 
-/*
-=====================
-NET_GetLocalAddress
-=====================
-*/
 #ifdef MACOS_X
 // Don't do a forward mapping from the hostname of the machine to the IP.  The reason is that we might have obtained an IP address from DHCP and there might not be any name registered for the machine.  On Mac OS X, the machine name defaults to 'localhost' and NetInfo has 127.0.0.1 listed for this name.  Instead, we want to get a list of all the IP network interfaces on the machine.
 // This code adapted from OmniNetworking.
@@ -669,7 +607,6 @@ NET_GetLocalAddress
 	((struct ifreq *) ((char *) (ifr) + sizeof(*(ifr)) + \
 	Q_max(0, (int) (ifr)->ifr_addr.sa_len - (int) sizeof((ifr)->ifr_addr))))
 #endif
-
 
 void NET_GetLocalAddress( void ) {
 	struct ifreq requestBuffer[MAX_IPS], *linkInterface, *inetInterface;
@@ -809,11 +746,6 @@ void NET_GetLocalAddress( void )
 }
 #endif
 
-/*
-====================
-NET_OpenIP
-====================
-*/
 void NET_OpenIP( void )
 {
 	int port = net_port->integer;
@@ -845,13 +777,6 @@ void NET_OpenIP( void )
 	}
 }
 
-//===================================================================
-
-/*
-====================
-NET_GetCvars
-====================
-*/
 static qboolean NET_GetCvars( void ) {
 	int	modified = 0;
 
@@ -896,11 +821,6 @@ static qboolean NET_GetCvars( void ) {
 	return modified ? qtrue : qfalse;
 }
 
-/*
-====================
-NET_Config
-====================
-*/
 void NET_Config( qboolean enableNetworking ) {
 	qboolean	modified;
 	qboolean	stop;
@@ -956,11 +876,6 @@ void NET_Config( qboolean enableNetworking ) {
 	}
 }
 
-/*
-====================
-NET_Init
-====================
-*/
 void NET_Init( void ) {
 #ifdef _WIN32
 	int r = WSAStartup( MAKEWORD( 1, 1 ), &winsockdata );
@@ -978,11 +893,6 @@ void NET_Init( void ) {
 	Cmd_AddCommand ("net_restart", NET_Restart_f, "Restart the networking sub-system" );
 }
 
-/*
-====================
-NET_Shutdown
-====================
-*/
 void NET_Shutdown( void ) {
 	if ( !networkingEnabled ) {
 		return;
@@ -995,14 +905,7 @@ void NET_Shutdown( void ) {
 #endif
 }
 
-/*
-====================
-NET_Event
-
-Called from NET_Sleep which uses select() to determine which sockets have seen action.
-====================
-*/
-
+// Called from NET_Sleep which uses select() to determine which sockets have seen action.
 void NET_Event(fd_set *fdr)
 {
 	byte bufData[MAX_MSGLEN + 1];
@@ -1032,13 +935,7 @@ void NET_Event(fd_set *fdr)
 	}
 }
 
-/*
-====================
-NET_Sleep
-
-sleeps msec or until net socket is ready
-====================
-*/
+// sleeps msec or until net socket is ready
 void NET_Sleep( int msec ) {
 	struct timeval timeout;
 	fd_set	fdset;
@@ -1075,11 +972,6 @@ void NET_Sleep( int msec ) {
 		NET_Event(&fdset);
 }
 
-/*
-====================
-NET_Restart_f
-====================
-*/
 void NET_Restart_f( void ) {
 	NET_Config( qtrue );
 }

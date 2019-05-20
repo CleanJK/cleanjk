@@ -226,12 +226,6 @@ void CleanTextPool(CTextPool *pool)
 	}
 }
 
-
-
-
-
-
-
 CGPObject::CGPObject(const char *initName) :
 	mName(initName),
 	mNext(0),
@@ -255,19 +249,6 @@ bool CGPObject::WriteText(CTextPool **textPool, const char *text)
 
    return true;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 CGPValue::CGPValue(const char *initName, const char *initValue) :
 	CGPObject(initName),
@@ -444,21 +425,6 @@ bool CGPValue::Write(CTextPool **textPool, int depth)
 
 	return true;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 CGPGroup::CGPGroup(const char *initName, CGPGroup *initParent) :
 	CGPObject(initName),
@@ -784,21 +750,12 @@ bool CGPGroup::Write(CTextPool **textPool, int depth)
 	return true;
 }
 
-/************************************************************************************************
- * CGPGroup::FindPair
- *    This function will search for the pair with the specified key name.  Multiple keys may be
- *    searched if you specify "||" inbetween each key name in the string.  The first key to be
- *    found (from left to right) will be returned.
- *
- * Input
- *    key: the name of the key(s) to be searched for.
- *
- * Output / Return
- *    the group belonging to the first key found or 0 if no group was found.
- *
- ************************************************************************************************/
-CGPValue *CGPGroup::FindPair(const char *key)
-{
+// this function will search for the pair with the specified key name. multiple keys may be searched if you specify "||"
+//	inbetween each key name in the string.
+// the first key to be found (from left to right) will be returned.
+// returns the group belonging to the first key found or 0 if no group was found.
+//	key		the name of the key(s) to be searched for.
+CGPValue *CGPGroup::FindPair( const char *key ) {
 	CGPValue		*pair;
 	size_t			length;
 	const char		*pos, *separator, *next;
@@ -848,20 +805,6 @@ const char *CGPGroup::FindPairValue(const char *key, const char *defaultVal)
 	return defaultVal;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 CGenericParser2::CGenericParser2(void) :
 	mTextPool(0),
 	mWriteable(false)
@@ -908,17 +851,9 @@ bool CGenericParser2::Write(CTextPool *textPool)
 	return mTopLevel.Write(&textPool, -1);
 }
 
-
-
-
-
-
-
-
-
 // The following groups of routines are used for a C interface into GP2.
 // C++ users should just use the objects as normally and not call these routines below
-//
+
 // CGenericParser2 (void *) routines
 TGenericParser2 GP_Parse(char **dataPtr, bool cleanFirst, bool writeable)
 {
@@ -964,9 +899,6 @@ TGPGroup GP_GetBaseParseGroup(TGenericParser2 GP2)
 
 	return ((CGenericParser2 *)GP2)->GetBaseParseGroup();
 }
-
-
-
 
 // CGPGroup (void *) routines
 const char	*GPG_GetName(TGPGroup GPG)
@@ -1097,9 +1029,6 @@ bool GPG_FindPairValue(TGPGroup GPG, const char *key, const char *defaultVal, ch
 
 	return true;
 }
-
-
-
 
 // CGPValue (void *) routines
 const char	*GPV_GetName(TGPValue GPV)

@@ -24,11 +24,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "client.h"
 #include "cl_uiapi.h"
 
-/*
-====================
-CL_ShutdownUI
-====================
-*/
 void CL_ShutdownUI( void ) {
 	Key_SetCatcher( Key_GetCatcher( ) & ~KEYCATCH_UI );
 
@@ -39,12 +34,6 @@ void CL_ShutdownUI( void ) {
 
 	CL_UnbindUI();
 }
-
-/*
-====================
-CL_InitUI
-====================
-*/
 
 void CL_InitUI( void ) {
 	// load the dll
@@ -57,13 +46,7 @@ void CL_InitUI( void ) {
 	UIVM_Init( (qboolean)(cls.state >= CA_AUTHORIZING && cls.state <= CA_ACTIVE) );
 }
 
-/*
-====================
-UI_GameCommand
-
-See if the current console command is claimed by the ui
-====================
-*/
+// See if the current console command is claimed by the ui
 qboolean UI_GameCommand( void ) {
 	if ( !cls.uiStarted )
 		return qfalse;

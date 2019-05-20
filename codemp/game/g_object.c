@@ -25,14 +25,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 extern void G_MoverTouchPushTriggers( gentity_t *ent, vec3_t oldOrg );
 void G_StopObjectMoving( gentity_t *object );
 
-void pitch_roll_for_slope( gentity_t *forwhom, vec3_t pass_slope );
-
-/*
-================
-G_BounceObject
-
-================
-*/
 void G_BounceObject( gentity_t *ent, trace_t *trace )
 {
 	vec3_t	velocity;
@@ -80,17 +72,9 @@ void G_BounceObject( gentity_t *ent, trace_t *trace )
 	VectorCopy( trace->plane.normal, ent->pos1 );//???
 }
 
-
-/*
-================
-G_RunObject
-
-  TODO:  When transition to 0 grav, push away from surface you were resting on
-  TODO:  When free-floating in air, apply some friction to your trDelta (based on mass?)
-================
-*/
 extern void DoImpact( gentity_t *self, gentity_t *other, qboolean damageSelf );
-extern void pitch_roll_for_slope( gentity_t *forwhom, vec3_t pass_slope );
+//TODO: When transition to 0 grav, push away from surface you were resting on
+//TODO: When free-floating in air, apply some friction to your trDelta (based on mass?)
 void G_RunObject( gentity_t *ent )
 {
 	vec3_t		origin, oldOrg;
@@ -238,7 +222,8 @@ void G_RunObject( gentity_t *ent )
 		else
 		{
 			ent->s.apos.trType = TR_STATIONARY;
-			pitch_roll_for_slope( ent, tr.plane.normal );
+			//CJKFIXME: reimplement this
+			//pitch_roll_for_slope( ent, tr.plane.normal );
 			//ent->r.currentAngles[0] = 0;//FIXME: match to slope
 			//ent->r.currentAngles[2] = 0;//FIXME: match to slope
 			VectorCopy( ent->r.currentAngles, ent->s.apos.trBase );
@@ -251,7 +236,8 @@ void G_RunObject( gentity_t *ent )
 	else if (ent->s.weapon != WP_SABER)
 	{
 		ent->s.apos.trType = TR_STATIONARY;
-		pitch_roll_for_slope( ent, tr.plane.normal );
+		//CJKFIXME: reimplement this
+		//pitch_roll_for_slope( ent, tr.plane.normal );
 		//ent->r.currentAngles[0] = 0;//FIXME: match to slope
 		//ent->r.currentAngles[2] = 0;//FIXME: match to slope
 		VectorCopy( ent->r.currentAngles, ent->s.apos.trBase );
@@ -260,7 +246,6 @@ void G_RunObject( gentity_t *ent )
 	//call touch func
 	ent->touch( ent, &g_entities[tr.entityNum], &tr );
 }
-
 
 void G_StopObjectMoving( gentity_t *object )
 {

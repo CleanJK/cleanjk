@@ -61,7 +61,6 @@ static const int pretab[2][22] =
    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 3, 3, 3, 2, 0},
 };
 
-
 ////@@@@extern int nBand[2][22];	/* long = nBand[0][i], short = nBand[1][i] */
 
 /* 8 bit plus 2 lookup x = pow(2.0, 0.25*(global_gain-210)) */
@@ -76,7 +75,6 @@ look_scale[scalefact_scale][preemp][scalefac]
 static float look_scale[2][4][32];			// effectively constant
 typedef float LS[4][32];
 
-
 /*--- iSample**(4/3) lookup, -32<=i<=31 ---*/
 #define ISMAX 32
 static float look_pow[2 * ISMAX];			// effectively constant
@@ -87,7 +85,6 @@ static float look_subblock[8];				// effectively constant
 /*-- reorder buffer ---*/
 static float re_buf[192][3];				// used by dequant() below, but only during func (as workspace)
 typedef float ARRAY3[3];
-
 
 /*=============================================================*/
 float *quant_init_global_addr()
@@ -130,7 +127,6 @@ void dequant(SAMPLE Sample[], int *nsamp,
    int cbmax[3];
 
    nbands = *nsamp;
-
 
    ncbl = 22;			/* long block cb end */
    cbs0 = 12;			/* short block cb start */
@@ -232,7 +228,6 @@ block type = 2  short blocks
       buf += n;
    }
 
-
    memmove(&Sample[i0].x, &re_buf[0][0], sizeof(float) * (i - i0));
 
    *nsamp = i;			/* update nsamp */
@@ -246,7 +241,6 @@ block type = 2  short blocks
 
    cb_info->cbmax = cbmax[0];
    cb_info->cbtype = 1;		/* type = short */
-
 
    return;
 }

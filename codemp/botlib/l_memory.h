@@ -21,18 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-/*****************************************************************************
- * name:		l_memory.h
- *
- * desc:		memory management
- *
- * $Archive: /source/code/botlib/l_memory.h $
- * $Author: Mrelusive $
- * $Revision: 2 $
- * $Modtime: 10/05/99 3:32p $
- * $Date: 10/05/99 3:42p $
- *
- *****************************************************************************/
+// memory management
 
 #pragma once
 
@@ -45,7 +34,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 void *GetMemoryDebug(unsigned long size, char *label, char *file, int line);
 //allocate a memory block of the given size and clear it
 void *GetClearedMemoryDebug(unsigned long size, char *label, char *file, int line);
-//
+
 #define GetHunkMemory(size)			GetHunkMemoryDebug(size, #size, __FILE__, __LINE__);
 #define GetClearedHunkMemory(size)	GetClearedHunkMemoryDebug(size, #size, __FILE__, __LINE__);
 //allocate a memory block of the given size
@@ -57,7 +46,7 @@ void *GetClearedHunkMemoryDebug(unsigned long size, char *label, char *file, int
 void *GetMemory(unsigned long size);
 //allocate a memory block of the given size and clear it
 void *GetClearedMemory(unsigned long size);
-//
+
 #ifdef BSPC
 #define GetHunkMemory GetMemory
 #define GetClearedHunkMemory GetClearedMemory

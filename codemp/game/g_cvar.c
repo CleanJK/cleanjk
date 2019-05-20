@@ -23,9 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "g_local.h"
 
-//
 // Cvar callbacks
-//
 
 /*
 static void CVU_Derpity( void ) {
@@ -33,10 +31,7 @@ static void CVU_Derpity( void ) {
 }
 */
 
-
-//
 // Cvar table
-//
 
 typedef struct cvarTable_s {
 	vmCvar_t	*vmCvar;

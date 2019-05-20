@@ -25,13 +25,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "g_local.h"
 #include "ghoul2/G2.h"
 #include "bg_saga.h"
+#include "g_team.h"
 
 // g_client.c -- client functions that don't happen every frame
 
 static vec3_t	playerMins = {-15, -15, DEFAULT_MINS_2};
 static vec3_t	playerMaxs = {15, 15, DEFAULT_MAXS_2};
-
-extern int g_siegeRespawnCheck;
 
 void WP_SaberAddG2Model( gentity_t *saberent, const char *saberModel, qhandle_t saberSkin );
 void WP_SaberRemoveG2Model( gentity_t *saberent );
@@ -157,91 +156,6 @@ INITIAL - The first time a player enters the game, they will be at an 'initial' 
 */
 void SP_info_player_start_blue(gentity_t *ent) {
 	SP_info_player_deathmatch( ent );
-}
-
-void SiegePointUse( gentity_t *self, gentity_t *other, gentity_t *activator )
-{
-	//Toggle the point on/off
-	if (self->genericValue1)
-	{
-		self->genericValue1 = 0;
-	}
-	else
-	{
-		self->genericValue1 = 1;
-	}
-}
-
-/*QUAKED info_player_siegeteam1 (1 0 0) (-16 -16 -24) (16 16 32)
-siege start point - team1
-name and behavior of team1 depends on what is defined in the
-.siege file for this level
-
-startoff - if non-0 spawn point will be disabled until used
-idealclass - if specified, this spawn point will be considered
-"ideal" for players of this class name. Corresponds to the name
-entry in the .scl (siege class) file.
-Targets will be fired when someone spawns in on them.
-*/
-void SP_info_player_siegeteam1(gentity_t *ent) {
-	int soff = 0;
-
-	if (level.gametype != GT_SIEGE)
-	{ //turn into a DM spawn if not in siege game mode
-		ent->classname = "info_player_deathmatch";
-		SP_info_player_deathmatch( ent );
-
-		return;
-	}
-
-	G_SpawnInt("startoff", "0", &soff);
-
-	if (soff)
-	{ //start disabled
-		ent->genericValue1 = 0;
-	}
-	else
-	{
-		ent->genericValue1 = 1;
-	}
-
-	ent->use = SiegePointUse;
-}
-
-/*QUAKED info_player_siegeteam2 (0 0 1) (-16 -16 -24) (16 16 32)
-siege start point - team2
-name and behavior of team2 depends on what is defined in the
-.siege file for this level
-
-startoff - if non-0 spawn point will be disabled until used
-idealclass - if specified, this spawn point will be considered
-"ideal" for players of this class name. Corresponds to the name
-entry in the .scl (siege class) file.
-Targets will be fired when someone spawns in on them.
-*/
-void SP_info_player_siegeteam2(gentity_t *ent) {
-	int soff = 0;
-
-	if (level.gametype != GT_SIEGE)
-	{ //turn into a DM spawn if not in siege game mode
-		ent->classname = "info_player_deathmatch";
-		SP_info_player_deathmatch( ent );
-
-		return;
-	}
-
-	G_SpawnInt("startoff", "0", &soff);
-
-	if (soff)
-	{ //start disabled
-		ent->genericValue1 = 0;
-	}
-	else
-	{
-		ent->genericValue1 = 1;
-	}
-
-	ent->use = SiegePointUse;
 }
 
 /*QUAKED info_player_intermission (1 0 1) (-16 -16 -24) (16 16 32) RED BLUE
@@ -376,7 +290,7 @@ void JMSaberThink(gentity_t *ent)
 			VectorCopy(ent->enemy->s.pos.trBase, ent->s.pos.trBase);
 			VectorCopy(ent->enemy->s.pos.trBase, ent->s.origin);
 			VectorCopy(ent->enemy->s.pos.trBase, ent->r.currentOrigin);
-			ent->s.modelindex = G_ModelIndex("models/weapons2/saber/saber_w.glm");
+			ent->s.modelindex = G_ModelIndex(DEFAULT_SABER_MODEL);
 			ent->s.eFlags &= ~(EF_NODRAW);
 			ent->s.modelGhoul2 = 1;
 			ent->s.eType = ET_MISSILE;
@@ -509,7 +423,7 @@ void SP_info_jedimaster_start(gentity_t *ent)
 
 	ent->flags = FL_BOUNCE_HALF;
 
-	ent->s.modelindex = G_ModelIndex("models/weapons2/saber/saber_w.glm");
+	ent->s.modelindex = G_ModelIndex(DEFAULT_SABER_MODEL);
 	ent->s.modelGhoul2 = 1;
 	ent->s.g2radius = 20;
 	//ent->s.eType = ET_GENERAL;
@@ -538,20 +452,6 @@ void SP_info_jedimaster_start(gentity_t *ent)
 	ent->nextthink = level.time + 50;
 }
 
-/*
-=======================================================================
-
-  SelectSpawnPoint
-
-=======================================================================
-*/
-
-/*
-================
-SpotWouldTelefrag
-
-================
-*/
 qboolean SpotWouldTelefrag( gentity_t *spot ) {
 	int			i, num;
 	int			touch[MAX_GENTITIES];
@@ -602,14 +502,8 @@ qboolean SpotWouldTelefrag2( gentity_t *mover, vec3_t dest )
 	return qfalse;
 }
 
-/*
-================
-SelectNearestDeathmatchSpawnPoint
-
-Find the spot that we DON'T want to use
-================
-*/
 #define	MAX_SPAWN_POINTS	128
+// Find the spot that we DON'T want to use
 gentity_t *SelectNearestDeathmatchSpawnPoint( vec3_t from ) {
 	gentity_t	*spot;
 	vec3_t		delta;
@@ -633,15 +527,8 @@ gentity_t *SelectNearestDeathmatchSpawnPoint( vec3_t from ) {
 	return nearestSpot;
 }
 
-
-/*
-================
-SelectRandomDeathmatchSpawnPoint
-
-go to a random point that doesn't telefrag
-================
-*/
 #define	MAX_SPAWN_POINTS	128
+// go to a random point that doesn't telefrag
 gentity_t *SelectRandomDeathmatchSpawnPoint( qboolean isbot ) {
 	gentity_t	*spot;
 	int			count;
@@ -675,13 +562,7 @@ gentity_t *SelectRandomDeathmatchSpawnPoint( qboolean isbot ) {
 	return spots[ selection ];
 }
 
-/*
-===========
-SelectRandomFurthestSpawnPoint
-
-Chooses a player start, deathmatch start, etc
-============
-*/
+// Chooses a player start, deathmatch start, etc
 gentity_t *SelectRandomFurthestSpawnPoint ( vec3_t avoidPoint, vec3_t origin, vec3_t angles, team_t team, qboolean isbot ) {
 	gentity_t	*spot;
 	vec3_t		delta;
@@ -893,13 +774,7 @@ tryAgain:
 	return list_spot[rnd];
 }
 
-/*
-===========
-SelectSpawnPoint
-
-Chooses a player start, deathmatch start, etc
-============
-*/
+// Chooses a player start, deathmatch start, etc
 gentity_t *SelectSpawnPoint ( vec3_t avoidPoint, vec3_t origin, vec3_t angles, team_t team, qboolean isbot ) {
 	return SelectRandomFurthestSpawnPoint( avoidPoint, origin, angles, team, isbot );
 
@@ -932,14 +807,7 @@ gentity_t *SelectSpawnPoint ( vec3_t avoidPoint, vec3_t origin, vec3_t angles, t
 	*/
 }
 
-/*
-===========
-SelectInitialSpawnPoint
-
-Try to find a spawn point marked 'initial', otherwise
-use normal spawn selection.
-============
-*/
+// Try to find a spawn point marked 'initial', otherwise use normal spawn selection.
 gentity_t *SelectInitialSpawnPoint( vec3_t origin, vec3_t angles, team_t team, qboolean isbot ) {
 	gentity_t	*spot;
 
@@ -967,12 +835,6 @@ gentity_t *SelectInitialSpawnPoint( vec3_t origin, vec3_t angles, team_t team, q
 	return spot;
 }
 
-/*
-===========
-SelectSpectatorSpawnPoint
-
-============
-*/
 gentity_t *SelectSpectatorSpawnPoint( vec3_t origin, vec3_t angles ) {
 	FindIntermissionPoint();
 
@@ -982,29 +844,10 @@ gentity_t *SelectSpectatorSpawnPoint( vec3_t origin, vec3_t angles ) {
 	return NULL;
 }
 
-/*
-=======================================================================
-
-BODYQUE
-
-=======================================================================
-*/
-
-/*
-=======================================================================
-
-BODYQUE
-
-=======================================================================
-*/
+// BODYQUE
 
 #define BODY_SINK_TIME		30000//45000
 
-/*
-===============
-InitBodyQue
-===============
-*/
 void InitBodyQue (void) {
 	int		i;
 	gentity_t	*ent;
@@ -1018,13 +861,7 @@ void InitBodyQue (void) {
 	}
 }
 
-/*
-=============
-BodySink
-
-After sitting around for five seconds, fall into the ground and disappear
-=============
-*/
+// After sitting around for five seconds, fall into the ground and disappear
 void BodySink( gentity_t *ent ) {
 	if ( level.time - ent->timestamp > BODY_SINK_TIME + 2500 ) {
 		// the body ques are never actually freed, they are just unlinked
@@ -1040,14 +877,7 @@ void BodySink( gentity_t *ent ) {
 	ent->takedamage = qfalse;
 }
 
-/*
-=============
-CopyToBodyQue
-
-A player is respawning, so make an entity that looks
-just like the existing corpse to leave behind.
-=============
-*/
+// A player is respawning, so make an entity that looks just like the existing corpse to leave behind.
 static qboolean CopyToBodyQue( gentity_t *ent ) {
 	gentity_t		*body;
 	int			contents;
@@ -1159,15 +989,6 @@ static qboolean CopyToBodyQue( gentity_t *ent ) {
 	return qtrue;
 }
 
-//======================================================================
-
-
-/*
-==================
-SetClientViewAngle
-
-==================
-*/
 void SetClientViewAngle( gentity_t *ent, vec3_t angle ) {
 	int			i;
 
@@ -1187,9 +1008,7 @@ void MaintainBodyQueue(gentity_t *ent)
 	qboolean doRCG = qfalse;
 
 	assert(ent && ent->client);
-	if (ent->client->tempSpectate >= level.time ||
-		(ent->client->ps.eFlags2 & EF2_SHIP_DEATH))
-	{
+	if ( ent->client->tempSpectate >= level.time ) {
 		ent->client->noCorpse = qtrue;
 	}
 
@@ -1213,12 +1032,6 @@ void MaintainBodyQueue(gentity_t *ent)
 	}
 }
 
-/*
-================
-ClientRespawn
-================
-*/
-void SiegeRespawn(gentity_t *ent);
 void ClientRespawn( gentity_t *ent ) {
 	MaintainBodyQueue(ent);
 
@@ -1237,53 +1050,10 @@ void ClientRespawn( gentity_t *ent ) {
 
 	trap->UnlinkEntity ((sharedEntity_t *)ent);
 
-	if (level.gametype == GT_SIEGE)
-	{
-		if (g_siegeRespawn.integer)
-		{
-			if (ent->client->tempSpectate < level.time)
-			{
-				int minDel = g_siegeRespawn.integer* 2000;
-				if (minDel < 20000)
-				{
-					minDel = 20000;
-				}
-				ent->client->tempSpectate = level.time + minDel;
-				ent->health = ent->client->ps.stats[STAT_HEALTH] = 1;
-				ent->waterlevel = ent->watertype = 0;
-				ent->client->ps.weapon = WP_NONE;
-				ent->client->ps.stats[STAT_WEAPONS] = 0;
-				ent->client->ps.stats[STAT_HOLDABLE_ITEMS] = 0;
-				ent->client->ps.stats[STAT_HOLDABLE_ITEM] = 0;
-				ent->takedamage = qfalse;
-				trap->LinkEntity((sharedEntity_t *)ent);
-
-				// Respawn time.
-				if ( ent->s.number < MAX_CLIENTS )
-				{
-					gentity_t *te = G_TempEntity( ent->client->ps.origin, EV_SIEGESPEC );
-					te->s.time = g_siegeRespawnCheck;
-					te->s.owner = ent->s.number;
-				}
-
-				return;
-			}
-		}
-		SiegeRespawn(ent);
-	}
-	else
-	{
-		ClientSpawn(ent);
-	}
+	ClientSpawn(ent);
 }
 
-/*
-================
-TeamCount
-
-Returns number of players on a team
-================
-*/
+// Returns number of players on a team
 int TeamCount( int ignoreClientNum, team_t team ) {
 	int		i;
 	int		count = 0;
@@ -1298,23 +1068,12 @@ int TeamCount( int ignoreClientNum, team_t team ) {
 		if ( level.clients[i].sess.sessionTeam == team ) {
 			count++;
 		}
-		else if (level.gametype == GT_SIEGE &&
-            level.clients[i].sess.siegeDesiredTeam == team)
-		{
-			count++;
-		}
 	}
 
 	return count;
 }
 
-/*
-================
-TeamLeader
-
-Returns the client number of the team leader
-================
-*/
+// Returns the client number of the team leader
 int TeamLeader( int team ) {
 	int		i;
 
@@ -1331,13 +1090,6 @@ int TeamLeader( int team ) {
 	return -1;
 }
 
-
-/*
-================
-PickTeam
-
-================
-*/
 team_t PickTeam( int ignoreClientNum ) {
 	int		counts[TEAM_NUM_TEAMS];
 
@@ -1357,13 +1109,7 @@ team_t PickTeam( int ignoreClientNum ) {
 	return TEAM_BLUE;
 }
 
-/*
-===========
-ForceClientSkin
-
-Forces a client's skin (for teamplay)
-===========
-*/
+// Forces a client's skin (for teamplay)
 /*
 static void ForceClientSkin( gclient_t *client, char *model, const char *skin ) {
 	char *p;
@@ -1377,11 +1123,6 @@ static void ForceClientSkin( gclient_t *client, char *model, const char *skin ) 
 }
 */
 
-/*
-===========
-ClientCheckName
-============
-*/
 static void ClientCleanName( const char *in, char *out, int outSize )
 {
 	int outpos = 0, colorlessLen = 0, spaces = 0, ats = 0;
@@ -1543,22 +1284,15 @@ qboolean G_SaberModelSetup(gentity_t *ent)
 	return fallbackForSaber;
 }
 
-/*
-===========
-SetupGameGhoul2Model
+qboolean BG_ValidateSkinForTeam( const char *modelName, char *skinName, int team, float *colors );
 
-There are two ghoul2 model instances per player (actually three).  One is on the clientinfo (the base for the client side
-player, and copied for player spawns and for corpses).  One is attached to the centity itself, which is the model acutally
-animated and rendered by the system.  The final is the game ghoul2 model.  This is animated by pmove on the server, and
-is used for determining where the lightsaber should be, and for per-poly collision tests.
-===========
-*/
 void *g2SaberInstance = NULL;
 
-qboolean BG_IsValidCharacterModel(const char *modelName, const char *skinName);
-qboolean BG_ValidateSkinForTeam( const char *modelName, char *skinName, int team, float *colors );
-void BG_GetVehicleModelName(char *modelName, const char *vehicleName, size_t len);
-
+// There are two ghoul2 model instances per player (actually three).
+// One is on the clientinfo (the base for the client side player, and copied for player spawns and for corpses).
+// One is attached to the centity itself, which is the model acutally animated and rendered by the system.
+// The final is the game ghoul2 model. This is animated by pmove on the server, and is used for determining where the
+//	lightsaber should be, and for per-poly collision tests.
 void SetupGameGhoul2Model(gentity_t *ent, char *modelname, char *skinName)
 {
 	int handle;
@@ -1589,7 +1323,7 @@ void SetupGameGhoul2Model(gentity_t *ent, char *modelname, char *skinName)
 	{
 		int defSkin;
 
-		Com_sprintf( afilename, sizeof( afilename ), "models/players/kyle/model.glm" );
+		Com_sprintf( afilename, sizeof( afilename ), "models/players/" DEFAULT_MODEL "/model.glm" );
 		handle = trap->G2API_InitGhoul2Model(&precachedKyle, afilename, 0, 0, -20, 0, 0);
 
 		if (handle<0)
@@ -1597,108 +1331,65 @@ void SetupGameGhoul2Model(gentity_t *ent, char *modelname, char *skinName)
 			return;
 		}
 
-		defSkin = trap->R_RegisterSkin("models/players/kyle/model_default.skin");
+		defSkin = trap->R_RegisterSkin("models/players/" DEFAULT_MODEL "/model_default.skin");
 		trap->G2API_SetSkin(precachedKyle, 0, defSkin, defSkin);
 	}
 
 	if (precachedKyle && trap->G2API_HaveWeGhoul2Models(precachedKyle))
 	{
-		if (d_perPlayerGhoul2.integer || ent->s.number >= MAX_CLIENTS ||
-			G_PlayerHasCustomSkeleton(ent))
+		if (d_perPlayerGhoul2.integer || ent->s.number >= MAX_CLIENTS)
 		{ //rww - allow option for perplayer models on server for collision and bolt stuff.
 			char modelFullPath[MAX_QPATH];
 			char truncModelName[MAX_QPATH];
 			char skin[MAX_QPATH];
-			char vehicleName[MAX_QPATH];
 			int skinHandle = 0;
 			int i = 0;
 			char *p;
 
-			// If this is a vehicle, get it's model name.
-			if ( ent->client->NPC_class == CLASS_VEHICLE )
+			if (skinName && skinName[0])
 			{
-				char realModelName[MAX_QPATH];
-
-				Q_strncpyz( vehicleName, modelname, sizeof( vehicleName ) );
-				BG_GetVehicleModelName(realModelName, modelname, sizeof( realModelName ));
-				strcpy(truncModelName, realModelName);
-				skin[0] = 0;
-				if ( ent->m_pVehicle
-					&& ent->m_pVehicle->m_pVehicleInfo
-					&& ent->m_pVehicle->m_pVehicleInfo->skin
-					&& ent->m_pVehicle->m_pVehicleInfo->skin[0] )
-				{
-					skinHandle = trap->R_RegisterSkin(va("models/players/%s/model_%s.skin", realModelName, ent->m_pVehicle->m_pVehicleInfo->skin));
-				}
-				else
-				{
-					skinHandle = trap->R_RegisterSkin(va("models/players/%s/model_default.skin", realModelName));
-				}
+				strcpy(skin, skinName);
+				strcpy(truncModelName, modelname);
 			}
 			else
 			{
-				if (skinName && skinName[0])
-				{
-					strcpy(skin, skinName);
-					strcpy(truncModelName, modelname);
-				}
-				else
-				{
-					strcpy(skin, "default");
+				strcpy(skin, "default");
 
-					strcpy(truncModelName, modelname);
-					p = Q_strrchr(truncModelName, '/');
+				strcpy(truncModelName, modelname);
+				p = Q_strrchr(truncModelName, '/');
 
-					if (p)
+				if (p)
+				{
+					*p = 0;
+					p++;
+
+					while (p && *p)
 					{
-						*p = 0;
+						skin[i] = *p;
+						i++;
 						p++;
-
-						while (p && *p)
-						{
-							skin[i] = *p;
-							i++;
-							p++;
-						}
-						skin[i] = 0;
-						i = 0;
 					}
+					skin[i] = 0;
+					i = 0;
+				}
 
-					if (!BG_IsValidCharacterModel(truncModelName, skin))
+				if ( level.gametype >= GT_TEAM && !g_jediVmerc.integer )
+				{
+					float colorOverride[3];
+
+					colorOverride[0] = colorOverride[1] = colorOverride[2] = 0.0f;
+
+					BG_ValidateSkinForTeam( truncModelName, skin, ent->client->sess.sessionTeam, colorOverride);
+					if (colorOverride[0] != 0.0f ||
+						colorOverride[1] != 0.0f ||
+						colorOverride[2] != 0.0f)
 					{
-						strcpy(truncModelName, DEFAULT_MODEL);
-						strcpy(skin, "default");
+						ent->client->ps.customRGBA[0] = colorOverride[0]*255.0f;
+						ent->client->ps.customRGBA[1] = colorOverride[1]*255.0f;
+						ent->client->ps.customRGBA[2] = colorOverride[2]*255.0f;
 					}
 
-					if ( level.gametype >= GT_TEAM && level.gametype != GT_SIEGE && !g_jediVmerc.integer )
-					{
-						float colorOverride[3];
-
-						colorOverride[0] = colorOverride[1] = colorOverride[2] = 0.0f;
-
-						BG_ValidateSkinForTeam( truncModelName, skin, ent->client->sess.sessionTeam, colorOverride);
-						if (colorOverride[0] != 0.0f ||
-							colorOverride[1] != 0.0f ||
-							colorOverride[2] != 0.0f)
-						{
-							ent->client->ps.customRGBA[0] = colorOverride[0]*255.0f;
-							ent->client->ps.customRGBA[1] = colorOverride[1]*255.0f;
-							ent->client->ps.customRGBA[2] = colorOverride[2]*255.0f;
-						}
-
-						//BG_ValidateSkinForTeam( truncModelName, skin, ent->client->sess.sessionTeam, NULL );
-					}
-					else if (level.gametype == GT_SIEGE)
-					{ //force skin for class if appropriate
-						if (ent->client->siegeClass != -1)
-						{
-							siegeClass_t *scl = &bgSiegeClasses[ent->client->siegeClass];
-							if (scl->forcedSkin[0])
-							{
-								Q_strncpyz( skin, scl->forcedSkin, sizeof( skin ) );
-							}
-						}
-					}
+					//BG_ValidateSkinForTeam( truncModelName, skin, ent->client->sess.sessionTeam, NULL );
 				}
 			}
 
@@ -1738,7 +1429,7 @@ void SetupGameGhoul2Model(gentity_t *ent, char *modelname, char *skinName)
 				GLAName[0] = 0;
 				trap->G2API_GetGLAName( ent->ghoul2, 0, GLAName);
 
-				if (!GLAName[0] || (!strstr(GLAName, "players/_humanoid/") && ent->s.number < MAX_CLIENTS && !G_PlayerHasCustomSkeleton(ent)))
+				if (!GLAName[0] || (!strstr(GLAName, "players/_humanoid/") && ent->s.number < MAX_CLIENTS))
 				{ //a bad model
 					trap->G2API_CleanGhoul2Models(&(ent->ghoul2));
 					ent->ghoul2 = NULL;
@@ -1754,14 +1445,7 @@ void SetupGameGhoul2Model(gentity_t *ent, char *modelname, char *skinName)
 						strcat( modelFullPath, va("*%s", skin) );
 					}
 
-					if ( ent->client->NPC_class == CLASS_VEHICLE )
-					{ //vehicles are tricky and send over their vehicle names as the model (the model is then retrieved based on the vehicle name)
-						ent->s.modelindex = G_ModelIndex(vehicleName);
-					}
-					else
-					{
-						ent->s.modelindex = G_ModelIndex(modelFullPath);
-					}
+					ent->s.modelindex = G_ModelIndex(modelFullPath);
 				}
 			}
 		}
@@ -1792,7 +1476,7 @@ void SetupGameGhoul2Model(gentity_t *ent, char *modelname, char *skinName)
 		}
 	}
 
-	if (ent->s.number >= MAX_CLIENTS || G_PlayerHasCustomSkeleton(ent))
+	if (ent->s.number >= MAX_CLIENTS)
 	{
 		ent->localAnimIndex = -1;
 
@@ -1844,51 +1528,6 @@ void SetupGameGhoul2Model(gentity_t *ent, char *modelname, char *skinName)
 		}
 	}
 
-	if (ent->s.NPC_class == CLASS_VEHICLE &&
-		ent->m_pVehicle)
-	{ //do special vehicle stuff
-		char strTemp[128];
-		int i;
-
-		// Setup the default first bolt
-		i = trap->G2API_AddBolt( ent->ghoul2, 0, "model_root" );
-
-		// Setup the droid unit.
-		ent->m_pVehicle->m_iDroidUnitTag = trap->G2API_AddBolt( ent->ghoul2, 0, "*droidunit" );
-
-		// Setup the Exhausts.
-		for ( i = 0; i < MAX_VEHICLE_EXHAUSTS; i++ )
-		{
-			Com_sprintf( strTemp, 128, "*exhaust%i", i + 1 );
-			ent->m_pVehicle->m_iExhaustTag[i] = trap->G2API_AddBolt( ent->ghoul2, 0, strTemp );
-		}
-
-		// Setup the Muzzles.
-		for ( i = 0; i < MAX_VEHICLE_MUZZLES; i++ )
-		{
-			Com_sprintf( strTemp, 128, "*muzzle%i", i + 1 );
-			ent->m_pVehicle->m_iMuzzleTag[i] = trap->G2API_AddBolt( ent->ghoul2, 0, strTemp );
-			if ( ent->m_pVehicle->m_iMuzzleTag[i] == -1 )
-			{//ergh, try *flash?
-				Com_sprintf( strTemp, 128, "*flash%i", i + 1 );
-				ent->m_pVehicle->m_iMuzzleTag[i] = trap->G2API_AddBolt( ent->ghoul2, 0, strTemp );
-			}
-		}
-
-		// Setup the Turrets.
-		for ( i = 0; i < MAX_VEHICLE_TURRET_MUZZLES; i++ )
-		{
-			if ( ent->m_pVehicle->m_pVehicleInfo->turret[i].gunnerViewTag )
-			{
-				ent->m_pVehicle->m_iGunnerViewTag[i] = trap->G2API_AddBolt( ent->ghoul2, 0, ent->m_pVehicle->m_pVehicleInfo->turret[i].gunnerViewTag );
-			}
-			else
-			{
-				ent->m_pVehicle->m_iGunnerViewTag[i] = -1;
-			}
-		}
-	}
-
 	if (ent->client->ps.weapon == WP_SABER || ent->s.number < MAX_CLIENTS)
 	{ //a player or NPC saber user
 		trap->G2API_AddBolt(ent->ghoul2, 0, "*r_hand");
@@ -1908,7 +1547,7 @@ void SetupGameGhoul2Model(gentity_t *ent, char *modelname, char *skinName)
 
 		if (!g2SaberInstance)
 		{
-			trap->G2API_InitGhoul2Model(&g2SaberInstance, "models/weapons2/saber/saber_w.glm", 0, 0, -20, 0, 0);
+			trap->G2API_InitGhoul2Model(&g2SaberInstance, DEFAULT_SABER_MODEL, 0, 0, -20, 0, 0);
 
 			if (g2SaberInstance)
 			{
@@ -1937,23 +1576,7 @@ void SetupGameGhoul2Model(gentity_t *ent, char *modelname, char *skinName)
 	}
 }
 
-
-
-
-/*
-===========
-ClientUserInfoChanged
-
-Called from ClientConnect when the player first connects and
-directly by the server system when the player updates a userinfo variable.
-
-The game can override any of the settings and call trap->SetUserinfo
-if desired.
-============
-*/
-
-qboolean G_SetSaber(gentity_t *ent, int saberNum, char *saberName, qboolean siegeOverride);
-void G_ValidateSiegeClassForTeam(gentity_t *ent, int team);
+qboolean G_SetSaber(gentity_t *ent, int saberNum, char *saberName);
 
 typedef struct userinfoValidate_s {
 	const char		*field, *fieldClean;
@@ -2026,6 +1649,9 @@ void Svcmd_ToggleUserinfoValidation_f( void ) {
 	}
 }
 
+// Called from ClientConnect when the player first connects and directly by the server system when the player updates a
+//	userinfo variable.
+// The game can override any of the settings and call trap->SetUserinfo if desired.
 char *G_ValidateUserinfo( const char *userinfo ) {
 	unsigned int		i=0, count=0;
 	size_t				length = strlen( userinfo );
@@ -2109,10 +1735,10 @@ char *G_ValidateUserinfo( const char *userinfo ) {
 qboolean ClientUserinfoChanged( int clientNum ) {
 	gentity_t *ent = g_entities + clientNum;
 	gclient_t *client = ent->client;
-	int team=TEAM_FREE, health=100, maxHealth=100, teamLeader;
+	int health=100, maxHealth=100, teamLeader;
 	const char *s=NULL;
 	char *value=NULL, userinfo[MAX_INFO_STRING], buf[MAX_INFO_STRING], oldClientinfo[MAX_INFO_STRING], model[MAX_QPATH],
-		forcePowers[DEFAULT_FORCEPOWERS_LEN], oldname[MAX_NETNAME], className[MAX_QPATH], color1[16], color2[16];
+		forcePowers[DEFAULT_FORCEPOWERS_LEN], oldname[MAX_NETNAME], color1[16], color2[16];
 	qboolean modelChanged = qfalse;
 	gender_t gender = GENDER_MALE;
 
@@ -2187,7 +1813,7 @@ qboolean ClientUserinfoChanged( int clientNum ) {
 	Q_strncpyz( forcePowers, Info_ValueForKey( userinfo, "forcepowers" ), sizeof( forcePowers ) );
 
 	// update our customRGBA for team colors.
-	if ( level.gametype >= GT_TEAM && level.gametype != GT_SIEGE && !g_jediVmerc.integer ) {
+	if ( level.gametype >= GT_TEAM && !g_jediVmerc.integer ) {
 		char skin[MAX_QPATH] = {0};
 		vec3_t colorOverride = {0.0f};
 
@@ -2198,90 +1824,14 @@ qboolean ClientUserinfoChanged( int clientNum ) {
 			VectorScaleM( colorOverride, 255.0f, client->ps.customRGBA );
 	}
 
-	// bots set their team a few frames later
-	if ( level.gametype >= GT_TEAM && g_entities[clientNum].r.svFlags & SVF_BOT ) {
-		s = Info_ValueForKey( userinfo, "team" );
-		if ( !Q_stricmp( s, "red" ) || !Q_stricmp( s, "r" ) )
-			team = TEAM_RED;
-		else if ( !Q_stricmp( s, "blue" ) || !Q_stricmp( s, "b" ) )
-			team = TEAM_BLUE;
-		else
-			team = PickTeam( clientNum ); // pick the team with the least number of players
-	}
-	else
-		team = client->sess.sessionTeam;
-
-	//Testing to see if this fixes the problem with a bot's team getting set incorrectly.
-	team = client->sess.sessionTeam;
-
-	//Set the siege class
-	if ( level.gametype == GT_SIEGE ) {
-		Q_strncpyz( className, client->sess.siegeClass, sizeof( className ) );
-
-		//Now that the team is legal for sure, we'll go ahead and get an index for it.
-		client->siegeClass = BG_SiegeFindClassIndexByName( className );
-		if ( client->siegeClass == -1 ) {
-			// ok, get the first valid class for the team you're on then, I guess.
-			BG_SiegeCheckClassLegality( team, className );
-			Q_strncpyz( client->sess.siegeClass, className, sizeof( client->sess.siegeClass ) );
-			client->siegeClass = BG_SiegeFindClassIndexByName( className );
-		}
-		else {
-			// otherwise, make sure the class we are using is legal.
-			G_ValidateSiegeClassForTeam( ent, team );
-			Q_strncpyz( className, client->sess.siegeClass, sizeof( className ) );
-		}
-
-		if ( client->siegeClass != -1 ) {
-			// Set the sabers if the class dictates
-			siegeClass_t *scl = &bgSiegeClasses[client->siegeClass];
-
-			G_SetSaber( ent, 0, scl->saber1[0] ? scl->saber1 : DEFAULT_SABER, qtrue );
-			G_SetSaber( ent, 1, scl->saber2[0] ? scl->saber2 : "none", qtrue );
-
-			//make sure the saber models are updated
-			G_SaberModelSetup( ent );
-
-			if ( scl->forcedModel[0] ) {
-				// be sure to override the model we actually use
-				Q_strncpyz( model, scl->forcedModel, sizeof( model ) );
-				if ( d_perPlayerGhoul2.integer && Q_stricmp( model, client->modelname ) ) {
-					Q_strncpyz( client->modelname, model, sizeof( client->modelname ) );
-					modelChanged = qtrue;
-				}
-			}
-
-			if ( G_PlayerHasCustomSkeleton( ent ) )
-			{//force them to use their class model on the server, if the class dictates
-				if ( Q_stricmp( model, client->modelname ) || ent->localAnimIndex == 0 )
-				{
-					Q_strncpyz( client->modelname, model, sizeof( client->modelname ) );
-					modelChanged = qtrue;
-				}
-			}
-		}
-	}
-	else
-		Q_strncpyz( className, "none", sizeof( className ) );
-
 	// only set the saber name on the first connect.
 	//	it will be read from userinfo on ClientSpawn and stored in client->pers.saber1/2
 	if ( !VALIDSTRING( client->pers.saber1 ) || !VALIDSTRING( client->pers.saber2 ) ) {
-		G_SetSaber( ent, 0, Info_ValueForKey( userinfo, "saber1" ), qfalse );
-		G_SetSaber( ent, 1, Info_ValueForKey( userinfo, "saber2" ), qfalse );
+		G_SetSaber( ent, 0, Info_ValueForKey( userinfo, "saber1" ) );
+		G_SetSaber( ent, 1, Info_ValueForKey( userinfo, "saber2" ) );
 	}
 
-	// set max health
-	if ( level.gametype == GT_SIEGE && client->siegeClass != -1 ) {
-		siegeClass_t *scl = &bgSiegeClasses[client->siegeClass];
-
-		if ( scl->maxhealth )
-			maxHealth = scl->maxhealth;
-
-		health = maxHealth;
-	}
-	else
-		health = Com_Clampi( 1, 100, atoi( Info_ValueForKey( userinfo, "handicap" ) ) );
+	health = Com_Clampi( 1, 100, atoi( Info_ValueForKey( userinfo, "handicap" ) ) );
 
 	client->pers.maxHealth = health;
 	if ( client->pers.maxHealth < 1 || client->pers.maxHealth > maxHealth )
@@ -2343,10 +1893,6 @@ qboolean ClientUserinfoChanged( int clientNum ) {
 	//	Q_strcat( buf, sizeof( buf ), va( "tt\\%d\\", teamTask ) );
 		Q_strcat( buf, sizeof( buf ), va( "tl\\%d\\", teamLeader ) );
 	}
-	if ( level.gametype == GT_SIEGE ) {
-		Q_strcat( buf, sizeof( buf ), va( "siegeclass\\%s\\", className ) );
-		Q_strcat( buf, sizeof( buf ), va( "sdt\\%i\\", className ) );
-	}
 
 	trap->GetConfigstring( CS_PLAYERS+clientNum, oldClientinfo, sizeof( oldClientinfo ) );
 	trap->SetConfigstring( CS_PLAYERS+clientNum, buf );
@@ -2374,28 +1920,6 @@ qboolean ClientUserinfoChanged( int clientNum ) {
 	return qtrue;
 }
 
-
-/*
-===========
-ClientConnect
-
-Called when a player begins connecting to the server.
-Called again for every map change or tournament restart.
-
-The session information will be valid after exit.
-
-Return NULL if the client should be allowed, otherwise return
-a string with the reason for denial.
-
-Otherwise, the client will be sent the current gamestate
-and will eventually get to ClientBegin.
-
-firstTime will be qtrue the very first time a client connects
-to the server machine, but qfalse on map changes and tournament
-restarts.
-============
-*/
-
 static qboolean CompareIPs( const char *ip1, const char *ip2 )
 {
 	while ( 1 ) {
@@ -2410,6 +1934,13 @@ static qboolean CompareIPs( const char *ip1, const char *ip2 )
 	return qtrue;
 }
 
+// Called when a player begins connecting to the server.
+// Called again for every map change or tournament restart.
+// The session information will be valid after exit.
+// Return NULL if the client should be allowed, otherwise return a string with the reason for denial.
+// Otherwise, the client will be sent the current gamestate and will eventually get to ClientBegin.
+// firstTime will be qtrue the very first time a client connects to the server machine, but qfalse on map changes and
+//	tournament restarts.
 char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	char		*value = NULL;
 	gentity_t	*ent = NULL, *te = NULL;
@@ -2510,26 +2041,7 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	}
 	G_ReadSessionData( client );
 
-	if (level.gametype == GT_SIEGE &&
-		(firstTime || level.newSession))
-	{ //if this is the first time then auto-assign a desired siege team and show briefing for that team
-		client->sess.siegeDesiredTeam = 0;//PickTeam(ent->s.number);
-		/*
-		trap->SendServerCommand(ent->s.number, va("sb %i", client->sess.siegeDesiredTeam));
-		*/
-		//don't just show it - they'll see it if they switch to a team on purpose.
-	}
-
-
-	if (level.gametype == GT_SIEGE && client->sess.sessionTeam != TEAM_SPECTATOR)
-	{
-		if (firstTime || level.newSession)
-		{ //start as spec
-			client->sess.siegeDesiredTeam = client->sess.sessionTeam;
-			client->sess.sessionTeam = TEAM_SPECTATOR;
-		}
-	}
-	else if (level.gametype == GT_POWERDUEL && client->sess.sessionTeam != TEAM_SPECTATOR)
+	if (level.gametype == GT_POWERDUEL && client->sess.sessionTeam != TEAM_SPECTATOR)
 	{
 		client->sess.sessionTeam = TEAM_SPECTATOR;
 	}
@@ -2578,31 +2090,16 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 	te->r.svFlags |= SVF_BROADCAST;
 	te->s.eventParm = clientNum;
 
-	// for statistics
-//	client->areabits = areabits;
-//	if ( !client->areabits )
-//		client->areabits = G_Alloc( (trap->AAS_PointReachabilityAreaIndex( NULL ) + 7) / 8 );
-
 	return NULL;
 }
 
+extern qboolean g_dontPenalizeTeam; //g_cmds.c
 void G_WriteClientSessionData( gclient_t *client );
-
+void SetTeamQuick(gentity_t *ent, int team, qboolean doBegin);
 void WP_SetSaber( int entNum, saberInfo_t *sabers, int saberNum, const char *saberName );
 
-/*
-===========
-ClientBegin
-
-called when a client has finished connecting, and is ready
-to be placed into the level.  This will happen every level load,
-and on transition between teams, but doesn't happen on respawns
-============
-*/
-extern qboolean	gSiegeRoundBegun;
-extern qboolean	gSiegeRoundEnded;
-extern qboolean g_dontPenalizeTeam; //g_cmds.c
-void SetTeamQuick(gentity_t *ent, int team, qboolean doBegin);
+// called when a client has finished connecting, and is ready to be placed into the level.
+// This will happen every level load, and on transition between teams, but doesn't happen on respawns
 void ClientBegin( int clientNum, qboolean allowTeamReset ) {
 	gentity_t	*ent;
 	gclient_t	*client;
@@ -2726,9 +2223,6 @@ void ClientBegin( int clientNum, qboolean allowTeamReset ) {
 		SetTeam( ent, "s" );
 	else
 	{
-		if ( level.gametype == GT_SIEGE && (!gSiegeRoundBegun || gSiegeRoundEnded) )
-			SetTeamQuick( ent, TEAM_SPECTATOR, qfalse );
-
 		// locate ent at a spawn point
 		ClientSpawn( ent );
 	}
@@ -2772,11 +2266,6 @@ void G_BreakArm(gentity_t *ent, int arm)
 	int anim = -1;
 
 	assert(ent && ent->client);
-
-	if (ent->s.NPC_class == CLASS_VEHICLE || ent->localAnimIndex > 1)
-	{ //no broken limbs for vehicles and non-humanoids
-		return;
-	}
 
 	if (!arm)
 	{ //repair him
@@ -2896,11 +2385,6 @@ tryTorso:
 		bgAllAnims[self->localAnimIndex].anims[torsoAnim].numFrames == 0)
 
 	{ //If this fails as well just return.
-		return;
-	}
-	else if (self->s.number >= MAX_CLIENTS &&
-		self->s.NPC_class == CLASS_VEHICLE)
-	{ //we only want to set the root bone for vehicles
 		return;
 	}
 
@@ -3077,18 +2561,12 @@ tryTorso:
 #endif
 }
 
-/*
-===========
-ClientSpawn
-
-Called every time a client is placed fresh in the world:
-after the first ClientBegin, and after each respawn
-Initializes all non-persistant parts of playerState
-============
-*/
 extern qboolean WP_HasForcePowers( const playerState_t *ps );
+
+// Called every time a client is placed fresh in the world: after the first ClientBegin, and after each respawn
+// Initializes all non-persistant parts of playerState
 void ClientSpawn(gentity_t *ent) {
-	int					i = 0, index = 0, saveSaberNum = ENTITYNUM_NONE, wDisable = 0, savedSiegeIndex = 0, maxHealth = 100;
+	int					i = 0, index = 0, saveSaberNum = ENTITYNUM_NONE, wDisable = 0, maxHealth = 100;
 	vec3_t				spawn_origin, spawn_angles;
 	gentity_t			*spawnPoint = NULL, *tent = NULL;
 	gclient_t			*client = NULL;
@@ -3100,7 +2578,7 @@ void ClientSpawn(gentity_t *ent) {
 	int					flags, gameFlags, savedPing, accuracy_hits, accuracy_shots, eventSequence;
 	void				*g2WeaponPtrs[MAX_SABERS];
 	char				userinfo[MAX_INFO_STRING] = {0}, *key = NULL, *value = NULL, *saber = NULL;
-	qboolean			changedSaber = qfalse, inSiegeWithClass = qfalse;
+	qboolean			changedSaber = qfalse;
 
 	index = ent - g_entities;
 	client = ent->client;
@@ -3115,7 +2593,7 @@ void ClientSpawn(gentity_t *ent) {
 		if ( saber && value &&
 			(Q_stricmp( value, saber ) || !saber[0] || !ent->client->saber[0].model[0]) )
 		{ //doesn't match up (or our saber is BS), we want to try setting it
-			if ( G_SetSaber( ent, i, value, qfalse ) )
+			if ( G_SetSaber( ent, i, value ) )
 				changedSaber = qtrue;
 
 			//Well, we still want to say they changed then (it means this is siege and we have some overrides)
@@ -3158,16 +2636,14 @@ void ClientSpawn(gentity_t *ent) {
 			ent->client->ps.fd.saberAnimLevelBase = ent->client->ps.fd.saberAnimLevel = ent->client->ps.fd.saberDrawAnimLevel = ent->client->sess.saberLevel;
 
 			// limit our saber style to our force points allocated to saber offense
-			if ( level.gametype != GT_SIEGE && ent->client->ps.fd.saberAnimLevel > ent->client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE] )
+			if ( ent->client->ps.fd.saberAnimLevel > ent->client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE] )
 				ent->client->ps.fd.saberAnimLevelBase = ent->client->ps.fd.saberAnimLevel = ent->client->ps.fd.saberDrawAnimLevel = ent->client->sess.saberLevel = ent->client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE];
 		}
-		if ( level.gametype != GT_SIEGE )
-		{// let's just make sure the styles we chose are cool
-			if ( !WP_SaberStyleValidForSaber( &ent->client->saber[0], &ent->client->saber[1], ent->client->ps.saberHolstered, ent->client->ps.fd.saberAnimLevel ) )
-			{
-				WP_UseFirstValidSaberStyle( &ent->client->saber[0], &ent->client->saber[1], ent->client->ps.saberHolstered, &ent->client->ps.fd.saberAnimLevel );
-				ent->client->ps.fd.saberAnimLevelBase = ent->client->saberCycleQueue = ent->client->ps.fd.saberAnimLevel;
-			}
+		// let's just make sure the styles we chose are cool
+		if ( !WP_SaberStyleValidForSaber( &ent->client->saber[0], &ent->client->saber[1], ent->client->ps.saberHolstered, ent->client->ps.fd.saberAnimLevel ) )
+		{
+			WP_UseFirstValidSaberStyle( &ent->client->saber[0], &ent->client->saber[1], ent->client->ps.saberHolstered, &ent->client->ps.fd.saberAnimLevel );
+			ent->client->ps.fd.saberAnimLevelBase = ent->client->saberCycleQueue = ent->client->ps.fd.saberAnimLevel;
 		}
 	}
 
@@ -3185,7 +2661,7 @@ void ClientSpawn(gentity_t *ent) {
 		ent->client->ps.fd.saberAnimLevel = ent->client->ps.fd.saberDrawAnimLevel = ent->client->sess.saberLevel;
 
 		// limit our saber style to our force points allocated to saber offense
-		if ( level.gametype != GT_SIEGE && ent->client->ps.fd.saberAnimLevel > ent->client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE] )
+		if ( ent->client->ps.fd.saberAnimLevel > ent->client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE] )
 			ent->client->ps.fd.saberAnimLevel = ent->client->ps.fd.saberDrawAnimLevel = ent->client->sess.saberLevel = ent->client->ps.fd.forcePowerLevel[FP_SABER_OFFENSE];
 	}
 
@@ -3198,14 +2674,6 @@ void ClientSpawn(gentity_t *ent) {
 	} else if (level.gametype == GT_CTF || level.gametype == GT_CTY) {
 		// all base oriented team games use the CTF spawn points
 		spawnPoint = SelectCTFSpawnPoint (
-						client->sess.sessionTeam,
-						client->pers.teamState.state,
-						spawn_origin, spawn_angles, !!(ent->r.svFlags & SVF_BOT));
-	}
-	else if (level.gametype == GT_SIEGE)
-	{
-		spawnPoint = SelectSiegeSpawnPoint (
-						client->siegeClass,
 						client->sess.sessionTeam,
 						client->pers.teamState.state,
 						spawn_origin, spawn_angles, !!(ent->r.svFlags & SVF_BOT));
@@ -3258,8 +2726,6 @@ void ClientSpawn(gentity_t *ent) {
 
 	saveSaberNum = client->ps.saberEntityNum;
 
-	savedSiegeIndex = client->siegeClass;
-
 	for ( i=0; i<MAX_SABERS; i++ )
 	{
 		saberSaved[i] = client->saber[i];
@@ -3283,7 +2749,7 @@ void ClientSpawn(gentity_t *ent) {
 
 	client->ps.customRGBA[3]=255;
 
-	if ( level.gametype >= GT_TEAM && level.gametype != GT_SIEGE && !g_jediVmerc.integer )
+	if ( level.gametype >= GT_TEAM && !g_jediVmerc.integer )
 	{
 		char skin[MAX_QPATH] = {0}, model[MAX_QPATH] = {0};
 		vec3_t colorOverride = {0.0f};
@@ -3295,8 +2761,6 @@ void ClientSpawn(gentity_t *ent) {
 		if ( colorOverride[0] != 0.0f || colorOverride[1] != 0.0f || colorOverride[2] != 0.0f )
 			VectorScaleM( colorOverride, 255.0f, client->ps.customRGBA );
 	}
-
-	client->siegeClass = savedSiegeIndex;
 
 	for ( i=0; i<MAX_SABERS; i++ )
 	{
@@ -3334,21 +2798,7 @@ void ClientSpawn(gentity_t *ent) {
 
 	client->airOutTime = level.time + 12000;
 
-	// set max health
-	if (level.gametype == GT_SIEGE && client->siegeClass != -1)
-	{
-		siegeClass_t *scl = &bgSiegeClasses[client->siegeClass];
-		maxHealth = 100;
-
-		if (scl->maxhealth)
-		{
-			maxHealth = scl->maxhealth;
-		}
-	}
-	else
-	{
-		maxHealth = Com_Clampi( 1, 100, atoi( Info_ValueForKey( userinfo, "handicap" ) ) );
-	}
+	maxHealth = Com_Clampi( 1, 100, atoi( Info_ValueForKey( userinfo, "handicap" ) ) );
 	client->pers.maxHealth = maxHealth;//atoi( Info_ValueForKey( userinfo, "handicap" ) );
 	if ( client->pers.maxHealth < 1 || client->pers.maxHealth > maxHealth ) {
 		client->pers.maxHealth = 100;
@@ -3388,8 +2838,6 @@ void ClientSpawn(gentity_t *ent) {
 	{
 		wDisable = g_weaponDisable.integer;
 	}
-
-
 
 	if ( level.gametype != GT_HOLOCRON
 		&& level.gametype != GT_JEDIMASTER
@@ -3488,16 +2936,13 @@ void ClientSpawn(gentity_t *ent) {
 			}
 		}
 
-		if (level.gametype != GT_SIEGE)
+		if (!wDisable || !(wDisable & (1 << WP_BRYAR_PISTOL)))
 		{
-			if (!wDisable || !(wDisable & (1 << WP_BRYAR_PISTOL)))
-			{
-				client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_BRYAR_PISTOL );
-			}
-			else if (level.gametype == GT_JEDIMASTER)
-			{
-				client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_BRYAR_PISTOL );
-			}
+			client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_BRYAR_PISTOL );
+		}
+		else if (level.gametype == GT_JEDIMASTER)
+		{
+			client->ps.stats[STAT_WEAPONS] |= ( 1 << WP_BRYAR_PISTOL );
 		}
 
 		if (level.gametype == GT_JEDIMASTER)
@@ -3524,104 +2969,8 @@ void ClientSpawn(gentity_t *ent) {
 	client->ps.stats[STAT_HOLDABLE_ITEMS] |= ( 1 << HI_BINOCULARS );
 	client->ps.stats[STAT_HOLDABLE_ITEM] = BG_GetItemIndexByTag(HI_BINOCULARS, IT_HOLDABLE);
 	*/
-
-	if (level.gametype == GT_SIEGE && client->siegeClass != -1 &&
-		client->sess.sessionTeam != TEAM_SPECTATOR)
-	{ //well then, we will use a custom weaponset for our class
-		int m = 0;
-
-		client->ps.stats[STAT_WEAPONS] = bgSiegeClasses[client->siegeClass].weapons;
-
-		if (client->ps.stats[STAT_WEAPONS] & (1 << WP_SABER))
-		{
-			client->ps.weapon = WP_SABER;
-		}
-		else if (client->ps.stats[STAT_WEAPONS] & (1 << WP_BRYAR_PISTOL))
-		{
-			client->ps.weapon = WP_BRYAR_PISTOL;
-		}
-		else
-		{
-			client->ps.weapon = WP_MELEE;
-		}
-		inSiegeWithClass = qtrue;
-
-		while (m < WP_NUM_WEAPONS)
-		{
-			if (client->ps.stats[STAT_WEAPONS] & (1 << m))
-			{
-				if (client->ps.weapon != WP_SABER)
-				{ //try to find the highest ranking weapon we have
-					if (m > client->ps.weapon)
-					{
-						client->ps.weapon = m;
-					}
-				}
-
-				if (m >= WP_BRYAR_PISTOL)
-				{ //Max his ammo out for all the weapons he has.
-					if ( level.gametype == GT_SIEGE
-						&& m == WP_ROCKET_LAUNCHER )
-					{//don't give full ammo!
-						//FIXME: extern this and check it when getting ammo from supplier, pickups or ammo stations!
-						if ( client->siegeClass != -1 &&
-							(bgSiegeClasses[client->siegeClass].classflags & (1<<CFL_SINGLE_ROCKET)) )
-						{
-							client->ps.ammo[weaponData[m].ammoIndex] = 1;
-						}
-						else
-						{
-							client->ps.ammo[weaponData[m].ammoIndex] = 10;
-						}
-					}
-					else
-					{
-						if ( level.gametype == GT_SIEGE
-							&& client->siegeClass != -1
-							&& (bgSiegeClasses[client->siegeClass].classflags & (1<<CFL_EXTRA_AMMO)) )
-						{//double ammo
-							client->ps.ammo[weaponData[m].ammoIndex] = ammoData[weaponData[m].ammoIndex].max*2;
-							client->ps.eFlags |= EF_DOUBLE_AMMO;
-						}
-						else
-						{
-							client->ps.ammo[weaponData[m].ammoIndex] = ammoData[weaponData[m].ammoIndex].max;
-						}
-					}
-				}
-			}
-			m++;
-		}
-	}
-
-	if (level.gametype == GT_SIEGE &&
-		client->siegeClass != -1 &&
-		client->sess.sessionTeam != TEAM_SPECTATOR)
-	{ //use class-specified inventory
-		client->ps.stats[STAT_HOLDABLE_ITEMS] = bgSiegeClasses[client->siegeClass].invenItems;
-		client->ps.stats[STAT_HOLDABLE_ITEM] = 0;
-	}
-	else
-	{
-		client->ps.stats[STAT_HOLDABLE_ITEMS] = 0;
-		client->ps.stats[STAT_HOLDABLE_ITEM] = 0;
-	}
-
-	if (level.gametype == GT_SIEGE &&
-		client->siegeClass != -1 &&
-		bgSiegeClasses[client->siegeClass].powerups &&
-		client->sess.sessionTeam != TEAM_SPECTATOR)
-	{ //this class has some start powerups
-		i = 0;
-		while (i < PW_NUM_POWERUPS)
-		{
-			if (bgSiegeClasses[client->siegeClass].powerups & (1 << i))
-			{
-				client->ps.powerups[i] = Q3_INFINITE;
-			}
-			i++;
-		}
-	}
+	client->ps.stats[STAT_HOLDABLE_ITEMS] = 0;
+	client->ps.stats[STAT_HOLDABLE_ITEM] = 0;
 
 	if ( client->sess.sessionTeam == TEAM_SPECTATOR )
 	{
@@ -3631,10 +2980,7 @@ void ClientSpawn(gentity_t *ent) {
 	}
 
 // nmckenzie: DESERT_SIEGE... or well, siege generally.  This was over-writing the max value, which was NOT good for siege.
-	if ( inSiegeWithClass == qfalse )
-	{
-		client->ps.ammo[AMMO_BLASTER] = 100; //ammoData[AMMO_BLASTER].max; //100 seems fair.
-	}
+	client->ps.ammo[AMMO_BLASTER] = 100; //ammoData[AMMO_BLASTER].max; //100 seems fair.
 //	client->ps.ammo[AMMO_POWERCELL] = ammoData[AMMO_POWERCELL].max;
 //	client->ps.ammo[AMMO_FORCE] = ammoData[AMMO_FORCE].max;
 //	client->ps.ammo[AMMO_METAL_BOLTS] = ammoData[AMMO_METAL_BOLTS].max;
@@ -3673,13 +3019,7 @@ void ClientSpawn(gentity_t *ent) {
 	WP_SpawnInitForcePowers( ent );
 
 	// health will count down towards max_health
-	if (level.gametype == GT_SIEGE &&
-		client->siegeClass != -1 &&
-		bgSiegeClasses[client->siegeClass].starthealth)
-	{ //class specifies a start health, so use it
-		ent->health = client->ps.stats[STAT_HEALTH] = bgSiegeClasses[client->siegeClass].starthealth;
-	}
-	else if ( level.gametype == GT_DUEL || level.gametype == GT_POWERDUEL )
+	if ( level.gametype == GT_DUEL || level.gametype == GT_POWERDUEL )
 	{//only start with 100 health in Duel
 		if ( level.gametype == GT_POWERDUEL && client->sess.duelTeam == DUELTEAM_LONE )
 		{
@@ -3712,14 +3052,7 @@ void ClientSpawn(gentity_t *ent) {
 		ent->health = client->ps.stats[STAT_HEALTH] = client->ps.stats[STAT_MAX_HEALTH];
 	}
 
-	// Start with a small amount of armor as well.
-	if (level.gametype == GT_SIEGE &&
-		client->siegeClass != -1 /*&&
-		bgSiegeClasses[client->siegeClass].startarmor*/)
-	{ //class specifies a start armor amount, so use it
-		client->ps.stats[STAT_ARMOR] = bgSiegeClasses[client->siegeClass].startarmor;
-	}
-	else if ( level.gametype == GT_DUEL || level.gametype == GT_POWERDUEL )
+	if ( level.gametype == GT_DUEL || level.gametype == GT_POWERDUEL )
 	{//no armor in duel
 		client->ps.stats[STAT_ARMOR] = 0;
 	}
@@ -3791,26 +3124,6 @@ void ClientSpawn(gentity_t *ent) {
 		MoveClientToIntermission(ent);
 	}
 
-	//set teams for NPCs to recognize
-	if (level.gametype == GT_SIEGE)
-	{ //Imperial (team1) team is allied with "enemy" NPCs in this mode
-		if (client->sess.sessionTeam == SIEGETEAM_TEAM1)
-		{
-			client->playerTeam = ent->s.teamowner = NPCTEAM_ENEMY;
-			client->enemyTeam = NPCTEAM_PLAYER;
-		}
-		else
-		{
-			client->playerTeam = ent->s.teamowner = NPCTEAM_PLAYER;
-			client->enemyTeam = NPCTEAM_ENEMY;
-		}
-	}
-	else
-	{
-		client->playerTeam = ent->s.teamowner = NPCTEAM_PLAYER;
-		client->enemyTeam = NPCTEAM_ENEMY;
-	}
-
 	/*
 	//scaling for the power duel opponent
 	if (level.gametype == GT_POWERDUEL &&
@@ -3841,21 +3154,10 @@ void ClientSpawn(gentity_t *ent) {
 	trap->ICARUS_InitEnt( (sharedEntity_t *)ent );
 }
 
-
-/*
-===========
-ClientDisconnect
-
-Called when a player drops from the server.
-Will not be called between levels.
-
-This should NOT be called directly by any game logic,
-call trap->DropClient(), which will call this and do
-server system housekeeping.
-============
-*/
-extern void G_LeaveVehicle( gentity_t* ent, qboolean ConCheck );
-
+// Called when a player drops from the server.
+// Will not be called between levels.
+// This should NOT be called directly by any game logic, call trap->DropClient(), which will call this and do server
+//	system housekeeping.
 void G_ClearVote( gentity_t *ent ) {
 	if ( level.voteTime ) {
 		if ( ent->client->mGameFlags & PSG_VOTED ) {
@@ -3931,8 +3233,6 @@ void ClientDisconnect( int clientNum ) {
 		i++;
 	}
 	i = 0;
-
-	G_LeaveVehicle( ent, qtrue );
 
 	if ( ent->client->ewebIndex )
 	{
@@ -4013,16 +3313,6 @@ void ClientDisconnect( int clientNum ) {
 	ent->client->sess.sessionTeam = TEAM_FREE;
 	ent->r.contents = 0;
 
-	if (ent->client->holdingObjectiveItem > 0)
-	{ //carrying a siege objective item - make sure it updates and removes itself from us now in case this is an instant death-respawn situation
-		gentity_t *objectiveItem = &g_entities[ent->client->holdingObjectiveItem];
-
-		if (objectiveItem->inuse && objectiveItem->think)
-		{
-            objectiveItem->think(objectiveItem);
-		}
-	}
-
 	trap->SetConfigstring( CS_PLAYERS + clientNum, "");
 
 	CalculateRanks();
@@ -4033,5 +3323,4 @@ void ClientDisconnect( int clientNum ) {
 
 	G_ClearClientLog(clientNum);
 }
-
 

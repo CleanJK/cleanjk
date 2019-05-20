@@ -26,11 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 extern int		drawnFx;
 
-//--------------------------
-//
 // Base Effect Class
-//
-//--------------------------
 CEffect::CEffect(void) :
 	mFlags(0),
 	mMatImpactFX(MATIMPACTFX_NONE),
@@ -41,13 +37,7 @@ CEffect::CEffect(void) :
 	memset( &mRefEnt, 0, sizeof( mRefEnt ));
 }
 
-//--------------------------
-//
 // Derived Particle Class
-//
-//--------------------------
-
-//----------------------------
 void CParticle::Init(void)
 {
 	mRefEnt.radius = 0.0f;
@@ -58,7 +48,6 @@ void CParticle::Init(void)
 	}
 }
 
-//----------------------------
 void CParticle::Die(void)
 {
 	if ( mFlags & FX_DEATH_RUNS_FX && !(mFlags & FX_KILL_ON_IMPACT) )
@@ -73,7 +62,6 @@ void CParticle::Die(void)
 	}
 }
 
-//----------------------------
 bool CParticle::Cull(void)
 {
 	vec3_t	dir;
@@ -108,7 +96,6 @@ bool CParticle::Cull(void)
 	return false;
 }
 
-//----------------------------
 void CParticle::Draw(void)
 {
 	if ( mFlags & FX_DEPTH_HACK )
@@ -139,9 +126,7 @@ void CParticle::Draw(void)
 	drawnFx++;
 }
 
-//----------------------------
 // Update
-//----------------------------
 bool CParticle::Update(void)
 {
 	// Game pausing can cause dumb time things to happen, so kill the effect in this instance
@@ -195,7 +180,6 @@ bool CParticle::Update(void)
 		return false;
 	}
 
-
 	if ( !Cull() )
 	{
 		// Only update these if the thing is visible.
@@ -210,9 +194,7 @@ bool CParticle::Update(void)
 	return true;
 }
 
-//----------------------------
 // Update Origin
-//----------------------------
 bool CParticle::UpdateOrigin(void)
 {
 	vec3_t	new_origin;
@@ -329,9 +311,7 @@ bool CParticle::UpdateOrigin(void)
 	return true;
 }
 
-//----------------------------
 // Update Size
-//----------------------------
 void CParticle::UpdateSize(void)
 {
 	// completely biased towards start if it doesn't get overridden
@@ -418,9 +398,7 @@ void ClampRGB( const vec3_t in, byte *out )
 	}
 }
 
-//----------------------------
 // Update RGB
-//----------------------------
 void CParticle::UpdateRGB(void)
 {
 	// completely biased towards start if it doesn't get overridden
@@ -496,9 +474,7 @@ void CParticle::UpdateRGB(void)
 	ClampRGB( res, (byte*)(&mRefEnt.shaderRGBA) );
 }
 
-//----------------------------
 // Update Alpha
-//----------------------------
 void CParticle::UpdateAlpha(void)
 {
 	int		alpha;
@@ -588,25 +564,18 @@ void CParticle::UpdateAlpha(void)
 	}
 }
 
-//--------------------------
 void CParticle::UpdateRotation(void)
 {
 	mRefEnt.rotation += theFxHelper.mFrameTime * 0.01f * mRotationDelta;
 	mRotationDelta *= ( 1.0f - ( theFxHelper.mFrameTime * 0.0007f )); // decay rotationDelta
 }
 
-
-//--------------------------------
-//
 // Derived Oriented Particle Class
-//
-//--------------------------------
 COrientedParticle::COrientedParticle(void)
 {
 	mRefEnt.reType = RT_ORIENTED_QUAD;
 }
 
-//----------------------------
 bool COrientedParticle::Cull(void)
 {
 	vec3_t	dir;
@@ -637,7 +606,6 @@ bool COrientedParticle::Cull(void)
 	return false;
 }
 
-//----------------------------
 void COrientedParticle::Draw(void)
 {
 	if ( mFlags & FX_DEPTH_HACK )
@@ -658,9 +626,7 @@ void COrientedParticle::Draw(void)
 	drawnFx++;
 }
 
-//----------------------------
 // Update
-//----------------------------
 bool COrientedParticle::Update(void)
 {
 	// Game pausing can cause dumb time things to happen, so kill the effect in this instance
@@ -739,18 +705,12 @@ bool COrientedParticle::Update(void)
 	return true;
 }
 
-
-//----------------------------
-//
 // Derived Line Class
-//
-//----------------------------
 CLine::CLine(void)
 {
 	mRefEnt.reType = RT_LINE;
 }
 
-//----------------------------
 void CLine::Draw(void)
 {
 	if ( mFlags & FX_DEPTH_HACK )
@@ -766,7 +726,6 @@ void CLine::Draw(void)
 	drawnFx++;
 }
 
-//----------------------------
 bool CLine::Update(void)
 {
 	// Game pausing can cause dumb time things to happen, so kill the effect in this instance
@@ -809,17 +768,12 @@ bool CLine::Update(void)
 	return true;
 }
 
-//----------------------------
-//
 // Derived Electricity Class
-//
-//----------------------------
 CElectricity::CElectricity(void)
 {
 	mRefEnt.reType = RT_ELECTRICITY;
 }
 
-//----------------------------
 void CElectricity::Initialize(void)
 {
 	mRefEnt.frame = flrand(0.0f, 1.0f) * 1265536.0f;
@@ -846,7 +800,6 @@ void CElectricity::Initialize(void)
 	}
 }
 
-//----------------------------
 void CElectricity::Draw(void)
 {
 	VectorCopy( mOrigin1, mRefEnt.origin );
@@ -858,7 +811,6 @@ void CElectricity::Draw(void)
 	drawnFx++;
 }
 
-//----------------------------
 bool CElectricity::Update(void)
 {
 	// Game pausing can cause dumb time things to happen, so kill the effect in this instance
@@ -901,17 +853,12 @@ bool CElectricity::Update(void)
 	return true;
 }
 
-//----------------------------
-//
 // Derived Tail Class
-//
-//----------------------------
 CTail::CTail(void)
 {
 	mRefEnt.reType = RT_LINE;
 }
 
-//----------------------------
 void CTail::Draw(void)
 {
 	if ( mFlags & FX_DEPTH_HACK )
@@ -926,7 +873,6 @@ void CTail::Draw(void)
 	drawnFx++;
 }
 
-//----------------------------
 bool CTail::Update(void)
 {
 	// Game pausing can cause dumb time things to happen, so kill the effect in this instance
@@ -1008,7 +954,6 @@ bool CTail::Update(void)
 	return true;
 }
 
-//----------------------------
 void CTail::UpdateLength(void)
 {
 	// completely biased towards start if it doesn't get overridden
@@ -1079,8 +1024,6 @@ void CTail::UpdateLength(void)
 	mLength = (mLengthStart * perc1) + (mLengthEnd * (1.0f - perc1));
 }
 
-
-//----------------------------
 void CTail::CalcNewEndpoint(void)
 {
 	vec3_t temp;
@@ -1094,12 +1037,7 @@ void CTail::CalcNewEndpoint(void)
 	VectorMA( mOrigin1, mLength, temp, mRefEnt.oldorigin );
 }
 
-
-//----------------------------
-//
 // Derived Cylinder Class
-//
-//----------------------------
 CCylinder::CCylinder(void)
 {
 	mRefEnt.reType = RT_CYLINDER;
@@ -1134,7 +1072,6 @@ void CCylinder::UpdateLength(void)
 	}
 }
 
-//----------------------------
 void CCylinder::Draw(void)
 {
 	if ( mFlags & FX_DEPTH_HACK )
@@ -1150,9 +1087,7 @@ void CCylinder::Draw(void)
 	drawnFx++;
 }
 
-//----------------------------
 // Update Size2
-//----------------------------
 void CCylinder::UpdateSize2(void)
 {
 	// completely biased towards start if it doesn't get overridden
@@ -1223,7 +1158,6 @@ void CCylinder::UpdateSize2(void)
 	mRefEnt.rotation = (mSize2Start * perc1) + (mSize2End * (1.0f - perc1));
 }
 
-//----------------------------
 bool CCylinder::Update(void)
 {
 	// Game pausing can cause dumb time things to happen, so kill the effect in this instance
@@ -1272,12 +1206,7 @@ bool CCylinder::Update(void)
 	return true;
 }
 
-
-//----------------------------
-//
 // Derived Emitter Class
-//
-//----------------------------
 CEmitter::CEmitter(void)
 {
 	// There may or may not be a model, but if there isn't one,
@@ -1285,14 +1214,11 @@ CEmitter::CEmitter(void)
 	mRefEnt.reType = RT_MODEL;
 }
 
-//----------------------------
 CEmitter::~CEmitter(void)
 {
 }
 
-//----------------------------
 // Draw
-//----------------------------
 void CEmitter::Draw(void)
 {
 	// Emitters don't draw themselves, but they may need to add an attached model
@@ -1362,7 +1288,6 @@ void CEmitter::Draw(void)
 	drawnFx++;
 }
 
-//----------------------------
 bool CEmitter::Update(void)
 {
 	// Game pausing can cause dumb time things to happen, so kill the effect in this instance
@@ -1440,30 +1365,20 @@ bool CEmitter::Update(void)
 	return true;
 }
 
-//----------------------------
 void CEmitter::UpdateAngles(void)
 {
 	VectorMA( mAngles, theFxHelper.mFrameTime * 0.01f, mAngleDelta, mAngles ); // was 0.001f, but then you really have to jack up the delta to even notice anything
 	AnglesToAxis( mAngles, mRefEnt.axis );
 }
 
-
-//--------------------------
-//
 // Derived Light Class
-//
-//--------------------------
-
-//----------------------------
 void CLight::Draw(void)
 {
 	theFxHelper.AddLightToScene( mOrigin1, mRefEnt.radius, mRefEnt.origin[0], mRefEnt.origin[1], mRefEnt.origin[2] );
 	drawnFx++;
 }
 
-//----------------------------
 // Update
-//----------------------------
 bool CLight::Update(void)
 {
 	// Game pausing can cause dumb time things to happen, so kill the effect in this instance
@@ -1499,9 +1414,7 @@ bool CLight::Update(void)
 	return true;
 }
 
-//----------------------------
 // Update Size
-//----------------------------
 void CLight::UpdateSize(void)
 {
 	// completely biased towards start if it doesn't get overridden
@@ -1572,9 +1485,7 @@ void CLight::UpdateSize(void)
 	mRefEnt.radius = (mSizeStart * perc1) + (mSizeEnd * (1.0f - perc1));
 }
 
-//----------------------------
 // Update RGB
-//----------------------------
 void CLight::UpdateRGB(void)
 {
 	// completely biased towards start if it doesn't get overridden
@@ -1648,17 +1559,12 @@ void CLight::UpdateRGB(void)
 	VectorMA(res, ( 1.0f - perc1 ), mRGBEnd, mRefEnt.origin);
 }
 
-//--------------------------
-//
 // Derived Trail Class
-//
-//--------------------------
 #define NEW_MUZZLE	0
 #define NEW_TIP		1
 #define OLD_TIP		2
 #define OLD_MUZZLE	3
 
-//----------------------------
 void CTrail::Draw()
 {
 	polyVert_t	verts[3];
@@ -1733,9 +1639,7 @@ void CTrail::Draw()
 	drawnFx++;
 }
 
-//----------------------------
 // Update
-//----------------------------
 bool CTrail::Update()
 {
 	// Game pausing can cause dumb time things to happen, so kill the effect in this instance
@@ -1769,13 +1673,7 @@ bool CTrail::Update()
 	return true;
 }
 
-//--------------------------
-//
 // Derived Poly Class
-//
-//--------------------------
-
-//----------------------------
 bool CPoly::Cull(void)
 {
 	vec3_t	dir;
@@ -1800,7 +1698,6 @@ bool CPoly::Cull(void)
 	return false;
 }
 
-//----------------------------
 void CPoly::Draw(void)
 {
 	polyVert_t	verts[MAX_CPOLY_VERTS];
@@ -1823,7 +1720,6 @@ void CPoly::Draw(void)
 	drawnFx++;
 }
 
-//----------------------------
 void CPoly::CalcRotateMatrix(void)
 {
 	float	cosX, cosZ;
@@ -1864,7 +1760,6 @@ Roll
 	mLastFrameTime = theFxHelper.mFrameTime;
 }
 
-//--------------------------------
 void CPoly::Rotate(void)
 {
 	vec3_t	temp[MAX_CPOLY_VERTS];
@@ -1883,9 +1778,7 @@ void CPoly::Rotate(void)
 	}
 }
 
-//----------------------------
 // Update
-//----------------------------
 bool CPoly::Update(void)
 {
 	// Game pausing can cause dumb time things to happen, so kill the effect in this instance
@@ -1926,7 +1819,6 @@ bool CPoly::Update(void)
 	return true;
 }
 
-//----------------------------
 void CPoly::PolyInit(void)
 {
 	if ( mCount < 3 )
@@ -1958,13 +1850,7 @@ void CPoly::PolyInit(void)
 	CalcRotateMatrix();
 }
 
-/*
--------------------------
-CBezier
-
-Bezier curve line
--------------------------
-*/
+// Bezier curve line
 bool CBezier::Cull( void )
 {
 	vec3_t	dir;
@@ -1996,7 +1882,6 @@ bool CBezier::Cull( void )
 	return true; //all points behind viewer
 }
 
-//----------------------------
 bool CBezier::Update( void )
 {
 	float	ftime, time2;
@@ -2023,7 +1908,6 @@ bool CBezier::Update( void )
 	return true;
 }
 
-//----------------------------
 inline void CBezier::DrawSegment( vec3_t start, vec3_t end, float texcoord1, float texcoord2, float segPercent, float lastSegPercent )
 {
 	vec3_t			lineDir, cross, viewDir;
@@ -2103,7 +1987,6 @@ inline void CBezier::DrawSegment( vec3_t start, vec3_t end, float texcoord1, flo
 
 const	float	BEZIER_RESOLUTION	= 16.0f;
 
-//----------------------------
 void CBezier::Draw( void )
 {
 	vec3_t	pos, old_pos;
@@ -2144,15 +2027,7 @@ void CBezier::Draw( void )
 	drawnFx++;
 }
 
-/*
--------------------------
-CFlash
-
-Full screen flash
--------------------------
-*/
-
-//----------------------------
+// Full screen flash
 bool CFlash::Update( void )
 {
 	if ( UpdateOrigin() == false )
@@ -2204,7 +2079,6 @@ bool FX_WorldToScreen(vec3_t worldCoord, float *x, float *y)
 	return true;
 }
 
-//----------------------------
 void CFlash::Init( void )
 {
 	// 10/19/01 kef -- maybe we want to do something different here for localized flashes, but right
@@ -2245,7 +2119,6 @@ void CFlash::Init( void )
 	}
 }
 
-//----------------------------
 void CFlash::Draw( void )
 {
     // Interestingly, if znear is set > than this, then the flash

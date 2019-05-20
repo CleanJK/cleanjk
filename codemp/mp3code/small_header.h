@@ -7,7 +7,6 @@
 #ifndef SMALL_HEADER_H
 #define SMALL_HEADER_H
 
-
 typedef union
 {
    int s;

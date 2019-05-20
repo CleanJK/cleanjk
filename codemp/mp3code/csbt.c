@@ -145,7 +145,6 @@ void sbt_dual(float *sample, short *pcm, int n)
       pcm += 64;
    }
 
-
 }
 /*------------------------------------------------------------*/
 /* convert dual to mono */
@@ -209,7 +208,6 @@ void sbt16_mono(float *sample, short *pcm, int n)
       pMP3Stream->vb_ptr = (pMP3Stream->vb_ptr - 16) & 255;
       pcm += 16;
    }
-
 
 }
 /*------------------------------------------------------------*/

@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 // ICARUS Instance
-//
+
 //	-- jweier
 
 // this include must remain at the top of every Icarus CPP file
@@ -66,12 +66,6 @@ ICARUS_Instance::~ICARUS_Instance( void )
 {
 }
 
-/*
--------------------------
-Create
--------------------------
-*/
-
 ICARUS_Instance *ICARUS_Instance::Create( interface_export_t *ie )
 {
 	ICARUS_Instance *instance = new ICARUS_Instance;
@@ -79,12 +73,6 @@ ICARUS_Instance *ICARUS_Instance::Create( interface_export_t *ie )
 	Com_OPrintf( "ICARUS Instance successfully created\n" );
 	return instance;
 }
-
-/*
--------------------------
-Free
--------------------------
-*/
 
 int ICARUS_Instance::Free( void )
 {
@@ -129,12 +117,6 @@ int ICARUS_Instance::Free( void )
 	return true;
 }
 
-/*
--------------------------
-Delete
--------------------------
-*/
-
 int ICARUS_Instance::Delete( void )
 {
 
@@ -165,12 +147,6 @@ int ICARUS_Instance::Delete( void )
 	return true;
 }
 
-/*
--------------------------
-GetSequencer
--------------------------
-*/
-
 CSequencer *ICARUS_Instance::GetSequencer( int ownerID )
 {
 	CSequencer		*sequencer = CSequencer::Create();
@@ -190,12 +166,6 @@ CSequencer *ICARUS_Instance::GetSequencer( int ownerID )
 
 	return sequencer;
 }
-
-/*
--------------------------
-DeleteSequencer
--------------------------
-*/
 
 void ICARUS_Instance::DeleteSequencer( CSequencer *sequencer )
 {
@@ -223,12 +193,6 @@ void ICARUS_Instance::DeleteSequencer( CSequencer *sequencer )
 
 }
 
-/*
--------------------------
-GetSequence
--------------------------
-*/
-
 CSequence *ICARUS_Instance::GetSequence( void )
 {
 	CSequence	*sequence = CSequence::Create();
@@ -248,12 +212,6 @@ CSequence *ICARUS_Instance::GetSequence( void )
 	return sequence;
 }
 
-/*
--------------------------
-GetSequence
--------------------------
-*/
-
 CSequence *ICARUS_Instance::GetSequence( int id )
 {
 	sequence_l::iterator	si;
@@ -265,12 +223,6 @@ CSequence *ICARUS_Instance::GetSequence( int id )
 
 	return NULL;
 }
-
-/*
--------------------------
-DeleteSequence
--------------------------
-*/
 
 void ICARUS_Instance::DeleteSequence( CSequence *sequence )
 {
@@ -284,12 +236,6 @@ void ICARUS_Instance::DeleteSequence( CSequence *sequence )
 
 #endif
 }
-
-/*
--------------------------
-AllocateSequences
--------------------------
-*/
 
 int ICARUS_Instance::AllocateSequences( int numSequences, int *idTable )
 {
@@ -311,12 +257,6 @@ int ICARUS_Instance::AllocateSequences( int numSequences, int *idTable )
 
 	return true;
 }
-
-/*
--------------------------
-SaveSequenceIDTable
--------------------------
-*/
 
 int ICARUS_Instance::SaveSequenceIDTable( void )
 {
@@ -346,12 +286,6 @@ int ICARUS_Instance::SaveSequenceIDTable( void )
 	return true;
 }
 
-/*
--------------------------
-SaveSequences
--------------------------
-*/
-
 int ICARUS_Instance::SaveSequences( void )
 {
 	//Save out a listing of all the used sequences by ID
@@ -366,12 +300,6 @@ int ICARUS_Instance::SaveSequences( void )
 
 	return true;
 }
-
-/*
--------------------------
-SaveSequencers
--------------------------
-*/
 
 int ICARUS_Instance::SaveSequencers( void )
 {
@@ -388,12 +316,6 @@ int ICARUS_Instance::SaveSequencers( void )
 
 	return true;
 }
-
-/*
--------------------------
-SaveSignals
--------------------------
-*/
 
 int ICARUS_Instance::SaveSignals( void )
 {
@@ -422,12 +344,6 @@ int ICARUS_Instance::SaveSignals( void )
 	return true;
 }
 
-/*
--------------------------
-Save
--------------------------
-*/
-
 int ICARUS_Instance::Save( void )
 {
 	//Save out a ICARUS save block header with the ICARUS version
@@ -450,12 +366,6 @@ int ICARUS_Instance::Save( void )
 
 	return true;
 }
-
-/*
--------------------------
-LoadSignals
--------------------------
-*/
 
 int ICARUS_Instance::LoadSignals( void )
 {
@@ -483,12 +393,6 @@ int ICARUS_Instance::LoadSignals( void )
 	return true;
 }
 
-/*
--------------------------
-LoadSequence
--------------------------
-*/
-
 int ICARUS_Instance::LoadSequence( void )
 {
 	CSequence	*sequence = GetSequence();
@@ -502,12 +406,6 @@ int ICARUS_Instance::LoadSequence( void )
 
 	return true;
 }
-
-/*
--------------------------
-LoadSequence
--------------------------
-*/
 
 int ICARUS_Instance::LoadSequences( void )
 {
@@ -547,12 +445,6 @@ int ICARUS_Instance::LoadSequences( void )
 	return true;
 }
 
-/*
--------------------------
-LoadSequencers
--------------------------
-*/
-
 int ICARUS_Instance::LoadSequencers( void )
 {
 	CSequencer	*sequencer;
@@ -574,12 +466,6 @@ int ICARUS_Instance::LoadSequencers( void )
 
 	return true;
 }
-
-/*
--------------------------
-Load
--------------------------
-*/
 
 int ICARUS_Instance::Load( void )
 {
@@ -623,22 +509,10 @@ int ICARUS_Instance::Load( void )
 	return true;
 }
 
-/*
--------------------------
-Signal
--------------------------
-*/
-
 void ICARUS_Instance::Signal( const char *identifier )
 {
 	m_signals[ identifier ] = 1;
 }
-
-/*
--------------------------
-CheckSignal
--------------------------
-*/
 
 bool ICARUS_Instance::CheckSignal( const char *identifier )
 {
@@ -651,12 +525,6 @@ bool ICARUS_Instance::CheckSignal( const char *identifier )
 
 	return true;
 }
-
-/*
--------------------------
-ClearSignal
--------------------------
-*/
 
 void ICARUS_Instance::ClearSignal( const char *identifier )
 {

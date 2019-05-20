@@ -24,11 +24,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "ghoul2/G2.h"
 #include "qcommon/q_shared.h"
 
-void G_SetEnemy( gentity_t *self, gentity_t *enemy );
 void finish_spawning_turretG2( gentity_t *base );
 void ObjectDie (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath );
 void turretG2_base_use( gentity_t *self, gentity_t *other, gentity_t *activator );
-
 
 #define SPF_TURRETG2_CANRESPAWN	4
 #define SPF_TURRETG2_TURBO		8
@@ -223,9 +221,7 @@ void turretG2_set_models( gentity_t *self, qboolean dying )
 	}
 }
 
-//------------------------------------------------------------------------------------------------------------
 void TurretG2Pain( gentity_t *self, gentity_t *attacker, int damage )
-//------------------------------------------------------------------------------------------------------------
 {
 	if (self->paintarget && self->paintarget[0])
 	{
@@ -241,17 +237,12 @@ void TurretG2Pain( gentity_t *self, gentity_t *attacker, int damage )
 		self->attackDebounceTime = level.time + 2000 + Q_flrand(0.0f, 1.0f) * 500;
 		self->painDebounceTime = self->attackDebounceTime;
 	}
-	if ( !self->enemy )
-	{//react to being hit
-		G_SetEnemy( self, attacker );
-	}
+	//CJKFIXME: react to turret being hit
 	//self->s.health = self->health;
 	//mmm..yes..bad.
 }
 
-//------------------------------------------------------------------------------------------------------------
 void turretG2_die ( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath )
-//------------------------------------------------------------------------------------------------------------
 {
 	vec3_t	forward = { 0,0,-1 }, pos;
 
@@ -349,9 +340,7 @@ void TurboLaser_SetBoneAnim(gentity_t *eweb, int startFrame, int endFrame)
 }
 
 extern void WP_FireTurboLaserMissile( gentity_t *ent, vec3_t start, vec3_t dir );
-//----------------------------------------------------------------
 static void turretG2_fire ( gentity_t *ent, vec3_t start, vec3_t dir )
-//----------------------------------------------------------------
 {
 	vec3_t		org, ang;
 	gentity_t	*bolt;
@@ -442,9 +431,7 @@ void turretG2_respawn( gentity_t *self )
 	self->genericValue5 = 0;//clear this now
 }
 
-//-----------------------------------------------------
 void turretG2_head_think( gentity_t *self )
-//-----------------------------------------------------
 {
 	// if it's time to fire and we have an enemy, then gun 'em down!  pushDebounce time controls next fire time
 	if ( self->enemy
@@ -490,9 +477,7 @@ void turretG2_head_think( gentity_t *self )
 	}
 }
 
-//-----------------------------------------------------
 static void turretG2_aim( gentity_t *self )
-//-----------------------------------------------------
 {
 	vec3_t	enemyDir, org, org2;
 	vec3_t	desiredAngles, setAngle;
@@ -656,9 +641,7 @@ static void turretG2_aim( gentity_t *self )
 	}
 }
 
-//-----------------------------------------------------
 static void turretG2_turnoff( gentity_t *self )
-//-----------------------------------------------------
 {
 	if ( self->enemy == NULL )
 	{
@@ -682,9 +665,7 @@ static void turretG2_turnoff( gentity_t *self )
 	self->enemy = NULL;
 }
 
-//-----------------------------------------------------
 static qboolean turretG2_find_enemies( gentity_t *self )
-//-----------------------------------------------------
 {
 	qboolean	found = qfalse;
 	int			i, count;
@@ -692,7 +673,7 @@ static qboolean turretG2_find_enemies( gentity_t *self )
 	float		enemyDist;
 	vec3_t		enemyDir, org, org2;
 	qboolean	foundClient = qfalse;
-	gentity_t	*entity_list[MAX_GENTITIES], *target, *bestTarget = NULL;
+	gentity_t	*entity_list[MAX_GENTITIES], *target;
 
 	if ( self->aimDebounceTime > level.time ) // time since we've been shut off
 	{
@@ -727,9 +708,8 @@ static qboolean turretG2_find_enemies( gentity_t *self )
 		if ( !target->client )
 		{
 			// only attack clients
-			if ( !(target->flags&FL_BBRUSH)//not a breakable brush
-				|| !target->takedamage//is a bbrush, but invincible
-				|| (target->NPC_targetname&&self->targetname&&Q_stricmp(target->NPC_targetname,self->targetname)!=0) )//not in invicible bbrush, but can only be broken by an NPC that is not me
+			if ( !(target->flags & FL_BBRUSH) // not a breakable brush
+				|| !target->takedamage ) // is a bbrush, but invincible
 			{
 				continue;
 			}
@@ -808,7 +788,6 @@ static qboolean turretG2_find_enemies( gentity_t *self )
 					self->attackDebounceTime = level.time + 1400;
 				}
 
-				bestTarget = target;
 				bestDist = enemyDist;
 				found = qtrue;
 				if ( target->client )
@@ -828,7 +807,6 @@ static qboolean turretG2_find_enemies( gentity_t *self )
 			AddSightEvent( bestTarget, self->r.currentOrigin, 512, AEL_DISCOVERED, 20 );
 		}
 		*/
-		G_SetEnemy( self, bestTarget );
 		if ( VALIDSTRING( self->target2 ))
 		{
 			G_UseTargets2( self, self, self->target2 );
@@ -838,9 +816,7 @@ static qboolean turretG2_find_enemies( gentity_t *self )
 	return found;
 }
 
-//-----------------------------------------------------
 void turretG2_base_think( gentity_t *self )
-//-----------------------------------------------------
 {
 	qboolean	turnOff = qtrue;
 	float		enemyDist;
@@ -972,9 +948,7 @@ void turretG2_base_think( gentity_t *self )
 	}
 }
 
-//-----------------------------------------------------------------------------
 void turretG2_base_use( gentity_t *self, gentity_t *other, gentity_t *activator )
-//-----------------------------------------------------------------------------
 {
 	// Toggle on and off
 	self->spawnflags = (self->spawnflags ^ 1);
@@ -988,7 +962,6 @@ void turretG2_base_use( gentity_t *self, gentity_t *other, gentity_t *activator 
 		self->s.frame = 0; // glow
 	}
 }
-
 
 /*QUAKED misc_turretG2 (1 0 0) (-8 -8 -22) (8 8 0) START_OFF UPSIDE_DOWN CANRESPAWN TURBO LEAD SHOWRADAR
 
@@ -1042,9 +1015,7 @@ Turret that hangs from the ceiling, will aim and shoot at enemies
 
 "icon" - icon that represents the objective on the radar
 */
-//-----------------------------------------------------
 void SP_misc_turretG2( gentity_t *base )
-//-----------------------------------------------------
 {
 	int customscaleVal;
 	char* s;
@@ -1097,7 +1068,6 @@ void SP_misc_turretG2( gentity_t *base )
 #undef name3
 }
 
-//-----------------------------------------------------
 void finish_spawning_turretG2( gentity_t *base )
 {
 	vec3_t		fwd;
@@ -1116,8 +1086,7 @@ void finish_spawning_turretG2( gentity_t *base )
 
 	base->s.eType = ET_GENERAL;
 
-	if ( base->team && base->team[0] && //level.gametype == GT_SIEGE &&
-		!base->teamnodmg)
+	if ( base->team && base->team[0] && !base->teamnodmg )
 	{
 		base->teamnodmg = atoi(base->team);
 	}
@@ -1196,11 +1165,6 @@ void finish_spawning_turretG2( gentity_t *base )
 		}
 		//start in "off" anim
 		TurboLaser_SetBoneAnim( base, 4, 5 );
-		if ( level.gametype == GT_SIEGE )
-		{//FIXME: designer-specified?
-			//FIXME: put on other entities, too, particularly siege objectives and bbrushes...
-			base->s.eFlags2 |= EF2_BRACKET_ENTITY;
-		}
 	}
 	else
 	{

@@ -26,9 +26,7 @@
 #else
 	static void byteReverse(unsigned char *buf, unsigned longs);
 
-	/*
-	 * Note: this code is harmless on little-endian machines.
-	 */
+	// Note: this code is harmless on little-endian machines.
 	static void byteReverse(unsigned char *buf, unsigned longs)
 	{
 	    uint32_t t;
@@ -42,10 +40,7 @@
 	}
 #endif // Q3_BIG_ENDIAN
 
-/*
- * Start MD5 accumulation.  Set bit count to 0 and buffer to mysterious
- * initialization constants.
- */
+// Start MD5 accumulation.  Set bit count to 0 and buffer to mysterious initialization constants.
 void MD5Init(struct MD5Context *ctx)
 {
     ctx->buf[0] = 0x67452301;
@@ -69,11 +64,8 @@ void MD5Init(struct MD5Context *ctx)
 #define MD5STEP(f, w, x, y, z, data, s) \
 	( w += f(x, y, z) + data,  w = w<<s | w>>(32-s),  w += x )
 
-/*
- * The core of the MD5 algorithm, this alters an existing MD5 hash to
- * reflect the addition of 16 longwords of new data.  MD5Update blocks
- * the data and converts bytes into longwords for this routine.
- */
+// The core of the MD5 algorithm, this alters an existing MD5 hash to reflect the addition of 16 longwords of new data.
+// MD5Update blocks the data and converts bytes into longwords for this routine.
 static void MD5Transform(uint32_t buf[4], uint32_t const in[16])
 {
     uint32_t a, b, c, d;
@@ -157,10 +149,7 @@ static void MD5Transform(uint32_t buf[4], uint32_t const in[16])
     buf[3] += d;
 }
 
-/*
- * Update context to reflect the concatenation of another buffer full
- * of bytes.
- */
+// Update context to reflect the concatenation of another buffer full of bytes.
 void MD5Update(struct MD5Context *ctx, unsigned char const *buf, unsigned len)
 {
     uint32_t t;
@@ -205,10 +194,7 @@ void MD5Update(struct MD5Context *ctx, unsigned char const *buf, unsigned len)
     memcpy(ctx->in, buf, len);
 }
 
-/*
- * Final wrapup - pad to 64-byte boundary with the bit pattern
- * 1 0* (64-bit count of bits processed, MSB-first)
- */
+// Final wrapup - pad to 64-byte boundary with the bit pattern 1 0* (64-bit count of bits processed, MSB-first)
 void MD5Final(struct MD5Context *ctx, unsigned char *digest)
 {
     unsigned count;
@@ -304,11 +290,8 @@ char *Com_MD5File( const char *fn, int length, const char *prefix, int prefix_le
 	return final;
 }
 
-/*
- * The following code implements HMAC-MD5 using the public domain MD5 implementation above.
- * This code (originally for OpenJK) is also released into the public domain.
- */
-
+// The following code implements HMAC-MD5 using the public domain MD5 implementation above.
+// This code (originally for OpenJK) is also released into the public domain.
 void HMAC_MD5_Init(hmacMD5Context_t *ctx, unsigned char const *key, unsigned int keylen)
 {
 	unsigned char shortenedKey[MD5_DIGEST_SIZE];

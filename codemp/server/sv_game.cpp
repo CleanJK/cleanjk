@@ -30,7 +30,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "qcommon/cm_public.h"
 #include "icarus/GameInterface.h"
 #include "qcommon/timing.h"
-#include "NPCNav/navigator.h"
 #include "sv_gameapi.h"
 
 // these functions must be used instead of pointer arithmetic, because
@@ -73,13 +72,7 @@ sharedEntity_t *SV_GEntityForSvEntity( svEntity_t *svEnt ) {
 	return SV_GentityNum( num );
 }
 
-/*
-=================
-SV_inPVS
-
-Also checks portalareas so that doors block sight
-=================
-*/
+// Also checks portalareas so that doors block sight
 qboolean SV_inPVS (const vec3_t p1, const vec3_t p2)
 {
 	int		leafnum;
@@ -102,15 +95,7 @@ qboolean SV_inPVS (const vec3_t p1, const vec3_t p2)
 	return qtrue;
 }
 
-//==============================================
-
-/*
-===============
-SV_ShutdownGameProgs
-
-Called every time a map changes
-===============
-*/
+// Called every time a map changes
 void SV_ShutdownGameProgs( void ) {
 	if ( !svs.gameStarted ) {
 		return;
@@ -118,14 +103,7 @@ void SV_ShutdownGameProgs( void ) {
 	SV_UnbindGame();
 }
 
-/*
-===============
-SV_InitGameProgs
-
-Called on a normal map change, not on a map_restart
-===============
-*/
-
+// Called on a normal map change, not on a map_restart
 void SV_InitGameProgs( void ) {
 	//FIXME these are temp while I make bots run in vm
 	extern int	bot_enable;
@@ -139,14 +117,7 @@ void SV_InitGameProgs( void ) {
 	SV_InitGame( qfalse );
 }
 
-
-/*
-====================
-SV_GameCommand
-
-See if the current console command is claimed by the game
-====================
-*/
+// See if the current console command is claimed by the game
 qboolean SV_GameCommand( void ) {
 	if ( sv.state != SS_GAME ) {
 		return qfalse;

@@ -50,8 +50,6 @@ public:
 
 extern void G2_ConstructUsedBoneList(CConstructBoneList &CBL);
 
-
-//=====================================================================================================================
 // Surface List handling routines - so entities can determine what surfaces attached to a model are operational or not.
 
 // find a particular surface in the surface override list
@@ -90,19 +88,12 @@ int G2_IsSurfaceLegal(void *mod, const char *surfaceName, int *flags)
 	return -1;
 }
 
-
-/************************************************************************************************
- * G2_FindSurface
- *    find a surface in a ghoul2 surface override list based on it's name
- *
- * Input
- *    filename of model, surface list of model instance, name of surface, int to be filled in
- * with the index of this surface (defaults to NULL)
- *
- * Output
- *    pointer to surface if successful, false otherwise
- *
- ************************************************************************************************/
+// find a surface in a ghoul2 surface override list based on it's name
+//	ghlInfo		model instance
+//	slist		surface list of model instance
+//	surfaceName	name of surface
+//	surfIndex	out: index of requested surface (-1 if not found)
+// returns pointer to surface if successful, false otherwise
 mdxmSurface_t *G2_FindSurface(CGhoul2Info *ghlInfo, surfaceInfo_v &slist, const char *surfaceName,
 							 int *surfIndex/*NULL*/)
 {
@@ -512,7 +503,6 @@ qboolean G2_SetRootSurface(CGhoul2Info_v &ghoul2, const int modelIndex, const ch
 	return qfalse;
 }
 
-
 extern int G2_DecideTraceLod(CGhoul2Info &ghoul2, int useLod);
 int G2_AddSurface(CGhoul2Info *ghoul2, int surfaceNumber, int polyNumber, float BarycentricI, float BarycentricJ, int lod )
 {
@@ -589,7 +579,6 @@ qboolean G2_RemoveSurface(surfaceInfo_v &slist, const int index)
 	// no
 	return qfalse;
 }
-
 
 int G2_GetParentSurface(CGhoul2Info *ghlInfo, const int index)
 {

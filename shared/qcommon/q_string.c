@@ -98,18 +98,12 @@ char* Q_strrchr( const char* string, int c )
 	return sp;
 }
 
-/*
-=============
-Q_strncpyz
-
-Safe strncpy that ensures a trailing zero
-=============
-*/
+// Safe strncpy that ensures a trailing zero
 void Q_strncpyz( char *dest, const char *src, int destsize ) {
 	assert(src);
 	assert(dest);
 	assert(destsize);
-	
+
 	strncpy( dest, src, destsize-1 );
 	dest[destsize-1] = 0;
 }
@@ -212,9 +206,7 @@ void Q_strcat( char *dest, int size, const char *src ) {
 	Q_strncpyz( dest + l1, src, size - l1 );
 }
 
-/*
-* Find the first occurrence of find in s.
-*/
+// Find the first occurrence of find in s.
 const char *Q_stristr( const char *s, const char *find )
 {
 	char c, sc;
@@ -266,7 +258,6 @@ int Q_PrintStrlen( const char *string ) {
 	return len;
 }
 
-
 char *Q_CleanStr( char *string ) {
 	char*	d;
 	char*	s;
@@ -288,65 +279,44 @@ char *Q_CleanStr( char *string ) {
 	return string;
 }
 
-/*
-==================
-Q_StripColor
-
-Strips coloured strings in-place using multiple passes: "fgs^^56fds" -> "fgs^6fds" -> "fgsfds"
-
-This function modifies INPUT (is mutable)
-
-(Also strips ^8 and ^9)
-==================
-*/
-void Q_StripColor(char *text)
-{
+// Strips coloured strings in-place using multiple passes: "fgs^^56fds" -> "fgs^6fds" -> "fgsfds"
+// This function modifies INPUT (is mutable)
+// (Also strips ^8 and ^9)
+void Q_StripColor( char *text ) {
 	qboolean doPass = qtrue;
 	char *read;
 	char *write;
 
-	while ( doPass )
-	{
+	while ( doPass ) {
 		doPass = qfalse;
 		read = write = text;
-		while ( *read )
-		{
-			if ( Q_IsColorStringExt(read) )
-			{
+		while ( *read ) {
+			if ( Q_IsColorStringExt( read ) ) {
 				doPass = qtrue;
 				read += 2;
 			}
-			else
-			{
+			else {
 				// Avoid writing the same data over itself
-				if (write != read)
-				{
+				if ( write != read ) {
 					*write = *read;
 				}
 				write++;
 				read++;
 			}
 		}
-		if ( write < read )
-		{
+		if ( write < read )  {
 			// Add trailing NUL byte if string has shortened
 			*write = '\0';
 		}
 	}
 }
 
-/*
-Q_strstrip
-
-Description:	Replace strip[x] in string with repl[x] or remove characters entirely
-Mutates:		string
-Return:			--
-
-Examples:		Q_strstrip( "Bo\nb is h\rairy!!", "\n\r!", "123" );	// "Bo1b is h2airy33"
-Q_strstrip( "Bo\nb is h\rairy!!", "\n\r!", "12" );	// "Bo1b is h2airy"
-Q_strstrip( "Bo\nb is h\rairy!!", "\n\r!", NULL );	// "Bob is hairy"
-*/
-
+// Replace strip[x] in string with repl[x] or remove characters entirely
+// mutates `string`
+//Examples:
+//	Q_strstrip( "Bo\nb is h\rairy!!", "\n\r!", "123" )	--> "Bo1b is h2airy33"
+//	Q_strstrip( "Bo\nb is h\rairy!!", "\n\r!", "12" )	--> "Bo1b is h2airy"
+//	Q_strstrip( "Bo\nb is h\rairy!!", "\n\r!", NULL )	--> "Bob is hairy"
 void Q_strstrip( char *string, const char *strip, const char *repl )
 {
 	char		*out=string, *p=string, c;
@@ -354,46 +324,37 @@ void Q_strstrip( char *string, const char *strip, const char *repl )
 	int			replaceLen = repl?strlen( repl ):0, offset=0;
 	qboolean	recordChar = qtrue;
 
-	while ( (c = *p++) != '\0' )
-	{
+	while ( (c = *p++) != '\0' ) {
 		recordChar = qtrue;
-		for ( s=strip; *s; s++ )
-		{
+		for ( s=strip; *s; s++ ) {
 			offset = s-strip;
-			if ( c == *s )
-			{
-				if ( !repl || offset >= replaceLen )
+			if ( c == *s ) {
+				if ( !repl || offset >= replaceLen ) {
 					recordChar = qfalse;
-				else
+				}
+				else {
 					c = repl[offset];
+				}
 				break;
 			}
 		}
-		if ( recordChar )
+		if ( recordChar ) {
 			*out++ = c;
+		}
 	}
 	*out = '\0';
 }
 
-/*
-Q_strchrs
-
-Description:	Find any characters in a string. Think of it as a shorthand strchr loop.
-Mutates:		--
-Return:			first instance of any characters found
-otherwise NULL
-*/
-
-const char *Q_strchrs( const char *string, const char *search )
-{
+// Find any characters in a string. Think of it as a shorthand strchr loop.
+// returns first instance of any characters found, otherwise NULL
+const char *Q_strchrs( const char *string, const char *search ) {
 	const char *p = string, *s = search;
 
-	while ( *p != '\0' )
-	{
-		for ( s=search; *s; s++ )
-		{
-			if ( *p == *s )
+	while ( *p != '\0' ) {
+		for ( s=search; *s; s++ ) {
+			if ( *p == *s ) {
 				return p;
+			}
 		}
 		p++;
 	}
@@ -402,15 +363,8 @@ const char *Q_strchrs( const char *string, const char *search )
 }
 
 #if defined(_MSC_VER)
-/*
-=============
-Q_vsnprintf
-
-Special wrapper function for Microsoft's broken _vsnprintf() function.
-MinGW comes with its own snprintf() which is not broken.
-=============
-*/
-
+// Special wrapper function for Microsoft's broken _vsnprintf() function.
+// MinGW comes with its own snprintf() which is not broken.
 int Q_vsnprintf(char *str, size_t size, const char *format, va_list ap)
 {
 	int retval;
@@ -419,12 +373,9 @@ int Q_vsnprintf(char *str, size_t size, const char *format, va_list ap)
 
 	if(retval < 0 || retval == size)
 	{
-		// Microsoft doesn't adhere to the C99 standard of vsnprintf,
-		// which states that the return value must be the number of
-		// bytes written if the output string had sufficient length.
-		//
-		// Obviously we cannot determine that value from Microsoft's
-		// implementation, so we have no choice but to return size.
+		// Microsoft doesn't adhere to the C99 standard of vsnprintf, which states that the return value must be the number of bytes written if the output
+		//	string had sufficient length.
+		// Obviously we cannot determine that value from Microsoft's implementation, so we have no choice but to return size.
 
 		str[size - 1] = '\0';
 		return size;

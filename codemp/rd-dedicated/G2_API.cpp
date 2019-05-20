@@ -463,7 +463,6 @@ IGhoul2InfoArray &TheGhoul2InfoArray()
 	return *singleton;
 }
 
-
 void Ghoul2InfoArray_Free(void)
 {
 	if(singleton) {
@@ -847,7 +846,6 @@ qboolean G2API_RemoveGhoul2Model(CGhoul2Info_v **ghlRemove, const int modelIndex
 		}
 	}
 
-
 	return qtrue;
 }
 
@@ -1203,7 +1201,6 @@ qboolean G2API_GetAnimRange(CGhoul2Info *ghlInfo, const char *boneName,	int *sta
 	return qfalse;
 }
 
-
 qboolean G2API_PauseBoneAnim(CGhoul2Info *ghlInfo, const char *boneName, const int currentTime)
 {
 	if (G2_SetupModelPointers(ghlInfo))
@@ -1363,7 +1360,6 @@ qboolean G2API_StopBoneAngles(CGhoul2Info *ghlInfo, const char *boneName)
 	}
 	return qfalse;
 }
-
 
 void G2API_AbsurdSmoothing(CGhoul2Info_v &ghoul2, qboolean status)
 {
@@ -1637,7 +1633,6 @@ int G2API_AddBoltSurfNum(CGhoul2Info *ghlInfo, const int surfIndex)
 	}
 	return -1;
 }
-
 
 qboolean G2API_AttachG2Model(CGhoul2Info_v &ghoul2From, int modelFrom, CGhoul2Info_v &ghoul2To, int toBoltIndex, int toModel)
 {
@@ -1916,24 +1911,16 @@ void G2API_SetGhoul2ModelIndexes(CGhoul2Info_v &ghoul2, qhandle_t *modelList, qh
 {
 }
 
-
 char *G2API_GetAnimFileNameIndex(qhandle_t modelIndex)
 {
 	model_t		*mod_m = R_GetModelByHandle(modelIndex);
 	return mod_m->mdxm->animName;
 }
 
-/************************************************************************************************
- * G2API_GetAnimFileName
- *    obtains the name of a model's .gla (animation) file
- *
- * Input
- *    pointer to list of CGhoul2Info's, WraithID of specific model in that list
- *
- * Output
- *    true if a good filename was obtained, false otherwise
- *
- ************************************************************************************************/
+// obtains the name of the model's .gla (animation) file
+//	ghlInfo		list of CGhoul2Info's, WraithID of specific model in that list
+//	filename	retrieved filename
+// returns true if a good filename was obtained
 qboolean G2API_GetAnimFileName(CGhoul2Info *ghlInfo, char **filename)
 {
 	if (G2_SetupModelPointers(ghlInfo))
@@ -1943,11 +1930,7 @@ qboolean G2API_GetAnimFileName(CGhoul2Info *ghlInfo, char **filename)
 	return qfalse;
 }
 
-/*
-=======================
-SV_QsortEntityNumbers
-=======================
-*/
+// SV_QsortEntityNumbers
 static int QDECL QsortDistance( const void *a, const void *b ) {
 	const float	&ea = ((CollisionRecord_t*)a)->mDistance;
 	const float	&eb = ((CollisionRecord_t*)b)->mDistance;
@@ -2080,7 +2063,6 @@ void G2API_CollisionDetectCache(CollisionRecord_t *collRecMap, CGhoul2Info_v &gh
 	}
 }
 
-
 void G2API_CollisionDetect(CollisionRecord_t *collRecMap, CGhoul2Info_v &ghoul2, const vec3_t angles, const vec3_t position,
 										  int frameNumber, int entNum, vec3_t rayStart, vec3_t rayEnd, vec3_t scale, IHeapAllocator *G2VertSpace, int traceFlags, int useLod, float fRadius)
 {
@@ -2194,7 +2176,6 @@ void G2API_GiveMeVectorFromMatrix(mdxaBone_t *boltMatrix, Eorientations flags, v
 		break;
 	}
 }
-
 
 int G2API_CopyGhoul2Instance(CGhoul2Info_v &g2From, CGhoul2Info_v &g2To, int modelIndex)
 {
@@ -2339,7 +2320,6 @@ char *G2API_GetSurfaceName(CGhoul2Info_v& ghoul2, int modelIndex, int surfNumber
 			return noSurface;
 		}
 
-
 		surf = (mdxmSurface_t *)G2_FindSurface((void *)mod, surfNumber, 0);
 		if (surf)
 		{
@@ -2356,7 +2336,6 @@ char *G2API_GetSurfaceName(CGhoul2Info_v& ghoul2, int modelIndex, int surfNumber
 	}
 	return noSurface;
 }
-
 
 int	G2API_GetSurfaceIndex(CGhoul2Info *ghlInfo, const char *surfaceName)
 {
@@ -2442,7 +2421,7 @@ void G2API_FreeSaveBuffer(char *buffer)
 }
 
 // this is kinda sad, but I need to call the destructor in this module (exe), not the game.dll...
-//
+
 void G2API_LoadSaveCodeDestructGhoul2Info(CGhoul2Info_v &ghoul2)
 {
 

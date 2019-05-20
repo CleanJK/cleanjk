@@ -21,18 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-/*****************************************************************************
- * name:		l_script.h
- *
- * desc:		lexicographical parser
- *
- * $Archive: /source/code/botlib/l_script.h $
- * $Author: Mrelusive $
- * $Revision: 2 $
- * $Modtime: 10/05/99 3:32p $
- * $Date: 10/05/99 3:42p $
- *
- *****************************************************************************/
+// lexicographical parser
 
 #pragma once
 
@@ -49,7 +38,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #if defined(BSPC) && !defined(QDECL)
 #define QDECL
 #endif
-
 
 //script flags
 #define SCFL_NOERRORS				0x0001
@@ -68,13 +56,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define TT_PUNCTUATION				5			// punctuation
 
 //string sub type
-//---------------
 //		the length of the string
 //literal sub type
-//----------------
 //		the ASCII code of the literal
 //number sub type
-//---------------
 #define TT_DECIMAL					0x0008	// decimal number
 #define TT_HEX							0x0100	// hexadecimal number
 #define TT_OCTAL						0x0200	// octal number
@@ -86,7 +71,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define TT_LONG						0x2000	// long number
 #define TT_UNSIGNED					0x4000	// unsigned number
 //punctuation sub type
-//--------------------
 #define P_RSHIFT_ASSIGN				1
 #define P_LSHIFT_ASSIGN				2
 #define P_PARMS						3
@@ -150,7 +134,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define P_DOLLAR						52
 #define	P_ATSIGN						53
 //name sub type
-//-------------
 //		the length of the name
 
 //punctuation

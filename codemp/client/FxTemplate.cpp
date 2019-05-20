@@ -23,16 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "client.h"
 #include "FxScheduler.h"
 
-//------------------------------------------------------
-// CPrimitiveTemplate
-//	Set up our minimal default values
-//
-// Input:
-//	none
-//
-// Return:
-//	none
-//------------------------------------------------------
+// Set up our minimal default values
 CPrimitiveTemplate::CPrimitiveTemplate()
 {
 	// We never start out as a copy or with a name
@@ -57,25 +48,25 @@ CPrimitiveTemplate::CPrimitiveTemplate()
 	VectorSet( mMin, 0.0f, 0.0f, 0.0f );
 	VectorSet( mMax, 0.0f, 0.0f, 0.0f );
 
-	mRedStart.SetRange( 1.0f, 1.0f );
-	mGreenStart.SetRange( 1.0f, 1.0f );
-	mBlueStart.SetRange( 1.0f, 1.0f );
+	mRed.start.SetRange( 1.0f, 1.0f );
+	mGreen.start.SetRange( 1.0f, 1.0f );
+	mBlue.start.SetRange( 1.0f, 1.0f );
 
-	mRedEnd.SetRange( 1.0f, 1.0f );
-	mGreenEnd.SetRange( 1.0f, 1.0f );
-	mBlueEnd.SetRange( 1.0f, 1.0f );
+	mRed.end.SetRange( 1.0f, 1.0f );
+	mGreen.end.SetRange( 1.0f, 1.0f );
+	mBlue.end.SetRange( 1.0f, 1.0f );
 
-	mAlphaStart.SetRange( 1.0f, 1.0f );
-	mAlphaEnd.SetRange( 1.0f, 1.0f );
+	mAlpha.start.SetRange( 1.0f, 1.0f );
+	mAlpha.end.SetRange( 1.0f, 1.0f );
 
-	mSizeStart.SetRange( 1.0f, 1.0f );
-	mSizeEnd.SetRange( 1.0f, 1.0f );
+	mSize.start.SetRange( 1.0f, 1.0f );
+	mSize.end.SetRange( 1.0f, 1.0f );
 
-	mSize2Start.SetRange( 1.0f, 1.0f );
-	mSize2End.SetRange( 1.0f, 1.0f );
+	mSize2.start.SetRange( 1.0f, 1.0f );
+	mSize2.end.SetRange( 1.0f, 1.0f );
 
-	mLengthStart.SetRange( 1.0f, 1.0f );
-	mLengthEnd.SetRange( 1.0f, 1.0f );
+	mLength.start.SetRange( 1.0f, 1.0f );
+	mLength.end.SetRange( 1.0f, 1.0f );
 
 	mTexCoordS.SetRange( 1.0f, 1.0f );
 	mTexCoordT.SetRange( 1.0f, 1.0f );
@@ -84,7 +75,6 @@ CPrimitiveTemplate::CPrimitiveTemplate()
 	mDensity.SetRange( 10.0f, 10.0f );// default this high so it doesn't do bad things
 }
 
-//-----------------------------------------------------------
 CPrimitiveTemplate &CPrimitiveTemplate::operator=(const CPrimitiveTemplate &that)
 {
 	// I'm assuming that doing a memcpy wouldn't work here
@@ -110,13 +100,13 @@ CPrimitiveTemplate &CPrimitiveTemplate::operator=(const CPrimitiveTemplate &that
 	VectorCopy( that.mMin, mMin );
 	VectorCopy( that.mMax, mMax );
 
-	mOrigin1X			= that.mOrigin1X;
-	mOrigin1Y			= that.mOrigin1Y;
-	mOrigin1Z			= that.mOrigin1Z;
+	mOrigin1.x			= that.mOrigin1.x;
+	mOrigin1.y			= that.mOrigin1.y;
+	mOrigin1.z			= that.mOrigin1.z;
 
-	mOrigin2X			= that.mOrigin2X;
-	mOrigin2Y			= that.mOrigin2Y;
-	mOrigin2Z			= that.mOrigin2Z;
+	mOrigin2.x			= that.mOrigin2.x;
+	mOrigin2.y			= that.mOrigin2.y;
+	mOrigin2.z			= that.mOrigin2.z;
 
 	mRadius				= that.mRadius;
 	mHeight				= that.mHeight;
@@ -133,43 +123,43 @@ CPrimitiveTemplate &CPrimitiveTemplate::operator=(const CPrimitiveTemplate &that
 	mAngle2Delta		= that.mAngle2Delta;
 	mAngle3Delta		= that.mAngle3Delta;
 
-	mVelX				= that.mVelX;
-	mVelY				= that.mVelY;
-	mVelZ				= that.mVelZ;
+	mVel.x				= that.mVel.x;
+	mVel.y				= that.mVel.y;
+	mVel.z				= that.mVel.z;
 
-	mAccelX				= that.mAccelX;
-	mAccelY				= that.mAccelY;
-	mAccelZ				= that.mAccelZ;
+	mAccel.x			= that.mAccel.x;
+	mAccel.y			= that.mAccel.y;
+	mAccel.z			= that.mAccel.z;
 
 	mGravity			= that.mGravity;
 
 	mDensity			= that.mDensity;
 	mVariance			= that.mVariance;
 
-	mRedStart			= that.mRedStart;
-	mGreenStart			= that.mGreenStart;
-	mBlueStart			= that.mBlueStart;
+	mRed.start			= that.mRed.start;
+	mGreen.start		= that.mGreen.start;
+	mBlue.start			= that.mBlue.start;
 
-	mRedEnd				= that.mRedEnd;
-	mGreenEnd			= that.mGreenEnd;
-	mBlueEnd			= that.mBlueEnd;
+	mRed.end			= that.mRed.end;
+	mGreen.end			= that.mGreen.end;
+	mBlue.end			= that.mBlue.end;
 
 	mRGBParm			= that.mRGBParm;
 
-	mAlphaStart			= that.mAlphaStart;
-	mAlphaEnd			= that.mAlphaEnd;
+	mAlpha.start		= that.mAlpha.start;
+	mAlpha.end			= that.mAlpha.end;
 	mAlphaParm			= that.mAlphaParm;
 
-	mSizeStart			= that.mSizeStart;
-	mSizeEnd			= that.mSizeEnd;
+	mSize.start			= that.mSize.start;
+	mSize.end			= that.mSize.end;
 	mSizeParm			= that.mSizeParm;
 
-	mSize2Start			= that.mSize2Start;
-	mSize2End			= that.mSize2End;
+	mSize2.start		= that.mSize2.start;
+	mSize2.end			= that.mSize2.end;
 	mSize2Parm			= that.mSize2Parm;
 
-	mLengthStart		= that.mLengthStart;
-	mLengthEnd			= that.mLengthEnd;
+	mLength.start		= that.mLength.start;
+	mLength.end			= that.mLength.end;
 	mLengthParm			= that.mLengthParm;
 
 	mTexCoordS			= that.mTexCoordS;
@@ -183,19 +173,11 @@ CPrimitiveTemplate &CPrimitiveTemplate::operator=(const CPrimitiveTemplate &that
 	return *this;
 }
 
-//------------------------------------------------------
-// ParseFloat
-//	Removes up to two values from a passed in string and
-//	sets these values into the passed in min and max
-//	fields.  if no max is present, min is copied into it.
-//
-// input:
-//	string that contains up to two float values
-//  min & max are used to return the parse values
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Removes up to two values from a passed in string and sets these values into the passed in min and max fields.
+// if no max is present, min is copied into it.
+//	val			string that contains up to two float values
+//  min,max		used to return the parse values
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseFloat( const char *val, float *min, float *max )
 {
 	// We don't allow passing in a null for either of the fields
@@ -219,20 +201,11 @@ bool CPrimitiveTemplate::ParseFloat( const char *val, float *min, float *max )
 	return true;
 }
 
-
-//------------------------------------------------------
-// ParseVector
-//	Removes up to six values from a passed in string and
-//	sets these values into the passed in min and max vector
-//	fields. if no max is present, min is copied into it.
-//
-// input:
-//	string that contains up to six float values
-//  min & max are used to return the parse values
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Removes up to six values from a passed in string and sets these values into the passed in min and max vector fields.
+// if no max is present, min is copied into it.
+//	val			string that contains up to six float values
+//  min,max		used to return the parse values
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseVector( const char *val, vec3_t min, vec3_t max )
 {
 	// we don't allow passing in a null
@@ -257,19 +230,10 @@ bool CPrimitiveTemplate::ParseVector( const char *val, vec3_t min, vec3_t max )
 	return true;
 }
 
-//------------------------------------------------------
-// ParseGroupFlags
-//	Group flags are generic in nature, so we can easily
-//	use a generic function to parse them in, then the
-//	caller can shift them into the appropriate range.
-//
-// input:
-//	string that contains the flag strings
-//  *flags returns the set bit flags
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Group flags are generic in nature, so we can easily use a generic function to parse them in, then the caller can shift them into the appropriate range.
+//	val		string that contains the flag strings
+//  flags	returns the set bit flags
+// return success of parse operation.
 bool CPrimitiveTemplate::ParseGroupFlags( const char *val, int *flags )
 {
 	// Must pass in a non-null pointer
@@ -314,16 +278,9 @@ bool CPrimitiveTemplate::ParseGroupFlags( const char *val, int *flags )
 	return ok;
 }
 
-//------------------------------------------------------
-// ParseMin
-//	Reads in a min bounding box field in vector format
-//
-// input:
-//	string that contains three float values
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Reads in a min bounding box field in vector format
+//	val		string that contains three float values
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseMin( const char *val )
 {
 	vec3_t min;
@@ -340,16 +297,9 @@ bool CPrimitiveTemplate::ParseMin( const char *val )
 	return false;
 }
 
-//------------------------------------------------------
-// ParseMax
-//	Reads in a max bounding box field in vector format
-//
-// input:
-//	string that contains three float values
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Reads in a max bounding box field in vector format
+//	val		string that contains three float values
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseMax( const char *val )
 {
 	vec3_t max;
@@ -366,16 +316,9 @@ bool CPrimitiveTemplate::ParseMax( const char *val )
 	return false;
 }
 
-//------------------------------------------------------
-// ParseLife
-//	Reads in a ranged life value
-//
-// input:
-//	string that contains a float range ( two vals )
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Reads in a ranged life value
+//	val		string that contains a float range ( two vals )
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseLife( const char *val )
 {
 	float min, max;
@@ -389,16 +332,9 @@ bool CPrimitiveTemplate::ParseLife( const char *val )
 	return false;
 }
 
-//------------------------------------------------------
-// ParseDelay
-//	Reads in a ranged delay value
-//
-// input:
-//	string that contains a float range ( two vals )
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Reads in a ranged delay value
+//	val		string that contains a float range ( two vals )
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseDelay( const char *val )
 {
 	float min, max;
@@ -412,16 +348,9 @@ bool CPrimitiveTemplate::ParseDelay( const char *val )
 	return false;
 }
 
-//------------------------------------------------------
-// ParseCount
-//	Reads in a ranged count value
-//
-// input:
-//	string that contains a float range ( two vals )
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Reads in a ranged count value
+//	val		string that contains a float range ( two vals )
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseCount( const char *val )
 {
 	float min, max;
@@ -435,16 +364,9 @@ bool CPrimitiveTemplate::ParseCount( const char *val )
 	return false;
 }
 
-//------------------------------------------------------
-// ParseElasticity
-//	Reads in a ranged elasticity value
-//
-// input:
-//	string that contains a float range ( two vals )
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Reads in a ranged elasticity value
+//	val		string that contains a float range ( two vals )
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseElasticity( const char *val )
 {
 	float min, max;
@@ -462,66 +384,45 @@ bool CPrimitiveTemplate::ParseElasticity( const char *val )
 	return false;
 }
 
-//------------------------------------------------------
-// ParseOrigin1
-//	Reads in an origin field in vector format
-//
-// input:
-//	string that contains three float values
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Reads in an origin field in vector format
+//	val		string that contains three float values
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseOrigin1( const char *val )
 {
 	vec3_t min, max;
 
 	if ( ParseVector( val, min, max ) == true )
 	{
-		mOrigin1X.SetRange( min[0], max[0] );
-		mOrigin1Y.SetRange( min[1], max[1] );
-		mOrigin1Z.SetRange( min[2], max[2] );
+		mOrigin1.x.SetRange( min[0], max[0] );
+		mOrigin1.y.SetRange( min[1], max[1] );
+		mOrigin1.z.SetRange( min[2], max[2] );
 		return true;
 	}
 
 	return false;
 }
 
-//------------------------------------------------------
-// ParseOrigin2
-//	Reads in an origin field in vector format
-//
-// input:
-//	string that contains three float values
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Reads in an origin field in vector format
+//	val		string that contains three float values
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseOrigin2( const char *val )
 {
 	vec3_t min, max;
 
 	if ( ParseVector( val, min, max ) == true )
 	{
-		mOrigin2X.SetRange( min[0], max[0] );
-		mOrigin2Y.SetRange( min[1], max[1] );
-		mOrigin2Z.SetRange( min[2], max[2] );
+		mOrigin2.x.SetRange( min[0], max[0] );
+		mOrigin2.y.SetRange( min[1], max[1] );
+		mOrigin2.z.SetRange( min[2], max[2] );
 		return true;
 	}
 
 	return false;
 }
 
-//------------------------------------------------------
-// ParseRadius
-//	Reads in a ranged radius value
-//
-// input:
-//	string that contains one or two floats
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Reads in a ranged radius value
+//	val		string that contains one or two floats
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseRadius( const char *val )
 {
 	float min, max;
@@ -535,16 +436,9 @@ bool CPrimitiveTemplate::ParseRadius( const char *val )
 	return false;
 }
 
-//------------------------------------------------------
-// ParseHeight
-//	Reads in a ranged height value
-//
-// input:
-//	string that contains one or two floats
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Reads in a ranged height value
+//	val		string that contains one or two floats
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseHeight( const char *val )
 {
 	float min, max;
@@ -558,16 +452,9 @@ bool CPrimitiveTemplate::ParseHeight( const char *val )
 	return false;
 }
 
-//------------------------------------------------------
-// ParseWindModifier
-//	Reads in a ranged wind modifier value
-//
-// input:
-//	string that contains one or two floats
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Reads in a ranged wind modifier value
+//	val		string that contains one or two floats
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseWindModifier( const char *val )
 {
 	float min, max;
@@ -581,16 +468,9 @@ bool CPrimitiveTemplate::ParseWindModifier( const char *val )
 	return false;
 }
 
-//------------------------------------------------------
-// ParseRotation
-//	Reads in a ranged rotation value
-//
-// input:
-//	string that contains one or two floats
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Reads in a ranged rotation value
+//	val		string that contains one or two floats
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseRotation( const char *val )
 {
 	float min, max;
@@ -604,16 +484,9 @@ bool CPrimitiveTemplate::ParseRotation( const char *val )
 	return false;
 }
 
-//------------------------------------------------------
-// ParseRotationDelta
-//	Reads in a ranged rotationDelta value
-//
-// input:
-//	string that contains one or two floats
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Reads in a ranged rotationDelta value
+//	val		string that contains one or two floats
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseRotationDelta( const char *val )
 {
 	float min, max;
@@ -627,16 +500,9 @@ bool CPrimitiveTemplate::ParseRotationDelta( const char *val )
 	return false;
 }
 
-//------------------------------------------------------
-// ParseAngle
-//	Reads in a ranged angle field in vector format
-//
-// input:
-//	string that contains one or two vectors
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Reads in a ranged angle field in vector format
+//	val		string that contains one or two vectors
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseAngle( const char *val )
 {
 	vec3_t min, max;
@@ -652,16 +518,9 @@ bool CPrimitiveTemplate::ParseAngle( const char *val )
 	return false;
 }
 
-//------------------------------------------------------
-// ParseAngleDelta
-//	Reads in a ranged angleDelta field in vector format
-//
-// input:
-//	string that contains one or two vectors
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Reads in a ranged angleDelta field in vector format
+//	val		string that contains one or two vectors
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseAngleDelta( const char *val )
 {
 	vec3_t min, max;
@@ -677,42 +536,27 @@ bool CPrimitiveTemplate::ParseAngleDelta( const char *val )
 	return false;
 }
 
-//------------------------------------------------------
-// ParseVelocity
-//	Reads in a ranged velocity field in vector format
-//
-// input:
-//	string that contains one or two vectors
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Reads in a ranged velocity field in vector format
+//	val		string that contains one or two vectors
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseVelocity( const char *val )
 {
 	vec3_t min, max;
 
 	if ( ParseVector( val, min, max ) == true )
 	{
-		mVelX.SetRange( min[0], max[0] );
-		mVelY.SetRange( min[1], max[1] );
-		mVelZ.SetRange( min[2], max[2] );
+		mVel.x.SetRange( min[0], max[0] );
+		mVel.y.SetRange( min[1], max[1] );
+		mVel.z.SetRange( min[2], max[2] );
 		return true;
 	}
 
 	return false;
 }
 
-//------------------------------------------------------
-// ParseFlags
-//	These are flags that are not specific to a group,
-//	rather, they are specific to the whole primitive.
-//
-// input:
-//	string that contains the flag strings
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// These are flags that are not specific to a group, rather, they are specific to the whole primitive.
+//	val		string that contains the flag strings
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseFlags( const char *val )
 {
 	char	flag[][32] = {"\0","\0","\0","\0","\0","\0","\0"};
@@ -773,17 +617,9 @@ bool CPrimitiveTemplate::ParseFlags( const char *val )
 	return ok;
 }
 
-//------------------------------------------------------
-// ParseSpawnFlags
-//	These kinds of flags control how things spawn.  They
-//	never get passed on to a primitive.
-//
-// input:
-//	string that contains the flag strings
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// These kinds of flags control how things spawn. They never get passed on to a primitive.
+//	val		string that contains the flag strings
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseSpawnFlags( const char *val )
 {
 	char	flag[][32] = {"\0","\0","\0","\0","\0","\0","\0"};
@@ -836,8 +672,6 @@ bool CPrimitiveTemplate::ParseSpawnFlags( const char *val )
 	return ok;
 }
 
-
-
 bool CPrimitiveTemplate::ParseMaterialImpact(const char *val)
 {
 	if (!Q_stricmp(val, "shellsound"))
@@ -853,42 +687,27 @@ bool CPrimitiveTemplate::ParseMaterialImpact(const char *val)
 	return true;
 }
 
-
-//------------------------------------------------------
-// ParseAcceleration
-//	Reads in a ranged acceleration field in vector format
-//
-// input:
-//	string that contains one or two vectors
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Reads in a ranged acceleration field in vector format
+//	val		string that contains one or two vectors
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseAcceleration( const char *val )
 {
 	vec3_t min, max;
 
 	if ( ParseVector( val, min, max ) == true )
 	{
-		mAccelX.SetRange( min[0], max[0] );
-		mAccelY.SetRange( min[1], max[1] );
-		mAccelZ.SetRange( min[2], max[2] );
+		mAccel.x.SetRange( min[0], max[0] );
+		mAccel.y.SetRange( min[1], max[1] );
+		mAccel.z.SetRange( min[2], max[2] );
 		return true;
 	}
 
 	return false;
 }
 
-//------------------------------------------------------
-// ParseGravity
-//	Reads in a ranged gravity value
-//
-// input:
-//	string that contains one or two floats
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Reads in a ranged gravity value
+//	val		string that contains one or two floats
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseGravity( const char *val )
 {
 	float min, max;
@@ -902,18 +721,9 @@ bool CPrimitiveTemplate::ParseGravity( const char *val )
 	return false;
 }
 
-//------------------------------------------------------
-// ParseDensity
-//	Reads in a ranged density value.  Density is only
-//	for emitters that are calling effects...it basically
-//	specifies how often the emitter should emit fx.
-//
-// input:
-//	string that contains one or two floats
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Reads in a ranged density value. Density is only for emitters that are calling effects...it basically specifies how often the emitter should emit fx.
+//	val		string that contains one or two floats
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseDensity( const char *val )
 {
 	float min, max;
@@ -927,19 +737,10 @@ bool CPrimitiveTemplate::ParseDensity( const char *val )
 	return false;
 }
 
-//------------------------------------------------------
-// ParseVariance
-//	Reads in a ranged variance value.  Variance is only
-//	valid for emitters that are calling effects...
-//	it basically determines the amount of slop in the
-//	density calculations
-//
-// input:
-//	string that contains one or two floats
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Reads in a ranged variance value.
+// Variance is only valid for emitters that are calling effects...it basically determines the amount of slop in the density calculations
+//	val		string that contains one or two floats
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseVariance( const char *val )
 {
 	float min, max;
@@ -953,66 +754,45 @@ bool CPrimitiveTemplate::ParseVariance( const char *val )
 	return false;
 }
 
-//------------------------------------------------------
-// ParseRGBStart
-//	Reads in a ranged rgbStart field in vector format
-//
-// input:
-//	string that contains one or two vectors
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Reads in a ranged rgbStart field in vector format
+//	val	string that contains one or two vectors
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseRGBStart( const char *val )
 {
 	vec3_t min, max;
 
 	if ( ParseVector( val, min, max ) == true )
 	{
-		mRedStart.SetRange( min[0], max[0] );
-		mGreenStart.SetRange( min[1], max[1] );
-		mBlueStart.SetRange( min[2], max[2] );
+		mRed.start.SetRange( min[0], max[0] );
+		mGreen.start.SetRange( min[1], max[1] );
+		mBlue.start.SetRange( min[2], max[2] );
 		return true;
 	}
 
 	return false;
 }
 
-//------------------------------------------------------
-// ParseRGBEnd
-//	Reads in a ranged rgbEnd field in vector format
-//
-// input:
-//	string that contains one or two vectors
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Reads in a ranged rgbEnd field in vector format
+//	val		string that contains one or two vectors
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseRGBEnd( const char *val )
 {
 	vec3_t min, max;
 
 	if ( ParseVector( val, min, max ) == true )
 	{
-		mRedEnd.SetRange( min[0], max[0] );
-		mGreenEnd.SetRange( min[1], max[1] );
-		mBlueEnd.SetRange( min[2], max[2] );
+		mRed.end.SetRange( min[0], max[0] );
+		mGreen.end.SetRange( min[1], max[1] );
+		mBlue.end.SetRange( min[2], max[2] );
 		return true;
 	}
 
 	return false;
 }
 
-//------------------------------------------------------
-// ParseRGBParm
-//	Reads in a ranged rgbParm field in float format
-//
-// input:
-//	string that contains one or two floats
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Reads in a ranged rgbParm field in float format
+//	val		string that contains one or two floats
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseRGBParm( const char *val )
 {
 	float min, max;
@@ -1026,16 +806,9 @@ bool CPrimitiveTemplate::ParseRGBParm( const char *val )
 	return false;
 }
 
-//------------------------------------------------------
-// ParseRGBFlags
-//	Reads in a set of rgbFlags in string format
-//
-// input:
-//	string that contains the flag strings
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Reads in a set of rgbFlags in string format
+//	val		string that contains the flag strings
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseRGBFlags( const char *val )
 {
 	int flags;
@@ -1050,62 +823,41 @@ bool CPrimitiveTemplate::ParseRGBFlags( const char *val )
 	return false;
 }
 
-//------------------------------------------------------
-// ParseAlphaStart
-//	Reads in a ranged alphaStart field in float format
-//
-// input:
-//	string that contains one or two floats
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Reads in a ranged alphaStart field in float format
+//	val		string that contains one or two floats
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseAlphaStart( const char *val )
 {
 	float min, max;
 
 	if ( ParseFloat( val, &min, &max ) == true )
 	{
-		mAlphaStart.SetRange( min, max );
+		mAlpha.start.SetRange( min, max );
 		return true;
 	}
 
 	return false;
 }
 
-//------------------------------------------------------
-// ParseAlphaEnd
-//	Reads in a ranged alphaEnd field in float format
-//
-// input:
-//	string that contains one or two floats
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Reads in a ranged alphaEnd field in float format
+//	val		string that contains one or two floats
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseAlphaEnd( const char *val )
 {
 	float min, max;
 
 	if ( ParseFloat( val, &min, &max ) == true )
 	{
-		mAlphaEnd.SetRange( min, max );
+		mAlpha.end.SetRange( min, max );
 		return true;
 	}
 
 	return false;
 }
 
-//------------------------------------------------------
-// ParseAlphaParm
-//	Reads in a ranged alphaParm field in float format
-//
-// input:
-//	string that contains one or two floats
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Reads in a ranged alphaParm field in float format
+//	val		string that contains one or two floats
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseAlphaParm( const char *val )
 {
 	float min, max;
@@ -1119,16 +871,9 @@ bool CPrimitiveTemplate::ParseAlphaParm( const char *val )
 	return false;
 }
 
-//------------------------------------------------------
-// ParseAlphaFlags
-//	Reads in a set of alphaFlags in string format
-//
-// input:
-//	string that contains the flag strings
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Reads in a set of alphaFlags in string format
+//	val		string that contains the flag strings
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseAlphaFlags( const char *val )
 {
 	int flags;
@@ -1143,62 +888,41 @@ bool CPrimitiveTemplate::ParseAlphaFlags( const char *val )
 	return false;
 }
 
-//------------------------------------------------------
-// ParseSizeStart
-//	Reads in a ranged sizeStart field in float format
-//
-// input:
-//	string that contains one or two floats
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Reads in a ranged sizeStart field in float format
+//	val		string that contains one or two floats
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseSizeStart( const char *val )
 {
 	float min, max;
 
 	if ( ParseFloat( val, &min, &max ) == true )
 	{
-		mSizeStart.SetRange( min, max );
+		mSize.start.SetRange( min, max );
 		return true;
 	}
 
 	return false;
 }
 
-//------------------------------------------------------
-// ParseSizeEnd
-//	Reads in a ranged sizeEnd field in float format
-//
-// input:
-//	string that contains one or two floats
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Reads in a ranged sizeEnd field in float format
+//	val		string that contains one or two floats
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseSizeEnd( const char *val )
 {
 	float min, max;
 
 	if ( ParseFloat( val, &min, &max ) == true )
 	{
-		mSizeEnd.SetRange( min, max );
+		mSize.end.SetRange( min, max );
 		return true;
 	}
 
 	return false;
 }
 
-//------------------------------------------------------
-// ParseSizeParm
-//	Reads in a ranged sizeParm field in float format
-//
-// input:
-//	string that contains one or two floats
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Reads in a ranged sizeParm field in float format
+//	val		string that contains one or two floats
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseSizeParm( const char *val )
 {
 	float min, max;
@@ -1212,16 +936,9 @@ bool CPrimitiveTemplate::ParseSizeParm( const char *val )
 	return false;
 }
 
-//------------------------------------------------------
-// ParseSizeFlags
-//	Reads in a set of sizeFlags in string format
-//
-// input:
-//	string that contains the flag strings
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Reads in a set of sizeFlags in string format
+//	val		string that contains the flag strings
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseSizeFlags( const char *val )
 {
 	int flags;
@@ -1236,62 +953,41 @@ bool CPrimitiveTemplate::ParseSizeFlags( const char *val )
 	return false;
 }
 
-//------------------------------------------------------
-// ParseSize2Start
-//	Reads in a ranged Size2Start field in float format
-//
-// input:
-//	string that contains one or two floats
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Reads in a ranged Size2Start field in float format
+//	val		string that contains one or two floats
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseSize2Start( const char *val )
 {
 	float min, max;
 
 	if ( ParseFloat( val, &min, &max ) == true )
 	{
-		mSize2Start.SetRange( min, max );
+		mSize2.start.SetRange( min, max );
 		return true;
 	}
 
 	return false;
 }
 
-//------------------------------------------------------
-// ParseSize2End
-//	Reads in a ranged Size2End field in float format
-//
-// input:
-//	string that contains one or two floats
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Reads in a ranged Size2End field in float format
+//	val		string that contains one or two floats
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseSize2End( const char *val )
 {
 	float min, max;
 
 	if ( ParseFloat( val, &min, &max ) == true )
 	{
-		mSize2End.SetRange( min, max );
+		mSize2.end.SetRange( min, max );
 		return true;
 	}
 
 	return false;
 }
 
-//------------------------------------------------------
-// ParseSize2Parm
-//	Reads in a ranged Size2Parm field in float format
-//
-// input:
-//	string that contains one or two floats
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Reads in a ranged Size2Parm field in float format
+//	val		string that contains one or two floats
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseSize2Parm( const char *val )
 {
 	float min, max;
@@ -1305,16 +1001,9 @@ bool CPrimitiveTemplate::ParseSize2Parm( const char *val )
 	return false;
 }
 
-//------------------------------------------------------
-// ParseSize2Flags
-//	Reads in a set of Size2Flags in string format
-//
-// input:
-//	string that contains the flag strings
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Reads in a set of Size2Flags in string format
+//	val		string that contains the flag strings
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseSize2Flags( const char *val )
 {
 	int flags;
@@ -1329,62 +1018,41 @@ bool CPrimitiveTemplate::ParseSize2Flags( const char *val )
 	return false;
 }
 
-//------------------------------------------------------
-// ParseLengthStart
-//	Reads in a ranged lengthStart field in float format
-//
-// input:
-//	string that contains one or two floats
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Reads in a ranged lengthStart field in float format
+//	val		string that contains one or two floats
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseLengthStart( const char *val )
 {
 	float min, max;
 
 	if ( ParseFloat( val, &min, &max ) == true )
 	{
-		mLengthStart.SetRange( min, max );
+		mLength.start.SetRange( min, max );
 		return true;
 	}
 
 	return false;
 }
 
-//------------------------------------------------------
-// ParseLengthEnd
-//	Reads in a ranged lengthEnd field in float format
-//
-// input:
-//	string that contains one or two floats
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Reads in a ranged lengthEnd field in float format
+//	val		string that contains one or two floats
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseLengthEnd( const char *val )
 {
 	float min, max;
 
 	if ( ParseFloat( val, &min, &max ) == true )
 	{
-		mLengthEnd.SetRange( min, max );
+		mLength.end.SetRange( min, max );
 		return true;
 	}
 
 	return false;
 }
 
-//------------------------------------------------------
-// ParseLengthParm
-//	Reads in a ranged lengthParm field in float format
-//
-// input:
-//	string that contains one or two floats
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Reads in a ranged lengthParm field in float format
+//	val		string that contains one or two floats
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseLengthParm( const char *val )
 {
 	float min, max;
@@ -1398,16 +1066,9 @@ bool CPrimitiveTemplate::ParseLengthParm( const char *val )
 	return false;
 }
 
-//------------------------------------------------------
-// ParseLengthFlags
-//	Reads in a set of lengthFlags in string format
-//
-// input:
-//	string that contains the flag strings
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Reads in a set of lengthFlags in string format
+//	val		string that contains the flag strings
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseLengthFlags( const char *val )
 {
 	int flags;
@@ -1422,16 +1083,9 @@ bool CPrimitiveTemplate::ParseLengthFlags( const char *val )
 	return false;
 }
 
-//------------------------------------------------------
-// ParseShaders
-//	Reads in a group of shaders and registers them
-//
-// input:
-//	Parse group that contains the list of shaders to parse
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Reads in a group of shaders and registers them
+//	grp		Parse group that contains the list of shaders to parse
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseShaders( CGPValue *grp )
 {
 	const char	*val;
@@ -1474,16 +1128,9 @@ bool CPrimitiveTemplate::ParseShaders( CGPValue *grp )
 	return true;
 }
 
-//------------------------------------------------------
-// ParseSounds
-//	Reads in a group of sounds and registers them
-//
-// input:
-//	Parse group that contains the list of sounds to parse
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Reads in a group of sounds and registers them
+//	grp		Parse group that contains the list of sounds to parse
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseSounds( CGPValue *grp )
 {
 	const char	*val;
@@ -1526,16 +1173,9 @@ bool CPrimitiveTemplate::ParseSounds( CGPValue *grp )
 	return true;
 }
 
-//------------------------------------------------------
-// ParseModels
-//	Reads in a group of models and registers them
-//
-// input:
-//	Parse group that contains the list of models to parse
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Reads in a group of models and registers them
+//	grp		Parse group that contains the list of models to parse
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseModels( CGPValue *grp )
 {
 	const char	*val;
@@ -1580,16 +1220,9 @@ bool CPrimitiveTemplate::ParseModels( CGPValue *grp )
 	return true;
 }
 
-//------------------------------------------------------
-// ParseImpactFxStrings
-//	Reads in a group of fx file names and registers them
-//
-// input:
-//	Parse group that contains the list of fx to parse
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Reads in a group of fx file names and registers them
+//	grp		Parse group that contains the list of fx to parse
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseImpactFxStrings( CGPValue *grp )
 {
 	const char	*val;
@@ -1651,16 +1284,9 @@ bool CPrimitiveTemplate::ParseImpactFxStrings( CGPValue *grp )
 	return true;
 }
 
-//------------------------------------------------------
-// ParseDeathFxStrings
-//	Reads in a group of fx file names and registers them
-//
-// input:
-//	Parse group that contains the list of fx to parse
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Reads in a group of fx file names and registers them
+//	grp		Parse group that contains the list of fx to parse
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseDeathFxStrings( CGPValue *grp )
 {
 	const char	*val;
@@ -1722,16 +1348,9 @@ bool CPrimitiveTemplate::ParseDeathFxStrings( CGPValue *grp )
 	return true;
 }
 
-//------------------------------------------------------
-// ParseEmitterFxStrings
-//	Reads in a group of fx file names and registers them
-//
-// input:
-//	Parse group that contains the list of fx to parse
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Reads in a group of fx file names and registers them
+//	grp		Parse group that contains the list of fx to parse
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseEmitterFxStrings( CGPValue *grp )
 {
 	const char	*val;
@@ -1793,16 +1412,9 @@ bool CPrimitiveTemplate::ParseEmitterFxStrings( CGPValue *grp )
 	return true;
 }
 
-//------------------------------------------------------
-// ParsePlayFxStrings
-//	Reads in a group of fx file names and registers them
-//
-// input:
-//	Parse group that contains the list of fx to parse
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Reads in a group of fx file names and registers them
+//	grp		Parse group that contains the list of fx to parse
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParsePlayFxStrings( CGPValue *grp )
 {
 	const char	*val;
@@ -1862,17 +1474,9 @@ bool CPrimitiveTemplate::ParsePlayFxStrings( CGPValue *grp )
 	return true;
 }
 
-//------------------------------------------------------
-// ParseRGB
-//	Takes an RGB group and chomps out any pairs contained
-//	in it.
-//
-// input:
-//	the parse group to process
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Takes an RGB group and chomps out any pairs contained in it.
+//	grp		the parse group to process
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseRGB( CGPGroup *grp )
 {
 	CGPValue	*pairs;
@@ -1906,17 +1510,9 @@ bool CPrimitiveTemplate::ParseRGB( CGPGroup *grp )
 	return true;
 }
 
-//------------------------------------------------------
-// ParseAlpha
-//	Takes an alpha group and chomps out any pairs contained
-//	in it.
-//
-// input:
-//	the parse group to process
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Takes an alpha group and chomps out any pairs contained in it.
+//	grp		the parse group to process
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseAlpha( CGPGroup *grp )
 {
 	CGPValue	*pairs;
@@ -1950,17 +1546,9 @@ bool CPrimitiveTemplate::ParseAlpha( CGPGroup *grp )
 	return true;
 }
 
-//------------------------------------------------------
-// ParseSize
-//	Takes a size group and chomps out any pairs contained
-//	in it.
-//
-// input:
-//	the parse group to process
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Takes a size group and chomps out any pairs contained in it.
+//	grp		the parse group to process
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseSize( CGPGroup *grp )
 {
 	CGPValue	*pairs;
@@ -1994,17 +1582,9 @@ bool CPrimitiveTemplate::ParseSize( CGPGroup *grp )
 	return true;
 }
 
-//------------------------------------------------------
-// ParseSize2
-//	Takes a Size2 group and chomps out any pairs contained
-//	in it.
-//
-// input:
-//	the parse group to process
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Takes a Size2 group and chomps out any pairs contained in it.
+//	grp		the parse group to process
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseSize2( CGPGroup *grp )
 {
 	CGPValue	*pairs;
@@ -2038,17 +1618,9 @@ bool CPrimitiveTemplate::ParseSize2( CGPGroup *grp )
 	return true;
 }
 
-//------------------------------------------------------
-// ParseLength
-//	Takes a length group and chomps out any pairs contained
-//	in it.
-//
-// input:
-//	the parse group to process
-//
-// return:
-//	success of parse operation.
-//------------------------------------------------------
+// Takes a length group and chomps out any pairs contained in it.
+//	grp	the parse group to process
+// returns success of parse operation.
 bool CPrimitiveTemplate::ParseLength( CGPGroup *grp )
 {
 	CGPValue	*pairs;
@@ -2082,9 +1654,7 @@ bool CPrimitiveTemplate::ParseLength( CGPGroup *grp )
 	return true;
 }
 
-// Parse a primitive, apply defaults first, grab any base level
-//	key pairs, then process any sub groups we may contain.
-//------------------------------------------------------
+// Parse a primitive, apply defaults first, grab any base level key pairs, then process any sub groups we may contain.
 bool CPrimitiveTemplate::ParsePrimitive( CGPGroup *grp )
 {
 	CGPGroup	*subGrp;

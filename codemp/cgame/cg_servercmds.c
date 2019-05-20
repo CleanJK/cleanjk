@@ -31,12 +31,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "ghoul2/G2.h"
 #include "ui/ui_public.h"
 
-/*
-=================
-CG_ParseScores
-
-=================
-*/
 #define SCORE_OFFSET (14)
 static void CG_ParseScores( void ) {
 	int i, powerups, readScores;
@@ -84,12 +78,6 @@ static void CG_ParseScores( void ) {
 	CG_SetScoreSelection( NULL );
 }
 
-/*
-=================
-CG_ParseTeamInfo
-
-=================
-*/
 #define TEAMINFO_OFFSET (6)
 static void CG_ParseTeamInfo( void ) {
 	int i, client;
@@ -117,15 +105,8 @@ static void CG_ParseTeamInfo( void ) {
 	}
 }
 
-
-/*
-================
-CG_ParseServerinfo
-
-This is called explicitly when the gamestate is first received,
-and whenever the server updates any serverinfo flagged cvars
-================
-*/
+// This is called explicitly when the gamestate is first received, and whenever the server updates any serverinfo
+//	flagged cvars
 void CG_ParseServerinfo( void ) {
 	const char *info = NULL;
 	char *mapname;
@@ -137,8 +118,6 @@ void CG_ParseServerinfo( void ) {
 	cgs.stepSlideFix = atoi( Info_ValueForKey( info, "g_stepSlideFix" ) );
 
 	cgs.noSpecMove = atoi( Info_ValueForKey( info, "g_noSpecMove" ) );
-
-	cgs.siegeTeamSwitch = atoi( Info_ValueForKey( info, "g_siegeTeamSwitch" ) );
 
 	cgs.showDuelHealths = atoi( Info_ValueForKey( info, "g_showDuelHealths" ) );
 
@@ -205,10 +184,6 @@ void CG_ParseServerinfo( void ) {
 	trap->Cvar_Set ( "ui_about_needpass", Info_ValueForKey( info, "g_needpass" ) );
 	trap->Cvar_Set ( "ui_about_botminplayers", Info_ValueForKey ( info, "bot_minplayers" ) );
 
-	//Set the siege teams based on what the server has for overrides.
-	trap->Cvar_Set("cg_siegeTeam1", Info_ValueForKey(info, "g_siegeTeam1"));
-	trap->Cvar_Set("cg_siegeTeam2", Info_ValueForKey(info, "g_siegeTeam2"));
-
 	Q_strncpyz( cgs.voteString, CG_ConfigString( CS_VOTE_STRING ), sizeof( cgs.voteString ) );
 
 	// synchronise our expected snaps/sec with the server's framerate
@@ -217,11 +192,6 @@ void CG_ParseServerinfo( void ) {
 		trap->Cvar_Set( "snaps", va( "%i", i ) );
 }
 
-/*
-==================
-CG_ParseWarmup
-==================
-*/
 static void CG_ParseWarmup( void ) {
 	const char	*info;
 	int			warmup;
@@ -244,13 +214,7 @@ static char ctfFlagStatusRemap[] = {
 	FLAG_DROPPED
 };
 
-/*
-================
-CG_SetConfigValues
-
-Called on load to set the initial values from configure strings
-================
-*/
+// Called on load to set the initial values from configure strings
 void CG_SetConfigValues( void )
 {
 	const char *s;
@@ -312,11 +276,6 @@ void CG_SetConfigValues( void )
 	}
 }
 
-/*
-=====================
-CG_ShaderStateChanged
-=====================
-*/
 void CG_ShaderStateChanged(void) {
 	char originalShader[MAX_QPATH];
 	char newShader[MAX_QPATH];
@@ -358,28 +317,6 @@ extern const char *cg_customExtraSoundNames[MAX_CUSTOM_EXTRA_SOUNDS];
 extern const char *cg_customJediSoundNames[MAX_CUSTOM_JEDI_SOUNDS];
 extern const char *cg_customDuelSoundNames[MAX_CUSTOM_DUEL_SOUNDS];
 
-static const char *GetCustomSoundForType(int setType, int index)
-{
-	switch (setType)
-	{
-	case 1:
-		return cg_customSoundNames[index];
-	case 2:
-		return cg_customCombatSoundNames[index];
-	case 3:
-		return cg_customExtraSoundNames[index];
-	case 4:
-		return cg_customJediSoundNames[index];
-	case 5:
-		return bg_customSiegeSoundNames[index];
-	case 6:
-		return cg_customDuelSoundNames[index];
-	default:
-		assert(0);
-		return NULL;
-	}
-}
-
 void SetCustomSoundForType(clientInfo_t *ci, int setType, int index, sfxHandle_t sfx)
 {
 	switch (setType)
@@ -405,255 +342,6 @@ void SetCustomSoundForType(clientInfo_t *ci, int setType, int index, sfxHandle_t
 	default:
 		assert(0);
 		break;
-	}
-}
-
-static void CG_RegisterCustomSounds(clientInfo_t *ci, int setType, const char *psDir)
-{
-	int iTableEntries = 0;
-	int i;
-
-	switch (setType)
-	{
-	case 1:
-		iTableEntries = MAX_CUSTOM_SOUNDS;
-		break;
-	case 2:
-		iTableEntries = MAX_CUSTOM_COMBAT_SOUNDS;
-		break;
-	case 3:
-		iTableEntries = MAX_CUSTOM_EXTRA_SOUNDS;
-		break;
-	case 4:
-		iTableEntries = MAX_CUSTOM_JEDI_SOUNDS;
-		break;
-	case 5:
-		iTableEntries = MAX_CUSTOM_SIEGE_SOUNDS;
-		break;
-	default:
-		assert(0);
-		return;
-	}
-
-	for ( i = 0 ; i<iTableEntries; i++ )
-	{
-		sfxHandle_t hSFX;
-		const char *s = GetCustomSoundForType(setType, i);
-
-		if ( !s )
-		{
-			break;
-		}
-
-		s++;
-		hSFX = trap->S_RegisterSound( va("sound/chars/%s/misc/%s", psDir, s) );
-
-		if (hSFX == 0)
-		{
-			char modifiedSound[MAX_QPATH];
-			char *p;
-
-			strcpy(modifiedSound, s);
-			p = strchr(modifiedSound,'.');
-
-			if (p)
-			{
-				char testNumber[2];
-				p--;
-
-				//before we destroy it.. we want to see if this is actually a number.
-				//If it isn't a number then don't try decrementing and registering as
-				//it will only cause a disk hit (we don't try precaching such files)
-				testNumber[0] = *p;
-				testNumber[1] = 0;
-				if (atoi(testNumber))
-				{
-					*p = 0;
-
-					strcat(modifiedSound, "1.wav");
-
-					hSFX = trap->S_RegisterSound( va("sound/chars/%s/misc/%s", psDir, modifiedSound) );
-				}
-			}
-		}
-
-		SetCustomSoundForType(ci, setType, i, hSFX);
-	}
-}
-
-void CG_PrecacheNPCSounds(const char *str)
-{
-	char sEnd[MAX_QPATH];
-	char pEnd[MAX_QPATH];
-	int i = 0;
-	int j = 0;
-	int k = 0;
-
-	k = 2;
-
-	while (str[k])
-	{
-		pEnd[k-2] = str[k];
-		k++;
-	}
-	pEnd[k-2] = 0;
-
-	while (i < 4) //4 types
-	{ //It would be better if we knew what type this actually was (extra, combat, jedi, etc).
-	  //But that would require extra configstring indexing and that is a bad thing.
-
-		while (j < MAX_CUSTOM_SOUNDS)
-		{
-			const char *s = GetCustomSoundForType(i+1, j);
-
-			if (s && s[0])
-			{ //whatever it is, try registering it under this folder.
-				k = 1;
-				while (s[k])
-				{
-					sEnd[k-1] = s[k];
-					k++;
-				}
-				sEnd[k-1] = 0;
-
-				trap->S_Shutup(qtrue);
-				trap->S_RegisterSound( va("sound/chars/%s/misc/%s", pEnd, sEnd) );
-				trap->S_Shutup(qfalse);
-			}
-			else
-			{ //move onto the next set
-				break;
-			}
-
-			j++;
-		}
-
-		j = 0;
-		i++;
-	}
-}
-
-void CG_HandleNPCSounds(centity_t *cent)
-{
-	if (!cent->npcClient)
-	{
-		return;
-	}
-
-	//standard
-	if (cent->currentState.csSounds_Std)
-	{
-		const char *s = CG_ConfigString( CS_SOUNDS + cent->currentState.csSounds_Std );
-
-		if (s && s[0])
-		{
-			char sEnd[MAX_QPATH];
-			int i = 2;
-			int j = 0;
-
-			//Parse past the initial "*" which indicates this is a custom sound, and the $ which indicates
-			//it is an NPC custom sound dir.
-			while (s[i])
-			{
-				sEnd[j] = s[i];
-				j++;
-				i++;
-			}
-			sEnd[j] = 0;
-
-			CG_RegisterCustomSounds(cent->npcClient, 1, sEnd);
-		}
-	}
-	else
-	{
-		memset(&cent->npcClient->sounds, 0, sizeof(cent->npcClient->sounds));
-	}
-
-	//combat
-	if (cent->currentState.csSounds_Combat)
-	{
-		const char *s = CG_ConfigString( CS_SOUNDS + cent->currentState.csSounds_Combat );
-
-		if (s && s[0])
-		{
-			char sEnd[MAX_QPATH];
-			int i = 2;
-			int j = 0;
-
-			//Parse past the initial "*" which indicates this is a custom sound, and the $ which indicates
-			//it is an NPC custom sound dir.
-			while (s[i])
-			{
-				sEnd[j] = s[i];
-				j++;
-				i++;
-			}
-			sEnd[j] = 0;
-
-			CG_RegisterCustomSounds(cent->npcClient, 2, sEnd);
-		}
-	}
-	else
-	{
-		memset(&cent->npcClient->combatSounds, 0, sizeof(cent->npcClient->combatSounds));
-	}
-
-	//extra
-	if (cent->currentState.csSounds_Extra)
-	{
-		const char *s = CG_ConfigString( CS_SOUNDS + cent->currentState.csSounds_Extra );
-
-		if (s && s[0])
-		{
-			char sEnd[MAX_QPATH];
-			int i = 2;
-			int j = 0;
-
-			//Parse past the initial "*" which indicates this is a custom sound, and the $ which indicates
-			//it is an NPC custom sound dir.
-			while (s[i])
-			{
-				sEnd[j] = s[i];
-				j++;
-				i++;
-			}
-			sEnd[j] = 0;
-
-			CG_RegisterCustomSounds(cent->npcClient, 3, sEnd);
-		}
-	}
-	else
-	{
-		memset(&cent->npcClient->extraSounds, 0, sizeof(cent->npcClient->extraSounds));
-	}
-
-	//jedi
-	if (cent->currentState.csSounds_Jedi)
-	{
-		const char *s = CG_ConfigString( CS_SOUNDS + cent->currentState.csSounds_Jedi );
-
-		if (s && s[0])
-		{
-			char sEnd[MAX_QPATH];
-			int i = 2;
-			int j = 0;
-
-			//Parse past the initial "*" which indicates this is a custom sound, and the $ which indicates
-			//it is an NPC custom sound dir.
-			while (s[i])
-			{
-				sEnd[j] = s[i];
-				j++;
-				i++;
-			}
-			sEnd[j] = 0;
-
-			CG_RegisterCustomSounds(cent->npcClient, 4, sEnd);
-		}
-	}
-	else
-	{
-		memset(&cent->npcClient->jediSounds, 0, sizeof(cent->npcClient->jediSounds));
 	}
 }
 
@@ -707,19 +395,7 @@ void SetDuelistHealthsFromConfigString ( const char *str ) {
 	cgs.duelist3health = atoi ( buf );
 }
 
-/*
-================
-CG_ConfigStringModified
-
-================
-*/
-extern int cgSiegeRoundState;
-extern int cgSiegeRoundTime;
-void CG_ParseSiegeObjectiveStatus(const char *str);
 void CG_ParseWeatherEffect(const char *str);
-extern void CG_ParseSiegeState(const char *str); //cg_main.c
-extern int cg_beatingSiegeTime;
-extern int cg_siegeWinTeam;
 static void CG_ConfigStringModified( void ) {
 	const char	*str;
 	int		num;
@@ -841,20 +517,14 @@ static void CG_ConfigStringModified( void ) {
 		{
             cgs.gameModels[ num-CS_MODELS ] = 0;
 		}
-// GHOUL2 Insert start
 		/*
 	} else if ( num >= CS_CHARSKINS && num < CS_CHARSKINS+MAX_CHARSKINS ) {
 		cgs.skins[ num-CS_CHARSKINS ] = trap->R_RegisterSkin( str );
 		*/
 		//rww - removed and replaced with CS_G2BONES
-// Ghoul2 Insert end
 	} else if ( num >= CS_SOUNDS && num < CS_SOUNDS+MAX_SOUNDS ) {
 		if ( str[0] != '*' ) {	// player specific sounds don't register here
 			cgs.gameSounds[ num-CS_SOUNDS] = trap->S_RegisterSound( str );
-		}
-		else if (str[1] == '$')
-		{ //an NPC soundset
-			CG_PrecacheNPCSounds(str);
 		}
 	} else if ( num >= CS_EFFECTS && num < CS_EFFECTS+MAX_FX ) {
 		if (str[0] == '*')
@@ -866,29 +536,6 @@ static void CG_ConfigStringModified( void ) {
 		{
 			cgs.gameEffects[ num-CS_EFFECTS] = trap->FX_RegisterEffect( str );
 		}
-	}
-	else if ( num >= CS_SIEGE_STATE && num < CS_SIEGE_STATE+1 )
-	{
-		if (str[0])
-		{
-			CG_ParseSiegeState(str);
-		}
-	}
-	else if ( num >= CS_SIEGE_WINTEAM && num < CS_SIEGE_WINTEAM+1 )
-	{
-		if (str[0])
-		{
-			cg_siegeWinTeam = atoi(str);
-		}
-	}
-	else if ( num >= CS_SIEGE_OBJECTIVES && num < CS_SIEGE_OBJECTIVES+1 )
-	{
-		CG_ParseSiegeObjectiveStatus(str);
-	}
-	else if (num >= CS_SIEGE_TIMEOVERRIDE && num < CS_SIEGE_TIMEOVERRIDE+1)
-	{
-		cg_beatingSiegeTime = atoi(str);
-		CG_SetSiegeTimerCvar ( cg_beatingSiegeTime );
 	}
 	else if ( num >= CS_PLAYERS && num < CS_PLAYERS+MAX_CLIENTS )
 	{
@@ -920,25 +567,12 @@ static void CG_ConfigStringModified( void ) {
 void CG_KillCEntityG2(int entNum)
 {
 	int j;
-	clientInfo_t *ci = NULL;
+	clientInfo_t *ci = (entNum < MAX_CLIENTS) ? &cgs.clientinfo[entNum] : NULL;
 	centity_t *cent = &cg_entities[entNum];
-
-	if (entNum < MAX_CLIENTS)
-	{
-		ci = &cgs.clientinfo[entNum];
-	}
-	else
-	{
-		ci = cent->npcClient;
-	}
 
 	if (ci)
 	{
-		if (ci == cent->npcClient)
-		{ //never going to be != cent->ghoul2, unless cent->ghoul2 has already been removed (and then this ptr is not valid)
-			ci->ghoul2Model = NULL;
-		}
-		else if (ci->ghoul2Model == cent->ghoul2)
+		if (ci->ghoul2Model == cent->ghoul2)
 		{
 			ci->ghoul2Model = NULL;
 		}
@@ -978,11 +612,6 @@ void CG_KillCEntityG2(int entNum)
 	{
 		trap->G2API_CleanGhoul2Models(&cent->frame_hold);
 		cent->frame_hold = NULL;
-	}
-
-	if (cent->npcClient)
-	{
-		CG_DestroyNPCClient(&cent->npcClient);
 	}
 
 	cent->isRagging = qfalse; //just in case.
@@ -1037,17 +666,8 @@ void CG_KillCEntityInstances(void)
 	}
 }
 
-/*
-===============
-CG_MapRestart
-
-The server has issued a map_restart, so the next snapshot
-is completely new and should not be interpolated to.
-
-A tournament restart will clear everything, but doesn't
-require a reload of all the media
-===============
-*/
+// The server has issued a map_restart, so the next snapshot is completely new and should not be interpolated to.
+// A tournament restart will clear everything, but doesn't require a reload of all the media
 static void CG_MapRestart( void ) {
 	if ( cg_showMiss.integer ) {
 		trap->Print( "CG_MapRestart\n" );
@@ -1078,26 +698,13 @@ static void CG_MapRestart( void ) {
 	// we really should clear more parts of cg here and stop sounds
 
 	// play the "fight" sound if this is a restart without warmup
-	if ( cg.warmup == 0 && cgs.gametype != GT_SIEGE && cgs.gametype != GT_POWERDUEL/* && cgs.gametype == GT_DUEL */) {
+	if ( cg.warmup == 0 && cgs.gametype != GT_POWERDUEL/* && cgs.gametype == GT_DUEL */) {
 		trap->S_StartLocalSound( cgs.media.countFightSound, CHAN_ANNOUNCER );
 		CG_CenterPrint( CG_GetStringEdString("MP_SVGAME", "BEGIN_DUEL"), 120, GIANTCHAR_WIDTH*2 );
 	}
-	/*
-	if (cg_singlePlayerActive.integer) {
-		trap->Cvar_Set("ui_matchStartTime", va("%i", cg.time));
-		if (cg_recordSPDemo.integer && cg_recordSPDemoName.string && *cg_recordSPDemoName.string) {
-			trap->SendConsoleCommand(va("set g_synchronousclients 1 ; record %s \n", cg_recordSPDemoName.string));
-		}
-	}
-	*/
 //	trap->Cvar_Set("cg_thirdPerson", "0");
 }
 
-/*
-=================
-CG_RemoveChatEscapeChar
-=================
-*/
 static void CG_RemoveChatEscapeChar( char *text ) {
 	int i, l;
 
@@ -1294,25 +901,6 @@ static void CG_BodyQueueCopy(centity_t *cent, int clientNum, int knownWeapon)
 	if (source->torsoBolt)
 	{
 		CG_ReattachLimb(source);
-	}
-}
-
-void CG_SiegeBriefingDisplay(int team, int dontshow);
-void CG_ParseSiegeExtendedData(void);
-static void CG_SiegeBriefingDisplay_f( void ) {
-	CG_SiegeBriefingDisplay( atoi( CG_Argv( 1 ) ), 0 );
-}
-
-static void CG_SiegeClassSelect_f( void ) {
-	//if (!( trap->Key_GetCatcher() & KEYCATCH_UI ))
-	//Well, I want it to come up even if the briefing display is up.
-	trap->OpenUIMenu( UIMENU_CLASSSEL ); //UIMENU_CLASSSEL
-}
-
-static void CG_SiegeProfileMenu_f( void ) {
-	if ( !cg.demoPlayback ) {
-		trap->Cvar_Set( "ui_myteam", "3" );
-		trap->OpenUIMenu( UIMENU_PLAYERCONFIG ); //UIMENU_CLASSSEL
 	}
 }
 
@@ -1611,25 +1199,14 @@ static serverCommand_t	commands[] = {
 	{ "print",				CG_Print_f },
 	{ "rcg",				CG_RestoreClientGhoul_f },
 	{ "remapShader",		CG_RemapShader_f },
-	{ "sb",					CG_SiegeBriefingDisplay_f },
-	{ "scl",				CG_SiegeClassSelect_f },
 	{ "scores",				CG_ParseScores },
-	{ "spc",				CG_SiegeProfileMenu_f },
-	{ "sxd",				CG_ParseSiegeExtendedData },
 	{ "tchat",				CG_Chat_f },
 	{ "tinfo",				CG_ParseTeamInfo },
 };
 
 static const size_t numCommands = ARRAY_LEN( commands );
 
-/*
-=================
-CG_ServerCommand
-
-The string has been tokenized and can be retrieved with
-Cmd_Argc() / Cmd_Argv()
-=================
-*/
+// The string has been tokenized and can be retrieved with Cmd_Argc() / Cmd_Argv()
 static void CG_ServerCommand( void ) {
 	const char		*cmd = CG_Argv( 0 );
 	serverCommand_t	*command = NULL;
@@ -1649,14 +1226,7 @@ static void CG_ServerCommand( void ) {
 	trap->Print( "Unknown client game command: %s\n", cmd );
 }
 
-/*
-====================
-CG_ExecuteNewServerCommands
-
-Execute all of the server commands that were received along
-with this this snapshot.
-====================
-*/
+// Execute all of the server commands that were received along with this this snapshot.
 void CG_ExecuteNewServerCommands( int latestSequence ) {
 	while ( cgs.serverCommandSequence < latestSequence ) {
 		if ( trap->GetServerCommand( ++cgs.serverCommandSequence ) ) {

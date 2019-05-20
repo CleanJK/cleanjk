@@ -24,12 +24,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // playerAnimations
 
-
 typedef enum //# animNumber_e
 {
-	//=================================================
 	//HEAD ANIMS
-	//=================================================
 	//# #sep Head-only anims
 	FACE_TALK0,			//# silent
 	FACE_TALK1,			//# quiet
@@ -41,9 +38,7 @@ typedef enum //# animNumber_e
 	FACE_FROWN,				//#
 	FACE_DEAD,				//#
 
-	//=================================================
 	//ANIMS IN WHICH UPPER AND LOWER OBJECTS ARE IN MD3
-	//=================================================
 	//# #sep BOTH_ DEATHS
 	BOTH_DEATH1,		//# First Death anim
 	BOTH_DEATH2,			//# Second Death anim
@@ -848,7 +843,7 @@ typedef enum //# animNumber_e
 	//Sabers locked anims
 	//* #sep BOTH_ SABER LOCKED ANIMS
 	//BOTH_(DL, S, ST)_(DL, S, ST)_(T, S)_(L, B, SB)_1(_W, _L)
-//===Single locks==================================================================
+// Single locks
 //SINGLE vs. DUAL
 	//side locks - I'm using a single and they're using dual
 	BOTH_LK_S_DL_S_B_1_L,	//normal break I lost
@@ -888,7 +883,7 @@ typedef enum //# animNumber_e
 	BOTH_LK_S_S_T_L_1,		//lock if I'm using single vs. a single and I initiated
 	BOTH_LK_S_S_T_SB_1_L,	//super break I lost
 	BOTH_LK_S_S_T_SB_1_W,	//super break I won
-//===Dual Saber locks==================================================================
+// Dual Saber locks
 //DUAL vs. DUAL
 	//side locks
 	BOTH_LK_DL_DL_S_B_1_L,	//normal break I lost
@@ -928,7 +923,7 @@ typedef enum //# animNumber_e
 	BOTH_LK_DL_S_T_L_1,		//lock if I'm using dual vs. a single
 	BOTH_LK_DL_S_T_SB_1_L,	//super break I lost
 	BOTH_LK_DL_S_T_SB_1_W,	//super break I won
-//===Saber Staff locks==================================================================
+// Saber Staff locks
 //STAFF vs. DUAL
 	//side locks
 	BOTH_LK_ST_DL_S_B_1_L,	//normal break I lost
@@ -975,7 +970,7 @@ typedef enum //# animNumber_e
 	BOTH_LK_DL_DL_T_L_2,	//lock if I'm using dual vs. dual and other initiated
 	BOTH_LK_ST_ST_S_L_2,	//lock if I'm using staff vs. a staff and other initiated
 	BOTH_LK_ST_ST_T_L_2,	//lock if I'm using staff vs. a staff and other initiated
-//===End Saber locks==================================================================
+// End Saber locks
 	//old locks
 	BOTH_BF2RETURN,	//#
 	BOTH_BF2BREAK,	//#
@@ -1272,7 +1267,6 @@ typedef enum //# animNumber_e
 	BOTH_VT_ATR_G,			//# Attack right with gun (90)
 	BOTH_VT_ATL_G,			//# Attack left with gun (90)
 	BOTH_VT_ATF_G,			//# Attack forward with gun
-
 
 	// Added 2/26/02 by Aurelio.
 	//* #sep BOTH_ FIGHTER ANIMS
@@ -1638,9 +1632,7 @@ typedef enum //# animNumber_e
 	BOTH_SIT6,
 	BOTH_SIT7,
 
-	//=================================================
 	//ANIMS IN WHICH ONLY THE UPPER OBJECTS ARE IN MD3
-	//=================================================
 	//# #sep TORSO_ WEAPON-RELATED
 	TORSO_DROPWEAP1,		//# Put weapon away
 	TORSO_DROPWEAP4,		//# Put weapon away
@@ -1668,10 +1660,7 @@ typedef enum //# animNumber_e
 	TORSO_HANDSIGNAL4,
 	TORSO_HANDSIGNAL5,
 
-
-	//=================================================
 	//ANIMS IN WHICH ONLY THE LOWER OBJECTS ARE IN MD3
-	//=================================================
 	//# #sep Legs-only anims
 	LEGS_TURN1,				//# What legs do when you turn your lower body to match your upper body facing
 	LEGS_TURN2,				//# Leg turning from stand2
@@ -1752,9 +1741,7 @@ typedef enum //# animNumber_e
 	//New anim as per Jarrod's request
 	LEGS_TURN180,
 
-	//======================================================
 	//cinematic anims
-	//======================================================
 	//# #sep BOTH_ CINEMATIC-ONLY
 	BOTH_CIN_1,		//# Level specific cinematic 1
 	BOTH_CIN_2,		//# Level specific cinematic 2

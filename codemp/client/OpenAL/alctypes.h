@@ -21,7 +21,6 @@
  * Or go to http://www.gnu.org/copyleft/lgpl.html
  */
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif

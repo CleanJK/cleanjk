@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 // Script Command Sequences
-//
+
 //	-- jweier
 
 // this include must remain at the top of every Icarus CPP file
@@ -44,12 +44,6 @@ CSequence::~CSequence( void )
 	Delete();
 }
 
-/*
--------------------------
-Create
--------------------------
-*/
-
 CSequence *CSequence::Create( void )
 {
 	CSequence *seq = new CSequence;
@@ -63,12 +57,6 @@ CSequence *CSequence::Create( void )
 
 	return seq;
 }
-
-/*
--------------------------
-Delete
--------------------------
-*/
 
 void CSequence::Delete( void )
 {
@@ -105,13 +93,6 @@ void CSequence::Delete( void )
 	m_commands.clear();
 }
 
-
-/*
--------------------------
-AddChild
--------------------------
-*/
-
 void CSequence::AddChild( CSequence *child )
 {
 	assert( child );
@@ -120,12 +101,6 @@ void CSequence::AddChild( CSequence *child )
 
 	m_children.insert( m_children.end(), child );
 }
-
-/*
--------------------------
-RemoveChild
--------------------------
-*/
 
 void CSequence::RemoveChild( CSequence *child )
 {
@@ -136,12 +111,6 @@ void CSequence::RemoveChild( CSequence *child )
 	//Remove the child
 	m_children.remove( child );
 }
-
-/*
--------------------------
-HasChild
--------------------------
-*/
 
 bool CSequence::HasChild( CSequence *sequence )
 {
@@ -159,12 +128,6 @@ bool CSequence::HasChild( CSequence *sequence )
 	return false;
 }
 
-/*
--------------------------
-SetParent
--------------------------
-*/
-
 void CSequence::SetParent( CSequence *parent )
 {
 	m_parent = parent;
@@ -179,12 +142,6 @@ void CSequence::SetParent( CSequence *parent )
 	if ( parent->m_flags & SQ_PENDING )
 		m_flags |= SQ_PENDING;
 }
-
-/*
--------------------------
-PopCommand
--------------------------
-*/
 
 CBlock *CSequence::PopCommand( int type )
 {
@@ -221,12 +178,6 @@ CBlock *CSequence::PopCommand( int type )
 	return NULL;
 }
 
-/*
--------------------------
-PushCommand
--------------------------
-*/
-
 int CSequence::PushCommand( CBlock *block, int type )
 {
 	//Make sure everything is ok
@@ -256,22 +207,10 @@ int CSequence::PushCommand( CBlock *block, int type )
 	return false;
 }
 
-/*
--------------------------
-SetFlag
--------------------------
-*/
-
 void CSequence::SetFlag( int flag )
 {
 	m_flags |= flag;
 }
-
-/*
--------------------------
-RemoveFlag
--------------------------
-*/
 
 void CSequence::RemoveFlag( int flag, bool children )
 {
@@ -288,34 +227,16 @@ void CSequence::RemoveFlag( int flag, bool children )
 	}
 }
 
-/*
--------------------------
-HasFlag
--------------------------
-*/
-
 int CSequence::HasFlag( int flag )
 {
 	return (m_flags & flag);
 }
-
-/*
--------------------------
-SetReturn
--------------------------
-*/
 
 void CSequence::SetReturn ( CSequence *sequence )
 {
 	assert( sequence != this );
 	m_return = sequence;
 }
-
-/*
--------------------------
-GetChild
--------------------------
-*/
 
 CSequence *CSequence::GetChildByIndex( int iIndex )
 {
@@ -329,12 +250,6 @@ CSequence *CSequence::GetChildByIndex( int iIndex )
 	}
 	return (*iterSeq);
 }
-
-/*
--------------------------
-SaveCommand
--------------------------
-*/
 
 int CSequence::SaveCommand( CBlock *block )
 {
@@ -372,12 +287,6 @@ int CSequence::SaveCommand( CBlock *block )
 
 	return true;
 }
-
-/*
--------------------------
-Save
--------------------------
-*/
 
 int CSequence::Save( void )
 {
@@ -424,12 +333,6 @@ int CSequence::Save( void )
 	return false;
 }
 
-/*
--------------------------
-Load
--------------------------
-*/
-
 int CSequence::Load( void )
 {
 #if 0 //piss off, stupid function
@@ -468,7 +371,6 @@ int CSequence::Load( void )
 		//Restore the connection in the child / ID map
 //		m_childrenMap[ i ] = sequence;
 	}
-
 
 	//Get the sequence flags
 	(m_owner->GetInterface())->I_ReadSaveData( 'SFLG', &m_flags, sizeof( m_flags ) );

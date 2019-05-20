@@ -23,12 +23,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "tr_local.h"
 
-
-/*
-=====================
-R_PerformanceCounters
-=====================
-*/
 void R_PerformanceCounters( void ) {
 	if ( !r_speeds->integer ) {
 		// clear the counters even if we aren't printing
@@ -81,11 +75,6 @@ void R_PerformanceCounters( void ) {
 	memset( &backEnd.pc, 0, sizeof( backEnd.pc ) );
 }
 
-/*
-====================
-R_IssueRenderCommands
-====================
-*/
 void R_IssueRenderCommands( qboolean runPerformanceCounters ) {
 	renderCommandList_t	*cmdList;
 
@@ -111,14 +100,7 @@ void R_IssueRenderCommands( qboolean runPerformanceCounters ) {
 	}
 }
 
-
-/*
-====================
-R_IssuePendingRenderCommands
-
-Issue any pending commands and wait for them to complete.
-====================
-*/
+// Issue any pending commands and wait for them to complete.
 void R_IssuePendingRenderCommands( void ) {
 	if ( !tr.registered ) {
 		return;
@@ -126,13 +108,7 @@ void R_IssuePendingRenderCommands( void ) {
 	R_IssueRenderCommands( qfalse );
 }
 
-/*
-============
-R_GetCommandBuffer
-
-make sure there is enough command space
-============
-*/
+// make sure there is enough command space
 void *R_GetCommandBuffer( int bytes ) {
 	renderCommandList_t	*cmdList;
 
@@ -155,13 +131,6 @@ void *R_GetCommandBuffer( int bytes ) {
 	return cmdList->cmds + cmdList->used - bytes;
 }
 
-
-/*
-=============
-R_AddDrawSurfCmd
-
-=============
-*/
 void	R_AddDrawSurfCmd( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	drawSurfsCommand_t	*cmd;
 
@@ -178,14 +147,7 @@ void	R_AddDrawSurfCmd( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	cmd->viewParms = tr.viewParms;
 }
 
-
-/*
-=============
-RE_SetColor
-
-Passing NULL will set the color to white
-=============
-*/
+// Passing NULL will set the color to white
 void	RE_SetColor( const float *rgba ) {
 	setColorCommand_t	*cmd;
 
@@ -209,12 +171,6 @@ void	RE_SetColor( const float *rgba ) {
 	cmd->color[3] = rgba[3];
 }
 
-
-/*
-=============
-RE_StretchPic
-=============
-*/
 void RE_StretchPic ( float x, float y, float w, float h,
 					  float s1, float t1, float s2, float t2, qhandle_t hShader ) {
 	stretchPicCommand_t	*cmd;
@@ -235,11 +191,6 @@ void RE_StretchPic ( float x, float y, float w, float h,
 	cmd->t2 = t2;
 }
 
-/*
-=============
-RE_RotatePic
-=============
-*/
 void RE_RotatePic ( float x, float y, float w, float h,
 					  float s1, float t1, float s2, float t2,float a, qhandle_t hShader ) {
 	rotatePicCommand_t	*cmd;
@@ -261,11 +212,6 @@ void RE_RotatePic ( float x, float y, float w, float h,
 	cmd->a = a;
 }
 
-/*
-=============
-RE_RotatePic2
-=============
-*/
 void RE_RotatePic2 ( float x, float y, float w, float h,
 					  float s1, float t1, float s2, float t2,float a, qhandle_t hShader ) {
 	rotatePicCommand_t	*cmd;
@@ -310,14 +256,7 @@ void RE_RenderAutoMap(void)
 	cmd->commandId = RC_AUTO_MAP;
 }
 
-/*
-====================
-RE_BeginFrame
-
-If running in stereo, RE_BeginFrame will be called twice
-for each RE_EndFrame
-====================
-*/
+// If running in stereo, RE_BeginFrame will be called twice for each RE_EndFrame
 void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 	drawBufferCommand_t	*cmd;
 
@@ -329,9 +268,8 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 	tr.frameCount++;
 	tr.frameSceneNum = 0;
 
-	//
 	// do overdraw measurement
-	//
+
 	if ( r_measureOverdraw->integer )
 	{
 		if ( glConfig.stencilBits < 4 )
@@ -367,9 +305,8 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 		r_measureOverdraw->modified = qfalse;
 	}
 
-	//
 	// texturemode stuff
-	//
+
 	if ( r_textureMode->modified || r_ext_texture_filter_anisotropic->modified) {
 		R_IssuePendingRenderCommands();
 		GL_TextureMode( r_textureMode->string );
@@ -377,9 +314,8 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 		r_ext_texture_filter_anisotropic->modified = qfalse;
 	}
 
-	//
 	// gamma stuff
-	//
+
 	if ( r_gamma->modified ) {
 		r_gamma->modified = qfalse;
 
@@ -398,9 +334,8 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 		}
 	}
 
-	//
 	// draw buffer stuff
-	//
+
 	cmd = (drawBufferCommand_t *) R_GetCommandBuffer( sizeof( *cmd ) );
 	if ( !cmd ) {
 		return;
@@ -428,14 +363,7 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 	}
 }
 
-
-/*
-=============
-RE_EndFrame
-
-Returns the number of msec spent in the back end
-=============
-*/
+// Returns the number of msec spent in the back end
 void RE_EndFrame( int *frontEndMsec, int *backEndMsec ) {
 	swapBuffersCommand_t	*cmd;
 
@@ -464,11 +392,6 @@ void RE_EndFrame( int *frontEndMsec, int *backEndMsec ) {
 	backEnd.pc.msec = 0;
 }
 
-/*
-=============
-RE_TakeVideoFrame
-=============
-*/
 void RE_TakeVideoFrame( int width, int height, byte *captureBuffer, byte *encodeBuffer, qboolean motionJpeg )
 {
 	videoFrameCommand_t *cmd;

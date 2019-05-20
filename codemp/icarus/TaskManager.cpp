@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 // Task Manager
-//
+
 //	-- jweier
 
 #include "icarus.h"
@@ -31,13 +31,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #define ICARUS_VALIDATE(a) if ( a == false ) return TASK_FAILED;
 
-/*
-=================================================
-
-CTask
-
-=================================================
-*/
+// Task
 
 CTask::CTask( void )
 {
@@ -63,25 +57,13 @@ CTask *CTask::Create( int GUID, CBlock *block )
 	return task;
 }
 
-/*
--------------------------
-Free
--------------------------
-*/
-
 void CTask::Free( void )
 {
 	//NOTENOTE: The block is not consumed by the task, it is the sequencer's job to clean blocks up
 	delete this;
 }
 
-/*
-=================================================
-
-CTaskGroup
-
-=================================================
-*/
+// CTaskGroup
 
 CTaskGroup::CTaskGroup( void )
 {
@@ -96,22 +78,10 @@ CTaskGroup::~CTaskGroup( void )
 	m_completedTasks.clear();
 }
 
-/*
--------------------------
-SetGUID
--------------------------
-*/
-
 void CTaskGroup::SetGUID( int GUID )
 {
 	m_GUID = GUID;
 }
-
-/*
--------------------------
-Init
--------------------------
-*/
 
 void CTaskGroup::Init( void )
 {
@@ -121,23 +91,11 @@ void CTaskGroup::Init( void )
 	m_parent		= NULL;
 }
 
-/*
--------------------------
-Add
--------------------------
-*/
-
 int CTaskGroup::Add( CTask *task )
 {
 	m_completedTasks[ task->GetGUID() ] = false;
 	return TASK_OK;
 }
-
-/*
--------------------------
-MarkTaskComplete
--------------------------
-*/
 
 bool CTaskGroup::MarkTaskComplete( int id )
 {
@@ -152,13 +110,7 @@ bool CTaskGroup::MarkTaskComplete( int id )
 	return false;
 }
 
-/*
-=================================================
-
-CTaskManager
-
-=================================================
-*/
+// CTaskManager
 
 CTaskManager::CTaskManager( void )
 {
@@ -168,22 +120,10 @@ CTaskManager::~CTaskManager( void )
 {
 }
 
-/*
--------------------------
-Create
--------------------------
-*/
-
 CTaskManager *CTaskManager::Create( void )
 {
 	return new CTaskManager;
 }
-
-/*
--------------------------
-Init
--------------------------
-*/
 
 int	CTaskManager::Init( CSequencer *owner )
 {
@@ -200,12 +140,6 @@ int	CTaskManager::Init( CSequencer *owner )
 
 	return TASK_OK;
 }
-
-/*
--------------------------
-Free
--------------------------
-*/
 
 int CTaskManager::Free( void )
 {
@@ -233,24 +167,12 @@ int CTaskManager::Free( void )
 	return TASK_OK;
 }
 
-/*
--------------------------
-Flush
--------------------------
-*/
-
 int CTaskManager::Flush( void )
 {
 	//FIXME: Rewrite
 
 	return true;
 }
-
-/*
--------------------------
-AddTaskGroup
--------------------------
-*/
 
 CTaskGroup *CTaskManager::AddTaskGroup( const char *name )
 {
@@ -292,12 +214,6 @@ CTaskGroup *CTaskManager::AddTaskGroup( const char *name )
 	return group;
 }
 
-/*
--------------------------
-GetTaskGroup
--------------------------
-*/
-
 CTaskGroup *CTaskManager::GetTaskGroup( const char *name )
 {
 	taskGroupName_m::iterator	tgi;
@@ -328,12 +244,6 @@ CTaskGroup *CTaskManager::GetTaskGroup( int id )
 	return (*tgi).second;
 }
 
-/*
--------------------------
-Update
--------------------------
-*/
-
 int CTaskManager::Update( void )
 {
 	sharedEntity_t *owner = SV_GentityNum(m_ownerID);
@@ -352,21 +262,10 @@ int CTaskManager::Update( void )
 	return returnVal;
 }
 
-/*
--------------------------
-IsRunning
--------------------------
-*/
-
 qboolean CTaskManager::IsRunning( void )
 {
 	return (qboolean)( m_tasks.empty() == false );
 }
-/*
--------------------------
-Check
--------------------------
-*/
 
 inline bool CTaskManager::Check( int targetID, CBlock *block, int memberNum )
 {
@@ -375,12 +274,6 @@ inline bool CTaskManager::Check( int targetID, CBlock *block, int memberNum )
 
 	return false;
 }
-
-/*
--------------------------
-GetFloat
--------------------------
-*/
 
 int CTaskManager::GetFloat( int entID, CBlock *block, int &memberNum, float &value )
 {
@@ -448,12 +341,6 @@ int CTaskManager::GetFloat( int entID, CBlock *block, int &memberNum, float &val
 
 	return true;
 }
-
-/*
--------------------------
-GetVector
--------------------------
-*/
 
 int CTaskManager::GetVector( int entID, CBlock *block, int &memberNum, vector_t &value )
 {
@@ -536,12 +423,6 @@ int CTaskManager::GetVector( int entID, CBlock *block, int &memberNum, vector_t 
 
 	return true;
 }
-
-/*
--------------------------
-Get
--------------------------
-*/
 
 int CTaskManager::Get( int entID, CBlock *block, int &memberNum, char **value )
 {
@@ -706,12 +587,6 @@ int CTaskManager::Get( int entID, CBlock *block, int &memberNum, char **value )
 	return false;
 }
 
-/*
--------------------------
-Go
--------------------------
-*/
-
 int	CTaskManager::Go( void )
 {
 	CTask	*task = NULL;
@@ -847,12 +722,6 @@ int	CTaskManager::Go( void )
 	return TASK_OK;
 }
 
-/*
--------------------------
-SetCommand
--------------------------
-*/
-
 int	CTaskManager::SetCommand( CBlock *command, int type )
 {
 	CTask	*task = CTask::Create( m_GUID++, command );
@@ -875,12 +744,6 @@ int	CTaskManager::SetCommand( CBlock *command, int type )
 
 	return TASK_OK;
 }
-
-/*
--------------------------
-MarkTask
--------------------------
-*/
 
 int CTaskManager::MarkTask( int id, int operation )
 {
@@ -918,12 +781,6 @@ int CTaskManager::MarkTask( int id, int operation )
 	return TASK_OK;
 }
 
-/*
--------------------------
-Completed
--------------------------
-*/
-
 int CTaskManager::Completed( int id )
 {
 	taskGroup_v::iterator	tgi;
@@ -939,12 +796,6 @@ int CTaskManager::Completed( int id )
 	return TASK_OK;
 }
 
-/*
--------------------------
-CallbackCommand
--------------------------
-*/
-
 int	CTaskManager::CallbackCommand( CTask *task, int returnCode )
 {
 	if ( m_owner->Callback( this, task->GetBlock(), returnCode ) == SEQ_OK )
@@ -955,12 +806,6 @@ int	CTaskManager::CallbackCommand( CTask *task, int returnCode )
 	(m_owner->GetInterface())->I_DPrintf( WL_ERROR, "Command callback failure!\n" );
 	return TASK_FAILED;
 }
-
-/*
--------------------------
-RecallTask
--------------------------
-*/
 
 CBlock *CTaskManager::RecallTask( void )
 {
@@ -980,12 +825,6 @@ CBlock *CTaskManager::RecallTask( void )
 
 	return NULL;
 }
-
-/*
--------------------------
-PushTask
--------------------------
-*/
 
 int	CTaskManager::PushTask( CTask *task, int flag )
 {
@@ -1009,12 +848,6 @@ int	CTaskManager::PushTask( CTask *task, int flag )
 	//Invalid flag
 	return SEQ_FAILED;
 }
-
-/*
--------------------------
-PopTask
--------------------------
-*/
 
 CTask *CTaskManager::PopTask( int flag )
 {
@@ -1046,12 +879,6 @@ CTask *CTaskManager::PopTask( int flag )
 	return NULL;
 }
 
-/*
--------------------------
-GetCurrentTask
--------------------------
-*/
-
 CBlock *CTaskManager::GetCurrentTask( void )
 {
 	CTask *task = PopTask( POP_BACK );
@@ -1066,13 +893,7 @@ CBlock *CTaskManager::GetCurrentTask( void )
 //	return task->GetBlock();
 }
 
-/*
-=================================================
-
-  Task Functions
-
-=================================================
-*/
+// Task Functions
 
 int CTaskManager::Wait( CTask *task, bool &completed  )
 {
@@ -1152,12 +973,6 @@ int CTaskManager::Wait( CTask *task, bool &completed  )
 	return TASK_OK;
 }
 
-/*
--------------------------
-WaitSignal
--------------------------
-*/
-
 int CTaskManager::WaitSignal( CTask *task, bool &completed  )
 {
 	CBlock	*block = task->GetBlock();
@@ -1183,12 +998,6 @@ int CTaskManager::WaitSignal( CTask *task, bool &completed  )
 	return TASK_OK;
 }
 
-/*
--------------------------
-Print
--------------------------
-*/
-
 int CTaskManager::Print( CTask *task )
 {
 	CBlock	*block = task->GetBlock();
@@ -1205,12 +1014,6 @@ int CTaskManager::Print( CTask *task )
 
 	return TASK_OK;
 }
-
-/*
--------------------------
-Sound
--------------------------
-*/
 
 int CTaskManager::Sound( CTask *task )
 {
@@ -1229,12 +1032,6 @@ int CTaskManager::Sound( CTask *task )
 
 	return TASK_OK;
 }
-
-/*
--------------------------
-Rotate
--------------------------
-*/
 
 int CTaskManager::Rotate( CTask *task )
 {
@@ -1275,12 +1072,6 @@ int CTaskManager::Rotate( CTask *task )
 	return TASK_OK;
 }
 
-/*
--------------------------
-Remove
--------------------------
-*/
-
 int CTaskManager::Remove( CTask *task )
 {
 	CBlock	*block = task->GetBlock();
@@ -1296,12 +1087,6 @@ int CTaskManager::Remove( CTask *task )
 
 	return TASK_OK;
 }
-
-/*
--------------------------
-Camera
--------------------------
-*/
 
 int CTaskManager::Camera( CTask *task )
 {
@@ -1431,12 +1216,6 @@ int CTaskManager::Camera( CTask *task )
 	return TASK_OK;
 }
 
-/*
--------------------------
-Move
--------------------------
-*/
-
 int CTaskManager::Move( CTask *task )
 {
 	vector_t	vector, vector2;
@@ -1452,7 +1231,6 @@ int CTaskManager::Move( CTask *task )
 	{
 		ICARUS_VALIDATE( GetFloat( m_ownerID, block, memberNum, duration ) );
 
-
 		(m_owner->GetInterface())->I_DPrintf( WL_DEBUG, "%4d move( <%f %f %f>, %f ); [%d]", m_ownerID, vector[0], vector[1], vector[2], duration, task->GetTimeStamp() );
 		(m_owner->GetInterface())->I_Lerp2Pos( task->GetGUID(), m_ownerID, vector, NULL, duration );
 
@@ -1467,12 +1245,6 @@ int CTaskManager::Move( CTask *task )
 
 	return TASK_OK;
 }
-
-/*
--------------------------
-Kill
--------------------------
-*/
 
 int CTaskManager::Kill( CTask *task )
 {
@@ -1490,12 +1262,6 @@ int CTaskManager::Kill( CTask *task )
 	return TASK_OK;
 }
 
-/*
--------------------------
-Set
--------------------------
-*/
-
 int CTaskManager::Set( CTask *task )
 {
 	CBlock			*block = task->GetBlock();
@@ -1510,12 +1276,6 @@ int CTaskManager::Set( CTask *task )
 
 	return TASK_OK;
 }
-
-/*
--------------------------
-Use
--------------------------
-*/
 
 int CTaskManager::Use( CTask *task )
 {
@@ -1532,12 +1292,6 @@ int CTaskManager::Use( CTask *task )
 
 	return TASK_OK;
 }
-
-/*
--------------------------
-DeclareVariable
--------------------------
-*/
 
 int CTaskManager::DeclareVariable( CTask *task )
 {
@@ -1558,12 +1312,6 @@ int CTaskManager::DeclareVariable( CTask *task )
 
 }
 
-/*
--------------------------
-FreeVariable
--------------------------
-*/
-
 int CTaskManager::FreeVariable( CTask *task )
 {
 	CBlock	*block = task->GetBlock();
@@ -1581,12 +1329,6 @@ int CTaskManager::FreeVariable( CTask *task )
 
 }
 
-/*
--------------------------
-Signal
--------------------------
-*/
-
 int CTaskManager::Signal( CTask *task )
 {
 	CBlock	*block = task->GetBlock();
@@ -1603,12 +1345,6 @@ int CTaskManager::Signal( CTask *task )
 	return TASK_OK;
 }
 
-/*
--------------------------
-Play
--------------------------
-*/
-
 int CTaskManager::Play( CTask *task )
 {
 	CBlock	*block = task->GetBlock();
@@ -1624,14 +1360,7 @@ int CTaskManager::Play( CTask *task )
 	return TASK_OK;
 }
 
-/*
--------------------------
-SaveCommand
--------------------------
-*/
-
 //FIXME: ARGH!  This is duplicated from CSequence because I can't directly link it any other way...
-
 int CTaskManager::SaveCommand( CBlock *block )
 {
 	unsigned char	flags;
@@ -1668,12 +1397,6 @@ int CTaskManager::SaveCommand( CBlock *block )
 
 	return true;
 }
-
-/*
--------------------------
-Save
--------------------------
-*/
 
 void CTaskManager::Save( void )
 {
@@ -1796,12 +1519,6 @@ void CTaskManager::Save( void )
 #endif
 }
 
-/*
--------------------------
-Load
--------------------------
-*/
-
 void CTaskManager::Load( void )
 {
 #if 0
@@ -1836,9 +1553,7 @@ void CTaskManager::Load( void )
 		(m_owner->GetInterface())->I_ReadSaveData( 'TKTS', &timeStamp, sizeof( timeStamp ) );
 		task->SetTimeStamp( timeStamp );
 
-		//
 		// BLOCK LOADING
-		//
 
 		//Get the block ID and create a new container
 		(m_owner->GetInterface())->I_ReadSaveData( 'BLID', &id, sizeof( id ) );

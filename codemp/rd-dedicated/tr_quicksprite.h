@@ -5,8 +5,6 @@
 //#include "tr_headers.h"
 
 // tr_QuickSprite.h: interface for the CQuickSprite class.
-//
-//////////////////////////////////////////////////////////////////////
 
 class CQuickSpriteSystem
 {

@@ -31,16 +31,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define	DLIGHT_MINIMUM_RADIUS	16
 // never calculate a range less than this to prevent huge light numbers
 
-
-/*
-===============
-R_TransformDlights
-
-Transforms the origins of an array of dlights.
-Used by both the front end (for DlightBmodel) and
-the back end (before doing the lighting calculation)
-===============
-*/
+// Transforms the origins of an array of dlights.
+// Used by both the front end (for DlightBmodel) and the back end (before doing the lighting calculation)
 void R_TransformDlights( int count, dlight_t *dl, orientationr_t *ori) {
 	int		i;
 	vec3_t	temp;
@@ -53,13 +45,7 @@ void R_TransformDlights( int count, dlight_t *dl, orientationr_t *ori) {
 	}
 }
 
-/*
-=============
-R_DlightBmodel
-
-Determine which dynamic lights may effect this bmodel
-=============
-*/
+// Determine which dynamic lights may effect this bmodel
 void R_DlightBmodel( bmodel_t *bmodel, bool NoLight )
 { //rwwRMG - modified args
 	int			i, j;
@@ -110,14 +96,7 @@ void R_DlightBmodel( bmodel_t *bmodel, bool NoLight )
 	}
 }
 
-
-/*
-=============================================================================
-
-LIGHT SAMPLING
-
-=============================================================================
-*/
+// LIGHT SAMPLING
 
 extern	cvar_t	*r_ambientScale;
 extern	cvar_t	*r_directedScale;
@@ -125,12 +104,6 @@ extern	cvar_t	*r_debugLight;
 
 //rwwRMG - VectorScaleVector is now a #define
 
-/*
-=================
-R_SetupEntityLightingGrid
-
-=================
-*/
 static void R_SetupEntityLightingGrid( trRefEntity_t *ent ) {
 	vec3_t			lightOrigin;
 	int				pos[3];
@@ -263,12 +236,6 @@ static void R_SetupEntityLightingGrid( trRefEntity_t *ent ) {
 	VectorNormalize2( direction, ent->lightDir );
 }
 
-
-/*
-===============
-LogLight
-===============
-*/
 static void LogLight( trRefEntity_t *ent ) {
 	int	max1, max2;
 
@@ -293,14 +260,7 @@ static void LogLight( trRefEntity_t *ent ) {
 	ri.Printf( PRINT_ALL, "amb:%i  dir:%i\n", max1, max2 );
 }
 
-/*
-=================
-R_SetupEntityLighting
-
-Calculates all the lighting values that will be used
-by the Calc_* functions
-=================
-*/
+// Calculates all the lighting values that will be used by the Calc_* functions
 void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent ) {
 	int				i;
 	dlight_t		*dl;
@@ -316,9 +276,8 @@ void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent ) {
 	}
 	ent->lightingCalculated = qtrue;
 
-	//
 	// trace a sample point down to find ambient light
-	//
+
 	if ( ent->e.renderfx & RF_LIGHTING_ORIGIN ) {
 		// seperate lightOrigins are needed so an object that is
 		// sinking into the ground can still be lit, and so
@@ -366,9 +325,8 @@ void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent ) {
 		}
 	}
 
-	//
 	// modify the light by dynamic lights
-	//
+
 	d = VectorLength( ent->directedLight );
 	VectorScale( ent->lightDir, d, lightDir );
 
@@ -411,11 +369,6 @@ void R_SetupEntityLighting( const trRefdef_t *refdef, trRefEntity_t *ent ) {
 	ent->lightDir[2] = DotProduct( lightDir, ent->e.axis[2] );
 }
 
-/*
-=================
-R_LightForPoint
-=================
-*/
 int R_LightForPoint( vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir )
 {
 	trRefEntity_t ent;

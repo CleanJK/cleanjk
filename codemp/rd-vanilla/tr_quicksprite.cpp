@@ -21,24 +21,17 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 // tr_QuickSprite.cpp: implementation of the CQuickSpriteSystem class.
-//
-//////////////////////////////////////////////////////////////////////
+
 #include "tr_local.h"
 
 #include "tr_quicksprite.h"
 
 void R_BindAnimatedImage( textureBundle_t *bundle );
 
-
-//////////////////////////////////////////////////////////////////////
 // Singleton System
-//////////////////////////////////////////////////////////////////////
 CQuickSpriteSystem SQuickSprite;
 
-
-//////////////////////////////////////////////////////////////////////
 // Construction/Destruction
-//////////////////////////////////////////////////////////////////////
 
 CQuickSpriteSystem::CQuickSpriteSystem() :
 	mTexBundle(NULL),
@@ -75,7 +68,6 @@ CQuickSpriteSystem::~CQuickSpriteSystem()
 
 }
 
-
 void CQuickSpriteSystem::Flush(void)
 {
 	if (mNextVert==0)
@@ -97,15 +89,13 @@ void CQuickSpriteSystem::Flush(void)
 	*/
 	//this should not be needed, since I just wait to disable fog for the surface til after surface sprites are done
 
-	//
 	// render the main pass
-	//
+
 	R_BindAnimatedImage( mTexBundle );
 	GL_State(mGLStateBits);
 
-	//
 	// set arrays and lock
-	//
+
 	qglTexCoordPointer( 2, GL_FLOAT, 0, mTextureCoords );
 	qglEnableClientState( GL_TEXTURE_COORD_ARRAY);
 
@@ -131,15 +121,13 @@ void CQuickSpriteSystem::Flush(void)
 	{
 		fog_t *fog = tr.world->fogs + mFogIndex;
 
-		//
 		// render the fog pass
-		//
+
 		GL_Bind( tr.fogImage );
 		GL_State( GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA | GLS_DEPTHFUNC_EQUAL );
 
-		//
 		// set arrays and lock
-		//
+
 		qglTexCoordPointer( 2, GL_FLOAT, 0, mFogTextureCoords);
 //		qglEnableClientState( GL_TEXTURE_COORD_ARRAY);	// Done above
 
@@ -154,9 +142,8 @@ void CQuickSpriteSystem::Flush(void)
 		backEnd.pc.c_totalIndexes += mNextVert;
 	}
 
-	//
 	// unlock arrays
-	//
+
 	if (qglUnlockArraysEXT)
 	{
 		qglUnlockArraysEXT();
@@ -165,7 +152,6 @@ void CQuickSpriteSystem::Flush(void)
 
 	mNextVert=0;
 }
-
 
 void CQuickSpriteSystem::StartGroup(textureBundle_t *bundle, uint32_t glbits, int fogIndex )
 {
@@ -186,7 +172,6 @@ void CQuickSpriteSystem::StartGroup(textureBundle_t *bundle, uint32_t glbits, in
 	qglDisable(GL_CULL_FACE);
 }
 
-
 void CQuickSpriteSystem::EndGroup(void)
 {
 	Flush();
@@ -194,9 +179,6 @@ void CQuickSpriteSystem::EndGroup(void)
 	qglColor4ub(255,255,255,255);
 	qglEnable(GL_CULL_FACE);
 }
-
-
-
 
 void CQuickSpriteSystem::Add(float *pointdata, color4ub_t color, vec2_t fog)
 {

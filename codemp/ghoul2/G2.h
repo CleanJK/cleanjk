@@ -42,7 +42,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define BONE_ANIM_BLEND				0x0080
 #define BONE_ANIM_TOTAL				( BONE_ANIM_OVERRIDE | BONE_ANIM_OVERRIDE_LOOP | BONE_ANIM_OVERRIDE_FREEZE | BONE_ANIM_BLEND)
 
-
 // defines to setup the
 #define		ENTITY_WIDTH 12
 #define		MODEL_WIDTH	10

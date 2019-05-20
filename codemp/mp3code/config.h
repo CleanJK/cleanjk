@@ -82,7 +82,6 @@ typedef short			int16;
 #error This machine has no 16-bit type
 #endif
 
-
 #if UINT_MAX == 0xfffffffful
 
 typedef unsigned int	uint32;
@@ -101,7 +100,6 @@ typedef short			int32;
 #else
 #error This machine has no 32-bit type
 #endif
-
 
 // What character marks the end of a directory entry? For DOS and
 // Windows, it is "\"; in UNIX it is "/".

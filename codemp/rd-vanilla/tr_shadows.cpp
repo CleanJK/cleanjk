@@ -23,7 +23,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "tr_local.h"
 
-
 /*
 
   for a projection shadow:
@@ -167,18 +166,9 @@ void R_RenderShadowEdges( void ) {
 
 //#define _DEBUG_STENCIL_SHADOWS
 
-/*
-=================
-RB_ShadowTessEnd
-
-triangleFromEdge[ v1 ][ v2 ]
-
-
-  set triangle from edge( v1, v2, tri )
-  if ( facing[ triangleFromEdge[ v1 ][ v2 ] ] && !facing[ triangleFromEdge[ v2 ][ v1 ] ) {
-  }
-=================
-*/
+// triangleFromEdge[ v1 ][ v2 ]
+// set triangle from edge( v1, v2, tri )
+//	if ( facing[ triangleFromEdge[ v1 ][ v2 ] ] && !facing[ triangleFromEdge[ v2 ][ v1 ] )
 void RB_DoShadowTessEnd( vec3_t lightPos );
 void RB_ShadowTessEnd( void )
 {
@@ -410,17 +400,9 @@ void RB_DoShadowTessEnd( vec3_t lightPos )
 #endif
 }
 
-
-/*
-=================
-RB_ShadowFinish
-
-Darken everything that is is a shadow volume.
-We have to delay this until everything has been shadowed,
-because otherwise shadows from different body parts would
-overlap and double darken.
-=================
-*/
+// Darken everything that is is a shadow volume.
+// We have to delay this until everything has been shadowed, because otherwise shadows from different body parts would
+//	overlap and double darken.
 void RB_ShadowFinish( void ) {
 	if ( r_shadows->integer != 2 ) {
 		return;
@@ -478,13 +460,6 @@ void RB_ShadowFinish( void ) {
 	qglPopMatrix();
 }
 
-
-/*
-=================
-RB_ProjectionShadowDeform
-
-=================
-*/
 void RB_ProjectionShadowDeform( void ) {
 	float	*xyz;
 	int		i;
