@@ -2231,59 +2231,52 @@ void WP_SaberSetColor( saberInfo_t *sabers, int saberNum, int bladeNum, char *co
 
 static char bgSaberParseTBuffer[MAX_SABER_DATA_SIZE];
 
-void WP_SaberLoadParms( void )
-{
-	int				len, totallen, saberExtFNLen, fileCnt, i;
+void WP_SaberLoadParms( void ) {
+	int				len = 0, totallen = 0, saberExtFNLen;
 	char			*holdChar, *marker;
 	char			saberExtensionListBuf[2048];			//	The list of file names read in
 	fileHandle_t	f;
-
-	len = 0;
 
 	//remember where to store the next one
 	totallen = len;
 	marker = saberParms+totallen;
 	*marker = 0;
 
-	//now load in the extra .sab extensions
-	fileCnt = trap->FS_GetFileList( "ext_data/sabers", ".sab", saberExtensionListBuf, sizeof( saberExtensionListBuf ) );
-
 	holdChar = saberExtensionListBuf;
-	for ( i=0; i<fileCnt; i++, holdChar += saberExtFNLen+1 ) {
-		saberExtFNLen = strlen( holdChar );
+	saberExtFNLen = strlen( holdChar );
 
-		len = trap->FS_Open( va( "ext_data/sabers/%s", holdChar ), &f, FS_READ );
+	len = trap->FS_Open( "ext_data/sabers.sab", &f, FS_READ );
 
-		if ( !f ) {
-			Com_Printf( "WP_SaberLoadParms: error reading file: %s\n", holdChar );
-			continue;
-		}
-
-		if ( (totallen + len+1) >= MAX_SABER_DATA_SIZE ) {
-			trap->FS_Close( f );
-#ifdef UI_BUILD
-			Com_Error( ERR_FATAL, "WP_SaberLoadParms: Saber extensions (*.sab) are too large!\nRan out of space before reading %s", holdChar );
-#else
-			Com_Error( ERR_DROP, "WP_SaberLoadParms: Saber extensions (*.sab) are too large!\nRan out of space before reading %s", holdChar );
-#endif
-		}
-
-		trap->FS_Read(bgSaberParseTBuffer, len, f);
-		bgSaberParseTBuffer[len] = 0;
-
-		len = COM_Compress( bgSaberParseTBuffer );
-
-		Q_strcat( marker, MAX_SABER_DATA_SIZE-totallen, bgSaberParseTBuffer );
-		trap->FS_Close(f);
-
-		//get around the stupid problem of not having an endline at the bottom
-		//of a sab file -rww
-		Q_strcat(marker, MAX_SABER_DATA_SIZE-totallen, "\n");
-		len++;
-
-		totallen += len;
-		marker = saberParms+totallen;
+	if ( !f ) {
+		Com_Printf( "WP_SaberLoadParms: error reading file: %s\n", holdChar );
+		return;
 	}
+
+	if ( (totallen + len+1) >= MAX_SABER_DATA_SIZE ) {
+		trap->FS_Close( f );
+#ifdef UI_BUILD
+		Com_Error( ERR_FATAL, "WP_SaberLoadParms: Saber extensions (*.sab) are too large!\nRan out of space before reading %s", holdChar );
+#else
+		Com_Error( ERR_DROP, "WP_SaberLoadParms: Saber extensions (*.sab) are too large!\nRan out of space before reading %s", holdChar );
+#endif
+	}
+
+	trap->FS_Read(bgSaberParseTBuffer, len, f);
+	bgSaberParseTBuffer[len] = 0;
+
+	len = COM_Compress( bgSaberParseTBuffer );
+
+	Q_strcat( marker, MAX_SABER_DATA_SIZE-totallen, bgSaberParseTBuffer );
+	trap->FS_Close(f);
+
+	//get around the stupid problem of not having an endline at the bottom
+	//of a sab file -rww
+	Q_strcat(marker, MAX_SABER_DATA_SIZE-totallen, "\n");
+	len++;
+
+	totallen += len;
+	marker = saberParms+totallen;
+	holdChar += saberExtFNLen+1;
 }
 
 #ifdef UI_BUILD
