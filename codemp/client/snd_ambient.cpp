@@ -659,9 +659,8 @@ void AS_ParseSets( void )
 	AS_Init();
 
 	//Parse all the sets
-	if ( AS_ParseFile( AMBIENT_SET_FILENAME, aSets ) == qfalse )
-	{
-		Com_Error ( ERR_FATAL, S_COLOR_RED"ERROR: Couldn't load ambient sound sets from %s", AMBIENT_SET_FILENAME );
+	if ( AS_ParseFile( AMBIENT_SET_FILENAME, aSets ) == qfalse ) {
+		Com_Printf( S_COLOR_RED "ERROR: Couldn't load ambient sound sets from " AMBIENT_SET_FILENAME "\n" );
 	}
 
 //	Com_Printf( "AS_ParseFile: Loaded %d of %d ambient set(s)\n", pMap.size(), numSets );
