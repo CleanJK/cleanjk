@@ -1755,6 +1755,7 @@ typedef enum
 
 } ForceReload_e;
 
+// NOTE: this must be kept up to date in menudef.h
 enum {
 	FONT_NONE,
 	FONT_SMALL=1,

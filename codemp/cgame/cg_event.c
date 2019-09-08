@@ -27,7 +27,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "cg_weaponfx.h"
 #include "ui/ui_shared.h"
 #include "ui/ui_public.h"
-#include "ui/menudef.h"
 #include "ghoul2/G2.h"
 
 extern qboolean WP_SaberBladeUseSecondBladeStyle( saberInfo_t *saber, int bladeNum );

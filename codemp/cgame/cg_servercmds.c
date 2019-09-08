@@ -27,7 +27,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // be a valid snapshot this frame
 
 #include "cg_local.h"
-#include "ui/menudef.h"
 #include "ghoul2/G2.h"
 #include "ui/ui_public.h"
 

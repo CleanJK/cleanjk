@@ -464,6 +464,7 @@ extern uint32_t cvar_modifiedFlags;
 
 #define	MAX_FILE_HANDLES	64
 
+#define DEFAULT_CFG "default.cfg"
 #ifdef DEDICATED
 #	define Q3CONFIG_CFG PRODUCT_NAME "_server.cfg"
 #else

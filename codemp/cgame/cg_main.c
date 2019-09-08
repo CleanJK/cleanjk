@@ -26,6 +26,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "cg_local.h"
 
 #include "ui/ui_shared.h"
+#include "ui/menudef.h"
+
 // display context for new ui stuff
 displayContextDef_t cgDC;
 
@@ -1036,7 +1038,7 @@ static void CG_RegisterGraphics( void ) {
 	cgs.effects.mDisruptorDeathSmoke = trap->FX_RegisterEffect("disruptor/death_smoke");
 
 	for ( i = 0 ; i < NUM_CROSSHAIRS ; i++ ) {
-		cgs.media.crosshairShader[i] = trap->R_RegisterShaderNoMip( va("gfx/2d/crosshair%c", 'a'+i) );
+		cgs.media.crosshairShader[i] = trap->R_RegisterShaderNoMip( va("gfx/hud/crosshair%c", 'a'+i) );
 	}
 
 	cg.loadLCARSStage = 4;
@@ -1333,7 +1335,7 @@ static void CG_RegisterGraphics( void ) {
 	cgs.media.sizeCursor = trap->R_RegisterShaderNoMip( "ui/assets/sizecursor.tga" );
 	cgs.media.selectCursor = trap->R_RegisterShaderNoMip( "ui/assets/selectcursor.tga" );
 
-	cgs.media.halfShieldModel	= trap->R_RegisterModel ( "models/weaphits/testboom.md3" );
+	cgs.media.halfShieldModel	= trap->R_RegisterModel ( "models/misc/sphere.md3" );
 	cgs.media.halfShieldShader	= trap->R_RegisterShader( "halfShieldShell" );
 
 	trap->FX_RegisterEffect("force/force_touch");
@@ -1921,10 +1923,10 @@ void CG_LoadMenus(const char *menuFile)
 		else
 			trap->Print( S_COLOR_YELLOW "hud menu file not found: %s, using default\n", menuFile );
 
-		len = trap->FS_Open( "ui/jahud.txt", &f, FS_READ );
+		len = trap->FS_Open( DEFAULT_HUDSET, &f, FS_READ );
 		if (!f)
 		{
-			trap->Error( ERR_DROP, S_COLOR_RED "default hud menu file not found: ui/jahud.txt, unable to continue!" );
+			trap->Error( ERR_DROP, S_COLOR_RED "default hud menu file not found: " DEFAULT_HUDSET ", unable to continue!" );
 		}
 	}
 
@@ -2038,9 +2040,8 @@ void CG_LoadHudMenu()
 	Menu_Reset();
 
 	hudSet = cg_hudFiles.string;
-	if (hudSet[0] == '\0')
-	{
-		hudSet = "ui/jahud.txt";
+	if ( hudSet[0] == '\0' ) {
+		hudSet = DEFAULT_HUDSET;
 	}
 
 	CG_LoadMenus(hudSet);

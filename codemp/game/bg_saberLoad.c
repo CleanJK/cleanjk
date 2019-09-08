@@ -48,7 +48,7 @@ int BG_SoundIndex( const char *sound ) {
 
 extern stringID_table_t FPTable[];
 
-#define MAX_SABER_DATA_SIZE (1024*1024) // 1mb, was 512kb
+#define MAX_SABER_DATA_SIZE (1024*128) // 128kb, was 1mb, was 512kb
 static char saberParms[MAX_SABER_DATA_SIZE];
 
 stringID_table_t saberTable[] = {
@@ -2229,54 +2229,38 @@ void WP_SaberSetColor( saberInfo_t *sabers, int saberNum, int bladeNum, char *co
 	sabers[saberNum].blade[bladeNum].color = TranslateSaberColor( colorName );
 }
 
-static char bgSaberParseTBuffer[MAX_SABER_DATA_SIZE];
-
+#define EXT_SAB_FILENAME "ext_data/sabers.sab"
 void WP_SaberLoadParms( void ) {
-	int				len = 0, totallen = 0, saberExtFNLen;
-	char			*holdChar, *marker;
-	char			saberExtensionListBuf[2048];			//	The list of file names read in
-	fileHandle_t	f;
+	fileHandle_t f;
+	char *scratch = NULL;
+	size_t compressedLen = 0u;
 
-	//remember where to store the next one
-	totallen = len;
-	marker = saberParms+totallen;
-	*marker = 0;
-
-	holdChar = saberExtensionListBuf;
-	saberExtFNLen = strlen( holdChar );
-
-	len = trap->FS_Open( "ext_data/sabers.sab", &f, FS_READ );
-
+	const size_t fileLen = trap->FS_Open( EXT_SAB_FILENAME, &f, FS_READ );
 	if ( !f ) {
-		Com_Printf( "WP_SaberLoadParms: error reading file: %s\n", holdChar );
+		Com_Printf( "WP_SaberLoadParms: error reading file: " EXT_SAB_FILENAME "\n" );
 		return;
 	}
 
-	if ( (totallen + len+1) >= MAX_SABER_DATA_SIZE ) {
+	if ( (fileLen+1) >= sizeof saberParms ) {
 		trap->FS_Close( f );
 #ifdef UI_BUILD
-		Com_Error( ERR_FATAL, "WP_SaberLoadParms: Saber extensions (*.sab) are too large!\nRan out of space before reading %s", holdChar );
+		Com_Error( ERR_FATAL, "WP_SaberLoadParms: Saber extensions (" EXT_SAB_FILENAME ") are too large!" );
 #else
-		Com_Error( ERR_DROP, "WP_SaberLoadParms: Saber extensions (*.sab) are too large!\nRan out of space before reading %s", holdChar );
+		Com_Error( ERR_DROP, "WP_SaberLoadParms: Saber extensions (" EXT_SAB_FILENAME ") are too large!" );
 #endif
 	}
 
-	trap->FS_Read(bgSaberParseTBuffer, len, f);
-	bgSaberParseTBuffer[len] = 0;
+	// read the file raw
+	scratch = (char *)malloc( fileLen + 1 );
+	trap->FS_Read( scratch, fileLen, f );
+	scratch[fileLen] = '\0';
+	trap->FS_Close( f );
 
-	len = COM_Compress( bgSaberParseTBuffer );
-
-	Q_strcat( marker, MAX_SABER_DATA_SIZE-totallen, bgSaberParseTBuffer );
-	trap->FS_Close(f);
-
-	//get around the stupid problem of not having an endline at the bottom
-	//of a sab file -rww
-	Q_strcat(marker, MAX_SABER_DATA_SIZE-totallen, "\n");
-	len++;
-
-	totallen += len;
-	marker = saberParms+totallen;
-	holdChar += saberExtFNLen+1;
+	// compress in place (scratch buffer) then store
+	compressedLen = COM_Compress( scratch );
+	memcpy( saberParms, scratch, compressedLen+1 );
+	free( scratch );
+	scratch = NULL;
 }
 
 #ifdef UI_BUILD

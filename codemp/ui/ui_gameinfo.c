@@ -82,14 +82,12 @@ int UI_ParseInfos( char *buf, int max, char *infos[] ) {
 #ifndef FINAL_BUILD
 			if (trap->Cvar_VariableValue("com_buildScript"))
 			{
-				char *botFile = Info_ValueForKey(info, "personality");
-				if (botFile && botFile[0])
-				{
+				char *personality = Info_ValueForKey(info, "personality");
+				if ( VALIDSTRING( personality ) ) {
 					int fh = 0;
-					trap->FS_Open(botFile, &fh, FS_READ);
-					if (fh)
-					{
-						trap->FS_Close(fh);
+					trap->FS_Open( va( "botfiles/%s.jkb", personality ), &fh, FS_READ );
+					if ( fh ) {
+						trap->FS_Close( fh );
 					}
 				}
 			}

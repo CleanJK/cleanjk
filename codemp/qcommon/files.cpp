@@ -3316,8 +3316,8 @@ void FS_InitFilesystem( void ) {
 	// if we can't find default.cfg, assume that the paths are
 	// busted and error out now, rather than getting an unreadable
 	// graphics screen when the font fails to load
-	if ( FS_ReadFile( "default.cfg", NULL ) <= 0 ) {
-		Com_Error( ERR_FATAL, "Couldn't load default.cfg" );
+	if ( FS_ReadFile( DEFAULT_CFG, NULL ) <= 0 ) {
+		Com_Error( ERR_FATAL, "Couldn't load " DEFAULT_CFG );
 		// bk001208 - SafeMode see below, FIXME?
 	}
 

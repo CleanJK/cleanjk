@@ -28,8 +28,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "rd-common/tr_types.h"
 #include "keycodes.h"
 
-#include "ui/menudef.h"
-
 #define MAX_MENUNAME				32
 #define MAX_ITEMTEXT				64
 #define MAX_ITEMACTION				64

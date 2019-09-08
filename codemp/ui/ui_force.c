@@ -26,6 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "ui_local.h"
 #include "qcommon/qfiles.h"
 #include "ui_force.h"
+#include "ui/menudef.h"
 
 int uiForceSide = FORCE_LIGHTSIDE;
 int uiJediNonJedi = -1;

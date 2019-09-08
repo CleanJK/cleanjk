@@ -34,9 +34,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #endif
 
 #include "ui_shared.h"
+#include "ui/menudef.h"
 #include "game/bg_public.h"
 #include "game/anims.h"
 #include "ghoul2/G2.h"
+
 extern stringID_table_t animTable [MAX_ANIMATIONS+1];
 extern void UI_UpdateCharacterSkin( void );
 

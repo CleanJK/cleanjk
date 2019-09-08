@@ -179,7 +179,7 @@ static void CG_StartOrbit_f( void ) {
 static void CG_LoadHud_f( void ) {
 	const char *hudSet = cg_hudFiles.string;
 	if ( hudSet[0] == '\0' ) {
-		hudSet = "ui/jahud.txt";
+		hudSet = DEFAULT_HUDSET;
 	}
 
 	String_Init();

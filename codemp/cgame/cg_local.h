@@ -91,6 +91,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define	WAVE_AMPLITUDE	1
 #define	WAVE_FREQUENCY	0.4
 
+#define DEFAULT_HUDSET	"ui/hud.txt"
+
 typedef enum {
 	FOOTSTEP_STONEWALK,
 	FOOTSTEP_STONERUN,

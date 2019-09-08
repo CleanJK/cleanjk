@@ -24,6 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // cg_drawtools.c -- helper functions called by cg_draw, cg_scoreboard, cg_info, etc
 #include "cg_local.h"
 #include "qcommon/q_shared.h"
+#include "ui/menudef.h"
 
 // Coordinates are 640*480 virtual values
 void CG_DrawRect( float x, float y, float width, float height, float size, const float *color ) {
@@ -151,7 +152,6 @@ void CG_DrawChar( int x, int y, int width, int height, int ch ) {
 
 }
 
-#include "ui/menudef.h"	// for "ITEM_TEXTSTYLE_SHADOWED"
 // Draws a multi-colored string with a drop shadow, optionally forcing to a fixed color.
 // Coordinates are at 640 by 480 virtual resolution
 void CG_DrawStringExt( int x, int y, const char *string, const float *setColor, qboolean forceColor, qboolean shadow, int charWidth, int charHeight, int maxChars )

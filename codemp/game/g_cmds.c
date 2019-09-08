@@ -26,8 +26,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "bg_saga.h"
 #include "g_team.h"
 
-#include "ui/menudef.h"			// for the voice chats
-
 //rww - for getting bot commands...
 int AcceptBotCommand(char *cmd, gentity_t *pl);
 //end rww

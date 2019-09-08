@@ -34,6 +34,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "cgame/animtable.h" //we want this to be compiled into the module because we access it in the shared module.
 #include "game/bg_saga.h"
 #include "ui_shared.h"
+#include "ui/menudef.h"
 
 extern void UI_SaberAttachToChar( itemDef_t *item );
 
@@ -623,7 +624,7 @@ void AssetCache(void) {
 	uiInfo.uiDC.Assets.trueJedi			= trap->R_RegisterShaderNoMip( "gfx/menus/truejedi" );
 
 	for( n = 0; n < NUM_CROSSHAIRS; n++ ) {
-		uiInfo.uiDC.Assets.crosshairShader[n] = trap->R_RegisterShaderNoMip( va("gfx/2d/crosshair%c", 'a' + n ) );
+		uiInfo.uiDC.Assets.crosshairShader[n] = trap->R_RegisterShaderNoMip( va("gfx/hud/crosshair%c", 'a' + n ) );
 	}
 }
 
@@ -1317,31 +1318,20 @@ void UI_ParseMenu(const char *menuFile) {
 	trap->PC_FreeSource(handle);
 }
 
-qboolean Load_Menu(int handle) {
+qboolean Load_Menu( int handle ) {
 	pc_token_t token;
 
-	if (!trap->PC_ReadToken(handle, &token))
-		return qfalse;
-	if (token.string[0] != '{') {
+	if ( !trap->PC_ReadToken( handle, &token ) ) {
 		return qfalse;
 	}
 
-	while ( 1 ) {
-
-		if (!trap->PC_ReadToken(handle, &token))
-			return qfalse;
-
-		if ( token.string[0] == 0 ) {
-			return qfalse;
-		}
-
-		if ( token.string[0] == '}' ) {
-			return qtrue;
-		}
-
-		UI_ParseMenu(token.string);
+	if ( token.string[0] == 0 ) {
+		return qfalse;
 	}
-	return qfalse;
+
+	UI_ParseMenu( token.string );
+
+	return qtrue;
 }
 
 void UI_LoadMenus(const char *menuFile, qboolean reset) {
@@ -1375,7 +1365,7 @@ void UI_LoadMenus(const char *menuFile, qboolean reset) {
 			break;
 		}
 
-		if (Q_stricmp(token.string, "loadmenu") == 0) {
+		if (Q_stricmp(token.string, "loadMenu") == 0) {
 			if (Load_Menu(handle)) {
 				continue;
 			} else {

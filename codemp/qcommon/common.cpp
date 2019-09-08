@@ -834,7 +834,7 @@ static void NORETURN Com_Crash_f( void ) {
 }
 
 void Com_ExecuteCfg( void ) {
-	Cbuf_ExecuteText(EXEC_NOW, "exec default.cfg\n");
+	Cbuf_ExecuteText(EXEC_NOW, "exec " DEFAULT_CFG "\n");
 	Cbuf_Execute(); // Always execute after exec to prevent text buffer overflowing
 
 	Cbuf_ExecuteText(EXEC_NOW, "exec " Q3CONFIG_CFG "\n");
@@ -1114,7 +1114,7 @@ void Com_WriteConfig_f( void ) {
 		return;
 	}
 
-	if(!FS_FilenameCompare(filename, "default.cfg"))
+	if(!FS_FilenameCompare(filename, DEFAULT_CFG))
 	{
 		Com_Printf( S_COLOR_YELLOW "Com_WriteConfig_f: The filename \"%s\" is reserved! Please choose another name.\n", filename );
 		return;
