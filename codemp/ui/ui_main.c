@@ -1339,7 +1339,8 @@ void UI_LoadMenus(const char *menuFile, qboolean reset) {
 	int handle;
 //	int start = trap->Milliseconds();
 
-	trap->PC_LoadGlobalDefines ( "ui/menudef.h" );
+	trap->PC_AddGlobalDefine( "JK_RUNTIME" );
+	trap->PC_LoadGlobalDefines( "ui/menudef.h" );
 
 	handle = trap->PC_LoadSource( menuFile );
 	if (!handle) {

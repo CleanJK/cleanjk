@@ -23,12 +23,14 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // this file is parsed at runtime by botlib's text preprocessor (used for .menu scripting)
 // include guards aren't necessary
 
+#ifdef JK_RUNTIME
 // colours
 #define CT_LTBLUE1		0.367	0.261	0.722	1
 #define CT_DKBLUE1		0.199	0		0.398	1
 #define CT_LTCYAN		0		0.5		0.5		1
 #define CT_DKCYAN		0		0.25	0.25	1
 #define CT_WHITE		1		1		1		1
+#endif // JK_RUNTIME
 
 // dimensions
 #define RECT_FULLSCREEN	0 0 640 480
