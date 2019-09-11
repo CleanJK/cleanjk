@@ -1233,14 +1233,7 @@ qboolean G_SaberModelSetup(gentity_t *ent)
 					trap->G2API_SetSkin(ent->client->weaponGhoul2[i], 0, ent->client->saber[i].skin, ent->client->saber[i].skin);
 				}
 
-				if (ent->client->saber[i].saberFlags & SFL_BOLT_TO_WRIST)
-				{
-					trap->G2API_SetBoltInfo(ent->client->weaponGhoul2[i], 0, 3+i);
-				}
-				else
-				{ // bolt to right hand for 0, or left hand for 1
-					trap->G2API_SetBoltInfo(ent->client->weaponGhoul2[i], 0, i);
-				}
+				trap->G2API_SetBoltInfo(ent->client->weaponGhoul2[i], 0, i);
 
 				//Add all the bolt points
 				while (j < ent->client->saber[i].numBlades)
@@ -2626,7 +2619,7 @@ void ClientSpawn(gentity_t *ent) {
 		{ //dual
 			ent->client->ps.fd.saberAnimLevelBase = ent->client->ps.fd.saberAnimLevel = ent->client->ps.fd.saberDrawAnimLevel = SS_DUAL;
 		}
-		else if ( (ent->client->saber[0].saberFlags&SFL_TWO_HANDED) )
+		else if ( ent->client->saber[0].type == SABER_STAFF )
 		{ //staff
 			ent->client->ps.fd.saberAnimLevel = ent->client->ps.fd.saberDrawAnimLevel = SS_STAFF;
 		}

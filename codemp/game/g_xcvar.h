@@ -35,6 +35,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 XCVAR_DEF( bg_fighterAltControl,		"0",			NULL,				CVAR_SYSTEMINFO,								qtrue )
 XCVAR_DEF( capturelimit,				"8",			NULL,				CVAR_SERVERINFO|CVAR_ARCHIVE|CVAR_NORESTART,	qtrue )
+XCVAR_DEF( cjk_saberSpecialMoves,		"0",			NULL,				CVAR_SERVERINFO|CVAR_ARCHIVE,					qtrue )
+XCVAR_DEF( cjk_saberTweaks,				"0",			NULL,				CVAR_SERVERINFO|CVAR_ARCHIVE,					qtrue )
 XCVAR_DEF( d_altRoutes,					"0",			NULL,				CVAR_CHEAT,										qfalse )
 XCVAR_DEF( d_asynchronousGroupAI,		"0",			NULL,				CVAR_CHEAT,										qfalse )
 XCVAR_DEF( d_break,						"0",			NULL,				CVAR_CHEAT,										qfalse )

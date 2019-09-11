@@ -189,6 +189,9 @@ void CG_ParseServerinfo( void ) {
 	i = atoi( Info_ValueForKey( info, "sv_fps" ) );
 	if ( i )
 		trap->Cvar_Set( "snaps", va( "%i", i ) );
+
+	cgs.saberSpecialMoves = atoi( Info_ValueForKey( info, "cjk_saberSpecialMoves" ) );
+	cgs.saberTweaks = atoi( Info_ValueForKey( info, "cjk_saberTweaks" ) );
 }
 
 static void CG_ParseWarmup( void ) {

@@ -644,14 +644,10 @@ qboolean WP_ForcePowerUsable( gentity_t *self, forcePowers_t forcePower )
 		}
 	}
 
-	if ( !self->client->ps.saberHolstered )
-	{
-		if ( (self->client->saber[0].saberFlags&SFL_TWO_HANDED) )
-		{
-			if ( g_saberRestrictForce.integer )
-			{
-				switch ( forcePower )
-				{
+	if ( !self->client->ps.saberHolstered ) {
+		if ( self->client->saber[0].type == SABER_STAFF ) {
+			if ( g_saberRestrictForce.integer ) {
+				switch ( forcePower ) {
 				case FP_PUSH:
 				case FP_PULL:
 				case FP_TELEPATHY:
@@ -666,7 +662,7 @@ qboolean WP_ForcePowerUsable( gentity_t *self, forcePowers_t forcePower )
 			}
 		}
 
-		if ( (self->client->saber[0].saberFlags&SFL_TWO_HANDED)
+		if ( (self->client->saber[0].type == SABER_STAFF)
 			|| self->client->saber[0].model[0] )
 		{//this saber requires the use of two hands OR our other hand is using an active saber too
 			if ( (self->client->saber[0].forceRestrictions&(1<<forcePower)) )
@@ -4402,7 +4398,7 @@ void HolocronUpdate(gentity_t *self)
 				{ //dual
 					self->client->ps.fd.saberAnimLevelBase = self->client->ps.fd.saberAnimLevel = self->client->ps.fd.saberDrawAnimLevel = SS_DUAL;
 				}
-				else if ( (self->client->saber[0].saberFlags & SFL_TWO_HANDED) )
+				else if ( (self->client->saber[0].type == SABER_STAFF) )
 				{ //staff
 					self->client->ps.fd.saberAnimLevel = self->client->ps.fd.saberDrawAnimLevel = SS_STAFF;
 				}

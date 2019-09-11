@@ -1097,14 +1097,7 @@ static void CG_InitG2SaberData(int saberNum, clientInfo_t *ci)
 			trap->G2API_SetSkin(ci->ghoul2Weapons[saberNum], 0, ci->saber[saberNum].skin, ci->saber[saberNum].skin);
 		}
 
-		if (ci->saber[saberNum].saberFlags & SFL_BOLT_TO_WRIST)
-		{
-			trap->G2API_SetBoltInfo(ci->ghoul2Weapons[saberNum], 0, 3+saberNum);
-		}
-		else
-		{
-			trap->G2API_SetBoltInfo(ci->ghoul2Weapons[saberNum], 0, saberNum);
-		}
+		trap->G2API_SetBoltInfo(ci->ghoul2Weapons[saberNum], 0, saberNum);
 
 		while (k < ci->saber[saberNum].numBlades)
 		{
@@ -4812,11 +4805,6 @@ static void CG_DoSaberLight( saberInfo_t *saber )
 		return;
 	}
 
-	if ( (saber->saberFlags2&SFL2_NO_DLIGHT) )
-	{//no dlight!
-		return;
-	}
-
 	for ( i = 0; i < saber->numBlades; i++ )
 	{
 		if ( saber->blade[i].length >= 0.5f )
@@ -5666,15 +5654,9 @@ void CG_AddSaberBlade( centity_t *cent, centity_t *scent, refEntity_t *saber, in
 					trDir[1] = 1;
 				}
 
-				if ( (client->saber[saberNum].saberFlags2&SFL2_NO_WALL_MARKS) )
-				{//don't actually draw the marks/impact effects
-				}
-				else
+				if (!(trace.surfaceFlags & SURF_NOIMPACT) ) // never spark on sky
 				{
-					if (!(trace.surfaceFlags & SURF_NOIMPACT) ) // never spark on sky
-					{
-						trap->FX_PlayEffectID( cgs.effects.mSparks, trace.endpos, trDir, -1, -1, qfalse );
-					}
+					trap->FX_PlayEffectID( cgs.effects.mSparks, trace.endpos, trDir, -1, -1, qfalse );
 				}
 
 				//Stop saber? (it wouldn't look right if it was stuck through a thin wall and unable to hurt players on the other side)
@@ -5683,35 +5665,30 @@ void CG_AddSaberBlade( centity_t *cent, centity_t *scent, refEntity_t *saber, in
 
 				VectorCopy(trace.endpos, end);
 
-				if ( (client->saber[saberNum].saberFlags2&SFL2_NO_WALL_MARKS) )
-				{//don't actually draw the marks
-				}
-				else
-				{//draw marks if we hit a wall
-					// All I need is a bool to mark whether I have a previous point to work with.
-					//....come up with something better..
-					if ( client->saber[saberNum].blade[bladeNum].trail.haveOldPos[i] )
-					{
-						if ( trace.entityNum == ENTITYNUM_WORLD || cg_entities[trace.entityNum].currentState.eType == ET_TERRAIN || (cg_entities[trace.entityNum].currentState.eFlags & EF_PERMANENT) )
-						{//only put marks on architecture
-							// Let's do some cool burn/glowing mark bits!!!
-							CG_CreateSaberMarks( client->saber[saberNum].blade[bladeNum].trail.oldPos[i], trace.endpos, trace.plane.normal );
+				//draw marks if we hit a wall
+				// All I need is a bool to mark whether I have a previous point to work with.
+				//....come up with something better..
+				if ( client->saber[saberNum].blade[bladeNum].trail.haveOldPos[i] )
+				{
+					if ( trace.entityNum == ENTITYNUM_WORLD || cg_entities[trace.entityNum].currentState.eType == ET_TERRAIN || (cg_entities[trace.entityNum].currentState.eFlags & EF_PERMANENT) )
+					{//only put marks on architecture
+						// Let's do some cool burn/glowing mark bits!!!
+						CG_CreateSaberMarks( client->saber[saberNum].blade[bladeNum].trail.oldPos[i], trace.endpos, trace.plane.normal );
 
-							//make a sound
-							if ( cg.time - client->saber[saberNum].blade[bladeNum].hitWallDebounceTime >= 100 )
-							{//ugh, need to have a real sound debouncer... or do this game-side
-								client->saber[saberNum].blade[bladeNum].hitWallDebounceTime = cg.time;
-								trap->S_StartSound ( trace.endpos, -1, CHAN_WEAPON, trap->S_RegisterSound( va("sound/weapons/saber/saberhitwall%i", Q_irand(1, 3)) ) );
-							}
+						//make a sound
+						if ( cg.time - client->saber[saberNum].blade[bladeNum].hitWallDebounceTime >= 100 )
+						{//ugh, need to have a real sound debouncer... or do this game-side
+							client->saber[saberNum].blade[bladeNum].hitWallDebounceTime = cg.time;
+							trap->S_StartSound ( trace.endpos, -1, CHAN_WEAPON, trap->S_RegisterSound( va("sound/weapons/saber/saberhitwall%i", Q_irand(1, 3)) ) );
 						}
 					}
-					else
-					{
-						// if we impact next frame, we'll mark a slash mark
-						client->saber[saberNum].blade[bladeNum].trail.haveOldPos[i] = qtrue;
-		//				CG_ImpactMark( cgs.media.rivetMarkShader, client->saber[saberNum].blade[bladeNum].trail.oldPos[i], client->saber[saberNum].blade[bladeNum].trail.oldNormal[i],
-		//						0.0f, 1.0f, 1.0f, 1.0f, 1.0f, qfalse, 1.1f, qfalse );
-					}
+				}
+				else
+				{
+					// if we impact next frame, we'll mark a slash mark
+					client->saber[saberNum].blade[bladeNum].trail.haveOldPos[i] = qtrue;
+	//				CG_ImpactMark( cgs.media.rivetMarkShader, client->saber[saberNum].blade[bladeNum].trail.oldPos[i], client->saber[saberNum].blade[bladeNum].trail.oldNormal[i],
+	//						0.0f, 1.0f, 1.0f, 1.0f, 1.0f, qfalse, 1.1f, qfalse );
 				}
 
 				// stash point so we can connect-the-dots later
@@ -5969,21 +5946,12 @@ JustDoIt:
 		return;
 	}
 
-	if ( (client->saber[saberNum].saberFlags2&SFL2_NO_BLADE) )
-	{//don't actually draw the blade at all
-		if ( client->saber[saberNum].numBlades < 3
-			&& !(client->saber[saberNum].saberFlags2&SFL2_NO_DLIGHT) )
-		{//hmm, but still add the dlight
-			CG_DoSaberLight( &client->saber[saberNum] );
-		}
-		return;
-	}
 	// Pass in the renderfx flags attached to the saber weapon model...this is done so that saber glows
 	//	will get rendered properly in a mirror...not sure if this is necessary??
 	//CG_DoSaber( org_, axis_[0], saberLen, client->saber[saberNum].blade[bladeNum].lengthMax, client->saber[saberNum].blade[bladeNum].radius,
 	//	scolor, renderfx, (qboolean)(saberNum==0&&bladeNum==0) );
 	CG_DoSaber( org_, axis_[0], saberLen, client->saber[saberNum].blade[bladeNum].lengthMax, client->saber[saberNum].blade[bladeNum].radius,
-		scolor, renderfx, (qboolean)(client->saber[saberNum].numBlades < 3 && !(client->saber[saberNum].saberFlags2&SFL2_NO_DLIGHT)) );
+		scolor, renderfx, !!(client->saber[saberNum].numBlades < 3) );
 }
 
 int CG_IsMindTricked(int trickIndex1, int trickIndex2, int trickIndex3, int trickIndex4, int client)
@@ -8391,8 +8359,7 @@ stillDoSaber:
 
 				if (!saberEnt->currentState.saberInFlight && saberEnt->currentState.bolt2 != 123)
 				{ //owner is pulling is back
-					if ( !(ci->saber[0].saberFlags&SFL_RETURN_DAMAGE)
-						|| cent->currentState.saberHolstered )
+					//if ( cent->currentState.saberHolstered )
 					{
 						vec3_t owndir;
 

@@ -223,13 +223,15 @@ qboolean WP_SaberBladeUseSecondBladeStyle( saberInfo_t *saber, int bladeNum ) {
 }
 
 qboolean WP_SaberBladeDoTransitionDamage( saberInfo_t *saber, int bladeNum ) {
-	//use first blade style for this blade
-	if ( !WP_SaberBladeUseSecondBladeStyle( saber, bladeNum ) && (saber->saberFlags2 & SFL2_TRANSITION_DAMAGE) )
+	const qboolean doTransitionDmg = !!(pm->saberTweaks & ST_TRANSITION_DAMAGE);
+	if ( !WP_SaberBladeUseSecondBladeStyle( saber, bladeNum ) && doTransitionDmg ) {
+		//use first blade style for this blade
 		return qtrue;
-
-	//use second blade style for this blade
-	else if ( WP_SaberBladeUseSecondBladeStyle( saber, bladeNum ) && (saber->saberFlags2 & SFL2_TRANSITION_DAMAGE2) )
+	}
+	else if ( WP_SaberBladeUseSecondBladeStyle( saber, bladeNum ) && doTransitionDmg ) {
+		//use second blade style for this blade
 		return qtrue;
+	}
 
 	return qfalse;
 }
@@ -366,21 +368,6 @@ qboolean WP_SaberStyleValidForSaber( saberInfo_t *saber1, saberInfo_t *saber2, i
 	return qtrue;
 }
 
-qboolean WP_SaberCanTurnOffSomeBlades( saberInfo_t *saber ) {
-	if ( saber->bladeStyle2Start > 0 && saber->numBlades > saber->bladeStyle2Start ) {
-		// check if all blades are always on
-		if ( (saber->saberFlags2 & SFL2_NO_MANUAL_DEACTIVATE) && (saber->saberFlags2 & SFL2_NO_MANUAL_DEACTIVATE2) )
-			return qfalse;
-	}
-	else {
-		// check if all blades are always on
-		if ( (saber->saberFlags2 & SFL2_NO_MANUAL_DEACTIVATE) )
-			return qfalse;
-	}
-	//you can turn some off
-	return qtrue;
-}
-
 void WP_SaberSetDefaults( saberInfo_t *saber ) {
 	int i;
 
@@ -414,9 +401,6 @@ void WP_SaberSetDefaults( saberInfo_t *saber ) {
 
 //NEW
 	//done in cgame (client-side code)
-	saber->saberFlags			= 0;			// see all the SFL_ flags
-	saber->saberFlags2			= 0;			// see all the SFL2_ flags
-
 	saber->spinSound			= 0;			// none - if set, plays this sound as it spins when thrown
 	saber->swingSound[0]		= 0;			// none - if set, plays one of these 3 sounds when swung during an attack - NOTE: must provide all 3!!!
 	saber->swingSound[1]		= 0;			// none - if set, plays one of these 3 sounds when swung during an attack - NOTE: must provide all 3!!!
@@ -825,51 +809,6 @@ static void Saber_ParseMaxChain( saberInfo_t *saber, const char **p ) {
 	}
 	saber->maxChain = n;
 }
-static void Saber_ParseLockable( saberInfo_t *saber, const char **p ) {
-	int n;
-	if ( COM_ParseInt( p, &n ) ) {
-		SkipRestOfLine( p );
-		return;
-	}
-	if ( n == 0 )
-		saber->saberFlags |= SFL_NOT_LOCKABLE;
-}
-static void Saber_ParseThrowable( saberInfo_t *saber, const char **p ) {
-	int n;
-	if ( COM_ParseInt( p, &n ) ) {
-		SkipRestOfLine( p );
-		return;
-	}
-	if ( n == 0 )
-		saber->saberFlags |= SFL_NOT_THROWABLE;
-}
-static void Saber_ParseDisarmable( saberInfo_t *saber, const char **p ) {
-	int n;
-	if ( COM_ParseInt( p, &n ) ) {
-		SkipRestOfLine( p );
-		return;
-	}
-	if ( n == 0 )
-		saber->saberFlags |= SFL_NOT_DISARMABLE;
-}
-static void Saber_ParseBlocking( saberInfo_t *saber, const char **p ) {
-	int n;
-	if ( COM_ParseInt( p, &n ) ) {
-		SkipRestOfLine( p );
-		return;
-	}
-	if ( n == 0 )
-		saber->saberFlags |= SFL_NOT_ACTIVE_BLOCKING;
-}
-static void Saber_ParseTwoHanded( saberInfo_t *saber, const char **p ) {
-	int n;
-	if ( COM_ParseInt( p, &n ) ) {
-		SkipRestOfLine( p );
-		return;
-	}
-	if ( n )
-		saber->saberFlags |= SFL_TWO_HANDED;
-}
 static void Saber_ParseForceRestrict( saberInfo_t *saber, const char **p ) {
 	const char *value;
 	int fp;
@@ -935,15 +874,6 @@ static void Saber_ParseSingleBladeStyle( saberInfo_t *saber, const char **p ) {
 		return;
 	saber->singleBladeStyle = TranslateSaberStyle( value );
 }
-static void Saber_ParseSingleBladeThrowable( saberInfo_t *saber, const char **p ) {
-	int n;
-	if ( COM_ParseInt( p, &n ) ) {
-		SkipRestOfLine( p );
-		return;
-	}
-	if ( n )
-		saber->saberFlags |= SFL_SINGLE_BLADE_THROWABLE;
-}
 static void Saber_ParseBrokenSaber1( saberInfo_t *saber, const char **p ) {
 	const char *value;
 	if ( COM_ParseString( p, &value ) )
@@ -955,15 +885,6 @@ static void Saber_ParseBrokenSaber2( saberInfo_t *saber, const char **p ) {
 	if ( COM_ParseString( p, &value ) )
 		return;
 	//saber->brokenSaber2 = G_NewString( value );
-}
-static void Saber_ParseReturnDamage( saberInfo_t *saber, const char **p ) {
-	int n;
-	if ( COM_ParseInt( p, &n ) ) {
-		SkipRestOfLine( p );
-		return;
-	}
-	if ( n )
-		saber->saberFlags |= SFL_RETURN_DAMAGE;
 }
 static void Saber_ParseSpinSound( saberInfo_t *saber, const char **p ) {
 	const char *value;
@@ -1004,24 +925,6 @@ static void Saber_ParseAnimSpeedScale( saberInfo_t *saber, const char **p ) {
 		return;
 	}
 	saber->animSpeedScale = f;
-}
-static void Saber_ParseBounceOnWalls( saberInfo_t *saber, const char **p ) {
-	int n;
-	if ( COM_ParseInt( p, &n ) ) {
-		SkipRestOfLine( p );
-		return;
-	}
-	if ( n )
-		saber->saberFlags |= SFL_BOUNCE_ON_WALLS;
-}
-static void Saber_ParseBoltToWrist( saberInfo_t *saber, const char **p ) {
-	int n;
-	if ( COM_ParseInt( p, &n ) ) {
-		SkipRestOfLine( p );
-		return;
-	}
-	if ( n )
-		saber->saberFlags |= SFL_BOLT_TO_WRIST;
 }
 static void Saber_ParseKataMove( saberInfo_t *saber, const char **p ) {
 	const char *value;
@@ -1159,114 +1062,6 @@ static void Saber_ParseGloatAnim( saberInfo_t *saber, const char **p ) {
 	if ( anim >= 0 && anim < MAX_ANIMATIONS )
 		saber->gloatAnim = anim;
 }
-static void Saber_ParseNoRollStab( saberInfo_t *saber, const char **p ) {
-	int n;
-	if ( COM_ParseInt( p, &n ) ) {
-		SkipRestOfLine( p );
-		return;
-	}
-	if ( n )
-		saber->saberFlags |= SFL_NO_ROLL_STAB;
-}
-static void Saber_ParseNoPullAttack( saberInfo_t *saber, const char **p ) {
-	int n;
-	if ( COM_ParseInt( p, &n ) ) {
-		SkipRestOfLine( p );
-		return;
-	}
-	if ( n )
-		saber->saberFlags |= SFL_NO_PULL_ATTACK;
-}
-static void Saber_ParseNoBackAttack( saberInfo_t *saber, const char **p ) {
-	int n;
-	if ( COM_ParseInt( p, &n ) ) {
-		SkipRestOfLine( p );
-		return;
-	}
-	if ( n )
-		saber->saberFlags |= SFL_NO_BACK_ATTACK;
-}
-static void Saber_ParseNoStabDown( saberInfo_t *saber, const char **p ) {
-	int n;
-	if ( COM_ParseInt( p, &n ) ) {
-		SkipRestOfLine( p );
-		return;
-	}
-	if ( n )
-		saber->saberFlags |= SFL_NO_STABDOWN;
-}
-static void Saber_ParseNoWallRuns( saberInfo_t *saber, const char **p ) {
-	int n;
-	if ( COM_ParseInt( p, &n ) ) {
-		SkipRestOfLine( p );
-		return;
-	}
-	if ( n )
-		saber->saberFlags |= SFL_NO_WALL_RUNS;
-}
-static void Saber_ParseNoWallFlips( saberInfo_t *saber, const char **p ) {
-	int n;
-	if ( COM_ParseInt( p, &n ) ) {
-		SkipRestOfLine( p );
-		return;
-	}
-	if ( n )
-		saber->saberFlags |= SFL_NO_WALL_FLIPS;
-}
-static void Saber_ParseNoWallGrab( saberInfo_t *saber, const char **p ) {
-	int n;
-	if ( COM_ParseInt( p, &n ) ) {
-		SkipRestOfLine( p );
-		return;
-	}
-	if ( n )
-		saber->saberFlags |= SFL_NO_WALL_GRAB;
-}
-static void Saber_ParseNoRolls( saberInfo_t *saber, const char **p ) {
-	int n;
-	if ( COM_ParseInt( p, &n ) ) {
-		SkipRestOfLine( p );
-		return;
-	}
-	if ( n )
-		saber->saberFlags |= SFL_NO_ROLLS;
-}
-static void Saber_ParseNoFlips( saberInfo_t *saber, const char **p ) {
-	int n;
-	if ( COM_ParseInt( p, &n ) ) {
-		SkipRestOfLine( p );
-		return;
-	}
-	if ( n )
-		saber->saberFlags |= SFL_NO_FLIPS;
-}
-static void Saber_ParseNoCartwheels( saberInfo_t *saber, const char **p ) {
-	int n;
-	if ( COM_ParseInt( p, &n ) ) {
-		SkipRestOfLine( p );
-		return;
-	}
-	if ( n )
-		saber->saberFlags |= SFL_NO_CARTWHEELS;
-}
-static void Saber_ParseNoKicks( saberInfo_t *saber, const char **p ) {
-	int n;
-	if ( COM_ParseInt( p, &n ) ) {
-		SkipRestOfLine( p );
-		return;
-	}
-	if ( n )
-		saber->saberFlags |= SFL_NO_KICKS;
-}
-static void Saber_ParseNoMirrorAttacks( saberInfo_t *saber, const char **p ) {
-	int n;
-	if ( COM_ParseInt( p, &n ) ) {
-		SkipRestOfLine( p );
-		return;
-	}
-	if ( n )
-		saber->saberFlags |= SFL_NO_MIRROR_ATTACKS;
-}
 static void Saber_ParseOnInWater( saberInfo_t *saber, const char **p ) {
 	SkipRestOfLine( p );
 }
@@ -1280,41 +1075,6 @@ static void Saber_ParseBladeStyle2Start( saberInfo_t *saber, const char **p ) {
 		return;
 	}
 	saber->bladeStyle2Start = n;
-}
-static void Saber_ParseNoWallMarks( saberInfo_t *saber, const char **p ) {
-	int n;
-	if ( COM_ParseInt( p, &n ) ) {
-		SkipRestOfLine( p );
-		return;
-	}
-	if ( n )
-		saber->saberFlags2 |= SFL2_NO_WALL_MARKS;
-}
-static void Saber_ParseNoDLight( saberInfo_t *saber, const char **p ) {
-	int n;
-	if ( COM_ParseInt( p, &n ) ) {
-		SkipRestOfLine( p );
-		return;
-	}
-	if ( n )
-		saber->saberFlags2 |= SFL2_NO_DLIGHT;
-}
-static void Saber_ParseNoBlade( saberInfo_t *saber, const char **p ) {
-	int n;
-	if ( COM_ParseInt( p, &n ) ) {
-		SkipRestOfLine( p );
-		return;
-	}
-	if ( n )
-		saber->saberFlags2 |= SFL2_NO_BLADE;
-}
-static void Saber_ParseTrailStyle( saberInfo_t *saber, const char **p ) {
-	int n;
-	if ( COM_ParseInt( p, &n ) ) {
-		SkipRestOfLine( p );
-		return;
-	}
-	saber->trailStyle = n;
 }
 static void Saber_ParseG2MarksShader( saberInfo_t *saber, const char **p ) {
 	const char *value;
@@ -1355,51 +1115,6 @@ static void Saber_ParseDamageScale( saberInfo_t *saber, const char **p ) {
 		return;
 	}
 	saber->damageScale = f;
-}
-static void Saber_ParseNoDismemberment( saberInfo_t *saber, const char **p ) {
-	int n;
-	if ( COM_ParseInt( p, &n ) ) {
-		SkipRestOfLine( p );
-		return;
-	}
-	if ( n )
-		saber->saberFlags2 |= SFL2_NO_DISMEMBERMENT;
-}
-static void Saber_ParseNoIdleEffect( saberInfo_t *saber, const char **p ) {
-	int n;
-	if ( COM_ParseInt( p, &n ) ) {
-		SkipRestOfLine( p );
-		return;
-	}
-	if ( n )
-		saber->saberFlags2 |= SFL2_NO_IDLE_EFFECT;
-}
-static void Saber_ParseAlwaysBlock( saberInfo_t *saber, const char **p ) {
-	int n;
-	if ( COM_ParseInt( p, &n ) ) {
-		SkipRestOfLine( p );
-		return;
-	}
-	if ( n )
-		saber->saberFlags2 |= SFL2_ALWAYS_BLOCK;
-}
-static void Saber_ParseNoManualDeactivate( saberInfo_t *saber, const char **p ) {
-	int n;
-	if ( COM_ParseInt( p, &n ) ) {
-		SkipRestOfLine( p );
-		return;
-	}
-	if ( n )
-		saber->saberFlags2 |= SFL2_NO_MANUAL_DEACTIVATE;
-}
-static void Saber_ParseTransitionDamage( saberInfo_t *saber, const char **p ) {
-	int n;
-	if ( COM_ParseInt( p, &n ) ) {
-		SkipRestOfLine( p );
-		return;
-	}
-	if ( n )
-		saber->saberFlags2 |= SFL2_TRANSITION_DAMAGE;
 }
 static void Saber_ParseSplashRadius( saberInfo_t *saber, const char **p ) {
 	float f;
@@ -1519,50 +1234,6 @@ static void Saber_ParseBladeEffect( saberInfo_t *saber, const char **p ) {
 	SkipRestOfLine( p );
 #endif
 }
-static void Saber_ParseNoClashFlare( saberInfo_t *saber, const char **p ) {
-	int n;
-	if ( COM_ParseInt( p, &n ) ) {
-		SkipRestOfLine( p );
-		return;
-	}
-	if ( n )
-		saber->saberFlags2 |= SFL2_NO_CLASH_FLARE;
-}
-static void Saber_ParseNoWallMarks2( saberInfo_t *saber, const char **p ) {
-	int n;
-	if ( COM_ParseInt( p, &n ) ) {
-		SkipRestOfLine( p );
-		return;
-	}
-	if ( n )
-		saber->saberFlags2 |= SFL2_NO_WALL_MARKS2;
-}
-static void Saber_ParseNoDLight2( saberInfo_t *saber, const char **p ) {
-	int n;
-	if ( COM_ParseInt( p, &n ) ) {
-		SkipRestOfLine( p );
-		return;
-	}
-	if ( n )
-		saber->saberFlags2 |= SFL2_NO_DLIGHT2;
-}
-static void Saber_ParseNoBlade2( saberInfo_t *saber, const char **p ) {
-	int n;
-	if ( COM_ParseInt( p, &n ) ) {
-		SkipRestOfLine( p );
-		return;
-	}
-	if ( n )
-		saber->saberFlags2 |= SFL2_NO_BLADE2;
-}
-static void Saber_ParseTrailStyle2( saberInfo_t *saber, const char **p ) {
-	int n;
-	if ( COM_ParseInt( p, &n ) ) {
-		SkipRestOfLine( p );
-		return;
-	}
-	saber->trailStyle2 = n;
-}
 static void Saber_ParseG2MarksShader2( saberInfo_t *saber, const char **p ) {
 	const char *value;
 	if ( COM_ParseString( p, &value ) ) {
@@ -1602,51 +1273,6 @@ static void Saber_ParseDamageScale2( saberInfo_t *saber, const char **p ) {
 		return;
 	}
 	saber->damageScale2 = f;
-}
-static void Saber_ParseNoDismemberment2( saberInfo_t *saber, const char **p ) {
-	int n;
-	if ( COM_ParseInt( p, &n ) ) {
-		SkipRestOfLine( p );
-		return;
-	}
-	if ( n )
-		saber->saberFlags2 |= SFL2_NO_DISMEMBERMENT2;
-}
-static void Saber_ParseNoIdleEffect2( saberInfo_t *saber, const char **p ) {
-	int n;
-	if ( COM_ParseInt( p, &n ) ) {
-		SkipRestOfLine( p );
-		return;
-	}
-	if ( n )
-		saber->saberFlags2 |= SFL2_NO_IDLE_EFFECT2;
-}
-static void Saber_ParseAlwaysBlock2( saberInfo_t *saber, const char **p ) {
-	int n;
-	if ( COM_ParseInt( p, &n ) ) {
-		SkipRestOfLine( p );
-		return;
-	}
-	if ( n )
-		saber->saberFlags2 |= SFL2_ALWAYS_BLOCK2;
-}
-static void Saber_ParseNoManualDeactivate2( saberInfo_t *saber, const char **p ) {
-	int n;
-	if ( COM_ParseInt( p, &n ) ) {
-		SkipRestOfLine( p );
-		return;
-	}
-	if ( n )
-		saber->saberFlags2 |= SFL2_NO_MANUAL_DEACTIVATE2;
-}
-static void Saber_ParseTransitionDamage2( saberInfo_t *saber, const char **p ) {
-	int n;
-	if ( COM_ParseInt( p, &n ) ) {
-		SkipRestOfLine( p );
-		return;
-	}
-	if ( n )
-		saber->saberFlags2 |= SFL2_TRANSITION_DAMAGE2;
 }
 static void Saber_ParseSplashRadius2( saberInfo_t *saber, const char **p ) {
 	float f;
@@ -1766,15 +1392,6 @@ static void Saber_ParseBladeEffect2( saberInfo_t *saber, const char **p ) {
 	SkipRestOfLine( p );
 #endif
 }
-static void Saber_ParseNoClashFlare2( saberInfo_t *saber, const char **p ) {
-	int n;
-	if ( COM_ParseInt( p, &n ) ) {
-		SkipRestOfLine( p );
-		return;
-	}
-	if ( n )
-		saber->saberFlags2 |= SFL2_NO_CLASH_FLARE2;
-}
 
 #define KEYWORDHASH_SIZE (512)
 
@@ -1853,11 +1470,6 @@ static keywordHash_t saberParseKeywords[] = {
 	{ "saberStyleLearned",		Saber_ParseSaberStyleLearned,	NULL	},
 	{ "saberStyleForbidden",	Saber_ParseSaberStyleForbidden,	NULL	},
 	{ "maxChain",				Saber_ParseMaxChain,			NULL	},
-	{ "lockable",				Saber_ParseLockable,			NULL	},
-	{ "throwable",				Saber_ParseThrowable,			NULL	},
-	{ "disarmable",				Saber_ParseDisarmable,			NULL	},
-	{ "blocking",				Saber_ParseBlocking,			NULL	},
-	{ "twoHanded",				Saber_ParseTwoHanded,			NULL	},
 	{ "forceRestrict",			Saber_ParseForceRestrict,		NULL	},
 	{ "lockBonus",				Saber_ParseLockBonus,			NULL	},
 	{ "parryBonus",				Saber_ParseParryBonus,			NULL	},
@@ -1866,18 +1478,14 @@ static keywordHash_t saberParseKeywords[] = {
 	{ "disarmBonus",			Saber_ParseDisarmBonus,			NULL	},
 	{ "disarmBonus2",			Saber_ParseDisarmBonus2,		NULL	},
 	{ "singleBladeStyle",		Saber_ParseSingleBladeStyle,	NULL	},
-	{ "singleBladeThrowable",	Saber_ParseSingleBladeThrowable,NULL	},
 	{ "brokenSaber1",			Saber_ParseBrokenSaber1,		NULL	},
 	{ "brokenSaber2",			Saber_ParseBrokenSaber2,		NULL	},
-	{ "returnDamage",			Saber_ParseReturnDamage,		NULL	},
 	{ "spinSound",				Saber_ParseSpinSound,			NULL	},
 	{ "swingSound1",			Saber_ParseSwingSound1,			NULL	},
 	{ "swingSound2",			Saber_ParseSwingSound2,			NULL	},
 	{ "swingSound3",			Saber_ParseSwingSound3,			NULL	},
 	{ "moveSpeedScale",			Saber_ParseMoveSpeedScale,		NULL	},
 	{ "animSpeedScale",			Saber_ParseAnimSpeedScale,		NULL	},
-	{ "bounceOnWalls",			Saber_ParseBounceOnWalls,		NULL	},
-	{ "boltToWrist",			Saber_ParseBoltToWrist,			NULL	},
 	{ "kataMove",				Saber_ParseKataMove,			NULL	},
 	{ "lungeAtkMove",			Saber_ParseLungeAtkMove,		NULL	},
 	{ "jumpAtkUpMove",			Saber_ParseJumpAtkUpMove,		NULL	},
@@ -1893,29 +1501,9 @@ static keywordHash_t saberParseKeywords[] = {
 	{ "meditateAnim",			Saber_ParseMeditateAnim,		NULL	},
 	{ "flourishAnim",			Saber_ParseFlourishAnim,		NULL	},
 	{ "gloatAnim",				Saber_ParseGloatAnim,			NULL	},
-	{ "noRollStab",				Saber_ParseNoRollStab,			NULL	},
-	{ "noPullAttack",			Saber_ParseNoPullAttack,		NULL	},
-	{ "noBackAttack",			Saber_ParseNoBackAttack,		NULL	},
-	{ "noStabDown",				Saber_ParseNoStabDown,			NULL	},
-	{ "noWallRuns",				Saber_ParseNoWallRuns,			NULL	},
-	{ "noWallFlips",			Saber_ParseNoWallFlips,			NULL	},
-	{ "noWallGrab",				Saber_ParseNoWallGrab,			NULL	},
-	{ "noRolls",				Saber_ParseNoRolls,				NULL	},
-	{ "noFlips",				Saber_ParseNoFlips,				NULL	},
-	{ "noCartwheels",			Saber_ParseNoCartwheels,		NULL	},
-	{ "noKicks",				Saber_ParseNoKicks,				NULL	},
-	{ "noMirrorAttacks",		Saber_ParseNoMirrorAttacks,		NULL	},
 	{ "onInWater",				Saber_ParseOnInWater,			NULL	},
 	{ "notInMP",				Saber_ParseNotInMP,				NULL	},
 	{ "bladeStyle2Start",		Saber_ParseBladeStyle2Start,	NULL	},
-	{ "noWallMarks",			Saber_ParseNoWallMarks,			NULL	},
-	{ "noWallMarks2",			Saber_ParseNoWallMarks2,		NULL	},
-	{ "noDlight",				Saber_ParseNoDLight,			NULL	},
-	{ "noDlight2",				Saber_ParseNoDLight2,			NULL	},
-	{ "noBlade",				Saber_ParseNoBlade,				NULL	},
-	{ "noBlade2",				Saber_ParseNoBlade2,			NULL	},
-	{ "trailStyle",				Saber_ParseTrailStyle,			NULL	},
-	{ "trailStyle2",			Saber_ParseTrailStyle2,			NULL	},
 	{ "g2MarksShader",			Saber_ParseG2MarksShader,		NULL	},
 	{ "g2MarksShader2",			Saber_ParseG2MarksShader2,		NULL	},
 	{ "g2WeaponMarkShader",		Saber_ParseG2WeaponMarkShader,	NULL	},
@@ -1924,16 +1512,6 @@ static keywordHash_t saberParseKeywords[] = {
 	{ "knockbackScale2",		Saber_ParseKnockbackScale2,		NULL	},
 	{ "damageScale",			Saber_ParseDamageScale,			NULL	},
 	{ "damageScale2",			Saber_ParseDamageScale2,		NULL	},
-	{ "noDismemberment",		Saber_ParseNoDismemberment,		NULL	},
-	{ "noDismemberment2",		Saber_ParseNoDismemberment2,	NULL	},
-	{ "noIdleEffect",			Saber_ParseNoIdleEffect,		NULL	},
-	{ "noIdleEffect2",			Saber_ParseNoIdleEffect2,		NULL	},
-	{ "alwaysBlock",			Saber_ParseAlwaysBlock,			NULL	},
-	{ "alwaysBlock2",			Saber_ParseAlwaysBlock2,		NULL	},
-	{ "noManualDeactivate",		Saber_ParseNoManualDeactivate,	NULL	},
-	{ "noManualDeactivate2",	Saber_ParseNoManualDeactivate2,	NULL	},
-	{ "transitionDamage",		Saber_ParseTransitionDamage,	NULL	},
-	{ "transitionDamage2",		Saber_ParseTransitionDamage2,	NULL	},
 	{ "splashRadius",			Saber_ParseSplashRadius,		NULL	},
 	{ "splashRadius2",			Saber_ParseSplashRadius2,		NULL	},
 	{ "splashDamage",			Saber_ParseSplashDamage,		NULL	},
@@ -1966,8 +1544,6 @@ static keywordHash_t saberParseKeywords[] = {
 	{ "hitOtherEffect2",		Saber_ParseHitOtherEffect2,		NULL	},
 	{ "bladeEffect",			Saber_ParseBladeEffect,			NULL	},
 	{ "bladeEffect2",			Saber_ParseBladeEffect2,		NULL	},
-	{ "noClashFlare",			Saber_ParseNoClashFlare,		NULL	},
-	{ "noClashFlare2",			Saber_ParseNoClashFlare2,		NULL	},
 	{ NULL,						NULL,							NULL	}
 };
 static keywordHash_t *saberParseKeywordHash[KEYWORDHASH_SIZE];
@@ -2206,17 +1782,6 @@ void WP_SetSaber( int entNum, saberInfo_t *sabers, int saberNum, const char *sab
 	else
 	{
 		WP_SaberParseParms( saberName, &sabers[saberNum] );//get saber info
-	}
-	if ((sabers[1].saberFlags&SFL_TWO_HANDED))
-	{//not allowed to use a 2-handed saber as second saber
-		WP_RemoveSaber( sabers, 1 );
-		return;
-	}
-	else if ((sabers[0].saberFlags&SFL_TWO_HANDED) &&
-		sabers[1].model[0])
-	{ //you can't use a two-handed saber with a second saber, so remove saber 2
-		WP_RemoveSaber( sabers, 1 );
-		return;
 	}
 }
 

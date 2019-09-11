@@ -2285,7 +2285,22 @@ void Cmd_ToggleSaber_f(gentity_t *ent)
 
 extern vmCvar_t		d_saberStanceDebug;
 
-extern qboolean WP_SaberCanTurnOffSomeBlades( saberInfo_t *saber );
+qboolean G_SaberCanTurnOffSomeBlades( saberInfo_t *saber ) {
+	if ( saber->bladeStyle2Start > 0 && saber->numBlades > saber->bladeStyle2Start ) {
+		// check if all blades are always on
+		if ( cjk_saberTweaks.integer & ST_NO_DEACTIVATE ) {
+			return qfalse;
+		}
+	}
+	else {
+		// check if all blades are always on
+		if ( cjk_saberTweaks.integer & ST_NO_DEACTIVATE ) {
+			return qfalse;
+		}
+	}
+	//you can turn some off
+	return qtrue;
+}
 void Cmd_SaberAttackCycle_f(gentity_t *ent)
 {
 	int selectLevel = 0;
@@ -2333,12 +2348,11 @@ void Cmd_SaberAttackCycle_f(gentity_t *ent)
 			}
 			else if ( ent->client->ps.saberHolstered == 0 )
 			{//have none holstered
-				if ( (ent->client->saber[1].saberFlags2&SFL2_NO_MANUAL_DEACTIVATE) )
-				{//can't turn it off manually
+				if ( cjk_saberTweaks.integer & ST_NO_DEACTIVATE ) {
+					//can't turn it off manually
 				}
-				else if ( ent->client->saber[1].bladeStyle2Start > 0
-					&& (ent->client->saber[1].saberFlags2&SFL2_NO_MANUAL_DEACTIVATE2) )
-				{//can't turn it off manually
+				else if ( ent->client->saber[1].bladeStyle2Start > 0 && (cjk_saberTweaks.integer & ST_NO_DEACTIVATE) ) {
+					//can't turn it off manually
 				}
 				else
 				{
@@ -2389,15 +2403,13 @@ void Cmd_SaberAttackCycle_f(gentity_t *ent)
 		}
 		else if ( ent->client->ps.saberHolstered == 0 )
 		{//both blades on
-			if ( (ent->client->saber[0].saberFlags2&SFL2_NO_MANUAL_DEACTIVATE) )
-			{//can't turn it off manually
+			if ( cjk_saberTweaks.integer & ST_NO_DEACTIVATE ) {
+				//can't turn it off manually
 			}
-			else if ( ent->client->saber[0].bladeStyle2Start > 0
-				&& (ent->client->saber[0].saberFlags2&SFL2_NO_MANUAL_DEACTIVATE2) )
-			{//can't turn it off manually
+			else if ( ent->client->saber[0].bladeStyle2Start > 0 && (cjk_saberTweaks.integer & ST_NO_DEACTIVATE) ) {
+				//can't turn it off manually
 			}
-			else
-			{
+			else {
 				//turn second one off
 				G_Sound(ent, CHAN_AUTO, ent->client->saber[0].soundOff);
 				ent->client->ps.saberHolstered = 1;

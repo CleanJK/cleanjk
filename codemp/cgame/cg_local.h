@@ -1574,6 +1574,8 @@ typedef struct cgs_s {
 	int					numMiscStaticModels;
 	cg_staticmodel_t	miscStaticModels[MAX_STATIC_MODELS];
 
+	int32_t			saberSpecialMoves;
+	int32_t			saberTweaks;
 } cgs_t;
 
 extern	cgs_t			cgs;

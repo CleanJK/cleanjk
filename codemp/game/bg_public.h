@@ -506,6 +506,9 @@ typedef struct pmove_s {
 	//rww - bg entitystate access method
 	bgEntity_t	*baseEnt; //base address of the entity array (g_entities or cg_entities)
 	int			entSize; //size of the struct (gentity_t or centity_t) so things can be dynamic
+
+	int32_t		saberSpecialMoves;
+	int32_t		saberTweaks;
 } pmove_t;
 
 extern	pmove_t		*pm;
@@ -1470,56 +1473,25 @@ typedef enum saber_styles_e {
 	SS_NUM_SABER_STYLES
 } saber_styles_t;
 
-//SABER FLAGS
-//Old bools converted to a flag now
-#define SFL_NOT_LOCKABLE			(1<<0)//can't get into a saberlock
-#define SFL_NOT_THROWABLE			(1<<1)//can't be thrown - FIXME: maybe make this a max level of force saber throw that can be used with this saber?
-#define SFL_NOT_DISARMABLE			(1<<2)//can't be dropped
-#define SFL_NOT_ACTIVE_BLOCKING		(1<<3)//don't to try to block incoming shots with this saber
-#define SFL_TWO_HANDED				(1<<4)//uses both hands
-#define SFL_SINGLE_BLADE_THROWABLE	(1<<5)//can throw this saber if only the first blade is on
-#define SFL_RETURN_DAMAGE			(1<<6)//when returning from a saber throw, it keeps spinning and doing damage
-//NEW FLAGS
-#define SFL_ON_IN_WATER				(1<<7)//if set, weapon stays active even in water
-#define SFL_BOUNCE_ON_WALLS			(1<<8)//if set, the saber will bounce back when it hits solid architecture (good for real-sword type mods)
-#define SFL_BOLT_TO_WRIST			(1<<9)//if set, saber model is bolted to wrist, not in hand... useful for things like claws & shields, etc.
-//#define SFL_STICK_ON_IMPACT		(1<<?)//if set, the saber will stick in the wall when thrown and hits solid architecture (good for sabers that are meant to be thrown).
-//#define SFL_NO_ATTACK				(1<<?)//if set, you cannot attack with the saber (for sabers/weapons that are meant to be thrown only, not used as melee weapons).
-//Move Restrictions
-#define SFL_NO_PULL_ATTACK			(1<<10)//if set, cannot do pull+attack move (move not available in MP anyway)
-#define SFL_NO_BACK_ATTACK			(1<<11)//if set, cannot do back-stab moves
-#define SFL_NO_STABDOWN				(1<<12)//if set, cannot do stabdown move (when enemy is on ground)
-//CJKFIXME: global acrobatics
-#define SFL_NO_WALL_RUNS			(1<<13)//if set, cannot side-run or forward-run on walls
-#define SFL_NO_WALL_FLIPS			(1<<14)//if set, cannot do backflip off wall or side-flips off walls
-#define SFL_NO_WALL_GRAB			(1<<15)//if set, cannot grab wall & jump off
-#define SFL_NO_ROLLS				(1<<16)//if set, cannot roll
-#define SFL_NO_FLIPS				(1<<17)//if set, cannot do flips
-#define SFL_NO_CARTWHEELS			(1<<18)//if set, cannot do cartwheels
-#define SFL_NO_KICKS				(1<<19)//if set, cannot do kicks (can't do kicks anyway if using a throwable saber/sword)
-#define SFL_NO_MIRROR_ATTACKS		(1<<20)//if set, cannot do the simultaneous attack left/right moves (only available in Dual Lightsaber Combat Style)
-#define SFL_NO_ROLL_STAB			(1<<21)//if set, cannot do roll-stab move at end of roll
-//SABER FLAGS2
-//Primary Blade Style
-#define SFL2_NO_WALL_MARKS			(1<<0)//if set, stops the saber from drawing marks on the world (good for real-sword type mods)
-#define SFL2_NO_DLIGHT				(1<<1)//if set, stops the saber from drawing a dynamic light (good for real-sword type mods)
-#define SFL2_NO_BLADE				(1<<2)//if set, stops the saber from drawing a blade (good for real-sword type mods)
-#define SFL2_NO_CLASH_FLARE			(1<<3)//if set, the saber will not do the big, white clash flare with other sabers
-#define SFL2_NO_DISMEMBERMENT		(1<<4)//if set, the saber never does dismemberment (good for pointed/blunt melee weapons)
-#define SFL2_NO_IDLE_EFFECT			(1<<5)//if set, the saber will not do damage or any effects when it is idle (not in an attack anim).  (good for real-sword type mods)
-#define SFL2_ALWAYS_BLOCK			(1<<6)//if set, the blades will always be blocking (good for things like shields that should always block)
-#define SFL2_NO_MANUAL_DEACTIVATE	(1<<7)//if set, the blades cannot manually be toggled on and off
-#define SFL2_TRANSITION_DAMAGE		(1<<8)//if set, the blade does damage in start, transition and return anims (like strong style does)
-//Secondary Blade Style
-#define SFL2_NO_WALL_MARKS2			(1<<9)//if set, stops the saber from drawing marks on the world (good for real-sword type mods)
-#define SFL2_NO_DLIGHT2				(1<<10)//if set, stops the saber from drawing a dynamic light (good for real-sword type mods)
-#define SFL2_NO_BLADE2				(1<<11)//if set, stops the saber from drawing a blade (good for real-sword type mods)
-#define SFL2_NO_CLASH_FLARE2		(1<<12)//if set, the saber will not do the big, white clash flare with other sabers
-#define SFL2_NO_DISMEMBERMENT2		(1<<13)//if set, the saber never does dismemberment (good for pointed/blunt melee weapons)
-#define SFL2_NO_IDLE_EFFECT2		(1<<14)//if set, the saber will not do damage or any effects when it is idle (not in an attack anim).  (good for real-sword type mods)
-#define SFL2_ALWAYS_BLOCK2			(1<<15)//if set, the blades will always be blocking (good for things like shields that should always block)
-#define SFL2_NO_MANUAL_DEACTIVATE2	(1<<16)//if set, the blades cannot manually be toggled on and off
-#define SFL2_TRANSITION_DAMAGE2		(1<<17)//if set, the blade does damage in start, transition and return anims (like strong style does)
+// cjk_saberSpecialMoves bit-field
+typedef enum saberSpecialMove_e {
+	SSM_ROLL		= 0x00000001,
+	SSM_ROLLSTAB	= 0x00000002,
+	SSM_CARTWHEEL	= 0x00000004,
+	SSM_FLIP		= 0x00000008,
+	SSM_WALLRUN		= 0x00000010,
+	SSM_WALLGRAB	= 0x00000020,
+	SSM_STABDOWN	= 0x00000040,
+	SSM_MIRROR		= 0x00000080,
+	SSM_KICK		= 0x00000100,
+} saberSpecialMove_t;
+
+// cjk_saberTweaks bit-fields
+typedef enum saberTweaks_e {
+	ST_TRANSITION_DAMAGE	= 0x00000001,
+	ST_RETURN_DAMAGE		= 0x00000002,
+	ST_NO_DEACTIVATE		= 0x00000004,
+} saberTweaks_t;
 
 #define SABER_NAME_LENGTH (64)
 typedef struct saberInfo_s {
@@ -1542,9 +1514,6 @@ typedef struct saberInfo_s {
 	int				breakParryBonus, breakParryBonus2;		// added to strength when hit a parry
 	int				disarmBonus, disarmBonus2;				// added to disarm chance when win saberlock or have a good parry (knockaway)
 	saber_styles_t	singleBladeStyle;						// makes it so that you use a different style if you only have the first blade active
-
-	//these values are global to the saber, like all of the ones above
-	int				saberFlags, saberFlags2;				// from SFL(2)_ list above
 
 	//done in cgame (client-side code)
 	qhandle_t		spinSound;								// none - if set, plays this sound as it spins when thrown

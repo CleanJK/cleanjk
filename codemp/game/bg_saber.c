@@ -565,14 +565,7 @@ saberMoveName_t PM_CheckStabDown( void )
 
 	saberInfo_t *saber1 = BG_MySaber( pm->ps->clientNum, 0 );
 	saberInfo_t *saber2 = BG_MySaber( pm->ps->clientNum, 1 );
-	if ( saber1
-		&& (saber1->saberFlags&SFL_NO_STABDOWN) )
-	{
-		return LS_NONE;
-	}
-	if ( saber2
-		&& (saber2->saberFlags&SFL_NO_STABDOWN) )
-	{
+	if ( !(pm->saberSpecialMoves & SSM_STABDOWN) ) {
 		return LS_NONE;
 	}
 
@@ -1927,16 +1920,7 @@ static qboolean PM_CanDoDualDoubleAttacks(void)
 {
 	if ( pm->ps->weapon == WP_SABER )
 	{
-		saberInfo_t *saber = BG_MySaber( pm->ps->clientNum, 0 );
-		if ( saber
-			&& (saber->saberFlags&SFL_NO_MIRROR_ATTACKS) )
-		{
-			return qfalse;
-		}
-		saber = BG_MySaber( pm->ps->clientNum, 1 );
-		if ( saber
-			&& (saber->saberFlags&SFL_NO_MIRROR_ATTACKS) )
-		{
+		if ( !(pm->saberSpecialMoves & SSM_MIRROR) ) {
 			return qfalse;
 		}
 	}
@@ -2189,14 +2173,7 @@ saberMoveName_t PM_SaberAttackForMovement(saberMoveName_t curmove)
 			overrideJumpLeftAttackMove = (saberMoveName_t)saber1->jumpAtkLeftMove;
 		}
 
-		if ( saber1
-			&& (saber1->saberFlags&SFL_NO_CARTWHEELS) )
-		{
-			allowCartwheels = qfalse;
-		}
-		if ( saber2
-			&& (saber2->saberFlags&SFL_NO_CARTWHEELS) )
-		{
+		if ( !(pm->saberSpecialMoves & SSM_CARTWHEEL) ) {
 			allowCartwheels = qfalse;
 		}
 	}
@@ -2643,16 +2620,7 @@ qboolean PM_CheckAltKickAttack( void )
 {
 	if ( pm->ps->weapon == WP_SABER )
 	{
-		saberInfo_t *saber = BG_MySaber( pm->ps->clientNum, 0 );
-		if ( saber
-			&& (saber->saberFlags&SFL_NO_KICKS) )
-		{
-			return qfalse;
-		}
-		saber = BG_MySaber( pm->ps->clientNum, 1 );
-		if ( saber
-			&& (saber->saberFlags&SFL_NO_KICKS) )
-		{
+		if ( !(pm->saberSpecialMoves & SSM_KICK) ) {
 			return qfalse;
 		}
 	}
@@ -2695,16 +2663,7 @@ qboolean PM_CanDoRollStab( void )
 {
 	if ( pm->ps->weapon == WP_SABER )
 	{
-		saberInfo_t *saber = BG_MySaber( pm->ps->clientNum, 0 );
-		if ( saber
-			&& (saber->saberFlags&SFL_NO_ROLL_STAB) )
-		{
-			return qfalse;
-		}
-		saber = BG_MySaber( pm->ps->clientNum, 1 );
-		if ( saber
-			&& (saber->saberFlags&SFL_NO_ROLL_STAB) )
-		{
+		if ( !(pm->saberSpecialMoves & SSM_ROLLSTAB) ) {
 			return qfalse;
 		}
 	}

@@ -946,6 +946,9 @@ void CG_PredictPlayerState( void ) {
 			}
 		}
 
+		cg_pmove.saberSpecialMoves = cgs.saberSpecialMoves;
+		cg_pmove.saberTweaks = cgs.saberTweaks;
+
 		Pmove (&cg_pmove);
 
 		moved = qtrue;

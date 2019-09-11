@@ -2358,6 +2358,9 @@ void ClientThink_real( gentity_t *ent ) {
 		VectorCopy( ent->r.maxs, pmove.maxs );
 	}
 
+	pmove.saberSpecialMoves = cjk_saberSpecialMoves.integer;
+	pmove.saberTweaks = cjk_saberTweaks.integer;
+
 	Pmove (&pmove);
 
 	if (ent->client->solidHack)

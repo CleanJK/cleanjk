@@ -1090,7 +1090,10 @@ void PM_GrabWallForJump( int anim )
 
 static qboolean PM_CheckJump( void )
 {
-	qboolean allowFlips = qtrue;
+	qboolean allowWallRuns = qfalse;
+	qboolean allowWallFlips = qfalse;
+	qboolean allowFlips = qfalse;
+	qboolean allowWallGrabs = qfalse;
 
 	if (pm->ps->forceHandExtend == HANDEXTEND_KNOCKDOWN ||
 		pm->ps->forceHandExtend == HANDEXTEND_PRETHROWN ||
@@ -1116,18 +1119,10 @@ static qboolean PM_CheckJump( void )
 
 	if ( pm->ps->weapon == WP_SABER )
 	{
-		saberInfo_t *saber1 = BG_MySaber( pm->ps->clientNum, 0 );
-		saberInfo_t *saber2 = BG_MySaber( pm->ps->clientNum, 1 );
-		if ( saber1
-			&& (saber1->saberFlags&SFL_NO_FLIPS) )
-		{
-			allowFlips = qfalse;
-		}
-		if ( saber2
-			&& (saber2->saberFlags&SFL_NO_FLIPS) )
-		{
-			allowFlips = qfalse;
-		}
+		allowWallRuns = (pm->saberSpecialMoves & SSM_WALLRUN);
+		allowWallFlips = (pm->saberSpecialMoves & SSM_FLIP);
+		allowFlips = (pm->saberSpecialMoves & SSM_FLIP);
+		allowWallGrabs = (pm->saberSpecialMoves & SSM_WALLGRAB);
 	}
 
 	if (pm->ps->groundEntityNum != ENTITYNUM_NONE || pm->ps->origin[2] < pm->ps->fd.forceJumpZStart)
@@ -1413,56 +1408,6 @@ static qboolean PM_CheckJump( void )
 		!BG_HasYsalamiri(pm->gametype, pm->ps) &&
 		BG_CanUseFPNow(pm->gametype, pm->ps, pm->cmd.serverTime, FP_LEVITATION) )
 	{
-		qboolean allowWallRuns = qtrue;
-		qboolean allowWallFlips = qtrue;
-	//	qboolean allowFlips = qtrue;
-		qboolean allowWallGrabs = qtrue;
-		if ( pm->ps->weapon == WP_SABER )
-		{
-			saberInfo_t *saber1 = BG_MySaber( pm->ps->clientNum, 0 );
-			saberInfo_t *saber2 = BG_MySaber( pm->ps->clientNum, 1 );
-			if ( saber1
-				&& (saber1->saberFlags&SFL_NO_WALL_RUNS) )
-			{
-				allowWallRuns = qfalse;
-			}
-			if ( saber2
-				&& (saber2->saberFlags&SFL_NO_WALL_RUNS) )
-			{
-				allowWallRuns = qfalse;
-			}
-			if ( saber1
-				&& (saber1->saberFlags&SFL_NO_WALL_FLIPS) )
-			{
-				allowWallFlips = qfalse;
-			}
-			if ( saber2
-				&& (saber2->saberFlags&SFL_NO_WALL_FLIPS) )
-			{
-				allowWallFlips = qfalse;
-			}
-			if ( saber1
-				&& (saber1->saberFlags&SFL_NO_FLIPS) )
-			{
-				allowFlips = qfalse;
-			}
-			if ( saber2
-				&& (saber2->saberFlags&SFL_NO_FLIPS) )
-			{
-				allowFlips = qfalse;
-			}
-			if ( saber1
-				&& (saber1->saberFlags&SFL_NO_WALL_GRAB) )
-			{
-				allowWallGrabs = qfalse;
-			}
-			if ( saber2
-				&& (saber2->saberFlags&SFL_NO_WALL_GRAB) )
-			{
-				allowWallGrabs = qfalse;
-			}
-		}
-
 		if ( pm->ps->groundEntityNum != ENTITYNUM_NONE )
 		{//on the ground
 			//check for left-wall and right-wall special jumps
@@ -2590,16 +2535,7 @@ static int PM_TryRoll( void )
 
 	if ( pm->ps->weapon == WP_SABER )
 	{
-		saberInfo_t *saber = BG_MySaber( pm->ps->clientNum, 0 );
-		if ( saber
-			&& (saber->saberFlags&SFL_NO_ROLLS) )
-		{
-			return 0;
-		}
-		saber = BG_MySaber( pm->ps->clientNum, 1 );
-		if ( saber
-			&& (saber->saberFlags&SFL_NO_ROLLS) )
-		{
+		if ( !(pm->saberSpecialMoves & SSM_ROLL) ) {
 			return 0;
 		}
 	}

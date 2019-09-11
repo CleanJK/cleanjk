@@ -2081,10 +2081,6 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 								blockSound = client->saber[saberNum].blockSound[Q_irand(0,2)];
 							}
 						}
-						if ( (client->saber[saberNum].saberFlags2&SFL2_NO_CLASH_FLARE) )
-						{
-							noFlare = qtrue;
-						}
 					}
 				}
 
