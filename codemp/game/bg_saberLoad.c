@@ -222,20 +222,6 @@ qboolean WP_SaberBladeUseSecondBladeStyle( saberInfo_t *saber, int bladeNum ) {
 	return qfalse;
 }
 
-qboolean WP_SaberBladeDoTransitionDamage( saberInfo_t *saber, int bladeNum ) {
-	const qboolean doTransitionDmg = !!(pm->saberTweaks & ST_TRANSITION_DAMAGE);
-	if ( !WP_SaberBladeUseSecondBladeStyle( saber, bladeNum ) && doTransitionDmg ) {
-		//use first blade style for this blade
-		return qtrue;
-	}
-	else if ( WP_SaberBladeUseSecondBladeStyle( saber, bladeNum ) && doTransitionDmg ) {
-		//use second blade style for this blade
-		return qtrue;
-	}
-
-	return qfalse;
-}
-
 qboolean WP_UseFirstValidSaberStyle( saberInfo_t *saber1, saberInfo_t *saber2, int saberHolstered, int *saberAnimLevel ) {
 	qboolean styleInvalid = qfalse;
 	qboolean saber1Active, saber2Active;

@@ -2336,7 +2336,7 @@ void Cmd_SaberAttackCycle_f(gentity_t *ent)
 
 	if (ent->client->saber[0].model[0] && ent->client->saber[1].model[0])
 	{ //no cycling for akimbo
-		if ( WP_SaberCanTurnOffSomeBlades( &ent->client->saber[1] ) )
+		if ( G_SaberCanTurnOffSomeBlades( &ent->client->saber[1] ) )
 		{//can turn second saber off
 			if ( ent->client->ps.saberHolstered == 1 )
 			{//have one holstered
@@ -2372,7 +2372,7 @@ void Cmd_SaberAttackCycle_f(gentity_t *ent)
 		}
 	}
 	else if (ent->client->saber[0].numBlades > 1
-		&& WP_SaberCanTurnOffSomeBlades( &ent->client->saber[0] ) )
+		&& G_SaberCanTurnOffSomeBlades( &ent->client->saber[0] ) )
 	{ //use staff stance then.
 		if ( ent->client->ps.saberHolstered == 1 )
 		{//second blade off

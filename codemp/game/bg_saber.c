@@ -563,8 +563,6 @@ saberMoveName_t PM_CheckStabDown( void )
 	vec3_t trmins = {-15, -15, -15};
 	vec3_t trmaxs = {15, 15, 15};
 
-	saberInfo_t *saber1 = BG_MySaber( pm->ps->clientNum, 0 );
-	saberInfo_t *saber2 = BG_MySaber( pm->ps->clientNum, 1 );
 	if ( !(pm->saberSpecialMoves & SSM_STABDOWN) ) {
 		return LS_NONE;
 	}

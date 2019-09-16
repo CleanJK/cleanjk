@@ -45,10 +45,23 @@ qboolean BG_SabersOff( playerState_t *ps );
 qboolean BG_SaberInTransitionAny( int move );
 qboolean BG_SaberInAttackPure( int move );
 qboolean WP_SaberBladeUseSecondBladeStyle( saberInfo_t *saber, int bladeNum );
-qboolean WP_SaberBladeDoTransitionDamage( saberInfo_t *saber, int bladeNum );
 
 void WP_SaberAddG2Model( gentity_t *saberent, const char *saberModel, qhandle_t saberSkin );
 void WP_SaberRemoveG2Model( gentity_t *saberent );
+
+static qboolean WP_SaberBladeDoTransitionDamage( saberInfo_t *saber, int bladeNum ) {
+	const qboolean doTransitionDmg = !!(pm->saberTweaks & ST_TRANSITION_DAMAGE);
+	if ( !WP_SaberBladeUseSecondBladeStyle( saber, bladeNum ) && doTransitionDmg ) {
+		//use first blade style for this blade
+		return qtrue;
+	}
+	else if ( WP_SaberBladeUseSecondBladeStyle( saber, bladeNum ) && doTransitionDmg ) {
+		//use second blade style for this blade
+		return qtrue;
+	}
+
+	return qfalse;
+}
 
 //	g_randFix 0 == Same as basejka. Broken on Linux, fine on Windows
 //	g_randFix 1 == Use proper behaviour of RAND_MAX. Fine on Linux, fine on Windows
