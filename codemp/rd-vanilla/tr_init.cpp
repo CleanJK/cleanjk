@@ -270,7 +270,7 @@ void R_Splash()
 		pImage = R_FindImageFile( "menu/splash", qfalse, qfalse, qfalse, GL_CLAMP);
 	}
 */
-	pImage = R_FindImageFile( "menu/splash", qfalse, qfalse, qfalse, GL_CLAMP);
+	pImage = R_FindImageFile( "gfx/menus/splash", qfalse, qfalse, qfalse, GL_CLAMP);
 	extern void	RB_SetGL2D (void);
 	RB_SetGL2D();
 	if (pImage )
