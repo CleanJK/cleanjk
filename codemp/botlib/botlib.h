@@ -248,6 +248,7 @@ typedef struct botlib_export_s
 	int (*BotLibVarGet)(char *var_name, char *value, int size);
 
 	//sets a C-like define returns BLERR_
+	void (*PC_Init)( void );
 	int (*PC_AddGlobalDefine)(char *string);
 	int (*PC_LoadSourceHandle)(const char *filename);
 	int (*PC_FreeSourceHandle)(int handle);

@@ -740,6 +740,7 @@ void CL_BindUI( void ) {
 	uii.Key_SetCatcher						= CL_Key_SetCatcher;
 	uii.Key_SetOverstrikeMode				= Key_SetOverstrikeMode;
 
+	uii.PC_Init								= botlib_export->PC_Init;
 	uii.PC_AddGlobalDefine					= botlib_export->PC_AddGlobalDefine;
 	uii.PC_FreeSource						= botlib_export->PC_FreeSourceHandle;
 	uii.PC_LoadGlobalDefines				= botlib_export->PC_LoadGlobalDefines;

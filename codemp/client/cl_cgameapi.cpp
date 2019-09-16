@@ -833,6 +833,7 @@ void CL_BindCGame( void ) {
 	cgi.Key_GetKey							= Key_GetKey;
 	cgi.Key_IsDown							= Key_IsDown;
 	cgi.Key_SetCatcher						= CL_Key_SetCatcher;
+	cgi.PC_Init								= botlib_export->PC_Init;
 	cgi.PC_AddGlobalDefine					= botlib_export->PC_AddGlobalDefine;
 	cgi.PC_FreeSource						= botlib_export->PC_FreeSourceHandle;
 	cgi.PC_LoadGlobalDefines				= botlib_export->PC_LoadGlobalDefines;

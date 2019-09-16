@@ -120,6 +120,17 @@ void QDECL SourceWarning(source_t *source, char *str, ...)
 #endif //BSPC
 } //end of the function ScriptWarning
 
+void PC_Init( void ) {
+	//PC_InitTokenHeap();
+
+#if DEFINEHASHING
+	if ( !globaldefines )
+	{
+		globaldefines = (struct define_s **)GetClearedMemory(DEFINEHASHSIZE * sizeof(define_t *));
+	}
+#endif
+}
+
 void PC_PushIndent(source_t *source, int type, int skip)
 {
 	indent_t *indent;
@@ -922,7 +933,9 @@ int PC_Directive_undef(source_t *source)
 {
 	token_t token;
 	define_t *define, *lastdefine;
+#if DEFINEHASHING
 	int hash;
+#endif // DEFINEHASHING
 
 	if (source->skip > 0) return qtrue;
 
@@ -1128,7 +1141,10 @@ define_t *PC_DefineFromString(char *string)
 	script_t *script;
 	source_t src;
 	token_t *t;
-	int res, i;
+	int res;
+#if DEFINEHASHING
+	int i;
+#endif // DEFINEHASHING
 	define_t *def;
 
 	PC_InitTokenHeap();
@@ -1149,7 +1165,7 @@ define_t *PC_DefineFromString(char *string)
 		src.tokens = src.tokens->next;
 		PC_FreeToken(t);
 	} //end for
-#ifdef DEFINEHASHING
+#if DEFINEHASHING
 	def = NULL;
 	for (i = 0; i < DEFINEHASHSIZE; i++)
 	{
@@ -1199,7 +1215,17 @@ int PC_AddDefine(source_t *source, char *string)
 // add a globals define that will be added to all opened sources
 int PC_AddGlobalDefine(char *string)
 {
-#if !DEFINEHASHING
+#if DEFINEHASHING
+	define_t *define = PC_DefineFromString( string );
+	if ( !define ) {
+		return qfalse;
+	}
+
+	qboolean savedAGD = addGlobalDefine;
+	addGlobalDefine = qtrue;
+	PC_AddDefineToHash( define, NULL );
+	addGlobalDefine = savedAGD;
+#else
 	define_t *define;
 
 	define = PC_DefineFromString(string);
@@ -1213,7 +1239,23 @@ int PC_AddGlobalDefine(char *string)
 // remove the given global define
 int PC_RemoveGlobalDefine(char *name)
 {
-#if !DEFINEHASHING
+#if DEFINEHASHING
+	//FIXME: implement PC_RemoveGlobalDefine
+	if ( globaldefines ) {
+		int i;
+		for ( i=0; i<DEFINEHASHSIZE; i++ ) {
+			define_t *define;
+			for ( define = globaldefines[i]; define; define = define->globalnext ) {
+				if ( strcmp( define->name, name ) ) {
+					globaldefines[i] = define->globalnext;
+					PC_FreeDefine( define );
+					return qtrue;
+				}
+			}
+		}
+	}
+	return qfalse;
+#else
 	define_t *define;
 
 	define = PC_FindDefine(globaldefines, name);
@@ -2713,8 +2755,10 @@ void FreeSource(source_t *source)
 	token_t *token;
 	define_t *define;
 	indent_t *indent;
+#if DEFINEHASHING
 	define_t *nextdefine;
 	int i;
+#endif // DEFINEHASHING
 
 	//PC_PrintDefineHashTable(source->definehash);
 	//free all the scripts

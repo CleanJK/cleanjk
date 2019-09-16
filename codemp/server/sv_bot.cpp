@@ -592,6 +592,7 @@ void SV_BotInitBotLib(void) {
 	botlib_import.DebugPolygonDelete = BotImport_DebugPolygonDelete;
 
 	botlib_export = (botlib_export_t *)GetBotLibAPI( BOTLIB_API_VERSION, &botlib_import );
+	botlib_export->PC_Init();
 	assert(botlib_export);
 }
 

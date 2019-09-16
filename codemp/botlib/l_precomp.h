@@ -103,6 +103,8 @@ typedef struct source_s
 	token_t token;							//last read token
 } source_t;
 
+//initialise the precompiler
+void PC_Init( void );
 //read a token from the source
 int PC_ReadToken(source_t *source, token_t *token);
 //expect a certain token
