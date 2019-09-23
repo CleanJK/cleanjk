@@ -25,6 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "cg_local.h"
 #include "ghoul2/G2.h"
 #include "game/bg_saga.h"
+#include "cg_media.h"
 
 extern vmCvar_t	cg_thirdPersonAlpha;
 
@@ -1862,7 +1863,7 @@ static void _PlayerFootStep( const vec3_t origin,
 			} else {
 				soundType = FOOTSTEP_MUDWALK;
 			}
-			effectID = cgs.effects.footstepMud;
+			effectID = media.efx.null;
 			break;
 		case MATERIAL_DIRT:
 			bMark = qtrue;
@@ -1871,7 +1872,7 @@ static void _PlayerFootStep( const vec3_t origin,
 			} else {
 				soundType = FOOTSTEP_DIRTWALK;
 			}
-			effectID = cgs.effects.footstepSand;
+			effectID = media.efx.null;
 			break;
 		case MATERIAL_SAND:
 			bMark = qtrue;
@@ -1880,7 +1881,7 @@ static void _PlayerFootStep( const vec3_t origin,
 			} else {
 				soundType = FOOTSTEP_SANDWALK;
 			}
-			effectID = cgs.effects.footstepSand;
+			effectID = media.efx.null;
 			break;
 		case MATERIAL_SNOW:
 			bMark = qtrue;
@@ -1889,7 +1890,7 @@ static void _PlayerFootStep( const vec3_t origin,
 			} else {
 				soundType = FOOTSTEP_SNOWWALK;
 			}
-			effectID = cgs.effects.footstepSnow;
+			effectID = media.efx.null;
 			break;
 		case MATERIAL_SHORTGRASS:
 		case MATERIAL_LONGGRASS:
@@ -1919,7 +1920,7 @@ static void _PlayerFootStep( const vec3_t origin,
 			} else {
 				soundType = FOOTSTEP_GRAVELWALK;
 			}
-			effectID = cgs.effects.footstepGravel;
+			effectID = media.efx.null;
 			break;
 		case MATERIAL_CARPET:
 		case MATERIAL_FABRIC:
@@ -1968,7 +1969,7 @@ static void _PlayerFootStep( const vec3_t origin,
 	}
 	if (soundType < FOOTSTEP_TOTAL)
 	{
-	 	trap->S_StartSound( NULL, cent->currentState.clientNum, CHAN_BODY, cgs.media.footsteps[soundType][rand()&3] );
+	 	trap->S_StartSound( NULL, cent->currentState.clientNum, CHAN_BODY, media.sounds.null/* [soundType][rand()&3] */ );
 	}
 
 	if ( cg_footsteps.integer < 4 )
@@ -1995,17 +1996,17 @@ static void _PlayerFootStep( const vec3_t origin,
 	switch ( footStepType )
 	{
 	case FOOTSTEP_HEAVY_R:
-		footMarkShader = cgs.media.fshrMarkShader;
+		footMarkShader = media.gfx.null;
 		break;
 	case FOOTSTEP_HEAVY_L:
-		footMarkShader = cgs.media.fshlMarkShader;
+		footMarkShader = media.gfx.null;
 		break;
 	case FOOTSTEP_R:
-		footMarkShader = cgs.media.fsrMarkShader;
+		footMarkShader = media.gfx.null;
 		break;
 	default:
 	case FOOTSTEP_L:
-		footMarkShader = cgs.media.fslMarkShader;
+		footMarkShader = media.gfx.null;
 		break;
 	}
 
@@ -4106,13 +4107,13 @@ static void CG_PlayerPowerups( centity_t *cent, refEntity_t *torso ) {
 
 	// redflag
 	if ( powerups & ( 1 << PW_REDFLAG ) ) {
-		CG_PlayerFlag( cent, cgs.media.redFlagModel );
+		CG_PlayerFlag( cent, media.gfx.null );
 		trap->R_AddLightToScene( cent->lerpOrigin, 200 + (rand()&31), 1.0, 0.2f, 0.2f );
 	}
 
 	// blueflag
 	if ( powerups & ( 1 << PW_BLUEFLAG ) ) {
-		CG_PlayerFlag( cent, cgs.media.blueFlagModel );
+		CG_PlayerFlag( cent, media.gfx.null );
 		trap->R_AddLightToScene( cent->lerpOrigin, 200 + (rand()&31), 0.2f, 0.2f, 1.0 );
 	}
 
@@ -4196,15 +4197,15 @@ static void CG_PlayerSprites( centity_t *cent ) {
 	}
 
 	if ( cent->currentState.eFlags & EF_CONNECTION ) {
-		CG_PlayerFloatSprite( cent, cgs.media.connectionShader );
+		CG_PlayerFloatSprite( cent, media.gfx.null );
 		return;
 	}
 
 	if (cent->vChatTime > cg.time) {
-		CG_PlayerFloatSprite( cent, cgs.media.vchatShader );
+		CG_PlayerFloatSprite( cent, media.gfx.null );
 	}
 	else if ( cent->currentState.eFlags & EF_TALK ) {
-		CG_PlayerFloatSprite( cent, cgs.media.balloonShader );
+		CG_PlayerFloatSprite( cent, media.gfx.null );
 		return;
 	}
 }
@@ -4290,7 +4291,7 @@ static qboolean CG_PlayerShadow( centity_t *cent, float *shadowPlane ) {
 	//assert( DotProduct( trace.plane.normal, trace.plane.normal ) != 0.0f )
 
 	// add the mark as a temporary, so it goes directly to the renderer without taking a spot in the cg_marks array
-	CG_ImpactMark( cgs.media.shadowMarkShader, trace.endpos, trace.plane.normal,
+	CG_ImpactMark( media.gfx.null, trace.endpos, trace.plane.normal,
 		cent->pe.legs.yawAngle, alpha,alpha,alpha,1, qfalse, radius, qtrue );
 
 	return qtrue;
@@ -4374,7 +4375,7 @@ static void CG_PlayerSplash( centity_t *cent ) {
 	verts[3].modulate[2] = 255;
 	verts[3].modulate[3] = 255;
 
-	trap->R_AddPolysToScene( cgs.media.wakeMarkShader, 4, verts, 1 );
+	trap->R_AddPolysToScene( media.gfx.null, 4, verts, 1 );
 }
 
 #define REFRACT_EFFECT_DURATION		500
@@ -4398,7 +4399,7 @@ static void CG_ForcePushBlur( vec3_t org, centity_t *cent )
 		ex->color[0] = 24;
 		ex->color[1] = 32;
 		ex->color[2] = 40;
-		ex->refEntity.customShader = trap->R_RegisterShader( "gfx/effects/forcePush" );
+		ex->refEntity.customShader = media.gfx.null /*"gfx/effects/forcePush"*/;
 
 		ex = CG_AllocLocalEntity();
 		ex->leType = LE_PUFF;
@@ -4415,7 +4416,7 @@ static void CG_ForcePushBlur( vec3_t org, centity_t *cent )
 		ex->color[0] = 24;
 		ex->color[1] = 32;
 		ex->color[2] = 40;
-		ex->refEntity.customShader = trap->R_RegisterShader( "gfx/effects/forcePush" );
+		ex->refEntity.customShader = media.gfx.null /*"gfx/effects/forcePush"*/;
 	}
 	else
 	{ //superkewl "refraction" (well sort of) effect -rww
@@ -4510,8 +4511,8 @@ static void CG_ForcePushBlur( vec3_t org, centity_t *cent )
 		VectorScale(ent.axis[1], scale, ent.axis[1]);
 		VectorScale(ent.axis[2], scale, ent.axis[2]);
 
-		ent.hModel = cgs.media.halfShieldModel;
-		ent.customShader = cgs.media.refractionShader; //cgs.media.cloakedShader;
+		ent.hModel = media.models.null;
+		ent.customShader = media.gfx.null; //media.gfx.null;
 		ent.nonNormalizedAxes = qtrue;
 
 		//make it partially transparent so it blends with the background
@@ -4603,7 +4604,7 @@ static void CG_ForceGripEffect( vec3_t org )
 	}
 	ex->color[1] = 0;
 	ex->color[2] = 0;
-	ex->refEntity.customShader = trap->R_RegisterShader( "gfx/effects/forcePush" );
+	ex->refEntity.customShader = media.gfx.null /*"gfx/effects/forcePush"*/;
 
 	ex = CG_AllocLocalEntity();
 	ex->leType = LE_PUFF;
@@ -4627,7 +4628,7 @@ static void CG_ForceGripEffect( vec3_t org )
 	ex->color[0] = 255;
 	ex->color[1] = 255;
 	ex->color[2] = 255;
-	ex->refEntity.customShader = cgs.media.redSaberGlowShader;//trap->R_RegisterShader( "gfx/effects/forcePush" );
+	ex->refEntity.customShader = media.gfx.null;//media.gfx.null /*"gfx/effects/forcePush"*/;
 }
 
 // Adds a piece with modifications or duplications for powerups
@@ -4706,8 +4707,8 @@ void CG_DrawPlayerShield(centity_t *cent, vec3_t origin)
 	VectorScale( ent.axis[1], scale, ent.axis[1] );
 	VectorScale( ent.axis[2], scale, ent.axis[2] );
 
-	ent.hModel = cgs.media.halfShieldModel;
-	ent.customShader = cgs.media.halfShieldShader;
+	ent.hModel = media.models.null;
+	ent.customShader = media.gfx.null;
 	ent.shaderRGBA[0] = alpha;
 	ent.shaderRGBA[1] = alpha;
 	ent.shaderRGBA[2] = alpha;
@@ -4895,32 +4896,32 @@ void CG_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax, float
 	switch( color )
 	{
 		case SABER_RED:
-			glow = cgs.media.redSaberGlowShader;
-			blade = cgs.media.redSaberCoreShader;
+			glow = media.gfx.null;
+			blade = media.gfx.null;
 			break;
 		case SABER_ORANGE:
-			glow = cgs.media.orangeSaberGlowShader;
-			blade = cgs.media.orangeSaberCoreShader;
+			glow = media.gfx.null;
+			blade = media.gfx.null;
 			break;
 		case SABER_YELLOW:
-			glow = cgs.media.yellowSaberGlowShader;
-			blade = cgs.media.yellowSaberCoreShader;
+			glow = media.gfx.null;
+			blade = media.gfx.null;
 			break;
 		case SABER_GREEN:
-			glow = cgs.media.greenSaberGlowShader;
-			blade = cgs.media.greenSaberCoreShader;
+			glow = media.gfx.null;
+			blade = media.gfx.null;
 			break;
 		case SABER_BLUE:
-			glow = cgs.media.blueSaberGlowShader;
-			blade = cgs.media.blueSaberCoreShader;
+			glow = media.gfx.null;
+			blade = media.gfx.null;
 			break;
 		case SABER_PURPLE:
-			glow = cgs.media.purpleSaberGlowShader;
-			blade = cgs.media.purpleSaberCoreShader;
+			glow = media.gfx.null;
+			blade = media.gfx.null;
 			break;
 		default:
-			glow = cgs.media.blueSaberGlowShader;
-			blade = cgs.media.blueSaberCoreShader;
+			glow = media.gfx.null;
+			blade = media.gfx.null;
 			break;
 	}
 
@@ -5137,12 +5138,12 @@ void CG_CreateSaberMarks( vec3_t start, vec3_t end, vec3_t normal )
 			apArgs.bounce = 0;
 			apArgs.motionDelay = 0;
 			apArgs.killTime = cg_saberDynamicMarkTime.integer;
-			apArgs.shader = cgs.media.rivetMarkShader;
+			apArgs.shader = media.gfx.null;
 			apArgs.flags = 0x08000000|0x00000004;
 
 			trap->FX_AddPoly(&apArgs);
 
-			apArgs.shader = cgs.media.mSaberDamageGlow;
+			apArgs.shader = media.gfx.null;
 			apArgs.rgb1[0] = 215 + Q_flrand(0.0f, 1.0f) * 40.0f;
 			apArgs.rgb1[1] = 96 + Q_flrand(0.0f, 1.0f) * 32.0f;
 			apArgs.rgb1[2] = apArgs.alphaParm = Q_flrand(0.0f, 1.0f)*15.0f;
@@ -5162,7 +5163,7 @@ void CG_CreateSaberMarks( vec3_t start, vec3_t end, vec3_t normal )
 			mark = CG_AllocMark();
 			mark->time = cg.time;
 			mark->alphaFade = qtrue;
-			mark->markShader = cgs.media.rivetMarkShader;
+			mark->markShader = media.gfx.null;
 			mark->poly.numVerts = mf->numPoints;
 			mark->color[0] = mark->color[1] = mark->color[2] = mark->color[3] = 255;
 			memcpy( mark->verts, verts, mf->numPoints * sizeof( verts[0] ) );
@@ -5172,7 +5173,7 @@ void CG_CreateSaberMarks( vec3_t start, vec3_t end, vec3_t normal )
 			mark = CG_AllocMark();
 			mark->time = cg.time - 8500;
 			mark->alphaFade = qfalse;
-			mark->markShader = cgs.media.mSaberDamageGlow;
+			mark->markShader = media.gfx.null;
 			mark->poly.numVerts = mf->numPoints;
 			mark->color[0] = 215 + Q_flrand(0.0f, 1.0f) * 40.0f;
 			mark->color[1] = 96 + Q_flrand(0.0f, 1.0f) * 32.0f;
@@ -5263,7 +5264,7 @@ void CG_G2SaberEffects(vec3_t start, vec3_t end, centity_t *owner)
 
 			if (trace.entityNum != ENTITYNUM_NONE)
 			{ //it succeeded with the ghoul2 trace
-				trap->FX_PlayEffectID( cgs.effects.mSaberBloodSparks, trace.endpos, trace.plane.normal, -1, -1, qfalse );
+				trap->FX_PlayEffectID( media.efx.null, trace.endpos, trace.plane.normal, -1, -1, qfalse );
 				trap->S_StartSound(trace.endpos, trace.entityNum, CHAN_AUTO, trap->S_RegisterSound(va("sound/weapons/saber/saberhit%i.wav", Q_irand(1, 3))));
 			}
 		}
@@ -5393,7 +5394,7 @@ void CG_SaberCompWork(vec3_t start, vec3_t end, centity_t *owner, int saberNum, 
 
 						if (trEnt->ghoul2)
 						{
-							int weaponMarkShader = 0, markShader = cgs.media.bdecal_saberglow;
+							int weaponMarkShader = 0, markShader = media.gfx.null;
 
 							VectorSubtract(endTr, trace.endpos, ePos);
 							VectorNormalize(ePos);
@@ -5448,8 +5449,8 @@ void CG_SaberCompWork(vec3_t start, vec3_t end, centity_t *owner, int saberNum, 
 
 			if (doEffect)
 			{
-				int hitPersonFxID = cgs.effects.mSaberBloodSparks;
-				int hitOtherFxID = cgs.effects.mSaberCut;
+				int hitPersonFxID = media.efx.null;
+				int hitOtherFxID = media.efx.null;
 
 				client = &cgs.clientinfo[owner->currentState.clientNum];
 				if ( client && client->infoValid )
@@ -5656,7 +5657,7 @@ void CG_AddSaberBlade( centity_t *cent, centity_t *scent, refEntity_t *saber, in
 
 				if (!(trace.surfaceFlags & SURF_NOIMPACT) ) // never spark on sky
 				{
-					trap->FX_PlayEffectID( cgs.effects.mSparks, trace.endpos, trDir, -1, -1, qfalse );
+					trap->FX_PlayEffectID( media.efx.null, trace.endpos, trDir, -1, -1, qfalse );
 				}
 
 				//Stop saber? (it wouldn't look right if it was stuck through a thin wall and unable to hurt players on the other side)
@@ -5687,7 +5688,7 @@ void CG_AddSaberBlade( centity_t *cent, centity_t *scent, refEntity_t *saber, in
 				{
 					// if we impact next frame, we'll mark a slash mark
 					client->saber[saberNum].blade[bladeNum].trail.haveOldPos[i] = qtrue;
-	//				CG_ImpactMark( cgs.media.rivetMarkShader, client->saber[saberNum].blade[bladeNum].trail.oldPos[i], client->saber[saberNum].blade[bladeNum].trail.oldNormal[i],
+	//				CG_ImpactMark( media.gfx.null, client->saber[saberNum].blade[bladeNum].trail.oldPos[i], client->saber[saberNum].blade[bladeNum].trail.oldNormal[i],
 	//						0.0f, 1.0f, 1.0f, 1.0f, 1.0f, qfalse, 1.1f, qfalse );
 				}
 
@@ -5702,7 +5703,7 @@ void CG_AddSaberBlade( centity_t *cent, centity_t *scent, refEntity_t *saber, in
 					// Hmmm, no impact this frame, but we have an old point
 					// Let's put the mark there, we should use an endcap mark to close the line, but we
 					//	can probably just get away with a round mark
-	//					CG_ImpactMark( cgs.media.rivetMarkShader, client->saber[saberNum].blade[bladeNum].trail.oldPos[i], client->saber[saberNum].blade[bladeNum].trail.oldNormal[i],
+	//					CG_ImpactMark( media.gfx.null, client->saber[saberNum].blade[bladeNum].trail.oldPos[i], client->saber[saberNum].blade[bladeNum].trail.oldNormal[i],
 	//							0.0f, 1.0f, 1.0f, 1.0f, 1.0f, qfalse, 1.1f, qfalse );
 				}
 
@@ -5854,13 +5855,13 @@ CheckTrail:
 							if ( (!WP_SaberBladeUseSecondBladeStyle( &client->saber[saberNum], bladeNum ) && client->saber[saberNum].trailStyle == 1 )
 								|| ( WP_SaberBladeUseSecondBladeStyle( &client->saber[saberNum], bladeNum ) && client->saber[saberNum].trailStyle2 == 1 ) )
 							{//motion trail
-								fx.mShader = cgs.media.swordTrailShader;
+								fx.mShader = media.gfx.null;
 								VectorSet( rgb1, 32.0f, 32.0f, 32.0f ); // make the sith sword trail pretty faint
 								trailDur *= 2.0f; // stay around twice as long?
 							}
 							else
 							{
-								fx.mShader = cgs.media.saberBlurShader;
+								fx.mShader = media.gfx.null;
 							}
 							fx.mKillTime = trailDur;
 							fx.mSetFlags = FX_USE_ALPHA;
@@ -5921,7 +5922,7 @@ CheckTrail:
 						/*
 						else
 						{
-							fx.mShader = cgs.media.saberBlurShader;
+							fx.mShader = media.gfx.null;
 							fx.mKillTime = trailDur;
 							fx.mSetFlags = FX_USE_ALPHA;
 						}
@@ -6034,7 +6035,7 @@ void CG_DrawPlayerSphere(centity_t *cent, vec3_t origin, float scale, int shader
 
 	ent.nonNormalizedAxes = qtrue;
 
-	ent.hModel = cgs.media.halfShieldModel;
+	ent.hModel = media.models.null;
 	ent.customShader = shader;
 
 	trap->R_AddRefEntityToScene( &ent );
@@ -6056,28 +6057,28 @@ void CG_DrawPlayerSphere(centity_t *cent, vec3_t origin, float scale, int shader
 	VectorScale(ent.axis[2], scale*0.5f, ent.axis[2]);
 
 	ent.renderfx = (RF_DISTORTION|RF_FORCE_ENT_ALPHA);
-	if (shader == cgs.media.invulnerabilityShader)
+	if (shader == media.gfx.null)
 	{ //ok, ok, this is a little hacky. sorry!
 		ent.shaderRGBA[0] = 0;
 		ent.shaderRGBA[1] = 255;
 		ent.shaderRGBA[2] = 0;
 		ent.shaderRGBA[3] = 100;
 	}
-	else if (shader == cgs.media.ysalimariShader)
+	else if (shader == media.gfx.null)
 	{
 		ent.shaderRGBA[0] = 255;
 		ent.shaderRGBA[1] = 255;
 		ent.shaderRGBA[2] = 0;
 		ent.shaderRGBA[3] = 100;
 	}
-	else if (shader == cgs.media.endarkenmentShader)
+	else if (shader == media.gfx.null)
 	{
 		ent.shaderRGBA[0] = 100;
 		ent.shaderRGBA[1] = 0;
 		ent.shaderRGBA[2] = 0;
 		ent.shaderRGBA[3] = 20;
 	}
-	else if (shader == cgs.media.enlightenmentShader)
+	else if (shader == media.gfx.null)
 	{
 		ent.shaderRGBA[0] = 255;
 		ent.shaderRGBA[1] = 255;
@@ -6096,7 +6097,7 @@ void CG_DrawPlayerSphere(centity_t *cent, vec3_t origin, float scale, int shader
 
 	VectorMA(ent.origin, 40.0f, viewDir, ent.origin);
 
-	ent.customShader = trap->R_RegisterShader("effects/refract_2");
+	ent.customShader = media.gfx.null /*"effects/refract_2"*/;
 	trap->R_AddRefEntityToScene( &ent );
 }
 
@@ -6165,7 +6166,7 @@ void CG_AddLightningBeam(vec3_t start, vec3_t end)
 
 	b.rgbParm = 0.0f;
 	b.killTime = 50;
-	b.shader = trap->R_RegisterShader( "gfx/misc/electric2" );
+	b.shader = media.gfx.null /*"gfx/misc/electric2"*/;
 	b.flags = 0x00000001; //FX_ALPHA_LINEAR
 
 	trap->FX_AddBezier(&b);
@@ -6279,7 +6280,7 @@ void CG_DrawNoForceSphere(centity_t *cent, vec3_t origin, float scale, int shade
 	ent.shaderRGBA[2] = 0;
 	ent.shaderRGBA[0] = ent.shaderRGBA[1] = ent.shaderRGBA[3];
 
-	ent.hModel = cgs.media.halfShieldModel;
+	ent.hModel = media.models.null;
 	ent.customShader = shader;
 
 	trap->R_AddRefEntityToScene( &ent );
@@ -6447,115 +6448,6 @@ void CG_G2Animated( centity_t *cent )
 //rww - here ends the majority of my g2animent stuff.
 
 //Disabled for now, I'm too lazy to keep it working with all the stuff changing around.
-#if 0
-int cgFPLSState = 0;
-
-void CG_ForceFPLSPlayerModel(centity_t *cent, clientInfo_t *ci)
-{
-	animation_t *anim;
-
-	if (cg_fpls.integer && !cg.renderingThirdPerson)
-	{
-		int				skinHandle;
-
-		skinHandle = trap->R_RegisterSkin("models/players/kyle/model_fpls2.skin");
-
-		trap->G2API_CleanGhoul2Models(&(ci->ghoul2Model));
-
-		ci->torsoSkin = skinHandle;
-		trap->G2API_InitGhoul2Model(&ci->ghoul2Model, "models/players/kyle/model.glm", 0, ci->torsoSkin, 0, 0, 0);
-
-		ci->bolt_rhand = trap->G2API_AddBolt(ci->ghoul2Model, 0, "*r_hand");
-
-		trap->G2API_SetBoneAnim(ci->ghoul2Model, 0, "model_root", 0, 12, BONE_ANIM_OVERRIDE_LOOP, 1.0f, cg.time, -1, -1);
-		trap->G2API_SetBoneAngles(ci->ghoul2Model, 0, "upper_lumbar", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, NULL, 0, cg.time);
-		trap->G2API_SetBoneAngles(ci->ghoul2Model, 0, "cranium", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_Z, NEGATIVE_Y, POSITIVE_X, NULL, 0, cg.time);
-
-		ci->bolt_lhand = trap->G2API_AddBolt(ci->ghoul2Model, 0, "*l_hand");
-
-		//rhand must always be first bolt. lhand always second. Whichever you want the
-		//jetpack bolted to must always be third.
-		trap->G2API_AddBolt(ci->ghoul2Model, 0, "*chestg");
-
-		//claw bolts
-		trap->G2API_AddBolt(ci->ghoul2Model, 0, "*r_hand_cap_r_arm");
-		trap->G2API_AddBolt(ci->ghoul2Model, 0, "*l_hand_cap_l_arm");
-
-		ci->bolt_head = trap->G2API_AddBolt(ci->ghoul2Model, 0, "*head_top");
-		if (ci->bolt_head == -1)
-		{
-			ci->bolt_head = trap->G2API_AddBolt(ci->ghoul2Model, 0, "ceyebrow");
-		}
-
-		ci->bolt_motion = trap->G2API_AddBolt(ci->ghoul2Model, 0, "Motion");
-
-		//We need a lower lumbar bolt for footsteps
-		ci->bolt_llumbar = trap->G2API_AddBolt(ci->ghoul2Model, 0, "lower_lumbar");
-
-		CG_CopyG2WeaponInstance(cent, cent->currentState.weapon, ci->ghoul2Model);
-	}
-	else
-	{
-		CG_RegisterClientModelname(ci, ci->modelName, ci->skinName, ci->teamName, cent->currentState.number);
-	}
-
-	anim = &bgAllAnims[cent->localAnimIndex].anims[ cent->currentState.legsAnim ];
-
-	if (anim)
-	{
-		int flags = BONE_ANIM_OVERRIDE_FREEZE;
-		int firstFrame = anim->firstFrame;
-		int setFrame = -1;
-		float animSpeed = 50.0f / anim->frameLerp;
-
-		if (anim->loopFrames != -1)
-		{
-			flags = BONE_ANIM_OVERRIDE_LOOP;
-		}
-
-		if (cent->pe.legs.frame >= anim->firstFrame && cent->pe.legs.frame <= (anim->firstFrame + anim->numFrames))
-		{
-			setFrame = cent->pe.legs.frame;
-		}
-
-		trap->G2API_SetBoneAnim(ci->ghoul2Model, 0, "model_root", firstFrame, anim->firstFrame + anim->numFrames, flags, animSpeed, cg.time, setFrame, 150);
-
-		cent->currentState.legsAnim = 0;
-	}
-
-	anim = &bgAllAnims[cent->localAnimIndex].anims[ cent->currentState.torsoAnim ];
-
-	if (anim)
-	{
-		int flags = BONE_ANIM_OVERRIDE_FREEZE;
-		int firstFrame = anim->firstFrame;
-		int setFrame = -1;
-		float animSpeed = 50.0f / anim->frameLerp;
-
-		if (anim->loopFrames != -1)
-		{
-			flags = BONE_ANIM_OVERRIDE_LOOP;
-		}
-
-		if (cent->pe.torso.frame >= anim->firstFrame && cent->pe.torso.frame <= (anim->firstFrame + anim->numFrames))
-		{
-			setFrame = cent->pe.torso.frame;
-		}
-
-		trap->G2API_SetBoneAnim(ci->ghoul2Model, 0, "lower_lumbar", firstFrame, anim->firstFrame + anim->numFrames, flags, animSpeed, cg.time, setFrame, 150);
-
-		cent->currentState.torsoAnim = 0;
-	}
-
-	trap->G2API_CleanGhoul2Models(&(cent->ghoul2));
-	trap->G2API_DuplicateGhoul2Instance(ci->ghoul2Model, &cent->ghoul2);
-
-	//Attach the instance to this entity num so we can make use of client-server
-	//shared operations if possible.
-	trap->G2API_AttachInstanceToEntNum(cent->ghoul2, cent->currentState.number, qfalse);
-}
-#endif
-
 static void CG_ForceElectrocution( centity_t *cent, const vec3_t origin, vec3_t tempAngles, qhandle_t shader, qboolean alwaysDo )
 {
 	// Undoing for now, at least this code should compile if I ( or anyone else ) decides to work on this effect
@@ -6703,7 +6595,7 @@ static void CG_ForceElectrocution( centity_t *cent, const vec3_t origin, vec3_t 
 	}
 }
 
-void *cg_g2JetpackInstance = NULL;
+static void *cg_g2JetpackInstance = NULL;
 
 #define JETPACK_MODEL "models/weapons/jetpack/model.glm"
 
@@ -6728,7 +6620,6 @@ void CG_InitJetpackGhoul2(void)
 	trap->G2API_AddBolt(cg_g2JetpackInstance, 0, "torso_ljet");
 	trap->G2API_AddBolt(cg_g2JetpackInstance, 0, "torso_rjet");
 }
-
 void CG_CleanJetpackGhoul2(void)
 {
 	if (cg_g2JetpackInstance)
@@ -6991,8 +6882,8 @@ void CG_Player( centity_t *cent ) {
 				{ //create effects
 					//FIXME: Just one big effect
 					//Play the effect
-					trap->FX_PlayEffectID(cgs.effects.mBobaJet, flamePos, flameDir, -1, -1, qfalse);
-					trap->FX_PlayEffectID(cgs.effects.mBobaJet, flamePos, flameDir, -1, -1, qfalse);
+					trap->FX_PlayEffectID(media.efx.null, flamePos, flameDir, -1, -1, qfalse);
+					trap->FX_PlayEffectID(media.efx.null, flamePos, flameDir, -1, -1, qfalse);
 
 					//Keep the jet fire sound looping
 					trap->S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin,
@@ -7002,7 +6893,7 @@ void CG_Player( centity_t *cent ) {
 				{ //just idling
 					//FIXME: Different smaller effect for idle
 					//Play the effect
-					trap->FX_PlayEffectID(cgs.effects.mBobaJet, flamePos, flameDir, -1, -1, qfalse);
+					trap->FX_PlayEffectID(media.efx.null, flamePos, flameDir, -1, -1, qfalse);
 				}
 
 				n++;
@@ -7245,11 +7136,11 @@ void CG_Player( centity_t *cent ) {
 		{
 			if (team == TEAM_RED)
 			{
-				CG_PlayerFloatSprite( cent, cgs.media.teamRedShader);
+				CG_PlayerFloatSprite( cent, media.gfx.null);
 			}
 			else	// if (team == TEAM_BLUE)
 			{
-				CG_PlayerFloatSprite( cent, cgs.media.teamBlueShader);
+				CG_PlayerFloatSprite( cent, media.gfx.null);
 			}
 		}
 	}
@@ -7262,14 +7153,14 @@ void CG_Player( centity_t *cent ) {
 			ci &&
 			cgs.clientinfo[cg.snap->ps.clientNum].duelTeam == ci->duelTeam)
 		{ //ally in powerduel, so draw the icon
-			CG_PlayerFloatSprite( cent, cgs.media.powerDuelAllyShader);
+			CG_PlayerFloatSprite( cent, media.gfx.null);
 		}
 		else if (cg.predictedPlayerState.persistant[PERS_TEAM] == TEAM_SPECTATOR &&
 			cent->currentState.number < MAX_CLIENTS &&
 			!(cent->currentState.eFlags & EF_DEAD) &&
 			ci->duelTeam == DUELTEAM_DOUBLE)
 		{
-			CG_PlayerFloatSprite( cent, cgs.media.powerDuelAllyShader);
+			CG_PlayerFloatSprite( cent, media.gfx.null);
 		}
 	}
 
@@ -7285,7 +7176,7 @@ void CG_Player( centity_t *cent ) {
 				{
 					if (!cent->currentState.isJediMaster)
 					{
-						CG_PlayerFloatSprite( cent, cgs.media.teamRedShader);
+						CG_PlayerFloatSprite( cent, media.gfx.null);
 					}
 				}
 			}
@@ -7361,7 +7252,7 @@ void CG_Player( centity_t *cent ) {
 
 		AnglesToAxis( angles, seeker.axis );
 
-		seeker.hModel = trap->R_RegisterModel("models/items/remote.md3");
+		seeker.hModel = media.models.null; //media.models.items.seeker // "models/items/remote.md3"
 		trap->R_AddRefEntityToScene( &seeker );
 	}
 
@@ -7589,15 +7480,15 @@ void CG_Player( centity_t *cent ) {
 
 		if ( realForceLev > FORCE_LEVEL_2 )
 		{//arc
-			//trap->FX_PlayEffectID( cgs.effects.forceLightningWide, efOrg, fxDir );
-			//trap->FX_PlayEntityEffectID(cgs.effects.forceDrainWide, efOrg, axis, cent->boltInfo, cent->currentState.number, -1, -1);
-			trap->FX_PlayEntityEffectID(cgs.effects.forceDrainWide, efOrg, axis, -1, -1, -1, -1);
+			//trap->FX_PlayEffectID( media.efx.null, efOrg, fxDir );
+			//trap->FX_PlayEntityEffectID(media.efx.null, efOrg, axis, cent->boltInfo, cent->currentState.number, -1, -1);
+			trap->FX_PlayEntityEffectID(media.efx.null, efOrg, axis, -1, -1, -1, -1);
 		}
 		else
 		{//line
-			//trap->FX_PlayEffectID( cgs.effects.forceLightning, efOrg, fxDir );
-			//trap->FX_PlayEntityEffectID(cgs.effects.forceDrain, efOrg, axis, cent->boltInfo, cent->currentState.number, -1, -1);
-			trap->FX_PlayEntityEffectID(cgs.effects.forceDrain, efOrg, axis, -1, -1, -1, -1);
+			//trap->FX_PlayEffectID( media.efx.null, efOrg, fxDir );
+			//trap->FX_PlayEntityEffectID(media.efx.null, efOrg, axis, cent->boltInfo, cent->currentState.number, -1, -1);
+			trap->FX_PlayEntityEffectID(media.efx.null, efOrg, axis, -1, -1, -1, -1);
 		}
 
 		/*
@@ -7635,15 +7526,15 @@ void CG_Player( centity_t *cent ) {
 
 		if ( cent->currentState.activeForcePass > FORCE_LEVEL_2 )
 		{//arc
-			//trap->FX_PlayEffectID( cgs.effects.forceLightningWide, efOrg, fxDir );
-			//trap->FX_PlayEntityEffectID(cgs.effects.forceLightningWide, efOrg, axis, cent->boltInfo, cent->currentState.number, -1, -1);
-			trap->FX_PlayEntityEffectID(cgs.effects.forceLightningWide, efOrg, axis, -1, -1, -1, -1);
+			//trap->FX_PlayEffectID( media.efx.null, efOrg, fxDir );
+			//trap->FX_PlayEntityEffectID(media.efx.null, efOrg, axis, cent->boltInfo, cent->currentState.number, -1, -1);
+			trap->FX_PlayEntityEffectID(media.efx.null, efOrg, axis, -1, -1, -1, -1);
 		}
 		else
 		{//line
-			//trap->FX_PlayEffectID( cgs.effects.forceLightning, efOrg, fxDir );
-			//trap->FX_PlayEntityEffectID(cgs.effects.forceLightning, efOrg, axis, cent->boltInfo, cent->currentState.number, -1, -1);
-			trap->FX_PlayEntityEffectID(cgs.effects.forceLightning, efOrg, axis, -1, -1, -1, -1);
+			//trap->FX_PlayEffectID( media.efx.null, efOrg, fxDir );
+			//trap->FX_PlayEntityEffectID(media.efx.null, efOrg, axis, cent->boltInfo, cent->currentState.number, -1, -1);
+			trap->FX_PlayEntityEffectID(media.efx.null, efOrg, axis, -1, -1, -1, -1);
 		}
 
 		/*
@@ -7690,89 +7581,6 @@ void CG_Player( centity_t *cent ) {
 
 			CG_ForceGripEffect( efOrg );
 			CG_ForceGripEffect( efOrg );
-
-			/*
-			//Render a scaled version of the model's hand with a n337 looking shader
-			{
-				const char *rotateBone;
-				char *limbName;
-				char *limbCapName;
-				vec3_t armAng;
-				refEntity_t regrip_arm;
-				float wv = sin( cg.time * 0.003f ) * 0.08f + 0.1f;
-
-				//rotateBone = "lradius";
-				rotateBone = "lradiusX";
-				limbName = "l_arm";
-				limbCapName = "l_arm_cap_torso";
-
-				if (cent->grip_arm && trap->G2_HaveWeGhoul2Models(cent->grip_arm))
-				{
-					trap->G2API_CleanGhoul2Models(&(cent->grip_arm));
-				}
-
-				memset( &regrip_arm, 0, sizeof(regrip_arm) );
-
-				VectorCopy(origBolt, efOrg);
-
-				//efOrg[2] += 8;
-				efOrg[2] -= 4;
-
-				VectorCopy(efOrg, regrip_arm.origin);
-				VectorCopy(regrip_arm.origin, regrip_arm.lightingOrigin);
-
-				//VectorCopy(cent->lerpAngles, armAng);
-				VectorAdd(vec3_origin, rootAngles, armAng);
-				//armAng[ROLL] = -90;
-				armAng[ROLL] = 0;
-				armAng[PITCH] = 0;
-				AnglesToAxis(armAng, regrip_arm.axis);
-
-				trap->G2API_DuplicateGhoul2Instance(cent->ghoul2, &cent->grip_arm);
-
-				//remove all other models
-				if (trap->G2API_HasGhoul2ModelOnIndex(&(cent->grip_arm), 1))
-				{ //weapon right
-					trap->G2API_RemoveGhoul2Model(&(cent->grip_arm), 1);
-				}
-				if (trap->G2API_HasGhoul2ModelOnIndex(&(cent->grip_arm), 2))
-				{ //weapon left
-					trap->G2API_RemoveGhoul2Model(&(cent->grip_arm), 2);
-				}
-				if (trap->G2API_HasGhoul2ModelOnIndex(&(cent->grip_arm), 3))
-				{ //jetpack
-					trap->G2API_RemoveGhoul2Model(&(cent->grip_arm), 3);
-				}
-
-				trap->G2API_SetRootSurface(cent->grip_arm, 0, limbName);
-				trap->G2API_SetNewOrigin(cent->grip_arm, trap->G2API_AddBolt(cent->grip_arm, 0, rotateBone));
-				trap->G2API_SetSurfaceOnOff(cent->grip_arm, limbCapName, 0);
-
-				regrip_arm.modelScale[0] = 1;//+(wv*6);
-				regrip_arm.modelScale[1] = 1;//+(wv*6);
-				regrip_arm.modelScale[2] = 1;//+(wv*6);
-				ScaleModelAxis(&regrip_arm);
-
-				regrip_arm.radius = 64;
-
-				regrip_arm.customShader = trap->R_RegisterShader( "gfx/misc/red_portashield" );
-
-				regrip_arm.renderfx |= RF_RGB_TINT;
-				regrip_arm.shaderRGBA[0] = 255 - (wv*900);
-				if (regrip_arm.shaderRGBA[0] < 30)
-				{
-					regrip_arm.shaderRGBA[0] = 30;
-				}
-				if (regrip_arm.shaderRGBA[0] > 255)
-				{
-					regrip_arm.shaderRGBA[0] = 255;
-				}
-				regrip_arm.shaderRGBA[1] = regrip_arm.shaderRGBA[2] = regrip_arm.shaderRGBA[0];
-
-				regrip_arm.ghoul2 = cent->grip_arm;
-				trap->R_AddRefEntityToScene( &regrip_arm );
-			}
-			*/
 		}
 		else if (!(cent->currentState.forcePowersActive & (1 << FP_GRIP)))
 		{
@@ -7851,7 +7659,7 @@ void CG_Player( centity_t *cent ) {
 
 			legs.shaderRGBA[3] = ((cent->teamPowerEffectTime - cg.time)/8);
 
-			legs.customShader = trap->R_RegisterShader( "powerups/ysalimarishell" );
+			legs.customShader = media.gfx.null /*"powerups/ysalimarishell"*/;
 			trap->R_AddRefEntityToScene(&legs);
 
 			legs.customShader = 0;
@@ -7897,7 +7705,7 @@ void CG_Player( centity_t *cent ) {
 		 	axis[2][2] = boltMatrix.matrix[2][2];
 
 			//trap->FX_PlayEntityEffectID(trap->FX_RegisterEffect("force/confusion.efx"), efOrg, axis, cent->boltInfo, cent->currentState.number);
-			trap->FX_PlayEntityEffectID(cgs.effects.mForceConfustionOld, efOrg, axis, -1, -1, -1, -1);
+			trap->FX_PlayEntityEffectID(media.efx.null, efOrg, axis, -1, -1, -1, -1);
 		}
 	}
 
@@ -8001,18 +7809,18 @@ void CG_Player( centity_t *cent ) {
 					{ //dark
 						fxSArgs.sAlpha *= 3;
 						fxSArgs.eAlpha *= 3;
-						fxSArgs.shader = cgs.media.redSaberGlowShader;
+						fxSArgs.shader = media.gfx.null;
 						trap->FX_AddSprite(&fxSArgs);
 					}
 					else if (forcePowerDarkLight[i] == FORCE_LIGHTSIDE)
 					{ //light
 						fxSArgs.sAlpha *= 1.5;
 						fxSArgs.eAlpha *= 1.5;
-						fxSArgs.shader = cgs.media.redSaberGlowShader;
+						fxSArgs.shader = media.gfx.null;
 						trap->FX_AddSprite(&fxSArgs);
-						fxSArgs.shader = cgs.media.greenSaberGlowShader;
+						fxSArgs.shader = media.gfx.null;
 						trap->FX_AddSprite(&fxSArgs);
-						fxSArgs.shader = cgs.media.blueSaberGlowShader;
+						fxSArgs.shader = media.gfx.null;
 						trap->FX_AddSprite(&fxSArgs);
 					}
 					else
@@ -8023,22 +7831,22 @@ void CG_Player( centity_t *cent ) {
 						{ //saber power
 							fxSArgs.sAlpha *= 1.5;
 							fxSArgs.eAlpha *= 1.5;
-							fxSArgs.shader = cgs.media.greenSaberGlowShader;
+							fxSArgs.shader = media.gfx.null;
 							trap->FX_AddSprite(&fxSArgs);
 						}
 						else
 						{
 							fxSArgs.sAlpha *= 0.5;
 							fxSArgs.eAlpha *= 0.5;
-							fxSArgs.shader = cgs.media.greenSaberGlowShader;
+							fxSArgs.shader = media.gfx.null;
 							trap->FX_AddSprite(&fxSArgs);
-							fxSArgs.shader = cgs.media.blueSaberGlowShader;
+							fxSArgs.shader = media.gfx.null;
 							trap->FX_AddSprite(&fxSArgs);
 						}
 					}
 				}
 
-				holoRef.hModel = trap->R_RegisterModel(forceHolocronModels[i]);
+				holoRef.hModel = media.models.null; // media.models.items.forceHolocrons[i];
 				trap->R_AddRefEntityToScene( &holoRef );
 
 				renderedHolos++;
@@ -8052,35 +7860,35 @@ void CG_Player( centity_t *cent ) {
 	{
 		if (cgs.gametype == GT_CTY && (cent->currentState.powerups & (1 << PW_REDFLAG)))
 		{
-			CG_DrawPlayerSphere(cent, cent->lerpOrigin, 1.4f, cgs.media.ysaliredShader );
+			CG_DrawPlayerSphere(cent, cent->lerpOrigin, 1.4f, media.gfx.null );
 		}
 		else if (cgs.gametype == GT_CTY && (cent->currentState.powerups & (1 << PW_BLUEFLAG)))
 		{
-			CG_DrawPlayerSphere(cent, cent->lerpOrigin, 1.4f, cgs.media.ysaliblueShader );
+			CG_DrawPlayerSphere(cent, cent->lerpOrigin, 1.4f, media.gfx.null );
 		}
 		else
 		{
-			CG_DrawPlayerSphere(cent, cent->lerpOrigin, 1.4f, cgs.media.ysalimariShader );
+			CG_DrawPlayerSphere(cent, cent->lerpOrigin, 1.4f, media.gfx.null );
 		}
 	}
 
 	if (cent->currentState.powerups & (1 << PW_FORCE_BOON))
 	{
-		CG_DrawPlayerSphere(cent, cent->lerpOrigin, 2.0f, cgs.media.boonShader );
+		CG_DrawPlayerSphere(cent, cent->lerpOrigin, 2.0f, media.gfx.null );
 	}
 
 	if (cent->currentState.powerups & (1 << PW_FORCE_ENLIGHTENED_DARK))
 	{
-		CG_DrawPlayerSphere(cent, cent->lerpOrigin, 2.0f, cgs.media.endarkenmentShader );
+		CG_DrawPlayerSphere(cent, cent->lerpOrigin, 2.0f, media.gfx.null );
 	}
 	else if (cent->currentState.powerups & (1 << PW_FORCE_ENLIGHTENED_LIGHT))
 	{
-		CG_DrawPlayerSphere(cent, cent->lerpOrigin, 2.0f, cgs.media.enlightenmentShader );
+		CG_DrawPlayerSphere(cent, cent->lerpOrigin, 2.0f, media.gfx.null );
 	}
 
 	if (cent->currentState.eFlags & EF_INVULNERABLE)
 	{
-		CG_DrawPlayerSphere(cent, cent->lerpOrigin, 1.0f, cgs.media.invulnerabilityShader );
+		CG_DrawPlayerSphere(cent, cent->lerpOrigin, 1.0f, media.gfx.null );
 	}
 stillDoSaber:
 	if ((cent->currentState.eFlags & EF_DEAD) && cent->currentState.weapon == WP_SABER)
@@ -8458,7 +8266,7 @@ stillDoSaber:
 
 				wv = sin( cg.time * 0.003f ) * 0.08f + 0.1f;
 
-				//trap->FX_AddSprite( NULL, efOrg, NULL, NULL, 8.0f, 8.0f, wv, wv, 0.0f, 0.0f, 1.0f, cgs.media.yellowSaberGlowShader, 0x08000000 );
+				//trap->FX_AddSprite( NULL, efOrg, NULL, NULL, 8.0f, 8.0f, wv, wv, 0.0f, 0.0f, 1.0f, media.gfx.null, 0x08000000 );
 				VectorCopy(efOrg, fxSArgs.origin);
 				VectorClear(fxSArgs.vel);
 				VectorClear(fxSArgs.accel);
@@ -8469,7 +8277,7 @@ stillDoSaber:
 				fxSArgs.rotation = 0.0f;
 				fxSArgs.bounce = 0.0f;
 				fxSArgs.life = 1.0f;
-				fxSArgs.shader = cgs.media.yellowDroppedSaberShader;
+				fxSArgs.shader = media.gfx.null;
 				fxSArgs.flags = 0x08000000;
 				trap->FX_AddSprite(&fxSArgs);
 			}
@@ -8715,7 +8523,7 @@ stillDoSaber:
 
 					legs.renderfx &= ~RF_RGB_TINT;
 					legs.renderfx &= ~RF_FORCE_ENT_ALPHA;
-					legs.customShader = cgs.media.forceShell;
+					legs.customShader = media.gfx.null;
 
 					trap->R_AddRefEntityToScene( &legs );	//draw the shell
 
@@ -8816,7 +8624,7 @@ stillDoSaber:
 				legs.renderfx |= RF_RGB_TINT;
 				legs.shaderRGBA[0] = legs.shaderRGBA[1] = legs.shaderRGBA[2] = 255.0f * perc;
 				legs.shaderRGBA[3] = 0;
-				legs.customShader = cgs.media.cloakedShader;
+				legs.customShader = media.gfx.null;
 				trap->R_AddRefEntityToScene( &legs );
 
 				legs.shaderRGBA[0] = legs.shaderRGBA[1] = legs.shaderRGBA[2] = 255;
@@ -8842,7 +8650,7 @@ stillDoSaber:
 				/*
 				legs.renderfx = 0;//&= ~(RF_RGB_TINT|RF_ALPHA_FADE);
 				legs.shaderRGBA[0] = legs.shaderRGBA[1] = legs.shaderRGBA[2] = legs.shaderRGBA[3] = 255;
-				legs.customShader = cgs.media.cloakedShader;
+				legs.customShader = media.gfx.null;
 
 				legs.nonNormalizedAxes = qtrue;
 
@@ -8878,7 +8686,7 @@ stillDoSaber:
 				{ //stencil buffer's in use, sorry
 					legs.renderfx = 0;//&= ~(RF_RGB_TINT|RF_ALPHA_FADE);
 					legs.shaderRGBA[0] = legs.shaderRGBA[1] = legs.shaderRGBA[2] = legs.shaderRGBA[3] = 255;
-					legs.customShader = cgs.media.cloakedShader;
+					legs.customShader = media.gfx.null;
 					trap->R_AddRefEntityToScene( &legs );
 					legs.customShader = 0;
 				}
@@ -8968,7 +8776,7 @@ stillDoSaber:
 	if ((cent->currentState.forcePowersActive & (1 << FP_RAGE)) &&
 		(cg.renderingThirdPerson || cent->currentState.number != cg.snap->ps.clientNum))
 	{
-		//legs.customShader = cgs.media.rageShader;
+		//legs.customShader = media.gfx.null;
 		legs.renderfx &= ~RF_FORCE_ENT_ALPHA;
 		legs.renderfx &= ~RF_MINLIGHT;
 
@@ -8979,11 +8787,11 @@ stillDoSaber:
 
 		if ( rand() & 1 )
 		{
-			legs.customShader = cgs.media.electricBodyShader;
+			legs.customShader = media.gfx.null;
 		}
 		else
 		{
-			legs.customShader = cgs.media.electricBody2Shader;
+			legs.customShader = media.gfx.null;
 		}
 
 		trap->R_AddRefEntityToScene(&legs);
@@ -8997,7 +8805,7 @@ stillDoSaber:
 
 		legs.renderfx &= ~RF_RGB_TINT;
 		legs.renderfx &= ~RF_FORCE_ENT_ALPHA;
-		legs.customShader = cgs.media.forceSightBubble;
+		legs.customShader = media.gfx.null;
 
 		trap->R_AddRefEntityToScene( &legs );
 	}
@@ -9017,7 +8825,7 @@ stillDoSaber:
 
 		prot.renderfx &= ~RF_RGB_TINT;
 		prot.renderfx &= ~RF_FORCE_ENT_ALPHA;
-		prot.customShader = cgs.media.protectShader;
+		prot.customShader = media.gfx.null;
 
 		/*
 		if (!prot.modelScale[0] && !prot.modelScale[1] && !prot.modelScale[2])
@@ -9045,7 +8853,7 @@ stillDoSaber:
 
 		legs.renderfx &= ~RF_RGB_TINT;
 		legs.renderfx &= ~RF_FORCE_ENT_ALPHA;
-		legs.customShader = cgs.media.playerShieldDamage;
+		legs.customShader = media.gfx.null;
 
 		trap->R_AddRefEntityToScene( &legs );
 	}
@@ -9059,7 +8867,7 @@ stillDoSaber:
 		legs.renderfx &= ~RF_RGB_TINT;
 		legs.renderfx &= ~RF_FORCE_ENT_ALPHA;
 		legs.renderfx |= RF_NODEPTH;
-		legs.customShader = cgs.media.forceShell;
+		legs.customShader = media.gfx.null;
 
 		trap->R_AddRefEntityToScene( &legs );
 
@@ -9113,7 +8921,7 @@ stillDoSaber:
 
 		legs.renderfx &= ~RF_RGB_TINT;
 		legs.renderfx &= ~RF_FORCE_ENT_ALPHA;
-		legs.customShader = cgs.media.sightShell;
+		legs.customShader = media.gfx.null;
 
 		trap->R_AddRefEntityToScene( &legs );
 	}
@@ -9143,21 +8951,21 @@ stillDoSaber:
 
 			if ( rand() & 1 )
 			{
-				legs.customShader = cgs.media.electricBodyShader;
+				legs.customShader = media.gfx.null;
 			}
 			else
 			{
-				legs.customShader = cgs.media.electricBody2Shader;
+				legs.customShader = media.gfx.null;
 			}
 
 			trap->R_AddRefEntityToScene( &legs );
 
 			if ( Q_flrand(0.0f, 1.0f) > 0.9f )
-				trap->S_StartSound ( NULL, cent->currentState.number, CHAN_AUTO, cgs.media.crackleSound );
+				trap->S_StartSound ( NULL, cent->currentState.number, CHAN_AUTO, media.sounds.null );
 		}
 
 		VectorSet(tempAngles, 0, cent->lerpAngles[YAW], 0);
-		CG_ForceElectrocution( cent, legs.origin, tempAngles, cgs.media.boltShader, qfalse );
+		CG_ForceElectrocution( cent, legs.origin, tempAngles, media.gfx.null, qfalse );
 	}
 
 	if (cent->currentState.powerups & (1 << PW_SHIELDHIT))
@@ -9174,7 +8982,7 @@ stillDoSaber:
 		legs.renderfx &= ~RF_FORCE_ENT_ALPHA;
 		legs.renderfx &= ~RF_MINLIGHT;
 		legs.renderfx &= ~RF_RGB_TINT;
-		legs.customShader = cgs.media.playerShieldDamage;
+		legs.customShader = media.gfx.null;
 
 		trap->R_AddRefEntityToScene( &legs );
 	}

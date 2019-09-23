@@ -25,6 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // processed entities, like smoke puffs, gibs, shells, etc.
 
 #include "cg_local.h"
+#include "cg_media.h"
 
 #define	MAX_LOCAL_ENTITIES	2048 // 512
 localEntity_t	cg_localEntities[MAX_LOCAL_ENTITIES];
@@ -107,7 +108,7 @@ void CG_BloodTrail( localEntity_t *le ) {
 					  t,		// startTime
 					  0,		// fadeInTime
 					  0,		// flags
-					  /*cgs.media.bloodTrailShader*/0 );
+					  /*media.gfx.null*/0 );
 		// use the optimized version
 		blood->leType = LE_FALL_SCALE_FADE;
 		// drop a total of 40 units over its lifetime
@@ -120,10 +121,10 @@ void CG_FragmentBounceMark( localEntity_t *le, trace_t *trace ) {
 
 	if ( le->leMarkType == LEMT_BLOOD ) {
 	//	radius = 16 + (rand()&31);
-	//	CG_ImpactMark( cgs.media.bloodMarkShader, trace->endpos, trace->plane.normal, Q_flrand(0.0f, 1.0f)*360, 1,1,1,1, qtrue, radius, qfalse );
+	//	CG_ImpactMark( media.gfx.null, trace->endpos, trace->plane.normal, Q_flrand(0.0f, 1.0f)*360, 1,1,1,1, qtrue, radius, qfalse );
 	} else if ( le->leMarkType == LEMT_BURN ) {
 	//	radius = 8 + (rand()&15);
-	//	CG_ImpactMark( cgs.media.burnMarkShader, trace->endpos, trace->plane.normal, Q_flrand(0.0f, 1.0f)*360, 1,1,1,1, qtrue, radius, qfalse );
+	//	CG_ImpactMark( media.gfx.null, trace->endpos, trace->plane.normal, Q_flrand(0.0f, 1.0f)*360, 1,1,1,1, qtrue, radius, qfalse );
 	}
 
 	// don't allow a fragment to make multiple marks, or they pile up while settling
@@ -139,10 +140,10 @@ void CG_FragmentBounceSound( localEntity_t *le, trace_t *trace ) {
 		switch( le->leBounceSoundType )
 		{
 		case LEBS_ROCK:
-			s = cgs.media.rockBounceSound[Q_irand(0,1)];
+			s = media.sounds.null/* [Q_irand(0,1)] */;
 			break;
 		case LEBS_METAL:
-			s = cgs.media.metalBounceSound[Q_irand(0,1)];// FIXME: make sure that this sound is registered properly...might still be rock bounce sound....
+			s = media.sounds.null/* [Q_irand(0,1)] */;// FIXME: make sure that this sound is registered properly...might still be rock bounce sound....
 			break;
 		default:
 			return;
@@ -610,7 +611,7 @@ void CG_AddScorePlum( localEntity_t *le ) {
 
 	for (i = 0; i < numdigits; i++) {
 		VectorMA(origin, (float) (((float) numdigits / 2) - i) * NUMBER_SIZE, vec, re->origin);
-		re->customShader = cgs.media.numberShaders[digits[numdigits-1-i]];
+		re->customShader = media.gfx.null/* [digits[numdigits-1-i]] */;
 		trap->R_AddRefEntityToScene( re );
 	}
 }

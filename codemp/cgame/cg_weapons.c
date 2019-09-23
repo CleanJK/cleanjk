@@ -24,6 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // cg_weapons.c -- events and effects dealing with weapons
 #include "cg_local.h"
 #include "cg_weaponfx.h"
+#include "cg_media.h"
 
 // set up the appropriate ghoul2 info to a refent
 void CG_SetGhoul2InfoRef( refEntity_t *ent, refEntity_t	*s1)
@@ -83,18 +84,7 @@ void CG_RegisterItemVisuals( int itemNum ) {
 	}
 	if (item->icon)
 	{
-		if (item->giType == IT_HEALTH)
-		{ //medpack gets nomip'd by the ui or something I guess.
-			itemInfo->icon = trap->R_RegisterShaderNoMip( item->icon );
-		}
-		else
-		{
-			itemInfo->icon = trap->R_RegisterShader( item->icon );
-		}
-	}
-	else
-	{
-		itemInfo->icon = 0;
+		itemInfo->icon = item->icon ? media.gfx.null : media.gfx.null; // item->icon
 	}
 
 	if ( item->giType == IT_WEAPON ) {
@@ -321,7 +311,7 @@ static void CG_LightningBolt( centity_t *cent, vec3_t origin ) {
 	VectorCopy( origin, beam.origin );
 
 	beam.reType = RT_LIGHTNING;
-	beam.customShader = cgs.media.lightningShader;
+	beam.customShader = media.gfx.null;
 	trap->R_AddRefEntityToScene( &beam );
 */
 
@@ -336,7 +326,7 @@ static void CG_LightningBolt( centity_t *cent, vec3_t origin ) {
 		VectorNormalize( dir );
 
 		memset( &beam, 0, sizeof( beam ) );
-		beam.hModel = cgs.media.lightningExplosionModel;
+		beam.hModel = media.models.null;
 
 		VectorMA( trace.endpos, -16, dir, beam.origin );
 
@@ -359,11 +349,11 @@ static void CG_AddWeaponWithPowerups( refEntity_t *gun, int powerups ) {
 		int preShader = gun->customShader;
 		if ( rand() & 1 )
 		{
-			gun->customShader = cgs.media.electricBodyShader;
+			gun->customShader = media.gfx.null;
 		}
 		else
 		{
-			gun->customShader = cgs.media.electricBody2Shader;
+			gun->customShader = media.gfx.null;
 		}
 		trap->R_AddRefEntityToScene( gun );
 		gun->customShader = preShader; //set back just to be safe
@@ -441,16 +431,6 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 			cg.snap->ps.clientNum))
 		{
 			CG_AddWeaponWithPowerups( &gun, cent->currentState.powerups ); //don't draw the weapon if the player is invisible
-			/*
-			if ( weaponNum == WP_STUN_BATON )
-			{
-				gun.shaderRGBA[0] = gun.shaderRGBA[1] = gun.shaderRGBA[2] = 25;
-
-				gun.customShader = trap->R_RegisterShader( "gfx/effects/stunPass" );
-				gun.renderfx = RF_RGB_TINT | RF_FIRST_PERSON | RF_DEPTHHACK;
-				trap->R_AddRefEntityToScene( &gun );
-			}
-			*/
 		}
 
 		if (weaponNum == WP_STUN_BATON)
@@ -569,18 +549,18 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 		{
 			// Hardcoded max charge time of 1 second
 			val = ( cg.time - cent->currentState.constantLight ) * 0.001f;
-			shader = cgs.media.bryarFrontFlash;
+			shader = media.gfx.null;
 		}
 		else if ( cent->currentState.weapon == WP_BOWCASTER )
 		{
 			// Hardcoded max charge time of 1 second
 			val = ( cg.time - cent->currentState.constantLight ) * 0.001f;
-			shader = cgs.media.greenFrontFlash;
+			shader = media.gfx.null;
 		}
 		else if ( cent->currentState.weapon == WP_DEMP2 )
 		{
 			val = ( cg.time - cent->currentState.constantLight ) * 0.001f;
-			shader = cgs.media.lightningFlash;
+			shader = media.gfx.null;
 			scale = 1.75f;
 		}
 
@@ -821,7 +801,7 @@ void CG_DrawIconBackground(void)
 	float			inTime = cg.invenSelectTime+WEAPON_SELECT_TIME;
 	float			wpTime = cg.weaponSelectTime+WEAPON_SELECT_TIME;
 	float			fpTime = cg.forceSelectTime+WEAPON_SELECT_TIME;
-//	int				drawType = cgs.media.weaponIconBackground;
+//	int				drawType = media.gfx.null;
 //	int				yOffset = 0;
 
 	// don't display if dead
@@ -843,18 +823,18 @@ void CG_DrawIconBackground(void)
 
 	if (inTime > wpTime)
 	{
-//		drawType = cgs.media.inventoryIconBackground;
+//		drawType = media.gfx.null;
 		cg.iconSelectTime = cg.invenSelectTime;
 	}
 	else
 	{
-//		drawType = cgs.media.weaponIconBackground;
+//		drawType = media.gfx.null;
 		cg.iconSelectTime = cg.weaponSelectTime;
 	}
 
 	if (fpTime > inTime && fpTime > wpTime)
 	{
-//		drawType = cgs.media.forceIconBackground;
+//		drawType = media.gfx.null;
 		cg.iconSelectTime = cg.forceSelectTime;
 	}
 
@@ -909,34 +889,6 @@ void CG_DrawIconBackground(void)
 	{
 		cg.iconHUDPercent=1;
 	}
-
-	//trap->R_SetColor( colorTable[CT_WHITE] );
-	//height = (int) (60.0f*cg.iconHUDPercent);
-	//CG_DrawPic( x2+60, y2+30+yOffset, 460, -height, drawType);	// Top half
-	//CG_DrawPic( x2+60, y2+30-2+yOffset, 460, height, drawType);	// Bottom half
-
-	// And now for the prongs
-/*	if ((cg.inventorySelectTime+WEAPON_SELECT_TIME)>cg.time)
-	{
-		cgs.media.currentBackground = ICON_INVENTORY;
-		background = &cgs.media.inventoryProngsOn;
-	}
-	else if ((cg.weaponSelectTime+WEAPON_SELECT_TIME)>cg.time)
-	{
-		cgs.media.currentBackground = ICON_WEAPONS;
-	}
-	else
-	{
-		cgs.media.currentBackground = ICON_FORCE;
-		background = &cgs.media.forceProngsOn;
-	}
-*/
-	// Side Prongs
-//	trap->R_SetColor( colorTable[CT_WHITE]);
-//	xAdd = (int) 8*cg.iconHUDPercent;
-//	CG_DrawPic( prongLeftX+xAdd, y2-10, 40, 80, background);
-//	CG_DrawPic( prongRightX-xAdd, y2-10, -40, 80, background);
-
 }
 
 qboolean CG_WeaponCheck(int weap)
@@ -1125,7 +1077,7 @@ void CG_DrawWeaponSelect( void ) {
 
 		++iconCnt;					// Good icon
 
-		if (cgs.media.weaponIcons[i])
+		if (media.gfx.null/* [i] */)
 		{
 		//	weaponInfo_t	*weaponInfo;
 			CG_RegisterWeapon( i );
@@ -1134,11 +1086,11 @@ void CG_DrawWeaponSelect( void ) {
 			trap->R_SetColor(colorTable[CT_WHITE]);
 			if (!CG_WeaponCheck(i))
 			{
-				CG_DrawPic( holdX, y+10+yOffset, smallIconSize, smallIconSize, /*weaponInfo->weaponIconNoAmmo*/cgs.media.weaponIcons_NA[i] );
+				CG_DrawPic( holdX, y+10+yOffset, smallIconSize, smallIconSize, /*weaponInfo->weaponIconNoAmmo*/media.gfx.null/* [i] */ );
 			}
 			else
 			{
-				CG_DrawPic( holdX, y+10+yOffset, smallIconSize, smallIconSize, /*weaponInfo->weaponIcon*/cgs.media.weaponIcons[i] );
+				CG_DrawPic( holdX, y+10+yOffset, smallIconSize, smallIconSize, /*weaponInfo->weaponIcon*/media.gfx.null/* [i] */ );
 			}
 
 			holdX -= (smallIconSize+pad);
@@ -1152,7 +1104,7 @@ void CG_DrawWeaponSelect( void ) {
 
 	// Current Center Icon
 //	height = bigIconSize * cg.iconHUDPercent;
-	if (cgs.media.weaponIcons[cg.weaponSelect])
+	if (media.gfx.null/* [cg.weaponSelect] */)
 	{
 	//	weaponInfo_t	*weaponInfo;
 		CG_RegisterWeapon( cg.weaponSelect );
@@ -1161,11 +1113,11 @@ void CG_DrawWeaponSelect( void ) {
 		trap->R_SetColor( colorTable[CT_WHITE]);
 		if (!CG_WeaponCheck(cg.weaponSelect))
 		{
-			CG_DrawPic( x-(bigIconSize/2), (y-((bigIconSize-smallIconSize)/2))+10+yOffset, bigIconSize, bigIconSize, cgs.media.weaponIcons_NA[cg.weaponSelect] );
+			CG_DrawPic( x-(bigIconSize/2), (y-((bigIconSize-smallIconSize)/2))+10+yOffset, bigIconSize, bigIconSize, media.gfx.null/* [cg.weaponSelect] */ );
 		}
 		else
 		{
-			CG_DrawPic( x-(bigIconSize/2), (y-((bigIconSize-smallIconSize)/2))+10+yOffset, bigIconSize, bigIconSize, cgs.media.weaponIcons[cg.weaponSelect] );
+			CG_DrawPic( x-(bigIconSize/2), (y-((bigIconSize-smallIconSize)/2))+10+yOffset, bigIconSize, bigIconSize, media.gfx.null/* [cg.weaponSelect] */ );
 		}
 	}
 
@@ -1219,7 +1171,7 @@ void CG_DrawWeaponSelect( void ) {
 
 		++iconCnt;					// Good icon
 
-		if (/*weaponData[i].weaponIcon[0]*/cgs.media.weaponIcons[i])
+		if (/*weaponData[i].weaponIcon[0]*/media.gfx.null/* [i] */)
 		{
 		//	weaponInfo_t	*weaponInfo;
 			CG_RegisterWeapon( i );
@@ -1228,11 +1180,11 @@ void CG_DrawWeaponSelect( void ) {
 			trap->R_SetColor( colorTable[CT_WHITE]);
 			if (!CG_WeaponCheck(i))
 			{
-				CG_DrawPic( holdX, y+10+yOffset, smallIconSize, smallIconSize, cgs.media.weaponIcons_NA[i] );
+				CG_DrawPic( holdX, y+10+yOffset, smallIconSize, smallIconSize, media.gfx.null/* [i] */ );
 			}
 			else
 			{
-				CG_DrawPic( holdX, y+10+yOffset, smallIconSize, smallIconSize, cgs.media.weaponIcons[i] );
+				CG_DrawPic( holdX, y+10+yOffset, smallIconSize, smallIconSize, media.gfx.null/* [i] */ );
 			}
 
 			holdX += (smallIconSize+pad);
@@ -1763,7 +1715,7 @@ void CG_FireWeapon( centity_t *cent, qboolean altFire ) {
 
 	// play quad sound if needed
 	if ( cent->currentState.powerups & ( 1 << PW_QUAD ) ) {
-		//trap->S_StartSound (NULL, cent->currentState.number, CHAN_ITEM, cgs.media.quadSound );
+		//trap->S_StartSound (NULL, cent->currentState.number, CHAN_ITEM, media.sounds.null );
 	}
 
 	// play a sound
@@ -1871,7 +1823,7 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 	case WP_DEMP2:
 		if (altFire)
 		{
-			trap->FX_PlayEffectID(cgs.effects.mAltDetonate, origin, dir, -1, -1, qfalse);
+			trap->FX_PlayEffectID(media.efx.null, origin, dir, -1, -1, qfalse);
 		}
 		else
 		{
@@ -1897,8 +1849,8 @@ void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, imp
 		break;
 
 	case WP_THERMAL:
-		trap->FX_PlayEffectID( cgs.effects.thermalExplosionEffect, origin, dir, -1, -1, qfalse );
-		trap->FX_PlayEffectID( cgs.effects.thermalShockwaveEffect, origin, up, -1, -1, qfalse );
+		trap->FX_PlayEffectID( media.efx.null, origin, dir, -1, -1, qfalse );
+		trap->FX_PlayEffectID( media.efx.null, origin, up, -1, -1, qfalse );
 		break;
 
 	case WP_EMPLACED_GUN:
@@ -1994,7 +1946,7 @@ void CG_MissileHitPlayer(int weapon, vec3_t origin, vec3_t dir, int entityNum, q
 		*/
 		if (altFire)
 		{
-			trap->FX_PlayEffectID(cgs.effects.mAltDetonate, origin, dir, -1, -1, qfalse);
+			trap->FX_PlayEffectID(media.efx.null, origin, dir, -1, -1, qfalse);
 		}
 		else
 		{
@@ -2011,8 +1963,8 @@ void CG_MissileHitPlayer(int weapon, vec3_t origin, vec3_t dir, int entityNum, q
 		break;
 
 	case WP_THERMAL:
-		trap->FX_PlayEffectID( cgs.effects.thermalExplosionEffect, origin, dir, -1, -1, qfalse );
-		trap->FX_PlayEffectID( cgs.effects.thermalShockwaveEffect, origin, up, -1, -1, qfalse );
+		trap->FX_PlayEffectID( media.efx.null, origin, dir, -1, -1, qfalse );
+		trap->FX_PlayEffectID( media.efx.null, origin, up, -1, -1, qfalse );
 		break;
 	case WP_EMPLACED_GUN:
 		//FIXME: Its own effect?

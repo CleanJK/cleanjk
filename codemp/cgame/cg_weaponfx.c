@@ -24,6 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "cg_local.h"
 #include "cg_weaponfx.h"
+#include "cg_media.h"
 
 static const vec3_t WHITE =		{ 1.00f,	1.0f,	1.0f };
 static const vec3_t BRIGHT =	{ 0.75f,	0.5f,	1.0f };
@@ -36,7 +37,7 @@ void FX_BlasterProjectileThink( centity_t *cent, const struct weaponInfo_s *weap
 		forward[2] = 1.0f;
 	}
 
-	trap->FX_PlayEffectID( cgs.effects.blasterShotEffect, cent->lerpOrigin, forward, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, cent->lerpOrigin, forward, -1, -1, qfalse );
 }
 
 void FX_BlasterAltFireThink( centity_t *cent, const struct weaponInfo_s *weapon ) {
@@ -46,15 +47,15 @@ void FX_BlasterAltFireThink( centity_t *cent, const struct weaponInfo_s *weapon 
 		forward[2] = 1.0f;
 	}
 
-	trap->FX_PlayEffectID( cgs.effects.blasterShotEffect, cent->lerpOrigin, forward, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, cent->lerpOrigin, forward, -1, -1, qfalse );
 }
 
 void FX_BlasterWeaponHitWall( vec3_t origin, vec3_t normal ) {
-	trap->FX_PlayEffectID( cgs.effects.blasterWallImpactEffect, origin, normal, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, qfalse );
 }
 
 void FX_BlasterWeaponHitPlayer( vec3_t origin, vec3_t normal, qboolean humanoid ) {
-	trap->FX_PlayEffectID( humanoid ? cgs.effects.blasterFleshImpactEffect : cgs.effects.blasterDroidImpactEffect, origin, normal, -1, -1, qfalse );
+	trap->FX_PlayEffectID( humanoid ? media.efx.null : media.efx.null, origin, normal, -1, -1, qfalse );
 }
 
 void FX_BowcasterProjectileThink( centity_t *cent, const struct weaponInfo_s *weapon ) {
@@ -64,15 +65,15 @@ void FX_BowcasterProjectileThink( centity_t *cent, const struct weaponInfo_s *we
 		forward[2] = 1.0f;
 	}
 
-	trap->FX_PlayEffectID( cgs.effects.bowcasterShotEffect, cent->lerpOrigin, forward, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, cent->lerpOrigin, forward, -1, -1, qfalse );
 }
 
 void FX_BowcasterHitWall( vec3_t origin, vec3_t normal ) {
-	trap->FX_PlayEffectID( cgs.effects.bowcasterImpactEffect, origin, normal, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, qfalse );
 }
 
 void FX_BowcasterHitPlayer( vec3_t origin, vec3_t normal, qboolean humanoid ) {
-	trap->FX_PlayEffectID( cgs.effects.bowcasterImpactEffect, origin, normal, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, qfalse );
 }
 
 void FX_BowcasterAltProjectileThink( centity_t *cent, const struct weaponInfo_s *weapon ) {
@@ -82,7 +83,7 @@ void FX_BowcasterAltProjectileThink( centity_t *cent, const struct weaponInfo_s 
 		forward[2] = 1.0f;
 	}
 
-	trap->FX_PlayEffectID( cgs.effects.bowcasterShotEffect, cent->lerpOrigin, forward, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, cent->lerpOrigin, forward, -1, -1, qfalse );
 }
 
 void FX_BryarProjectileThink( centity_t *cent, const struct weaponInfo_s *weapon ) {
@@ -92,15 +93,15 @@ void FX_BryarProjectileThink( centity_t *cent, const struct weaponInfo_s *weapon
 		forward[2] = 1.0f;
 	}
 
-	trap->FX_PlayEffectID( cgs.effects.bryarShotEffect, cent->lerpOrigin, forward, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, cent->lerpOrigin, forward, -1, -1, qfalse );
 }
 
 void FX_BryarHitWall( vec3_t origin, vec3_t normal ) {
-	trap->FX_PlayEffectID( cgs.effects.bryarWallImpactEffect, origin, normal, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, qfalse );
 }
 
 void FX_BryarHitPlayer( vec3_t origin, vec3_t normal, qboolean humanoid ) {
-	trap->FX_PlayEffectID( humanoid ? cgs.effects.bryarFleshImpactEffect : cgs.effects.bryarDroidImpactEffect, origin, normal, -1, -1, qfalse );
+	trap->FX_PlayEffectID( humanoid ? media.efx.null : media.efx.null, origin, normal, -1, -1, qfalse );
 }
 
 void FX_BryarAltProjectileThink(  centity_t *cent, const struct weaponInfo_s *weapon ) {
@@ -114,10 +115,10 @@ void FX_BryarAltProjectileThink(  centity_t *cent, const struct weaponInfo_s *we
 	// see if we have some sort of extra charge going on
 	for ( t=1; t<cent->currentState.generic1; t++ ) {
 		// just add ourselves over, and over, and over when we are charged
-		trap->FX_PlayEffectID( cgs.effects.bryarPowerupShotEffect, cent->lerpOrigin, forward, -1, -1, qfalse );
+		trap->FX_PlayEffectID( media.efx.null, cent->lerpOrigin, forward, -1, -1, qfalse );
 	}
 
-	trap->FX_PlayEffectID( cgs.effects.bryarShotEffect, cent->lerpOrigin, forward, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, cent->lerpOrigin, forward, -1, -1, qfalse );
 }
 
 void FX_BryarAltHitWall( vec3_t origin, vec3_t normal, int power ) {
@@ -125,23 +126,23 @@ void FX_BryarAltHitWall( vec3_t origin, vec3_t normal, int power ) {
 
 	case 4:
 	case 5: {
-		trap->FX_PlayEffectID( cgs.effects.bryarWallImpactEffect3, origin, normal, -1, -1, qfalse );
+		trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, qfalse );
 	} break;
 
 	case 2:
 	case 3: {
-		trap->FX_PlayEffectID( cgs.effects.bryarWallImpactEffect2, origin, normal, -1, -1, qfalse );
+		trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, qfalse );
 	} break;
 
 	default: {
-		trap->FX_PlayEffectID( cgs.effects.bryarWallImpactEffect, origin, normal, -1, -1, qfalse );
+		trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, qfalse );
 	} break;
 
 	}
 }
 
 void FX_BryarAltHitPlayer( vec3_t origin, vec3_t normal, qboolean humanoid ) {
-	trap->FX_PlayEffectID( humanoid ? cgs.effects.bryarFleshImpactEffect : cgs.effects.bryarDroidImpactEffect, origin, normal, -1, -1, qfalse );
+	trap->FX_PlayEffectID( humanoid ? media.efx.null : media.efx.null, origin, normal, -1, -1, qfalse );
 }
 
 void FX_TurretProjectileThink(  centity_t *cent, const struct weaponInfo_s *weapon ) {
@@ -151,23 +152,23 @@ void FX_TurretProjectileThink(  centity_t *cent, const struct weaponInfo_s *weap
 		forward[2] = 1.0f;
 	}
 
-	trap->FX_PlayEffectID( cgs.effects.turretShotEffect, cent->lerpOrigin, forward, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, cent->lerpOrigin, forward, -1, -1, qfalse );
 }
 
 void FX_TurretHitWall( vec3_t origin, vec3_t normal ) {
-	trap->FX_PlayEffectID( cgs.effects.bryarWallImpactEffect, origin, normal, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, qfalse );
 }
 
 void FX_TurretHitPlayer( vec3_t origin, vec3_t normal, qboolean humanoid ) {
-	trap->FX_PlayEffectID( humanoid ? cgs.effects.bryarFleshImpactEffect : cgs.effects.bryarDroidImpactEffect, origin, normal, -1, -1, qfalse );
+	trap->FX_PlayEffectID( humanoid ? media.efx.null : media.efx.null, origin, normal, -1, -1, qfalse );
 }
 
 void FX_ConcussionHitWall( vec3_t origin, vec3_t normal ) {
-	trap->FX_PlayEffectID( cgs.effects.concussionImpactEffect, origin, normal, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, qfalse );
 }
 
 void FX_ConcussionHitPlayer( vec3_t origin, vec3_t normal, qboolean humanoid ) {
-	trap->FX_PlayEffectID( cgs.effects.concussionImpactEffect, origin, normal, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, qfalse );
 }
 
 void FX_ConcussionProjectileThink(  centity_t *cent, const struct weaponInfo_s *weapon ) {
@@ -177,13 +178,13 @@ void FX_ConcussionProjectileThink(  centity_t *cent, const struct weaponInfo_s *
 		forward[2] = 1.0f;
 	}
 
-	trap->FX_PlayEffectID( cgs.effects.concussionShotEffect, cent->lerpOrigin, forward, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, cent->lerpOrigin, forward, -1, -1, qfalse );
 }
 
 void FX_ConcAltShot( vec3_t start, vec3_t end ) {
 	//CJKFIXME: don't register at runtime
-	const qhandle_t blueLineShader = trap->R_RegisterShader( "gfx/effects/blueLine" );
-	const qhandle_t whiteLineShader = trap->R_RegisterShader( "gfx/misc/whiteline2" );
+	const qhandle_t blueLineShader = media.gfx.null /*"gfx/effects/blueLine"*/;
+	const qhandle_t whiteLineShader = media.gfx.null /*"gfx/misc/whiteline2"*/;
 
 	// "concussion/beam"
 	trap->FX_AddLine( start, end, 0.1f, 10.0f, 0.0f, 1.0f, 0.0f, 0.0f, WHITE, WHITE, 0.0f, 175, blueLineShader, FX_SIZE_LINEAR | FX_ALPHA_LINEAR );
@@ -199,15 +200,15 @@ void FX_DEMP2_ProjectileThink( centity_t *cent, const struct weaponInfo_s *weapo
 		forward[2] = 1.0f;
 	}
 
-	trap->FX_PlayEffectID( cgs.effects.demp2ProjectileEffect, cent->lerpOrigin, forward, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, cent->lerpOrigin, forward, -1, -1, qfalse );
 }
 
 void FX_DEMP2_HitWall( vec3_t origin, vec3_t normal ) {
-	trap->FX_PlayEffectID( cgs.effects.demp2WallImpactEffect, origin, normal, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, qfalse );
 }
 
 void FX_DEMP2_HitPlayer( vec3_t origin, vec3_t normal, qboolean humanoid ) {
-	trap->FX_PlayEffectID( cgs.effects.demp2FleshImpactEffect, origin, normal, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, qfalse );
 }
 
 void FX_DEMP2_AltBeam( vec3_t start, vec3_t end, vec3_t normal, /*qboolean spark,*/ vec3_t targ1, vec3_t targ2 ) {
@@ -227,8 +228,8 @@ void FX_DEMP2_AltDetonate( vec3_t org, float size ) {
 	ex->endTime = ex->startTime + 800;//1600;
 
 	ex->radius = size;
-	ex->refEntity.customShader = cgs.media.demp2ShellShader;
-	ex->refEntity.hModel = cgs.media.demp2Shell;
+	ex->refEntity.customShader = media.gfx.null;
+	ex->refEntity.hModel = media.models.null;
 	VectorCopy( org, ex->refEntity.origin );
 
 	ex->color[0] = ex->color[1] = ex->color[2] = 255.0f;
@@ -236,8 +237,8 @@ void FX_DEMP2_AltDetonate( vec3_t org, float size ) {
 
 void FX_DisruptorMainShot( vec3_t start, vec3_t end ) {
 	//CJKFIXME: don't register at runtime
-	const qhandle_t redLineShader = trap->R_RegisterShader( "gfx/effects/redLine" );
-	//const qhandle_t spiralShader = trap->R_RegisterShader( "gfx/effects/spiral" );
+	const qhandle_t redLineShader = media.gfx.null /*"gfx/effects/redLine"*/;
+	//const qhandle_t spiralShader = media.gfx.null /*"gfx/effects/spiral"*/;
 	//vec3_t	dir;
 	//float	len;
 
@@ -251,8 +252,8 @@ void FX_DisruptorMainShot( vec3_t start, vec3_t end ) {
 
 void FX_DisruptorAltShot( vec3_t start, vec3_t end, qboolean fullCharge ) {
 	//CJKFIXME: don't register at runtime
-	const qhandle_t redLineShader = trap->R_RegisterShader( "gfx/effects/redLine" );
-	const qhandle_t whiteLineShader = trap->R_RegisterShader( "gfx/misc/whiteline2" );
+	const qhandle_t redLineShader = media.gfx.null /*"gfx/effects/redLine"*/;
+	const qhandle_t whiteLineShader = media.gfx.null /*"gfx/misc/whiteline2"*/;
 	trap->FX_AddLine( start, end, 0.1f, 10.0f, 0.0f, 1.0f, 0.0f, 0.0f, WHITE, WHITE, 0.0f, 175, redLineShader, FX_SIZE_LINEAR | FX_ALPHA_LINEAR );
 
 	if ( fullCharge ) {
@@ -265,7 +266,7 @@ void FX_DisruptorAltMiss( vec3_t origin, vec3_t normal ) {
 	vec3_t pos, c1, c2;
 	addbezierArgStruct_t b;
 	//CJKFIXME: don't register at runtime
-	const qhandle_t smokeTrailShader = trap->R_RegisterShader( "gfx/effects/smokeTrail" );
+	const qhandle_t smokeTrailShader = media.gfx.null /*"gfx/effects/smokeTrail"*/;
 
 	VectorMA( origin, 4.0f, normal, c1 );
 	VectorCopy( c1, c2 );
@@ -274,11 +275,6 @@ void FX_DisruptorAltMiss( vec3_t origin, vec3_t normal ) {
 
 	VectorAdd( origin, normal, pos );
 	pos[2] += 28;
-
-	/*
-	FX_AddBezier( origin, pos, c1, vec3_origin, c2, vec3_origin, 6.0f, 6.0f, 0.0f, 0.0f, 0.2f, 0.5f,
-	WHITE, WHITE, 0.0f, 4000, trap->R_RegisterShader( "gfx/effects/smokeTrail" ), FX_ALPHA_WAVE );
-	*/
 
 	VectorCopy( origin, b.start );
 	VectorCopy( pos, b.end );
@@ -304,19 +300,19 @@ void FX_DisruptorAltMiss( vec3_t origin, vec3_t normal ) {
 
 	trap->FX_AddBezier( &b );
 
-	trap->FX_PlayEffectID( cgs.effects.disruptorAltMissEffect, origin, normal, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, qfalse );
 }
 
 void FX_DisruptorAltHit( vec3_t origin, vec3_t normal ) {
-	trap->FX_PlayEffectID( cgs.effects.disruptorAltHitEffect, origin, normal, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, qfalse );
 }
 
 void FX_DisruptorHitWall( vec3_t origin, vec3_t normal ) {
-	trap->FX_PlayEffectID( cgs.effects.disruptorWallImpactEffect, origin, normal, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, qfalse );
 }
 
 void FX_DisruptorHitPlayer( vec3_t origin, vec3_t normal, qboolean humanoid ) {
-	trap->FX_PlayEffectID( cgs.effects.disruptorFleshImpactEffect, origin, normal, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, qfalse );
 }
 
 void FX_FlechetteProjectileThink( centity_t *cent, const struct weaponInfo_s *weapon ) {
@@ -326,15 +322,15 @@ void FX_FlechetteProjectileThink( centity_t *cent, const struct weaponInfo_s *we
 		forward[2] = 1.0f;
 	}
 
-	trap->FX_PlayEffectID( cgs.effects.flechetteShotEffect, cent->lerpOrigin, forward, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, cent->lerpOrigin, forward, -1, -1, qfalse );
 }
 
 void FX_FlechetteWeaponHitWall( vec3_t origin, vec3_t normal ) {
-	trap->FX_PlayEffectID( cgs.effects.flechetteWallImpactEffect, origin, normal, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, qfalse );
 }
 
 void FX_FlechetteWeaponHitPlayer( vec3_t origin, vec3_t normal, qboolean humanoid ) {
-	trap->FX_PlayEffectID( cgs.effects.flechetteFleshImpactEffect, origin, normal, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, qfalse );
 }
 
 void FX_FlechetteAltProjectileThink( centity_t *cent, const struct weaponInfo_s *weapon ) {
@@ -344,13 +340,13 @@ void FX_FlechetteAltProjectileThink( centity_t *cent, const struct weaponInfo_s 
 		forward[2] = 1.0f;
 	}
 
-	trap->FX_PlayEffectID( cgs.effects.flechetteAltShotEffect, cent->lerpOrigin, forward, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, cent->lerpOrigin, forward, -1, -1, qfalse );
 }
 
 // This effect is not generic because of possible enhancements
 void FX_ForceDrained( vec3_t origin, vec3_t dir ) {
 	VectorScale( dir, -1.0, dir );
-	trap->FX_PlayEffectID( cgs.effects.forceDrained, origin, dir, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, origin, dir, -1, -1, qfalse );
 }
 
 void FX_RepeaterProjectileThink( centity_t *cent, const struct weaponInfo_s *weapon ) {
@@ -360,15 +356,15 @@ void FX_RepeaterProjectileThink( centity_t *cent, const struct weaponInfo_s *wea
 		forward[2] = 1.0f;
 	}
 
-	trap->FX_PlayEffectID( cgs.effects.repeaterProjectileEffect, cent->lerpOrigin, forward, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, cent->lerpOrigin, forward, -1, -1, qfalse );
 }
 
 void FX_RepeaterHitWall( vec3_t origin, vec3_t normal ) {
-	trap->FX_PlayEffectID( cgs.effects.repeaterWallImpactEffect, origin, normal, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, qfalse );
 }
 
 void FX_RepeaterHitPlayer( vec3_t origin, vec3_t normal, qboolean humanoid ) {
-	trap->FX_PlayEffectID( cgs.effects.repeaterFleshImpactEffect, origin, normal, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, qfalse );
 }
 
 static void CG_DistortionOrb( centity_t *cent ) {
@@ -415,8 +411,8 @@ static void CG_DistortionOrb( centity_t *cent ) {
 	VectorScale( ent.axis[1],  scale, ent.axis[1] );
 	VectorScale( ent.axis[2], -scale, ent.axis[2] );
 
-	ent.hModel = cgs.media.halfShieldModel;
-	ent.customShader = 0;//cgs.media.halfShieldShader;
+	ent.hModel = media.models.null;
+	ent.customShader = 0;//media.gfx.null;
 
 #if 1
 	ent.renderfx = (RF_DISTORTION|RF_RGB_TINT);
@@ -442,15 +438,15 @@ void FX_RepeaterAltProjectileThink( centity_t *cent, const struct weaponInfo_s *
 	if ( cg_repeaterOrb.integer ) {
 		CG_DistortionOrb( cent );
 	}
-	trap->FX_PlayEffectID( cgs.effects.repeaterAltProjectileEffect, cent->lerpOrigin, forward, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, cent->lerpOrigin, forward, -1, -1, qfalse );
 }
 
 void FX_RepeaterAltHitWall( vec3_t origin, vec3_t normal ) {
-	trap->FX_PlayEffectID( cgs.effects.repeaterAltWallImpactEffect, origin, normal, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, qfalse );
 }
 
 void FX_RepeaterAltHitPlayer( vec3_t origin, vec3_t normal, qboolean humanoid ) {
-	trap->FX_PlayEffectID( cgs.effects.repeaterAltWallImpactEffect, origin, normal, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, qfalse );
 }
 
 void FX_RocketProjectileThink( centity_t *cent, const struct weaponInfo_s *weapon ) {
@@ -460,15 +456,15 @@ void FX_RocketProjectileThink( centity_t *cent, const struct weaponInfo_s *weapo
 		forward[2] = 1.0f;
 	}
 
-	trap->FX_PlayEffectID( cgs.effects.rocketShotEffect, cent->lerpOrigin, forward, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, cent->lerpOrigin, forward, -1, -1, qfalse );
 }
 
 void FX_RocketHitWall( vec3_t origin, vec3_t normal ) {
-	trap->FX_PlayEffectID( cgs.effects.rocketExplosionEffect, origin, normal, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, qfalse );
 }
 
 void FX_RocketHitPlayer( vec3_t origin, vec3_t normal, qboolean humanoid ) {
-	trap->FX_PlayEffectID( cgs.effects.rocketExplosionEffect, origin, normal, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, qfalse );
 }
 
 void FX_RocketAltProjectileThink( centity_t *cent, const struct weaponInfo_s *weapon ) {
@@ -478,5 +474,5 @@ void FX_RocketAltProjectileThink( centity_t *cent, const struct weaponInfo_s *we
 		forward[2] = 1.0f;
 	}
 
-	trap->FX_PlayEffectID( cgs.effects.rocketShotEffect, cent->lerpOrigin, forward, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, cent->lerpOrigin, forward, -1, -1, qfalse );
 }

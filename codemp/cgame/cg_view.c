@@ -25,6 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // for a 3D rendering
 #include "cg_local.h"
 #include "game/bg_saga.h"
+#include "cg_media.h"
 
 #define MASK_CAMERACLIP (MASK_SOLID|CONTENTS_PLAYERCLIP)
 #define CAMERA_SIZE	4
@@ -787,7 +788,7 @@ static int CG_CalcFov( void ) {
 
 					if (zoomSoundTime < cg.time || zoomSoundTime > cg.time + 10000)
 					{
-						trap->S_StartSound(cg.refdef.vieworg, ENTITYNUM_WORLD, CHAN_LOCAL, cgs.media.disruptorZoomLoop);
+						trap->S_StartSound(cg.refdef.vieworg, ENTITYNUM_WORLD, CHAN_LOCAL, media.sounds.null);
 						zoomSoundTime = cg.time + 300;
 					}
 				}
@@ -883,7 +884,7 @@ static void CG_DamageBlendBlob( void )
 
 	if (cg.snap->ps.damageType == 0)
 	{ //pure health
-		ent.customShader = cgs.media.viewPainShader;
+		ent.customShader = media.gfx.null;
 		ent.shaderRGBA[0] = 180 * ( 1.0 - ((float)t / maxTime) );
 		ent.shaderRGBA[1] = 50 * ( 1.0 - ((float)t / maxTime) );
 		ent.shaderRGBA[2] = 50 * ( 1.0 - ((float)t / maxTime) );
@@ -891,7 +892,7 @@ static void CG_DamageBlendBlob( void )
 	}
 	else if (cg.snap->ps.damageType == 1)
 	{ //pure shields
-		ent.customShader = cgs.media.viewPainShader_Shields;
+		ent.customShader = media.gfx.null;
 		ent.shaderRGBA[0] = 50 * ( 1.0 - ((float)t / maxTime) );
 		ent.shaderRGBA[1] = 180 * ( 1.0 - ((float)t / maxTime) );
 		ent.shaderRGBA[2] = 50 * ( 1.0 - ((float)t / maxTime) );
@@ -899,7 +900,7 @@ static void CG_DamageBlendBlob( void )
 	}
 	else
 	{ //shields and health
-		ent.customShader = cgs.media.viewPainShader_ShieldsAndHealth;
+		ent.customShader = media.gfx.null;
 		ent.shaderRGBA[0] = 180 * ( 1.0 - ((float)t / maxTime) );
 		ent.shaderRGBA[1] = 180 * ( 1.0 - ((float)t / maxTime) );
 		ent.shaderRGBA[2] = 50 * ( 1.0 - ((float)t / maxTime) );
@@ -1113,7 +1114,7 @@ static void CG_PowerupTimerSounds( void ) {
 			continue;
 		}
 		if ( ( t - cg.time ) / POWERUP_BLINK_TIME != ( t - cg.oldTime ) / POWERUP_BLINK_TIME ) {
-			//trap->S_StartSound( NULL, cg.snap->ps.clientNum, CHAN_ITEM, cgs.media.wearOffSound );
+			//trap->S_StartSound( NULL, cg.snap->ps.clientNum, CHAN_ITEM, media.sounds.null );
 		}
 	}
 }
@@ -1663,10 +1664,10 @@ void CG_DrawAutoMap(void)
 	refdef.width = w*hScale;
 	refdef.height = h*vScale;
 
-	CG_DrawPic(x-SIDEFRAME_WIDTH, y, SIDEFRAME_WIDTH, h, cgs.media.wireframeAutomapFrame_left);
-	CG_DrawPic(x+w, y, SIDEFRAME_WIDTH, h, cgs.media.wireframeAutomapFrame_right);
-	CG_DrawPic(x-SIDEFRAME_WIDTH, y-SIDEFRAME_HEIGHT, w+(SIDEFRAME_WIDTH*2), SIDEFRAME_HEIGHT, cgs.media.wireframeAutomapFrame_top);
-	CG_DrawPic(x-SIDEFRAME_WIDTH, y+h, w+(SIDEFRAME_WIDTH*2), SIDEFRAME_HEIGHT, cgs.media.wireframeAutomapFrame_bottom);
+	CG_DrawPic(x-SIDEFRAME_WIDTH, y, SIDEFRAME_WIDTH, h, media.gfx.null);
+	CG_DrawPic(x+w, y, SIDEFRAME_WIDTH, h, media.gfx.null);
+	CG_DrawPic(x-SIDEFRAME_WIDTH, y-SIDEFRAME_HEIGHT, w+(SIDEFRAME_WIDTH*2), SIDEFRAME_HEIGHT, media.gfx.null);
+	CG_DrawPic(x-SIDEFRAME_WIDTH, y+h, w+(SIDEFRAME_WIDTH*2), SIDEFRAME_HEIGHT, media.gfx.null);
 
 	refdef.time = cg.time;
 

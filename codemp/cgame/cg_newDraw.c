@@ -24,6 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "cg_local.h"
 #include "ui/ui_shared.h"
 #include "ui/menudef.h"
+#include "cg_media.h"
 
 extern displayContextDef_t cgDC;
 
@@ -35,31 +36,31 @@ int CG_GetSelectedPlayer() {
 }
 
 qhandle_t CG_StatusHandle(int task) {
-	qhandle_t h = cgs.media.assaultShader;
+	qhandle_t h = media.gfx.null;
 	switch (task) {
 	case TEAMTASK_OFFENSE :
-		h = cgs.media.assaultShader;
+		h = media.gfx.null;
 		break;
 	case TEAMTASK_DEFENSE :
-		h = cgs.media.defendShader;
+		h = media.gfx.null;
 		break;
 	case TEAMTASK_PATROL :
-		h = cgs.media.patrolShader;
+		h = media.gfx.null;
 		break;
 	case TEAMTASK_FOLLOW :
-		h = cgs.media.followShader;
+		h = media.gfx.null;
 		break;
 	case TEAMTASK_CAMP :
-		h = cgs.media.campShader;
+		h = media.gfx.null;
 		break;
 	case TEAMTASK_RETRIEVE :
-		h = cgs.media.retrieveShader;
+		h = media.gfx.null;
 		break;
 	case TEAMTASK_ESCORT :
-		h = cgs.media.escortShader;
+		h = media.gfx.null;
 		break;
 	default :
-		h = cgs.media.assaultShader;
+		h = media.gfx.null;
 		break;
 	}
 	return h;
@@ -356,7 +357,7 @@ void CG_DrawNewTeamInfo(rectDef_t *rect, float text_x, float text_y, float scale
 					item = BG_FindItemForPowerup( j );
 
 					if (item) {
-						CG_DrawPic( xx, y, PIC_WIDTH, PIC_WIDTH, trap->R_RegisterShader( item->icon ) );
+						CG_DrawPic( xx, y, PIC_WIDTH, PIC_WIDTH, media.gfx.null /* item->icon */ );
 						xx += PIC_WIDTH;
 					}
 				}
@@ -367,7 +368,7 @@ void CG_DrawNewTeamInfo(rectDef_t *rect, float text_x, float text_y, float scale
 
 			CG_GetColorForHealth( ci->health, ci->armor, hcolor );
 			trap->R_SetColor(hcolor);
-			CG_DrawPic( xx, y + 1, PIC_WIDTH - 2, PIC_WIDTH - 2, cgs.media.heartShader );
+			CG_DrawPic( xx, y + 1, PIC_WIDTH - 2, PIC_WIDTH - 2, media.gfx.null );
 
 			//Com_sprintf (st, sizeof(st), "%3i %3i", ci->health,	ci->armor);
 			//CG_Text_Paint(xx, y + text_y, scale, hcolor, st, 0, 0);
@@ -380,7 +381,7 @@ void CG_DrawNewTeamInfo(rectDef_t *rect, float text_x, float text_y, float scale
 			if ( cg_weapons[ci->curWeapon].weaponIcon ) {
 				CG_DrawPic( xx, y, PIC_WIDTH, PIC_WIDTH, cg_weapons[ci->curWeapon].weaponIcon );
 			} else {
-				CG_DrawPic( xx, y, PIC_WIDTH, PIC_WIDTH, cgs.media.deferShader );
+				CG_DrawPic( xx, y, PIC_WIDTH, PIC_WIDTH, media.gfx.null );
 			}
 #endif
 
@@ -747,9 +748,9 @@ void CG_MouseEvent(int x, int y) {
 	n = Display_CursorType(cgs.cursorX, cgs.cursorY);
 	cgs.activeCursor = 0;
 	if (n == CURSOR_ARROW) {
-		cgs.activeCursor = cgs.media.selectCursor;
+		cgs.activeCursor = media.gfx.null;
 	} else if (n == CURSOR_SIZER) {
-		cgs.activeCursor = cgs.media.sizeCursor;
+		cgs.activeCursor = media.gfx.null;
 	}
 
 	if (cgs.capturedItem) {

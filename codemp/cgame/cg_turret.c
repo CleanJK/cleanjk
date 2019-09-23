@@ -23,6 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "cg_local.h"
 #include "qcommon/q_shared.h"
 #include "ghoul2/G2.h"
+#include "cg_media.h"
 
 //rww - The turret is heavily dependant on bone angles. We can't happily set that on the server, so it is done client-only.
 
@@ -191,7 +192,7 @@ void TurretClientRun(centity_t *ent)
 		BG_GiveMeVectorFromMatrix(&boltMatrix, ORIGIN, muzzleOrg);
 		BG_GiveMeVectorFromMatrix(&boltMatrix, NEGATIVE_X, muzzleDir);
 
-		trap->FX_PlayEffectID(cgs.effects.mTurretMuzzleFlash, muzzleOrg, muzzleDir, -1, -1, qfalse);
+		trap->FX_PlayEffectID(media.efx.null, muzzleOrg, muzzleDir, -1, -1, qfalse);
 
 		ent->bolt4 = ent->currentState.fireflag;
 	}

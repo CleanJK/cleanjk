@@ -24,6 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // cg_info.c -- display information while data is being loading
 
 #include "cg_local.h"
+#include "cg_media.h"
 
 #define MAX_LOADING_PLAYER_ICONS	16
 #define MAX_LOADING_ITEM_ICONS		26
@@ -56,42 +57,9 @@ void CG_LoadingItem( int itemNum ) {
 }
 
 void CG_LoadingClient( int clientNum ) {
-	const char		*info;
-	char			personality[MAX_QPATH];
-
-	info = CG_ConfigString( CS_PLAYERS + clientNum );
-
-/*
-	char			model[MAX_QPATH];
-	char			iconName[MAX_QPATH];
-	char			*skin;
-	if ( loadingPlayerIconCount < MAX_LOADING_PLAYER_ICONS ) {
-		Q_strncpyz( model, Info_ValueForKey( info, "model" ), sizeof( model ) );
-		skin = Q_strrchr( model, '/' );
-		if ( skin ) {
-			*skin++ = '\0';
-		} else {
-			skin = "default";
-		}
-
-		Com_sprintf( iconName, MAX_QPATH, "models/players/%s/icon_%s.tga", model, skin );
-
-		loadingPlayerIcons[loadingPlayerIconCount] = trap->R_RegisterShaderNoMip( iconName );
-		if ( !loadingPlayerIcons[loadingPlayerIconCount] ) {
-			Com_sprintf( iconName, MAX_QPATH, "models/players/characters/%s/icon_%s.tga", model, skin );
-			loadingPlayerIcons[loadingPlayerIconCount] = trap->R_RegisterShaderNoMip( iconName );
-		}
-		if ( !loadingPlayerIcons[loadingPlayerIconCount] ) {
-			Com_sprintf( iconName, MAX_QPATH, "models/players/%s/icon_%s.tga", DEFAULT_MODEL, "default" );
-			loadingPlayerIcons[loadingPlayerIconCount] = trap->R_RegisterShaderNoMip( iconName );
-		}
-		if ( loadingPlayerIcons[loadingPlayerIconCount] ) {
-			loadingPlayerIconCount++;
-		}
-	}
-*/
+	char personality[MAX_QPATH];
+	const char *info = CG_ConfigString( CS_PLAYERS + clientNum );
 	Q_strncpyz( personality, Info_ValueForKey( info, "n" ), sizeof(personality) );
-//	Q_CleanStr( personality );
 
 	CG_LoadingString( personality );
 }
@@ -112,10 +80,12 @@ void CG_DrawInformation( void ) {
 	info = CG_ConfigString( CS_SERVERINFO );
 	sysInfo = CG_ConfigString( CS_SYSTEMINFO );
 
+	//CJKFIXME: most of this function's data can be safely cached
+
 	s = Info_ValueForKey( info, "mapname" );
 	levelshot = trap->R_RegisterShaderNoMip( va( "levelshots/%s", s ) );
 	if ( !levelshot ) {
-		levelshot = trap->R_RegisterShaderNoMip( "menu/art/unknownmap_mp" );
+		levelshot = media.gfx.null /*"menu/art/unknownmap_mp"*/;
 	}
 	trap->R_SetColor( NULL );
 	CG_DrawPic( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, levelshot );
@@ -330,24 +300,16 @@ void CG_DrawInformation( void ) {
 
 void CG_LoadBar(void)
 {
-	const int numticks = 9, tickwidth = 40, tickheight = 8;
-	const int tickpadx = 20, tickpady = 12;
-	const int capwidth = 8;
-	const int barwidth = numticks*tickwidth+tickpadx*2+capwidth*2, barleft = ((640-barwidth)/2);
-	const int barheight = tickheight + tickpady*2, bartop = 480-barheight;
-	const int capleft = barleft+tickpadx, tickleft = capleft+capwidth, ticktop = bartop+tickpady;
+	const float barWidth = SCREEN_HEIGHT, barHeight = 12.0f;
+	const float barX = (SCREEN_WIDTH - barWidth) / 2.0f, barY = SCREEN_HEIGHT - 8.0f - barHeight;
+	const float capWidth = 8.0f;
 
 	trap->R_SetColor( colorWhite );
-	// Draw background
-	CG_DrawPic(barleft, bartop, barwidth, barheight, cgs.media.loadBarLEDSurround);
 
-	// Draw left cap (backwards)
-	CG_DrawPic(tickleft, ticktop, -capwidth, tickheight, cgs.media.loadBarLEDCap);
-
-	// Draw bar
-	CG_DrawPic(tickleft, ticktop, tickwidth*cg.loadLCARSStage, tickheight, cgs.media.loadBarLED);
-
-	// Draw right cap
-	CG_DrawPic(tickleft+tickwidth*cg.loadLCARSStage, ticktop, capwidth, tickheight, cgs.media.loadBarLEDCap);
+	// background, left cap, bar, right cap
+	CG_DrawPic( barX, barY, barWidth, barHeight, media.gfx.interface.loading.background );
+	CG_DrawPic( barX + capWidth, barY, -capWidth, barHeight, media.gfx.interface.loading.cap );
+	CG_DrawPic( barX + capWidth, barY, ((barWidth - (capWidth*2.0f))*cg.loadFrac), barHeight, media.gfx.interface.loading.tick );
+	CG_DrawPic( barX + ((barWidth - (capWidth*2.0f))*cg.loadFrac) + capWidth, barY, capWidth, barHeight, media.gfx.interface.loading.cap );
 }
 

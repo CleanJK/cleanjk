@@ -123,23 +123,9 @@ int ICARUS_Instance::Delete( void )
 	Free();
 
 #ifdef _DEBUG
-
-	Com_OPrintf( "\nICARUS Instance Debug Info:\n---------------------------\n" );
-
-	Com_OPrintf( "Sequencers Allocated:\t%d\n", m_DEBUG_NumSequencerAlloc );
-
-	Com_OPrintf( "Sequencers Freed:\t\t%d\n", m_DEBUG_NumSequencerFreed );
-
-	Com_OPrintf( "Sequencers Residual:\t%d\n\n", m_DEBUG_NumSequencerResidual );
-
-	Com_OPrintf( "Sequences Allocated:\t%d\n", m_DEBUG_NumSequenceAlloc );
-
-	Com_OPrintf( "Sequences Freed:\t\t%d\n", m_DEBUG_NumSequenceFreed );
-
-	Com_OPrintf( "Sequences Residual:\t\t%d\n\n", m_DEBUG_NumSequenceResidual );
-
-	Com_OPrintf( "\n" );
-
+	Com_OPrintf( "ICARUS Instance Debug Info:\n" );
+	Com_OPrintf( "\tSequencers Allocated/Freed/Residual:\t%d/%d/%d\n", m_DEBUG_NumSequencerAlloc, m_DEBUG_NumSequencerFreed, m_DEBUG_NumSequencerResidual );
+	Com_OPrintf( "\tSequences Allocated/Freed/Residual:\t%d/%d/%d\n", m_DEBUG_NumSequenceAlloc, m_DEBUG_NumSequenceFreed, m_DEBUG_NumSequenceResidual );
 #endif
 
 	delete this;

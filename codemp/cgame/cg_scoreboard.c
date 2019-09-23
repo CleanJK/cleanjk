@@ -26,6 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "ui/ui_shared.h"
 #include "game/bg_saga.h"
 #include "ui/menudef.h"
+#include "cg_media.h"
 
 #define	SCOREBOARD_X		(0)
 
@@ -101,8 +102,8 @@ static void CG_DrawClientScore( int y, score_t *score, float *color, float fade,
 
 	else if ( cgs.gametype == GT_POWERDUEL && (ci->duelTeam == DUELTEAM_LONE || ci->duelTeam == DUELTEAM_DOUBLE) )
 	{
-		CG_DrawPic( iconx, y, iconSize, iconSize, trap->R_RegisterShaderNoMip(
-			(ci->duelTeam == DUELTEAM_LONE) ? "gfx/mp/pduel_icon_lone" : "gfx/mp/pduel_icon_double" ) );
+		const qhandle_t shader = media.gfx.null;//(ci->duelTeam == DUELTEAM_LONE) ? "gfx/mp/pduel_icon_lone" : "gfx/mp/pduel_icon_double";
+		CG_DrawPic( iconx, y, iconSize, iconSize, shader );
 	}
 
 	// highlight your position
@@ -384,7 +385,7 @@ qboolean CG_DrawOldScoreboard( void ) {
 	// scoreboard
 	y = SB_HEADER;
 
-	CG_DrawPic ( SB_SCORELINE_X - 40, y - 5, SB_SCORELINE_WIDTH + 80, 40, trap->R_RegisterShaderNoMip ( "gfx/menus/menu_buttonback.tga" ) );
+	CG_DrawPic ( SB_SCORELINE_X - 40, y - 5, SB_SCORELINE_WIDTH + 80, 40, media.gfx.null/*media.gfx.interface.button.back "gfx/menus/menu_buttonback.tga"*/ );
 
 	CG_Text_Paint ( SB_NAME_X, y, 1.0f, colorWhite, CG_GetStringEdString("MP_INGAME", "NAME"),0, 0, ITEM_TEXTSTYLE_OUTLINED, FONT_MEDIUM );
 	if (cgs.gametype == GT_DUEL || cgs.gametype == GT_POWERDUEL)

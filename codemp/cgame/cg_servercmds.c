@@ -29,6 +29,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "cg_local.h"
 #include "ghoul2/G2.h"
 #include "ui/ui_public.h"
+#include "cg_media.h"
 
 #define SCORE_OFFSET (14)
 static void CG_ParseScores( void ) {
@@ -347,9 +348,6 @@ void SetCustomSoundForType(clientInfo_t *ci, int setType, int index, sfxHandle_t
 	}
 }
 
-int CG_HandleAppendedSkin(char *modelName);
-void CG_CacheG2AnimInfo(char *modelName);
-
 // nmckenzie: DUEL_HEALTH - fixme - we could really clean this up immensely with some helper functions.
 void SetDuelistHealthsFromConfigString ( const char *str ) {
 	char buf[64];
@@ -397,7 +395,6 @@ void SetDuelistHealthsFromConfigString ( const char *str ) {
 	cgs.duelist3health = atoi ( buf );
 }
 
-void CG_ParseWeatherEffect(const char *str);
 static void CG_ConfigStringModified( void ) {
 	const char	*str;
 	int		num;
@@ -531,7 +528,7 @@ static void CG_ConfigStringModified( void ) {
 	} else if ( num >= CS_EFFECTS && num < CS_EFFECTS+MAX_FX ) {
 		if (str[0] == '*')
 		{ //it's a special global weather effect
-			CG_ParseWeatherEffect(str);
+			trap->R_WorldEffectCommand( str+1 );
 			cgs.gameEffects[ num-CS_EFFECTS] = 0;
 		}
 		else
@@ -701,7 +698,7 @@ static void CG_MapRestart( void ) {
 
 	// play the "fight" sound if this is a restart without warmup
 	if ( cg.warmup == 0 && cgs.gametype != GT_POWERDUEL/* && cgs.gametype == GT_DUEL */) {
-		trap->S_StartLocalSound( cgs.media.countFightSound, CHAN_ANNOUNCER );
+		trap->S_StartLocalSound( media.sounds.null, CHAN_ANNOUNCER );
 		CG_CenterPrint( CG_GetStringEdString("MP_SVGAME", "BEGIN_DUEL"), 120, GIANTCHAR_WIDTH*2 );
 	}
 //	trap->Cvar_Set("cg_thirdPerson", "0");
@@ -1093,7 +1090,7 @@ static void CG_Chat_f( void ) {
 	if ( !strcmp( cmd, "chat" ) ) {
 		if ( !cg_teamChatsOnly.integer ) {
 			if( cg_chatBeep.integer )
-				trap->S_StartLocalSound( cgs.media.talkSound, CHAN_LOCAL_SOUND );
+				trap->S_StartLocalSound( media.sounds.null, CHAN_LOCAL_SOUND );
 			trap->Cmd_Argv( 1, text, sizeof( text ) );
 			CG_RemoveChatEscapeChar( text );
 			CG_ChatBox_AddString( text );
@@ -1118,7 +1115,7 @@ static void CG_Chat_f( void ) {
 				trap->SE_GetStringTextString( loc+1, loc, sizeof( loc ) );
 
 			if( cg_chatBeep.integer )
-				trap->S_StartLocalSound( cgs.media.talkSound, CHAN_LOCAL_SOUND );
+				trap->S_StartLocalSound( media.sounds.null, CHAN_LOCAL_SOUND );
 			Com_sprintf( text, sizeof( text ), "%s^7<%s> ^%s%s", name, loc, color, message );
 			CG_RemoveChatEscapeChar( text );
 			CG_ChatBox_AddString( text );
@@ -1127,7 +1124,7 @@ static void CG_Chat_f( void ) {
 	}
 	else if ( !strcmp( cmd, "tchat" ) ) {
 		if( cg_teamChatBeep.integer )
-			trap->S_StartLocalSound( cgs.media.talkSound, CHAN_LOCAL_SOUND );
+			trap->S_StartLocalSound( media.sounds.null, CHAN_LOCAL_SOUND );
 		trap->Cmd_Argv( 1, text, sizeof( text ) );
 		CG_RemoveChatEscapeChar( text );
 		CG_ChatBox_AddString( text );
@@ -1150,7 +1147,7 @@ static void CG_Chat_f( void ) {
 			trap->SE_GetStringTextString( loc+1, loc, sizeof( loc ) );
 
 		if( cg_teamChatBeep.integer )
-			trap->S_StartLocalSound( cgs.media.talkSound, CHAN_LOCAL_SOUND );
+			trap->S_StartLocalSound( media.sounds.null, CHAN_LOCAL_SOUND );
 		Com_sprintf( text, sizeof( text ), "%s^7<%s> ^%s%s", name, loc, color, message );
 		CG_RemoveChatEscapeChar( text );
 		CG_ChatBox_AddString( text );

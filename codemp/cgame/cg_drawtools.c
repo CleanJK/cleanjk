@@ -25,6 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "cg_local.h"
 #include "qcommon/q_shared.h"
 #include "ui/menudef.h"
+#include "cg_media.h"
 
 // Coordinates are 640*480 virtual values
 void CG_DrawRect( float x, float y, float width, float height, float size, const float *color ) {
@@ -77,27 +78,27 @@ void CG_GetColorForHealth( int health, int armor, vec4_t hcolor ) {
 // Coords are virtual 640x480
 void CG_DrawSides(float x, float y, float w, float h, float size) {
 	size *= cgs.screenXScale;
-	trap->R_DrawStretchPic( x, y, size, h, 0, 0, 0, 0, cgs.media.whiteShader );
-	trap->R_DrawStretchPic( x + w - size, y, size, h, 0, 0, 0, 0, cgs.media.whiteShader );
+	trap->R_DrawStretchPic( x, y, size, h, 0, 0, 0, 0, media.gfx.misc.white );
+	trap->R_DrawStretchPic( x + w - size, y, size, h, 0, 0, 0, 0, media.gfx.misc.white );
 }
 
 void CG_DrawTopBottom(float x, float y, float w, float h, float size) {
 	size *= cgs.screenYScale;
-	trap->R_DrawStretchPic( x, y, w, size, 0, 0, 0, 0, cgs.media.whiteShader );
-	trap->R_DrawStretchPic( x, y + h - size, w, size, 0, 0, 0, 0, cgs.media.whiteShader );
+	trap->R_DrawStretchPic( x, y, w, size, 0, 0, 0, 0, media.gfx.misc.white );
+	trap->R_DrawStretchPic( x, y + h - size, w, size, 0, 0, 0, 0, media.gfx.misc.white );
 }
 
 // real coords
 void CG_FillRect2( float x, float y, float width, float height, const float *color ) {
 	trap->R_SetColor( color );
-	trap->R_DrawStretchPic( x, y, width, height, 0, 0, 0, 0, cgs.media.whiteShader);
+	trap->R_DrawStretchPic( x, y, width, height, 0, 0, 0, 0, media.gfx.misc.white);
 	trap->R_SetColor( NULL );
 }
 
 // Coordinates are 640*480 virtual values
 void CG_FillRect( float x, float y, float width, float height, const float *color ) {
 	trap->R_SetColor( color );
-	trap->R_DrawStretchPic( x, y, width, height, 0, 0, 0, 0, cgs.media.whiteShader);
+	trap->R_DrawStretchPic( x, y, width, height, 0, 0, 0, 0, media.gfx.misc.white);
 	trap->R_SetColor( NULL );
 }
 
@@ -148,7 +149,7 @@ void CG_DrawChar( int x, int y, int width, int height, int ch ) {
 	size = 0.03125;
 	size2 = 0.0625;
 
-	trap->R_DrawStretchPic( ax, ay, aw, ah, fcol, frow, fcol + size, frow + size2, cgs.media.charsetShader );
+	trap->R_DrawStretchPic( ax, ay, aw, ah, fcol, frow, fcol + size, frow + size2, media.gfx.interface.charset );
 
 }
 
@@ -288,16 +289,16 @@ void CG_TileClear( void ) {
 	right = left + cg.refdef.width-1;
 
 	// clear above view screen
-	CG_TileClearBox( 0, 0, w, top, cgs.media.backTileShader );
+	CG_TileClearBox( 0, 0, w, top, media.gfx.null );
 
 	// clear below view screen
-	CG_TileClearBox( 0, bottom, w, h - bottom, cgs.media.backTileShader );
+	CG_TileClearBox( 0, bottom, w, h - bottom, media.gfx.null );
 
 	// clear left of view screen
-	CG_TileClearBox( 0, top, left, bottom - top + 1, cgs.media.backTileShader );
+	CG_TileClearBox( 0, top, left, bottom - top + 1, media.gfx.null );
 
 	// clear right of view screen
-	CG_TileClearBox( right, top, w - right, bottom - top + 1, cgs.media.backTileShader );
+	CG_TileClearBox( right, top, w - right, bottom - top + 1, media.gfx.null );
 }
 
 float *CG_FadeColor( int startMsec, int totalMsec ) {
@@ -454,14 +455,14 @@ void CG_DrawNumField (int x, int y, int width, int value,int charWidth,int charH
 			switch(style)
 			{
 			case NUM_FONT_SMALL:
-				CG_DrawPic( x,y, charWidth, charHeight, cgs.media.smallnumberShaders[0] );
+				CG_DrawPic( x,y, charWidth, charHeight, media.gfx.null/* [0] */ );
 				break;
 			case NUM_FONT_CHUNKY:
-				CG_DrawPic( x,y, charWidth, charHeight, cgs.media.chunkyNumberShaders[0] );
+				CG_DrawPic( x,y, charWidth, charHeight, media.gfx.null/* [0] */ );
 				break;
 			default:
 			case NUM_FONT_BIG:
-				CG_DrawPic( x,y, charWidth, charHeight, cgs.media.numberShaders[0] );
+				CG_DrawPic( x,y, charWidth, charHeight, media.gfx.null/* [0] */ );
 				break;
 			}
 			x += 2 + (xWidth);
@@ -483,15 +484,15 @@ void CG_DrawNumField (int x, int y, int width, int value,int charWidth,int charH
 		switch(style)
 		{
 		case NUM_FONT_SMALL:
-			CG_DrawPic( x,y, charWidth, charHeight, cgs.media.smallnumberShaders[frame] );
+			CG_DrawPic( x,y, charWidth, charHeight, media.gfx.null/* [frame] */ );
 			x++;	// For a one line gap
 			break;
 		case NUM_FONT_CHUNKY:
-			CG_DrawPic( x,y, charWidth, charHeight, cgs.media.chunkyNumberShaders[frame] );
+			CG_DrawPic( x,y, charWidth, charHeight, media.gfx.null/* [frame] */ );
 			break;
 		default:
 		case NUM_FONT_BIG:
-			CG_DrawPic( x,y, charWidth, charHeight, cgs.media.numberShaders[frame] );
+			CG_DrawPic( x,y, charWidth, charHeight, media.gfx.null/* [frame] */ );
 			break;
 		}
 

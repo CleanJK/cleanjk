@@ -27,6 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "cg_local.h"
 #include "qcommon/q_shared.h"
 #include "ghoul2/G2.h"
+#include "cg_media.h"
 
 static void CG_Missile( centity_t *cent );
 
@@ -399,22 +400,22 @@ void FX_DrawPortableShield(centity_t *cent)
 	{
 		if (cent->currentState.trickedentindex)
 		{
-			shader = trap->R_RegisterShader( "gfx/misc/red_dmgshield" );
+			shader = media.gfx.null; // media.gfx.world.shieldDamageRed "gfx/misc/red_dmgshield"
 		}
 		else
 		{
-			shader = trap->R_RegisterShader( "gfx/misc/red_portashield" );
+			shader = media.gfx.null; // media.gfx.world.shieldPortableRed "gfx/misc/red_portashield"
 		}
 	}
 	else
 	{
 		if (cent->currentState.trickedentindex)
 		{
-			shader = trap->R_RegisterShader( "gfx/misc/blue_dmgshield" );
+			shader = media.gfx.null; // media.gfx.world.shieldDamageBlue "gfx/misc/blue_dmgshield"
 		}
 		else
 		{
-			shader = trap->R_RegisterShader( "gfx/misc/blue_portashield" );
+			shader = media.gfx.null /*"gfx/misc/blue_portashield"*/;
 		}
 	}
 
@@ -451,75 +452,6 @@ void CG_SetGhoul2Info( refEntity_t *ent, centity_t *cent)
 	VectorCopy( cent->modelScale, ent->modelScale);
 	ent->radius = cent->radius;
 	VectorCopy (cent->lerpAngles, ent->angles);
-}
-
-// create 8 new points on screen around a model so we can see it's bounding box
-void CG_CreateBBRefEnts(entityState_t *s1, vec3_t origin )
-{
-/*
-//g2r
-#if _DEBUG
-	refEntity_t		point[8];
-	int				i;
-	vec3_t			angles = {0,0,0};
-
-	for (i=0; i<8; i++)
-	{
-		memset (&point[i], 0, sizeof(refEntity_t));
-		point[i].reType = RT_SPRITE;
-		point[i].radius = 1;
-		point[i].customShader = trap->R_RegisterShader("textures/tests/circle");
-		point[i].shaderRGBA[0] = 255;
-		point[i].shaderRGBA[1] = 255;
-		point[i].shaderRGBA[2] = 255;
-		point[i].shaderRGBA[3] = 255;
-
-		AnglesToAxis( angles, point[i].axis );
-
-		// now, we need to put the correct origins into each origin from the mins and max's
-		switch(i)
-		{
-		case 0:
-			VectorCopy(s1->mins, point[i].origin);
-   			break;
-		case 1:
-			VectorCopy(s1->mins, point[i].origin);
-			point[i].origin[0] = s1->maxs[0];
-   			break;
-		case 2:
-			VectorCopy(s1->mins, point[i].origin);
-			point[i].origin[1] = s1->maxs[1];
-   			break;
-		case 3:
-			VectorCopy(s1->mins, point[i].origin);
-			point[i].origin[0] = s1->maxs[0];
-			point[i].origin[1] = s1->maxs[1];
-   			break;
-		case 4:
-			VectorCopy(s1->maxs, point[i].origin);
-   			break;
-		case 5:
-			VectorCopy(s1->maxs, point[i].origin);
-			point[i].origin[0] = s1->mins[0];
-   			break;
-		case 6:
-			VectorCopy(s1->maxs, point[i].origin);
-			point[i].origin[1] = s1->mins[1];
-   			break;
-		case 7:
-			VectorCopy(s1->maxs, point[i].origin);
-			point[i].origin[0] = s1->mins[0];
-			point[i].origin[1] = s1->mins[1];
-   			break;
-		}
-
-		// add the original origin to each point and then stuff them out there
-		VectorAdd(point[i].origin, origin, point[i].origin);
-
-		trap->R_AddRefEntityToScene (&point[i]);
-	}
-#endif
-	*/
 }
 
 // write in the axis and stuff
@@ -618,7 +550,7 @@ void CG_Disintegration(centity_t *cent, refEntity_t *ent)
 	ent->endTime = cent->dustTrailTime;
 
 	ent->renderfx |= RF_DISINTEGRATE2;
-	ent->customShader = cgs.media.disruptorShader;
+	ent->customShader = media.gfx.null;
 	trap->R_AddRefEntityToScene( ent );
 
 	ent->renderfx &= ~(RF_DISINTEGRATE2);
@@ -640,11 +572,11 @@ void CG_Disintegration(centity_t *cent, refEntity_t *ent)
 
 		VectorMA( fxOrg, -18, cg.refdef.viewaxis[0], fxOrg );
 		fxOrg[2] += Q_flrand(-1.0f, 1.0f) * 20;
-		trap->FX_PlayEffectID( cgs.effects.mDisruptorDeathSmoke, fxOrg, fxDir, -1, -1, qfalse );
+		trap->FX_PlayEffectID( media.efx.null, fxOrg, fxDir, -1, -1, qfalse );
 
 		if ( Q_flrand(0.0f, 1.0f) > 0.5f )
 		{
-			trap->FX_PlayEffectID( cgs.effects.mDisruptorDeathSmoke, fxOrg, fxDir, -1, -1, qfalse );
+			trap->FX_PlayEffectID( media.efx.null, fxOrg, fxDir, -1, -1, qfalse );
 		}
 	}
 }
@@ -1079,7 +1011,7 @@ static void CG_General( centity_t *cent ) {
 				BG_GiveMeVectorFromMatrix(&matrix, ORIGIN, boltOrg);
 				BG_GiveMeVectorFromMatrix(&matrix, NEGATIVE_Y, boltAng);
 
-				trap->FX_PlayEffectID(cgs.effects.mBlasterSmoke, boltOrg, boltAng, -1, -1, qfalse);
+				trap->FX_PlayEffectID(media.efx.null, boltOrg, boltAng, -1, -1, qfalse);
 			}
 
 			cent->bolt4 = newBolt;
@@ -1103,7 +1035,7 @@ static void CG_General( centity_t *cent ) {
 				BG_GiveMeVectorFromMatrix(&matrix, ORIGIN, boltOrg);
 				BG_GiveMeVectorFromMatrix(&matrix, NEGATIVE_Y, boltAng);
 
-				trap->FX_PlayEffectID(cgs.effects.mBlasterSmoke, boltOrg, boltAng, -1, -1, qfalse);
+				trap->FX_PlayEffectID(media.efx.null, boltOrg, boltAng, -1, -1, qfalse);
 			}
 
 			if (cent->currentState.modelGhoul2 == G2_MODELPART_RARM || cent->currentState.modelGhoul2 == G2_MODELPART_RHAND || cent->currentState.modelGhoul2 == G2_MODELPART_WAIST)
@@ -1164,7 +1096,7 @@ static void CG_General( centity_t *cent ) {
 				{
 					boltAng[1] = 1;
 				}
-				trap->FX_PlayEffectID(cgs.effects.mBlasterSmoke, boltOrg, boltAng, -1, -1, qfalse);
+				trap->FX_PlayEffectID(media.efx.null, boltOrg, boltAng, -1, -1, qfalse);
 
 				cent->trailTime = cg.time + 400;
 			}
@@ -1292,7 +1224,7 @@ static void CG_General( centity_t *cent ) {
 	if (s1->eType == ET_HOLOCRON && s1->modelindex < -100)
 	{ //special render, it's a holocron
 		//Using actual models now:
-		ent.hModel = trap->R_RegisterModel(forceHolocronModels[s1->modelindex+128]);
+		ent.hModel = media.models.null; // forceHolocronModels[s1->modelindex+128]
 
 		//Rotate them
 		VectorCopy( cg.autoAngles, cent->lerpAngles );
@@ -1327,7 +1259,7 @@ static void CG_General( centity_t *cent ) {
 		// make the gun pulse red to warn about it exploding
 		val = (1.0f - (float)(cent->currentState.time - cg.time) / 3200.0f ) * 0.3f;
 
-		ent.customShader = trap->R_RegisterShader( "gfx/effects/turretflashdie" );
+		ent.customShader = media.gfx.null /*"gfx/effects/turretflashdie"*/;
 		ent.shaderRGBA[0] = (sin( cg.time * 0.04f ) * val * 0.4f + val) * 255;
 		ent.shaderRGBA[1] = ent.shaderRGBA[2] = 0;
 
@@ -1337,7 +1269,7 @@ static void CG_General( centity_t *cent ) {
 	}
 	else if ( cent->currentState.time == -1 && cent->currentState.weapon == WP_EMPLACED_GUN)
 	{
-		ent.customShader = trap->R_RegisterShader( "models/map_objects/imp_mine/turret_chair_dmg.tga" );
+		ent.customShader = media.gfx.null /*"models/map_objects/imp_mine/turret_chair_dmg.tga"*/;
 		//trap->R_AddRefEntityToScene( &ent );
 	}
 
@@ -1427,11 +1359,11 @@ static void CG_General( centity_t *cent ) {
 
 			if (lightSide)
 			{ //might be temporary, dunno.
-				ent.customShader = cgs.media.playerShieldDamage;
+				ent.customShader = media.gfx.null;
 			}
 			else
 			{
-				ent.customShader = cgs.media.redSaberGlowShader;
+				ent.customShader = media.gfx.null;
 			}
 
 			//slowly move the glowing part upward, out of the fading body
@@ -1461,15 +1393,15 @@ static void CG_General( centity_t *cent ) {
 					ent.shaderRGBA[3] = 255;
 					if ( rand() & 1 )
 					{
-						ent.customShader = cgs.media.electricBodyShader;
+						ent.customShader = media.gfx.null;
 					}
 					else
 					{
-						ent.customShader = cgs.media.electricBody2Shader;
+						ent.customShader = media.gfx.null;
 					}
 					if ( Q_flrand(0.0f, 1.0f) > 0.9f )
 					{
-						trap->S_StartSound ( NULL, cent->currentState.number, CHAN_AUTO, cgs.media.crackleSound );
+						trap->S_StartSound ( NULL, cent->currentState.number, CHAN_AUTO, media.sounds.null );
 					}
 					trap->R_AddRefEntityToScene( &ent );
 				}
@@ -1502,7 +1434,7 @@ static void CG_General( centity_t *cent ) {
 		//refEntity_t sRef;
 		//memcpy( &sRef, &ent, sizeof( sRef ) );
 
-		ent.customShader = cgs.media.solidWhite;
+		ent.customShader = media.gfx.null;
 		ent.renderfx = RF_RGB_TINT;
 		wv = sin( cg.time * 0.003f ) * 0.08f + 0.1f;
 		ent.shaderRGBA[0] = wv * 255;
@@ -1524,10 +1456,10 @@ static void CG_General( centity_t *cent ) {
 			fxSArgs.rotation = 0.0f;
 			fxSArgs.bounce = 0.0f;
 			fxSArgs.life = 1.0f;
-			fxSArgs.shader = cgs.media.yellowDroppedSaberShader;
+			fxSArgs.shader = media.gfx.null;
 			fxSArgs.flags = 0x08000000;
 
-			//trap->FX_AddSprite( org, NULL, NULL, 5.5f, 5.5f, wv, wv, 0.0f, 0.0f, 1.0f, cgs.media.yellowSaberGlowShader, 0x08000000 );
+			//trap->FX_AddSprite( org, NULL, NULL, 5.5f, 5.5f, wv, wv, 0.0f, 0.0f, 1.0f, media.gfx.null, 0x08000000 );
 			trap->FX_AddSprite(&fxSArgs);
 		}
 	}
@@ -1539,7 +1471,7 @@ static void CG_General( centity_t *cent ) {
 		//refEntity_t sRef;
 		//memcpy( &sRef, &ent, sizeof( sRef ) );
 
-		ent.customShader = cgs.media.solidWhite;
+		ent.customShader = media.gfx.null;
 		ent.renderfx = RF_RGB_TINT;
 		wv = sin( cg.time * 0.005f ) * 0.08f + 0.1f; //* 0.08f + 0.1f;
 
@@ -1605,18 +1537,18 @@ static void CG_General( centity_t *cent ) {
 		{ //dark
 			fxSArgs.sAlpha *= 3;
 			fxSArgs.eAlpha *= 3;
-			fxSArgs.shader = cgs.media.redSaberGlowShader;
+			fxSArgs.shader = media.gfx.null;
 			trap->FX_AddSprite(&fxSArgs);
 		}
 		else if (cent->currentState.trickedentindex3 == 2)
 		{ //light
 			fxSArgs.sAlpha *= 1.5;
 			fxSArgs.eAlpha *= 1.5;
-			fxSArgs.shader = cgs.media.redSaberGlowShader;
+			fxSArgs.shader = media.gfx.null;
 			trap->FX_AddSprite(&fxSArgs);
-			fxSArgs.shader = cgs.media.greenSaberGlowShader;
+			fxSArgs.shader = media.gfx.null;
 			trap->FX_AddSprite(&fxSArgs);
-			fxSArgs.shader = cgs.media.blueSaberGlowShader;
+			fxSArgs.shader = media.gfx.null;
 			trap->FX_AddSprite(&fxSArgs);
 		}
 		else
@@ -1627,16 +1559,16 @@ static void CG_General( centity_t *cent ) {
 			{ //saber power
 				fxSArgs.sAlpha *= 1.5;
 				fxSArgs.eAlpha *= 1.5;
-				fxSArgs.shader = cgs.media.greenSaberGlowShader;
+				fxSArgs.shader = media.gfx.null;
 				trap->FX_AddSprite(&fxSArgs);
 			}
 			else
 			{
 				fxSArgs.sAlpha *= 0.5;
 				fxSArgs.eAlpha *= 0.5;
-				fxSArgs.shader = cgs.media.greenSaberGlowShader;
+				fxSArgs.shader = media.gfx.null;
 				trap->FX_AddSprite(&fxSArgs);
-				fxSArgs.shader = cgs.media.blueSaberGlowShader;
+				fxSArgs.shader = media.gfx.null;
 				trap->FX_AddSprite(&fxSArgs);
 			}
 		}
@@ -1647,7 +1579,7 @@ static void CG_General( centity_t *cent ) {
 		if (cent->currentState.bolt2 == 1)
 		{
 			VectorMA( ent.origin, 6.6f, ent.axis[0], beamOrg );// forward
-			beamID = cgs.effects.tripmineGlowFX;
+			beamID = media.efx.null;
 			trap->FX_PlayEffectID( beamID, beamOrg, cent->currentState.pos.trDelta, -1, -1, qfalse );
 		}
 		else
@@ -1655,7 +1587,7 @@ static void CG_General( centity_t *cent ) {
 			int i = 0;
 
 			VectorMA( ent.origin, 6.6f, ent.axis[0], beamOrg );// forward
-			beamID = cgs.effects.tripmineLaserFX;
+			beamID = media.efx.null;
 
 			if (cg.snap->ps.fd.forcePowersActive & (1 << FP_SEE))
 			{
@@ -1671,11 +1603,6 @@ static void CG_General( centity_t *cent ) {
 
 			trap->FX_PlayEffectID( beamID, beamOrg, cent->currentState.pos.trDelta, -1, -1, qfalse );
 		}
-	}
-
-	if (debugBB.integer)
-	{
-		CG_CreateBBRefEnts(s1, cent->lerpOrigin);
 	}
 }
 
@@ -1767,7 +1694,7 @@ static void CG_Item( centity_t *cent ) {
 		VectorCopy(cent->lerpOrigin, ent.origin);
 		VectorCopy( cent->currentState.angles, cent->lerpAngles );
 		AnglesToAxis(cent->lerpAngles, ent.axis);
-		ent.hModel = cgs.media.itemHoloModel;
+		ent.hModel = media.models.null;
 
 		doGrey = CG_GreyItem(item->giType, item->giTag, cg.snap->ps.fd.forceSide);
 
@@ -1784,7 +1711,7 @@ static void CG_Item( centity_t *cent ) {
 
 		if (!doGrey)
 		{
-			trap->FX_PlayEffectID(cgs.effects.itemCone, ent.origin, uNorm, -1, -1, qfalse);
+			trap->FX_PlayEffectID(media.efx.null, ent.origin, uNorm, -1, -1, qfalse);
 		}
 	}
 
@@ -1837,11 +1764,11 @@ static void CG_Item( centity_t *cent ) {
 
 			if (item->giTag == PW_FORCE_ENLIGHTENED_LIGHT)
 			{
-				ent.customShader = trap->R_RegisterShader("gfx/misc/mp_light_enlight_disable");
+				ent.customShader = media.gfx.null /*"gfx/misc/mp_light_enlight_disable"*/;
 			}
 			else
 			{
-				ent.customShader = trap->R_RegisterShader("gfx/misc/mp_dark_enlight_disable");
+				ent.customShader = media.gfx.null /*"gfx/misc/mp_dark_enlight_disable"*/;
 			}
 		}
 		trap->R_AddRefEntityToScene(&ent);
@@ -1999,11 +1926,11 @@ static void CG_Item( centity_t *cent ) {
 
 		if (item->giTag == PW_FORCE_ENLIGHTENED_LIGHT)
 		{
-			ent.customShader = trap->R_RegisterShader("gfx/misc/mp_light_enlight_disable");
+			ent.customShader = media.gfx.null /*"gfx/misc/mp_light_enlight_disable"*/;
 		}
 		else
 		{
-			ent.customShader = trap->R_RegisterShader("gfx/misc/mp_dark_enlight_disable");
+			ent.customShader = media.gfx.null /*"gfx/misc/mp_dark_enlight_disable"*/;
 		}
 
 		trap->R_AddRefEntityToScene( &ent );
@@ -2019,7 +1946,7 @@ static void CG_Item( centity_t *cent ) {
 		ent.shaderRGBA[0] = 0;
 		ent.shaderRGBA[1] = 200;
 		ent.shaderRGBA[2] = 85;
-		ent.customShader = cgs.media.itemRespawningPlaceholder;
+		ent.customShader = media.gfx.null;
 	}
 
 	// increase the size of the weapons when they are presented as items
@@ -2028,7 +1955,7 @@ static void CG_Item( centity_t *cent ) {
 		VectorScale( ent.axis[1], 1.5, ent.axis[1] );
 		VectorScale( ent.axis[2], 1.5, ent.axis[2] );
 		ent.nonNormalizedAxes = qtrue;
-		//trap->S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, cgs.media.weaponHoverSound );
+		//trap->S_AddLoopingSound( cent->currentState.number, cent->lerpOrigin, vec3_origin, media.sounds.null );
 	}
 
 	if (!(cent->currentState.eFlags & EF_DROPPEDWEAPON) &&
@@ -2069,7 +1996,7 @@ static void CG_Item( centity_t *cent ) {
 		if (a > 255)
 			a=255;
 
-		ent.customShader = cgs.media.itemRespawningRezOut;
+		ent.customShader = media.gfx.null;
 
 		/*
 		ent.shaderRGBA[0] = 0;
@@ -2204,8 +2131,8 @@ void CG_CreateDistortionTrailPart(centity_t *cent, float scale, vec3_t pos)
 	ent.modelScale[2] = scale*16.0f;
 	ScaleModelAxis(&ent);
 
-	ent.hModel = trap->R_RegisterModel("models/weapons/merr_sonn/trailmodel.md3");
-	ent.customShader = cgs.media.itemRespawningRezOut;//cgs.media.cloakedShader;//cgs.media.halfShieldShader;
+	ent.hModel = media.models.null; // "models/weapons/merr_sonn/trailmodel.md3"
+	ent.customShader = media.gfx.null;
 
 #if 1
 	ent.renderfx = (RF_DISTORTION|RF_FORCE_ENT_ALPHA);
@@ -2469,7 +2396,7 @@ static void CG_Missile( centity_t *cent ) {
 		//refEntity_t sRef;
 		//memcpy( &sRef, &ent, sizeof( sRef ) );
 
-		ent.customShader = cgs.media.solidWhite;
+		ent.customShader = media.gfx.null;
 		ent.renderfx = RF_RGB_TINT;
 		wv = sin( cg.time * 0.003f ) * 0.08f + 0.1f;
 		ent.shaderRGBA[0] = wv * 255;
@@ -2491,10 +2418,10 @@ static void CG_Missile( centity_t *cent ) {
 			fxSArgs.rotation = 0.0f;
 			fxSArgs.bounce = 0.0f;
 			fxSArgs.life = 1.0f;
-			fxSArgs.shader = cgs.media.yellowDroppedSaberShader;
+			fxSArgs.shader = media.gfx.null;
 			fxSArgs.flags = 0x08000000;
 
-			//trap->FX_AddSprite( org, NULL, NULL, 5.5f, 5.5f, wv, wv, 0.0f, 0.0f, 1.0f, cgs.media.yellowSaberGlowShader, 0x08000000 );
+			//trap->FX_AddSprite( org, NULL, NULL, 5.5f, 5.5f, wv, wv, 0.0f, 0.0f, 1.0f, media.gfx.null, 0x08000000 );
 			trap->FX_AddSprite(&fxSArgs);
 		}
 
@@ -2505,7 +2432,7 @@ static void CG_Missile( centity_t *cent ) {
 			ent.shaderRGBA[2] = 0;
 
 			ent.renderfx |= RF_DEPTHHACK;
-			ent.customShader = cgs.media.forceSightBubble;
+			ent.customShader = media.gfx.null;
 
 			trap->R_AddRefEntityToScene( &ent );
 		}
@@ -2516,7 +2443,7 @@ static void CG_Missile( centity_t *cent ) {
 		vec3_t	beamOrg;
 
 		VectorMA( ent.origin, 8, ent.axis[0], beamOrg );// forward
-		trap->FX_PlayEffectID( cgs.effects.mTripMineLaser, beamOrg, ent.axis[0], -1, -1, qfalse );
+		trap->FX_PlayEffectID( media.efx.null, beamOrg, ent.axis[0], -1, -1, qfalse );
 	}
 }
 
@@ -3367,7 +3294,7 @@ void CG_Cube( vec3_t mins, vec3_t maxs, vec3_t color, float alpha )
 		VectorCopy( color, apArgs.rgb2 );
 		VectorCopy( rot, apArgs.rotationDelta );
 		apArgs.killTime = cg.frametime;
-		apArgs.shader = cgs.media.solidWhite;
+		apArgs.shader = media.gfx.null;
 
 		trap->FX_AddPoly( &apArgs );
 
