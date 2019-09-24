@@ -3072,23 +3072,6 @@ static void WP_FireConcussionAlt( gentity_t *ent )
 	VectorCopy(dir, tent->s.angles);
 	VectorCopy(muzzle, tent->s.origin2);
 	VectorCopy(forward, tent->s.angles2);
-
-#if 0 //yuck
-	//FIXME: if shoot *really* close to someone, the alert could be way out of their FOV
-	for ( dist = 0; dist < shotDist; dist += 64 )
-	{
-		//FIXME: on a really long shot, this could make a LOT of alerts in one frame...
-		VectorMA( muzzle, dist, dir, spot );
-		AddSightEvent( ent, spot, 256, AEL_DISCOVERED, 50 );
-		//FIXME: creates *way* too many effects, make it one effect somehow?
-		G_PlayEffectID( G_EffectIndex( "concussion/alt_ring" ), spot, actualAngles );
-	}
-	//FIXME: spawn a temp ent that continuously spawns sight alerts here?  And 1 sound alert to draw their attention?
-	VectorMA( start, shotDist-4, forward, spot );
-	AddSightEvent( ent, spot, 256, AEL_DISCOVERED, 50 );
-
-	G_PlayEffectID( G_EffectIndex( "concussion/altmuzzle_flash" ), muzzle, forward );
-#endif
 }
 
 static void WP_FireConcussion( gentity_t *ent )

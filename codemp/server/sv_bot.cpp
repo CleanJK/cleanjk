@@ -621,23 +621,6 @@ int SV_BotGetConsoleMessage( int client, char *buf, int size )
 	return qtrue;
 }
 
-#if 0
-int EntityInPVS( int client, int entityNum ) {
-	client_t			*cl;
-	clientSnapshot_t	*frame;
-	int					i;
-
-	cl = &svs.clients[client];
-	frame = &cl->frames[cl->netchan.outgoingSequence & PACKET_MASK];
-	for ( i = 0; i < frame->num_entities; i++ )	{
-		if ( svs.snapshotEntities[(frame->first_entity + i) % svs.numSnapshotEntities].number == entityNum ) {
-			return qtrue;
-		}
-	}
-	return qfalse;
-}
-#endif
-
 int SV_BotGetSnapshotEntity( int client, int sequence ) {
 	client_t			*cl;
 	clientSnapshot_t	*frame;

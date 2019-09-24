@@ -560,51 +560,7 @@ static void SV_ClipMoveToEntities( moveclip_t *clip ) {
 			clip->trace = trace;
 			clip->trace.startsolid = (qboolean)((unsigned)clip->trace.startsolid | (unsigned)oldStart);
 		}
-#if 0
-		// decide if we should do the ghoul2 collision detection right here
-		if ((trace.entityNum == touch->s.number) && (clip->traceFlags))
-		{
-			// do we actually have a ghoul2 model here?
-			if (touch->s.ghoul2)
-			{
-				int			oldTraceRecSize = 0;
-				int			newTraceRecSize = 0;
-				int			z;
 
-				// we have to do this because sometimes you may hit a model's bounding box, but not actually penetrate the Ghoul2 Models polygons
-				// this is, needless to say, not good. So we must check to see if we did actually hit the model, and if not, reset the trace stuff
-				// to what it was to begin with
-
-				// set our trace record size
-				for (z=0;z<MAX_G2_COLLISIONS;z++)
-				{
-					if (clip->trace.G2CollisionMap[z].mEntityNum != -1)
-					{
-						oldTraceRecSize++;
-					}
-				}
-
-				G2API_CollisionDetect(&clip->trace.G2CollisionMap[0], *((CGhoul2Info_v *)touch->s.ghoul2),
-					touch->s.angles, touch->s.origin, sv.time, touch->s.number, clip->start, clip->end, touch->s.modelScale, G2VertSpaceServer, clip->traceFlags, clip->useLod);
-
-				// set our new trace record size
-
-				for (z=0;z<MAX_G2_COLLISIONS;z++)
-				{
-					if (clip->trace.G2CollisionMap[z].mEntityNum != -1)
-					{
-						newTraceRecSize++;
-					}
-				}
-
-				// did we actually touch this model? If not, lets reset this ent as being hit..
-				if (newTraceRecSize == oldTraceRecSize)
-				{
-					clip->trace = oldTrace;
-				}
-			}
-		}
-#else
 		//rww - since this is multiplayer and we don't have the luxury of violating networking rules in horrible ways,
 		//this must be done somewhat differently.
 		if ((clip->traceFlags & G2TRFLAG_DOGHOULTRACE) && trace.entityNum == touch->s.number && touch->ghoul2 && ((clip->traceFlags & G2TRFLAG_HITCORPSES) || !(touch->s.eFlags & EF_DEAD)))
@@ -690,7 +646,6 @@ static void SV_ClipMoveToEntities( moveclip_t *clip ) {
 				}
 			}
 		}
-#endif
 	}
 }
 

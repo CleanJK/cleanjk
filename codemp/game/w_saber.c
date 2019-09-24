@@ -2363,24 +2363,6 @@ static QINLINE qboolean G_SaberCollide(gentity_t *atk, gentity_t *def, vec3_t at
 					G_BuildSaberFaces(base, tip, blade->radius*3.0f, fwd, right, &fNum, &fList);
 					if (fNum > 0)
 					{
-#if 0
-						if (atk->s.number == 0)
-						{
-							int x = 0;
-							saberFace_t *l = fList;
-							while (x < fNum)
-							{
-								G_TestLine(fList->v1, fList->v2, 0x0000ff, 100);
-								G_TestLine(fList->v2, fList->v3, 0x0000ff, 100);
-								G_TestLine(fList->v3, fList->v1, 0x0000ff, 100);
-
-								fList++;
-								x++;
-							}
-							fList = l;
-						}
-#endif
-
 						if (G_SaberFaceCollisionCheck(fNum, fList, atkStart, atkEnd, atkMins, atkMaxs, impactPoint))
 						{ //collided
 							return qtrue;
@@ -6649,26 +6631,6 @@ void UpdateClientRenderinfo(gentity_t *self, vec3_t renderOrigin, vec3_t renderA
 	{
 		//We're just going to give rough estimates on most of this stuff,
 		//it's not like most of it matters.
-
-	#if 0 //#if 0'd since it's a waste setting all this to 0 each frame.
-		//Should you wish to make any of this valid then feel free to do so.
-		ri->headYawRangeLeft = ri->headYawRangeRight = ri->headPitchRangeUp = ri->headPitchRangeDown = 0;
-		ri->torsoYawRangeLeft = ri->torsoYawRangeRight = ri->torsoPitchRangeUp = ri->torsoPitchRangeDown = 0;
-
-		ri->torsoFpsMod = ri->legsFpsMod = 0;
-
-		VectorClear(ri->customRGB);
-		ri->customAlpha = 0;
-		ri->renderFlags = 0;
-		ri->lockYaw = 0;
-
-		VectorClear(ri->headAngles);
-		VectorClear(ri->torsoAngles);
-
-		//VectorClear(ri->eyeAngles);
-
-		ri->legsYaw = 0;
-	#endif
 
 		if (self->ghoul2 &&
 			self->ghoul2 != ri->lastG2)

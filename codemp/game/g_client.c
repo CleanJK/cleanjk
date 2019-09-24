@@ -1164,14 +1164,6 @@ static void ClientCleanName( const char *in, char *out, int outSize )
 			if ( Q_IsColorStringExt( &out[outpos-1] ) )
 			{
 				colorlessLen--;
-
-#if 0
-				if ( ColorIndex( *in ) == 0 )
-				{// Disallow color black in names to prevent players from getting advantage playing in front of black backgrounds
-					outpos--;
-					continue;
-				}
-#endif
 			}
 			else
 			{
@@ -1290,9 +1282,6 @@ void SetupGameGhoul2Model(gentity_t *ent, char *modelname, char *skinName)
 {
 	int handle;
 	char		afilename[MAX_QPATH];
-#if 0
-	char		/**GLAName,*/ *slash;
-#endif
 	char		GLAName[MAX_QPATH];
 	vec3_t	tempVec = {0,0,0};
 
@@ -1982,22 +1971,8 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 			int count=0, i=0;
 			for ( i=0; i<sv_maxclients.integer; i++ )
 			{
-				#if 0
-					if ( level.clients[i].pers.connected != CON_DISCONNECTED && i != clientNum )
-					{
-						if ( CompareIPs( clientNum, i ) )
-						{
-							if ( !level.security.clientConnectionActive[i] )
-							{//This IP has a dead connection pending, wait for it to time out
-							//	client->pers.connected = CON_DISCONNECTED;
-								return "Please wait, another connection from this IP is still pending...";
-							}
-						}
-					}
-				#else
-					if ( CompareIPs( tmpIP, level.clients[i].sess.IP ) )
-						count++;
-				#endif
+				if ( CompareIPs( tmpIP, level.clients[i].sess.IP ) )
+					count++;
 			}
 			if ( count > g_maxConnPerIP.integer )
 			{
@@ -2429,129 +2404,6 @@ tryTorso:
 	{ //only set the motion bone for humanoids.
 		trap->G2API_SetBoneAnim(self->ghoul2, 0, "Motion", firstFrame, lastFrame, aFlags, lAnimSpeedScale, level.time, -1, 150);
 	}
-
-#if 0 //disabled for now
-	if (self->client->ps.brokenLimbs != self->client->brokenLimbs ||
-		setTorso)
-	{
-		if (self->localAnimIndex <= 1 && self->client->ps.brokenLimbs &&
-			(self->client->ps.brokenLimbs & (1 << BROKENLIMB_LARM)))
-		{ //broken left arm
-			char *brokenBone = "lhumerus";
-			animation_t *armAnim;
-			int armFirstFrame;
-			int armLastFrame;
-			int armFlags = 0;
-			float armAnimSpeed;
-
-			armAnim = &bgAllAnims[self->localAnimIndex].anims[ BOTH_DEAD21 ];
-			self->client->brokenLimbs = self->client->ps.brokenLimbs;
-
-			armFirstFrame = armAnim->firstFrame;
-			armLastFrame = armAnim->firstFrame+armAnim->numFrames;
-			armAnimSpeed = 50.0f / armAnim->frameLerp;
-			armFlags = (BONE_ANIM_OVERRIDE_LOOP|BONE_ANIM_BLEND);
-
-			trap->G2API_SetBoneAnim(self->ghoul2, 0, brokenBone, armFirstFrame, armLastFrame, armFlags, armAnimSpeed, level.time, -1, 150);
-		}
-		else if (self->localAnimIndex <= 1 && self->client->ps.brokenLimbs &&
-			(self->client->ps.brokenLimbs & (1 << BROKENLIMB_RARM)))
-		{ //broken right arm
-			char *brokenBone = "rhumerus";
-			char *supportBone = "lhumerus";
-
-			self->client->brokenLimbs = self->client->ps.brokenLimbs;
-
-			//Only put the arm in a broken pose if the anim is such that we
-			//want to allow it.
-			if ((//self->client->ps.weapon == WP_MELEE ||
-				self->client->ps.weapon != WP_SABER ||
-				BG_SaberStanceAnim(self->client->ps.torsoAnim) ||
-				PM_RunningAnim(self->client->ps.torsoAnim)) &&
-				(!self->client->saber[1].model[0] || self->client->ps.weapon != WP_SABER))
-			{
-				int armFirstFrame;
-				int armLastFrame;
-				int armFlags = 0;
-				float armAnimSpeed;
-				animation_t *armAnim;
-
-				if (self->client->ps.weapon == WP_MELEE ||
-					self->client->ps.weapon == WP_SABER ||
-					self->client->ps.weapon == WP_BRYAR_PISTOL)
-				{ //don't affect this arm if holding a gun, just make the other arm support it
-					armAnim = &bgAllAnims[self->localAnimIndex].anims[ BOTH_ATTACK2 ];
-
-					//armFirstFrame = armAnim->firstFrame;
-					armFirstFrame = armAnim->firstFrame+armAnim->numFrames;
-					armLastFrame = armAnim->firstFrame+armAnim->numFrames;
-					armAnimSpeed = 50.0f / armAnim->frameLerp;
-					armFlags = (BONE_ANIM_OVERRIDE_LOOP|BONE_ANIM_BLEND);
-
-					trap->G2API_SetBoneAnim(self->ghoul2, 0, brokenBone, armFirstFrame, armLastFrame, armFlags, armAnimSpeed, level.time, -1, 150);
-				}
-				else
-				{ //we want to keep the broken bone updated for some cases
-					trap->G2API_SetBoneAnim(self->ghoul2, 0, brokenBone, firstFrame, lastFrame, aFlags, lAnimSpeedScale, level.time, -1, 150);
-				}
-
-				if (self->client->ps.torsoAnim != BOTH_MELEE1 &&
-					self->client->ps.torsoAnim != BOTH_MELEE2 &&
-					(self->client->ps.torsoAnim == TORSO_WEAPONREADY2 || self->client->ps.torsoAnim == BOTH_ATTACK2 || self->client->ps.weapon < WP_BRYAR_PISTOL))
-				{
-					//Now set the left arm to "support" the right one
-					armAnim = &bgAllAnims[self->localAnimIndex].anims[ BOTH_STAND2 ];
-					armFirstFrame = armAnim->firstFrame;
-					armLastFrame = armAnim->firstFrame+armAnim->numFrames;
-					armAnimSpeed = 50.0f / armAnim->frameLerp;
-					armFlags = (BONE_ANIM_OVERRIDE_LOOP|BONE_ANIM_BLEND);
-
-					trap->G2API_SetBoneAnim(self->ghoul2, 0, supportBone, armFirstFrame, armLastFrame, armFlags, armAnimSpeed, level.time, -1, 150);
-				}
-				else
-				{ //we want to keep the support bone updated for some cases
-					trap->G2API_SetBoneAnim(self->ghoul2, 0, supportBone, firstFrame, lastFrame, aFlags, lAnimSpeedScale, level.time, -1, 150);
-				}
-			}
-			else
-			{ //otherwise, keep it set to the same as the torso
-				trap->G2API_SetBoneAnim(self->ghoul2, 0, brokenBone, firstFrame, lastFrame, aFlags, lAnimSpeedScale, level.time, -1, 150);
-				trap->G2API_SetBoneAnim(self->ghoul2, 0, supportBone, firstFrame, lastFrame, aFlags, lAnimSpeedScale, level.time, -1, 150);
-			}
-		}
-		else if (self->client->brokenLimbs)
-		{ //remove the bone now so it can be set again
-			char *brokenBone = NULL;
-			int broken = 0;
-
-			//Warning: Don't remove bones that you've added as bolts unless you want to invalidate your bolt index
-			//(well, in theory, I haven't actually run into the problem)
-			if (self->client->brokenLimbs & (1<<BROKENLIMB_LARM))
-			{
-				brokenBone = "lhumerus";
-				broken |= (1<<BROKENLIMB_LARM);
-			}
-			else if (self->client->brokenLimbs & (1<<BROKENLIMB_RARM))
-			{ //can only have one arm broken at once.
-				brokenBone = "rhumerus";
-				broken |= (1<<BROKENLIMB_RARM);
-
-				//want to remove the support bone too then
-				trap->G2API_SetBoneAnim(self->ghoul2, 0, "lhumerus", 0, 1, 0, 0, level.time, -1, 0);
-				trap->G2API_RemoveBone(self->ghoul2, "lhumerus", 0);
-			}
-
-			assert(brokenBone);
-
-			//Set the flags and stuff to 0, so that the remove will succeed
-			trap->G2API_SetBoneAnim(self->ghoul2, 0, brokenBone, 0, 1, 0, 0, level.time, -1, 0);
-
-			//Now remove it
-			trap->G2API_RemoveBone(self->ghoul2, brokenBone, 0);
-			self->client->brokenLimbs &= ~broken;
-		}
-	}
-#endif
 }
 
 extern qboolean WP_HasForcePowers( const playerState_t *ps );

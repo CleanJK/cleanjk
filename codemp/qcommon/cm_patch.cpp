@@ -1603,27 +1603,5 @@ void CM_DrawDebugSurface( void (*drawPoly)(int color, int numPoints, float *poin
 		VectorCopy( debugBlockPoints[0], v[2] );
 		drawPoly( 2, 3, v[0] );
 	}
-
-#if 0
-	vec3_t			v[4];
-
-	v[0][0] = pc->bounds[1][0];
-	v[0][1] = pc->bounds[1][1];
-	v[0][2] = pc->bounds[1][2];
-
-	v[1][0] = pc->bounds[1][0];
-	v[1][1] = pc->bounds[0][1];
-	v[1][2] = pc->bounds[1][2];
-
-	v[2][0] = pc->bounds[0][0];
-	v[2][1] = pc->bounds[0][1];
-	v[2][2] = pc->bounds[1][2];
-
-	v[3][0] = pc->bounds[0][0];
-	v[3][1] = pc->bounds[1][1];
-	v[3][2] = pc->bounds[1][2];
-
-	drawPoly( 4, v[0] );
-#endif
 }
 

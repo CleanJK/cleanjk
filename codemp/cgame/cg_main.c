@@ -225,22 +225,6 @@ static int CG_RagCallback(int callType)
 	case RAG_CALLBACK_BONEIMPACT:
 		break;
 	case RAG_CALLBACK_BONEINSOLID:
-#if 0
-		{
-			ragCallbackBoneInSolid_t *callData = &cg.sharedBuffer.rcbBoneInSolid;
-
-			if (callData->solidCount > 16)
-			{ //don't bother if we're just tapping into solidity, we'll probably recover on our own
-				centity_t *cent = &cg_entities[callData->entNum];
-				vec3_t slideDir;
-
-				VectorSubtract(cent->lerpOrigin, callData->bonePos, slideDir);
-				VectorAdd(cent->ragOffsets, slideDir, cent->ragOffsets);
-
-				cent->hasRagOffset = qtrue;
-			}
-		}
-#endif
 		break;
 	case RAG_CALLBACK_TRACELINE:
 		{
@@ -1137,9 +1121,7 @@ void WP_SaberLoadParms( void );
 // Will perform callbacks to make the loading info screen update.
 void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum )
 {
-	static gitem_t *item;
 	const char	*s;
-	int i = 0;
 
 	// initialisation
 	CG_LoadingString( "module initialisation" );
@@ -1458,24 +1440,6 @@ static void _CG_MouseEvent( int x, int y ) {
 }
 
 static qboolean CG_IncomingConsoleCommand( void ) {
-	//rww - let mod authors filter client console messages so they can cut them off if they want.
-	//return qtrue if the command is ok. Otherwise, you can set char 0 on the command str to 0 and return
-	//qfalse to not execute anything, or you can fill conCommand in with something valid and return 0
-	//in order to have that string executed in place. Some example code:
-#if 0
-	TCGIncomingConsoleCommand *icc = &cg.sharedBuffer.icc;
-	if ( strstr( icc->conCommand, "wait" ) )
-	{ //filter out commands contaning wait
-		Com_Printf( "You can't use commands containing the string wait with MyMod v1.0\n" );
-		icc->conCommand[0] = 0;
-		return qfalse;
-	}
-	else if ( strstr( icc->conCommand, "blah" ) )
-	{ //any command containing the string "blah" is redirected to "quit"
-		strcpy( icc->conCommand, "quit" );
-		return qfalse;
-	}
-#endif
 	return qtrue;
 }
 
@@ -1510,17 +1474,14 @@ static void CG_AutomapInput( void ) {
 
 	memcpy( &cg_autoMapInput, autoInput, sizeof( autoMapInput_t ) );
 
-#if 0
-	if ( !arg0 ) //if this is non-0, it's actually a one-frame mouse event
-		cg_autoMapInputTime = cg.time + 1000;
-	else
-#endif
-	{
-		if ( cg_autoMapInput.yaw )		cg_autoMapAngle[YAW] += cg_autoMapInput.yaw;
-		if ( cg_autoMapInput.pitch )	cg_autoMapAngle[PITCH] += cg_autoMapInput.pitch;
-		cg_autoMapInput.yaw = 0.0f;
-		cg_autoMapInput.pitch = 0.0f;
+	if ( cg_autoMapInput.yaw ) {
+		cg_autoMapAngle[YAW] += cg_autoMapInput.yaw;
 	}
+	if ( cg_autoMapInput.pitch ) {
+		cg_autoMapAngle[PITCH] += cg_autoMapInput.pitch;
+	}
+	cg_autoMapInput.yaw = 0.0f;
+	cg_autoMapInput.pitch = 0.0f;
 }
 
 static void CG_FX_CameraShake( void ) {

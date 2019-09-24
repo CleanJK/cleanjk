@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "server.h"
 
 // TTimo: unused, commenting out to make gcc happy
-#if 1
+
 // first four bytes of the data are always:
 //	long reliableAcknowledge;
 static void SV_Netchan_Encode( client_t *client, msg_t *msg ) {
@@ -118,7 +118,6 @@ static void SV_Netchan_Decode( client_t *client, msg_t *msg ) {
 		*(msg->data + i) = *(msg->data + i) ^ key;
 	}
 }
-#endif
 
 void SV_Netchan_TransmitNextFragment( netchan_t *chan ) {
 	Netchan_TransmitNextFragment( chan );

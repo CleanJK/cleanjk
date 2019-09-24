@@ -790,63 +790,6 @@ int CanGetToVector(vec3_t org1, vec3_t org2, vec3_t mins, vec3_t maxs)
 	return 0;
 }
 
-#if 0
-int CanGetToVectorTravel(vec3_t org1, vec3_t org2, vec3_t mins, vec3_t maxs)
-{
-	trace_t tr;
-	vec3_t a, ang, fwd;
-	vec3_t midpos, dmid;
-	float startheight, midheight, fLen;
-
-	mins[2] = -13;
-	maxs[2] = 13;
-
-	trap->Trace(&tr, org1, mins, maxs, org2, ENTITYNUM_NONE, MASK_SOLID, qfalse, 0, 0);
-
-	if (tr.fraction != 1 || tr.startsolid || tr.allsolid)
-	{
-		return 0;
-	}
-
-	VectorSubtract(org2, org1, a);
-
-	vectoangles(a, ang);
-
-	AngleVectors(ang, fwd, NULL, NULL);
-
-	fLen = VectorLength(a)/2;
-
-	midpos[0] = org1[0] + fwd[0]*fLen;
-	midpos[1] = org1[1] + fwd[1]*fLen;
-	midpos[2] = org1[2] + fwd[2]*fLen;
-
-	VectorCopy(org1, dmid);
-	dmid[2] -= 1024;
-
-	trap->Trace(&tr, midpos, NULL, NULL, dmid, ENTITYNUM_NONE, MASK_SOLID, qfalse, 0, 0);
-
-	startheight = org1[2] - tr.endpos[2];
-
-	VectorCopy(midpos, dmid);
-	dmid[2] -= 1024;
-
-	trap->Trace(&tr, midpos, NULL, NULL, dmid, ENTITYNUM_NONE, MASK_SOLID, qfalse, 0, 0);
-
-	if (tr.startsolid || tr.allsolid)
-	{
-		return 1;
-	}
-
-	midheight = midpos[2] - tr.endpos[2];
-
-	if (midheight > startheight*2)
-	{
-		return 0; //too steep of a drop.. can't go on
-	}
-
-	return 1;
-}
-#else
 int CanGetToVectorTravel(vec3_t org1, vec3_t moveTo, vec3_t mins, vec3_t maxs)
 //int ExampleAnimEntMove(gentity_t *self, vec3_t moveTo, float stepSize)
 {
@@ -961,7 +904,6 @@ int CanGetToVectorTravel(vec3_t org1, vec3_t moveTo, vec3_t mins, vec3_t maxs)
 
 	return didMove;
 }
-#endif
 
 int ConnectTrail(int startindex, int endindex, qboolean behindTheScenes)
 {

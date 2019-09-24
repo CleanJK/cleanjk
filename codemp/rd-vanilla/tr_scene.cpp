@@ -240,10 +240,6 @@ void RE_AddRefEntityToScene( const refEntity_t *ent ) {
 //	ent		the mini ref ent to be added
 void RE_AddMiniRefEntityToScene( const miniRefEntity_t *ent )
 {
-#if 0
-	refEntity_t		*parent;
-#endif
-
 	if ( !tr.registered )
 	{
 		return;
@@ -254,36 +250,11 @@ void RE_AddMiniRefEntityToScene( const miniRefEntity_t *ent )
 		return;
 	}
 
-#if 1 //i hate you minirefent!
 	refEntity_t		tempEnt;
 
 	memcpy(&tempEnt, ent, sizeof(*ent));
 	memset(((char *)&tempEnt)+sizeof(*ent), 0, sizeof(tempEnt) - sizeof(*ent));
 	RE_AddRefEntityToScene(&tempEnt);
-#else
-
-	if ( ent->reType < 0 || ent->reType >= RT_MAX_REF_ENTITY_TYPE )
-	{
-		Com_Error( ERR_DROP, "RE_AddMiniRefEntityToScene: bad reType %i", ent->reType );
-	}
-
-	if (!r_numentities || refEntParent == -1 || r_numminientities >= MAX_MINI_ENTITIES)
-	{ //rww - add it as a refent also if we run out of minis
-//		Com_Error( ERR_DROP, "RE_AddMiniRefEntityToScene: mini without parent ref ent");
-		refEntity_t		tempEnt;
-
-		memcpy(&tempEnt, ent, sizeof(*ent));
-		memset(((char *)&tempEnt)+sizeof(*ent), 0, sizeof(tempEnt) - sizeof(*ent));
-		RE_AddRefEntityToScene(&tempEnt);
-		return;
-	}
-
-	parent = &backEndData->entities[refEntParent].e;
-	parent->uRefEnt.uMini.miniCount++;
-
-	backEndData->miniEntities[r_numminientities].e = *ent;
-	r_numminientities++;
-#endif
 }
 
 void RE_AddDynamicLightToScene( const vec3_t org, float intensity, float r, float g, float b, int additive ) {
@@ -486,15 +457,3 @@ void RE_RenderScene( const refdef_t *fd ) {
 		RE_RenderAutoMap();
 	}
 }
-
-#if 0 //rwwFIXMEFIXME: Disable this before release!!!!!! I am just trying to find a crash bug.
-int R_GetRNumEntities(void)
-{
-	return r_numentities;
-}
-
-void R_SetRNumEntities(int num)
-{
-	r_numentities = num;
-}
-#endif

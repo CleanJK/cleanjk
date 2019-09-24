@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "client.h"
 
 // TTimo: unused, commenting out to make gcc happy
-#if 1
+
 // first 12 bytes of the data are always:
 //	long serverId;
 //	long messageAcknowledge;
@@ -115,7 +115,6 @@ static void CL_Netchan_Decode( msg_t *msg ) {
 		*(msg->data + i) = *(msg->data + i) ^ key;
 	}
 }
-#endif
 
 void CL_Netchan_TransmitNextFragment( netchan_t *chan ) {
 	Netchan_TransmitNextFragment( chan );

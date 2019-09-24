@@ -281,35 +281,6 @@ const char *G_RefreshNextMap(int gametype, qboolean forced)
 #define MAPSBUFSIZE (MAX_MAPS * 64)
 
 void G_LoadArenas( void ) {
-#if 0
-	int			numdirs;
-	char		filename[MAX_QPATH];
-	char		dirlist[1024];
-	char*		dirptr;
-	int			i, n;
-	int			dirlen;
-
-	level.arenas.num = 0;
-
-	// get all arenas from .arena files
-	numdirs = trap->FS_GetFileList("scripts", ".arena", dirlist, 1024 );
-	dirptr  = dirlist;
-	for (i = 0; i < numdirs; i++, dirptr += dirlen+1) {
-		dirlen = strlen(dirptr);
-		Q_strncpyz( filename, "scripts/", sizeof( filename ) );
-		strcat(filename, dirptr);
-		G_LoadArenasFromFile(filename);
-	}
-//	trap->Print( "%i arenas parsed\n", level.arenas.num );
-
-	for( n = 0; n < level.arenas.num; n++ ) {
-		Info_SetValueForKey( level.arenas.infos[n], "num", va( "%i", n ) );
-	}
-
-	G_RefreshNextMap(level.gametype, qfalse);
-
-#else
-
 	int			numFiles;
 	char		filelist[MAPSBUFSIZE];
 	char		filename[MAX_QPATH];
@@ -341,8 +312,6 @@ void G_LoadArenas( void ) {
 	}
 
 	G_RefreshNextMap(level.gametype, qfalse);
-#endif
-
 }
 
 const char *G_GetArenaInfoByMap( const char *map ) {
@@ -356,28 +325,6 @@ const char *G_GetArenaInfoByMap( const char *map ) {
 
 	return NULL;
 }
-
-#if 0
-static void PlayerIntroSound( const char *modelAndSkin ) {
-	char	model[MAX_QPATH];
-	char	*skin;
-
-	Q_strncpyz( model, modelAndSkin, sizeof(model) );
-	skin = Q_strrchr( model, '/' );
-	if ( skin ) {
-		*skin++ = '\0';
-	}
-	else {
-		skin = model;
-	}
-
-	if( Q_stricmp( skin, "default" ) == 0 ) {
-		skin = model;
-	}
-
-	trap->SendConsoleCommand( EXEC_APPEND, va( "play sound/player/announce/%s.wav\n", skin ) );
-}
-#endif
 
 void G_AddRandomBot( int team ) {
 	int		i, n, num;
@@ -981,56 +928,6 @@ void Svcmd_BotList_f( void ) {
 		trap->Print("%-16s %-16s %-20s %-20s\n", name, model, COM_SkipPath(personality), funname);
 	}
 }
-
-#if 0
-static void G_SpawnBots( char *botList, int baseDelay ) {
-	char		*bot;
-	char		*p;
-	float		skill;
-	int			delay;
-	char		bots[MAX_INFO_VALUE];
-
-	skill = trap->Cvar_VariableIntegerValue( "g_npcspskill" );
-	if( skill < 1 ) {
-		trap->Cvar_Set( "g_npcspskill", "1" );
-		skill = 1;
-	}
-	else if ( skill > 5 ) {
-		trap->Cvar_Set( "g_npcspskill", "5" );
-		skill = 5;
-	}
-
-	Q_strncpyz( bots, botList, sizeof(bots) );
-	p = &bots[0];
-	delay = baseDelay;
-	while( *p ) {
-		//skip spaces
-		while( *p && *p == ' ' ) {
-			p++;
-		}
-		if( !*p ) {
-			break;
-		}
-
-		// mark start of bot name
-		bot = p;
-
-		// skip until space of null
-		while( *p && *p != ' ' ) {
-			p++;
-		}
-		if( *p ) {
-			*p++ = 0;
-		}
-
-		// we must add the bot this way, calling G_AddBot directly at this stage
-		// does "Bad Things"
-		trap->SendConsoleCommand( EXEC_INSERT, va("addbot \"%s\" %f free %i\n", bot, skill, delay) );
-
-		delay += BOT_BEGIN_DELAY_INCREMENT;
-	}
-}
-#endif
 
 static void G_LoadBotsFromFile( char *filename ) {
 	int				len;

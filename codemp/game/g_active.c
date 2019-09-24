@@ -1955,12 +1955,6 @@ void ClientThink_real( gentity_t *ent ) {
 		else if (thrower->inuse && thrower->client && thrower->ghoul2 &&
 			trap->G2API_HaveWeGhoul2Models(thrower->ghoul2))
 		{
-#if 0
-			int lHandBolt = trap->G2API_AddBolt(thrower->ghoul2, 0, "*l_hand");
-			int pelBolt = trap->G2API_AddBolt(thrower->ghoul2, 0, "pelvis");
-
-			if (lHandBolt != -1 && pelBolt != -1)
-#endif
 			{
 				float pDif = 40.0f;
 				vec3_t boltOrg, pBoltOrg;
@@ -1979,25 +1973,11 @@ void ClientThink_real( gentity_t *ent ) {
 				tAngles[PITCH] = tAngles[ROLL] = 0;
 
 				//Get the direction between the pelvis and position of the hand
-#if 0
-				mdxaBone_t boltMatrix, pBoltMatrix;
-
-				trap->G2API_GetBoltMatrix(thrower->ghoul2, 0, lHandBolt, &boltMatrix, tAngles, thrower->client->ps.origin, level.time, 0, thrower->modelScale);
-				boltOrg[0] = boltMatrix.matrix[0][3];
-				boltOrg[1] = boltMatrix.matrix[1][3];
-				boltOrg[2] = boltMatrix.matrix[2][3];
-
-				trap->G2API_GetBoltMatrix(thrower->ghoul2, 0, pelBolt, &pBoltMatrix, tAngles, thrower->client->ps.origin, level.time, 0, thrower->modelScale);
-				pBoltOrg[0] = pBoltMatrix.matrix[0][3];
-				pBoltOrg[1] = pBoltMatrix.matrix[1][3];
-				pBoltOrg[2] = pBoltMatrix.matrix[2][3];
-#else //above tends to not work once in a while, for various reasons I suppose.
 				VectorCopy(thrower->client->ps.origin, pBoltOrg);
 				AngleVectors(tAngles, fwd, right, 0);
 				boltOrg[0] = pBoltOrg[0] + fwd[0]*8 + right[0]*pDif;
 				boltOrg[1] = pBoltOrg[1] + fwd[1]*8 + right[1]*pDif;
 				boltOrg[2] = pBoltOrg[2];
-#endif
 				//G_TestLine(boltOrg, pBoltOrg, 0x0000ff, 50);
 
 				VectorSubtract(ent->client->ps.origin, boltOrg, vDif);
@@ -2231,22 +2211,6 @@ void ClientThink_real( gentity_t *ent ) {
 	}
 
 	//point the saber data to the right place
-#if 0
-	k = 0;
-	while (k < MAX_SABERS)
-	{
-		if (ent->client->saber[k].model[0])
-		{
-			pm.saber[k] = &ent->client->saber[k];
-		}
-		else
-		{
-			pm.saber[k] = NULL;
-		}
-		k++;
-	}
-#endif
-
 	//I'll just do this every frame in case the scale changes in realtime (don't need to update the g2 inst for that)
 	VectorCopy(ent->modelScale, pmove.modelScale);
 	//rww end bgghoul2
@@ -2957,14 +2921,6 @@ void ClientEndFrame( gentity_t *ent ) {
 			ent->client->ps.powerups[ i ] = 0;
 		}
 	}
-
-	// save network bandwidth
-#if 0
-	if ( !g_synchronousClients->integer && (ent->client->ps.pm_type == PM_NORMAL || ent->client->ps.pm_type == PM_JETPACK || ent->client->ps.pm_type == PM_FLOAT) ) {
-		// FIXME: this must change eventually for non-sync demo recording
-		VectorClear( ent->client->ps.viewangles );
-	}
-#endif
 
 	// If the end of unit layout is displayed, don't give
 	// the player any normal movement attributes

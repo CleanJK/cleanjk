@@ -285,33 +285,6 @@ static int R_DlightTrisurf( srfTriangles_t *surf, int dlightBits ) {
 	// FIXME: more dlight culling to trisurfs...
 	surf->dlightBits = dlightBits;
 	return dlightBits;
-#if 0
-	int			i;
-	dlight_t	*dl;
-
-	for ( i = 0 ; i < tr.refdef.num_dlights ; i++ ) {
-		if ( ! ( dlightBits & ( 1 << i ) ) ) {
-			continue;
-		}
-		dl = &tr.refdef.dlights[i];
-		if ( dl->origin[0] - dl->radius > grid->meshBounds[1][0]
-			|| dl->origin[0] + dl->radius < grid->meshBounds[0][0]
-			|| dl->origin[1] - dl->radius > grid->meshBounds[1][1]
-			|| dl->origin[1] + dl->radius < grid->meshBounds[0][1]
-			|| dl->origin[2] - dl->radius > grid->meshBounds[1][2]
-			|| dl->origin[2] + dl->radius < grid->meshBounds[0][2] ) {
-			// dlight doesn't reach the bounds
-			dlightBits &= ~( 1 << i );
-		}
-	}
-
-	if ( !dlightBits ) {
-		tr.pc.c_dlightSurfacesCulled++;
-	}
-
-	grid->dlightBits = dlightBits;
-	return dlightBits;
-#endif
 }
 
 // The given surface is going to be drawn, and it touches a leaf that is touched by one or more dlights, so try to throw
@@ -685,30 +658,6 @@ static inline void R_EvaluateWireframeSurf(msurface_t *surf)
 			int i = 0;
 			wireframeMapSurf_t *nextSurf = R_GetNewWireframeMapSurf();
 
-#if 0 //doing in realtime now
-			float e;
-
-			//base the color on the elevation... for now, just check the first point height
-			if (points[2] < 0.0f)
-			{
-				e = -points[2];
-			}
-			else
-			{
-				e = points[2];
-			}
-			e /= 2048.0f;
-			if (e > 1.0f)
-			{
-				e = 1.0f;
-			}
-			else if (e < 0.0f)
-			{
-				e = 0.0f;
-			}
-			VectorSet(color, e, 1.0f-e, 0.0f);
-#endif
-
 			//now go through the indices and add a point for each
 			nextSurf->points = (wireframeSurfPoint_t *)Z_Malloc(sizeof(wireframeSurfPoint_t)*face->numIndices, TAG_ALL, qtrue);
 			nextSurf->numPoints = face->numIndices;
@@ -736,58 +685,6 @@ static inline void R_EvaluateWireframeSurf(msurface_t *surf)
 		return;
 	}
 }
-
-#if 0
-//see if any surfaces on the node are facing opposite directions
-//using plane normals. -rww
-static inline bool R_NodeHasOppositeFaces(mnode_t *node)
-{
-	int c, d;
-	msurface_t *surf, *surf2, **mark, **mark2;
-	srfSurfaceFace_t *face, *face2;
-	vec3_t normalDif;
-
-	mark = node->firstmarksurface;
-	c = node->nummarksurfaces;
-
-	while (c--)
-	{
-		surf = *mark;
-
-		if (*surf->data != SF_FACE)
-		{ //if this node is not entirely comprised of faces, I guess we shouldn't check it?
-			return false;
-		}
-
-		face = (srfSurfaceFace_t *)surf->data;
-
-		//go through other surfs and compare against this surf
-		d = node->nummarksurfaces;
-		mark2 = node->firstmarksurface;
-		while (d--)
-		{
-			surf2 = *mark2;
-
-			if (*surf2->data != SF_FACE)
-			{
-				return false;
-			}
-			face2 = (srfSurfaceFace_t *)surf2->data;
-			//see if this normal has a drastic angular change
-			VectorSubtract(face->plane.normal, face2->plane.normal, normalDif);
-			if (VectorLength(normalDif) >= 1.8f)
-			{
-				return true;
-			}
-
-			mark2++;
-		}
-		mark++;
-	}
-
-	return false;
-}
-#endif
 
 //recursively called for each node to go through the surfaces on that
 //node and generate the wireframe map. -rww
@@ -847,12 +744,7 @@ static void R_GenerateWireframeMap(mnode_t *baseNode)
 	{
 		if (tr.world->nodes[i].contents != CONTENTS_SOLID)
 		{
-#if 0 //doesn't work, I take it surfs on nodes are not related to surfs on brushes
-			if (!R_NodeHasOppositeFaces(&tr.world->nodes[i]))
-#endif
-			{
-				tr.world->nodes[i].visframe = tr.visCount;
-			}
+			tr.world->nodes[i].visframe = tr.visCount;
 		}
 	}
 
@@ -1009,17 +901,7 @@ qboolean R_InitializeWireframeAutomap(void)
 		tr.world->nodes)
 	{
 		R_DestroyWireframeMap();
-#if 0 //file load-save
-		if (!R_GetWireframeMapFromFile())
-		{ //first try loading the data from a file. If there is none, generate it.
-			R_GenerateWireframeMap(tr.world->nodes);
-
-			//now write it to file, since we have generated it successfully.
-			R_WriteWireframeMapToFile();
-		}
-#else //always generate
 		R_GenerateWireframeMap(tr.world->nodes);
-#endif
 		g_autoMapValid = true;
 	}
 
@@ -1068,45 +950,10 @@ const void *R_DrawWireframeAutomap(const void *data)
 	}
 #endif
 
-#if 0 //instead of this method, just do the automap as a new "scene"
-	//projection matrix mode
-	qglMatrixMode(GL_PROJECTION);
-
-	//store the current matrix
-	qglPushMatrix();
-	//translate to our proper pos/angles from identity
-	qglLoadIdentity();
-	qglTranslatef(pos[0], pos[1], pos[2]);
-	//presumeably this is correct for compensating for quake's
-	//crazy angle system.
-	qglRotatef(angles[1], 0.0f, 0.0f, 1.0f);
-	qglRotatef(-angles[0], 0.0f, 1.0f, 0.0f);
-	qglRotatef(angles[2], 1.0f, 0.0f, 0.0f);
-#endif
-
 	//disable 2d texturing
 	qglDisable( GL_TEXTURE_2D );
 
 	//now draw the backdrop
-#if 0 //this does no good sadly, because of the issue of having to clear with a second scene
-	//in order for global fog clearing to work.
-	if (r_autoMapBackAlpha && r_autoMapBackAlpha->value)
-	{ //specify the automap background alpha
-		alpha = r_autoMapBackAlpha->value;
-
-		//cap it reasonably
-		if (alpha < 0.0f)
-		{
-			alpha = 0.0f;
-		}
-		else if (alpha > 1.0f)
-		{
-			alpha = 1.0f;
-		}
-		GL_State(GLS_SRCBLEND_SRC_ALPHA|GLS_DSTBLEND_SRC_ALPHA);
-	}
-	else
-#endif
 	{
 		alpha = 1.0f;
 		GL_State(0);
@@ -1269,11 +1116,6 @@ const void *R_DrawWireframeAutomap(const void *data)
 
 	g_lastHeight = g_playerHeight;
 	g_lastHeightValid = true;
-
-#if 0 //instead of this method, just do the automap as a new "scene"
-	//pop back the view matrix
-	qglPopMatrix();
-#endif
 
 	//reenable 2d texturing
 	qglEnable( GL_TEXTURE_2D );

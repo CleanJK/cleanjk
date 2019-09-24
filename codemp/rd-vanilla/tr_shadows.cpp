@@ -67,11 +67,6 @@ void R_RenderShadowEdges( void ) {
 	int		c;
 	int		j;
 	int		i2;
-#if 0
-	int		c_edges, c_rejected;
-	int		c2, k;
-	int		hit[2];
-#endif
 #ifdef _STENCIL_REVERSE
 	int		numTris;
 	int		o1, o2, o3;
@@ -81,10 +76,6 @@ void R_RenderShadowEdges( void ) {
 	// or if it has a reverse paired edge that also faces the light.
 	// A well behaved polyhedron would have exactly two faces for each edge,
 	// but lots of models have dangling edges or overfanned edges
-#if 0
-	c_edges = 0;
-	c_rejected = 0;
-#endif
 
 	for ( i = 0 ; i < tess.numVertexes ; i++ ) {
 		c = numEdgeDefs[ i ];
@@ -96,7 +87,6 @@ void R_RenderShadowEdges( void ) {
 			//with this system we can still get edges shared by more than 2 tris which
 			//produces artifacts including seeing the shadow through walls. So for now
 			//we are going to render all edges even though it is a tiny bit slower. -rww
-#if 1
 			i2 = edgeDefs[ i ][ j ].i2;
 			qglBegin( GL_TRIANGLE_STRIP );
 				qglVertex3fv( tess.xyz[ i ] );
@@ -104,33 +94,6 @@ void R_RenderShadowEdges( void ) {
 				qglVertex3fv( tess.xyz[ i2 ] );
 				qglVertex3fv( shadowXyz[ i2 ] );
 			qglEnd();
-#else
-			hit[0] = 0;
-			hit[1] = 0;
-
-			i2 = edgeDefs[ i ][ j ].i2;
-			c2 = numEdgeDefs[ i2 ];
-			for ( k = 0 ; k < c2 ; k++ ) {
-				if ( edgeDefs[ i2 ][ k ].i2 == i ) {
-					hit[ edgeDefs[ i2 ][ k ].facing ]++;
-				}
-			}
-
-			// if it doesn't share the edge with another front facing
-			// triangle, it is a sil edge
-			if (hit[1] != 1)
-			{
-				qglBegin( GL_TRIANGLE_STRIP );
-				qglVertex3fv( tess.xyz[ i ] );
-				qglVertex3fv( shadowXyz[ i ] );
-				qglVertex3fv( tess.xyz[ i2 ] );
-				qglVertex3fv( shadowXyz[ i2 ] );
-				qglEnd();
-				c_edges++;
-			} else {
-				c_rejected++;
-			}
-#endif
 		}
 	}
 
@@ -172,44 +135,7 @@ void R_RenderShadowEdges( void ) {
 void RB_DoShadowTessEnd( vec3_t lightPos );
 void RB_ShadowTessEnd( void )
 {
-#if 0
-	if (backEnd.currentEntity &&
-		(backEnd.currentEntity->directedLight[0] ||
-			backEnd.currentEntity->directedLight[1] ||
-			backEnd.currentEntity->directedLight[2]))
-	{ //an ent that has its light set for it
-		RB_DoShadowTessEnd(NULL);
-		return;
-	}
-
-//	if (!tess.dlightBits)
-//	{
-//		return;
-//	}
-
-	int i = 0;
-	dlight_t *dl;
-
-	R_TransformDlights( backEnd.refdef.num_dlights, backEnd.refdef.dlights, &backEnd.ori );
-/*	while (i < tr.refdef.num_dlights)
-	{
-		if (tess.dlightBits & (1 << i))
-		{
-			dl = &tr.refdef.dlights[i];
-
-			RB_DoShadowTessEnd(dl->transformed);
-		}
-
-		i++;
-	}
-	*/
-			dl = &tr.refdef.dlights[0];
-
-			RB_DoShadowTessEnd(dl->transformed);
-
-#else //old ents-only way
 	RB_DoShadowTessEnd(NULL);
-#endif
 }
 
 void RB_DoShadowTessEnd( vec3_t lightPos )
@@ -222,7 +148,6 @@ void RB_DoShadowTessEnd( vec3_t lightPos )
 		return;
 	}
 
-#if 1 //controlled method - try to keep shadows in range so they don't show through so much -rww
 	vec3_t	worldxyz;
 	vec3_t	entLight;
 	float	groundDist;
@@ -244,26 +169,7 @@ void RB_DoShadowTessEnd( vec3_t lightPos )
 		groundDist += 16.0f; //fudge factor
 		VectorMA( tess.xyz[i], -groundDist, lightDir, shadowXyz[i] );
 	}
-#else
-	if (lightPos)
-	{
-		for ( i = 0 ; i < tess.numVertexes ; i++ )
-		{
-			shadowXyz[i][0] = tess.xyz[i][0]+(( tess.xyz[i][0]-lightPos[0] )*128.0f);
-			shadowXyz[i][1] = tess.xyz[i][1]+(( tess.xyz[i][1]-lightPos[1] )*128.0f);
-			shadowXyz[i][2] = tess.xyz[i][2]+(( tess.xyz[i][2]-lightPos[2] )*128.0f);
-		}
-	}
-	else
-	{
-		VectorCopy( backEnd.currentEntity->lightDir, lightDir );
 
-		// project vertexes away from light direction
-		for ( i = 0 ; i < tess.numVertexes ; i++ ) {
-			VectorMA( tess.xyz[i], -512, lightDir, shadowXyz[i] );
-		}
-	}
-#endif
 	// decide which triangles face the light
 	memset( numEdgeDefs, 0, 4 * tess.numVertexes );
 

@@ -2134,15 +2134,11 @@ void CG_CreateDistortionTrailPart(centity_t *cent, float scale, vec3_t pos)
 	ent.hModel = media.models.null; // "models/weapons/merr_sonn/trailmodel.md3"
 	ent.customShader = media.gfx.null;
 
-#if 1
 	ent.renderfx = (RF_DISTORTION|RF_FORCE_ENT_ALPHA);
 	ent.shaderRGBA[0] = 255.0f;
 	ent.shaderRGBA[1] = 255.0f;
 	ent.shaderRGBA[2] = 255.0f;
 	ent.shaderRGBA[3] = 100.0f;
-#else //no alpha
-	ent.renderfx = RF_DISTORTION;
-#endif
 
 	trap->R_AddRefEntityToScene( &ent );
 }
@@ -2725,66 +2721,6 @@ void CG_CalcEntityLerpPositions( centity_t *cent ) {
 		BG_EvaluateTrajectory( &cent->currentState.pos, cg.time, cent->lerpOrigin );
 		BG_EvaluateTrajectory( &cent->currentState.apos, cg.time, cent->lerpAngles );
 	}
-
-#if 0
-	if (cent->hasRagOffset && cent->ragOffsetTime < cg.time)
-	{ //take all of the offsets from last frame and normalize the total direction and add it in
-		vec3_t slideDir;
-		vec3_t preOffset;
-		vec3_t addedOffset;
-		vec3_t	playerMins = {-15, -15, DEFAULT_MINS_2};
-		vec3_t	playerMaxs = {15, 15, DEFAULT_MAXS_2};
-		trace_t tr;
-
-		//VectorSubtract(cent->lerpOrigin, callData->bonePos, slideDir);
-		VectorCopy(cent->ragOffsets, slideDir);
-		VectorNormalize(slideDir);
-
-		//Store it in case we want to go back
-		VectorCopy(cent->lerpOriginOffset, preOffset);
-
-		//just add a little at a time
-		VectorMA(cent->lerpOriginOffset, 0.4f, slideDir, cent->lerpOriginOffset);
-
-		if (VectorLength(cent->lerpOriginOffset) > 10.0f)
-		{ //don't go too far away
-			VectorCopy(preOffset, cent->lerpOriginOffset);
-		}
-		else
-		{
-			//Let's trace there to make sure we can make it
-			VectorAdd(cent->lerpOrigin, cent->lerpOriginOffset, addedOffset);
-			CG_Trace(&tr, cent->lerpOrigin, playerMins, playerMaxs, addedOffset, cent->currentState.number, MASK_PLAYERSOLID);
-
-			if (tr.startsolid || tr.allsolid || tr.fraction != 1.0f)
-			{ //can't get there
-				VectorCopy(preOffset, cent->lerpOriginOffset);
-			}
-			else
-			{
-				/*
-				if (cent->lerpOriginOffset[2] > 4.0f)
-				{ //don't go too far off the ground
-					cent->lerpOriginOffset[2] = 4.0f;
-				}
-				*/
-				//I guess I just don't want this happening.
-				cent->lerpOriginOffset[2] = 0.0f;
-			}
-		}
-
-		//done with this bit
-		cent->hasRagOffset = qfalse;
-		VectorClear(cent->ragOffsets);
-		cent->ragOffsetTime = cg.time + 50;
-	}
-
-	//See if we should add in the offset for ragdoll
-	if (cent->isRagging && ((cent->currentState.eFlags & EF_DEAD) || (cent->currentState.eFlags & EF_RAG)))
-	{
-		VectorAdd(cent->lerpOrigin, cent->lerpOriginOffset, cent->lerpOrigin);
-	}
-#endif
 
 	if (goAway)
 	{

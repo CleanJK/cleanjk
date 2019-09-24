@@ -194,15 +194,6 @@ static void CG_CalculateWeaponPosition( vec3_t origin, vec3_t angles ) {
 			origin[2] += cg.landChange*0.25f * delta / LAND_DEFLECT_TIME;
 		else if ( delta < LAND_DEFLECT_TIME + LAND_RETURN_TIME )
 			origin[2] += cg.landChange*0.25f * (LAND_DEFLECT_TIME + LAND_RETURN_TIME - delta) / LAND_RETURN_TIME;
-
-#if 0
-		// drop the weapon when stair climbing
-		delta = cg.time - cg.stepTime;
-		if ( delta < STEP_TIME/2 )
-			origin[2] -= cg.stepChange*0.25f * delta / (STEP_TIME/2);
-		else if ( delta < STEP_TIME )
-			origin[2] -= cg.stepChange*0.25f * (STEP_TIME - delta) / (STEP_TIME/2);
-#endif
 	}
 
 	// idle drift

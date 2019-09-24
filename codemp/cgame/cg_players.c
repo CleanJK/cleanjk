@@ -2151,22 +2151,6 @@ void CG_PlayerAnimEventDo( centity_t *cent, animevent_t *animEvent )
 		CG_PlayerFootsteps( cent, (footstepType_t)animEvent->eventData[AED_FOOTSTEP_TYPE] );
 		break;
 	case AEV_EFFECT:
-#if 0 //SP method
-		//add bolt, play effect
-		if ( animEvent->stringData != NULL && cent && cent->gent && cent->gent->ghoul2.size() )
-		{//have a bolt name we want to use
-			animEvent->eventData[AED_BOLTINDEX] = gi.G2API_AddBolt( &cent->gent->ghoul2[cent->gent->playerModel], animEvent->stringData );
-			animEvent->stringData = NULL;//so we don't try to do this again
-		}
-		if ( animEvent->eventData[AED_BOLTINDEX] != -1 )
-		{//have a bolt we want to play the effect on
-			G_PlayEffect( animEvent->eventData[AED_EFFECTINDEX], cent->gent->playerModel, animEvent->eventData[AED_BOLTINDEX], cent->currentState.clientNum );
-		}
-		else
-		{//play at origin?  FIXME: maybe allow a fwd/rt/up offset?
-			theFxScheduler.PlayEffect( animEvent->eventData[AED_EFFECTINDEX], cent->lerpOrigin, qfalse );
-		}
-#else //my method
 		if (animEvent->stringData && animEvent->stringData[0] && cent && cent->ghoul2)
 		{
 			animEvent->eventData[AED_MODELINDEX] = 0;
@@ -2211,7 +2195,6 @@ void CG_PlayerAnimEventDo( centity_t *cent, animevent_t *animEvent )
 			VectorSet(bAngle, 0, 1, 0);
 			trap->FX_PlayEffectID(animEvent->eventData[AED_EFFECTINDEX], cent->lerpOrigin, bAngle, -1, -1, qfalse);
 		}
-#endif
 		break;
 	//Would have to keep track of this on server to for these, it's not worth it.
 	case AEV_FIRE:
@@ -2616,9 +2599,6 @@ static void CG_SetLerpFrameAnimation( centity_t *cent, clientInfo_t *ci, lerpFra
 		int beginFrame = -1;
 		int firstFrame;
 		int lastFrame;
-#if 0 //disabled for now
-		float unused;
-#endif
 
 		animSpeed = 50.0f / anim->frameLerp;
 		if (lf->animation->loopFrames != -1)
@@ -2760,165 +2740,6 @@ static void CG_SetLerpFrameAnimation( centity_t *cent, clientInfo_t *ci, lerpFra
 		{ //make sure we're humanoid before we access the motion bone
 			trap->G2API_SetBoneAnim(cent->ghoul2, 0, "Motion", firstFrame, lastFrame, flags, animSpeed, cg.time, beginFrame, blendTime);
 		}
-
-#if 0 //disabled for now
-		if (cent->localAnimIndex <= 1 && cent->currentState.brokenLimbs &&
-			(cent->currentState.brokenLimbs & (1 << BROKENLIMB_LARM)))
-		{ //broken left arm
-			char *brokenBone = "lhumerus";
-			animation_t *armAnim;
-			int armFirstFrame;
-			int armLastFrame;
-			int armFlags = 0;
-			float armAnimSpeed;
-
-			armAnim = &bgAllAnims[cent->localAnimIndex].anims[ BOTH_DEAD21 ];
-			ci->brokenLimbs = cent->currentState.brokenLimbs;
-
-			armFirstFrame = armAnim->firstFrame;
-			armLastFrame = armAnim->firstFrame+armAnim->numFrames;
-			armAnimSpeed = 50.0f / armAnim->frameLerp;
-			armFlags = BONE_ANIM_OVERRIDE_LOOP;
-
-			if (cg_animBlend.integer)
-			{
-				armFlags |= BONE_ANIM_BLEND;
-			}
-
-			trap->G2API_SetBoneAnim(cent->ghoul2, 0, brokenBone, armFirstFrame, armLastFrame, armFlags, armAnimSpeed, cg.time, -1, blendTime);
-		}
-		else if (cent->localAnimIndex <= 1 && cent->currentState.brokenLimbs &&
-			(cent->currentState.brokenLimbs & (1 << BROKENLIMB_RARM)))
-		{ //broken right arm
-			char *brokenBone = "rhumerus";
-			char *supportBone = "lhumerus";
-
-			ci->brokenLimbs = cent->currentState.brokenLimbs;
-
-			//Only put the arm in a broken pose if the anim is such that we
-			//want to allow it.
-			if ((//cent->currentState.weapon == WP_MELEE ||
-				cent->currentState.weapon != WP_SABER ||
-				BG_SaberStanceAnim(newAnimation) ||
-				PM_RunningAnim(newAnimation)) &&
-				cent->currentState.torsoAnim == newAnimation &&
-				(!ci->saber[1].model[0] || cent->currentState.weapon != WP_SABER))
-			{
-				int armFirstFrame;
-				int armLastFrame;
-				int armFlags = 0;
-				float armAnimSpeed;
-				animation_t *armAnim;
-
-				if (cent->currentState.weapon == WP_MELEE ||
-					cent->currentState.weapon == WP_SABER ||
-					cent->currentState.weapon == WP_BRYAR_PISTOL)
-				{ //don't affect this arm if holding a gun, just make the other arm support it
-					armAnim = &bgAllAnims[cent->localAnimIndex].anims[ BOTH_ATTACK2 ];
-
-					//armFirstFrame = armAnim->firstFrame;
-					armFirstFrame = armAnim->firstFrame+armAnim->numFrames;
-					armLastFrame = armAnim->firstFrame+armAnim->numFrames;
-					armAnimSpeed = 50.0f / armAnim->frameLerp;
-					armFlags = BONE_ANIM_OVERRIDE_LOOP;
-
-					/*
-					if (cg_animBlend.integer)
-					{
-						armFlags |= BONE_ANIM_BLEND;
-					}
-					*/
-					//No blend on the broken arm
-
-					trap->G2API_SetBoneAnim(cent->ghoul2, 0, brokenBone, armFirstFrame, armLastFrame, armFlags, armAnimSpeed, cg.time, -1, 0);
-				}
-				else
-				{ //we want to keep the broken bone updated for some cases
-					trap->G2API_SetBoneAnim(cent->ghoul2, 0, brokenBone, firstFrame, lastFrame, flags, animSpeed, cg.time, beginFrame, blendTime);
-				}
-
-				if (newAnimation != BOTH_MELEE1 &&
-					newAnimation != BOTH_MELEE2 &&
-					(newAnimation == TORSO_WEAPONREADY2 || newAnimation == BOTH_ATTACK2 || cent->currentState.weapon < WP_BRYAR_PISTOL))
-				{
-					//Now set the left arm to "support" the right one
-					armAnim = &bgAllAnims[cent->localAnimIndex].anims[ BOTH_STAND2 ];
-					armFirstFrame = armAnim->firstFrame;
-					armLastFrame = armAnim->firstFrame+armAnim->numFrames;
-					armAnimSpeed = 50.0f / armAnim->frameLerp;
-					armFlags = BONE_ANIM_OVERRIDE_LOOP;
-
-					if (cg_animBlend.integer)
-					{
-						armFlags |= BONE_ANIM_BLEND;
-					}
-
-					trap->G2API_SetBoneAnim(cent->ghoul2, 0, supportBone, armFirstFrame, armLastFrame, armFlags, armAnimSpeed, cg.time, -1, 150);
-				}
-				else
-				{ //we want to keep the support bone updated for some cases
-					trap->G2API_SetBoneAnim(cent->ghoul2, 0, supportBone, firstFrame, lastFrame, flags, animSpeed, cg.time, beginFrame, blendTime);
-				}
-			}
-			else if (cent->currentState.torsoAnim == newAnimation)
-			{ //otherwise, keep it set to the same as the torso
-				trap->G2API_SetBoneAnim(cent->ghoul2, 0, brokenBone, firstFrame, lastFrame, flags, animSpeed, cg.time, beginFrame, blendTime);
-				trap->G2API_SetBoneAnim(cent->ghoul2, 0, supportBone, firstFrame, lastFrame, flags, animSpeed, cg.time, beginFrame, blendTime);
-			}
-		}
-		else if (ci &&
-			(ci->brokenLimbs ||
-			trap->G2API_GetBoneFrame(cent->ghoul2, "lhumerus", cg.time, &unused, cgs.gameModels, 0) ||
-			trap->G2API_GetBoneFrame(cent->ghoul2, "rhumerus", cg.time, &unused, cgs.gameModels, 0)))
-			//rwwFIXMEFIXME: brokenLimbs gets stomped sometimes, but it shouldn't.
-		{ //remove the bone now so it can be set again
-			char *brokenBone = NULL;
-			int broken = 0;
-
-			//Warning: Don't remove bones that you've added as bolts unless you want to invalidate your bolt index
-			//(well, in theory, I haven't actually run into the problem)
-			if (ci->brokenLimbs & (1<<BROKENLIMB_LARM))
-			{
-				brokenBone = "lhumerus";
-				broken |= (1<<BROKENLIMB_LARM);
-			}
-			else if (ci->brokenLimbs & (1<<BROKENLIMB_RARM))
-			{ //can only have one arm broken at once.
-				brokenBone = "rhumerus";
-				broken |= (1<<BROKENLIMB_RARM);
-
-				//want to remove the support bone too then
-				trap->G2API_SetBoneAnim(cent->ghoul2, 0, "lhumerus", 0, 1, 0, 0, cg.time, -1, 0);
-				if (!trap->G2API_RemoveBone(cent->ghoul2, "lhumerus", 0))
-				{
-					assert(0);
-					Com_Printf("WARNING: Failed to remove lhumerus\n");
-				}
-			}
-
-			if (!brokenBone)
-			{
-				trap->G2API_SetBoneAnim(cent->ghoul2, 0, "lhumerus", 0, 1, 0, 0, cg.time, -1, 0);
-				trap->G2API_SetBoneAnim(cent->ghoul2, 0, "rhumerus", 0, 1, 0, 0, cg.time, -1, 0);
-				trap->G2API_RemoveBone(cent->ghoul2, "lhumerus", 0);
-				trap->G2API_RemoveBone(cent->ghoul2, "rhumerus", 0);
-				ci->brokenLimbs = 0;
-			}
-			else
-			{
-				//Set the flags and stuff to 0, so that the remove will succeed
-				trap->G2API_SetBoneAnim(cent->ghoul2, 0, brokenBone, 0, 1, 0, 0, cg.time, -1, 0);
-
-				//Now remove it
-				if (!trap->G2API_RemoveBone(cent->ghoul2, brokenBone, 0))
-				{
-					assert(0);
-					Com_Printf("WARNING: Failed to remove %s\n", brokenBone);
-				}
-				ci->brokenLimbs &= ~broken;
-			}
-		}
-#endif
 	}
 }
 
@@ -3088,53 +2909,11 @@ static void CG_PlayerAnimation( centity_t *cent, int *legsOld, int *legs, float 
 
 // PLAYER ANGLES
 
-#if 0
-typedef struct boneAngleParms_s {
-	void *ghoul2;
-	int modelIndex;
-	char *boneName;
-	vec3_t angles;
-	int flags;
-	int up;
-	int right;
-	int forward;
-	qhandle_t *modelList;
-	int blendTime;
-	int currentTime;
-
-	qboolean refreshSet;
-} boneAngleParms_t;
-
-boneAngleParms_t cgBoneAnglePostSet;
-#endif
-
 void CG_G2SetBoneAngles(void *ghoul2, int modelIndex, const char *boneName, const vec3_t angles, const int flags,
 								const int up, const int right, const int forward, qhandle_t *modelList,
 								int blendTime , int currentTime )
 { //we want to hold off on setting the bone angles until the end of the frame, because every time we set
   //them the entire skeleton has to be reconstructed.
-#if 0
-	//This function should ONLY be called from CG_Player() or a function that is called only within CG_Player().
-	//At the end of the frame we will check to use this information to call SetBoneAngles
-	memset(&cgBoneAnglePostSet, 0, sizeof(cgBoneAnglePostSet));
-	cgBoneAnglePostSet.ghoul2 = ghoul2;
-	cgBoneAnglePostSet.modelIndex = modelIndex;
-	cgBoneAnglePostSet.boneName = (char *)boneName;
-
-	cgBoneAnglePostSet.angles[0] = angles[0];
-	cgBoneAnglePostSet.angles[1] = angles[1];
-	cgBoneAnglePostSet.angles[2] = angles[2];
-
-	cgBoneAnglePostSet.flags = flags;
-	cgBoneAnglePostSet.up = up;
-	cgBoneAnglePostSet.right = right;
-	cgBoneAnglePostSet.forward = forward;
-	cgBoneAnglePostSet.modelList = modelList;
-	cgBoneAnglePostSet.blendTime = blendTime;
-	cgBoneAnglePostSet.currentTime = currentTime;
-
-	cgBoneAnglePostSet.refreshSet = qtrue;
-#endif
 	//We don't want to go with the delayed approach, we want out bolt points and everything to be updated in realtime.
 	//We'll just take the reconstructs and live with them.
 	trap->G2API_SetBoneAngles(ghoul2, modelIndex, boneName, angles, flags, up, right, forward, modelList,
@@ -3340,21 +3119,7 @@ qboolean CG_RagDoll(centity_t *cent, vec3_t forcedAngles)
 				{ //Hit something or start in solid, so flag it and break.
 					//This is a slight hack, but if we aren't done with the death anim, we don't really want to
 					//go into ragdoll unless our body has a relatively "flat" pitch.
-#if 0
-					vec3_t vSub;
-
-					//Check the pitch from the head to the right foot (should be reasonable)
-					VectorSubtract(boltPoints[2], boltPoints[3], vSub);
-					VectorNormalize(vSub);
-					vectoangles(vSub, vSub);
-
-					if (deathDone || (vSub[PITCH] < 50 && vSub[PITCH] > -50))
-					{
-						inSomething = qtrue;
-					}
-#else
 					inSomething = qtrue;
-#endif
 					break;
 				}
 
@@ -3365,9 +3130,6 @@ qboolean CG_RagDoll(centity_t *cent, vec3_t forcedAngles)
 		if (inSomething)
 		{
 			cent->isRagging = qtrue;
-#if 0
-			VectorClear(cent->lerpOriginOffset);
-#endif
 		}
 	}
 
@@ -3387,31 +3149,7 @@ qboolean CG_RagDoll(centity_t *cent, vec3_t forcedAngles)
 		//these will be used as "base" frames for the ragoll settling.
 		tParms.startFrame = bgAllAnims[cent->localAnimIndex].anims[ragAnim].firstFrame;// + bgAllAnims[cent->localAnimIndex].anims[ragAnim].numFrames;
 		tParms.endFrame = bgAllAnims[cent->localAnimIndex].anims[ragAnim].firstFrame + bgAllAnims[cent->localAnimIndex].anims[ragAnim].numFrames;
-#if 0
-		{
-			float animSpeed = 0;
-			int blendTime = 600;
-			int flags = 0;//BONE_ANIM_OVERRIDE_FREEZE;
-
-			if (bgAllAnims[cent->localAnimIndex].anims[ragAnim].loopFrames != -1)
-			{
-				flags = BONE_ANIM_OVERRIDE_LOOP;
-			}
-
-			/*
-			if (cg_animBlend.integer)
-			{
-				flags |= BONE_ANIM_BLEND;
-			}
-			*/
-
-			animSpeed = 50.0f / bgAllAnims[cent->localAnimIndex].anims[ragAnim].frameLerp;
-			trap->G2API_SetBoneAnim(cent->ghoul2, 0, "lower_lumbar", tParms.startFrame, tParms.endFrame, flags, animSpeed,cg.time, -1, blendTime);
-			trap->G2API_SetBoneAnim(cent->ghoul2, 0, "Motion", tParms.startFrame, tParms.endFrame, flags, animSpeed, cg.time, -1, blendTime);
-			trap->G2API_SetBoneAnim(cent->ghoul2, 0, "model_root", tParms.startFrame, tParms.endFrame, flags, animSpeed, cg.time, -1, blendTime);
-		}
-#elif 1 //with my new method of doing things I want it to continue the anim
-		{
+		{ //with my new method of doing things I want it to continue the anim
 			float currentFrame;
 			int startFrame, endFrame;
 			int flags;
@@ -3432,7 +3170,6 @@ qboolean CG_RagDoll(centity_t *cent, vec3_t forcedAngles)
 				trap->G2API_SetBoneAnim(cent->ghoul2, 0, "Motion", currentFrame, currentFrame+1, flags, animSpeed, cg.time, currentFrame, blendTime);
 			}
 		}
-#endif
 		CG_G2SetBoneAngles(cent->ghoul2, 0, "upper_lumbar", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, cgs.gameModels, 0, cg.time);
 		CG_G2SetBoneAngles(cent->ghoul2, 0, "lower_lumbar", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, cgs.gameModels, 0, cg.time);
 		CG_G2SetBoneAngles(cent->ghoul2, 0, "thoracic", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_X, NEGATIVE_Y, NEGATIVE_Z, cgs.gameModels, 0, cg.time);
@@ -3580,24 +3317,6 @@ qboolean CG_RagDoll(centity_t *cent, vec3_t forcedAngles)
 							VectorScale(dVel, 10.0f, dVel);
 
 							trap->G2API_RagEffectorKick(cent->ghoul2, cg_effectorStringTable[i], dVel);
-
-#if 0
-							{
-								mdxaBone_t bm;
-								vec3_t borg;
-								vec3_t vorg;
-								int b = trap->G2API_AddBolt(cent->ghoul2, 0, cg_effectorStringTable[i]);
-
-								trap->G2API_GetBoltMatrix(cent->ghoul2, 0, b, &bm, cent->turAngles, cent->lerpOrigin, cg.time,
-									cgs.gameModels, cent->modelScale);
-								BG_GiveMeVectorFromMatrix(&bm, ORIGIN, borg);
-
-								VectorMA(borg, 1.0f, dVel, vorg);
-
-								CG_TestLine(borg, vorg, 50, 0x0000ff, 1);
-							}
-#endif
-
 							i++;
 						}
 					}
@@ -4002,28 +3721,6 @@ static void CG_G2PlayerAngles( centity_t *cent, matrix3_t legs, vec3_t legsAngle
 	CG_G2ServerBoneAngles(cent);
 }
 
-#if 0
-static void CG_TrailItem( centity_t *cent, qhandle_t hModel ) {
-	refEntity_t		ent;
-	vec3_t			angles;
-	matrix3_t		axis;
-
-	VectorCopy( cent->lerpAngles, angles );
-	angles[PITCH] = 0;
-	angles[ROLL] = 0;
-	AnglesToAxis( angles, axis );
-
-	memset( &ent, 0, sizeof( ent ) );
-	VectorMA( cent->lerpOrigin, -16, axis[0], ent.origin );
-	ent.origin[2] += 16;
-	angles[YAW] += 90;
-	AnglesToAxis( angles, ent.axis );
-
-	ent.hModel = hModel;
-	trap->R_AddRefEntityToScene( &ent );
-}
-#endif
-
 static void CG_PlayerFlag( centity_t *cent, qhandle_t hModel ) {
 	refEntity_t		ent;
 	vec3_t			angles;
@@ -4154,33 +3851,6 @@ static void CG_PlayerFloatSprite( centity_t *cent, qhandle_t shader ) {
 	ent.shaderRGBA[3] = 255;
 	trap->R_AddRefEntityToScene( &ent );
 }
-
-// Same as above but allows custom RGBA values
-#if 0
-static void CG_PlayerFloatSpriteRGBA( centity_t *cent, qhandle_t shader, vec4_t rgba ) {
-	int				rf;
-	refEntity_t		ent;
-
-	if ( cent->currentState.number == cg.snap->ps.clientNum && !cg.renderingThirdPerson ) {
-		rf = RF_THIRD_PERSON;		// only show in mirrors
-	} else {
-		rf = 0;
-	}
-
-	memset( &ent, 0, sizeof( ent ) );
-	VectorCopy( cent->lerpOrigin, ent.origin );
-	ent.origin[2] += 48;
-	ent.reType = RT_SPRITE;
-	ent.customShader = shader;
-	ent.radius = 10;
-	ent.renderfx = rf;
-	ent.shaderRGBA[0] = rgba[0];
-	ent.shaderRGBA[1] = rgba[1];
-	ent.shaderRGBA[2] = rgba[2];
-	ent.shaderRGBA[3] = rgba[3];
-	trap->R_AddRefEntityToScene( &ent );
-}
-#endif
 
 // Float sprites over the player's head
 static void CG_PlayerSprites( centity_t *cent ) {
@@ -5751,53 +5421,6 @@ CheckTrail:
 		{
 			if ( (BG_SuperBreakWinAnim(cent->currentState.torsoAnim) || saberMoveData[cent->currentState.saberMove].trailLength > 0 || ((cent->currentState.powerups & (1 << PW_SPEED) && cg_speedTrail.integer)) || (cent->currentState.saberInFlight && saberNum == 0)) && cg.time < saberTrail->lastTime + 2000 ) // if we have a stale segment, don't draw until we have a fresh one
 			{
-	#if 0
-				if (cg_saberTrail.integer == 2 && cg_shadows.integer != 2 && cgs.glconfig.stencilBits >= 4)
-				{
-					polyVert_t	verts[4];
-
-					VectorCopy( org_, verts[0].xyz );
-					VectorMA( end, 3.0f, axis_[0], verts[1].xyz );
-					VectorCopy( saberTrail->tip, verts[2].xyz );
-					VectorCopy( saberTrail->base, verts[3].xyz );
-
-					//tc doesn't even matter since we're just gonna stencil an outline, but whatever.
-					verts[0].st[0] = 0;
-					verts[0].st[1] = 0;
-					verts[0].modulate[0] = 255;
-					verts[0].modulate[1] = 255;
-					verts[0].modulate[2] = 255;
-					verts[0].modulate[3] = 255;
-
-					verts[1].st[0] = 0;
-					verts[1].st[1] = 1;
-					verts[1].modulate[0] = 255;
-					verts[1].modulate[1] = 255;
-					verts[1].modulate[2] = 255;
-					verts[1].modulate[3] = 255;
-
-					verts[2].st[0] = 1;
-					verts[2].st[1] = 1;
-					verts[2].modulate[0] = 255;
-					verts[2].modulate[1] = 255;
-					verts[2].modulate[2] = 255;
-					verts[2].modulate[3] = 255;
-
-					verts[3].st[0] = 1;
-					verts[3].st[1] = 0;
-					verts[3].modulate[0] = 255;
-					verts[3].modulate[1] = 255;
-					verts[3].modulate[2] = 255;
-					verts[3].modulate[3] = 255;
-
-					//don't capture postrender objects (now we'll postrender the saber so it doesn't get in the capture)
-					trap->R_SetRefractProp(1.0f, 0.0f, qtrue, qtrue);
-
-					//shader 2 is always the crazy refractive shader.
-					trap->R_AddPolyToScene( 2, 4, verts );
-				}
-				else
-	#endif
 				{
 					vec3_t	rgb1={255.0f,255.0f,255.0f};
 
@@ -6236,56 +5859,6 @@ qboolean CG_ThereIsAMaster(void)
 
 	return qfalse;
 }
-
-#if 0
-void CG_DrawNoForceSphere(centity_t *cent, vec3_t origin, float scale, int shader)
-{
-	refEntity_t ent;
-
-	// Don't draw the shield when the player is dead.
-	if (cent->currentState.eFlags & EF_DEAD)
-	{
-		return;
-	}
-
-	memset( &ent, 0, sizeof( ent ) );
-
-	VectorCopy( origin, ent.origin );
-	ent.origin[2] += 9.0;
-
-	VectorSubtract(cg.refdef.vieworg, ent.origin, ent.axis[0]);
-	if (VectorNormalize(ent.axis[0]) <= 0.1f)
-	{	// Entity is right on vieworg.  quit.
-		return;
-	}
-
-	VectorCopy(cg.refdef.viewaxis[2], ent.axis[2]);
-	CrossProduct(ent.axis[0], ent.axis[2], ent.axis[1]);
-
-	VectorScale(ent.axis[0], scale, ent.axis[0]);
-	VectorScale(ent.axis[1], scale, ent.axis[1]);
-	VectorScale(ent.axis[2], -scale, ent.axis[2]);
-
-	ent.shaderRGBA[3] = (cent->currentState.genericenemyindex - cg.time)/8;
-	ent.renderfx |= RF_RGB_TINT;
-	if (ent.shaderRGBA[3] > 200)
-	{
-		ent.shaderRGBA[3] = 200;
-	}
-	if (ent.shaderRGBA[3] < 1)
-	{
-		ent.shaderRGBA[3] = 1;
-	}
-
-	ent.shaderRGBA[2] = 0;
-	ent.shaderRGBA[0] = ent.shaderRGBA[1] = ent.shaderRGBA[3];
-
-	ent.hModel = media.models.null;
-	ent.customShader = shader;
-
-	trap->R_AddRefEntityToScene( &ent );
-}
-#endif
 
 //Checks to see if the model string has a * appended with a custom skin name after.
 //If so, it terminates the model string correctly, parses the skin name out, and returns
@@ -6996,11 +6569,7 @@ void CG_Player( centity_t *cent ) {
 	renderfx = 0;
 	if ( cent->currentState.number == cg.snap->ps.clientNum) {
 		if (!cg.renderingThirdPerson) {
-#if 0
-			if (!cg_fpls.integer || cent->currentState.weapon != WP_SABER)
-#else
 			if (cent->currentState.weapon != WP_SABER)
-#endif
 			{
 				renderfx = RF_THIRD_PERSON;			// only draw in mirrors
 			}
@@ -7289,62 +6858,6 @@ void CG_Player( centity_t *cent ) {
 	//It works and we end up only reconstructing it once, but it doesn't seem like the best solution.
 	trap->G2API_GetBoltMatrix(cent->ghoul2, 0, ci->bolt_lhand, &lHandMatrix, cent->turAngles, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale);
 	gotLHandMatrix = qtrue;
-#if 0
-	if (cg.renderingThirdPerson)
-	{
-		if (cgFPLSState != 0)
-		{
-			CG_ForceFPLSPlayerModel(cent, ci);
-			cgFPLSState = 0;
-			return;
-		}
-	}
-	else if (ci->team == TEAM_SPECTATOR || (cg.snap && (cg.snap->ps.pm_flags & PMF_FOLLOW)))
-	{ //don't allow this when spectating
-		if (cgFPLSState != 0)
-		{
-			trap->Cvar_Set("cg_fpls", "0");
-			cg_fpls.integer = 0;
-
-			CG_ForceFPLSPlayerModel(cent, ci);
-			cgFPLSState = 0;
-			return;
-		}
-
-		if (cg_fpls.integer)
-		{
-			trap->Cvar_Set("cg_fpls", "0");
-		}
-	}
-	else
-	{
-		if (cg_fpls.integer && cent->currentState.weapon == WP_SABER && cg.snap && cent->currentState.number == cg.snap->ps.clientNum)
-		{
-
-			if (cgFPLSState != cg_fpls.integer)
-			{
-				CG_ForceFPLSPlayerModel(cent, ci);
-				cgFPLSState = cg_fpls.integer;
-				return;
-			}
-
-			/*
-			mdxaBone_t 		headMatrix;
-			trap->G2API_GetBoltMatrix(cent->ghoul2, 0, ci->bolt_head, &headMatrix, cent->turAngles, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale);
-			BG_GiveMeVectorFromMatrix(&headMatrix, ORIGIN, cg.refdef.vieworg);
-			*/
-		}
-		else if (!cg_fpls.integer && cgFPLSState)
-		{
-			if (cgFPLSState != cg_fpls.integer)
-			{
-				CG_ForceFPLSPlayerModel(cent, ci);
-				cgFPLSState = cg_fpls.integer;
-				return;
-			}
-		}
-	}
-#endif
 
 	if (cent->currentState.eFlags & EF_DEAD)
 	{
@@ -8986,18 +8499,6 @@ stillDoSaber:
 
 		trap->R_AddRefEntityToScene( &legs );
 	}
-#if 0
-endOfCall:
-
-	if (cgBoneAnglePostSet.refreshSet)
-	{
-		trap->G2API_SetBoneAngles(cgBoneAnglePostSet.ghoul2, cgBoneAnglePostSet.modelIndex, cgBoneAnglePostSet.boneName,
-			cgBoneAnglePostSet.angles, cgBoneAnglePostSet.flags, cgBoneAnglePostSet.up, cgBoneAnglePostSet.right,
-			cgBoneAnglePostSet.forward, cgBoneAnglePostSet.modelList, cgBoneAnglePostSet.blendTime, cgBoneAnglePostSet.currentTime);
-
-		cgBoneAnglePostSet.refreshSet = qfalse;
-	}
-#endif
 }
 
 // A player just came into view or teleported, so reset all animation info

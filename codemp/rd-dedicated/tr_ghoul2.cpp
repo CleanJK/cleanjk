@@ -107,24 +107,6 @@ qboolean G2_SetupModelPointers(CGhoul2Info_v &ghoul2);
 extern cvar_t	*r_Ghoul2AnimSmooth;
 extern cvar_t	*r_Ghoul2UnSqashAfterSmooth;
 
-#if 0
-static inline int G2_Find_Bone_ByNum(const model_t *mod, boneInfo_v &blist, const int boneNum)
-{
-	size_t i = 0;
-
-	while (i < blist.size())
-	{
-		if (blist[i].boneNumber == boneNum)
-		{
-			return i;
-		}
-		i++;
-	}
-
-	return -1;
-}
-#endif
-
 const static mdxaBone_t		identityMatrix =
 {
 	{
@@ -235,45 +217,6 @@ class CBoneCache
 			int i;
 			float *oldM=&mSmoothBones[index].boneMatrix.matrix[0][0];
 			float *newM=&mFinalBones[index].boneMatrix.matrix[0][0];
-#if 0 //this is just too slow. I need a better way.
-			static float smoothFactor;
-
-			smoothFactor = mSmoothFactor;
-
-			//Special rag smoothing -rww
-			if (smoothFactor < 0)
-			{ //I need a faster way to do this but I do not want to store more in the bonecache
-				static int blistIndex;
-				assert(mod);
-				assert(rootBoneList);
-				blistIndex = G2_Find_Bone_ByNum(mod, *rootBoneList, index);
-
-				assert(blistIndex != -1);
-
-				boneInfo_t &bone = (*rootBoneList)[blistIndex];
-
-				if (bone.flags & BONE_ANGLES_RAGDOLL)
-				{
-					if ((bone.RagFlags & (0x00008)) || //pelvis
-                        (bone.RagFlags & (0x00004))) //model_root
-					{ //pelvis and root do not smooth much
-						smoothFactor = 0.2f;
-					}
-					else if (bone.solidCount > 4)
-					{ //if stuck in solid a lot then snap out quickly
-						smoothFactor = 0.1f;
-					}
-					else
-					{ //otherwise smooth a bunch
-						smoothFactor = 0.8f;
-					}
-				}
-				else
-				{ //not a rag bone
-					smoothFactor = 0.3f;
-				}
-			}
-#endif
 
 			for (i=0;i<12;i++,oldM++,newM++)
 			{
@@ -1909,7 +1852,6 @@ void G2_TransformGhoulBones(boneInfo_v &rootBoneList,mdxaBone_t &rootMatrix, CGh
 		if (val>0.0f&&val<1.0f)
 		{
 			//if (ghoul2.mFlags&GHOUL2_RESERVED_FOR_RAGDOLL)
-#if 1
 			if(ghoul2.mFlags & GHOUL2_CRAZY_SMOOTH)
 			{
 				val = 0.9f;
@@ -1939,7 +1881,6 @@ void G2_TransformGhoulBones(boneInfo_v &rootBoneList,mdxaBone_t &rootMatrix, CGh
 					}
 				}
 			}
-#endif
 
 //			ghoul2.mBoneCache->mSmoothFactor=(val + 1.0f-pow(1.0f-val,50.0f/dif))/2.0f;  // meaningless formula
 			ghoul2.mBoneCache->mSmoothFactor=val;  // meaningless formula
@@ -2709,34 +2650,7 @@ void G2_GetBoltMatrixLow(CGhoul2Info &ghoul2,int boltNum,const vec3_t scale,mdxa
 	}
 
 	assert(boltNum>=0&&boltNum<(int)boltList.size());
-#if 0 //rwwFIXMEFIXME: Disable this before release!!!!!! I am just trying to find a crash bug.
-	if (boltNum < 0 || boltNum >= boltList.size())
-	{
-		char fName[MAX_QPATH];
-		char mName[MAX_QPATH];
-		int bLink = ghoul2.mModelBoltLink;
 
-		if (ghoul2.currentModel)
-		{
-			strcpy(mName, ghoul2.currentModel->name);
-		}
-		else
-		{
-			strcpy(mName, "NULL!");
-		}
-
-		if (ghoul2.mFileName && ghoul2.mFileName[0])
-		{
-			strcpy(fName, ghoul2.mFileName);
-		}
-		else
-		{
-			strcpy(fName, "None?!");
-		}
-
-		Com_Error(ERR_DROP, "Write down or save this error message, show it to Rich\nBad bolt index on model %s (filename %s), index %i boltlink %i\n", mName, fName, boltNum, bLink);
-	}
-#endif
 	if (boltList[boltNum].boneNumber>=0)
 	{
 		mdxaSkel_t		*skel;
@@ -2810,18 +2724,6 @@ static void RootMatrix(CGhoul2Info_v &ghoul2,int time,const vec3_t scale,mdxaBon
 	}
 	retMatrix=identityMatrix;
 }
-
-#if 0
-extern cvar_t	*r_shadowRange;
-static inline bool bInShadowRange(vec3_t location)
-{
-	const float c = DotProduct( tr.viewParms.ori.axis[0], tr.viewParms.ori.origin );
-	const float dist = DotProduct( tr.viewParms.ori.axis[0], location ) - c;
-
-//	return (dist < tr.distanceCull/1.5f);
-	return (dist < r_shadowRange->value);
-}
-#endif
 
 void R_AddGhoulSurfaces( trRefEntity_t *ent ) {
 }
@@ -3266,16 +3168,6 @@ qboolean R_LoadMDXM( model_t *mod, void *buffer, const char *mod_name, qboolean 
 	int					size;
 	mdxmSurfHierarchy_t	*surfInfo;
 
-#if 0 //#ifndef _M_IX86
-	int					k;
-	int					frameSize;
-	mdxmTag_t			*tag;
-	mdxmTriangle_t		*tri;
-	mdxmVertex_t		*v;
- 	mdxmFrame_t			*cframe;
-	int					*boneRef;
-#endif
-
 	pinmodel= (mdxmHeader_t *)buffer;
 
 	// read some fields from the binary, but only LittleLong() them when we know this wasn't an already-cached model...
@@ -3406,51 +3298,6 @@ qboolean R_LoadMDXM( model_t *mod, void *buffer, const char *mod_name, qboolean 
 			// change to surface identifier
 			surf->ident = SF_MDX;
 			// register the shaders
-#if 0 //#ifndef _M_IX86
-
-// optimisation, we don't bother doing this for standard intel case since our data's already in that format...
-
-			// FIXME - is this correct?
-			// do all the bone reference data
-			boneRef = (int *) ( (byte *)surf + surf->ofsBoneReferences );
-			for ( j = 0 ; j < surf->numBoneReferences ; j++ )
-			{
-					LL(boneRef[j]);
-			}
-
-			// swap all the triangles
-			tri = (mdxmTriangle_t *) ( (byte *)surf + surf->ofsTriangles );
-			for ( j = 0 ; j < surf->numTriangles ; j++, tri++ )
-			{
-				LL(tri->indexes[0]);
-				LL(tri->indexes[1]);
-				LL(tri->indexes[2]);
-			}
-
-			// swap all the vertexes
-			v = (mdxmVertex_t *) ( (byte *)surf + surf->ofsVerts );
-			for ( j = 0 ; j < surf->numVerts ; j++ )
-			{
-				v->normal[0] = LittleFloat( v->normal[0] );
-				v->normal[1] = LittleFloat( v->normal[1] );
-				v->normal[2] = LittleFloat( v->normal[2] );
-
-				v->texCoords[0] = LittleFloat( v->texCoords[0] );
-				v->texCoords[1] = LittleFloat( v->texCoords[1] );
-
-				v->numWeights = LittleLong( v->numWeights );
-  			    v->offset[0] = LittleFloat( v->offset[0] );
-				v->offset[1] = LittleFloat( v->offset[1] );
-				v->offset[2] = LittleFloat( v->offset[2] );
-
-				for ( k = 0 ; k < /*v->numWeights*/surf->maxVertBoneWeights ; k++ )
-				{
-					v->weights[k].boneIndex = LittleLong( v->weights[k].boneIndex );
-					v->weights[k].boneWeight = LittleFloat( v->weights[k].boneWeight );
-				}
-				v = (mdxmVertex_t *)&v->weights[/*v->numWeights*/surf->maxVertBoneWeights];
-			}
-#endif
 
 			if (isAnOldModelFile)
 			{
@@ -3688,13 +3535,6 @@ qboolean R_LoadMDXA( model_t *mod, void *buffer, const char *mod_name, qboolean 
 	byte				*sizeMarker;
 #endif
 
-#if 0 //#ifndef _M_IX86
-	int					j, k, i;
-	int					frameSize;
-	mdxaFrame_t			*cframe;
-	mdxaSkel_t			*boneInfo;
-#endif
-
  	pinmodel = (mdxaHeader_t *)buffer;
 
 	// read some fields from the binary, but only LittleLong() them when we know this wasn't an already-cached model...
@@ -3764,10 +3604,6 @@ qboolean R_LoadMDXA( model_t *mod, void *buffer, const char *mod_name, qboolean 
 	if (!bAlreadyFound)
 	{
 		mdxaSkel_t			*boneParent;
-#if 0 //#ifdef _M_IX86
-		mdxaSkel_t			*boneInfo;
-		int i, k;
-#endif
 
 		sizeMarker = (byte *)mdxa + mdxa->ofsEnd;
 
@@ -3883,43 +3719,6 @@ qboolean R_LoadMDXA( model_t *mod, void *buffer, const char *mod_name, qboolean 
 		return qtrue;	// All done, stop here, do not LittleLong() etc. Do not pass go...
 	}
 
-#if 0 //#ifndef _M_IX86
-
-	// optimisation, we don't bother doing this for standard intel case since our data's already in that format...
-
-	// swap all the skeletal info
-	boneInfo = (mdxaSkel_t *)( (byte *)mdxa + mdxa->ofsSkel);
-	for ( i = 0 ; i < mdxa->numBones ; i++)
-	{
-		LL(boneInfo->numChildren);
-		LL(boneInfo->parent);
-		for (k=0; k<boneInfo->numChildren; k++)
-		{
-			LL(boneInfo->children[k]);
-		}
-
-		// get next bone
-		boneInfo += (size_t)( &((mdxaSkel_t *)0)->children[ boneInfo->numChildren ] );
-	}
-
-	// swap all the frames
-	frameSize = (size_t)( &((mdxaFrame_t *)0)->bones[ mdxa->numBones ] );
-	for ( i = 0 ; i < mdxa->numFrames ; i++)
-	{
-		cframe = (mdxaFrame_t *) ( (byte *)mdxa + mdxa->ofsFrames + i * frameSize );
-   		cframe->radius = LittleFloat( cframe->radius );
-		for ( j = 0 ; j < 3 ; j++ )
-		{
-			cframe->bounds[0][j] = LittleFloat( cframe->bounds[0][j] );
-			cframe->bounds[1][j] = LittleFloat( cframe->bounds[1][j] );
-    		cframe->localOrigin[j] = LittleFloat( cframe->localOrigin[j] );
-		}
-		for ( j = 0 ; j < mdxa->numBones * sizeof( mdxaBone_t ) / 2 ; j++ )
-		{
-			((short *)cframe->bones)[j] = LittleShort( ((short *)cframe->bones)[j] );
-		}
-	}
-#endif
 	return qtrue;
 }
 

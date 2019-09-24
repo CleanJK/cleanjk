@@ -2012,51 +2012,6 @@ void CheckTournament( void ) {
 			level.warmupTime = 0;
 			return;
 		}
-#if 0
-		// if we don't have two players, go back to "waiting for players"
-		if ( level.numPlayingClients != 2 ) {
-			if ( level.warmupTime != -1 ) {
-				level.warmupTime = -1;
-				trap->SetConfigstring( CS_WARMUP, va("%i", level.warmupTime) );
-				G_LogPrintf( "Warmup:\n" );
-			}
-			return;
-		}
-
-		if ( level.warmupTime == 0 ) {
-			return;
-		}
-
-		// if the warmup is changed at the console, restart it
-		if ( g_warmup.modificationCount != level.warmupModificationCount ) {
-			level.warmupModificationCount = g_warmup.modificationCount;
-			level.warmupTime = -1;
-		}
-
-		// if all players have arrived, start the countdown
-		if ( level.warmupTime < 0 ) {
-			if ( level.numPlayingClients == 2 ) {
-				// fudge by -1 to account for extra delays
-				level.warmupTime = level.time + ( g_warmup.integer - 1 ) * 1000;
-
-				if (level.warmupTime < (level.time + 3000))
-				{ //rww - this is an unpleasent hack to keep the level from resetting completely on the client (this happens when two map_restarts are issued rapidly)
-					level.warmupTime = level.time + 3000;
-				}
-				trap->SetConfigstring( CS_WARMUP, va("%i", level.warmupTime) );
-			}
-			return;
-		}
-
-		// if the warmup time has counted down, restart
-		if ( level.time > level.warmupTime ) {
-			level.warmupTime += 10000;
-			trap->Cvar_Set( "g_restarted", "1" );
-			trap->SendConsoleCommand( EXEC_APPEND, "map_restart 0\n" );
-			level.restarted = qtrue;
-			return;
-		}
-#endif
 	}
 	else if (level.gametype == GT_POWERDUEL)
 	{
@@ -2659,22 +2614,7 @@ void G_RunFrame( int levelTime ) {
 		}
 
 		if ( ent->s.eType == ET_ITEM || ent->physicsObject ) {
-#if 0 //use if body dragging enabled?
-			if (ent->s.eType == ET_BODY)
-			{ //special case for bodies
-				float grav = 3.0f;
-				float mass = 0.14f;
-				float bounce = 1.15f;
-
-				G_RunExPhys(ent, grav, mass, bounce, qfalse, NULL, 0);
-			}
-			else
-			{
-				G_RunItem( ent );
-			}
-#else
 			G_RunItem( ent );
-#endif
 			continue;
 		}
 

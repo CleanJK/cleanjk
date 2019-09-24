@@ -1590,13 +1590,6 @@ void S_ClearSoundBuffer( void ) {
 	if ( !s_soundStarted || s_soundMuted ) {
 		return;
 	}
-#if 0	//this causes scripts to freak when the sounds get cut...
-	// clear all the sounds so they don't
-	// start back up after the load finishes
-	memset( s_channels, 0, sizeof( s_channels ) );
-	// clear out the lip synching override array
-	memset(s_entityWavVol, 0,sizeof(s_entityWavVol));
-#endif
 	s_rawend = 0;
 
 #ifdef USE_OPENAL
@@ -2584,15 +2577,6 @@ void S_GetSoundtime(void)
 	oldsamplepos = samplepos;
 
 	s_soundtime = buffers*fullsamples + samplepos/dma.channels;
-
-#if 0
-// check to make sure that we haven't overshot
-	if (s_paintedtime < s_soundtime)
-	{
-		Com_DPrintf ("S_Update_ : overflow\n");
-		s_paintedtime = s_soundtime;
-	}
-#endif
 
 	if ( dma.submission_chunk < 256 ) {
 		s_paintedtime = (int)(s_soundtime + s_mixPreStep->value * dma.speed);

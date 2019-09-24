@@ -509,11 +509,6 @@ void CL_ShutdownAll( qboolean shutdownRef ) {
 	if(clc.demorecording)
 		CL_StopRecord_f();
 
-#if 0 //rwwFIXMEFIXME: Disable this before release!!!!!! I am just trying to find a crash bug.
-	//so it doesn't barf on shutdown saying refentities belong to each other
-	tr.refdef.num_entities = 0;
-#endif
-
 	// clear sounds
 	S_DisableSounds();
 	// shutdown CGame
@@ -779,12 +774,6 @@ void CL_RequestMotd( void ) {
 	Info_SetValueForKey( info, "rvendor", cls.glconfig.vendor_string );
 	Info_SetValueForKey( info, "version", com_version->string );
 
-	//If raven starts filtering for this, add this code back in
-#if 0
-	Info_SetValueForKey( info, "cputype", "Intel Pentium IV");
-	Info_SetValueForKey( info, "mhz", "3000" );
-	Info_SetValueForKey( info, "memory", "4096" );
-#endif
 	Info_SetValueForKey( info, "joystick", Cvar_VariableString("in_joystick") );
 	Info_SetValueForKey( info, "colorbits", va("%d",cls.glconfig.colorBits) );
 

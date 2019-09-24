@@ -576,13 +576,7 @@ void MSG_WriteDeltaKey( msg_t *msg, int key, int oldV, int newV, int bits )
 
 int	MSG_ReadDeltaKey( msg_t *msg, int key, int oldV, int bits ) {
 	if ( MSG_ReadBits( msg, 1 ) ) {
-#if 0
-		// Old technically wrong for angles & buttons
-		return MSG_ReadBits( msg, bits ) ^ (key & kbitmask[bits]);
-#else
-		// Correct, not going out of bounds
 		return MSG_ReadBits( msg, bits ) ^ (key & kbitmask[ bits - 1 ]);
-#endif
 	}
 	return oldV;
 }

@@ -396,49 +396,6 @@ qboolean CROFFSystem::Unload( int id )
 // returns success of operation
 qboolean CROFFSystem::Clean(qboolean isClient)
 {
-#if 0
-	TROFFList::iterator			itr, next;
-	TROFFEntList::iterator		entI, nextEnt;
-	itr = mROFFList.begin();
-	while ( itr != mROFFList.end() )
-	{
-		next = itr;
-		++next;
-
-		if (isClient)
-		{
-			(*itr).second->mUsedByClient = qfalse;
-		}
-		else
-		{
-			(*itr).second->mUsedByServer = qfalse;
-		}
-		if ((*itr).second->mUsedByClient == qfalse && (*itr).second->mUsedByServer == qfalse)
-		{	// we are not used on both client and server, so unload
-			Unload( (*itr).first );
-		}
-
-		itr = next;
-	}
-
-	entI = mROFFEntList.begin();
-	while ( entI != mROFFEntList.end() )
-	{
-		nextEnt = entI;
-		++nextEnt;
-
-		if ((*entI)->mIsClient == isClient)
-		{
-			delete (*entI);
-			mROFFEntList.erase( entI );
-		}
-
-		entI = nextEnt;
-	}
-	mROFFEntList.clear();
-
-	return qtrue;
-#else
 	TROFFList::iterator itr;
 
 	itr = mROFFList.begin();
@@ -450,7 +407,6 @@ qboolean CROFFSystem::Clean(qboolean isClient)
 		itr = mROFFList.begin();
 	}
 	return qtrue;
-#endif
 }
 
 // Dumps the file path to the current set of cached roffs, for debug purposes

@@ -25,53 +25,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "cg_local.h"
 
-// Builds a copy of the string, translating \n to real linefeeds so message texts can be multi-line
-#if 0
-// Enable if you put in cgame alloc and need it for some reason...
-// (ie: if you need to re-implement cross game field_t)
-char *CG_NewString( const char *string ) {
-	char *newb, *new_p;
-	int i, l;
-
-	l = strlen( string ) + 1;
-
-	newb = CG_Alloc( l );
-
-	new_p = newb;
-
-	// turn \n into a real linefeed
-	for( i = 0; i < l; i++ ) {
-		if( string[i] == '\\' && i < l - 1 ) {
-			if( string[i + 1] == 'n' ) {
-				*new_p++ = '\n';
-				i++;
-			}
-			else {
-				*new_p++ = '\\';
-			}
-		}
-		else {
-			*new_p++ = string[i];
-		}
-
-		/*old code
-		if (string[i] == '\\' && i < l-1) {
-		    i++;
-		    if (string[i] == 'n') {
-		        *new_p++ = '\n';
-		    } else {
-		        *new_p++ = '\\';
-		    }
-		} else {
-		    *new_p++ = string[i];
-		}
-		*/
-	}
-
-	return newb;
-}
-#endif
-
 qboolean CG_SpawnString( const char *key, const char *defaultString, char **out ) {
 	int i;
 

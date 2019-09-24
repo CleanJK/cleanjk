@@ -4503,62 +4503,6 @@ static qboolean CG_DrawFollow( void )
 	return qtrue;
 }
 
-#if 0
-static void CG_DrawTemporaryStats()
-{ //placeholder for testing (draws ammo and force power)
-	char s[512];
-
-	if (!cg.snap)
-	{
-		return;
-	}
-
-	sprintf(s, "Force: %i", cg.snap->ps.fd.forcePower);
-
-	CG_DrawBigString(SCREEN_WIDTH-164, SCREEN_HEIGHT-dmgIndicSize, s, 1.0f);
-
-	sprintf(s, "Ammo: %i", cg.snap->ps.ammo[weaponData[cg.snap->ps.weapon].ammoIndex]);
-
-	CG_DrawBigString(SCREEN_WIDTH-164, SCREEN_HEIGHT-112, s, 1.0f);
-
-	sprintf(s, "Health: %i", cg.snap->ps.stats[STAT_HEALTH]);
-
-	CG_DrawBigString(8, SCREEN_HEIGHT-dmgIndicSize, s, 1.0f);
-
-	sprintf(s, "Armor: %i", cg.snap->ps.stats[STAT_ARMOR]);
-
-	CG_DrawBigString(8, SCREEN_HEIGHT-112, s, 1.0f);
-}
-#endif
-
-static void CG_DrawAmmoWarning( void ) {
-#if 0
-	const char	*s;
-	int			w;
-
-	if (!cg_drawStatus.integer)
-	{
-		return;
-	}
-
-	if ( cg_drawAmmoWarning.integer == 0 ) {
-		return;
-	}
-
-	if ( !cg.lowAmmoWarning ) {
-		return;
-	}
-
-	if ( cg.lowAmmoWarning == 2 ) {
-		s = "OUT OF AMMO";
-	} else {
-		s = "LOW AMMO WARNING";
-	}
-	w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
-	CG_DrawBigString(320 - w / 2, 64, s, 1.0F);
-#endif
-}
-
 static void CG_DrawWarmup( void ) {
 	int			w, sec, i;
 	float		scale;
@@ -5627,8 +5571,6 @@ static void CG_Draw2D( void ) {
 			}
 
 			//CG_DrawTemporaryStats();
-
-			CG_DrawAmmoWarning();
 
 			CG_DrawCrosshairNames();
 

@@ -88,9 +88,6 @@ XCVAR_DEF( cg_fov,								"90",					NULL,					CVAR_ARCHIVE )
 XCVAR_DEF( cg_fovAspectAdjust,					"1",					NULL,					CVAR_ARCHIVE )
 XCVAR_DEF( cg_fovViewmodel,						"0",					NULL,					CVAR_ARCHIVE )
 XCVAR_DEF( cg_fovViewmodelAdjust,				"1",					NULL,					CVAR_ARCHIVE )
-#if 0
-XCVAR_DEF( cg_fpls,								"0",					NULL,					CVAR_NONE )
-#endif
 XCVAR_DEF( cg_g2TraceLod,						"2",					NULL,					CVAR_NONE )
 XCVAR_DEF( cg_ghoul2Marks,						"16",					NULL,					CVAR_NONE )
 XCVAR_DEF( cg_gunAlign,							"0 0 0",				CVU_GunAlign,			CVAR_ARCHIVE )

@@ -29,70 +29,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "cg_local.h"
 #include "cg_media.h"
 
-// If the ammo has gone low enough to generate the warning, play a sound
-void CG_CheckAmmo( void ) {
-#if 0
-	int		i;
-	int		total;
-	int		previous;
-	int		weapons;
-
-	// see about how many seconds of ammo we have remaining
-	weapons = cg.snap->ps.stats[ STAT_WEAPONS ];
-	total = 0;
-	for ( i = WP_BRYAR_PISTOL; i < WP_NUM_WEAPONS ; i++ ) {
-		if ( ! ( weapons & ( 1 << i ) ) ) {
-			continue;
-		}
-		switch ( i )
-		{
-		case WP_BRYAR_PISTOL:
-		case WP_CONCUSSION:
-		case WP_BRYAR_OLD:
-		case WP_BLASTER:
-		case WP_DISRUPTOR:
-		case WP_BOWCASTER:
-		case WP_REPEATER:
-		case WP_DEMP2:
-		case WP_FLECHETTE:
-		case WP_ROCKET_LAUNCHER:
-		case WP_THERMAL:
-		case WP_TRIP_MINE:
-		case WP_DET_PACK:
-		case WP_EMPLACED_GUN:
-			total += cg.snap->ps.ammo[weaponData[i].ammoIndex] * 1000;
-			break;
-		default:
-			total += cg.snap->ps.ammo[weaponData[i].ammoIndex] * 200;
-			break;
-		}
-		if ( total >= 5000 ) {
-			cg.lowAmmoWarning = 0;
-			return;
-		}
-	}
-
-	previous = cg.lowAmmoWarning;
-
-	if ( total == 0 ) {
-		cg.lowAmmoWarning = 2;
-	} else {
-		cg.lowAmmoWarning = 1;
-	}
-
-	if (cg.snap->ps.weapon == WP_SABER)
-	{
-		cg.lowAmmoWarning = 0;
-	}
-
-	// play a sound on transitions
-	if ( cg.lowAmmoWarning != previous ) {
-		trap->S_StartLocalSound( media.sounds.null, CHAN_LOCAL_SOUND );
-	}
-#endif
-	//disabled silly ammo warning stuff for now
-}
-
 void CG_DamageFeedback( int yawByte, int pitchByte, int damage ) {
 	float		left, front, up;
 	float		kick;
@@ -484,9 +420,6 @@ void CG_TransitionPlayerState( playerState_t *ps, playerState_t *ops ) {
 		&& ps->persistant[PERS_TEAM] != TEAM_SPECTATOR ) {
 		CG_CheckLocalSounds( ps, ops );
 	}
-
-	// check for going low on ammo
-	CG_CheckAmmo();
 
 	// run events
 	CG_CheckPlayerstateEvents( ps, ops );

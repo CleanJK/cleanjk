@@ -965,17 +965,6 @@ void CM_TraceThroughTree( traceWork_t *tw, trace_t &trace, clipMap_t *local, int
 		if ( tw->isPoint ) {
 			offset = 0;
 		} else {
-#if 0 // bk010201 - DEAD
-			// an axial brush right behind a slanted bsp plane
-			// will poke through when expanded, so adjust
-			// by sqrt(3)
-			offset = fabs(tw->extents[0]*plane->normal[0]) +
-				fabs(tw->extents[1]*plane->normal[1]) +
-				fabs(tw->extents[2]*plane->normal[2]);
-
-			offset *= 2;
-			offset = tw->maxOffset;
-#endif
 			// this is silly
 			offset = 2048;
 		}

@@ -376,15 +376,6 @@ void CG_DrawNewTeamInfo(rectDef_t *rect, float text_x, float text_y, float scale
 			// draw weapon icon
 			xx += PIC_WIDTH + 1;
 
-			// weapon used is not that useful, use the space for task
-#if 0
-			if ( cg_weapons[ci->curWeapon].weaponIcon ) {
-				CG_DrawPic( xx, y, PIC_WIDTH, PIC_WIDTH, cg_weapons[ci->curWeapon].weaponIcon );
-			} else {
-				CG_DrawPic( xx, y, PIC_WIDTH, PIC_WIDTH, media.gfx.null );
-			}
-#endif
-
 			trap->R_SetColor(NULL);
 			h = CG_StatusHandle(ci->teamTask);
 
@@ -539,188 +530,29 @@ void CG_DrawMedal(int ownerDraw, rectDef_t *rect, float scale, vec4_t color, qha
 }
 
 void CG_OwnerDraw(float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, float scale, vec4_t color, qhandle_t shader, int textStyle,int font) {
-
 	//Ignore all this, at least for now. May put some stat stuff back in menu files later.
-#if 0
 	rectDef_t rect;
 
 	if ( cg_drawStatus.integer == 0 ) {
 		return;
 	}
 
-	//if (ownerDrawFlags != 0 && !CG_OwnerDrawVisible(ownerDrawFlags)) {
-	//	return;
-	//}
+	if (ownerDrawFlags != 0 && !CG_OwnerDrawVisible(ownerDrawFlags)) {
+		return;
+	}
 
 	rect.x = x;
 	rect.y = y;
 	rect.w = w;
 	rect.h = h;
 
-	switch (ownerDraw) {
-	case CG_PLAYER_ARMOR_ICON:
-		CG_DrawPlayerArmorIcon(&rect, ownerDrawFlags & CG_SHOW_2DONLY);
-		break;
-	case CG_PLAYER_ARMOR_ICON2D:
-		CG_DrawPlayerArmorIcon(&rect, qtrue);
-		break;
-	case CG_PLAYER_ARMOR_VALUE:
-		CG_DrawPlayerArmorValue(&rect, scale, color, shader, textStyle);
-		break;
-	case CG_PLAYER_FORCE_VALUE:
-		CG_DrawPlayerForceValue(&rect, scale, color, shader, textStyle);
-		return ;
-	case CG_PLAYER_AMMO_ICON:
-		CG_DrawPlayerAmmoIcon(&rect, ownerDrawFlags & CG_SHOW_2DONLY);
-		break;
-	case CG_PLAYER_AMMO_ICON2D:
-		CG_DrawPlayerAmmoIcon(&rect, qtrue);
-		break;
-	case CG_PLAYER_AMMO_VALUE:
-		CG_DrawPlayerAmmoValue(&rect, scale, color, shader, textStyle);
-		break;
-	case CG_SELECTEDPLAYER_HEAD:
-		CG_DrawSelectedPlayerHead(&rect, ownerDrawFlags & CG_SHOW_2DONLY, qfalse);
-		break;
-	case CG_VOICE_HEAD:
-		CG_DrawSelectedPlayerHead(&rect, ownerDrawFlags & CG_SHOW_2DONLY, qtrue);
-		break;
-	case CG_VOICE_NAME:
-		CG_DrawSelectedPlayerName(&rect, scale, color, qtrue, textStyle);
-		break;
-	case CG_SELECTEDPLAYER_STATUS:
-		CG_DrawSelectedPlayerStatus(&rect);
-		break;
-	case CG_SELECTEDPLAYER_ARMOR:
-		CG_DrawSelectedPlayerArmor(&rect, scale, color, shader, textStyle);
-		break;
-	case CG_SELECTEDPLAYER_HEALTH:
-		CG_DrawSelectedPlayerHealth(&rect, scale, color, shader, textStyle);
-		break;
-	case CG_SELECTEDPLAYER_NAME:
-		CG_DrawSelectedPlayerName(&rect, scale, color, qfalse, textStyle);
-		break;
-	case CG_SELECTEDPLAYER_LOCATION:
-		CG_DrawSelectedPlayerLocation(&rect, scale, color, textStyle);
-		break;
-	case CG_SELECTEDPLAYER_WEAPON:
-		CG_DrawSelectedPlayerWeapon(&rect);
-		break;
-	case CG_SELECTEDPLAYER_POWERUP:
-		CG_DrawSelectedPlayerPowerup(&rect, ownerDrawFlags & CG_SHOW_2DONLY);
-		break;
-	case CG_PLAYER_HEAD:
-		CG_DrawPlayerHead(&rect, ownerDrawFlags & CG_SHOW_2DONLY);
-		break;
-	case CG_PLAYER_ITEM:
-		CG_DrawPlayerItem(&rect, scale, ownerDrawFlags & CG_SHOW_2DONLY);
-		break;
-	case CG_PLAYER_SCORE:
-		CG_DrawPlayerScore(&rect, scale, color, shader, textStyle);
-		break;
-	case CG_PLAYER_HEALTH:
-		CG_DrawPlayerHealth(&rect, scale, color, shader, textStyle);
-		break;
-	case CG_RED_SCORE:
-		CG_DrawRedScore(&rect, scale, color, shader, textStyle);
-		break;
-	case CG_BLUE_SCORE:
-		CG_DrawBlueScore(&rect, scale, color, shader, textStyle);
-		break;
-	case CG_RED_NAME:
-		CG_DrawRedName(&rect, scale, color, textStyle);
-		break;
-	case CG_BLUE_NAME:
-		CG_DrawBlueName(&rect, scale, color, textStyle);
-		break;
-	case CG_BLUE_FLAGHEAD:
-		CG_DrawBlueFlagHead(&rect);
-		break;
-	case CG_BLUE_FLAGSTATUS:
-		CG_DrawBlueFlagStatus(&rect, shader);
-		break;
-	case CG_BLUE_FLAGNAME:
-		CG_DrawBlueFlagName(&rect, scale, color, textStyle);
-		break;
-	case CG_RED_FLAGHEAD:
-		CG_DrawRedFlagHead(&rect);
-		break;
-	case CG_RED_FLAGSTATUS:
-		CG_DrawRedFlagStatus(&rect, shader);
-		break;
-	case CG_RED_FLAGNAME:
-		CG_DrawRedFlagName(&rect, scale, color, textStyle);
-		break;
-	case CG_PLAYER_LOCATION:
-		CG_DrawPlayerLocation(&rect, scale, color, textStyle);
-		break;
-	case CG_TEAM_COLOR:
-		CG_DrawTeamColor(&rect, color);
-		break;
-	case CG_CTF_POWERUP:
-		CG_DrawCTFPowerUp(&rect);
-		break;
-	case CG_AREA_POWERUP:
-		CG_DrawAreaPowerUp(&rect, align, special, scale, color);
-		break;
-	case CG_PLAYER_STATUS:
-		CG_DrawPlayerStatus(&rect);
-		break;
-	case CG_PLAYER_HASFLAG:
-		CG_DrawPlayerHasFlag(&rect, qfalse);
-		break;
-	case CG_PLAYER_HASFLAG2D:
-		CG_DrawPlayerHasFlag(&rect, qtrue);
-		break;
-	case CG_AREA_SYSTEMCHAT:
-		CG_DrawAreaSystemChat(&rect, scale, color, shader);
-		break;
-	case CG_AREA_TEAMCHAT:
-		CG_DrawAreaTeamChat(&rect, scale, color, shader);
-		break;
-	case CG_AREA_CHAT:
-		CG_DrawAreaChat(&rect, scale, color, shader);
-		break;
-	case CG_GAME_TYPE:
-		CG_DrawGameType(&rect, scale, color, shader, textStyle);
-		break;
-	case CG_GAME_STATUS:
-		CG_DrawGameStatus(&rect, scale, color, shader, textStyle);
-		break;
-	case CG_KILLER:
-		CG_DrawKiller(&rect, scale, color, shader, textStyle);
-		break;
-	case CG_ACCURACY:
-	case CG_ASSISTS:
-	case CG_DEFEND:
-	case CG_EXCELLENT:
-	case CG_IMPRESSIVE:
-	case CG_PERFECT:
-	case CG_GAUNTLET:
-	case CG_CAPTURES:
-		CG_DrawMedal(ownerDraw, &rect, scale, color, shader);
-		break;
-	case CG_SPECTATORS:
-		CG_DrawTeamSpectators(&rect, scale, color, shader);
-		break;
-	case CG_TEAMINFO:
-		if (cg_currentSelectedPlayer.integer == numSortedTeamPlayers) {
-			CG_DrawNewTeamInfo(&rect, text_x, text_y, scale, color, shader);
-		}
-		break;
-	case CG_CAPFRAGLIMIT:
-		CG_DrawCapFragLimit(&rect, scale, color, shader, textStyle);
-		break;
-	case CG_1STPLACE:
-		CG_Draw1stPlace(&rect, scale, color, shader, textStyle);
-		break;
-	case CG_2NDPLACE:
-		CG_Draw2ndPlace(&rect, scale, color, shader, textStyle);
-		break;
-	default:
-		break;
-  }
-#endif
+	switch ( ownerDraw ) {
+
+	default: {
+		// ...
+	} break;
+
+	}
 }
 
 void CG_MouseEvent(int x, int y) {

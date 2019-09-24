@@ -360,13 +360,6 @@ typedef struct centity_s {
 	vec3_t			lerpOrigin;
 	vec3_t			lerpAngles;
 
-#if 0
-	//add up bone offsets until next client frame before adding them in
-	qboolean		hasRagOffset;
-	vec3_t			ragOffsets;
-	int				ragOffsetTime;
-#endif
-
 	vec3_t			ragLastOrigin;
 	int				ragLastOriginTime;
 
@@ -963,10 +956,6 @@ typedef struct cg_s {
 
 	chatBoxItem_t		chatItems[MAX_CHATBOX_ITEMS];
 	int					chatItemActive;
-
-#if 0
-	int					snapshotTimeoutTime;
-#endif
 
 	qboolean spawning;
 	int	numSpawnVars;

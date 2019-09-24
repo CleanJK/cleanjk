@@ -623,14 +623,6 @@ static void CG_OffsetFirstPersonView( void ) {
 		}
 	}
 
-	// add pitch based on fall kick
-#if 0
-	ratio = ( cg.time - cg.landTime) / FALL_TIME;
-	if (ratio < 0)
-		ratio = 0;
-	angles[PITCH] += ratio * cg.fall_value;
-#endif
-
 	// add angles based on velocity
 	VectorCopy( cg.predictedPlayerState.velocity, predictedVelocity );
 
@@ -691,19 +683,6 @@ static void CG_OffsetFirstPersonView( void ) {
 	// add kick offset
 
 	VectorAdd (origin, cg.kick_origin, origin);
-
-	// pivot the eye based on a neck length
-#if 0
-	{
-#define	NECK_LENGTH		8
-	vec3_t			forward, up;
-
-	cg.refdef.vieworg[2] -= NECK_LENGTH;
-	AngleVectors( cg.refdef.viewangles, forward, NULL, up );
-	VectorMA( cg.refdef.vieworg, 3, forward, cg.refdef.vieworg );
-	VectorMA( cg.refdef.vieworg, NECK_LENGTH, up, cg.refdef.vieworg );
-	}
-#endif
 }
 
 #define	WAVE_AMPLITUDE	1
@@ -1822,29 +1801,6 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 	// we can draw is the information screen
 	if ( !cg.snap || ( cg.snap->snapFlags & SNAPFLAG_NOT_ACTIVE ) )
 	{
-#if 0
-		// Transition from zero to negative one on the snapshot timeout.
-		// The reason we do this is because the first client frame is responsible for
-		// some farily slow processing (such as weather) and we dont want to include
-		// that processing time into our calculations
-		if ( !cg.snapshotTimeoutTime )
-		{
-			cg.snapshotTimeoutTime = -1;
-		}
-		// Transition the snapshot timeout time from -1 to the current time in
-		// milliseconds which will start the timeout.
-		else if ( cg.snapshotTimeoutTime == -1 )
-		{
-			cg.snapshotTimeoutTime = trap->Milliseconds ( );
-		}
-
-		// If we have been waiting too long then just error out
-		if ( cg.snapshotTimeoutTime > 0 && (trap->Milliseconds ( ) - cg.snapshotTimeoutTime > cg_snapshotTimeout.integer * 1000) )
-		{
-			Com_Error ( ERR_DROP, CG_GetStringEdString("MP_SVGAME", "SNAPSHOT_TIMEOUT"));
-			return;
-		}
-#endif
 		CG_DrawInformation();
 		return;
 	}
@@ -1886,16 +1842,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 			|| PM_InKnockDown( &cg.predictedPlayerState )
 		)
 		{
-#if 0
-			if (cg_fpls.integer && cg.predictedPlayerState.weapon == WP_SABER)
-			{ //force to first person for fpls
-				cg.renderingThirdPerson = 0;
-			}
-			else
-#endif
-			{
-				cg.renderingThirdPerson = 1;
-			}
+			cg.renderingThirdPerson = 1;
 		}
 		else if (cg.predictedPlayerState.zoomMode)
 		{ //always force first person when zoomed

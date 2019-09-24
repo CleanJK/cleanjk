@@ -819,10 +819,6 @@ static void CG_BodyQueueCopy(centity_t *cent, int clientNum, int knownWeapon)
 	cent->isRagging = qfalse; //reset in case it's still set from another body that was in this cent slot.
 	cent->ownerRagging = source->isRagging; //if the owner was in ragdoll state, then we want to go into it too right away.
 
-#if 0
-	VectorCopy(source->lerpOriginOffset, cent->lerpOriginOffset);
-#endif
-
 	cent->bodyFadeTime = 0;
 	cent->bodyHeight = 0;
 

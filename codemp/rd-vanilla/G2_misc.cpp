@@ -1342,10 +1342,6 @@ static bool G2_RadiusTracePolys(
 					}
 
 					vec3_t			  distVect;
-#if 0
-					//i don't know the hitPoint, but let's just assume it's the first vert for now...
-					float *hitPoint = (float *)A;
-#else
 					//yeah, I want the collision point. Let's work out the impact point on the triangle. -rww
 					vec3_t hitPoint;
 					float side, side2;
@@ -1357,7 +1353,6 @@ static bool G2_RadiusTracePolys(
                     side2 = normal[0]*distVect[0] + normal[1]*distVect[1] + normal[2]*distVect[2];
 					dist = side/side2;
 					VectorMA(TS.rayStart, -dist, distVect, hitPoint);
-#endif
 
 					VectorSubtract(hitPoint, TS.rayStart, distVect);
 					newCol.mDistance = VectorLength(distVect);

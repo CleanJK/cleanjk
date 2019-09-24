@@ -400,27 +400,6 @@ void Cmd_LevelShot_f( gentity_t *ent )
 	trap->SendServerCommand( ent-g_entities, "clientLevelShot" );
 }
 
-#if 0
-// From TA.
-void Cmd_TeamTask_f( gentity_t *ent ) {
-	char userinfo[MAX_INFO_STRING];
-	char		arg[MAX_TOKEN_CHARS];
-	int task;
-	int client = ent->client - level.clients;
-
-	if ( trap->Argc() != 2 ) {
-		return;
-	}
-	trap->Argv( 1, arg, sizeof( arg ) );
-	task = atoi( arg );
-
-	trap->GetUserinfo(client, userinfo, sizeof(userinfo));
-	Info_SetValueForKey(userinfo, "teamtask", va("%d", task));
-	trap->SetUserinfo(client, userinfo);
-	ClientUserinfoChanged(client);
-}
-#endif
-
 void G_Kill( gentity_t *ent ) {
 	if ((level.gametype == GT_DUEL || level.gametype == GT_POWERDUEL) &&
 		level.numPlayingClients > 1 && !level.warmupTime)

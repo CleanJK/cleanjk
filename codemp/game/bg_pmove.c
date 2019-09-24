@@ -2077,20 +2077,6 @@ static void PM_WaterMove( void ) {
 		PM_WaterJumpMove();
 		return;
 	}
-#if 0
-	// jump = head for surface
-	if ( pm->cmd.upmove >= 10 ) {
-		if (pm->ps->velocity[2] > -300) {
-			if ( pm->watertype == CONTENTS_WATER ) {
-				pm->ps->velocity[2] = 100;
-			} else if (pm->watertype == CONTENTS_SLIME) {
-				pm->ps->velocity[2] = 80;
-			} else {
-				pm->ps->velocity[2] = 50;
-			}
-		}
-	}
-#endif
 	PM_Friction ();
 
 	scale = PM_CmdScale( &pm->cmd );
@@ -5653,37 +5639,6 @@ static void PM_Weapon( void )
 			(pm->cmd.buttons & BUTTON_ATTACK) &&
 			(pm->cmd.buttons & BUTTON_ALT_ATTACK))
 		{ //ok, grapple time
-#if 0 //eh, I want to try turning the saber off, but can't do that reliably for prediction..
-			qboolean icandoit = qtrue;
-			if (pm->ps->weaponTime > 0)
-			{ //weapon busy
-				icandoit = qfalse;
-			}
-			if (pm->ps->forceHandExtend != HANDEXTEND_NONE)
-			{ //force power or knockdown or something
-				icandoit = qfalse;
-			}
-			if (pm->ps->weapon != WP_SABER && pm->ps->weapon != WP_MELEE)
-			{
-				icandoit = qfalse;
-			}
-
-			if (icandoit)
-			{
-				//G_SetAnim(ent, &ent->client->pers.cmd, SETANIM_BOTH, BOTH_KYLE_GRAB, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD);
-				PM_SetAnim(SETANIM_BOTH, BOTH_KYLE_GRAB, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD);
-				if (pm->ps->torsoAnim == BOTH_KYLE_GRAB)
-				{ //providing the anim set succeeded..
-					pm->ps->torsoTimer += 500; //make the hand stick out a little longer than it normally would
-					if (pm->ps->legsAnim == pm->ps->torsoAnim)
-					{
-						pm->ps->legsTimer = pm->ps->torsoTimer;
-					}
-					pm->ps->weaponTime = pm->ps->torsoTimer;
-					return;
-				}
-			}
-#else
 #ifdef _GAME
 			if (pm_entSelf)
 			{
@@ -5694,7 +5649,6 @@ static void PM_Weapon( void )
 			}
 #else
 			return;
-#endif
 #endif
 		}
 		else if (pm->debugMelee &&
@@ -5883,41 +5837,6 @@ static void PM_Animate( void ) {
 
 			PM_AddEvent( EV_TAUNT );
 		}
-#if 0
-// Here's an interesting bit.  The bots in TA used buttons to do additional gestures.
-// I ripped them out because I didn't want too many buttons given the fact that I was already adding some for JK2.
-// We can always add some back in if we want though.
-	} else if ( pm->cmd.buttons & BUTTON_GETFLAG ) {
-		if ( pm->ps->torsoTimer == 0 ) {
-			PM_StartTorsoAnim( TORSO_GETFLAG );
-			pm->ps->torsoTimer = 600;	//TIMER_GESTURE;
-		}
-	} else if ( pm->cmd.buttons & BUTTON_GUARDBASE ) {
-		if ( pm->ps->torsoTimer == 0 ) {
-			PM_StartTorsoAnim( TORSO_GUARDBASE );
-			pm->ps->torsoTimer = 600;	//TIMER_GESTURE;
-		}
-	} else if ( pm->cmd.buttons & BUTTON_PATROL ) {
-		if ( pm->ps->torsoTimer == 0 ) {
-			PM_StartTorsoAnim( TORSO_PATROL );
-			pm->ps->torsoTimer = 600;	//TIMER_GESTURE;
-		}
-	} else if ( pm->cmd.buttons & BUTTON_FOLLOWME ) {
-		if ( pm->ps->torsoTimer == 0 ) {
-			PM_StartTorsoAnim( TORSO_FOLLOWME );
-			pm->ps->torsoTimer = 600;	//TIMER_GESTURE;
-		}
-	} else if ( pm->cmd.buttons & BUTTON_AFFIRMATIVE ) {
-		if ( pm->ps->torsoTimer == 0 ) {
-			PM_StartTorsoAnim( TORSO_AFFIRMATIVE);
-			pm->ps->torsoTimer = 600;	//TIMER_GESTURE;
-		}
-	} else if ( pm->cmd.buttons & BUTTON_NEGATIVE ) {
-		if ( pm->ps->torsoTimer == 0 ) {
-			PM_StartTorsoAnim( TORSO_NEGATIVE );
-			pm->ps->torsoTimer = 600;	//TIMER_GESTURE;
-		}
-#endif //
 	}
 }
 
@@ -6933,7 +6852,6 @@ static void BG_G2ClientSpineAngles( void *ghoul2, int motionBolt, vec3_t cent_le
 	viewAngles[YAW] = AngleDelta( cent_lerpAngles[YAW], angles[YAW] );
 	//*tYawAngle = viewAngles[YAW];
 
-#if 1
 	if ( !BG_FlippingAnim( cent->legsAnim ) &&
 		!BG_SpinningSaberAnim( cent->legsAnim ) &&
 		!BG_SpinningSaberAnim( cent->torsoAnim ) &&
@@ -6968,37 +6886,6 @@ static void BG_G2ClientSpineAngles( void *ghoul2, int motionBolt, vec3_t cent_le
 	{
 		doCorr = qtrue;
 	}
-#else
-	if ( ((!BG_FlippingAnim( cent->legsAnim )
-		&& !BG_SpinningSaberAnim( cent->legsAnim )
-		&& !BG_SpinningSaberAnim( cent->torsoAnim )
-		&& (cent->legsAnim) != (cent->torsoAnim)) //NOTE: presumes your legs & torso are on the same frame, though they *should* be because PM_SetAnimFinal tries to keep them in synch
-		||
-		(!BG_FlippingAnim( ciLegs )
-		&& !BG_SpinningSaberAnim( ciLegs )
-		&& !BG_SpinningSaberAnim( ciTorso )
-		&& (ciLegs) != (ciTorso)))
-		||
-		ciLegs != cent->legsAnim
-		||
-		ciTorso != cent->torsoAnim)
-	{
-		doCorr = qtrue;
-		*corrTime = time + 1000; //continue correcting for a second after to smooth things out. SP doesn't need this for whatever reason but I can't find a way around it.
-	}
-	else if (*corrTime >= time)
-	{
-		if (!BG_FlippingAnim( cent->legsAnim )
-			&& !BG_SpinningSaberAnim( cent->legsAnim )
-			&& !BG_SpinningSaberAnim( cent->torsoAnim )
-			&& !BG_FlippingAnim( ciLegs )
-			&& !BG_SpinningSaberAnim( ciLegs )
-			&& !BG_SpinningSaberAnim( ciTorso ))
-		{
-			doCorr = qtrue;
-		}
-	}
-#endif
 
 	if (doCorr)
 	{//FIXME: no need to do this if legs and torso on are same frame
@@ -7972,14 +7859,6 @@ void PmoveSingle (pmove_t *pmove) {
 		pm->cmd.rightmove = pm->cmd.upmove = 0;
 	}
 
-#if 0
-	if ((pm->ps->legsAnim) == BOTH_KISSER1LOOP ||
-		(pm->ps->legsAnim) == BOTH_KISSEE1LOOP)
-	{
-		stiffenedUp = qtrue;
-	}
-#endif
-
 	if (pm->ps->emplacedIndex)
 	{
 		if (pm->cmd.forwardmove < 0 || PM_GroundDistance() > 32.0f)
@@ -8158,15 +8037,6 @@ void PmoveSingle (pmove_t *pmove) {
 	{
 		PM_SetPMViewAngle(pm->ps, pm->ps->viewangles, &pm->cmd);
 	}
-
-#if 0
-	if ((pm->ps->legsAnim) == BOTH_KISSER1LOOP ||
-		(pm->ps->legsAnim) == BOTH_KISSEE1LOOP)
-	{
-		pm->ps->viewangles[PITCH] = 0;
-		PM_SetPMViewAngle(pm->ps, pm->ps->viewangles, &pm->cmd);
-	}
-#endif
 
 	PM_SetSpecialMoveValues();
 

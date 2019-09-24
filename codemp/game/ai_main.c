@@ -492,17 +492,6 @@ void BotInputToUserCommand(bot_input_t *bi, usercmd_t *ucmd, int delta_angles[3]
 	{ //for now just hit use randomly in case there's something useable around
 		ucmd->buttons |= BUTTON_USE;
 	}
-#if 0
-// Here's an interesting bit.  The bots in TA used buttons to do additional gestures.
-// I ripped them out because I didn't want too many buttons given the fact that I was already adding some for JK2.
-// We can always add some back in if we want though.
-	if (bi->actionflags & ACTION_AFFIRMATIVE) ucmd->buttons |= BUTTON_AFFIRMATIVE;
-	if (bi->actionflags & ACTION_NEGATIVE) ucmd->buttons |= BUTTON_NEGATIVE;
-	if (bi->actionflags & ACTION_GETFLAG) ucmd->buttons |= BUTTON_GETFLAG;
-	if (bi->actionflags & ACTION_GUARDBASE) ucmd->buttons |= BUTTON_GUARDBASE;
-	if (bi->actionflags & ACTION_PATROL) ucmd->buttons |= BUTTON_PATROL;
-	if (bi->actionflags & ACTION_FOLLOWME) ucmd->buttons |= BUTTON_FOLLOWME;
-#endif //0
 
 	if (bi->weapon == WP_NONE)
 	{
@@ -1118,31 +1107,6 @@ float TotalTrailDistance(int start, int end, bot_state_t *bs)
 				return -1;
 			}
 		}
-
-#if 0 //disabled force jump checks for now
-		if (gWPArray[beginat]->forceJumpTo)
-		{
-			if (gWPArray[beginat-1] && gWPArray[beginat-1]->origin[2]+64 < gWPArray[beginat]->origin[2])
-			{
-				gdif = gWPArray[beginat]->origin[2] - gWPArray[beginat-1]->origin[2];
-			}
-
-			if (gdif)
-			{
-				if (bs && bs->cur_ps.fd.forcePowerLevel[FP_LEVITATION] < gWPArray[beginat]->forceJumpTo)
-				{
-					return -1;
-				}
-			}
-		}
-
-		if (bs->wpCurrent && gWPArray[windex]->forceJumpTo &&
-			gWPArray[windex]->origin[2] > (bs->wpCurrent->origin[2]+64) &&
-			bs->cur_ps.fd.forcePowerLevel[FP_LEVITATION] < gWPArray[windex]->forceJumpTo)
-		{
-			return -1;
-		}
-#endif
 
 		distancetotal += gWPArray[beginat]->disttonext;
 

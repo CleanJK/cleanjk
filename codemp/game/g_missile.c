@@ -835,42 +835,6 @@ void G_RunMissile( gentity_t *ent ) {
 			}
 		}
 
-#if 0 //will get stomped with missile impact event...
-		if (ent->s.weapon > WP_NONE && ent->s.weapon < WP_NUM_WEAPONS &&
-			(tr.entityNum < MAX_CLIENTS || g_entities[tr.entityNum].s.eType == ET_NPC))
-		{ //player or NPC, try making a mark on him
-			/*
-			gentity_t *evEnt = G_TempEntity(ent->r.currentOrigin, EV_GHOUL2_MARK);
-
-			evEnt->s.owner = tr.entityNum; //the entity the mark should be placed on
-			evEnt->s.weapon = ent->s.weapon; //the weapon used (to determine mark type)
-			VectorCopy(ent->r.currentOrigin, evEnt->s.origin); //the point of impact
-
-			//origin2 gets the predicted trajectory-based position.
-			BG_EvaluateTrajectory( &ent->s.pos, level.time, evEnt->s.origin2 );
-
-			//If they are the same, there will be problems.
-			if (VectorCompare(evEnt->s.origin, evEnt->s.origin2))
-			{
-				evEnt->s.origin2[2] += 2; //whatever, at least it won't mess up.
-			}
-			*/
-			//ok, let's try adding it to the missile ent instead (tempents bad!)
-			G_AddEvent(ent, EV_GHOUL2_MARK, 0);
-
-			//copy current pos to s.origin, and current projected traj to origin2
-			VectorCopy(ent->r.currentOrigin, ent->s.origin);
-			BG_EvaluateTrajectory( &ent->s.pos, level.time, ent->s.origin2 );
-
-			//the index for whoever we are hitting
-			ent->s.otherEntityNum = tr.entityNum;
-
-			if (VectorCompare(ent->s.origin, ent->s.origin2))
-			{
-				ent->s.origin2[2] += 2.0f; //whatever, at least it won't mess up.
-			}
-		}
-#else
 		if ( ent->s.weapon > WP_NONE && ent->s.weapon < WP_NUM_WEAPONS && tr.entityNum < MAX_CLIENTS ) {
 			//player or NPC, try making a mark on him
 			//copy current pos to s.origin, and current projected traj to origin2
@@ -882,7 +846,6 @@ void G_RunMissile( gentity_t *ent ) {
 				ent->s.origin2[2] += 2.0f; //whatever, at least it won't mess up.
 			}
 		}
-#endif
 
 		G_MissileImpact( ent, &tr );
 

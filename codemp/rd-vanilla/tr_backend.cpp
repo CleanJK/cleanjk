@@ -586,41 +586,6 @@ typedef struct postRender_s {
 static postRender_t g_postRenders[MAX_POST_RENDERS];
 static int g_numPostRenders = 0;
 
-#if 0
-//get the "average" (ideally center) position of a surface on the tess.
-//this is a kind of lame method because I can't think correctly right now.
-static inline bool R_AverageTessXYZ(vec3_t dest)
-{
-	int i = 1;
-	float bd = 0.0f;
-	float d = 0.0f;
-	int b = -1;
-	vec3_t v;
-
-	while (i < tess.numVertexes)
-	{
-		VectorSubtract(tess.xyz[i], tess.xyz[i], v);
-		d = VectorLength(v);
-		if (b == -1 || d < bd)
-		{
-			b = i;
-			bd = d;
-		}
-		i++;
-	}
-	if (b != -1)
-	{
-		VectorSubtract(tess.xyz[0], tess.xyz[b], v);
-
-		VectorScale(v, 0.5f, dest);
-		VectorAdd(dest, tess.xyz[0], dest);
-
-		return true;
-	}
-
-	return false;
-}
-#endif
 
 void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	shader_t		*shader, *oldShader;
@@ -966,15 +931,6 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 					GL_Bind( tr.screenImage );
 					//using this method, we could pixel-filter the texture and all sorts of crazy stuff.
 					//but, it is slow as hell.
-#if 0
-					static byte *tmp = NULL;
-					if (!tmp)
-					{
-						tmp = (byte *)Z_Malloc((sizeof(byte)*4)*(glConfig.vidWidth*glConfig.vidHeight), TAG_ICARUS, qtrue);
-					}
-					qglReadPixels(0, 0, glConfig.vidWidth, glConfig.vidHeight, GL_RGBA, GL_UNSIGNED_BYTE, tmp);
-					qglTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 512, 512, 0, GL_RGBA, GL_UNSIGNED_BYTE, tmp);
-#endif
 
 					if (radX > glConfig.maxTextureSize)
 					{
@@ -1033,27 +989,8 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 				//stomp over this texture num in texture memory.
 				GL_Bind( tr.screenImage );
 
-#if 0 //yeah.. this kinda worked but it was stupid
-				if (pRender->eValid)
-				{
-					r = R_WorldCoordToScreenCoord( backEnd.currentEntity->e.origin, &x, &y );
-					rad = backEnd.currentEntity->e.radius;
-				}
-				else
-				{
-					vec3_t v;
-					//probably a little bit expensive.. but we're doing this for looks, not speed!
-					if (!R_AverageTessXYZ(v))
-					{ //failed, just use first vert I guess
-						VectorCopy(tess.xyz[0], v);
-					}
-					r = R_WorldCoordToScreenCoord( v, &x, &y );
-					rad = 256;
-				}
-#else
 				r = R_WorldCoordToScreenCoord( backEnd.currentEntity->e.origin, &x, &y );
 				rad = backEnd.currentEntity->e.radius;
-#endif
 
 				if (r)
 				{
@@ -1097,9 +1034,6 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 		qglDepthRange (0, 1);
 	}
 
-#if 0
-	RB_DrawSun();
-#endif
 	if (tr_stencilled && !tr_distortionPrePost)
 	{ //draw in the stencil buffer's cutout
 		RB_DistortionFill();
@@ -1498,13 +1432,6 @@ const void *RB_RotatePic2 ( const void *data )
 			tess.texCoords[ numVerts + 3 ][0][1] = cmd->t2;
 
 			return (const void *)(cmd + 1);
-
-#if 0
-			// Hmmm, this is not too cool
-			GL_State( GLS_DEPTHTEST_DISABLE |
-				  GLS_SRCBLEND_SRC_ALPHA |
-				  GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA );
-#endif
 		}
 	}
 

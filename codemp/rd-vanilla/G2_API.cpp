@@ -705,48 +705,6 @@ void G2API_CleanGhoul2Models(CGhoul2Info_v **ghoul2Ptr)
 	{
 		CGhoul2Info_v &ghoul2 = *(*ghoul2Ptr);
 
-#if 0 //rwwFIXMEFIXME: Disable this before release!!!!!! I am just trying to find a crash bug.
-		extern int R_GetRNumEntities(void);
-		extern void R_SetRNumEntities(int num);
-		//check if this instance is actually on a refentity
-		int i = 0;
-		int r = R_GetRNumEntities();
-
-		while (i < r)
-		{
-			if ((CGhoul2Info_v *)backEndData->entities[i].e.ghoul2 == *ghoul2Ptr)
-			{
-				char fName[MAX_QPATH];
-				char mName[MAX_QPATH];
-
-				if (ghoul2[0].currentModel)
-				{
-					strcpy(mName, ghoul2[0].currentModel->name);
-				}
-				else
-				{
-					strcpy(mName, "NULL!");
-				}
-
-				if (ghoul2[0].mFileName && ghoul2[0].mFileName[0])
-				{
-					strcpy(fName, ghoul2[0].mFileName);
-				}
-				else
-				{
-					strcpy(fName, "None?!");
-				}
-
-				ri.Printf( PRINT_ALL, "ERROR, GHOUL2 INSTANCE BEING REMOVED BELONGS TO A REFENTITY!\nThis is in caps because it's important. Tell Rich and save the following text.\n\n");
-				ri.Printf( PRINT_ALL, "Ref num: %i\nModel: %s\nFilename: %s\n", i, mName, fName);
-
-				R_SetRNumEntities(0); //avoid recursive error
-				Com_Error(ERR_DROP, "Write down or save this error message, show it to Rich\nRef num: %i\nModel: %s\nFilename: %s\n", i, mName, fName);
-			}
-			i++;
-		}
-#endif
-
 #ifdef _G2_GORE
 		G2API_ClearSkinGore ( ghoul2 );
 #endif
@@ -2019,24 +1977,10 @@ qboolean G2API_GetBoltMatrix(CGhoul2Info_v &ghoul2, const int modelIndex, const 
 			{
 				mdxaBone_t bolt;
 
-#if 0 //yeah, screw it
-				if (!gG2_GBMNoReconstruct)
-				{ //This should only be used when you know what you're doing.
-					if (G2_NeedsRecalc(ghlInfo,tframeNum))
-					{
-						G2_ConstructGhoulSkeleton(ghoul2,tframeNum,true,scale);
-					}
-				}
-				else
-				{
-					gG2_GBMNoReconstruct = qfalse;
-				}
-#else
 				if (G2_NeedsRecalc(ghlInfo,tframeNum))
 				{
 					G2_ConstructGhoulSkeleton(ghoul2,tframeNum,true,scale);
 				}
-#endif
 
 				G2_GetBoltMatrixLow(*ghlInfo,boltIndex,scale,bolt);
 				// scale the bolt position by the scale factor for this model since at this point its still in model space
@@ -2137,25 +2081,6 @@ qboolean G2API_HaveWeGhoul2Models(CGhoul2Info_v &ghoul2)
 void G2API_SetGhoul2ModelIndexes(CGhoul2Info_v &ghoul2, qhandle_t *modelList, qhandle_t *skinList)
 {
 	return;
-#if 0
-	int i;
-	if (&ghoul2)
-	{
-		for (i=0; i<ghoul2.size(); i++)
-		{
-			if (ghoul2[i].mModelindex != -1)
-			{
-				// broken into 3 lines for debugging, STL is a pain to view...
-
-				int iModelIndex  = ghoul2[i].mModelindex;
-				qhandle_t mModel = modelList[iModelIndex];
-				ghoul2[i].mModel = mModel;
-
-				ghoul2[i].mSkin = skinList[ghoul2[i].mCustomSkin];
-			}
-		}
-	}
-#endif
 }
 
 char *G2API_GetAnimFileNameIndex(qhandle_t modelIndex)
@@ -2223,9 +2148,6 @@ void G2API_CollisionDetectCache(CollisionRecord_t *collRecMap, CGhoul2Info_v &gh
 										  int frameNumber, int entNum, vec3_t rayStart, vec3_t rayEnd, vec3_t scale, IHeapAllocator *G2VertSpace, int traceFlags, int useLod, float fRadius)
 { //this will store off the transformed verts for the next trace - this is slower, but for models that do not animate
 	//frequently it is much much faster. -rww
-#if 0 // UNUSED
-	int *test = ghoul2[0].mTransformedVertsArray;
-#endif
 	if (G2_SetupModelPointers(ghoul2))
 	{
 		vec3_t	transRayStart, transRayEnd;
@@ -2468,9 +2390,6 @@ int G2API_CopyGhoul2Instance(CGhoul2Info_v &g2From, CGhoul2Info_v &g2To, int mod
 
 void G2API_CopySpecificG2Model(CGhoul2Info_v &ghoul2From, int modelFrom, CGhoul2Info_v &ghoul2To, int modelTo)
 {
-#if 0
-	qboolean forceReconstruct = qtrue;
-#endif //model1 was not getting reconstructed like it should for thrown sabers?
 	   //might have been a bug in the reconstruct checking which has since been
 	   //mangled and probably fixed. -rww
 
@@ -2482,9 +2401,6 @@ void G2API_CopySpecificG2Model(CGhoul2Info_v &ghoul2From, int modelFrom, CGhoul2
 		{
 			assert (modelTo < 5);
 			ghoul2To.resize(modelTo + 1);
-#if 0
-			forceReconstruct = qtrue;
-#endif
 		}
 		// do the copy
 
@@ -2497,15 +2413,6 @@ void G2API_CopySpecificG2Model(CGhoul2Info_v &ghoul2From, int modelFrom, CGhoul2
 			}
 		}
 		ghoul2To[modelTo] = ghoul2From[modelFrom];
-
-#if 0
-		if (forceReconstruct)
-		{ //rww - we should really do this shouldn't we? If we don't mark a reconstruct after this,
-			//and we do a GetBoltMatrix in the same frame, it doesn't reconstruct the skeleton and returns
-			//a completely invalid matrix
-			ghoul2To[0].mSkelFrameNum = 0;
-		}
-#endif
 	}
 }
 
