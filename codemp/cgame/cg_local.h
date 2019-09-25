@@ -221,7 +221,6 @@ typedef struct clientInfo_s {
 	int				armor;
 	int				curWeapon;
 
-	int				handicap;
 	int				wins, losses;	// in tourney mode
 
 	int				teamTask;		// task in teamplay (offence/defence)

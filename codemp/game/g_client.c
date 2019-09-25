@@ -1577,7 +1577,6 @@ static userinfoValidate_t userinfoFields[] = {
 	UIF( forcepowers,		1, 1 ),
 	UIF( color1,			1, 1 ),
 	UIF( color2,			1, 1 ),
-	UIF( handicap,			1, 1 ),
 	UIF( sex,				0, 1 ),
 	UIF( cg_predictItems,	1, 1 ),
 	UIF( saber1,			1, 1 ),
@@ -1717,7 +1716,7 @@ char *G_ValidateUserinfo( const char *userinfo ) {
 qboolean ClientUserinfoChanged( int clientNum ) {
 	gentity_t *ent = g_entities + clientNum;
 	gclient_t *client = ent->client;
-	int health=100, maxHealth=100, teamLeader;
+	int teamLeader;
 	const char *s=NULL;
 	char *value=NULL, userinfo[MAX_INFO_STRING], buf[MAX_INFO_STRING], oldClientinfo[MAX_INFO_STRING], model[MAX_QPATH],
 		forcePowers[DEFAULT_FORCEPOWERS_LEN], oldname[MAX_NETNAME], color1[16], color2[16];
@@ -1813,12 +1812,7 @@ qboolean ClientUserinfoChanged( int clientNum ) {
 		G_SetSaber( ent, 1, Info_ValueForKey( userinfo, "saber2" ) );
 	}
 
-	health = Com_Clampi( 1, 100, atoi( Info_ValueForKey( userinfo, "handicap" ) ) );
-
-	client->pers.maxHealth = health;
-	if ( client->pers.maxHealth < 1 || client->pers.maxHealth > maxHealth )
-		client->pers.maxHealth = 100;
-	client->ps.stats[STAT_MAX_HEALTH] = client->pers.maxHealth;
+	client->ps.stats[STAT_MAX_HEALTH] = 100;
 
 	if ( level.gametype >= GT_TEAM )
 		client->pers.teamInfo = qtrue;
@@ -1862,7 +1856,6 @@ qboolean ClientUserinfoChanged( int clientNum ) {
 	Q_strcat( buf, sizeof( buf ), va( "st2\\%s\\", client->pers.saber2 ) );
 	Q_strcat( buf, sizeof( buf ), va( "c1\\%s\\", color1 ) );
 	Q_strcat( buf, sizeof( buf ), va( "c2\\%s\\", color2 ) );
-	Q_strcat( buf, sizeof( buf ), va( "hc\\%i\\", client->pers.maxHealth ) );
 	if ( ent->r.svFlags & SVF_BOT )
 		Q_strcat( buf, sizeof( buf ), va( "skill\\%s\\", Info_ValueForKey( userinfo, "skill" ) ) );
 	if ( level.gametype == GT_DUEL || level.gametype == GT_POWERDUEL ) {
@@ -2411,7 +2404,7 @@ extern qboolean WP_HasForcePowers( const playerState_t *ps );
 // Called every time a client is placed fresh in the world: after the first ClientBegin, and after each respawn
 // Initializes all non-persistant parts of playerState
 void ClientSpawn(gentity_t *ent) {
-	int					i = 0, index = 0, saveSaberNum = ENTITYNUM_NONE, wDisable = 0, maxHealth = 100;
+	int					i = 0, index = 0, saveSaberNum = ENTITYNUM_NONE, wDisable = 0;
 	vec3_t				spawn_origin, spawn_angles;
 	gentity_t			*spawnPoint = NULL, *tent = NULL;
 	gclient_t			*client = NULL;
@@ -2643,13 +2636,8 @@ void ClientSpawn(gentity_t *ent) {
 
 	client->airOutTime = level.time + 12000;
 
-	maxHealth = Com_Clampi( 1, 100, atoi( Info_ValueForKey( userinfo, "handicap" ) ) );
-	client->pers.maxHealth = maxHealth;//atoi( Info_ValueForKey( userinfo, "handicap" ) );
-	if ( client->pers.maxHealth < 1 || client->pers.maxHealth > maxHealth ) {
-		client->pers.maxHealth = 100;
-	}
 	// clear entity values
-	client->ps.stats[STAT_MAX_HEALTH] = client->pers.maxHealth;
+	client->ps.stats[STAT_MAX_HEALTH] = 100;
 	client->ps.eFlags = flags;
 	client->mGameFlags = gameFlags;
 

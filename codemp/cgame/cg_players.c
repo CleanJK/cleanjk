@@ -1470,10 +1470,6 @@ void CG_NewClientInfo( int clientNum, qboolean entitiesInitialized ) {
 	else
 		newInfo.botSkill = -1;
 
-	// handicap
-	v = Info_ValueForKey( configstring, "hc" );
-	newInfo.handicap = atoi( v );
-
 	// wins
 	v = Info_ValueForKey( configstring, "w" );
 	newInfo.wins = atoi( v );
