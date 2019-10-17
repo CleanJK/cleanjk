@@ -26,24 +26,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "qcommon/qfiles.h"
 #include "qcommon/com_cvars.h"
 
-#ifdef BSPC
-
-#include "../bspc/l_qfiles.h"
-
-void SetPlaneSignbits (cplane_t *out) {
-	int	bits, j;
-
-	// for fast box on planeside test
-	bits = 0;
-	for (j=0 ; j<3 ; j++) {
-		if (out->normal[j] < 0) {
-			bits |= 1<<j;
-		}
-	}
-	out->signbits = bits;
-}
-#endif //BSPC
-
 // to allow boxes to be treated as brush models, we allocate
 // some extra indexes along with those needed by the map
 #define	BOX_BRUSHES		1
@@ -566,8 +548,6 @@ static void CM_LoadMap_Actual( const char *name, qboolean clientload, int *check
 				gpvCachedMapDiskImage = NULL;
 	}
 
-#ifndef BSPC
-
 	// load the file into a buffer that we either discard as usual at the bottom, or if we've got enough memory
 	//	then keep it long enough to save the renderer re-loading it (if not dedicated server),
 	//	then discard it after that...
@@ -591,9 +571,6 @@ static void CM_LoadMap_Actual( const char *name, qboolean clientload, int *check
 		// carry on as before...
 
 	}
-#else
-	const int iBSPLen = LoadQuakeFile((quakefile_t *) name, (void **)&buf);
-#endif
 
 	if ( !buf ) {
 		Com_Error (ERR_DROP, "Couldn't load %s", name);
@@ -640,28 +617,16 @@ static void CM_LoadMap_Actual( const char *name, qboolean clientload, int *check
 		CM_InitBoxHull ();
 	}
 
-#ifndef BSPC	// I hope we can lose this crap soon
-
-	// if we've got enough memory, and it's not a dedicated-server, then keep the loaded map binary around
-	//	for the renderer to chew on... (but not if this gets ported to a big-endian machine, because some of the
-	//	map data will have been Little-Long'd, but some hasn't).
-
-	if (Sys_LowPhysicalMemory()
-		|| dedicated->integer
-//		|| we're on a big-endian machine
-		)
-	{
+	// if we've got enough memory, and it's not a dedicated-server, then keep the loaded map binary around for the
+	//	renderer to chew on... (but not if this gets ported to a big-endian machine, because some of the map data will
+	//	have been Little-Long'd, but some hasn't).
+	if ( cm_noMapCache->integer || Sys_LowPhysicalMemory() || dedicated->integer ) {
 		Z_Free(	gpvCachedMapDiskImage );
-				gpvCachedMapDiskImage = NULL;
+		gpvCachedMapDiskImage = NULL;
 	}
-	else
-	{
+	else {
 		// ... do nothing, and let the renderer free it after it's finished playing with it...
-
 	}
-#else
-	FS_FreeFile (buf);
-#endif
 
 	CM_FloodAreaConnections (cm);
 

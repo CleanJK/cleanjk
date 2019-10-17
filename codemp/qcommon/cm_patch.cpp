@@ -70,15 +70,6 @@ static const facet_t		*debugFacet;
 static qboolean		debugBlock;
 static vec3_t		debugBlockPoints[4];
 
-#if defined(BSPC)
-extern void *Hunk_Alloc( int size );
-
-static void *Hunk_Alloc( int size, ha_pref preference )
-{
-	return Hunk_Alloc( size );
-}
-#endif
-
 void CM_ClearLevelPatches( void ) {
 	debugPatchCollide = NULL;
 	debugFacet = NULL;
@@ -629,9 +620,7 @@ static inline void CM_SetBorderInward( facet_t *facet, cGrid_t *grid, int gridPl
 			facet->borderPlanes[k] = -1;
 		} else {
 			// bisecting side border
-#ifndef BSPC
 			Com_DPrintf( "WARNING: CM_SetBorderInward: mixed plane sides\n" );
-#endif
 			facet->borderInward[k] = qfalse;
 			if ( !debugBlock ) {
 				debugBlock = qtrue;
@@ -827,9 +816,7 @@ static inline void CM_AddFacetBevels( facet_t *facet ) {
 					} //end if
 					ChopWindingInPlace( &w2, newplane, newplane[3], 0.1f );
 					if (!w2) {
-#ifndef BSPC
 						Com_DPrintf("WARNING: CM_AddFacetBevels... invalid bevel\n");
-#endif
 						continue;
 					}
 					else {
@@ -845,14 +832,11 @@ static inline void CM_AddFacetBevels( facet_t *facet ) {
 	}
 	FreeWinding( w );
 
-#ifndef BSPC
 	//add opposite plane
 	facet->borderPlanes[facet->numBorders] = facet->surfacePlane;
 	facet->borderNoAdjust[facet->numBorders] = (qboolean)0;
 	facet->borderInward[facet->numBorders] = qtrue;
 	facet->numBorders++;
-#endif //BSPC
-
 }
 
 typedef enum {
@@ -1114,11 +1098,9 @@ static inline void CM_TracePointThroughPatchCollide( traceWork_t *tw, trace_t &t
 	float		offset;
 	float		d1, d2;
 
-#ifndef BSPC
 	if ( !cm_playerCurveClip->integer || !tw->isPoint ) {
 		return;
 	}
-#endif
 
 	// determine the trace's relationship to all planes
 	planes = pc->planes;
@@ -1168,12 +1150,10 @@ static inline void CM_TracePointThroughPatchCollide( traceWork_t *tw, trace_t &t
 		}
 		if ( j == facet->numBorders ) {
 			// we hit this facet
-#ifndef BSPC
 			if ( r_debugSurfaceUpdate && r_debugSurfaceUpdate->integer) {
 				debugPatchCollide = pc;
 				debugFacet = facet;
 			}
-#endif //BSPC
 			planes = &pc->planes[facet->surfacePlane];
 
 			// calculate intersection with a slight pushoff
@@ -1349,12 +1329,10 @@ void CM_TraceThroughPatchCollide( traceWork_t *tw, trace_t &trace, const struct 
 				if (enterFrac < 0) {
 					enterFrac = 0;
 				}
-#ifndef BSPC
 				if (r_debugSurfaceUpdate && r_debugSurfaceUpdate->integer) {
 					debugPatchCollide = pc;
 					debugFacet = facet;
 				}
-#endif // BSPC
 
 				trace.fraction = enterFrac;
 				VectorCopy( bestplane, trace.plane.normal );
@@ -1455,9 +1433,7 @@ qboolean CM_PositionTestInPatchCollide( traceWork_t *tw, const struct patchColli
 // DEBUGGING
 
 // Called from the renderer
-#ifndef BSPC
 void BotDrawDebugPolygons(void (*drawPoly)(int color, int numPoints, float *points), int value);
-#endif
 
 void CM_DrawDebugSurface( void (*drawPoly)(int color, int numPoints, float *points) ) {
 	const patchCollide_t	*pc;
@@ -1470,13 +1446,11 @@ void CM_DrawDebugSurface( void (*drawPoly)(int color, int numPoints, float *poin
 	//vec3_t mins = {0, 0, 0}, maxs = {0, 0, 0};
 	vec3_t v1, v2;
 
-#ifndef BSPC
 	if (r_debugSurface->integer != 1)
 	{
 		BotDrawDebugPolygons(drawPoly, r_debugSurface->integer);
 		return;
 	}
-#endif
 
 	if ( !debugPatchCollide ) {
 		return;

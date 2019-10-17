@@ -35,10 +35,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //maximum token length
 #define MAX_TOKEN					1024
 
-#if defined(BSPC) && !defined(QDECL)
-#define QDECL
-#endif
-
 //script flags
 #define SCFL_NOERRORS				0x0001
 #define SCFL_NOWARNINGS				0x0002

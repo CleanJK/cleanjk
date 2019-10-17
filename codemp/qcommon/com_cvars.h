@@ -110,6 +110,7 @@ extern cvar_t *cm_debugSize;
 extern cvar_t *cm_extraVerbose;
 extern cvar_t *cm_noAreas;
 extern cvar_t *cm_noCurves;
+extern cvar_t *cm_noMapCache;
 extern cvar_t *cm_playerCurveClip;
 extern cvar_t *color1;
 extern cvar_t *color2;

@@ -115,6 +115,7 @@ cvar_t *cm_debugSize;
 cvar_t *cm_extraVerbose;
 cvar_t *cm_noAreas;
 cvar_t *cm_noCurves;
+cvar_t *cm_noMapCache;
 cvar_t *cm_playerCurveClip;
 cvar_t *color1;
 cvar_t *color2;
@@ -407,6 +408,7 @@ void Com_InitCvars( void ) {
 	cm_extraVerbose =           Cvar_Get( "cm_extraVerbose",           "0",                                    CVAR_TEMP,                                   "" );
 	cm_noAreas =                Cvar_Get( "cm_noAreas",                "0",                                    CVAR_CHEAT,                                  "" );
 	cm_noCurves =               Cvar_Get( "cm_noCurves",               "0",                                    CVAR_CHEAT,                                  "" );
+	cm_noMapCache =             Cvar_Get( "cm_noMapCache",             "0",                                    CVAR_ARCHIVE,                                "Free memory used by maps when changing map" );
 	cm_playerCurveClip =        Cvar_Get( "cm_playerCurveClip",        "1",                                    CVAR_ARCHIVE_ND | CVAR_CHEAT,                "" );
 	color1 =                    Cvar_Get( "color1",                    "4",                                    CVAR_USERINFO | CVAR_ARCHIVE,                "Player saber1 color" );
 	color2 =                    Cvar_Get( "color2",                    "4",                                    CVAR_USERINFO | CVAR_ARCHIVE,                "Player saber2 color" );

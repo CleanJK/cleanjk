@@ -24,7 +24,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // lexicographical parser
 
 //#define BOTLIB
-//#define BSPC
 
 #ifdef BOTLIB
 //include files for usage in the bot library
@@ -36,16 +35,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "botlib/l_log.h"
 #include "botlib/l_libvar.h"
 #endif //BOTLIB
-
-#ifdef BSPC
-//include files for usage in the BSP Converter
-#include "../bspc/qbsp.h"
-#include "../bspc/l_log.h"
-#include "../bspc/l_mem.h"
-
-#define qtrue	true
-#define qfalse	false
-#endif //BSPC
 
 #define PUNCTABLE
 
@@ -129,11 +118,7 @@ punctuation_t default_punctuations[] =
 	{NULL, 0}
 };
 
-#ifdef BSPC
-char basefolder[MAX_PATH];
-#else
 char basefolder[MAX_QPATH];
-#endif
 
 void PS_CreatePunctuationTable(script_t *script, punctuation_t *punctuations)
 {
@@ -194,9 +179,6 @@ void QDECL ScriptError(script_t *script, char *str, ...)
 #ifdef BOTLIB
 	botimport.Print(PRT_ERROR, "file %s, line %d: %s\n", script->filename, script->line, text);
 #endif //BOTLIB
-#ifdef BSPC
-	Log_Print("error: file %s, line %d: %s\n", script->filename, script->line, text);
-#endif //BSPC
 } //end of the function ScriptError
 
 void QDECL ScriptWarning(script_t *script, char *str, ...)
@@ -212,9 +194,6 @@ void QDECL ScriptWarning(script_t *script, char *str, ...)
 #ifdef BOTLIB
 	botimport.Print(PRT_WARNING, "file %s, line %d: %s\n", script->filename, script->line, text);
 #endif //BOTLIB
-#ifdef BSPC
-	Log_Print("warning: file %s, line %d: %s\n", script->filename, script->line, text);
-#endif //BSPC
 } //end of the function ScriptWarning
 
 void SetScriptPunctuations(script_t *script, punctuation_t *p)
@@ -1212,9 +1191,5 @@ void FreeScript(script_t *script)
 
 void PS_SetBaseFolder(char *path)
 {
-#ifdef BSPC
-	sprintf(basefolder, path);
-#else
 	Com_sprintf(basefolder, sizeof(basefolder), "%s", path);
-#endif
 } //end of the function PS_SetBaseFolder

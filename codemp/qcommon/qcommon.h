@@ -597,7 +597,7 @@ high memory
 
 */
 
-#if defined(_DEBUG) && !defined(BSPC)
+#if defined(_DEBUG)
 	#define DEBUG_ZONE_ALLOCS
 #endif
 

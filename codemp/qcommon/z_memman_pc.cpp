@@ -408,7 +408,7 @@ int Z_Size(void *pvAddress)
 // Frees a block of memory...
 void Z_Free(void *pvAddress)
 {
-	if (pvAddress == NULL)	// I've put this in as a safety measure because of some bits of #ifdef BSPC stuff	-Ste.
+	if (pvAddress == NULL)
 	{
 		//Com_Error(ERR_FATAL, "Z_Free(): NULL arg");
 		return;

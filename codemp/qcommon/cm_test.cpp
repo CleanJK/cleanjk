@@ -321,11 +321,9 @@ void	CM_AdjustAreaPortalState( int area1, int area2, qboolean open ) {
 }
 
 qboolean	CM_AreasConnected( int area1, int area2 ) {
-#ifndef BSPC
 	if ( cm_noAreas->integer ) {
 		return qtrue;
 	}
-#endif
 
 	if ( area1 < 0 || area2 < 0 ) {
 		return qfalse;
@@ -353,11 +351,7 @@ int CM_WriteAreaBits (byte *buffer, int area)
 
 	bytes = (cmg.numAreas+7)>>3;
 
-#ifndef BSPC
 	if (cm_noAreas->integer || area == -1)
-#else
-	if ( area == -1)
-#endif
 	{	// for debugging, send everything
 		Com_Memset (buffer, 255, bytes);
 	}
