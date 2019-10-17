@@ -1390,9 +1390,6 @@ int RepairPaths(qboolean behindTheScenes)
 
 	i = 0;
 
-	trap->Cvar_Update(&bot_wp_distconnect);
-	trap->Cvar_Update(&bot_wp_visconnect);
-
 	while (i < gWPNum)
 	{
 		if (gWPArray[i] && gWPArray[i]->inuse && gWPArray[i+1] && gWPArray[i+1]->inuse)
@@ -1703,8 +1700,6 @@ void CalculateWeightGoals(void)
 	int wpindex = 0;
 	gentity_t *ent;
 	float weight;
-
-	trap->Cvar_Update(&bot_wp_clearweight);
 
 	if (bot_wp_clearweight.integer)
 	{ //if set then flush out all weight/goal values before calculating them again
@@ -3100,19 +3095,13 @@ void BeginAutoPathRoutine(void)
 	RemoveWP(); //remove the dummy point at the end of the trail
 }
 
-extern vmCvar_t bot_normgpath;
-
 void LoadPath_ThisLevel(void)
 {
-	vmCvar_t	mapname;
 	int			i = 0;
 	gentity_t	*ent = NULL;
 
-	trap->Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
-
 	if (RMG.integer)
 	{ //If RMG, generate the path on-the-fly
-		trap->Cvar_Register(&bot_normgpath, "bot_normgpath", "1", CVAR_CHEAT);
 		//note: This is disabled for now as I'm using standard bot nav
 		//on premade terrain levels.
 
@@ -3129,13 +3118,10 @@ void LoadPath_ThisLevel(void)
 	}
 	else
 	{
-		if (LoadPathData(mapname.string) == 2)
-		{
+		if ( LoadPathData( mapname.string ) == 2 ) {
 			//enter "edit" mode if cheats enabled?
 		}
 	}
-
-	trap->Cvar_Update(&bot_wp_edit);
 
 	if (bot_wp_edit.value)
 	{
@@ -3253,7 +3239,6 @@ int AcceptBotCommand(char *cmd, gentity_t *pl)
 	int OptionalArgument, i;
 	int FlagsFromArgument;
 	char *OptionalSArgument, *RequiredSArgument;
-	vmCvar_t mapname;
 
 	if (!gBotEdit)
 	{
@@ -3547,11 +3532,9 @@ int AcceptBotCommand(char *cmd, gentity_t *pl)
 		return 1;
 	}
 
-	if (Q_stricmp (cmd, "bot_wp_save") == 0)
-	{
+	if ( !Q_stricmp( cmd, "bot_wp_save" ) ) {
 		gDeactivated = 0;
-		trap->Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
-		SavePathData(mapname.string);
+		SavePathData( mapname.string );
 		return 1;
 	}
 

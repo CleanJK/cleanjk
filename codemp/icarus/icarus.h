@@ -23,10 +23,16 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 // ICARUS Public Header File
+// we never want to include an icarus file before sharedentity_t is declared.
+
 extern void *ICARUS_Malloc(int iSize);
 extern void  ICARUS_Free(void *pMem);
 
 #include "game/g_public.h"
+
+extern class CSequencer	*gSequencers[MAX_GENTITIES];
+extern class CTaskManager	*gTaskManagers[MAX_GENTITIES];
+
 #define STL_ITERATE( a, b )		for ( a = b.begin(); a != b.end(); ++a )
 #define STL_INSERT( a, b )		a.insert( a.end(), b );
 

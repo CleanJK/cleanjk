@@ -26,6 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <inttypes.h>
 
 #include "qcommon/qcommon.h"
+#include "qcommon/com_cvars.h"
 
 vm_t *currentVM = NULL;
 
@@ -87,7 +88,7 @@ vm_t *VM_Create( vmSlots_t vmSlot ) {
 
 	Com_Printf( "VM_Create: %s" ARCH_STRING DLL_EXT, vm->name );
 	if ( vm->dllHandle ) {
-		if ( com_developer->integer )
+		if ( developer->integer )
 			Com_Printf( " succeeded [0x%" PRIxPTR "+0x%" PRIxPTR "]\n", vm->dllHandle, (intptr_t)vm->GetModuleAPI - (intptr_t)vm->dllHandle );
 		else
 			Com_Printf( " succeeded\n" );

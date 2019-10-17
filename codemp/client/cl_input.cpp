@@ -26,6 +26,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "client.h"
 #include "cl_cgameapi.h"
 #include "cl_uiapi.h"
+#include "qcommon/com_cvars.h"
+#include "qcommon/com_cvar.h"
 #ifndef _WIN32
 #include <cmath>
 #endif
@@ -257,8 +259,7 @@ void IN_GenCMD18( void )
 
 void IN_GenCMD19( void )
 {
-	if (Cvar_VariableIntegerValue("d_saberStanceDebug"))
-	{
+	if ( d_saberStanceDebug->integer ) {
 		Com_Printf("SABERSTANCEDEBUG: Gencmd on client set successfully.\n");
 	}
 	cl.gcmdSendValue = qtrue;
@@ -345,25 +346,8 @@ void IN_AutoMapButton(void)
 }
 
 //toggle between automap, radar, nothing
-extern cvar_t *r_autoMap;
-void IN_AutoMapToggle(void)
-{
-	Cvar_User_SetValue("cg_drawRadar", !Cvar_VariableValue("cg_drawRadar"));
-	/*
-	if (r_autoMap && r_autoMap->integer)
-	{ //automap off, radar on
-		Cvar_Set("r_autoMap", "0");
-		Cvar_Set("cg_drawRadar", "1");
-	}
-	else if (Cvar_VariableIntegerValue("cg_drawRadar"))
-	{ //radar off, automap should be off too
-		Cvar_Set("cg_drawRadar", "0");
-	}
-	else
-	{ //turn automap on
-		Cvar_Set("r_autoMap", "1");
-	}
-	*/
+void IN_AutoMapToggle( void ) {
+	Cvar_User_SetValue( "cg_drawRadar", !cg_drawRadar->integer );
 }
 
 void IN_VoiceChatButton(void)
@@ -766,17 +750,6 @@ void IN_CenterView (void) {
 	cl.viewangles[PITCH] = -SHORT2ANGLE(cl.snap.ps.delta_angles[PITCH]);
 }
 
-cvar_t	*cl_upspeed;
-cvar_t	*cl_forwardspeed;
-cvar_t	*cl_sidespeed;
-
-cvar_t	*cl_yawspeed;
-cvar_t	*cl_pitchspeed;
-
-cvar_t	*cl_run;
-
-cvar_t	*cl_anglespeedkey;
-
 // Moves the local angle positions
 void CL_AdjustAngles( void ) {
 	float	speed;
@@ -897,7 +870,6 @@ void CL_JoystickEvent( int axis, int value, int time ) {
 	cl.joystickAxis[axis] = value;
 }
 
-extern cvar_t *in_joystick;
 void CL_JoystickMove( usercmd_t *cmd ) {
 	float	anglespeed;
 
@@ -1001,12 +973,12 @@ void CL_MouseMove( usercmd_t *cmd ) {
 				}
 				else
 				{
-					accelSensitivity = cl_sensitivity->value + rate * cl_mouseAccel->value;
+					accelSensitivity = sensitivity->value + rate * cl_mouseAccel->value;
 				}
 			}
 			else
 			{
-				accelSensitivity = cl_sensitivity->value + rate * cl_mouseAccel->value;
+				accelSensitivity = sensitivity->value + rate * cl_mouseAccel->value;
 			}
 			mx *= accelSensitivity;
 			my *= accelSensitivity;
@@ -1040,14 +1012,14 @@ void CL_MouseMove( usercmd_t *cmd ) {
 				}
 				else
 				{
-					mx = cl_sensitivity->value * (mx + ((mx < 0) ? -power[0] : power[0]) * cl_mouseAccelOffset->value);
-					my = cl_sensitivity->value * (my + ((my < 0) ? -power[1] : power[1]) * cl_mouseAccelOffset->value);
+					mx = sensitivity->value * (mx + ((mx < 0) ? -power[0] : power[0]) * cl_mouseAccelOffset->value);
+					my = sensitivity->value * (my + ((my < 0) ? -power[1] : power[1]) * cl_mouseAccelOffset->value);
 				}
 			}
 			else
 			{
-				mx = cl_sensitivity->value * (mx + ((mx < 0) ? -power[0] : power[0]) * cl_mouseAccelOffset->value);
-				my = cl_sensitivity->value * (my + ((my < 0) ? -power[1] : power[1]) * cl_mouseAccelOffset->value);
+				mx = sensitivity->value * (mx + ((mx < 0) ? -power[0] : power[0]) * cl_mouseAccelOffset->value);
+				my = sensitivity->value * (my + ((my < 0) ? -power[1] : power[1]) * cl_mouseAccelOffset->value);
 			}
 
 			if ( cl_showMouseRate->integer )
@@ -1067,14 +1039,14 @@ void CL_MouseMove( usercmd_t *cmd ) {
 			}
 			else
 			{
-				mx *= cl_sensitivity->value;
-				my *= cl_sensitivity->value;
+				mx *= sensitivity->value;
+				my *= sensitivity->value;
 			}
 		}
 		else
 		{
-			mx *= cl_sensitivity->value;
-			my *= cl_sensitivity->value;
+			mx *= sensitivity->value;
+			my *= sensitivity->value;
 		}
 	}
 
@@ -1501,7 +1473,7 @@ void CL_SendCmd( void ) {
 	}
 
 	// don't send commands if paused
-	if ( com_sv_running->integer && sv_paused->integer && cl_paused->integer ) {
+	if ( sv_running->integer && sv_paused->integer && cl_paused->integer ) {
 		return;
 	}
 
@@ -1634,9 +1606,6 @@ static const cmdList_t inputCmds[] =
 
 void CL_InitInput( void ) {
 	Cmd_AddCommandList( inputCmds );
-
-	cl_nodelta = Cvar_Get ("cl_nodelta", "0", 0);
-	cl_debugMove = Cvar_Get ("cl_debugMove", "0", 0);
 }
 
 void CL_ShutdownInput( void ) {

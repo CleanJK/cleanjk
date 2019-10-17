@@ -195,15 +195,8 @@ void G_InitSessionData( gclient_t *client, char *userinfo, qboolean isBot ) {
 }
 
 void G_InitWorldSession( void ) {
-	char	s[MAX_STRING_CHARS];
-	int			gt;
-
-	trap->Cvar_VariableStringBuffer( "session", s, sizeof(s) );
-	gt = atoi( s );
-
-	// if the gametype changed since the last session, don't use any
-	// client sessions
-	if ( level.gametype != gt ) {
+	// if the gametype changed since the last session, don't use any client sessions
+	if ( level.gametype != session.integer ) {
 		level.newSession = qtrue;
 		trap->Print( "Gametype changed, clearing session data.\n" );
 	}

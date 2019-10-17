@@ -27,6 +27,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "client.h"
 #include "snd_mp3.h"					// only included directly by a few snd_xxxx.cpp files plus this one
 #include "mp3code/mp3struct.h"	// keep this rather awful file secret from the rest of the program
+#include "qcommon/com_cvar.h"
+#include "qcommon/com_cvars.h"
 
 // expects data already loaded, filename arg is for error printing only
 // returns success/fail
@@ -210,10 +212,9 @@ qboolean MP3_ReadSpecialTagInfo(byte *pbLoadedFile, int iLoadedFileLen,
 #define FUZZY_AMOUNT (5*1024)	// so it has to be significantly over, not just break even, because of
 								// the xtra CPU time versus memory saving
 
-cvar_t* cv_MP3overhead = NULL;
 void MP3_InitCvars(void)
 {
-	cv_MP3overhead = Cvar_Get("s_mp3overhead", va("%d", sizeof(MP3STREAM) + FUZZY_AMOUNT), CVAR_ARCHIVE );
+	Cvar_Set( "s_mp3overhead", va( "%d", sizeof(MP3STREAM) + FUZZY_AMOUNT ) );
 }
 
 // a file has been loaded in memory, see if we want to keep it as MP3, else as normal WAV...
@@ -226,10 +227,10 @@ qboolean MP3Stream_InitFromFile( sfx_t* sfx, byte *pbSrcData, int iSrcDatalen, c
 	// first, make a decision based on size here as to whether or not it's worth it because of MP3 buffer space
 	//	making small files much bigger (and therefore best left as WAV)...
 
-	if (cv_MP3overhead &&
+	if (s_mp3overhead &&
 			(
 			//iSrcDatalen + sizeof(MP3STREAM) + FUZZY_AMOUNT < iMP3UnPackedSize
-			iSrcDatalen + cv_MP3overhead->integer < iMP3UnPackedSize
+			iSrcDatalen + s_mp3overhead->integer < iMP3UnPackedSize
 			)
 		)
 	{

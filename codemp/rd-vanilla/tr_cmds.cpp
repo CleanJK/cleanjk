@@ -22,6 +22,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "tr_local.h"
+#include "rd-vanilla/tr_cvars.h"
 
 void R_PerformanceCounters( void ) {
 	if ( !r_speeds->integer ) {
@@ -278,7 +279,7 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 			ri.Cvar_Set( "r_measureOverdraw", "0" );
 			r_measureOverdraw->modified = qfalse;
 		}
-		else if ( r_shadows->integer == 2 )
+		else if ( cg_shadows->integer == 2 )
 		{
 			ri.Printf( PRINT_ALL, "Warning: stencil shadows and overdraw measurement are mutually exclusive\n" );
 			ri.Cvar_Set( "r_measureOverdraw", "0" );

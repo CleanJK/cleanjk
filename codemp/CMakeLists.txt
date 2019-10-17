@@ -267,6 +267,7 @@ if(BuildMPEngine OR BuildMPDed)
 	set(MPEngineAndDedFiles ${MPEngineAndDedFiles} ${MPEngineAndDedIcarusFiles})
 
 	set(MPEngineAndDedServerFiles
+		# hack until we clean up renderer/engine cvars
 		"${MPDir}/server/server.h"
 		"${MPDir}/server/sv_bot.cpp"
 		"${MPDir}/server/sv_ccmds.cpp"
@@ -370,6 +371,8 @@ if(BuildMPEngine)
 	#    Source Files
 
 	set(MPEngineClientFiles
+		# hack until we clean up renderer/engine cvars
+		"${MPDir}/qcommon/com_cvars.cpp"
 		"${MPDir}/client/cl_avi.cpp"
 		"${MPDir}/client/cl_cgame.cpp"
 		"${MPDir}/client/cl_cgameapi.cpp"
@@ -575,6 +578,9 @@ if(BuildMPDed)
 	set(MPDedFiles ${MPEngineAndDedFiles})
 	set(MPDedDefines ${MPSharedDefines} "_CONSOLE" "DEDICATED")
 
+	set(MPDedFiles ${MPDedFiles}
+		"${MPDir}/qcommon/com_cvars.cpp")
+
 	# Dedicated renderer is compiled with the server.
 	set(MPDedicatedRendererFiles
 		"${MPDir}/ghoul2/G2_gore.cpp"
@@ -587,6 +593,7 @@ if(BuildMPDed)
 		"${MPDir}/rd-dedicated/G2_misc.cpp"
 		"${MPDir}/rd-dedicated/G2_surfaces.cpp"
 		"${MPDir}/rd-dedicated/tr_backend.cpp"
+		"${MPDir}/rd-dedicated/tr_cvars.cpp"
 		"${MPDir}/rd-dedicated/tr_ghoul2.cpp"
 		"${MPDir}/rd-dedicated/tr_init.cpp"
 		"${MPDir}/rd-dedicated/tr_main.cpp"

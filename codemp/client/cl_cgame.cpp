@@ -29,6 +29,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "FxUtil.h"
 #include "qcommon/RoffSystem.h"
 #include "qcommon/stringed_ingame.h"
+#include "qcommon/com_cvar.h"
+#include "qcommon/com_cvars.h"
 #include "ghoul2/G2_gore.h"
 
 extern IHeapAllocator *G2VertSpaceClient;
@@ -162,8 +164,6 @@ void CL_SetUserCmdValue( int userCmdValue, float sensitivityScale, float mPitchO
 
 int gCLTotalClientNum = 0;
 //keep track of the total number of clients
-extern cvar_t	*cl_autolodscale;
-//if we want to do autolodscaling
 
 void CL_DoAutoLODScale(void)
 {
@@ -434,7 +434,7 @@ rescan:
 		// don't do it if we aren't running the server locally,
 		// otherwise malicious remote servers could overwrite
 		// the existing thumbnails
-		if ( !com_sv_running->integer ) {
+		if ( !sv_running->integer ) {
 			return qfalse;
 		}
 		// close the console
@@ -487,11 +487,6 @@ void CL_InitCGame( void ) {
 	// otherwise server commands sent just before a gamestate are dropped
 	CGVM_Init( clc.serverMessageSequence, clc.lastExecutedServerCommand, clc.clientNum );
 
-	int clRate = Cvar_VariableIntegerValue( "rate" );
-	if ( clRate == 4000 ) {
-		Com_Printf( S_COLOR_YELLOW "WARNING: Old default /rate value detected (4000). Suggest typing /rate 25000 into console for a smoother connection!\n" );
-	}
-
 	// reset any CVAR_CHEAT cvars registered by cgame
 	if ( !clc.demoplaying && !cl_connectedToCheatServer )
 		Cvar_SetCheatState();
@@ -528,7 +523,7 @@ qboolean CL_GameCommand( void ) {
 
 void CL_CGameRendering( stereoFrame_t stereo ) {
 	//rww - RAGDOLL_BEGIN
-	if (!com_sv_running->integer)
+	if (!sv_running->integer)
 	{ //set the server time to match the client time, if we don't have a server going.
 		re->G2API_SetTime(cl.serverTime, 0);
 	}
@@ -580,7 +575,7 @@ void CL_AdjustTimeDelta( void ) {
 		// if any of the frames between this and the previous snapshot
 		// had to be extrapolated, nudge our sense of time back a little
 		// the granularity of +1 / -2 is too high for timescale modified frametimes
-		if ( com_timescale->value == 0 || com_timescale->value == 1 ) {
+		if ( timescale->value == 0 || timescale->value == 1 ) {
 			if ( cl.extrapolatedSnapshot ) {
 				cl.extrapolatedSnapshot = qfalse;
 				cl.serverTimeDelta -= 2;
@@ -616,8 +611,8 @@ void CL_FirstSnapshot( void ) {
 	// execute the contents of activeAction now
 	// this is to allow scripting a timedemo to start right
 	// after loading
-	if ( cl_activeAction->string[0] ) {
-		Cbuf_AddText( cl_activeAction->string );
+	if ( activeAction->string[0] ) {
+		Cbuf_AddText( activeAction->string );
 		Cvar_Set( "activeAction", "" );
 	}
 }
@@ -652,7 +647,7 @@ void CL_SetCGameTime( void ) {
 	}
 
 	// allow pause in single player
-	if ( sv_paused->integer && CL_CheckPaused() && com_sv_running->integer ) {
+	if ( sv_paused->integer && CL_CheckPaused() && sv_running->integer ) {
 		// paused
 		return;
 	}
@@ -723,7 +718,7 @@ void CL_SetCGameTime( void ) {
 	// no matter what speed machine it is run on,
 	// while a normal demo may have different time samples
 	// each time it is played back
-	if ( cl_timedemo->integer ) {
+	if ( timedemo->integer ) {
 		if (!clc.timeDemoStart) {
 			clc.timeDemoStart = Sys_Milliseconds();
 		}

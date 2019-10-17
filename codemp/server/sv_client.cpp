@@ -34,6 +34,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #endif
 
 #include "server/sv_gameapi.h"
+#include "qcommon/com_cvar.h"
 
 static void SV_CloseDownload( client_t *cl );
 
@@ -51,7 +52,7 @@ void SV_GetChallenge( netadr_t from ) {
 
 	// Prevent using getchallenge as an amplifier
 	if ( SVC_RateLimitAddress( from, 10, 1000 ) ) {
-		if ( com_developer->integer ) {
+		if ( developer->integer ) {
 			Com_Printf( "SV_GetChallenge: rate limit from %s exceeded, dropping request\n",
 				NET_AdrToString( from ) );
 		}
@@ -1000,7 +1001,7 @@ void SV_UserinfoChanged( client_t *cl ) {
 
 	// if the client is on the same subnet as the server and we aren't running an
 	// internet public server, assume they don't need a rate choke
-	if ( Sys_IsLANAddress( cl->netchan.remoteAddress ) && com_dedicated->integer != 2 && sv_lanForceRate->integer == 1 ) {
+	if ( Sys_IsLANAddress( cl->netchan.remoteAddress ) && dedicated->integer != 2 && sv_lanForceRate->integer == 1 ) {
 		cl->rate = 100000;	// lans should not rate limit
 	} else {
 		val = Info_ValueForKey (cl->userinfo, "rate");
@@ -1189,7 +1190,7 @@ static qboolean SV_ClientCommand( client_t *cl, msg_t *msg ) {
 	// but not other people
 	// We don't do this when the client hasn't been active yet since its
 	// normal to spam a lot of commands when downloading
-	if ( !com_cl_running->integer &&
+	if ( !cl_running->integer &&
 		cl->state >= CS_ACTIVE &&
 		sv_floodProtect->integer )
 	{

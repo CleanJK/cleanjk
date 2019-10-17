@@ -1645,68 +1645,81 @@ char *G_ValidateUserinfo( const char *userinfo ) {
 
 	// size checks
 	if ( g_userinfoValidate.integer & (1<<(numUserinfoFields+USERINFO_VALIDATION_SIZE)) ) {
-		if ( length < 1 )
+		if ( length < 1 ) {
 			return "Userinfo too short";
-		else if ( length >= MAX_INFO_STRING )
+		}
+		else if ( length >= MAX_INFO_STRING ) {
 			return "Userinfo too long";
+		}
 	}
 
 	// slash checks
 	if ( g_userinfoValidate.integer & (1<<(numUserinfoFields+USERINFO_VALIDATION_SLASH)) ) {
 		// there must be a leading slash
-		if ( userinfo[0] != '\\' )
+		if ( userinfo[0] != '\\' ) {
 			return "Missing leading slash";
+		}
 
 		// no trailing slashes allowed, engine will append ip\\ip:port
-		if ( userinfo[length-1] == '\\' )
+		if ( userinfo[length-1] == '\\' ) {
 			return "Trailing slash";
+		}
 
 		// format for userinfo field is: \\key\\value
 		// so there must be an even amount of slashes
 		for ( i=0, count=0; i<length; i++ ) {
-			if ( userinfo[i] == '\\' )
+			if ( userinfo[i] == '\\' ) {
 				count++;
+			}
 		}
-		if ( (count&1) ) // odd
+		if ( (count&1) ) { // odd
 			return "Bad number of slashes";
+		}
 	}
 
 	// extended characters are impossible to type, may want to disable
 	if ( g_userinfoValidate.integer & (1<<(numUserinfoFields+USERINFO_VALIDATION_EXTASCII)) ) {
 		for ( i=0, count=0; i<length; i++ ) {
-			if ( userinfo[i] < 0 )
+			if ( userinfo[i] < 0 ) {
 				count++;
+			}
 		}
-		if ( count )
+		if ( count ) {
 			return "Extended ASCII characters found";
+		}
 	}
 
 	// disallow \n \r ; and \"
 	if ( g_userinfoValidate.integer & (1<<(numUserinfoFields+USERINFO_VALIDATION_CONTROLCHARS)) ) {
-		if ( Q_strchrs( userinfo, "\n\r;\"" ) )
+		if ( Q_strchrs( userinfo, "\n\r;\"" ) ) {
 			return "Invalid characters found";
+		}
 	}
 
 	s = userinfo;
 	while ( s ) {
 		Info_NextPair( &s, key, value );
 
-		if ( !key[0] )
+		if ( !key[0] ) {
 			break;
+		}
 
 		for ( i=0; i<numUserinfoFields; i++ ) {
-			if ( !Q_stricmp( key, userinfoFields[i].fieldClean ) )
+			if ( !Q_stricmp( key, userinfoFields[i].fieldClean ) ) {
 				fieldCount[i]++;
+			}
 		}
 	}
 
 	// count the number of fields
 	for ( i=0, info=userinfoFields; i<numUserinfoFields; i++, info++ ) {
 		if ( g_userinfoValidate.integer & (1<<i) ) {
-			if ( info->minCount && !fieldCount[i] )
+			if ( info->minCount && !fieldCount[i] ) {
 				return va( "%s field not found", info->fieldClean );
-			else if ( fieldCount[i] > info->maxCount )
+			}
+			else if ( fieldCount[i] > info->maxCount ) {
 				return va( "Too many %s fields (%i/%i)", info->fieldClean, fieldCount[i], info->maxCount );
+			}
 		}
 	}
 

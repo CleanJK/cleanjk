@@ -28,9 +28,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <string.h>
 
 #include "qcommon/q_shared.h"
-#include "botlib.h"
-#include "be_interface.h"			//for botimport.Print
-#include "l_crc.h"
+#include "botlib/botlib.h"
+#include "botlib/be_interface.h"			//for botimport.Print
+#include "botlib/l_crc.h"
 
 // FIXME: byte swap?
 

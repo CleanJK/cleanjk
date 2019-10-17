@@ -26,15 +26,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "client.h"
 #include "cl_uiapi.h"
+#include "qcommon/com_cvars.h"
 
 extern console_t con;
 qboolean	scr_initialized;		// ready to draw
-
-cvar_t		*cl_timegraph;
-cvar_t		*cl_debuggraph;
-cvar_t		*cl_graphheight;
-cvar_t		*cl_graphscale;
-cvar_t		*cl_graphshift;
 
 // Coordinates are 640*480 virtual values
 void SCR_DrawNamedPic( float x, float y, float width, float height, const char *picname ) {
@@ -288,30 +283,24 @@ void SCR_DrawDebugGraph (void)
 	x = 0;
 	y = 480;
 	re->SetColor( g_color_table[0] );
-	re->DrawStretchPic(x, y - cl_graphheight->integer,
-		w, cl_graphheight->integer, 0, 0, 0, 0, cls.whiteShader );
+	re->DrawStretchPic(x, y - graphheight->integer,
+		w, graphheight->integer, 0, 0, 0, 0, cls.whiteShader );
 	re->SetColor( NULL );
 
 	for (a=0 ; a<w ; a++)
 	{
 		i = (current-1-a+1024) & 1023;
 		v = values[i].value;
-		v = v * cl_graphscale->integer + cl_graphshift->integer;
+		v = v * graphscale->integer + graphshift->integer;
 
 		if (v < 0)
-			v += cl_graphheight->integer * (1+(int)(-v / cl_graphheight->integer));
-		h = (int)v % cl_graphheight->integer;
+			v += graphheight->integer * (1+(int)(-v / graphheight->integer));
+		h = (int)v % graphheight->integer;
 		re->DrawStretchPic( x+w-1-a, y - h, 1, h, 0, 0, 0, 0, cls.whiteShader );
 	}
 }
 
 void SCR_Init( void ) {
-	cl_timegraph = Cvar_Get ("timegraph", "0", CVAR_CHEAT);
-	cl_debuggraph = Cvar_Get ("debuggraph", "0", CVAR_CHEAT);
-	cl_graphheight = Cvar_Get ("graphheight", "32", CVAR_CHEAT);
-	cl_graphscale = Cvar_Get ("graphscale", "1", CVAR_CHEAT);
-	cl_graphshift = Cvar_Get ("graphshift", "0", CVAR_CHEAT);
-
 	scr_initialized = qtrue;
 }
 
@@ -378,7 +367,7 @@ void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
 	Con_DrawConsole ();
 
 	// debug graph can be drawn on top of anything
-	if ( cl_debuggraph->integer || cl_timegraph->integer || cl_debugMove->integer ) {
+	if ( debuggraph->integer || timegraph->integer || cl_debugMove->integer ) {
 		SCR_DrawDebugGraph ();
 	}
 }
@@ -398,7 +387,7 @@ void SCR_UpdateScreen( void ) {
 
 	// If there is no VM, there are also no rendering commands issued. Stop the renderer in
 	// that case.
-	if( cls.uiStarted || com_dedicated->integer )
+	if( cls.uiStarted || dedicated->integer )
 	{
 		// if running in stereo, we need to draw the frame twice
 		if ( cls.glconfig.stereoEnabled ) {

@@ -35,16 +35,14 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //	differs. The IP port should be updated to the new value before sending out any replies.
 
 #include "qcommon/qcommon.h"
+#include "qcommon/com_cvar.h"
+#include "qcommon/com_cvars.h"
 
 #define	MAX_PACKETLEN			1400		// max size of a network packet
 #define	FRAGMENT_SIZE			(MAX_PACKETLEN - 100)
 #define	PACKET_HEADER			10			// two ints and a short
 
 #define	FRAGMENT_BIT	(1<<31)
-
-cvar_t		*showpackets;
-cvar_t		*showdrop;
-cvar_t		*qport;
 
 static char *netsrcString[2] = {
 	"client",
@@ -53,9 +51,7 @@ static char *netsrcString[2] = {
 
 void Netchan_Init( int port ) {
 	port &= 0xffff;
-	showpackets = Cvar_Get ("showpackets", "0", CVAR_TEMP );
-	showdrop = Cvar_Get ("showdrop", "0", CVAR_TEMP );
-	qport = Cvar_Get ("net_qport", va("%i", port), CVAR_INIT );
+	Cvar_Set( "net_qport", va( "%i", port ) );
 }
 
 // called to open a channel to a remote system
@@ -82,7 +78,7 @@ void Netchan_TransmitNextFragment( netchan_t *chan ) {
 
 	// send the qport if we are a client
 	if ( chan->sock == NS_CLIENT ) {
-		MSG_WriteShort( &send, qport->integer & 0xffff );
+		MSG_WriteShort( &send, net_qport->integer & 0xffff );
 	}
 
 	// copy the reliable message to the packet first
@@ -154,7 +150,7 @@ void Netchan_Transmit( netchan_t *chan, int length, const byte *data ) {
 
 	// send the qport if we are a client
 	if ( chan->sock == NS_CLIENT ) {
-		MSG_WriteShort( &send, qport->integer & 0xffff );
+		MSG_WriteShort( &send, net_qport->integer & 0xffff );
 	}
 
 	MSG_WriteData( &send, data, length );

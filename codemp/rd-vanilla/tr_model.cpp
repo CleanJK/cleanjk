@@ -26,6 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "tr_local.h"
 #include "qcommon/disablewarnings.h"
 #include "qcommon/sstring.h"	// #include <string>
+#include "rd-vanilla/tr_cvars.h"
 
 #include <vector>
 #include <map>
@@ -329,7 +330,6 @@ static int GetModelDataAllocSize(void)
 			Z_MemSize( TAG_MODEL_GLM) +
 			Z_MemSize( TAG_MODEL_GLA);
 }
-extern cvar_t *r_modelpoolmegs;
 
 // return qtrue if at least one cached model was freed (which tells z_malloc()-fail recoveryt code to try again)
 
@@ -509,7 +509,7 @@ void RE_RegisterMedia_LevelLoadBegin(const char *psMapName, ForceReload_e eForce
 	}
 	else
 	{
-		if ( ri.Cvar_VariableIntegerValue( "sv_pure" ) )
+		if ( sv_pure->integer )
 		{
 			RE_RegisterModels_DumpNonPure();
 		}
@@ -973,11 +973,6 @@ qhandle_t RE_RegisterServerModel( const char *name ) {
 	int			numLoaded;
 	int			hash;
 	modelHash_t	*mh;
-
-	if (!r_noServerGhoul2)
-	{ //keep it from choking when it gets to these checks in the g2 code. Registering all r_ cvars for the server would be a Bad Thing though.
-		r_noServerGhoul2 = ri.Cvar_Get( "r_noserverghoul2", "0", 0, "");
-	}
 
 	if ( !name || !name[0] ) {
 		return 0;

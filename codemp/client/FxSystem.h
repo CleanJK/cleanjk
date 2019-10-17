@@ -25,15 +25,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "client/cl_cgameapi.h"
 #include "ghoul2/G2.h"
 
-extern cvar_t	*fx_debug;
-
-#ifdef _DEBUG
-extern cvar_t	*fx_freeze;
-#endif
-
-extern cvar_t	*fx_countScale;
-extern cvar_t	*fx_nearCull;
-
 class SFxHelper
 {
 public:

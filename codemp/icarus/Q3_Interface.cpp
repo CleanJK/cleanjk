@@ -27,11 +27,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "game/g_public.h"
 #include "server/server.h"
-#include "interface.h"
-#include "GameInterface.h"
+#include "icarus/icarus.h"
+#include "icarus/interface.h"
+#include "icarus/GameInterface.h"
 #include "Q3_Interface.h"
 #include "Q3_Registers.h"
 #include "server/sv_gameapi.h"
+#include "qcommon/com_cvars.h"
 
 #define stringIDExpand(str, strEnum)	str, strEnum, ENUM2STRING(strEnum)
 //#define stringIDExpand(str, strEnum)	str,strEnum
@@ -518,7 +520,7 @@ void Q3_DebugPrint( int level, const char *format, ... )
 {
 	//Don't print messages they don't want to see
 	//if ( g_ICARUSDebug->integer < level )
-	if (!com_developer || !com_developer->integer)
+	if (!developer || !developer->integer)
 		return;
 
 	va_list		argptr;
@@ -636,7 +638,7 @@ int ICARUS_LinkEntity( int entID, CSequencer *sequencer, CTaskManager *taskManag
 
 static unsigned int Q3_GetTimeScale( void )
 {
-	return com_timescale->value;
+	return timescale->value;
 }
 
 static void Q3_Lerp2Pos( int taskID, int entID, vec3_t origin, vec3_t angles, float duration )

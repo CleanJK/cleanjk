@@ -26,6 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "server.h"
 #include "ghoul2/ghoul2_shared.h"
 #include "qcommon/cm_public.h"
+#include "qcommon/com_cvars.h"
 
 // Returns a headnode that can be used for testing or clipping to a given entity.
 // If the entity is a bsp model, the headnode will be returned, otherwise a custom box tree will be constructed.

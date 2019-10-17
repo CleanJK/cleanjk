@@ -21,9 +21,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "qcommon/sstring.h"	// stl string class won't compile in here (MS shite), so use Gil's.
-#include "tr_local.h"
 #include "tr_font.h"
-
+#include "tr_local.h"
+#include "tr_cvars.h"
 #include "qcommon/stringed_ingame.h"
 
 // This file is shared in the single and multiplayer codebases, so be CAREFUL WHAT YOU ADD/CHANGE!!!!!
@@ -876,8 +876,7 @@ CFontInfo::CFontInfo(const char *_fontName)
 	g_vFontArray.resize(g_iCurrentFontIndex + 1);
 	g_vFontArray[g_iCurrentFontIndex++] = this;
 
-	if ( ri.Cvar_VariableIntegerValue( "com_buildScript" ) == 2)
-	{
+	if ( com_buildScript->integer == 2 ) {
 		Com_Printf( "com_buildScript(2): Registering foreign fonts...\n" );
 		static qboolean bDone = qfalse;	// Do this once only (for speed)...
 		if (!bDone)

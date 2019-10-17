@@ -22,6 +22,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <SDL.h>
 #include <SDL_syswm.h>
 #include "qcommon/qcommon.h"
+#include "qcommon/com_cvar.h"
+#include "qcommon/com_cvars.h"
 #include "rd-common/tr_types.h"
 #include "sys/sys_local.h"
 #include "sdl_icon.h"
@@ -44,7 +46,6 @@ cvar_t *r_sdlDriver;
 cvar_t *r_allowSoftwareGL;
 
 // Window cvars
-cvar_t	*r_fullscreen = 0;
 cvar_t	*r_noborder;
 cvar_t	*r_centerWindow;
 cvar_t	*r_customwidth;

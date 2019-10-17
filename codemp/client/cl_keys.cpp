@@ -26,6 +26,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "cl_cgameapi.h"
 #include "cl_uiapi.h"
 #include "qcommon/stringed_ingame.h"
+#include "qcommon/com_cvar.h"
+#include "qcommon/com_cvars.h"
+
 /*
 
 key up events are sent even if in console mode
@@ -917,6 +920,7 @@ void Key_SetBinding( int keynum, const char *binding ) {
 	// consider this like modifying an archived cvar, so the
 	// file write will be triggered at the next oportunity
 	cvar_modifiedFlags |= CVAR_ARCHIVE;
+
 }
 
 char *Key_GetBinding( int keynum ) {
@@ -1007,7 +1011,7 @@ void Key_Bindlist_f( void ) {
 	}
 }
 
-void Key_KeynameCompletion( callbackFunc_t callback ) {
+void Key_KeynameCompletion( completionCallback_t callback ) {
 	for ( size_t i=0; i<numKeynames; i++ ) {
 		if ( keynames[i].name )
 			callback( keynames[i].name );
@@ -1149,7 +1153,7 @@ void CL_KeyDownEvent( int key, unsigned time )
 
 	if ( cl_allowAltEnter->integer && kg.keys[A_ALT].down && key == A_ENTER )
 	{
-		Cvar_SetValue( "r_fullscreen", !Cvar_VariableIntegerValue( "r_fullscreen" ) );
+		Cvar_SetValue( "r_fullscreen", !r_fullscreen->integer );
 		return;
 	}
 

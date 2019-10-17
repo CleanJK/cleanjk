@@ -24,6 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "tr_local.h"
 #include "glext.h"
 #include "tr_WorldEffects.h"
+#include "rd-vanilla/tr_cvars.h"
 
 backEndData_t	*backEndData;
 backEndState_t	backEnd;
@@ -424,7 +425,7 @@ void RB_BeginDrawingView (void) {
 	GL_State( GLS_DEFAULT );
 
 	// clear relevant buffers
-	if ( r_measureOverdraw->integer || r_shadows->integer == 2 || tr_stencilled )
+	if ( r_measureOverdraw->integer || cg_shadows->integer == 2 || tr_stencilled )
 	{
 		clearBits |= GL_STENCIL_BUFFER_BIT;
 		tr_stencilled = false;
@@ -1073,7 +1074,7 @@ void	RB_SetGL2D (void) {
 	qglDisable( GL_CLIP_PLANE0 );
 
 	// set time for 2D shaders
-	backEnd.refdef.time = ri.Milliseconds()*ri.Cvar_VariableValue( "timescale" );
+	backEnd.refdef.time = ri.Milliseconds()*timescale->value;
 	backEnd.refdef.floatTime = backEnd.refdef.time * 0.001f;
 }
 
@@ -1098,7 +1099,7 @@ void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *
 
 	start = end = 0;
 	if ( r_speeds->integer ) {
-		start = ri.Milliseconds()*ri.Cvar_VariableValue( "timescale" );
+		start = ri.Milliseconds()*timescale->value;
 	}
 
 	// make sure rows and cols are powers of 2
@@ -1127,7 +1128,7 @@ void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *
 	}
 
 	if ( r_speeds->integer ) {
-		end = ri.Milliseconds()*ri.Cvar_VariableValue( "timescale" );
+		end = ri.Milliseconds()*timescale->value;
 		ri.Printf( PRINT_ALL, "qglTexSubImage2D %i, %i: %i msec\n", cols, rows, end - start );
 	}
 
@@ -1596,7 +1597,7 @@ void RB_ShowImages( void ) {
 
 	qglFinish();
 
-//	start = ri.Milliseconds()*ri.Cvar_VariableValue( "timescale" );
+//	start = ri.Milliseconds()*timescale->value;
 
 	int i=0;
 	   				 R_Images_StartIteration();
@@ -1629,7 +1630,7 @@ void RB_ShowImages( void ) {
 
 	qglFinish();
 
-//	end = ri.Milliseconds()*ri.Cvar_VariableValue( "timescale" );
+//	end = ri.Milliseconds()*timescale->value;
 //	ri.Printf( PRINT_ALL, "%i msec to draw all images\n", end - start );
 }
 
@@ -1754,7 +1755,7 @@ extern const void *R_DrawWireframeAutomap(const void *data); //tr_world.cpp
 void RB_ExecuteRenderCommands( const void *data ) {
 	int		t1, t2;
 
-	t1 = ri.Milliseconds()*ri.Cvar_VariableValue( "timescale" );
+	t1 = ri.Milliseconds()*timescale->value;
 
 	while ( 1 ) {
 		data = PADP(data, sizeof(void *));
@@ -1793,7 +1794,7 @@ void RB_ExecuteRenderCommands( const void *data ) {
 		case RC_END_OF_LIST:
 		default:
 			// stop rendering
-			t2 = ri.Milliseconds()*ri.Cvar_VariableValue( "timescale" );
+			t2 = ri.Milliseconds()*timescale->value;
 			backEnd.pc.msec = t2 - t1;
 			return;
 		}

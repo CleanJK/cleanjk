@@ -24,11 +24,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "tr_local.h"
 #include "qcommon/matcomp.h"
 #include "qcommon/qcommon.h"
+#include "qcommon/com_cvars.h"
 #include "ghoul2/G2.h"
 #include "ghoul2/g2_local.h"
 #ifdef _G2_GORE
 #include "ghoul2/G2_gore.h"
 #endif
+#include "rd-dedicated/tr_cvars.h"
 
 #include "qcommon/disablewarnings.h"
 
@@ -104,8 +106,6 @@ bool HackadelicOnClient=false; // means this is a render traversal
 qboolean G2_SetupModelPointers(CGhoul2Info *ghlInfo);
 qboolean G2_SetupModelPointers(CGhoul2Info_v &ghoul2);
 
-extern cvar_t	*r_Ghoul2AnimSmooth;
-extern cvar_t	*r_Ghoul2UnSqashAfterSmooth;
 
 const static mdxaBone_t		identityMatrix =
 {
@@ -1822,7 +1822,7 @@ void G2_TransformGhoulBones(boneInfo_v &rootBoneList,mdxaBone_t &rootMatrix, CGh
 	ghoul2.mBoneCache->mUnsquash=false;
 
 	// master smoothing control
-	if (HackadelicOnClient && smooth && !ri.Cvar_VariableIntegerValue( "dedicated" ))
+	if (HackadelicOnClient && smooth && !dedicated->integer)
 	{
 		ghoul2.mBoneCache->mLastTouch=ghoul2.mBoneCache->mLastLastTouch;
 		/*

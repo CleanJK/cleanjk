@@ -29,6 +29,19 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 extern refimport_t ri;
 
+#ifdef _WIN32
+	#define SWAPINTERVAL_FLAGS (CVAR_ARCHIVE_ND)
+#else
+	#define SWAPINTERVAL_FLAGS (CVAR_ARCHIVE_ND | CVAR_LATCH)
+#endif
+
+#ifdef _DEBUG
+	#define MIN_PRIMITIVES -1
+#else
+	#define MIN_PRIMITIVES 0
+#endif
+#define MAX_PRIMITIVES 3
+
 // Noise Generation
 
 // Initialize the noise generator.

@@ -377,3 +377,7 @@ typedef union byteAlias_u {
 #ifndef SOURCE_DATE
 #define SOURCE_DATE __DATE__
 #endif
+
+#if defined(_MSC_VER) && !defined(WIN64)
+	#define USE_OPENAL
+#endif

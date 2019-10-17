@@ -1552,7 +1552,7 @@ void Cmd_MapList_f( gentity_t *ent ) {
 }
 
 qboolean G_VoteMap( gentity_t *ent, int numArgs, const char *arg1, const char *arg2 ) {
-	char s[MAX_CVAR_VALUE_STRING] = {0}, bspName[MAX_QPATH] = {0}, *mapName = NULL, *mapName2 = NULL;
+	char bspName[MAX_QPATH] = {0}, *mapName = NULL, *mapName2 = NULL;
 	fileHandle_t fp = NULL_FILE;
 	const char *arenaInfo;
 
@@ -1582,9 +1582,8 @@ qboolean G_VoteMap( gentity_t *ent, int numArgs, const char *arg1, const char *a
 	}
 
 	// preserve the map rotation
-	trap->Cvar_VariableStringBuffer( "nextmap", s, sizeof( s ) );
-	if ( *s )
-		Com_sprintf( level.voteString, sizeof( level.voteString ), "%s %s; set nextmap \"%s\"", arg1, arg2, s );
+	if ( nextmap.string[0] )
+		Com_sprintf( level.voteString, sizeof( level.voteString ), "%s %s; set nextmap \"%s\"", arg1, arg2, nextmap.string );
 	else
 		Com_sprintf( level.voteString, sizeof( level.voteString ), "%s %s", arg1, arg2 );
 
@@ -1616,10 +1615,7 @@ qboolean G_VoteMapRestart( gentity_t *ent, int numArgs, const char *arg1, const 
 }
 
 qboolean G_VoteNextmap( gentity_t *ent, int numArgs, const char *arg1, const char *arg2 ) {
-	char s[MAX_CVAR_VALUE_STRING];
-
-	trap->Cvar_VariableStringBuffer( "nextmap", s, sizeof( s ) );
-	if ( !*s ) {
+	if ( !nextmap.string[0] ) {
 		trap->SendServerCommand( ent-g_entities, "print \"nextmap not set.\n\"" );
 		return qfalse;
 	}
@@ -2261,8 +2257,6 @@ void Cmd_ToggleSaber_f(gentity_t *ent)
 		}
 	}
 }
-
-extern vmCvar_t		d_saberStanceDebug;
 
 qboolean G_SaberCanTurnOffSomeBlades( saberInfo_t *saber ) {
 	if ( saber->bladeStyle2Start > 0 && saber->numBlades > saber->bladeStyle2Start ) {

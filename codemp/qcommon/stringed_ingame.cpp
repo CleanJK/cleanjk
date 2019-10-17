@@ -41,10 +41,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 typedef std::vector<std::string>	vStrings_t;
 typedef std::vector<int>		vInts_t;
 
-cvar_t	*se_language = NULL;
-cvar_t	*se_debug = NULL;
-cvar_t  *sp_leet = NULL;	// kept as 'sp_' for JK2 compat.
-
 #define __DEBUGOUT(_string)	Com_OPrintf("%s",_string)
 #define __ASSERT(_blah)		assert(_blah)
 
@@ -1119,13 +1115,8 @@ void SE_Init(void)
 //	int iNumLanguages = SE_GetNumLanguages();
 #endif
 
-	se_language = Cvar_Get("se_language", "english", CVAR_ARCHIVE | CVAR_NORESTART);
-	se_debug = Cvar_Get("se_debug", "0", 0);
-	sp_leet = Cvar_Get("sp_leet", "0", CVAR_ROM );
-
 	// if doing a buildscript, load all languages...
 
-	extern cvar_t *com_buildScript;
 	if (com_buildScript->integer == 2)
 	{
 		int iLanguages = SE_GetNumLanguages();

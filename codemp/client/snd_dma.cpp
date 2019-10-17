@@ -28,6 +28,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "snd_mp3.h"
 #include "snd_music.h"
 #include "client.h"
+#include "qcommon/com_cvar.h"
+#include "qcommon/com_cvars.h"
 #define __STDC_FORMAT_MACROS
 #include <inttypes.h>
 
@@ -148,26 +150,6 @@ int			s_numSfx;
 #define		LOOP_HASH		128
 static	sfx_t		*sfxHash[LOOP_HASH];
 
-cvar_t		*s_volume;
-cvar_t		*s_volumeVoice;
-cvar_t		*s_testsound;
-cvar_t		*s_khz;
-cvar_t		*s_allowDynamicMusic;
-cvar_t		*s_show;
-cvar_t		*s_mixahead;
-cvar_t		*s_mixPreStep;
-cvar_t		*s_musicVolume;
-cvar_t		*s_separation;
-cvar_t		*s_lip_threshold_1;
-cvar_t		*s_lip_threshold_2;
-cvar_t		*s_lip_threshold_3;
-cvar_t		*s_lip_threshold_4;
-cvar_t		*s_language;	// note that this is distinct from "g_language"
-cvar_t		*s_dynamix;
-cvar_t		*s_debugdynamic;
-
-cvar_t		*s_doppler;
-
 typedef struct
 {
 	unsigned char	volume;
@@ -209,8 +191,6 @@ int			s_numChannels;			// Number of AL Sources == Num of Channels
 
 #define DEFAULT_REF_DISTANCE		300.0f		// Default reference distance
 #define DEFAULT_VOICE_REF_DISTANCE	1500.0f		// Default voice reference distance
-
-int			s_UseOpenAL	= 0;	// Determines if using Open AL or the default software mixer
 
 ALfloat		listener_pos[3];		// Listener Position
 ALfloat		listener_ori[6];		// Listener Orientation
@@ -356,7 +336,7 @@ void S_SoundInfo_f(void) {
 		Com_Printf ("sound system not started\n");
 	} else {
 #ifdef USE_OPENAL
-		if (s_UseOpenAL)
+		if (s_useOpenAL->integer)
 		{
 			Com_Printf("EAX 4.0 %s supported\n",s_bEAX?"is":"not");
 			Com_Printf("Eal file %s loaded\n",s_bEALFileLoaded?"is":"not");
@@ -402,36 +382,13 @@ void S_SoundInfo_f(void) {
 }
 
 void S_Init( void ) {
-	cvar_t	*cv;
 	qboolean	r;
 
 	Com_Printf("\n------- sound initialization -------\n");
 
-	s_volume = Cvar_Get ("s_volume", "0.5", CVAR_ARCHIVE, "Volume" );
-	s_volumeVoice= Cvar_Get ("s_volumeVoice", "1.0", CVAR_ARCHIVE, "Volume for voice channels" );
-	s_musicVolume = Cvar_Get ("s_musicvolume", "0.25", CVAR_ARCHIVE, "Music Volume" );
-	s_separation = Cvar_Get ("s_separation", "0.5", CVAR_ARCHIVE);
-	s_khz = Cvar_Get ("s_khz", "44", CVAR_ARCHIVE|CVAR_LATCH);
-	s_allowDynamicMusic = Cvar_Get ("s_allowDynamicMusic", "1", CVAR_ARCHIVE_ND);
-	s_mixahead = Cvar_Get ("s_mixahead", "0.2", CVAR_ARCHIVE);
-
-	s_mixPreStep = Cvar_Get ("s_mixPreStep", "0.05", CVAR_ARCHIVE);
-	s_show = Cvar_Get ("s_show", "0", CVAR_CHEAT);
-	s_testsound = Cvar_Get ("s_testsound", "0", CVAR_CHEAT);
-	s_debugdynamic = Cvar_Get("s_debugdynamic","0", CVAR_CHEAT);
-	s_lip_threshold_1 = Cvar_Get("s_threshold1" , "0.5",0);
-	s_lip_threshold_2 = Cvar_Get("s_threshold2" , "4.0",0);
-	s_lip_threshold_3 = Cvar_Get("s_threshold3" , "7.0",0);
-	s_lip_threshold_4 = Cvar_Get("s_threshold4" , "8.0",0);
-
-	s_language = Cvar_Get("s_language","english",CVAR_ARCHIVE | CVAR_NORESTART, "Sound language" );
-
-	s_doppler = Cvar_Get("s_doppler", "1", CVAR_ARCHIVE_ND);
-
 	MP3_InitCvars();
 
-	cv = Cvar_Get ("s_initsound", "1", 0);
-	if ( !cv->integer ) {
+	if ( !s_initsound->integer ) {
 		s_soundStarted = 0;	// needed in case you set s_initsound to 0 midgame then snd_restart (div0 err otherwise later)
 		Com_Printf ("not initializing.\n");
 		Com_Printf("------------------------------------\n");
@@ -448,10 +405,8 @@ void S_Init( void ) {
 	Cmd_AddCommand("s_dynamic", S_SetDynamicMusic_f, "Change dynamic music state" );
 
 #ifdef USE_OPENAL
-	cv = Cvar_Get("s_UseOpenAL" , "0",CVAR_ARCHIVE|CVAR_LATCH);
-	s_UseOpenAL = !!(cv->integer);
 
-	if (s_UseOpenAL)
+	if (s_useOpenAL->integer)
 	{
 		int i, j;
 
@@ -569,8 +524,7 @@ void S_Init( void ) {
 		// s_init could be called in game, if so there may be an .eal file
 		// for this level
 
-		const char *mapname = Cvar_VariableString( "mapname" );
-		EALFileInit(mapname);
+		EALFileInit(mapname->string);
 
 	}
 	else
@@ -629,7 +583,7 @@ void S_Shutdown( void )
 	S_UnCacheDynamicMusic();
 
 #ifdef USE_OPENAL
-	if (s_UseOpenAL)
+	if (s_useOpenAL->integer)
 	{
 		int i, j;
 		// Release all the AL Sources (including Music channel (Source 0))
@@ -700,7 +654,7 @@ void S_AL_MuteAllSounds(qboolean bMute)
      if (!s_soundStarted)
           return;
 
-     if (!s_UseOpenAL)
+     if (!s_useOpenAL->integer)
           return;
 
      if (bMute)
@@ -841,10 +795,9 @@ void S_BeginRegistration( void )
 
 #ifdef USE_OPENAL
 	// Find name of level so we can load in the appropriate EAL file
-	if (s_UseOpenAL)
+	if (s_useOpenAL->integer)
 	{
-		const char *mapname = Cvar_VariableString( "mapname" );
-		EALFileInit(mapname);
+		EALFileInit(mapname->string);
 		// clear carry crap from previous map
 		for (int i = 0; i < EAX_MAX_FXSLOTS; i++)
 		{
@@ -937,7 +890,7 @@ sfxHandle_t	S_RegisterSound( const char *name)
 		return 0;
 
 #ifdef USE_OPENAL
-	if (s_UseOpenAL)
+	if (s_useOpenAL->integer)
 	{
 		if ((sfx->pSoundData) || (sfx->Buffer))
 			return sfx - s_knownSfx;
@@ -982,7 +935,7 @@ void S_memoryLoad(sfx_t	*sfx)
 static qboolean S_CheckChannelStomp( int chan1, int chan2 )
 {
 #ifdef USE_OPENAL
-	if (!s_UseOpenAL)
+	if (!s_useOpenAL->integer)
 #endif
 	{
 		if ( chan1 == chan2 )
@@ -1006,7 +959,7 @@ channel_t *S_PickChannel(int entnum, int entchannel)
 	qboolean	foundChan = qfalse;
 
 #ifdef USE_OPENAL
-	if (s_UseOpenAL)
+	if (s_useOpenAL->integer)
 		return S_OpenALPickChannel(entnum, entchannel);
 #endif
 
@@ -1354,7 +1307,7 @@ void S_StartAmbientSound( const vec3_t origin, int entityNum, unsigned char volu
 	SND_TouchSFX(sfx);
 
 #ifdef USE_OPENAL
-	if (s_UseOpenAL)
+	if (s_useOpenAL->integer)
 	{
 		if (volume==0)
 			return;
@@ -1454,7 +1407,7 @@ void S_StartSound(const vec3_t origin, int entityNum, int entchannel, sfxHandle_
 	}
 
 #ifdef USE_OPENAL
-	if (s_UseOpenAL)
+	if (s_useOpenAL->integer)
 	{
 		int i;
 		if (entchannel == CHAN_WEAPON)
@@ -1593,7 +1546,7 @@ void S_ClearSoundBuffer( void ) {
 	s_rawend = 0;
 
 #ifdef USE_OPENAL
-	if (!s_UseOpenAL)
+	if (!s_useOpenAL->integer)
 #endif
 	{
 		if (dma.samplebits == 8)
@@ -1634,7 +1587,7 @@ void S_CIN_StopSound(sfxHandle_t sfxHandle)
 		if (ch->thesfx == sfx)
 		{
 #ifdef USE_OPENAL
-			if (s_UseOpenAL)
+			if (s_useOpenAL->integer)
 			{
 				alSourceStop(s_channels[i].alSource);
 			}
@@ -1663,7 +1616,7 @@ void S_StopSounds(void)
 
 #ifdef USE_OPENAL
 	// clear all the s_channels
-	if (s_UseOpenAL)
+	if (s_useOpenAL->integer)
 	{
 		int i; //, j;
 		channel_t *ch = s_channels;
@@ -1709,7 +1662,7 @@ void S_StopAllSounds(void) {
 void S_ClearLoopingSounds( void )
 {
 #ifdef USE_OPENAL
-	if (s_UseOpenAL)
+	if (s_useOpenAL->integer)
 	{
 		for (int i = 0; i < MAX_LOOP_SOUNDS; i++)
 			loopSounds[i].bProcessed = false;
@@ -1808,7 +1761,7 @@ void S_AddAmbientLoopingSound( const vec3_t origin, unsigned char volume, sfxHan
 	}
 
 #ifdef USE_OPENAL
-	if (s_UseOpenAL)
+	if (s_useOpenAL->integer)
 	{
 		if (volume == 0)
 			return;
@@ -2110,7 +2063,7 @@ void S_UpdateEntityPosition( int entityNum, const vec3_t origin )
 	}
 
 #ifdef USE_OPENAL
-	if (s_UseOpenAL)
+	if (s_useOpenAL->integer)
 	{
 		if (entityNum == 0)
 			return;
@@ -2236,23 +2189,23 @@ static int S_CheckAmplitude(channel_t	*ch, const unsigned int s_oldpaintedtime )
 		sample_total /= count;
 
 		// I hate doing this, but its the simplest way
-		if (sample_total < ch->thesfx->fVolRange * s_lip_threshold_1->value)
+		if (sample_total < ch->thesfx->fVolRange * s_threshold1->value)
 		{
 		// tell the scripts that are relying on this that we are still going, but actually silent right now.
 			sample = -1;
 		}
 		else
-		if (sample_total < ch->thesfx->fVolRange * s_lip_threshold_2->value)
+		if (sample_total < ch->thesfx->fVolRange * s_threshold2->value)
 		{
 			sample = 1;
 		}
 		else
-		if (sample_total < ch->thesfx->fVolRange * s_lip_threshold_3->value)
+		if (sample_total < ch->thesfx->fVolRange * s_threshold3->value)
 		{
 			sample = 2;
 		}
 		else
-		if (sample_total < ch->thesfx->fVolRange * s_lip_threshold_4->value)
+		if (sample_total < ch->thesfx->fVolRange * s_threshold4->value)
 		{
 			sample = 3;
 		}
@@ -2288,7 +2241,7 @@ void S_Respatialize( int entityNum, const vec3_t head, matrix3_t axis, int inwat
 	}
 
 #ifdef USE_OPENAL
-	if (s_UseOpenAL)
+	if (s_useOpenAL->integer)
 	{
 		listener_pos[0] = head[0];
 		listener_pos[1] = head[2];
@@ -2530,7 +2483,7 @@ void S_Update( void ) {
 
 	// The Open AL code, handles background music in the S_UpdateRawSamples function
 #ifdef USE_OPENAL
-	if (!s_UseOpenAL)
+	if (!s_useOpenAL->integer)
 #endif
 	{
 		// add raw data from streamed samples
@@ -2594,7 +2547,7 @@ void S_Update_(void) {
 	}
 
 #ifdef USE_OPENAL
-	if (s_UseOpenAL)
+	if (s_useOpenAL->integer)
 	{
 		int i,j;
 		float		pos[3];
@@ -3345,13 +3298,13 @@ int S_MP3PreProcessLipSync(channel_t *ch, short *data)
 
 	sampleTotal /= 6;
 
-	if (sampleTotal < ch->thesfx->fVolRange * s_lip_threshold_1->value)
+	if (sampleTotal < ch->thesfx->fVolRange * s_threshold1->value)
 		sample = -1;
-	else if (sampleTotal < ch->thesfx->fVolRange * s_lip_threshold_2->value)
+	else if (sampleTotal < ch->thesfx->fVolRange * s_threshold2->value)
 		sample = 1;
-	else if (sampleTotal < ch->thesfx->fVolRange * s_lip_threshold_3->value)
+	else if (sampleTotal < ch->thesfx->fVolRange * s_threshold3->value)
 		sample = 2;
-	else if (sampleTotal < ch->thesfx->fVolRange * s_lip_threshold_4->value)
+	else if (sampleTotal < ch->thesfx->fVolRange * s_threshold4->value)
 		sample = 3;
 	else
 		sample = 4;
@@ -3609,8 +3562,7 @@ void S_SoundList_f( void ) {
 
 	for (sfx=s_knownSfx, i=0 ; i<s_numSfx ; i++, sfx++)
 	{
-		extern cvar_t *cv_MP3overhead;
-		qboolean bMP3DumpOverride = (qboolean)(bShouldBeMP3 && cv_MP3overhead && !sfx->bDefaultSound && !sfx->pMP3StreamHeader && sfx->pSoundData && (Z_Size(sfx->pSoundData) > cv_MP3overhead->integer));
+		qboolean bMP3DumpOverride = (qboolean)(bShouldBeMP3 && s_mp3overhead && !sfx->bDefaultSound && !sfx->pMP3StreamHeader && sfx->pSoundData && (Z_Size(sfx->pSoundData) > s_mp3overhead->integer));
 
 		if (bMP3DumpOverride || (!bShouldBeMP3 && (!bWavOnly || sfx->eSoundCompressionMethod == ct_16)))
 		{
@@ -4696,8 +4648,6 @@ static void S_UpdateBackgroundTrack( void )
 	}
 }
 
-cvar_t *s_soundpoolmegs = NULL;
-
 // currently passing in sfx as a param in case I want to do something with it later.
 byte *SND_malloc(int iSize, sfx_t *sfx)
 {
@@ -4720,7 +4670,6 @@ byte *SND_malloc(int iSize, sfx_t *sfx)
 // called once-only in EXE lifetime...
 void SND_setup()
 {
-	s_soundpoolmegs = Cvar_Get("s_soundpoolmegs", "25", CVAR_ARCHIVE);
 	if (Sys_LowPhysicalMemory() )
 	{
 		Cvar_Set("s_soundpoolmegs", "0");
@@ -4751,7 +4700,7 @@ static int SND_FreeSFXMem(sfx_t *sfx)
 	int iBytesFreed = 0;
 
 #ifdef USE_OPENAL
-	if (s_UseOpenAL)
+	if (s_useOpenAL->integer)
 	{
 		alGetError();
 		if (sfx->Buffer)

@@ -24,10 +24,37 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#define PARANOID // cry over spilled milk
-
 // q_shared.h -- included first by ALL program modules.
 // A user mod should never modify this file
+
+#define PARANOID // cry over spilled milk
+
+/*
+#define G2_EHNANCEMENTS
+
+#ifdef G2_EHNANCEMENTS
+//these two will probably explode if they're defined independent of one another.
+//rww - RAGDOLL_BEGIN
+#define JK2_RAGDOLL
+//rww - RAGDOLL_END
+//rww - Bone cache for multiplayer base.
+#define MP_BONECACHE
+#endif
+*/
+
+#ifndef FINAL_BUILD
+	// may want to enable timing and leak checking again. requires G2API changes.
+//	#define G2_PERFORMANCE_ANALYSIS
+//	#define _FULL_G2_LEAK_CHECKING
+//	extern int g_Ghoul2Allocations;
+//	extern int g_G2ServerAlloc;
+//	extern int g_G2ClientAlloc;
+//	extern int g_G2AllocServer;
+#endif
+
+//#define _ONEBIT_COMBO
+// crazy optimization attempt to take all those 1 bit values and shove them into a single send.
+// may help us not have to send so many 1/0 bits to acknowledge modified values. -rww
 
 #define PRODUCT_NAME			"cleanjoke"
 
@@ -44,7 +71,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define Q3_SCRIPT_DIR	"scripts"
 
 #define MAX_TEAMNAME 32
-#define MAX_MASTER_SERVERS      5	// number of supported master servers
 
 #include "qcommon/q_math.h"
 #include "qcommon/q_color.h"
@@ -69,28 +95,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define ARRAY_LEN( x ) ( sizeof( x ) / sizeof( *(x) ) )
 #define STRING( a ) #a
 #define XSTRING( a ) STRING( a )
-/*
-#define G2_EHNANCEMENTS
-
-#ifdef G2_EHNANCEMENTS
-//these two will probably explode if they're defined independent of one another.
-//rww - RAGDOLL_BEGIN
-#define JK2_RAGDOLL
-//rww - RAGDOLL_END
-//rww - Bone cache for multiplayer base.
-#define MP_BONECACHE
-#endif
-*/
-
-#ifndef FINAL_BUILD
-	// may want to enable timing and leak checking again. requires G2API changes.
-//	#define G2_PERFORMANCE_ANALYSIS
-//	#define _FULL_G2_LEAK_CHECKING
-//	extern int g_Ghoul2Allocations;
-//	extern int g_G2ServerAlloc;
-//	extern int g_G2ClientAlloc;
-//	extern int g_G2AllocServer;
-#endif
 
 #include <assert.h>
 #include <math.h>
@@ -668,39 +672,38 @@ qboolean Info_NextPair( const char **s, char *key, char *value );
 
 // this is only here so the functions in q_shared.c and bg_*.c can link
 #if defined( _GAME ) || defined( _CGAME ) || defined( UI_BUILD )
-	NORETURN_PTR void (*Com_Error)( int level, const char *error, ... );
-	void (*Com_Printf)( const char *msg, ... );
+	NORETURN_PTR void (*Com_Error)( int level, const char *fmt, ... );
+	void (*Com_Printf)( const char *fmt, ... );
 #else
-	void NORETURN QDECL Com_Error( int level, const char *error, ... );
-	void QDECL Com_Printf( const char *msg, ... );
+	void NORETURN QDECL Com_Error( int level, const char *fmt, ... );
+	void QDECL Com_Printf( const char *fmt, ... );
 #endif
 
 // CVARS (console variables)
-// Many variables can be used for cheating purposes, so when cheats is zero, force all unspecified variables to their cefault values.
+// Many variables can be used for cheating purposes, so when cheats is zero, force all unspecified variables to their default values.
 
 #define	CVAR_NONE			(0x00000000u)
-#define	CVAR_ARCHIVE		(0x00000001u)	// set to cause it to be saved to configuration file. used for system variables,
-											//	not for player specific configurations
-#define	CVAR_USERINFO		(0x00000002u)	// sent to server on connect or change
-#define	CVAR_SERVERINFO		(0x00000004u)	// sent in response to front end requests
-#define	CVAR_SYSTEMINFO		(0x00000008u)	// these cvars will be duplicated on all clients
-#define	CVAR_INIT			(0x00000010u)	// don't allow change from console at all, but can be set from the command line
-#define	CVAR_LATCH			(0x00000020u)	// will only change when C code next does a Cvar_Get(), so it can't be changed
-											//	without proper initialization. modified will be set, even though the value
-											//	hasn't changed yet
-#define	CVAR_ROM			(0x00000040u)	// display only, cannot be set by user at all (can be set by code)
-#define	CVAR_USER_CREATED	(0x00000080u)	// created by a set command
-#define	CVAR_TEMP			(0x00000100u)	// can be set even when cheats are disabled, but is not archived
-#define CVAR_CHEAT			(0x00000200u)	// can not be changed if cheats are disabled
-#define CVAR_NORESTART		(0x00000400u)	// do not clear when a cvar_restart is issued
-#define CVAR_INTERNAL		(0x00000800u)	// cvar won't be displayed, ever (for passwords and such)
-#define	CVAR_PARENTAL		(0x00001000u)	// lets cvar system know that parental stuff needs to be updated
-#define CVAR_SERVER_CREATED	(0x00002000u)	// cvar was created by a server the client connected to.
-#define CVAR_VM_CREATED		(0x00004000u)	// cvar was created exclusively in one of the VMs.
-#define CVAR_PROTECTED		(0x00008000u)	// prevent modifying this var from VMs or the server
-#define CVAR_NODEFAULT		(0x00010000u)	// do not write to config if matching with default value
+#define	CVAR_ARCHIVE		(0x00000001u) // set to cause it to be saved to configuration file. used for system variables, not for player specific configurations
+#define	CVAR_USERINFO		(0x00000002u) // sent to server on connect or change
+#define	CVAR_SERVERINFO		(0x00000004u) // sent in response to front end requests
+#define	CVAR_SYSTEMINFO		(0x00000008u) // these cvars will be duplicated on all clients
+#define	CVAR_INIT			(0x00000010u) // don't allow change from console at all, but can be set from the command line
+#define	CVAR_LATCH			(0x00000020u) // will only change when C code next does a Cvar_Get(), so it can't be changed without proper initialization.
+                                          //	modified will be set, even though the value hasn't changed yet
+#define	CVAR_ROM			(0x00000040u) // display only, cannot be set by user at all (can be set by code)
+#define	CVAR_USER_CREATED	(0x00000080u) // created by a set command
+#define	CVAR_TEMP			(0x00000100u) // can be set even when cheats are disabled, but is not archived
+#define CVAR_CHEAT			(0x00000200u) // can not be changed if cheats are disabled
+#define CVAR_NORESTART		(0x00000400u) // do not clear when a cvar_restart is issued
+#define CVAR_INTERNAL		(0x00000800u) // cvar won't be displayed, ever (for passwords and such)
+#define	CVAR_PARENTAL		(0x00001000u) // lets cvar system know that parental stuff needs to be updated
+#define CVAR_SERVER_CREATED	(0x00002000u) // cvar was created by a server the client connected to.
+#define CVAR_VM_CREATED		(0x00004000u) // cvar was created exclusively in one of the VMs.
+#define CVAR_PROTECTED		(0x00008000u) // prevent modifying this var from VMs or the server
+#define CVAR_NODEFAULT		(0x00010000u) // do not write to config if matching with default value
 
 #define CVAR_ARCHIVE_ND		(CVAR_ARCHIVE | CVAR_NODEFAULT)
+
 // These flags are only returned by the Cvar_Flags() function
 #define CVAR_MODIFIED		(0x40000000u)	// Cvar was modified
 #define CVAR_NONEXISTENT	(0x80000000u)	// Cvar doesn't exist.
@@ -730,6 +733,7 @@ typedef struct cvar_s {
 
 typedef int	cvarHandle_t;
 
+//CJKTODO: modules should access cvar_t* directly
 // the modules that run in the virtual machine can't access the cvar_t directly,
 // so they must ask for structured updates
 typedef struct vmCvar_s {
@@ -980,10 +984,6 @@ typedef enum {
 #define MAX_FORCE_RANK			7
 
 #define FALL_FADE_TIME			3000
-
-//#define _ONEBIT_COMBO
-// crazy optimization attempt to take all those 1 bit values and shove them into a single send.
-// may help us not have to send so many 1/0 bits to acknowledge modified values. -rww
 
 // playerState_t is the information needed by both the client and server to predict player motion and actions
 // nothing outside of pmove should modify these, or some degree of prediction error will occur

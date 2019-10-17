@@ -23,6 +23,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "qcommon/qcommon.h"
+#include "qcommon/com_cvar.h"
+#include "qcommon/com_cvars.h"
 
 #ifndef DEDICATED
 #ifndef FINAL_BUILD
@@ -207,20 +209,6 @@ typedef struct searchpath_s {
 } searchpath_t;
 
 static char		fs_gamedir[MAX_OSPATH];	// this will be a single file name with no separators
-static cvar_t		*fs_debug;
-static cvar_t		*fs_homepath;
-
-#ifdef MACOS_X
-// Also search the .app bundle for .pk3 files
-static cvar_t          *fs_apppath;
-#endif
-
-static cvar_t		*fs_basepath;
-static cvar_t		*fs_basegame;
-static cvar_t		*fs_cdpath;
-static cvar_t		*fs_copyfiles;
-static cvar_t		*fs_gamedirvar;
-static cvar_t		*fs_dirbeforepak; //rww - when building search path, keep directories at top and insert pk3's under them
 static searchpath_t	*fs_searchpaths;
 static int			fs_readCount;			// total bytes read
 static int			fs_loadCount;			// total files read
@@ -1045,7 +1033,6 @@ bool Sys_FileOutOfDate( LPCSTR psFinalFileName /* dest */, LPCSTR psDataFileName
 
 bool FS_FileCacheable(const char* const filename)
 {
-	extern	cvar_t	*com_buildScript;
 	if (com_buildScript && com_buildScript->integer)
 	{
 		return true;
@@ -1378,7 +1365,7 @@ qboolean FS_FindPureDLL(const char *name)
 	if(!fs_searchpaths)
 		Com_Error(ERR_FATAL, "Filesystem call made without initialization");
 
-	if ( !Cvar_VariableValue( "sv_pure" ) )
+	if ( !sv_pure->integer )
 		return qtrue;
 
 	Com_sprintf(dllName, sizeof(dllName), "%sx86.dll", name);
@@ -2847,19 +2834,19 @@ void FS_Shutdown( qboolean closemfp ) {
 //Ensiform - this is so wrong rww
 void FS_UpdateGamedir(void)
 {
-	if ( fs_gamedirvar->string[0] && Q_stricmp( fs_gamedirvar->string, BASEGAME ) )
+	if ( fs_game->string[0] && Q_stricmp( fs_game->string, BASEGAME ) )
 	{
 		if (fs_cdpath->string[0])
 		{
-			FS_AddGameDirectory(fs_cdpath->string, fs_gamedirvar->string);
+			FS_AddGameDirectory(fs_cdpath->string, fs_game->string);
 		}
 		if (fs_basepath->string[0])
 		{
-			FS_AddGameDirectory(fs_basepath->string, fs_gamedirvar->string);
+			FS_AddGameDirectory(fs_basepath->string, fs_game->string);
 		}
 		if (fs_homepath->string[0] && !Sys_PathCmp(fs_homepath->string, fs_basepath->string))
 		{
-			FS_AddGameDirectory(fs_homepath->string, fs_gamedirvar->string);
+			FS_AddGameDirectory(fs_homepath->string, fs_game->string);
 		}
 	}
 }
@@ -2924,19 +2911,11 @@ void FS_Startup( const char *gameName ) {
 
 	fs_packFiles = 0;
 
-	fs_debug = Cvar_Get( "fs_debug", "0", 0 );
-	fs_copyfiles = Cvar_Get( "fs_copyfiles", "0", CVAR_INIT );
-	fs_cdpath = Cvar_Get ("fs_cdpath", "", CVAR_INIT|CVAR_PROTECTED, "(Read Only) Location for development files" );
-	fs_basepath = Cvar_Get ("fs_basepath", Sys_DefaultInstallPath(), CVAR_INIT|CVAR_PROTECTED, "(Read Only) Location for game files" );
-	fs_basegame = Cvar_Get ("fs_basegame", "", CVAR_INIT );
 	homePath = Sys_DefaultHomePath();
 	if (!homePath || !homePath[0]) {
 		homePath = fs_basepath->string;
 	}
-	fs_homepath = Cvar_Get ("fs_homepath", homePath, CVAR_INIT|CVAR_PROTECTED, "(Read/Write) Location for user generated files" );
-	fs_gamedirvar = Cvar_Get ("fs_game", "", CVAR_INIT|CVAR_SYSTEMINFO, "Mod directory" );
-
-	fs_dirbeforepak = Cvar_Get("fs_dirbeforepak", "0", CVAR_INIT|CVAR_PROTECTED, "Prioritize directories before paks if not pure" );
+	Cvar_Set( "fs_homepath", homePath );
 
 	// add search path elements in reverse priority order (lowest priority first)
 	if (fs_cdpath->string[0]) {
@@ -2947,7 +2926,6 @@ void FS_Startup( const char *gameName ) {
 	}
 
 #ifdef MACOS_X
-	fs_apppath = Cvar_Get ("fs_apppath", Sys_DefaultAppPath(), CVAR_INIT|CVAR_PROTECTED, "(Read Only) Location of OSX .app bundle" );
 	// Make MacOSX also include the base path included with the .app bundle
 	if (fs_apppath->string[0]) {
 		FS_AddGameDirectory( fs_apppath->string, gameName );
@@ -2975,15 +2953,15 @@ void FS_Startup( const char *gameName ) {
 	}
 
 	// check for additional game folder for mods
-	if ( fs_gamedirvar->string[0] && Q_stricmp( fs_gamedirvar->string, gameName ) ) {
+	if ( fs_game->string[0] && Q_stricmp( fs_game->string, gameName ) ) {
 		if (fs_cdpath->string[0]) {
-			FS_AddGameDirectory(fs_cdpath->string, fs_gamedirvar->string);
+			FS_AddGameDirectory(fs_cdpath->string, fs_game->string);
 		}
 		if (fs_basepath->string[0]) {
-			FS_AddGameDirectory(fs_basepath->string, fs_gamedirvar->string);
+			FS_AddGameDirectory(fs_basepath->string, fs_game->string);
 		}
 		if (fs_homepath->string[0] && !Sys_PathCmp(fs_homepath->string, fs_basepath->string)) {
-			FS_AddGameDirectory(fs_homepath->string, fs_gamedirvar->string);
+			FS_AddGameDirectory(fs_homepath->string, fs_game->string);
 		}
 	}
 
@@ -3001,7 +2979,7 @@ void FS_Startup( const char *gameName ) {
 	// print the current search paths
 	FS_Path_f();
 
-	fs_gamedirvar->modified = qfalse; // We just loaded, it's not modified
+	fs_game->modified = qfalse; // We just loaded, it's not modified
 
 	Com_Printf( "----------------------\n" );
 
@@ -3294,7 +3272,7 @@ void FS_InitFilesystem( void ) {
 	Com_StartupVariable( "fs_apppath" );
 #endif
 
-	if(!FS_FilenameCompare(Cvar_VariableString("fs_game"), BASEGAME))
+	if(!FS_FilenameCompare(fs_game->string, BASEGAME))
 		Cvar_Set("fs_game", "");
 
 	// try to start up normally
@@ -3309,7 +3287,7 @@ void FS_InitFilesystem( void ) {
 	}
 
 	Q_strncpyz(lastValidBase, fs_basepath->string, sizeof(lastValidBase));
-	Q_strncpyz(lastValidGame, fs_gamedirvar->string, sizeof(lastValidGame));
+	Q_strncpyz(lastValidGame, fs_game->string, sizeof(lastValidGame));
 
 #if defined(_WIN32)
 	Com_Memset(fs_temporaryFileNames, 0, sizeof(fs_temporaryFileNames));
@@ -3351,7 +3329,7 @@ void FS_Restart( int checksumFeed ) {
 		Com_Error( ERR_FATAL, "Couldn't load default.cfg" );
 	}
 
-	if ( Q_stricmp(fs_gamedirvar->string, lastValidGame) ) {
+	if ( Q_stricmp(fs_game->string, lastValidGame) ) {
 		// skip the jampconfig.cfg if "safe" is on the command line
 		if ( !Com_SafeMode() ) {
 			Cbuf_AddText ("exec " Q3CONFIG_CFG "\n");
@@ -3359,13 +3337,13 @@ void FS_Restart( int checksumFeed ) {
 	}
 
 	Q_strncpyz(lastValidBase, fs_basepath->string, sizeof(lastValidBase));
-	Q_strncpyz(lastValidGame, fs_gamedirvar->string, sizeof(lastValidGame));
+	Q_strncpyz(lastValidGame, fs_game->string, sizeof(lastValidGame));
 
 }
 
 // restart if necessary
 qboolean FS_ConditionalRestart( int checksumFeed ) {
-	if( fs_gamedirvar->modified || checksumFeed != fs_checksumFeed ) {
+	if( fs_game->modified || checksumFeed != fs_checksumFeed ) {
 		FS_Restart( checksumFeed );
 		return qtrue;
 	}
@@ -3430,7 +3408,7 @@ void	FS_Flush( fileHandle_t f ) {
 	fflush(fsh[f].handleFiles.file.o);
 }
 
-void FS_FilenameCompletion( const char *dir, const char *ext, qboolean stripExt, callbackFunc_t callback, qboolean allowNonPureFilesOnDisk ) {
+void FS_FilenameCompletion( const char *dir, const char *ext, qboolean stripExt, completionCallback_t callback, qboolean allowNonPureFilesOnDisk ) {
 	int nfiles;
 	char **filenames, filename[MAX_STRING_CHARS];
 
@@ -3453,8 +3431,8 @@ void FS_FilenameCompletion( const char *dir, const char *ext, qboolean stripExt,
 
 const char *FS_GetCurrentGameDir(bool emptybase)
 {
-	if(fs_gamedirvar->string[0])
-		return fs_gamedirvar->string;
+	if(fs_game->string[0])
+		return fs_game->string;
 
 	return emptybase ? "" : BASEGAME;
 }

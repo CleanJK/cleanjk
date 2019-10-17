@@ -27,6 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "client.h"
 #include "cl_cgameapi.h"
 #include "qcommon/stringed_ingame.h"
+#include "qcommon/com_cvar.h"
 
 #ifdef USE_INTERNAL_ZLIB
 #include "zlib/zlib.h"
@@ -430,10 +431,10 @@ void CL_SystemInfoChanged( void ) {
 		Cvar_Server_Set( key, value );
 	}
 	// if game folder should not be set and it is set at the client side
-	if ( !gameSet && *Cvar_VariableString("fs_game") ) {
+	if ( !gameSet && fs_game->string[0] ) {
 		Cvar_Set( "fs_game", "" );
 	}
-	cl_connectedToPureServer = Cvar_VariableValue( "sv_pure" );
+	cl_connectedToPureServer = sv_pure->integer;
 }
 
 void CL_ParseGamestate( msg_t *msg ) {

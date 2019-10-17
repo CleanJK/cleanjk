@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "client.h"
 #include "snd_local.h"
+#include "qcommon/com_cvars.h"
 
 #define INDEX_FILE_EXTENSION ".index.dat"
 
@@ -346,12 +347,12 @@ qboolean CL_OpenAVIForWriting( const char *fileName )
         "of the audio rate, suggest %d\n", suggestRate );
   }
 
-  if( !Cvar_VariableIntegerValue( "s_initsound" ) )
+  if( !s_initsound->integer )
   {
     afd.audio = qfalse;
   }
-  else if( Cvar_VariableIntegerValue( "s_UseOpenAL" ) == 0 )
-  //else if( Q_stricmp( Cvar_VariableString( "s_backend" ), "OpenAL" ) )
+  #ifdef USE_OPENAL
+  else if( s_useOpenAL->integer == 0 )
   {
     if( afd.a.bits != 16 || afd.a.channels != 2 )
     {
@@ -362,11 +363,12 @@ qboolean CL_OpenAVIForWriting( const char *fileName )
     else
       afd.audio = qtrue;
   }
+  #endif
   else
   {
     afd.audio = qfalse;
     Com_Printf( S_COLOR_YELLOW "WARNING: Audio capture is not supported "
-        "with OpenAL. Set s_UseOpenAL to 0 for audio capture\n" );
+        "with OpenAL. Set s_useOpenAL to 0 for audio capture\n" );
   }
 
   // This doesn't write a real header, but allocates the

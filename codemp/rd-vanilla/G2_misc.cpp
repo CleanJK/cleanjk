@@ -25,6 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "qcommon/MiniHeap.h"
 #include "server/server.h"
 #include "ghoul2/g2_local.h"
+#include "rd-vanilla/tr_cvars.h"
 
 #ifdef _G2_GORE
 #include "ghoul2/G2_gore.h"
@@ -41,8 +42,6 @@ static std::map<int,GoreTextureCoordinates> GoreRecords;
 static std::map<std::pair<int,int>,int> GoreTagsTemp; // this is a surface index to gore tag map used only
 								  // temporarily during the generation phase so we reuse gore tags per LOD
 int goreModelIndex;
-
-static cvar_t *cg_g2MarksAllModels=NULL;
 
 GoreTextureCoordinates *FindGoreRecord(int tag);
 static inline void DestroyGoreTexCoordinates(int tag)
@@ -533,11 +532,6 @@ void G2_TransformModel(CGhoul2Info_v &ghoul2, const int frameNum, vec3_t scale, 
 	int				i, lod;
 	vec3_t			correctScale;
 	qboolean		firstModelOnly = qfalse;
-
-	if ( cg_g2MarksAllModels == NULL )
-	{
-		cg_g2MarksAllModels = ri.Cvar_Get( "cg_g2MarksAllModels", "0", 0, "" );
-	}
 
 	if (cg_g2MarksAllModels == NULL
 		|| !cg_g2MarksAllModels->integer )
@@ -1471,11 +1465,6 @@ void G2_TraceModels(CGhoul2Info_v &ghoul2, vec3_t rayStart, vec3_t rayEnd, Colli
 	skin_t			*skin;
 	shader_t		*cust_shader;
 	qboolean		firstModelOnly = qfalse;
-
-	if ( cg_g2MarksAllModels == NULL )
-	{
-		cg_g2MarksAllModels = ri.Cvar_Get( "cg_g2MarksAllModels", "0", 0, "" );
-	}
 
 	if (cg_g2MarksAllModels == NULL
 		|| !cg_g2MarksAllModels->integer )

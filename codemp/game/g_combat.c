@@ -1766,22 +1766,6 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	//Use any target we had
 	G_UseTargets( self, self );
 
-	if (g_slowmoDuelEnd.integer && (level.gametype == GT_DUEL || level.gametype == GT_POWERDUEL) && attacker && attacker->inuse && attacker->client)
-	{
-		if (!gDoSlowMoDuel)
-		{
-			gDoSlowMoDuel = qtrue;
-			gSlowMoDuelTime = level.time;
-		}
-	}
-	/*
-	else if (self->NPC && attacker && attacker->client && attacker->s.number < MAX_CLIENTS && !gDoSlowMoDuel)
-	{
-		gDoSlowMoDuel = qtrue;
-		gSlowMoDuelTime = level.time;
-	}
-	*/
-
 	//Make sure the jetpack is turned off.
 	Jetpack_Off(self);
 

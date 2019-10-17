@@ -22,6 +22,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "tr_local.h"
+#include "rd-vanilla/tr_cvars.h"
 
 inline void Q_CastShort2Float(float *f, const short *s)
 {
@@ -478,15 +479,7 @@ void R_AddBrushModelSurfaces ( trRefEntity_t *ent ) {
 		R_SetupEntityLighting(&tr.refdef, ent);
 	}
 
-	//rww - Take this into account later?
-//	if ( !ri.Cvar_VariableIntegerValue( "com_RMG" ) )
-//	{	// don't dlight bmodels on rmg, as multiple copies of the same instance will light up
-		R_DlightBmodel( bmodel, false );
-//	}
-//	else
-//	{
-//		R_DlightBmodel( bmodel, true );
-//	}
+	R_DlightBmodel( bmodel, false );
 
 	for ( i = 0 ; i < bmodel->numSurfaces ; i++ ) {
 		R_AddWorldSurface( bmodel->firstSurface + i, tr.currentEntity->dlightBits, qtrue );

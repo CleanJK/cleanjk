@@ -28,15 +28,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "cl_cgameapi.h"
 #include "qcommon/stringed_ingame.h"
 #include "qcommon/game_version.h"
+#include "qcommon/com_cvars.h"
 
 int g_console_field_width = 78;
 
 console_t	con;
-
-cvar_t		*con_conspeed;
-cvar_t		*con_notifytime;
-cvar_t		*con_opacity; // background alpha multiplier
-cvar_t		*con_autoclear;
 
 #define	DEFAULT_CONSOLE_WIDTH	78
 
@@ -282,13 +278,6 @@ void Cmd_CompleteTxtName( char *args, int argNum ) {
 void Con_Init (void) {
 	int		i;
 
-	con_notifytime = Cvar_Get ("con_notifytime", "3", 0, "How many seconds notify messages should be shown before they fade away");
-	con_conspeed = Cvar_Get ("scr_conspeed", "3", 0, "Console open/close speed");
-	Cvar_CheckRange (con_conspeed, 1.0f, 100.0f, qfalse);
-
-	con_opacity = Cvar_Get ("con_opacity", "1.0", CVAR_ARCHIVE_ND, "Opacity of console background");
-	con_autoclear = Cvar_Get ("con_autoclear", "1", CVAR_ARCHIVE_ND, "Automatically clear console input on close");
-
 	Field_Clear( &g_consoleField );
 	g_consoleField.widthInChars = g_console_field_width;
 	for ( i = 0 ; i < COMMAND_HISTORY ; i++ ) {
@@ -487,11 +476,6 @@ void Con_DrawNotify (void)
 			continue;
 		}
 
-		if (!cl_conXOffset)
-		{
-			cl_conXOffset = Cvar_Get ("cl_conXOffset", "0", 0);
-		}
-
 		// asian language needs to use the new font system to print glyphs...
 		// (ignore colours since we're going to print the whole thing as one string)
 		if (re->Language_IsAsian())
@@ -524,10 +508,6 @@ void Con_DrawNotify (void)
 				if ( ( (text[x]>>8)&Q_COLOR_BITS ) != currentColor ) {
 					currentColor = (text[x]>>8)&Q_COLOR_BITS;
 					re->SetColor( g_color_table[currentColor] );
-				}
-				if (!cl_conXOffset)
-				{
-					cl_conXOffset = Cvar_Get ("cl_conXOffset", "0", 0);
 				}
 				SCR_DrawSmallChar( (int)(cl_conXOffset->integer + con.xadjust + (x+1)*SMALLCHAR_WIDTH), v, text[x] & 0xff );
 			}
@@ -736,14 +716,14 @@ void Con_RunConsole (void) {
 	// scroll towards the destination height
 	if (con.finalFrac < con.displayFrac)
 	{
-		con.displayFrac -= con_conspeed->value*(float)(cls.realFrametime*0.001);
+		con.displayFrac -= scr_conspeed->value*(float)(cls.realFrametime*0.001);
 		if (con.finalFrac > con.displayFrac)
 			con.displayFrac = con.finalFrac;
 
 	}
 	else if (con.finalFrac > con.displayFrac)
 	{
-		con.displayFrac += con_conspeed->value*(float)(cls.realFrametime*0.001);
+		con.displayFrac += scr_conspeed->value*(float)(cls.realFrametime*0.001);
 		if (con.finalFrac < con.displayFrac)
 			con.displayFrac = con.finalFrac;
 	}
@@ -776,7 +756,7 @@ void Con_Bottom( void ) {
 }
 
 void Con_Close( void ) {
-	if ( !com_cl_running->integer ) {
+	if ( !cl_running->integer ) {
 		return;
 	}
 	Field_Clear( &g_consoleField );

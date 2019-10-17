@@ -456,7 +456,6 @@ static void CG_UpdateThirdPersonCameraDamp(void)
 	// however two full volume traces each frame is a bit scary to think about.
 }
 
-extern vmCvar_t cg_thirdPersonHorzOffset;
 static void CG_OffsetThirdPersonView( void )
 {
 	vec3_t diff;

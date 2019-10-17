@@ -2390,24 +2390,13 @@ const char *eventnames[EV_NUM_ENTITY_EVENTS] = {
 // Handles the sequence numbers
 void BG_AddPredictableEventToPlayerstate( int newEvent, int eventParm, playerState_t *ps ) {
 
-#ifdef _DEBUG
-	{
-		static vmCvar_t		showEvents;
-		static qboolean		isRegistered = qfalse;
-
-		if (!isRegistered)
-		{
-			trap->Cvar_Register(&showEvents, "showevents", "0", 0);
-			isRegistered = qtrue;
-		}
-
-		if ( showEvents.integer != 0 ) {
+#if defined(_DEBUG) && !defined(UI_BUILD)
+	if ( bg_showEvents.integer != 0 ) {
 #ifdef _GAME
-			Com_Printf(" game event svt %5d -> %5d: num = %20s parm %d\n", ps->pmove_framecount/*ps->commandTime*/, ps->eventSequence, eventnames[newEvent], eventParm);
+		Com_Printf(" game event svt %5d -> %5d: num = %20s parm %d\n", ps->pmove_framecount/*ps->commandTime*/, ps->eventSequence, eventnames[newEvent], eventParm);
 #else
-			Com_Printf("Cgame event svt %5d -> %5d: num = %20s parm %d\n", ps->pmove_framecount/*ps->commandTime*/, ps->eventSequence, eventnames[newEvent], eventParm);
+		Com_Printf("Cgame event svt %5d -> %5d: num = %20s parm %d\n", ps->pmove_framecount/*ps->commandTime*/, ps->eventSequence, eventnames[newEvent], eventParm);
 #endif
-		}
 	}
 #endif
 	ps->events[ps->eventSequence & (MAX_PS_EVENTS-1)] = newEvent;

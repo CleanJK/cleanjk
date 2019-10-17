@@ -28,7 +28,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "ghoul2/ghoul2_shared.h"
 #include "qcommon/cm_public.h"
 #include "icarus/GameInterface.h"
+#include "icarus/icarus.h"
 #include "qcommon/timing.h"
+#include "qcommon/com_cvar.h"
+#include "qcommon/com_cvars.h"
 
 botlib_export_t	*botlib_export;
 

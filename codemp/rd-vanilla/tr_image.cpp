@@ -25,6 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "tr_local.h"
 #include "../rd-common/tr_common.h"
 #include "glext.h"
+#include "rd-vanilla/tr_cvars.h"
 
 #include <map>
 
@@ -999,7 +1000,7 @@ image_t	*R_FindImageFile( const char *name, qboolean mipmap, qboolean allowPicmi
 	int		width, height;
 	byte	*pic;
 
-	if (!name || ri.Cvar_VariableIntegerValue( "dedicated" ) )	// stop ghoul2 horribleness as regards image loading from server
+	if (!name || dedicated->integer )	// stop ghoul2 horribleness as regards image loading from server
 	{
 		return NULL;
 	}

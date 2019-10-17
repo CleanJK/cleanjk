@@ -35,6 +35,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "qcommon/qcommon.h"
 #include "qcommon/q_shared.h"
+#include "qcommon/com_cvars.h"
 #include "sys_local.h"
 
 qboolean stdinIsATTY = qfalse;
@@ -478,8 +479,8 @@ char *Sys_DefaultHomePath(void)
 		if ( (p = getenv( "XDG_DATA_HOME" )) != NULL )
 		{
 			Com_sprintf( homePath, sizeof( homePath ), "%s%c", p, PATH_SEP );
-			if ( com_homepath && com_homepath->string[0] )
-				Q_strcat( homePath, sizeof( homePath ), com_homepath->string );
+			if ( fs_homepath && fs_homepath->string[0] )
+				Q_strcat( homePath, sizeof( homePath ), fs_homepath->string );
 			else
 				Q_strcat( homePath, sizeof( homePath ), HOMEPATH_NAME_UNIX );
 
@@ -489,8 +490,8 @@ char *Sys_DefaultHomePath(void)
 		if ( (p = getenv( "HOME" )) != NULL )
 		{
 			Com_sprintf( homePath, sizeof( homePath ), "%s%c.local%cshare%c", p, PATH_SEP, PATH_SEP, PATH_SEP );
-			if ( com_homepath && com_homepath->string[0] )
-				Q_strcat( homePath, sizeof( homePath ), com_homepath->string );
+			if ( fs_homepath && fs_homepath->string[0] )
+				Q_strcat( homePath, sizeof( homePath ), fs_homepath->string );
 			else
 				Q_strcat( homePath, sizeof( homePath ), HOMEPATH_NAME_UNIX );
 

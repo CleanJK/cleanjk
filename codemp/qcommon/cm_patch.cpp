@@ -24,6 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "cm_local.h"
 #include "cm_patch.h"
 #include "qcommon/qcommon.h"
+#include "qcommon/com_cvars.h"
 
 /*
 
@@ -1112,9 +1113,6 @@ static inline void CM_TracePointThroughPatchCollide( traceWork_t *tw, trace_t &t
 	int			i, j, k;
 	float		offset;
 	float		d1, d2;
-#ifndef BSPC
-	static cvar_t *cv;
-#endif //BSPC
 
 #ifndef BSPC
 	if ( !cm_playerCurveClip->integer || !tw->isPoint ) {
@@ -1171,10 +1169,7 @@ static inline void CM_TracePointThroughPatchCollide( traceWork_t *tw, trace_t &t
 		if ( j == facet->numBorders ) {
 			// we hit this facet
 #ifndef BSPC
-			if (!cv) {
-				cv = Cvar_Get( "r_debugSurfaceUpdate", "1", 0 );
-			}
-			if (cv->integer) {
+			if ( r_debugSurfaceUpdate && r_debugSurfaceUpdate->integer) {
 				debugPatchCollide = pc;
 				debugFacet = facet;
 			}
@@ -1246,9 +1241,6 @@ void CM_TraceThroughPatchCollide( traceWork_t *tw, trace_t &trace, const struct 
 	facet_t	*facet;
 	float plane[4] = { 0.0f }, bestplane[4] = { 0.0f };
 	vec3_t startp, endp;
-#ifndef BSPC
-	static cvar_t *cv;
-#endif //BSPC
 
 #ifndef CULL_BBOX
 	// I'm not sure if test is strictly correct.  Are all
@@ -1358,10 +1350,7 @@ void CM_TraceThroughPatchCollide( traceWork_t *tw, trace_t &trace, const struct 
 					enterFrac = 0;
 				}
 #ifndef BSPC
-				if (!cv) {
-					cv = Cvar_Get( "r_debugSurfaceUpdate", "1", 0 );
-				}
-				if (cv && cv->integer) {
+				if (r_debugSurfaceUpdate && r_debugSurfaceUpdate->integer) {
 					debugPatchCollide = pc;
 					debugFacet = facet;
 				}
@@ -1471,10 +1460,6 @@ void BotDrawDebugPolygons(void (*drawPoly)(int color, int numPoints, float *poin
 #endif
 
 void CM_DrawDebugSurface( void (*drawPoly)(int color, int numPoints, float *points) ) {
-	static cvar_t	*cv;
-#ifndef BSPC
-	static cvar_t	*cv2;
-#endif
 	const patchCollide_t	*pc;
 	facet_t			*facet;
 	winding_t		*w;
@@ -1486,14 +1471,9 @@ void CM_DrawDebugSurface( void (*drawPoly)(int color, int numPoints, float *poin
 	vec3_t v1, v2;
 
 #ifndef BSPC
-	if ( !cv2 )
+	if (r_debugSurface->integer != 1)
 	{
-		cv2 = Cvar_Get( "r_debugSurface", "0", 0 );
-	}
-
-	if (cv2->integer != 1)
-	{
-		BotDrawDebugPolygons(drawPoly, cv2->integer);
+		BotDrawDebugPolygons(drawPoly, r_debugSurface->integer);
 		return;
 	}
 #endif
@@ -1502,11 +1482,6 @@ void CM_DrawDebugSurface( void (*drawPoly)(int color, int numPoints, float *poin
 		return;
 	}
 
-#ifndef BSPC
-	if ( !cv ) {
-		cv = Cvar_Get( "cm_debugSize", "2", 0 );
-	}
-#endif
 	pc = debugPatchCollide;
 
 	for ( i = 0, facet = pc->facets ; i < pc->numFacets ; i++, facet++ ) {
@@ -1531,7 +1506,7 @@ void CM_DrawDebugSurface( void (*drawPoly)(int color, int numPoints, float *poin
 				plane[3] = -plane[3];
 			}
 
-			plane[3] += cv->value;
+			plane[3] += cm_debugSize->value;
 			//*
 			for (n = 0; n < 3; n++)
 			{
@@ -1563,7 +1538,7 @@ void CM_DrawDebugSurface( void (*drawPoly)(int color, int numPoints, float *poin
 					plane[3] = -plane[3];
 				}
 		//			if ( !facet->borderNoAdjust[j] ) {
-					plane[3] -= cv->value;
+					plane[3] -= cm_debugSize->value;
 		//			}
 				for (n = 0; n < 3; n++)
 				{

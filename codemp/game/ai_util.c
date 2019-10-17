@@ -366,8 +366,8 @@ int BotDoChat(bot_state_t *bs, char *section, int always)
 		return 0;
 	}
 
-	if (trap->Cvar_VariableIntegerValue("se_language"))
-	{ //no chatting unless English.
+	if ( se_language.integer ) {
+		//no chatting unless English.
 		return 0;
 	}
 

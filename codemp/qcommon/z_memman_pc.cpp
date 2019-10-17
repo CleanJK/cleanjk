@@ -23,6 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // Created 3/13/03 by Brian Osman (VV) - Split Zone/Hunk from common
 
 #include "client/client.h" // hi i'm bad
+#include "qcommon/com_cvars.h"
 
 #ifdef TAGDEF	// itu?
 #undef TAGDEF
@@ -84,8 +85,6 @@ typedef struct zone_s
 	zoneStats_t				Stats;
 	zoneHeader_t			Header;
 } zone_t;
-
-cvar_t	*com_validateZone;
 
 zone_t	TheZone = {};
 
@@ -577,12 +576,6 @@ void Com_InitZoneMemory( void )
 }
 
 void Com_InitZoneMemoryVars( void ) {
-	//#ifdef _DEBUG
-//	com_validateZone = Cvar_Get("com_validateZone", "1", 0);
-//#else
-	com_validateZone = Cvar_Get("com_validateZone", "0", 0);
-//#endif
-
 	Cmd_AddCommand("zone_stats", Z_Stats_f, "Prints out zone memory stats" );
 	Cmd_AddCommand("zone_details", Z_Details_f, "Prints out full detailed zone memory info" );
 

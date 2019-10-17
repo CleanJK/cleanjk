@@ -29,6 +29,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #ifdef _G2_GORE
 #include "ghoul2/G2_gore.h"
 #endif
+#include "rd-vanilla/tr_cvars.h"
 
 #include "qcommon/disablewarnings.h"
 
@@ -105,9 +106,6 @@ bool HackadelicOnClient=false; // means this is a render traversal
 
 qboolean G2_SetupModelPointers(CGhoul2Info *ghlInfo);
 qboolean G2_SetupModelPointers(CGhoul2Info_v &ghoul2);
-
-extern cvar_t	*r_Ghoul2AnimSmooth;
-extern cvar_t	*r_Ghoul2UnSqashAfterSmooth;
 
 const static mdxaBone_t		identityMatrix =
 {
@@ -1960,7 +1958,7 @@ void G2_TransformGhoulBones(boneInfo_v &rootBoneList,mdxaBone_t &rootMatrix, CGh
 	ghoul2.mBoneCache->mUnsquash=false;
 
 	// master smoothing control
-	if (HackadelicOnClient && smooth && !ri.Cvar_VariableIntegerValue( "dedicated" ))
+	if (HackadelicOnClient && smooth && !dedicated->integer)
 	{
 		ghoul2.mBoneCache->mLastTouch=ghoul2.mBoneCache->mLastLastTouch;
 		/*
@@ -2368,7 +2366,7 @@ void RenderSurfaces(CRenderSurface &RS) //also ended up just ripping right from 
 		// stencil shadows can't do personal models unless I polyhedron clip
 		//using z-fail now so can do personal models -rww
 		if ( /*!RS.personalModel
-			&& */r_shadows->integer == 2
+			&& */cg_shadows->integer == 2
 //			&& RS.fogNum == 0
 			&& (RS.renderfx & RF_SHADOW_PLANE )
 			&& !(RS.renderfx & ( RF_NOSHADOW | RF_DEPTHHACK ) )
@@ -2389,7 +2387,7 @@ void RenderSurfaces(CRenderSurface &RS) //also ended up just ripping right from 
 		}
 
 		// projection shadows work fine with personal models
-		if ( r_shadows->integer == 3
+		if ( cg_shadows->integer == 3
 //			&& RS.fogNum == 0
 			&& (RS.renderfx & RF_SHADOW_PLANE )
 			&& shader->sort == SS_OPAQUE )
@@ -3073,7 +3071,6 @@ static void RootMatrix(CGhoul2Info_v &ghoul2,int time,const vec3_t scale,mdxaBon
 	retMatrix=identityMatrix;
 }
 
-extern cvar_t	*r_shadowRange;
 static inline bool bInShadowRange(vec3_t location)
 {
 	const float c = DotProduct( tr.viewParms.ori.axis[0], tr.viewParms.ori.origin );
@@ -3135,7 +3132,7 @@ void R_AddGhoulSurfaces( trRefEntity_t *ent ) {
 	modelList[255]=548;
 
 	// set up lighting now that we know we aren't culled
-	if ( !personalModel || r_shadows->integer > 1 ) {
+	if ( !personalModel || cg_shadows->integer > 1 ) {
 		R_SetupEntityLighting( &tr.refdef, ent );
 	}
 

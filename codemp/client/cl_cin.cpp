@@ -27,6 +27,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "client.h"
 #include "cl_uiapi.h"
 #include "snd_local.h"
+#include "qcommon/com_cvar.h"
+#include "qcommon/com_cvars.h"
 #ifndef _WIN32
 #include <cmath>
 #endif
@@ -991,7 +993,7 @@ redump:
 			if (cinTable[currentHandle].numQuads == -1) {
 				readQuadInfo( framedata );
 				setupQuad( 0, 0 );
-				cinTable[currentHandle].startTime = cinTable[currentHandle].lastTime = Sys_Milliseconds()*com_timescale->value;
+				cinTable[currentHandle].startTime = cinTable[currentHandle].lastTime = Sys_Milliseconds()*timescale->value;
 			}
 			if (cinTable[currentHandle].numQuads != 1) cinTable[currentHandle].numQuads = 0;
 			break;
@@ -1052,7 +1054,7 @@ redump:
 
 static void RoQ_init( void )
 {
-	cinTable[currentHandle].startTime = cinTable[currentHandle].lastTime = Sys_Milliseconds()*com_timescale->value;
+	cinTable[currentHandle].startTime = cinTable[currentHandle].lastTime = Sys_Milliseconds()*timescale->value;
 
 	cinTable[currentHandle].RoQPlayed = 24;
 
@@ -1074,8 +1076,6 @@ static void RoQ_init( void )
 }
 
 static void RoQShutdown( void ) {
-	const char *s;
-
 	if (!cinTable[currentHandle].buf) {
 		return;
 	}
@@ -1093,13 +1093,10 @@ static void RoQShutdown( void ) {
 
 	if (cinTable[currentHandle].alterGameState) {
 		cls.state = CA_DISCONNECTED;
-		// we can't just do a vstr nextmap, because
-		// if we are aborting the intro cinematic with
-		// a devmap command, nextmap would be valid by
-		// the time it was referenced
-		s = Cvar_VariableString( "nextmap" );
-		if ( s[0] ) {
-			Cbuf_ExecuteText( EXEC_APPEND, va("%s\n", s) );
+		// we can't just do a vstr nextmap, because if we are aborting the intro cinematic with
+		// a devmap command, nextmap would be valid by the time it was referenced
+		if ( nextmap->string[0] ) {
+			Cbuf_ExecuteText( EXEC_APPEND, va( "%s\n", nextmap->string ) );
 			Cvar_Set( "nextmap", "" );
 		}
 		CL_handle = -1;
@@ -1162,11 +1159,11 @@ e_status CIN_RunCinematic (int handle)
 		return cinTable[currentHandle].status;
 	}
 
-	thisTime = Sys_Milliseconds()*com_timescale->value;
+	thisTime = Sys_Milliseconds()*timescale->value;
 	if (cinTable[currentHandle].shader && (abs(thisTime - (double)cinTable[currentHandle].lastTime))>100) {
 		cinTable[currentHandle].startTime += thisTime - cinTable[currentHandle].lastTime;
 	}
-	cinTable[currentHandle].tfps = ((((Sys_Milliseconds()*com_timescale->value) - cinTable[currentHandle].startTime)*cinTable[currentHandle].roqFPS)/1000);
+	cinTable[currentHandle].tfps = ((((Sys_Milliseconds()*timescale->value) - cinTable[currentHandle].startTime)*cinTable[currentHandle].roqFPS)/1000);
 
 	start = cinTable[currentHandle].startTime;
 	while(  (cinTable[currentHandle].tfps != cinTable[currentHandle].numQuads)
@@ -1174,7 +1171,7 @@ e_status CIN_RunCinematic (int handle)
 	{
 		RoQInterrupt();
 		if ((unsigned)start != cinTable[currentHandle].startTime) {
-		  cinTable[currentHandle].tfps = ((((Sys_Milliseconds()*com_timescale->value)
+		  cinTable[currentHandle].tfps = ((((Sys_Milliseconds()*timescale->value)
 							  - cinTable[currentHandle].startTime)*cinTable[currentHandle].roqFPS)/1000);
 			start = cinTable[currentHandle].startTime;
 		}
@@ -1252,7 +1249,7 @@ int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, int systemBi
 			UIVM_SetActiveMenu( UIMENU_NONE );
 		}
 	} else {
-		cinTable[currentHandle].playonwalls = cl_inGameVideo->integer;
+		cinTable[currentHandle].playonwalls = r_inGameVideo->integer;
 	}
 
 	initRoQ();
@@ -1473,10 +1470,10 @@ void CIN_UploadCinematic(int handle) {
 			cinTable[handle].dirty = qfalse;
 		}
 
-		if (cl_inGameVideo->integer == 0 && cinTable[handle].playonwalls == 1) {
+		if (r_inGameVideo->integer == 0 && cinTable[handle].playonwalls == 1) {
 			cinTable[handle].playonwalls--;
 		}
-		else if (cl_inGameVideo->integer != 0 && cinTable[handle].playonwalls != 1) {
+		else if (r_inGameVideo->integer != 0 && cinTable[handle].playonwalls != 1) {
 			cinTable[handle].playonwalls = 1;
 		}
 	}

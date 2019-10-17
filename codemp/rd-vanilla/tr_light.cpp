@@ -24,6 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // tr_light.c
 
 #include "tr_local.h"
+#include "rd-vanilla/tr_cvars.h"
 
 #define	DLIGHT_AT_RADIUS		16
 // at the edge of a dlight's influence, this amount of light will be added
@@ -97,10 +98,6 @@ void R_DlightBmodel( bmodel_t *bmodel, bool NoLight )
 }
 
 // LIGHT SAMPLING
-
-extern	cvar_t	*r_ambientScale;
-extern	cvar_t	*r_directedScale;
-extern	cvar_t	*r_debugLight;
 
 //rwwRMG - VectorScaleVector is now a #define
 

@@ -23,6 +23,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "qcommon/qcommon.h"
+#include "qcommon/com_cvar.h"
+#include "qcommon/com_cvars.h"
 
 #ifdef _WIN32
 	#include <winsock.h>
@@ -82,20 +84,6 @@ typedef int SOCKET;
 
 static qboolean usingSocks = qfalse;
 static qboolean networkingEnabled = qfalse;
-
-static cvar_t	*net_enabled;
-static cvar_t	*net_forcenonlocal;
-
-static cvar_t	*net_socksEnabled;
-static cvar_t	*net_socksServer;
-static cvar_t	*net_socksPort;
-static cvar_t	*net_socksUsername;
-static cvar_t	*net_socksPassword;
-
-static cvar_t	*net_ip;
-static cvar_t	*net_port;
-
-static cvar_t	*net_dropsim;
 
 static struct sockaddr_in	socksRelayAddr;
 
@@ -324,9 +312,6 @@ void Sys_SendPacket( int length, const void *data, netadr_t to ) {
 
 // LAN clients will have their rate var ignored
 qboolean Sys_IsLANAddress( netadr_t adr ) {
-	if ( !net_forcenonlocal )
-		net_forcenonlocal = Cvar_Get( "net_forcenonlocal", "0", 0 );
-
 	if ( net_forcenonlocal && net_forcenonlocal->integer )
 		return qfalse;
 
@@ -778,45 +763,26 @@ void NET_OpenIP( void )
 }
 
 static qboolean NET_GetCvars( void ) {
-	int	modified = 0;
+	int	modified =
+		net_enabled->modified +
+		net_forcenonlocal->modified +
+		net_ip->modified +
+		net_port->modified +
+		net_socksEnabled->modified +
+		net_socksServer->modified +
+		net_socksPort->modified +
+		net_socksUsername->modified +
+		net_socksPassword->modified;
 
-	net_enabled = Cvar_Get( "net_enabled", "1", CVAR_LATCH | CVAR_ARCHIVE_ND );
-	modified = net_enabled->modified;
-	net_enabled->modified = qfalse;
-
-	net_forcenonlocal = Cvar_Get( "net_forcenonlocal", "0", CVAR_LATCH | CVAR_ARCHIVE_ND );
-	modified += net_forcenonlocal->modified;
-	net_forcenonlocal->modified = qfalse;
-
-	net_ip = Cvar_Get( "net_ip", "localhost", CVAR_LATCH );
-	modified += net_ip->modified;
-	net_ip->modified = qfalse;
-
-	net_port = Cvar_Get( "net_port", XSTRING( PORT_SERVER ), CVAR_LATCH );
-	modified += net_port->modified;
-	net_port->modified = qfalse;
-
-	net_socksEnabled = Cvar_Get( "net_socksEnabled", "0", CVAR_LATCH | CVAR_ARCHIVE_ND );
-	modified += net_socksEnabled->modified;
-	net_socksEnabled->modified = qfalse;
-
-	net_socksServer = Cvar_Get( "net_socksServer", "", CVAR_LATCH | CVAR_ARCHIVE_ND );
-	modified += net_socksServer->modified;
-	net_socksServer->modified = qfalse;
-
-	net_socksPort = Cvar_Get( "net_socksPort", "1080", CVAR_LATCH | CVAR_ARCHIVE_ND );
-	modified += net_socksPort->modified;
-	net_socksPort->modified = qfalse;
-
-	net_socksUsername = Cvar_Get( "net_socksUsername", "", CVAR_LATCH | CVAR_ARCHIVE_ND );
-	modified += net_socksUsername->modified;
-	net_socksUsername->modified = qfalse;
-
-	net_socksPassword = Cvar_Get( "net_socksPassword", "", CVAR_LATCH | CVAR_ARCHIVE_ND );
-	modified += net_socksPassword->modified;
-	net_socksPassword->modified = qfalse;
-
-	net_dropsim = Cvar_Get( "net_dropsim", "", CVAR_TEMP);
+	net_enabled->modified =
+		net_forcenonlocal->modified =
+		net_ip->modified =
+		net_port->modified =
+		net_socksEnabled->modified =
+		net_socksServer->modified =
+		net_socksPort->modified =
+		net_socksUsername->modified =
+		net_socksPassword->modified = qfalse;
 
 	return modified ? qtrue : qfalse;
 }
@@ -925,7 +891,7 @@ void NET_Event(fd_set *fdr)
 					continue;          // drop this packet
 			}
 
-			if(com_sv_running->integer)
+			if(sv_running->integer)
 				Com_RunAndTimeServerPacket(&from, &netmsg);
 			else
 				CL_PacketEvent(from, &netmsg);

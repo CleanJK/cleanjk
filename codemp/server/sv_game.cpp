@@ -106,10 +106,9 @@ void SV_ShutdownGameProgs( void ) {
 // Called on a normal map change, not on a map_restart
 void SV_InitGameProgs( void ) {
 	//FIXME these are temp while I make bots run in vm
-	extern int	bot_enable;
+	extern int	bot_enabled;
 
-	cvar_t *var = Cvar_Get( "bot_enable", "1", CVAR_LATCH );
-	bot_enable = var ? var->integer : 0;
+	bot_enabled = bot_enable ? bot_enable->integer : 0;
 
 	svs.gameStarted = qtrue;
 	SV_BindGame();

@@ -27,6 +27,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "stringed_ingame.h"
 #include "qcommon/cm_public.h"
 #include "qcommon/game_version.h"
+#include "qcommon/com_cvars.h"
+#include "qcommon/com_cvar.h"
+
 #include "../shared/sys/sys_local.h"
 #if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
@@ -34,38 +37,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #endif
 
 FILE *debuglogfile;
-fileHandle_t logfile;
+fileHandle_t com_logfile;
 fileHandle_t	com_journalFile;			// events are written here
 fileHandle_t	com_journalDataFile;		// config files are written here
-
-cvar_t	*com_speeds;
-cvar_t	*com_developer;
-cvar_t	*com_dedicated;
-cvar_t	*com_timescale;
-cvar_t	*com_fixedtime;
-cvar_t	*com_journal;
-cvar_t	*com_timedemo;
-cvar_t	*com_sv_running;
-cvar_t	*com_cl_running;
-cvar_t	*com_logfile;		// 1 = buffer log, 2 = flush after each print
-cvar_t	*com_showtrace;
-
-#ifdef G2_PERFORMANCE_ANALYSIS
-cvar_t	*com_G2Report;
-#endif
-
-cvar_t	*com_version;
-cvar_t	*com_buildScript;	// for automated data building scripts
-cvar_t	*cl_paused;
-cvar_t	*sv_paused;
-cvar_t	*com_cameraMode;
-cvar_t  *com_homepath;
-#ifndef _WIN32
-cvar_t	*com_ansiColor = NULL;
-#endif
-cvar_t	*com_busyWait;
-
-cvar_t *com_affinity;
 
 // com_speeds times
 int		time_game;
@@ -139,10 +113,10 @@ void QDECL Com_Printf( const char *fmt, ... ) {
 	Sys_Print( msg );
 
 	// logfile
-	if ( com_logfile && com_logfile->integer ) {
+	if ( logfile && logfile->integer ) {
     // TTimo: only open the qconsole.log if the filesystem is in an initialized state
     //   also, avoid recursing in the qconsole.log opening (i.e. if fs_debug is on)
-		if ( !logfile && FS_Initialized() && !opening_qconsole ) {
+		if ( !com_logfile && FS_Initialized() && !opening_qconsole ) {
 			struct tm *newtime;
 			time_t aclock;
 
@@ -151,14 +125,14 @@ void QDECL Com_Printf( const char *fmt, ... ) {
 			time( &aclock );
 			newtime = localtime( &aclock );
 
-			logfile = FS_FOpenFileWrite( "qconsole.log" );
+			com_logfile = FS_FOpenFileWrite( "qconsole.log" );
 
-			if ( logfile ) {
+			if ( com_logfile ) {
 				Com_Printf( "logfile opened on %s\n", asctime( newtime ) );
-				if ( com_logfile->integer > 1 ) {
+				if ( logfile->integer > 1 ) {
 					// force it to not buffer so we get valid
 					// data even if we are crashing
-					FS_ForceFlush(logfile);
+					FS_ForceFlush(com_logfile);
 				}
 			}
 			else {
@@ -167,8 +141,8 @@ void QDECL Com_Printf( const char *fmt, ... ) {
 			}
 		}
 		opening_qconsole = qfalse;
-		if ( logfile && FS_Initialized()) {
-			FS_Write(msg, strlen(msg), logfile);
+		if ( com_logfile && FS_Initialized()) {
+			FS_Write(msg, strlen(msg), com_logfile);
 		}
 	}
 
@@ -186,7 +160,7 @@ void QDECL Com_DPrintf( const char *fmt, ...) {
 	va_list		argptr;
 	char		msg[MAXPRINTMSG];
 
-	if ( !com_developer || !com_developer->integer ) {
+	if ( !developer || !developer->integer ) {
 		return;			// don't confuse non-developers with techie stuff...
 	}
 
@@ -234,7 +208,7 @@ void NORETURN QDECL Com_Error( int code, const char *fmt, ... ) {
 	// ERR_DROPs on dedicated drop to an interactive console
 	// which doesn't make sense for dedicated as it's generally
 	// run unattended
-	if ( com_dedicated && com_dedicated->integer ) {
+	if ( dedicated && dedicated->integer ) {
 		code = ERR_FATAL;
 	}
 
@@ -586,7 +560,6 @@ static sysEvent_t	com_pushedEvents[MAX_PUSHED_EVENTS];
 
 void Com_InitJournaling( void ) {
 	Com_StartupVariable( "journal" );
-	com_journal = Cvar_Get ("journal", "0", CVAR_INIT);
 	if ( !com_journal->integer ) {
 		return;
 	}
@@ -732,7 +705,7 @@ int Com_EventLoop( void ) {
 
 			while ( NET_GetLoopPacket( NS_SERVER, &evFrom, &buf ) ) {
 				// if the server just shut down, flush the events
-				if ( com_sv_running->integer ) {
+				if ( sv_running->integer ) {
 					Com_RunAndTimeServerPacket( &evFrom, &buf );
 				}
 			}
@@ -895,7 +868,7 @@ static void Com_CatchError ( int code )
 		com_errorEntered = qfalse;
 	} else if ( code == ERR_NEED_CD ) {
 		SV_Shutdown( "Server didn't have CD" );
-		if ( com_cl_running && com_cl_running->integer ) {
+		if ( cl_running && cl_running->integer ) {
 			CL_Disconnect( qtrue );
 			CL_FlushMemory( );
 		} else {
@@ -908,7 +881,6 @@ static void Com_CatchError ( int code )
 }
 
 void Com_Init( char *commandLine ) {
-	char	*s;
 	int		qport;
 
 	Com_Printf( "%s %s %s\n", JK_VERSION, PLATFORM_STRING, SOURCE_DATE );
@@ -940,20 +912,18 @@ void Com_Init( char *commandLine ) {
 		// Seed the random number generator
 		Rand_Init(Sys_Milliseconds(true));
 
-		// get the developer cvar set as early as possible
-		com_developer = Cvar_Get("developer", "0", CVAR_TEMP, "Developer mode" );
-
 		// done early so bind command exists
 		CL_InitKeyCommands();
 
-		com_homepath = Cvar_Get("com_homepath", "", CVAR_INIT);
+		// init commands and vars
+		Com_InitCvars();
 
 		FS_InitFilesystem ();
 
 		Com_InitJournaling();
 
 		// Add some commands here already so users can use them from config files
-		if ( com_developer && com_developer->integer ) {
+		if ( developer && developer->integer ) {
 			Cmd_AddCommand ("error", Com_Error_f);
 			Cmd_AddCommand ("crash", Com_Crash_f );
 			Cmd_AddCommand ("freeze", Com_Freeze_f);
@@ -970,57 +940,12 @@ void Com_Init( char *commandLine ) {
 		// override anything from the config files with command line args
 		Com_StartupVariable( NULL );
 
-	  // get dedicated here for proper hunk megs initialization
-	#ifdef DEDICATED
-		com_dedicated = Cvar_Get ("dedicated", "2", CVAR_INIT);
-		Cvar_CheckRange( com_dedicated, 1, 2, qtrue );
-	#else
-		//OJKFIXME: Temporarily disabled dedicated server when not using the dedicated server binary.
-		//			Issue is the server not having a renderer when not using ^^^^^
-		//				and crashing in SV_SpawnServer calling re.RegisterMedia_LevelLoadBegin
-		//			Until we fully remove the renderer from the server, the client executable
-		//				will not have dedicated support capabilities.
-		//			Use the dedicated server package.
-		com_dedicated = Cvar_Get ("_dedicated", "0", CVAR_ROM|CVAR_INIT|CVAR_PROTECTED);
-	//	Cvar_CheckRange( com_dedicated, 0, 2, qtrue );
-	#endif
 		// allocate the stack based hunk allocator
 		Com_InitHunkMemory();
 
 		// if any archived cvars are modified after this, we will trigger a writing
 		// of the config file
 		cvar_modifiedFlags &= ~CVAR_ARCHIVE;
-
-		// init commands and vars
-
-		com_logfile = Cvar_Get ("logfile", "0", CVAR_TEMP );
-
-		com_timescale = Cvar_Get ("timescale", "1", CVAR_CHEAT | CVAR_SYSTEMINFO );
-		com_fixedtime = Cvar_Get ("fixedtime", "0", CVAR_CHEAT);
-		com_showtrace = Cvar_Get ("com_showtrace", "0", CVAR_CHEAT);
-
-		com_speeds = Cvar_Get ("com_speeds", "0", 0);
-		com_timedemo = Cvar_Get ("timedemo", "0", 0);
-		com_cameraMode = Cvar_Get ("com_cameraMode", "0", CVAR_CHEAT);
-
-		cl_paused = Cvar_Get ("cl_paused", "0", CVAR_ROM);
-		sv_paused = Cvar_Get ("sv_paused", "0", CVAR_ROM);
-		com_sv_running = Cvar_Get ("sv_running", "0", CVAR_ROM, "Is a server running?" );
-		com_cl_running = Cvar_Get ("cl_running", "0", CVAR_ROM, "Is the client running?" );
-		com_buildScript = Cvar_Get( "com_buildScript", "0", 0 );
-#ifndef _WIN32
-		com_ansiColor = Cvar_Get( "com_ansiColor", "0", CVAR_ARCHIVE_ND );
-#endif
-
-#ifdef G2_PERFORMANCE_ANALYSIS
-		com_G2Report = Cvar_Get("com_G2Report", "0", 0);
-#endif
-
-		com_affinity = Cvar_Get( "com_affinity", "0", CVAR_ARCHIVE_ND );
-		com_busyWait = Cvar_Get( "com_busyWait", "0", CVAR_ARCHIVE_ND );
-
-		s = va("%s %s %s", JK_VERSION, PLATFORM_STRING, SOURCE_DATE );
-		com_version = Cvar_Get ("version", s, CVAR_ROM | CVAR_SERVERINFO );
 
 		SE_Init();
 
@@ -1035,8 +960,8 @@ void Com_Init( char *commandLine ) {
 		VM_Init();
 		SV_Init();
 
-		com_dedicated->modified = qfalse;
-		if ( !com_dedicated->integer ) {
+		dedicated->modified = qfalse;
+		if ( !dedicated->integer ) {
 			CL_Init();
 		}
 
@@ -1129,29 +1054,29 @@ int Com_ModifyMsec( int msec ) {
 
 	// modify time for debugging values
 
-	if ( com_fixedtime->integer ) {
-		msec = com_fixedtime->integer;
-	} else if ( com_timescale->value ) {
-		msec *= com_timescale->value;
+	if ( fixedtime->integer ) {
+		msec = fixedtime->integer;
+	} else if ( timescale->value ) {
+		msec *= timescale->value;
 	} else if (com_cameraMode->integer) {
-		msec *= com_timescale->value;
+		msec *= timescale->value;
 	}
 
 	// don't let it scale below 1 msec
-	if ( msec < 1 && com_timescale->value) {
+	if ( msec < 1 && timescale->value) {
 		msec = 1;
 	}
 
-	if ( com_dedicated->integer ) {
+	if ( dedicated->integer ) {
 		// dedicated servers don't want to clamp for a much longer
 		// period, because it would mess up all the client's views
 		// of time.
-		if ( com_sv_running->integer && msec > 500 ) {
+		if ( sv_running->integer && msec > 500 ) {
 			Com_Printf( "Hitch warning: %i msec frame time\n", msec );
 		}
 		clampTime = 5000;
 	} else
-	if ( !com_sv_running->integer ) {
+	if ( !sv_running->integer ) {
 		// clients of remote servers do not want to clamp time, because
 		// it would skew their view of the server's time temporarily
 		clampTime = 5000;
@@ -1218,9 +1143,9 @@ void Com_Frame( void ) {
 		}
 
 		// Figure out how much time we have
-		if(!com_timedemo->integer)
+		if(!timedemo->integer)
 		{
-			if(com_dedicated->integer)
+			if(dedicated->integer)
 				minMsec = SV_FrameMsec();
 			else
 			{
@@ -1279,11 +1204,11 @@ void Com_Frame( void ) {
 		// or shut down the client system.
 		// Do this after the server may have started,
 		// but before the client tries to auto-connect
-		if ( com_dedicated->modified ) {
+		if ( dedicated->modified ) {
 			// get the latched value
-			Cvar_Get( "_dedicated", "0", 0 );
-			com_dedicated->modified = qfalse;
-			if ( !com_dedicated->integer ) {
+			Cvar_Get( "dedicated", "0", 0 );
+			dedicated->modified = qfalse;
+			if ( !dedicated->integer ) {
 				CL_Init();
 				CL_StartHunkUsers();	//fire up the UI!
 			} else {
@@ -1293,7 +1218,7 @@ void Com_Frame( void ) {
 
 		// client system
 
-		if ( !com_dedicated->integer ) {
+		if ( !dedicated->integer ) {
 
 			// run event loop a second time to get server to client packets
 			// without a frame of latency
@@ -1386,10 +1311,10 @@ void Com_Shutdown (void)
 {
 	CM_ClearMap();
 
-	if (logfile) {
-		FS_FCloseFile (logfile);
-		logfile = 0;
-		com_logfile->integer = 0;//don't open up the log file again!!
+	if (com_logfile) {
+		FS_FCloseFile (com_logfile);
+		com_logfile = 0;
+		logfile->integer = 0;//don't open up the log file again!!
 	}
 
 	if ( com_journalFile ) {

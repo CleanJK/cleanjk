@@ -44,6 +44,7 @@ extern vec3_t gPainPoint;
 #define	GAMEVERSION	"CleanJK"
 
 #define SECURITY_LOG "security.log"
+#define DEFAULT_BOTFILE "botfiles/bots.txt"
 
 #define BODY_QUEUE_SIZE		8
 
@@ -1208,9 +1209,6 @@ void DeathmatchScoreboardMessage (gentity_t *client);
 // g_pweapon.c
 
 // g_main.c
-extern vmCvar_t g_ff_objectives;
-extern qboolean gDoSlowMoDuel;
-extern int gSlowMoDuelTime;
 
 void G_PowerDuelCount(int *loners, int *doubles, qboolean countSpec);
 

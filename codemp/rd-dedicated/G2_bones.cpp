@@ -27,6 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "ghoul2/g2_local.h"
 
 #include "tr_local.h"
+#include "rd-dedicated/tr_cvars.h"
 
 //rww - RAGDOLL_BEGIN
 #ifndef __linux__
@@ -1179,22 +1180,6 @@ struct SRagEffector
 };
 
 #define RAG_MASK (CONTENTS_SOLID|CONTENTS_TERRAIN)//|CONTENTS_SHOTCLIP|CONTENTS_TERRAIN//(/*MASK_SOLID|*/CONTENTS_SOLID|CONTENTS_PLAYERCLIP|CONTENTS_SHOTCLIP|CONTENTS_TERRAIN|CONTENTS_BODY)
-
-extern cvar_t	*broadsword;
-extern cvar_t	*broadsword_kickbones;
-extern cvar_t	*broadsword_kickorigin;
-extern cvar_t	*broadsword_dontstopanim;
-extern cvar_t	*broadsword_waitforshot;
-extern cvar_t	*broadsword_playflop;
-
-extern cvar_t	*broadsword_effcorr;
-
-extern cvar_t	*broadsword_ragtobase;
-
-extern cvar_t	*broadsword_dircap;
-
-extern cvar_t	*broadsword_extra1;
-extern cvar_t	*broadsword_extra2;
 
 #define RAG_PCJ						(0x00001)
 #define RAG_PCJ_POST_MULT			(0x00002)	// has the pcj flag as well

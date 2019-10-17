@@ -35,12 +35,12 @@ typedef	std::map < std::string, int >		entlist_t;
 typedef std::map < std::string, pscript_t* >	bufferlist_t;
 
 //ICARUS includes
-extern	interface_export_t	interface_export;
+extern	struct interface_export_s	interface_export;
 
-extern	void Interface_Init( interface_export_t *pe );
+extern	void Interface_Init( struct interface_export_s *pe );
 extern	int ICARUS_RunScript( sharedEntity_t *ent, const char *name );
 extern	bool ICARUS_RegisterScript( const char *name, qboolean bCalledDuringInterrogate = qfalse);
-extern ICARUS_Instance	*iICARUS;
+extern class ICARUS_Instance	*iICARUS;
 extern bufferlist_t		ICARUS_BufferList;
 extern entlist_t		ICARUS_EntList;
 

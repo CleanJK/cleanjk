@@ -24,13 +24,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // tr_subs.cpp - common function replacements for modular renderer
 #include "tr_local.h"
 
-void QDECL Com_Printf( const char *msg, ... )
+void QDECL Com_Printf( const char *fmt, ... )
 {
 	va_list         argptr;
 	char            text[1024];
 
-	va_start(argptr, msg);
-	Q_vsnprintf(text, sizeof(text), msg, argptr);
+	va_start(argptr, fmt);
+	Q_vsnprintf(text, sizeof(text), fmt, argptr);
 	va_end(argptr);
 
 	ri.Printf(PRINT_ALL, "%s", text);

@@ -859,7 +859,7 @@ static qboolean CG_FeederSelection(float feederID, int index, itemDef_t *item) {
 }
 
 static float CG_Cvar_Get(const char *cvar) {
-	char buff[128];
+	char buff[MAX_CVAR_VALUE_STRING];
 	memset(buff, 0, sizeof(buff));
 	trap->Cvar_VariableStringBuffer(cvar, buff, sizeof(buff));
 	return atof(buff);

@@ -139,10 +139,9 @@ void G_CacheGametype( void )
 	trap->Cvar_Update( &g_gametype );
 }
 
-void G_CacheMapname( const vmCvar_t *mapname )
-{
-	Com_sprintf( level.mapname, sizeof( level.mapname ), "maps/%s.bsp", mapname->string );
-	Com_sprintf( level.rawmapname, sizeof( level.rawmapname ), "maps/%s", mapname->string );
+void G_CacheMapname( const char *mapname ) {
+	Com_sprintf( level.mapname, sizeof( level.mapname ), "maps/%s.bsp", mapname );
+	Com_sprintf( level.rawmapname, sizeof( level.rawmapname ), "maps/%s", mapname );
 }
 
 extern void RemoveAllWP(void);
@@ -150,8 +149,6 @@ gentity_t *SelectRandomDeathmatchSpawnPoint( void );
 void SP_info_jedimaster_start( gentity_t *ent );
 void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	int					i;
-	vmCvar_t	mapname;
-	vmCvar_t	ckSum;
 	char serverinfo[MAX_INFO_STRING] = {0};
 
 	//Init RMG to 0, it will be autoset to 1 if there is terrain on the level.
@@ -277,9 +274,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 
 	ClearRegisteredItems();
 
-	trap->Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
-	G_CacheMapname( &mapname );
-	trap->Cvar_Register( &ckSum, "sv_mapChecksum", "", CVAR_ROM );
+	G_CacheMapname( mapname.string );
 
 	// parse the key/value pairs and spawn gentities
 	G_SpawnEntitiesFromString(qfalse);
@@ -312,7 +307,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 
 	//trap->Print ("-----------------------------------\n");
 
-	if ( trap->Cvar_VariableIntegerValue( "bot_enable" ) ) {
+	if ( bot_enable.integer ) {
 		BotAISetup( restart );
 		BotAILoadMap( restart );
 		G_InitBots( );
@@ -419,7 +414,7 @@ void G_ShutdownGame( int restart ) {
 
 	trap->ROFF_Clean();
 
-	if ( trap->Cvar_VariableIntegerValue( "bot_enable" ) ) {
+	if ( bot_enable.integer ) {
 		BotAIShutdown( restart );
 	}
 
@@ -1637,11 +1632,6 @@ void CheckExitRules( void ) {
 		return;
 	}
 
-	if (gDoSlowMoDuel)
-	{ //don't go to intermission while in slow motion
-		return;
-	}
-
 	if (gEscaping)
 	{
 		int numLiveClients = 0;
@@ -2449,9 +2439,6 @@ runicarus:
 int g_LastFrameTime = 0;
 int g_TimeSinceLastFrame = 0;
 
-qboolean gDoSlowMoDuel = qfalse;
-int gSlowMoDuelTime = 0;
-
 //#define _G_FRAME_PERFANAL
 
 // so shared code can get the local time depending on the side it's executed on
@@ -2483,63 +2470,6 @@ void G_RunFrame( int levelTime ) {
 	void		*timer_GameChecks;
 	void		*timer_Queues;
 #endif
-
-	if (gDoSlowMoDuel)
-	{
-		if (level.restarted)
-		{
-			char buf[128];
-			float tFVal = 0;
-
-			trap->Cvar_VariableStringBuffer("timescale", buf, sizeof(buf));
-
-			tFVal = atof(buf);
-
-			trap->Cvar_Set("timescale", "1");
-			if (tFVal == 1.0f)
-			{
-				gDoSlowMoDuel = qfalse;
-			}
-		}
-		else
-		{
-			float timeDif = (level.time - gSlowMoDuelTime); //difference in time between when the slow motion was initiated and now
-			float useDif = 0; //the difference to use when actually setting the timescale
-
-			if (timeDif < 150)
-			{
-				trap->Cvar_Set("timescale", "0.1f");
-			}
-			else if (timeDif < 1150)
-			{
-				useDif = (timeDif/1000); //scale from 0.1 up to 1
-				if (useDif < 0.1f)
-				{
-					useDif = 0.1f;
-				}
-				if (useDif > 1.0f)
-				{
-					useDif = 1.0f;
-				}
-				trap->Cvar_Set("timescale", va("%f", useDif));
-			}
-			else
-			{
-				char buf[128];
-				float tFVal = 0;
-
-				trap->Cvar_VariableStringBuffer("timescale", buf, sizeof(buf));
-
-				tFVal = atof(buf);
-
-				trap->Cvar_Set("timescale", "1");
-				if (timeDif > 1500 && tFVal == 1.0f)
-				{
-					gDoSlowMoDuel = qfalse;
-				}
-			}
-		}
-	}
 
 	// if we are waiting for the level to restart, do nothing
 	if ( level.restarted ) {

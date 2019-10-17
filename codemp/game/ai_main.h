@@ -360,25 +360,8 @@ int OrgVisibleBox(vec3_t org1, vec3_t mins, vec3_t maxs, vec3_t org2, int ignore
 int BotIsAChickenWuss(bot_state_t *bs);
 int GetNearestVisibleWP(vec3_t org, int ignore);
 int GetBestIdleGoal(bot_state_t *bs);
-
+void LoadPath_ThisLevel( void );
 char *ConcatArgs( int start );
-
-extern vmCvar_t bot_forcepowers;
-extern vmCvar_t bot_forgimmick;
-extern vmCvar_t bot_honorableduelacceptance;
-#ifdef _DEBUG
-extern vmCvar_t bot_nogoals;
-extern vmCvar_t bot_debugmessages;
-#endif
-
-extern vmCvar_t bot_attachments;
-extern vmCvar_t bot_camp;
-
-extern vmCvar_t bot_wp_info;
-extern vmCvar_t bot_wp_edit;
-extern vmCvar_t bot_wp_clearweight;
-extern vmCvar_t bot_wp_distconnect;
-extern vmCvar_t bot_wp_visconnect;
 
 extern wpobject_t *flagRed;
 extern wpobject_t *oFlagRed;

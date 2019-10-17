@@ -22,6 +22,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "tr_local.h"
+#include "rd-vanilla/tr_cvars.h"
 
 /*
 
@@ -310,7 +311,7 @@ void RB_DoShadowTessEnd( vec3_t lightPos )
 // We have to delay this until everything has been shadowed, because otherwise shadows from different body parts would
 //	overlap and double darken.
 void RB_ShadowFinish( void ) {
-	if ( r_shadows->integer != 2 ) {
+	if ( cg_shadows->integer != 2 ) {
 		return;
 	}
 	if ( glConfig.stencilBits < 4 ) {

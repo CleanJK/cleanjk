@@ -27,6 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "ghoul2/g2_local.h"
 #include "qcommon/matcomp.h"
 #include "qcommon/disablewarnings.h"
+#include "rd-vanilla/tr_cvars.h"
 
 static	int			r_firstSceneDrawSurf;
 
@@ -304,7 +305,7 @@ void RE_RenderScene( const refdef_t *fd ) {
 		return;
 	}
 
-	startTime = ri.Milliseconds()*ri.Cvar_VariableValue( "timescale" );
+	startTime = ri.Milliseconds()*timescale->value;
 
 	if (!tr.world && !( fd->rdflags & RDF_NOWORLDMODEL ) ) {
 		Com_Error (ERR_DROP, "R_RenderScene: NULL worldmodel");
@@ -448,7 +449,7 @@ void RE_RenderScene( const refdef_t *fd ) {
 
 	refEntParent = -1;
 
-	tr.frontEndMsec += ri.Milliseconds()*ri.Cvar_VariableValue( "timescale" ) - startTime;
+	tr.frontEndMsec += ri.Milliseconds()*timescale->value - startTime;
 
 	RE_RenderWorldEffects();
 

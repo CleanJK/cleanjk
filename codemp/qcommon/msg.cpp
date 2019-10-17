@@ -25,6 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "qcommon/q_shared.h"
 #include "qcommon/qcommon.h"
 #include "server/server.h"
+#include "qcommon/com_cvars.h"
 
 //#define _NEWHUFFTABLE_		// Build "c:\\netchan.bin"
 //#define _USINGNEWHUFFTABLE_		// Build a new frequency table to cut and paste.
@@ -508,8 +509,6 @@ void MSG_ReadData( msg_t *msg, void *data, int len ) {
 }
 
 // delta functions
-
-extern	cvar_t	*cl_shownet;
 
 #define	LOG(x) if( cl_shownet && cl_shownet->integer == 4 ) { Com_Printf("%s ", x ); };
 

@@ -31,79 +31,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "qcommon/cm_public.h"
 #include "qcommon/MiniHeap.h"
 #include "qcommon/stringed_ingame.h"
+#include "qcommon/com_cvar.h"
+#include "qcommon/com_cvars.h"
 #include "cl_cgameapi.h"
 #include "cl_uiapi.h"
 #include "cl_lan.h"
 #include "snd_local.h"
 #include "sys/sys_loadlib.h"
-
-cvar_t	*cl_renderer;
-
-cvar_t	*cl_nodelta;
-cvar_t	*cl_debugMove;
-
-cvar_t	*cl_noprint;
-cvar_t	*cl_motd;
-cvar_t	*cl_motdServer[MAX_MASTER_SERVERS];
-
-cvar_t	*rcon_client_password;
-cvar_t	*rconAddress;
-
-cvar_t	*cl_timeout;
-cvar_t	*cl_maxpackets;
-cvar_t	*cl_packetdup;
-cvar_t	*cl_timeNudge;
-cvar_t	*cl_showTimeDelta;
-cvar_t	*cl_freezeDemo;
-
-cvar_t	*cl_shownet;
-cvar_t	*cl_showSend;
-cvar_t	*cl_timedemo;
-cvar_t	*cl_aviFrameRate;
-cvar_t	*cl_aviMotionJpeg;
-cvar_t	*cl_avi2GBLimit;
-cvar_t	*cl_forceavidemo;
-
-cvar_t	*cl_freelook;
-cvar_t	*cl_sensitivity;
-
-cvar_t	*cl_mouseAccel;
-cvar_t	*cl_mouseAccelOffset;
-cvar_t	*cl_mouseAccelStyle;
-cvar_t	*cl_showMouseRate;
-
-cvar_t	*m_pitchVeh;
-cvar_t	*m_pitch;
-cvar_t	*m_yaw;
-cvar_t	*m_forward;
-cvar_t	*m_side;
-cvar_t	*m_filter;
-
-cvar_t	*cl_activeAction;
-
-cvar_t	*cl_motdString;
-
-cvar_t	*cl_allowDownload;
-cvar_t	*cl_allowAltEnter;
-cvar_t	*cl_conXOffset;
-cvar_t	*cl_inGameVideo;
-
-cvar_t	*cl_serverStatusResendTime;
-cvar_t	*cl_framerate;
-
-// cvar to enable sending a "ja_guid" player identifier in userinfo to servers
-// ja_guid is a persistent "cookie" that allows servers to track players across game sessions
-cvar_t	*cl_enableGuid;
-cvar_t	*cl_guidServerUniq;
-
-cvar_t	*cl_autolodscale;
-
-cvar_t	*cl_consoleKeys;
-cvar_t	*cl_consoleUseScanCode;
-
-cvar_t  *cl_lanForcePackets;
-
-cvar_t	*cl_drawRecording;
 
 vec3_t cl_windVec;
 
@@ -245,7 +179,7 @@ void CL_Record_f( void ) {
 	}
 
 	// sync 0 doesn't prevent recording, so not forcing it off .. everyone does g_sync 1 ; record ; g_sync 0 ..
-	if ( NET_IsLocalAddress( clc.serverAddress ) && !Cvar_VariableValue( "g_synchronousClients" ) ) {
+	if ( NET_IsLocalAddress( clc.serverAddress ) && !g_synchronousClients->integer ) {
 		Com_Printf (S_COLOR_YELLOW "WARNING: You should set 'g_synchronousClients 1' for smoother demo recording\n");
 	}
 
@@ -274,7 +208,7 @@ void CL_Record_f( void ) {
 		return;
 	}
 	clc.demorecording = qtrue;
-	if (Cvar_VariableValue("ui_recordSPDemo")) {
+	if ( cl_recordSPDemo->integer ) {
 	  clc.spDemoRecording = qtrue;
 	} else {
 	  clc.spDemoRecording = qfalse;
@@ -346,7 +280,7 @@ void CL_Record_f( void ) {
 // CLIENT SIDE DEMO PLAYBACK
 
 void CL_DemoCompleted( void ) {
-	if (cl_timedemo && cl_timedemo->integer) {
+	if (timedemo && timedemo->integer) {
 		int	time;
 
 		time = Sys_Milliseconds() - clc.timeDemoStart;
@@ -489,7 +423,7 @@ void CL_PlayDemo_f( void ) {
 void CL_NextDemo( void ) {
 	char	v[MAX_STRING_CHARS];
 
-	Q_strncpyz( v, Cvar_VariableString ("nextdemo"), sizeof(v) );
+	Q_strncpyz( v, nextdemo->string, sizeof(v) );
 	v[MAX_STRING_CHARS-1] = 0;
 	Com_DPrintf("CL_NextDemo: %s\n", v );
 	if (!v[0]) {
@@ -537,7 +471,7 @@ void CL_FlushMemory( void ) {
 	CL_ShutdownAll( qfalse );
 
 	// if not running a server clear the whole hunk
-	if ( !com_sv_running->integer ) {
+	if ( !sv_running->integer ) {
 		// clear collision map data
 		CM_ClearMap();
 		// clear the whole hunk
@@ -554,7 +488,7 @@ void CL_FlushMemory( void ) {
 // A local server is starting to load a map, so update the screen to let the user know about it, then dump all client
 //	memory on the hunk from cgame, ui, and renderer
 void CL_MapLoading( void ) {
-	if ( !com_cl_running->integer ) {
+	if ( !cl_running->integer ) {
 		return;
 	}
 
@@ -608,7 +542,7 @@ static void CL_UpdateGUID( const char *prefix, int prefix_len )
 
 		// initialize the cvar here in case it's unset or was user-created
 		// while tracking was disabled (removes CVAR_USER_CREATED)
-		Cvar_Get( "ja_guid", "", CVAR_USERINFO | CVAR_ROM, "Client GUID" );
+		ja_guid = Cvar_Get( "ja_guid", "", CVAR_USERINFO | CVAR_ROM, "Client GUID" );
 
 		if( len != QKEY_SIZE ) {
 			Cvar_Set( "ja_guid", "" );
@@ -621,7 +555,7 @@ static void CL_UpdateGUID( const char *prefix, int prefix_len )
 		uint32_t flags = Cvar_Flags("ja_guid");
 		// keep the cvar if it's user-created, but destroy it otherwise
 		if (flags != CVAR_NONEXISTENT && !(flags & CVAR_USER_CREATED)) {
-			cvar_t *ja_guid = Cvar_Get("ja_guid", "", 0, "Client GUID" );
+			ja_guid = Cvar_Get("ja_guid", "", 0, "Client GUID" );
 			Cvar_Unset(ja_guid);
 		}
 	}
@@ -632,7 +566,7 @@ static void CL_UpdateGUID( const char *prefix, int prefix_len )
 // Sends a disconnect message to the server
 // This is also called on Com_Error and Com_Quit, so it shouldn't cause any errors
 void CL_Disconnect( qboolean showMainMenu ) {
-	if ( !com_cl_running || !com_cl_running->integer ) {
+	if ( !cl_running || !cl_running->integer ) {
 		return;
 	}
 
@@ -733,8 +667,8 @@ void CL_RequestMotd( void ) {
 		return;
 	}
 
-	if ( cl_motd->integer < 1 || cl_motd->integer > MAX_MASTER_SERVERS ) {
-		Com_Printf( "CL_RequestMotd: Invalid motd server num. Valid values are 1-%d or 0 to disable\n", MAX_MASTER_SERVERS );
+	if ( cl_motd->integer != 1 ) {
+		Com_Printf( "CL_RequestMotd: Invalid motd server num. Valid values are 1 or 0 to disable\n" );
 		return;
 	}
 
@@ -772,9 +706,9 @@ void CL_RequestMotd( void ) {
 	Info_SetValueForKey( info, "challenge", cls.updateChallenge );
 	Info_SetValueForKey( info, "renderer", cls.glconfig.renderer_string );
 	Info_SetValueForKey( info, "rvendor", cls.glconfig.vendor_string );
-	Info_SetValueForKey( info, "version", com_version->string );
+	Info_SetValueForKey( info, "version", version->string );
 
-	Info_SetValueForKey( info, "joystick", Cvar_VariableString("in_joystick") );
+	Info_SetValueForKey( info, "joystick", in_joystick->string );
 	Info_SetValueForKey( info, "colorbits", va("%d",cls.glconfig.colorBits) );
 
 	NET_OutOfBandPrint( NS_CLIENT, cls.updateServer, "getmotd \"%s\"\n", info );
@@ -828,7 +762,7 @@ void CL_Connect_f( void ) {
 
 	server = Cmd_Argv (1);
 
-	if ( com_sv_running->integer && !strcmp( server, "localhost" ) ) {
+	if ( sv_running->integer && !strcmp( server, "localhost" ) ) {
 		// if running a local server, kill it
 		SV_Shutdown( "Server quit\n" );
 	}
@@ -897,7 +831,7 @@ static void CL_CompleteRcon( char *args, int argNum )
 void CL_Rcon_f( void ) {
 	char	message[MAX_RCON_MESSAGE];
 
-	if ( !rcon_client_password->string[0] ) {
+	if ( !rconPassword->string[0] ) {
 		Com_Printf( "You must set 'rconpassword' before issuing an rcon command.\n" );
 		return;
 	}
@@ -910,7 +844,7 @@ void CL_Rcon_f( void ) {
 
 	Q_strcat (message, MAX_RCON_MESSAGE, "rcon ");
 
-	Q_strcat (message, MAX_RCON_MESSAGE, rcon_client_password->string);
+	Q_strcat (message, MAX_RCON_MESSAGE, rconPassword->string);
 	Q_strcat (message, MAX_RCON_MESSAGE, " ");
 
 	// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=543
@@ -983,7 +917,7 @@ void CL_Vid_Restart_f( void ) {
 	Cvar_Set( "cl_paused", "0" );
 
 	// if not running a server clear the whole hunk
-	if ( !com_sv_running->integer ) {
+	if ( !sv_running->integer ) {
 		CM_ClearMap();
 		// clear the whole hunk
 		Hunk_Clear();
@@ -1143,7 +1077,7 @@ void CL_NextDownload(void) {
 	// A download has finished, check whether this matches a referenced checksum
 	if(*clc.downloadName)
 	{
-		char *zippath = FS_BuildOSPath(Cvar_VariableString("fs_homepath"), clc.downloadName, "");
+		char *zippath = FS_BuildOSPath( fs_homepath->string, clc.downloadName, "" );
 		zippath[strlen(zippath)-1] = '\0';
 
 		if(!FS_CompareZipChecksum(zippath))
@@ -1267,7 +1201,7 @@ void CL_CheckForResend( void ) {
 
 	case CA_CHALLENGING:
 		// sending back the challenge
-		port = (int) Cvar_VariableValue ("net_qport");
+		port = (int)net_qport->integer;
 
 		Q_strncpyz( info, Cvar_InfoString( CVAR_USERINFO ), sizeof( info ) );
 		Info_SetValueForKey( info, "protocol", va("%i", PROTOCOL_VERSION ) );
@@ -1545,7 +1479,7 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 
 	c = Cmd_Argv( 0 );
 
-	if ( com_developer->integer ) {
+	if ( developer->integer ) {
 		Com_Printf( "CL packet %s: %s\n", NET_AdrToString( from ), c );
 	}
 
@@ -1602,7 +1536,7 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 			Com_Printf( "connectResponse from wrong address. Ignored.\n" );
 			return;
 		}
-		Netchan_Setup (NS_CLIENT, &clc.netchan, from, Cvar_VariableValue( "net_qport" ) );
+		Netchan_Setup (NS_CLIENT, &clc.netchan, from, net_qport->integer );
 		cls.state = CA_CONNECTED;
 		clc.lastPacketSentTime = -9999;		// send first packet immediately
 		return;
@@ -1692,7 +1626,7 @@ void CL_PacketEvent( netadr_t from, msg_t *msg ) {
 
 	// packet from server
 	if ( !NET_CompareAdr( from, clc.netchan.remoteAddress ) ) {
-		if ( com_developer->integer ) {
+		if ( developer->integer ) {
 			Com_Printf( "%s:sequenced packet without connection\n",
 				NET_AdrToString( from ) );
 		}
@@ -1774,7 +1708,7 @@ extern void SE_CheckForLanguageUpdates(void);
 void CL_Frame ( int msec ) {
 	qboolean takeVideoFrame = qfalse;
 
-	if ( !com_cl_running->integer ) {
+	if ( !cl_running->integer ) {
 		return;
 	}
 
@@ -1782,7 +1716,7 @@ void CL_Frame ( int msec ) {
 									//	of course this still doesn't work for menus...
 
 	if ( cls.state == CA_DISCONNECTED && !( Key_GetCatcher( ) & KEYCATCH_UI )
-		&& !com_sv_running->integer && cls.uiStarted ) {
+		&& !sv_running->integer && cls.uiStarted ) {
 		// if disconnected, bring up the menu
 		S_StopAllSounds();
 		UIVM_SetActiveMenu( UIMENU_MAIN );
@@ -1791,7 +1725,7 @@ void CL_Frame ( int msec ) {
 	// if recording an avi, lock to a fixed fps
 	if ( CL_VideoRecording( ) && cl_aviFrameRate->integer && msec) {
 		if ( cls.state == CA_ACTIVE || cl_forceavidemo->integer) {
-			float fps = Q_min(cl_aviFrameRate->value * com_timescale->value, 1000.0f);
+			float fps = Q_min(cl_aviFrameRate->value * timescale->value, 1000.0f);
 			float frameDuration = Q_max(1000.0f / fps, 1.0f) + clc.aviVideoFrameRemainder;
 			takeVideoFrame = qtrue;
 
@@ -1821,7 +1755,7 @@ void CL_Frame ( int msec ) {
 
 	cls.realtime += cls.frametime;
 
-	if ( cl_timegraph->integer ) {
+	if ( timegraph->integer ) {
 		SCR_DebugGraph ( cls.realFrametime * 0.25, 0 );
 	}
 
@@ -1917,11 +1851,11 @@ void CL_InitRenderer( void ) {
 // After the server has cleared the hunk, these will need to be restarted
 // This is the only place that any of these functions are called from
 void CL_StartHunkUsers( void ) {
-	if (!com_cl_running) {
+	if (!cl_running) {
 		return;
 	}
 
-	if ( !com_cl_running->integer ) {
+	if ( !cl_running->integer ) {
 		return;
 	}
 
@@ -1967,8 +1901,6 @@ static IHeapAllocator *GetG2VertSpaceServer( void ) {
 	return G2VertSpaceServer;
 }
 
-#define DEFAULT_RENDER_LIBRARY "rd-vanilla"
-
 void CL_InitRef( void ) {
 	static refimport_t ri;
 	refexport_t	*ret;
@@ -1976,8 +1908,6 @@ void CL_InitRef( void ) {
 	char		dllName[MAX_OSPATH];
 
 	Com_Printf( "----- Initializing Renderer ----\n" );
-
-	cl_renderer = Cvar_Get( "cl_renderer", DEFAULT_RENDER_LIBRARY, CVAR_ARCHIVE|CVAR_LATCH|CVAR_PROTECTED, "Which renderer library to use" );
 
 	Com_sprintf( dllName, sizeof( dllName ), "%s_" ARCH_STRING DLL_EXT, cl_renderer->string );
 
@@ -2102,33 +2032,12 @@ void CL_InitRef( void ) {
 int gCLModelDelay = 0;
 
 void CL_SetModel_f( void ) {
-	char	*arg;
-	char	name[256];
-
-	arg = Cmd_Argv( 1 );
-	if (arg[0])
-	{
-		/*
-		//If you wanted to be foolproof you would put this on the server I guess. But that
-		//tends to put things out of sync regarding cvar status. And I sort of doubt someone
-		//is going to write a client and figure out the protocol so that they can annoy people
-		//by changing models real fast.
-		int curTime = Com_Milliseconds();
-		if (gCLModelDelay > curTime)
-		{
-			Com_Printf("You can only change your model every %i seconds.\n", (MODEL_CHANGE_DELAY/1000));
-			return;
-		}
-
-		gCLModelDelay = curTime + MODEL_CHANGE_DELAY;
-		*/
-		//rwwFIXMEFIXME: This is currently broken and doesn't seem to work for connecting clients
+	const char *arg = Cmd_Argv( 1 );
+	if ( arg[0] ) {
 		Cvar_Set( "model", arg );
 	}
-	else
-	{
-		Cvar_VariableStringBuffer( "model", name, sizeof(name) );
-		Com_Printf("model is set to %s\n", name);
+	else {
+		Com_Printf( "model is set to %s\n", model->string );
 	}
 }
 
@@ -2258,121 +2167,6 @@ void CL_Init( void ) {
 
 	CL_InitInput ();
 
-	// register our variables
-	cl_noprint = Cvar_Get( "cl_noprint", "0", 0 );
-	cl_motd = Cvar_Get ("cl_motd", "1", CVAR_ARCHIVE_ND, "Display welcome message from master server on the bottom of connection screen" );
-	cl_motdServer[0] = Cvar_Get( "cl_motdServer1", UPDATE_SERVER_NAME, 0 );
-	cl_motdServer[1] = Cvar_Get( "cl_motdServer2", JKHUB_UPDATE_SERVER_NAME, 0 );
-	for ( int index = 2; index < MAX_MASTER_SERVERS; index++ )
-		cl_motdServer[index] = Cvar_Get( va( "cl_motdServer%d", index + 1 ), "", CVAR_ARCHIVE_ND );
-
-	cl_timeout = Cvar_Get ("cl_timeout", "200", 0);
-
-	cl_timeNudge = Cvar_Get ("cl_timeNudge", "0", CVAR_TEMP );
-	cl_shownet = Cvar_Get ("cl_shownet", "0", CVAR_TEMP );
-	cl_showSend = Cvar_Get ("cl_showSend", "0", CVAR_TEMP );
-	cl_showTimeDelta = Cvar_Get ("cl_showTimeDelta", "0", CVAR_TEMP );
-	cl_freezeDemo = Cvar_Get ("cl_freezeDemo", "0", CVAR_TEMP );
-	rcon_client_password = Cvar_Get ("rconPassword", "", CVAR_TEMP, "Password for remote console access" );
-	cl_activeAction = Cvar_Get( "activeAction", "", CVAR_TEMP );
-
-	cl_timedemo = Cvar_Get ("timedemo", "0", 0);
-	cl_aviFrameRate = Cvar_Get ("cl_aviFrameRate", "25", CVAR_ARCHIVE);
-	cl_aviMotionJpeg = Cvar_Get ("cl_aviMotionJpeg", "1", CVAR_ARCHIVE);
-	cl_avi2GBLimit = Cvar_Get ("cl_avi2GBLimit", "1", CVAR_ARCHIVE );
-	cl_forceavidemo = Cvar_Get ("cl_forceavidemo", "0", 0);
-
-	rconAddress = Cvar_Get ("rconAddress", "", 0, "Alternate server address to remotely access via rcon protocol");
-
-	cl_yawspeed = Cvar_Get ("cl_yawspeed", "140", CVAR_ARCHIVE_ND );
-	cl_pitchspeed = Cvar_Get ("cl_pitchspeed", "140", CVAR_ARCHIVE_ND );
-	cl_anglespeedkey = Cvar_Get ("cl_anglespeedkey", "1.5", CVAR_ARCHIVE_ND );
-
-	cl_maxpackets = Cvar_Get ("cl_maxpackets", "63", CVAR_ARCHIVE );
-	cl_packetdup = Cvar_Get ("cl_packetdup", "1", CVAR_ARCHIVE_ND );
-
-	cl_run = Cvar_Get ("cl_run", "1", CVAR_ARCHIVE_ND, "Always run");
-	cl_sensitivity = Cvar_Get ("sensitivity", "5", CVAR_ARCHIVE, "Mouse sensitivity value");
-	cl_mouseAccel = Cvar_Get ("cl_mouseAccel", "0", CVAR_ARCHIVE_ND, "Mouse acceleration value");
-	cl_freelook = Cvar_Get( "cl_freelook", "1", CVAR_ARCHIVE_ND, "Mouse look" );
-
-	// 0: legacy mouse acceleration
-	// 1: new implementation
-	cl_mouseAccelStyle = Cvar_Get( "cl_mouseAccelStyle", "0", CVAR_ARCHIVE_ND, "Mouse accelration style (0:legacy, 1:QuakeLive)" );
-	// offset for the power function (for style 1, ignored otherwise)
-	// this should be set to the max rate value
-	cl_mouseAccelOffset = Cvar_Get( "cl_mouseAccelOffset", "5", CVAR_ARCHIVE_ND, "Mouse acceleration offset for style 1" );
-
-	cl_showMouseRate = Cvar_Get ("cl_showmouserate", "0", 0);
-	cl_framerate	= Cvar_Get ("cl_framerate", "0", CVAR_TEMP);
-	cl_allowDownload = Cvar_Get ("cl_allowDownload", "0", CVAR_ARCHIVE_ND, "Allow downloading custom paks from server");
-	cl_allowAltEnter = Cvar_Get ("cl_allowAltEnter", "1", CVAR_ARCHIVE_ND, "Enables use of ALT+ENTER keyboard combo to toggle fullscreen" );
-
-	cl_autolodscale = Cvar_Get( "cl_autolodscale", "1", CVAR_ARCHIVE_ND );
-
-	cl_conXOffset = Cvar_Get ("cl_conXOffset", "0", 0);
-	cl_inGameVideo = Cvar_Get ("r_inGameVideo", "1", CVAR_ARCHIVE_ND );
-
-	cl_serverStatusResendTime = Cvar_Get ("cl_serverStatusResendTime", "750", 0);
-
-	// init autoswitch so the ui will have it correctly even
-	// if the cgame hasn't been started
-	Cvar_Get ("cg_autoswitch", "1", CVAR_ARCHIVE);
-
-	m_pitchVeh = Cvar_Get ("m_pitchVeh", "0.022", CVAR_ARCHIVE_ND);
-	m_pitch = Cvar_Get ("m_pitch", "0.022", CVAR_ARCHIVE_ND);
-	m_yaw = Cvar_Get ("m_yaw", "0.022", CVAR_ARCHIVE_ND);
-	m_forward = Cvar_Get ("m_forward", "0.25", CVAR_ARCHIVE_ND);
-	m_side = Cvar_Get ("m_side", "0.25", CVAR_ARCHIVE_ND);
-#ifdef MACOS_X
-        // Input is jittery on OS X w/o this
-	m_filter = Cvar_Get ("m_filter", "1", CVAR_ARCHIVE_ND);
-#else
-	m_filter = Cvar_Get ("m_filter", "0", CVAR_ARCHIVE_ND);
-#endif
-
-	cl_motdString = Cvar_Get( "cl_motdString", "", CVAR_ROM );
-
-	Cvar_Get( "cl_maxPing", "800", CVAR_ARCHIVE_ND, "Max. ping for servers when searching the serverlist" );
-
-	cl_lanForcePackets = Cvar_Get ("cl_lanForcePackets", "1", CVAR_ARCHIVE_ND);
-
-	cl_drawRecording = Cvar_Get("cl_drawRecording", "1", CVAR_ARCHIVE);
-
-	// enable the ja_guid player identifier in userinfo by default in OpenJK
-	cl_enableGuid = Cvar_Get("cl_enableGuid", "1", CVAR_ARCHIVE_ND, "Enable GUID userinfo identifier" );
-	cl_guidServerUniq = Cvar_Get ("cl_guidServerUniq", "1", CVAR_ARCHIVE_ND, "Use a unique guid value per server" );
-
-	// ~ and `, as keys and characters
-	cl_consoleKeys = Cvar_Get( "cl_consoleKeys", "~ ` 0x7e 0x60 0xb2", CVAR_ARCHIVE, "Which keys are used to toggle the console");
-	cl_consoleUseScanCode = Cvar_Get( "cl_consoleUseScanCode", "1", CVAR_ARCHIVE, "Use native console key detection" );
-
-	// userinfo
-	Cvar_Get ("name", "Padawan", CVAR_USERINFO | CVAR_ARCHIVE_ND, "Player name" );
-	Cvar_Get ("rate", "25000", CVAR_USERINFO | CVAR_ARCHIVE, "Data rate" );
-	Cvar_Get ("snaps", "40", CVAR_USERINFO | CVAR_ARCHIVE, "Client snapshots per second" );
-	Cvar_Get ("model", DEFAULT_MODEL"/default", CVAR_USERINFO | CVAR_ARCHIVE, "Player model" );
-	Cvar_Get ("forcepowers", "7-1-032330000000001333", CVAR_USERINFO | CVAR_ARCHIVE, "Player forcepowers" );
-//	Cvar_Get ("g_redTeam", DEFAULT_REDTEAM_NAME, CVAR_SERVERINFO | CVAR_ARCHIVE);
-//	Cvar_Get ("g_blueTeam", DEFAULT_BLUETEAM_NAME, CVAR_SERVERINFO | CVAR_ARCHIVE);
-	Cvar_Get ("color1",  "4", CVAR_USERINFO | CVAR_ARCHIVE, "Player saber1 color" );
-	Cvar_Get ("color2", "4", CVAR_USERINFO | CVAR_ARCHIVE, "Player saber2 color" );
-	Cvar_Get ("sex", "male", CVAR_USERINFO | CVAR_ARCHIVE, "Player sex" );
-	Cvar_Get ("password", "", CVAR_USERINFO, "Password to join server" );
-	Cvar_Get ("cg_predictItems", "1", CVAR_USERINFO | CVAR_ARCHIVE );
-
-	//default sabers
-	Cvar_Get ("saber1",  DEFAULT_SABER, CVAR_USERINFO | CVAR_ARCHIVE, "Player default right hand saber" );
-	Cvar_Get ("saber2",  "none", CVAR_USERINFO | CVAR_ARCHIVE, "Player left hand saber" );
-
-	//skin color
-	Cvar_Get ("char_color_red",  "255", CVAR_USERINFO | CVAR_ARCHIVE, "Player tint (Red)" );
-	Cvar_Get ("char_color_green",  "255", CVAR_USERINFO | CVAR_ARCHIVE, "Player tint (Green)" );
-	Cvar_Get ("char_color_blue",  "255", CVAR_USERINFO | CVAR_ARCHIVE, "Player tint (Blue)" );
-
-	// cgame might not be initialized before menu is used
-	Cvar_Get ("cg_viewsize", "100", CVAR_ARCHIVE_ND );
-
 	// register our commands
 	Cmd_AddCommand ("cmd", CL_ForwardToServer_f, "Forward command to server" );
 	Cmd_AddCommand ("globalservers", CL_GlobalServers_f, "Query the masterserver for serverlist" );
@@ -2484,7 +2278,7 @@ void CL_Shutdown( void ) {
 }
 
 qboolean CL_ConnectedToRemoteServer( void ) {
-	return (qboolean)( com_sv_running && !com_sv_running->integer && cls.state >= CA_CONNECTED && !clc.demoplaying );
+	return (qboolean)( sv_running && !sv_running->integer && cls.state >= CA_CONNECTED && !clc.demoplaying );
 }
 
 static void CL_SetServerInfo(serverInfo_t *server, const char *info, int ping) {
@@ -2556,7 +2350,7 @@ void CL_ServerInfoPacket( netadr_t from, msg_t *msg ) {
 		{
 			// calc ping time
 			cl_pinglist[i].time = Sys_Milliseconds() - cl_pinglist[i].start;
-			if ( com_developer->integer ) {
+			if ( developer->integer ) {
 				Com_Printf( "ping time %dms from %s\n", cl_pinglist[i].time, NET_AdrToString( from ) );
 			}
 
@@ -2841,32 +2635,9 @@ void CL_GlobalServers_f( void ) {
 	int			count, i, masterNum;
 	char		command[1024], *masteraddress;
 
-	if ((count = Cmd_Argc()) < 3 || (masterNum = atoi(Cmd_Argv(1))) < 0 || masterNum > MAX_MASTER_SERVERS)
+	if ((count = Cmd_Argc()) < 2 || (masterNum = atoi(Cmd_Argv(1))) < 0 || masterNum > 1)
 	{
-		Com_Printf("usage: globalservers <master# 0-%d> <protocol> [keywords]\n", MAX_MASTER_SERVERS);
-		return;
-	}
-
-	// request from all master servers
-	if ( masterNum == 0 ) {
-		int numAddress = 0;
-
-		for ( i = 1; i <= MAX_MASTER_SERVERS; i++ ) {
-			Com_sprintf( command, sizeof(command), "sv_master%d", i );
-			masteraddress = Cvar_VariableString(command);
-
-			if(!*masteraddress)
-				continue;
-
-			numAddress++;
-
-			Com_sprintf(command, sizeof(command), "globalservers %d %s %s\n", i, Cmd_Argv(2), Cmd_ArgsFrom(3));
-			Cbuf_AddText(command);
-		}
-
-		if ( !numAddress ) {
-			Com_Printf( "CL_GlobalServers_f: Error: No master server addresses.\n");
-		}
+		Com_Printf("usage: globalservers <protocol> [keywords]\n");
 		return;
 	}
 
@@ -2897,10 +2668,10 @@ void CL_GlobalServers_f( void ) {
 	cls.numglobalservers = -1;
 	cls.pingUpdateSource = AS_GLOBAL;
 
-	Com_sprintf(command, sizeof(command), "getservers %s", Cmd_Argv(2));
+	Com_sprintf(command, sizeof(command), "getservers %s", Cmd_Argv(1));
 
 	// tack on keywords
-	for (i = 3; i < count; i++)
+	for (i = 2; i < count; i++)
 	{
 		Q_strcat(command, sizeof(command), " ");
 		Q_strcat(command, sizeof(command), Cmd_Argv(i));
@@ -2931,12 +2702,11 @@ void CL_GetPing( int n, char *buf, int buflen, int *pingtime )
 	{
 		// check for timeout
 		time = Sys_Milliseconds() - cl_pinglist[n].start;
-		maxPing = Cvar_VariableIntegerValue( "cl_maxPing" );
-		if( maxPing < 100 ) {
+		int maxPing = cl_maxPing->integer;
+		if ( maxPing < 100 ) {
 			maxPing = 100;
 		}
-		if (time < maxPing)
-		{
+		if ( time < maxPing ) {
 			// not timed out yet
 			time = 0;
 		}

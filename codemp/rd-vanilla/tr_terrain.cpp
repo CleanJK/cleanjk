@@ -12,11 +12,6 @@
 #include "qcommon/cm_landscape.h"
 #include "tr_landscape.h"
 
-cvar_t		*r_drawTerrain;
-cvar_t		*r_showFrameVariance;
-cvar_t		*r_terrainTessellate;
-cvar_t		*r_terrainWaterOffset;
-
 static int		TerrainFog = 0;
 static float	TerrainDistanceCull;
 
@@ -999,11 +994,6 @@ void R_TerrainInit(void)
 {
 	tr.landScape.surfaceType = SF_TERRAIN;
 	tr.landScape.landscape = NULL;
-
-	r_terrainTessellate = ri.Cvar_Get("r_terrainTessellate", "3", CVAR_CHEAT);
-	r_drawTerrain = ri.Cvar_Get("r_drawTerrain", "1", CVAR_CHEAT);
-	r_showFrameVariance = ri.Cvar_Get("r_showFrameVariance", "0", 0);
-	r_terrainWaterOffset = ri.Cvar_Get("r_terrainWaterOffset", "0", 0);
 
 	tr.distanceCull = 6000;
 	tr.distanceCullSquared = tr.distanceCull * tr.distanceCull;

@@ -24,6 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // tr_marks.c -- polygon projection on the world polygons
 
 #include "tr_local.h"
+#include "rd-vanilla/tr_cvars.h"
 
 #define MAX_VERTS_ON_POLY		64
 

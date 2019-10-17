@@ -24,6 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // tr_shader.c -- this file deals with the parsing and definition of shaders
 
 #include "tr_local.h"
+#include "rd-vanilla/tr_cvars.h"
 
 static char *s_shaderText;
 
@@ -3028,7 +3029,7 @@ static inline const int *R_FindLightmap( const int *lightmapIndex )
 
 	// attempt to load an external lightmap
 	Com_sprintf( fileName, sizeof(fileName), "%s/" EXTERNAL_LIGHTMAP, tr.worldDir, *lightmapIndex );
-	image = R_FindImageFile( fileName, qfalse, qfalse, (qboolean)r_ext_compressed_lightmaps->integer, GL_CLAMP );
+	image = R_FindImageFile( fileName, qfalse, qfalse, (qboolean)r_ext_compress_lightmaps->integer, GL_CLAMP );
 	if( image == NULL )
 	{
 		return lightmapsVertex;

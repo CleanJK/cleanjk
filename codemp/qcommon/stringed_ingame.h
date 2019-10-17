@@ -23,6 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 #include "qcommon/q_shared.h"
+#include "qcommon/com_cvars.h"
 
 // Filename:-	stringed_ingame.h
 
@@ -35,8 +36,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define sSE_STRINGS_DIR			"strings"
 #define sSE_DEBUGSTR_PREFIX		"["		// any string you want prefixing onto the debug versions of strings (to spot hardwired english etc)
 #define sSE_DEBUGSTR_SUFFIX		"]"		// ""
-
-extern cvar_t	*se_language;
 
 // some needed text-equates, do not alter these under any circumstances !!!! (unless you're me. Which you're not)
 

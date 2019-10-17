@@ -27,8 +27,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "game/bg_saga.h"
 #include "cg_media.h"
 
-extern vmCvar_t	cg_thirdPersonAlpha;
-
 extern void CG_AddRadarEnt(centity_t *cent);	//cg_ents.c
 extern void CG_AddBracketedEnt(centity_t *cent);	//cg_ents.c
 extern qboolean WP_SaberBladeUseSecondBladeStyle( saberInfo_t *saber, int bladeNum );
@@ -1519,10 +1517,10 @@ void CG_NewClientInfo( int clientNum, qboolean entitiesInitialized ) {
 		char modelStr[MAX_QPATH];
 		char *skin;
 
-		trap->Cvar_VariableStringBuffer( "model", modelStr, sizeof( modelStr ) );
-		if ( ( skin = strchr( modelStr, '/' ) ) == NULL) {
+		if ( (skin = strchr( model.string, '/' )) == NULL) {
 			skin = "default";
-		} else {
+		}
+		else {
 			*skin++ = 0;
 		}
 		Q_strncpyz( newInfo.skinName, skin, sizeof( newInfo.skinName ) );

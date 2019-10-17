@@ -51,31 +51,6 @@ float regularupdate_time;
 
 boteventtracker_t gBotEventTracker[MAX_CLIENTS];
 
-//rww - new bot cvars..
-vmCvar_t bot_forcepowers;
-vmCvar_t bot_forgimmick;
-vmCvar_t bot_honorableduelacceptance;
-vmCvar_t bot_pvstype;
-vmCvar_t bot_normgpath;
-#ifndef FINAL_BUILD
-vmCvar_t bot_getinthecarrr;
-#endif
-
-#ifdef _DEBUG
-vmCvar_t bot_nogoals;
-vmCvar_t bot_debugmessages;
-#endif
-
-vmCvar_t bot_attachments;
-vmCvar_t bot_camp;
-
-vmCvar_t bot_wp_info;
-vmCvar_t bot_wp_edit;
-vmCvar_t bot_wp_clearweight;
-vmCvar_t bot_wp_distconnect;
-vmCvar_t bot_wp_visconnect;
-//end rww
-
 wpobject_t *flagRed;
 wpobject_t *oFlagRed;
 wpobject_t *flagBlue;
@@ -663,8 +638,6 @@ int BotAI(int client, float thinktime) {
 	StandardBotAI(bs, thinktime);
 #ifdef _DEBUG
 	end = trap->Milliseconds();
-
-	trap->Cvar_Update(&bot_debugmessages);
 
 	if (bot_debugmessages.integer)
 	{
@@ -3132,8 +3105,6 @@ void GetIdealDestination(bot_state_t *bs)
 	gentity_t *badthing;
 
 #ifdef _DEBUG
-	trap->Cvar_Update(&bot_nogoals);
-
 	if (bot_nogoals.integer)
 	{
 		return;
@@ -6821,8 +6792,6 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 	MoveTowardIdealAngles(bs);
 }
 
-int gUpdateVars = 0;
-
 int BotAIStartFrame(int time) {
 	int i;
 	int elapsed_time, thinktime;
@@ -6830,25 +6799,11 @@ int BotAIStartFrame(int time) {
 //	static int botlib_residual;
 	static int lastbotthink_time;
 
-	if (gUpdateVars < level.time)
-	{
-		trap->Cvar_Update(&bot_pvstype);
-		trap->Cvar_Update(&bot_camp);
-		trap->Cvar_Update(&bot_attachments);
-		trap->Cvar_Update(&bot_forgimmick);
-		trap->Cvar_Update(&bot_honorableduelacceptance);
-#ifndef FINAL_BUILD
-		trap->Cvar_Update(&bot_getinthecarrr);
-#endif
-		gUpdateVars = level.time + 1000;
-	}
-
 	G_CheckBotSpawn();
 
 	//rww - addl bot frame functions
 	if (gBotEdit)
 	{
-		trap->Cvar_Update(&bot_wp_info);
 		BotWaypointRender();
 	}
 
@@ -6902,32 +6857,6 @@ int BotAIStartFrame(int time) {
 }
 
 int BotAISetup( int restart ) {
-	//rww - new bot cvars..
-	trap->Cvar_Register(&bot_forcepowers, "bot_forcepowers", "1", CVAR_CHEAT);
-	trap->Cvar_Register(&bot_forgimmick, "bot_forgimmick", "0", CVAR_CHEAT);
-	trap->Cvar_Register(&bot_honorableduelacceptance, "bot_honorableduelacceptance", "0", CVAR_CHEAT);
-	trap->Cvar_Register(&bot_pvstype, "bot_pvstype", "1", CVAR_CHEAT);
-#ifndef FINAL_BUILD
-	trap->Cvar_Register(&bot_getinthecarrr, "bot_getinthecarrr", "0", 0);
-#endif
-
-#ifdef _DEBUG
-	trap->Cvar_Register(&bot_nogoals, "bot_nogoals", "0", CVAR_CHEAT);
-	trap->Cvar_Register(&bot_debugmessages, "bot_debugmessages", "0", CVAR_CHEAT);
-#endif
-
-	trap->Cvar_Register(&bot_attachments, "bot_attachments", "1", 0);
-	trap->Cvar_Register(&bot_camp, "bot_camp", "1", 0);
-
-	trap->Cvar_Register(&bot_wp_info, "bot_wp_info", "1", 0);
-	trap->Cvar_Register(&bot_wp_edit, "bot_wp_edit", "0", CVAR_CHEAT);
-	trap->Cvar_Register(&bot_wp_clearweight, "bot_wp_clearweight", "1", 0);
-	trap->Cvar_Register(&bot_wp_distconnect, "bot_wp_distconnect", "1", 0);
-	trap->Cvar_Register(&bot_wp_visconnect, "bot_wp_visconnect", "1", 0);
-
-	trap->Cvar_Update(&bot_forcepowers);
-	//end rww
-
 	//if the game is restarted for a tournament
 	if (restart) {
 		return qtrue;

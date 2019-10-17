@@ -27,12 +27,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "snd_mp3.h"
 #include "snd_ambient.h"
 
+#include "qcommon/com_cvars.h"
+
 #include <string>
 
 #ifdef USE_OPENAL
 // Open AL
 void S_PreProcessLipSync(sfx_t *sfx);
-extern int s_UseOpenAL;
 #endif
 
 // WAV loading
@@ -44,11 +45,6 @@ byte 	*iff_data;
 int 	iff_chunk_len;
 extern sfx_t		s_knownSfx[];
 extern	int			s_numSfx;
-
-extern cvar_t		*s_lip_threshold_1;
-extern cvar_t		*s_lip_threshold_2;
-extern cvar_t		*s_lip_threshold_3;
-extern cvar_t		*s_lip_threshold_4;
 
 short GetLittleShort(void)
 {
@@ -525,7 +521,6 @@ void S_MP3_CalcVols_f( void )
 
 // adjust filename for foreign languages and WAV/MP3 issues.
 // returns qfalse if failed to load, else fills in *pData
-extern	cvar_t	*com_buildScript;
 static qboolean S_LoadSound_FileLoadAndNameAdjuster(char *psFilename, byte **pData, int *piSize, int iNameStrlen)
 {
 	char *psVoice = strstr(psFilename,"chars");
@@ -581,7 +576,6 @@ static qboolean S_LoadSound_FileLoadAndNameAdjuster(char *psFilename, byte **pDa
 		}
 
 		// account for foreign voices...
-		extern cvar_t* s_language;
 		if ( s_language ) {
 				 if ( !Q_stricmp( "DEUTSCH", s_language->string ) )
 				strncpy( psVoice, "chr_d", 5 );	// same number of letters as "chars"
@@ -714,7 +708,7 @@ static qboolean S_LoadSound_Actual( sfx_t *sfx )
 //				Com_DPrintf("(Keeping file \"%s\" as MP3)\n",sLoadName);
 
 #ifdef USE_OPENAL
-				if (s_UseOpenAL)
+				if (s_useOpenAL->integer)
 				{
 					// Create space for lipsync data (4 lip sync values per streaming AL buffer)
 					if ((strstr(sfx->sSoundName, "chars")) || (strstr(sfx->sSoundName, "CHARS")))
@@ -769,7 +763,7 @@ static qboolean S_LoadSound_Actual( sfx_t *sfx )
 
 						// Open AL
 #ifdef USE_OPENAL
-						if (s_UseOpenAL)
+						if (s_useOpenAL->integer)
 						{
 							if ((strstr(sfx->sSoundName, "chars")) || (strstr(sfx->sSoundName, "CHARS")))
 							{
@@ -839,7 +833,7 @@ static qboolean S_LoadSound_Actual( sfx_t *sfx )
 
 		// Open AL
 #ifdef USE_OPENAL
-		if (s_UseOpenAL)
+		if (s_useOpenAL->integer)
 		{
 			if ((strstr(sfx->sSoundName, "chars")) || (strstr(sfx->sSoundName, "CHARS")))
 			{
@@ -912,16 +906,16 @@ void S_PreProcessLipSync(sfx_t *sfx)
 		{
 			sampleTotal /= 10;
 
-			if (sampleTotal < sfx->fVolRange *  s_lip_threshold_1->value)
+			if (sampleTotal < sfx->fVolRange *  s_threshold1->value)
 			{
 				// tell the scripts that are relying on this that we are still going, but actually silent right now.
 				sample = -1;
 			}
-			else if (sampleTotal < sfx->fVolRange * s_lip_threshold_2->value)
+			else if (sampleTotal < sfx->fVolRange * s_threshold2->value)
 				sample = 1;
-			else if (sampleTotal < sfx->fVolRange * s_lip_threshold_3->value)
+			else if (sampleTotal < sfx->fVolRange * s_threshold3->value)
 				sample = 2;
-			else if (sampleTotal < sfx->fVolRange * s_lip_threshold_4->value)
+			else if (sampleTotal < sfx->fVolRange * s_threshold4->value)
 				sample = 3;
 			else
 				sample = 4;
@@ -945,16 +939,16 @@ void S_PreProcessLipSync(sfx_t *sfx)
 	else
 		sampleTotal = 0;
 
-	if (sampleTotal < sfx->fVolRange * s_lip_threshold_1->value)
+	if (sampleTotal < sfx->fVolRange * s_threshold1->value)
 	{
 		// tell the scripts that are relying on this that we are still going, but actually silent right now.
 		sample = -1;
 	}
-	else if (sampleTotal < sfx->fVolRange * s_lip_threshold_2->value)
+	else if (sampleTotal < sfx->fVolRange * s_threshold2->value)
 		sample = 1;
-	else if (sampleTotal < sfx->fVolRange * s_lip_threshold_3->value)
+	else if (sampleTotal < sfx->fVolRange * s_threshold3->value)
 		sample = 2;
-	else if (sampleTotal < sfx->fVolRange * s_lip_threshold_4->value)
+	else if (sampleTotal < sfx->fVolRange * s_threshold4->value)
 		sample = 3;
 	else
 		sample = 4;

@@ -26,49 +26,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "ghoul2/ghoul2_shared.h"
 #include "sv_gameapi.h"
+#include "qcommon/com_cvar.h"
+#include "qcommon/com_cvars.h"
 
 serverStatic_t	svs;				// persistant server info
 server_t		sv;					// local server
-
-cvar_t	*sv_snapsMin;			// minimum snapshots/sec a client can request, also limited by sv_snapsMax
-cvar_t	*sv_snapsMax;			// maximum snapshots/sec a client can request, also limited by sv_fps
-cvar_t	*sv_snapsPolicy;		// 0-2
-cvar_t	*sv_fps = NULL;				// time rate for running non-clients
-cvar_t	*sv_timeout;			// seconds without any message
-cvar_t	*sv_zombietime;			// seconds to sink messages after disconnect
-cvar_t	*sv_rconPassword;		// password for remote server commands
-cvar_t	*sv_privatePassword;	// password for the privateClient slots
-cvar_t	*sv_maxclients;
-cvar_t	*sv_privateClients;		// number of clients reserved for password
-cvar_t	*sv_hostname;
-cvar_t	*sv_allowDownload;
-cvar_t	*sv_master[MAX_MASTER_SERVERS];		// master server ip address
-cvar_t	*sv_reconnectlimit;		// minimum seconds between connect messages
-cvar_t	*sv_showghoultraces;	// report ghoul2 traces
-cvar_t	*sv_showloss;			// report when usercmds are lost
-cvar_t	*sv_padPackets;			// add nop bytes to messages
-cvar_t	*sv_killserver;			// menu system can set to 1 to shut server down
-cvar_t	*sv_mapname;
-cvar_t	*sv_mapChecksum;
-cvar_t	*sv_serverid;
-cvar_t	*sv_ratePolicy;		// 1-2
-cvar_t	*sv_clientRate;
-cvar_t	*sv_minRate;
-cvar_t	*sv_maxRate;
-cvar_t	*sv_minPing;
-cvar_t	*sv_maxPing;
-cvar_t	*sv_gametype;
-cvar_t	*sv_pure;
-cvar_t	*sv_floodProtect;
-cvar_t	*sv_floodProtectSlow;
-cvar_t	*sv_lanForceRate; // dedicated 1 (LAN) server forces local client rates to 99999 (bug #491)
-cvar_t	*sv_needpass;
-cvar_t	*sv_filterCommands; // strict filtering on commands (1: strip ['\r', '\n'], 2: also strip ';')
-cvar_t	*sv_autoDemo;
-cvar_t	*sv_autoDemoBots;
-cvar_t	*sv_autoDemoMaxMaps;
-cvar_t	*sv_legacyFixes;
-cvar_t	*sv_banFile;
 
 serverBan_t serverBans[SERVER_MAXBANS];
 int serverBansCount = 0;
@@ -148,7 +110,7 @@ void QDECL SV_SendServerCommand(client_t *cl, const char *fmt, ...) {
 	}
 
 	// hack to echo broadcast prints to console
-	if ( com_dedicated->integer && !Q_strncmp( (char *)message, "print", 5) ) {
+	if ( dedicated->integer && !Q_strncmp( (char *)message, "print", 5) ) {
 		Com_Printf ("broadcast: %s\n", SV_ExpandNewlines((char *)message) );
 	}
 
@@ -161,16 +123,16 @@ void QDECL SV_SendServerCommand(client_t *cl, const char *fmt, ...) {
 // MASTER SERVER FUNCTIONS
 
 #define NEW_RESOLVE_DURATION		86400000 //24 hours
-static int g_lastResolveTime[MAX_MASTER_SERVERS];
+static int g_lastResolveTime;
 
-static inline bool SV_MasterNeedsResolving(int server, int time)
+static inline bool SV_MasterNeedsResolving(int time)
 { //refresh every so often regardless of if the actual address was modified -rww
-	if (g_lastResolveTime[server] > time)
+	if (g_lastResolveTime > time)
 	{ //time flowed backwards?
 		return true;
 	}
 
-	if ((time-g_lastResolveTime[server]) > NEW_RESOLVE_DURATION)
+	if ((time-g_lastResolveTime) > NEW_RESOLVE_DURATION)
 	{ //it's time again
 		return true;
 	}
@@ -184,12 +146,11 @@ static inline bool SV_MasterNeedsResolving(int server, int time)
 // We will also have a heartbeat sent when a server changes from empty to non-empty, and full to non-full, but not on
 //	every player enter or exit.
 void SV_MasterHeartbeat( void ) {
-	static netadr_t	adr[MAX_MASTER_SERVERS];
-	int			i;
+	static netadr_t	adr;
 	int			time;
 
 	// "dedicated 1" is for lan play, "dedicated 2" is for inet public play
-	if ( !com_dedicated || com_dedicated->integer != 2 ) {
+	if ( !dedicated || dedicated->integer != 2 ) {
 		return;		// only dedicated servers send heartbeats
 	}
 
@@ -199,44 +160,39 @@ void SV_MasterHeartbeat( void ) {
 	}
 	svs.nextHeartbeatTime = svs.time + HEARTBEAT_MSEC;
 
-	//we need to use this instead of svs.time since svs.time resets over map changes (or rather
-	//every time the game restarts), and we don't really need to resolve every map change
+	// we need to use this instead of svs.time since svs.time resets over map changes (or rather every time the game
+	//	restarts), and we don't really need to resolve every map change
 	time = Com_Milliseconds();
 
 	// send to group masters
-	for ( i = 0 ; i < MAX_MASTER_SERVERS ; i++ ) {
-		if ( !sv_master[i]->string[0] ) {
-			continue;
-		}
-
-		// see if we haven't already resolved the name
-		// resolving usually causes hitches on win95, so only
-		// do it when needed
-		if ( sv_master[i]->modified || SV_MasterNeedsResolving(i, time) ) {
-			sv_master[i]->modified = qfalse;
-
-			g_lastResolveTime[i] = time;
-
-			Com_Printf( "Resolving %s\n", sv_master[i]->string );
-			if ( !NET_StringToAdr( sv_master[i]->string, &adr[i] ) ) {
-				// if the address failed to resolve, clear it
-				// so we don't take repeated dns hits
-				Com_Printf( "Couldn't resolve address: %s\n", sv_master[i]->string );
-				Cvar_Set( sv_master[i]->name, "" );
-				sv_master[i]->modified = qfalse;
-				continue;
-			}
-			if ( !strstr( ":", sv_master[i]->string ) ) {
-				adr[i].port = BigShort( PORT_MASTER );
-			}
-			Com_Printf( "%s resolved to %s\n", sv_master[i]->string, NET_AdrToString(adr[i]) );
-		}
-
-		Com_Printf ("Sending heartbeat to %s\n", sv_master[i]->string );
-		// this command should be changed if the server info / status format
-		// ever incompatably changes
-		NET_OutOfBandPrint( NS_SERVER, adr[i], "heartbeat %s\n", HEARTBEAT_GAME );
+	if ( !sv_master->string[0] ) {
+		return;
 	}
+
+	// see if we haven't already resolved the name
+	if ( sv_master->modified || SV_MasterNeedsResolving(time) ) {
+		sv_master->modified = qfalse;
+
+		g_lastResolveTime = time;
+
+		Com_Printf( "Resolving %s\n", sv_master->string );
+		if ( !NET_StringToAdr( sv_master->string, &adr ) ) {
+			// if the address failed to resolve, clear it
+			// so we don't take repeated dns hits
+			Com_Printf( "Couldn't resolve address: %s\n", sv_master->string );
+			Cvar_Set( sv_master->name, "" );
+			sv_master->modified = qfalse;
+			return;
+		}
+		if ( !strstr( ":", sv_master->string ) ) {
+			adr.port = BigShort( PORT_MASTER );
+		}
+		Com_Printf( "%s resolved to %s\n", sv_master->string, NET_AdrToString(adr) );
+	}
+
+	Com_Printf ("Sending heartbeat to %s\n", sv_master->string );
+	// this command should be changed if the server info / status format ever incompatably changes
+	NET_OutOfBandPrint( NS_SERVER, adr, "heartbeat %s\n", HEARTBEAT_GAME );
 }
 
 // Informs all masters that this server is going down
@@ -399,7 +355,7 @@ void SVC_Status( netadr_t from ) {
 
 	// Prevent using getstatus as an amplifier
 	if ( SVC_RateLimitAddress( from, 10, 1000 ) ) {
-		if ( com_developer->integer ) {
+		if ( developer->integer ) {
 			Com_Printf( "SVC_Status: rate limit from %s exceeded, dropping request\n",
 				NET_AdrToString( from ) );
 		}
@@ -448,12 +404,11 @@ void SVC_Status( netadr_t from ) {
 //	full status
 void SVC_Info( netadr_t from ) {
 	int		i, count, humans, wDisable;
-	char	*gamedir;
 	char	infostring[MAX_INFO_STRING];
 
 	// Prevent using getinfo as an amplifier
 	if ( SVC_RateLimitAddress( from, 10, 1000 ) ) {
-		if ( com_developer->integer ) {
+		if ( developer->integer ) {
 			Com_Printf( "SVC_Info: rate limit from %s exceeded, dropping request\n",
 				NET_AdrToString( from ) );
 		}
@@ -493,24 +448,24 @@ void SVC_Info( netadr_t from ) {
 
 	Info_SetValueForKey( infostring, "protocol", va("%i", PROTOCOL_VERSION) );
 	Info_SetValueForKey( infostring, "hostname", sv_hostname->string );
-	Info_SetValueForKey( infostring, "mapname", sv_mapname->string );
+	Info_SetValueForKey( infostring, "mapname", mapname->string );
 	Info_SetValueForKey( infostring, "clients", va("%i", count) );
 	Info_SetValueForKey( infostring, "g_humanplayers", va("%i", humans) );
 	Info_SetValueForKey( infostring, "sv_maxclients",
 		va("%i", sv_maxclients->integer - sv_privateClients->integer ) );
-	Info_SetValueForKey( infostring, "gametype", va("%i", sv_gametype->integer ) );
-	Info_SetValueForKey( infostring, "needpass", va("%i", sv_needpass->integer ) );
-	Info_SetValueForKey( infostring, "truejedi", va("%i", Cvar_VariableIntegerValue( "g_jediVmerc" ) ) );
-	if ( sv_gametype->integer == GT_DUEL || sv_gametype->integer == GT_POWERDUEL )
+	Info_SetValueForKey( infostring, "gametype", va("%i", g_gametype->integer ) );
+	Info_SetValueForKey( infostring, "needpass", va("%i", g_needpass->integer ) );
+	Info_SetValueForKey( infostring, "truejedi", va("%i", g_jediVmerc->integer ) );
+	if ( g_gametype->integer == GT_DUEL || g_gametype->integer == GT_POWERDUEL )
 	{
-		wDisable = Cvar_VariableIntegerValue( "g_duelWeaponDisable" );
+		wDisable = g_duelWeaponDisable->integer;
 	}
 	else
 	{
-		wDisable = Cvar_VariableIntegerValue( "g_weaponDisable" );
+		wDisable = g_weaponDisable->integer;
 	}
 	Info_SetValueForKey( infostring, "wdisable", va("%i", wDisable ) );
-	Info_SetValueForKey( infostring, "fdisable", va("%i", Cvar_VariableIntegerValue( "g_forcePowerDisable" ) ) );
+	Info_SetValueForKey( infostring, "fdisable", va("%i", g_forcePowerDisable->integer ) );
 	//Info_SetValueForKey( infostring, "pure", va("%i", sv_pure->integer ) );
 	Info_SetValueForKey( infostring, "autodemo", va("%i", sv_autoDemo->integer ) );
 
@@ -520,9 +475,8 @@ void SVC_Info( netadr_t from ) {
 	if( sv_maxPing->integer ) {
 		Info_SetValueForKey( infostring, "maxPing", va("%i", sv_maxPing->integer) );
 	}
-	gamedir = Cvar_VariableString( "fs_game" );
-	if( *gamedir ) {
-		Info_SetValueForKey( infostring, "game", gamedir );
+	if( fs_game->string[0] ) {
+		Info_SetValueForKey( infostring, "game", fs_game->string );
 	}
 
 	NET_OutOfBandPrint( NS_SERVER, from, "infoResponse\n%s", infostring );
@@ -546,15 +500,15 @@ void SVC_RemoteCommand( netadr_t from, msg_t *msg ) {
 
 	// Prevent using rcon as an amplifier and make dictionary attacks impractical
 	if ( SVC_RateLimitAddress( from, 10, 1000 ) ) {
-		if ( com_developer->integer ) {
+		if ( developer->integer ) {
 			Com_Printf( "SVC_RemoteCommand: rate limit from %s exceeded, dropping request\n",
 				NET_AdrToString( from ) );
 		}
 		return;
 	}
 
-	if ( !strlen( sv_rconPassword->string ) ||
-		strcmp (Cmd_Argv(1), sv_rconPassword->string) ) {
+	if ( !strlen( rconPassword->string ) ||
+		strcmp (Cmd_Argv(1), rconPassword->string) ) {
 		static leakyBucket_t bucket;
 
 		// Make DoS via rcon impractical
@@ -574,7 +528,7 @@ void SVC_RemoteCommand( netadr_t from, msg_t *msg ) {
 	svs.redirectAddress = from;
 	Com_BeginRedirect (sv_outputbuf, SV_OUTPUTBUF_LENGTH, SV_FlushRedirect);
 
-	if ( !strlen( sv_rconPassword->string ) ) {
+	if ( !strlen( rconPassword->string ) ) {
 		Com_Printf ("No rconpassword set.\n");
 	} else if ( !valid ) {
 		Com_Printf ("Bad rconpassword.\n");
@@ -619,7 +573,7 @@ void SV_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 	Cmd_TokenizeString( s );
 
 	c = Cmd_Argv(0);
-	if ( com_developer->integer ) {
+	if ( developer->integer ) {
 		Com_Printf( "SV packet %s : %s\n", NET_AdrToString( from ), c );
 	}
 
@@ -640,7 +594,7 @@ void SV_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 		// server disconnect messages when their new server sees our final
 		// sequenced messages to the old client
 	} else {
-		if ( com_developer->integer ) {
+		if ( developer->integer ) {
 			Com_Printf( "bad connectionless packet from %s:\n%s\n",
 				NET_AdrToString( from ), s );
 		}
@@ -866,7 +820,7 @@ void SV_CheckCvars( void ) {
 			for (i = 0, cl = svs.clients; i < sv_maxclients->integer; i++, cl++) {
 				// if the client is on the same subnet as the server and we aren't running an
 				// internet public server, assume they don't need a rate choke
-				if (Sys_IsLANAddress(cl->netchan.remoteAddress) && com_dedicated->integer != 2 && sv_lanForceRate->integer == 1) {
+				if (Sys_IsLANAddress(cl->netchan.remoteAddress) && dedicated->integer != 2 && sv_lanForceRate->integer == 1) {
 					cl->rate = 100000;	// lans should not rate limit
 				}
 				else {
@@ -886,7 +840,7 @@ void SV_CheckCvars( void ) {
 			for (i = 0, cl = svs.clients; i < sv_maxclients->integer; i++, cl++) {
 				// if the client is on the same subnet as the server and we aren't running an
 				// internet public server, assume they don't need a rate choke
-				if (Sys_IsLANAddress(cl->netchan.remoteAddress) && com_dedicated->integer != 2 && sv_lanForceRate->integer == 1) {
+				if (Sys_IsLANAddress(cl->netchan.remoteAddress) && dedicated->integer != 2 && sv_lanForceRate->integer == 1) {
 					cl->rate = 100000;	// lans should not rate limit
 				}
 				else {
@@ -978,7 +932,7 @@ void SV_Frame( int msec ) {
 		return;
 	}
 
-	if ( !com_sv_running->integer ) {
+	if ( !sv_running->integer ) {
 		return;
 	}
 
@@ -991,7 +945,7 @@ void SV_Frame( int msec ) {
 	if ( sv_fps->integer < 1 ) {
 		Cvar_Set( "sv_fps", "10" );
 	}
-	frameMsec = 1000 / sv_fps->integer * com_timescale->value;
+	frameMsec = 1000 / sv_fps->integer * timescale->value;
 	// don't let it scale below 1ms
 	if(frameMsec < 1)
 	{
@@ -1001,7 +955,7 @@ void SV_Frame( int msec ) {
 
 	sv.timeResidual += msec;
 
-	if (!com_dedicated->integer) SV_BotFrame( sv.time + sv.timeResidual );
+	if (!dedicated->integer) SV_BotFrame( sv.time + sv.timeResidual );
 
 	// if time is about to hit the 32nd bit, kick all clients
 	// and clear sv.time, rather
@@ -1009,13 +963,13 @@ void SV_Frame( int msec ) {
 	// 2giga-milliseconds = 23 days, so it won't be too often
 	if ( svs.time > 0x70000000 ) {
 		SV_Shutdown( "Restarting server due to time wrapping" );
-		Cbuf_AddText( va( "map %s\n", Cvar_VariableString( "mapname" ) ) );
+		Cbuf_AddText( va( "map %s\n", mapname->string ) );
 		return;
 	}
 	// this can happen considerably earlier when lots of clients play and the map doesn't change
 	if ( svs.nextSnapshotEntities >= 0x7FFFFFFE - svs.numSnapshotEntities ) {
 		SV_Shutdown( "Restarting server due to numSnapshotEntities wrapping" );
-		Cbuf_AddText( va( "map %s\n", Cvar_VariableString( "mapname" ) ) );
+		Cbuf_AddText( va( "map %s\n", mapname->string ) );
 		return;
 	}
 
@@ -1044,7 +998,7 @@ void SV_Frame( int msec ) {
 	// update ping based on the all received frames
 	SV_CalcPings();
 
-	if (com_dedicated->integer) SV_BotFrame( sv.time );
+	if (dedicated->integer) SV_BotFrame( sv.time );
 
 	// run the game simulation in chunks
 	while ( sv.timeResidual >= frameMsec ) {

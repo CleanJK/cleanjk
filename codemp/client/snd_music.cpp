@@ -29,6 +29,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "qcommon/q_shared.h"
 #include "qcommon/sstring.h"
 #include "qcommon/GenericParser2.h"
+#include "qcommon/com_cvars.h"
 
 #include "snd_local.h"
 #include "snd_music.h"
@@ -103,7 +104,6 @@ void Music_Free(void)
 static void Music_Parse_Error(const char *psError)
 {
 #ifdef FINAL_BUILD
-	extern cvar_t *s_debugdynamic;
 	if (s_debugdynamic && s_debugdynamic->integer)
 	{
 #endif
@@ -118,7 +118,6 @@ static void Music_Parse_Error(const char *psError)
 static void Music_Parse_Warning(const char *psError)
 {
 #ifdef FINAL_BUILD
-	extern cvar_t *s_debugdynamic;
 	if (s_debugdynamic && s_debugdynamic->integer)
 	{
 #endif

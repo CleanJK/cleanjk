@@ -26,6 +26,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "qcommon/stringed_ingame.h"
 #include "server/sv_gameapi.h"
 #include "qcommon/game_version.h"
+#include "qcommon/com_cvar.h"
+#include "qcommon/com_cvars.h"
 
 // OPERATOR CONSOLE ONLY COMMANDS
 // These commands can only be entered from stdin or by a remote operator datagram
@@ -50,7 +52,7 @@ static client_t *SV_GetPlayerByHandle( void ) {
 	char		cleanName[64];
 
 	// make sure server is running
-	if ( !com_sv_running->integer ) {
+	if ( !sv_running->integer ) {
 		return NULL;
 	}
 
@@ -108,7 +110,7 @@ static client_t *SV_GetPlayerByNum( void ) {
 	char		*s;
 
 	// make sure server is running
-	if ( !com_sv_running->integer ) {
+	if ( !sv_running->integer ) {
 		return NULL;
 	}
 
@@ -163,7 +165,7 @@ static void SV_Map_f( void ) {
 	}
 
 	// force latched values to get set
-	Cvar_Get ("g_gametype", "0", CVAR_SERVERINFO | CVAR_LATCH );
+	g_gametype = Cvar_Get( "g_gametype", "0", CVAR_SERVERINFO | CVAR_LATCH );
 
 	cmd = Cmd_Argv(0);
 	if ( !Q_stricmpn( cmd, "devmap", 6 ) ) {
@@ -217,7 +219,7 @@ static void SV_MapRestart_f( void ) {
 	}
 
 	// make sure server is running
-	if ( !com_sv_running->integer ) {
+	if ( !sv_running->integer ) {
 		Com_Printf( "Server is not running.\n" );
 		return;
 	}
@@ -240,14 +242,9 @@ static void SV_MapRestart_f( void ) {
 
 	// check for changes in variables that can't just be restarted
 	// check for maxclients change
-	if ( sv_maxclients->modified || sv_gametype->modified ) {
-		char	mapname[MAX_QPATH];
-
+	if ( sv_maxclients->modified || g_gametype->modified ) {
 		Com_Printf( "variable change -- restarting.\n" );
-		// restart the map the slow way
-		Q_strncpyz( mapname, Cvar_VariableString( "mapname" ), sizeof( mapname ) );
-
-		SV_SpawnServer( mapname, qfalse, eForceReload_NOTHING );
+		SV_SpawnServer( mapname->string, qfalse, eForceReload_NOTHING );
 		return;
 	}
 
@@ -345,7 +342,7 @@ static void SV_KickBlankPlayers( void ) {
 	char		cleanName[64];
 
 	// make sure server is running
-	if ( !com_sv_running->integer ) {
+	if ( !sv_running->integer ) {
 		return;
 	}
 
@@ -379,7 +376,7 @@ static void SV_Kick_f( void ) {
 	int			i;
 
 	// make sure server is running
-	if ( !com_sv_running->integer ) {
+	if ( !sv_running->integer ) {
 		Com_Printf( "Server is not running.\n" );
 		return;
 	}
@@ -437,7 +434,7 @@ static void SV_KickBots_f( void ) {
 	int			i;
 
 	// make sure server is running
-	if( !com_sv_running->integer ) {
+	if( !sv_running->integer ) {
 		Com_Printf("Server is not running.\n");
 		return;
 	}
@@ -462,7 +459,7 @@ static void SV_KickAll_f( void ) {
 	int i;
 
 	// make sure server is running
-	if( !com_sv_running->integer ) {
+	if( !sv_running->integer ) {
 		Com_Printf( "Server is not running.\n" );
 		return;
 	}
@@ -486,7 +483,7 @@ static void SV_KickNum_f( void ) {
 	client_t	*cl;
 
 	// make sure server is running
-	if ( !com_sv_running->integer ) {
+	if ( !sv_running->integer ) {
 		Com_Printf( "Server is not running.\n" );
 		return;
 	}
@@ -518,7 +515,7 @@ static void SV_RehashBans_f( void )
 	char filepath[MAX_QPATH];
 
 	// make sure server is running
-	if ( !com_sv_running->integer ) {
+	if ( !sv_running->integer ) {
 		return;
 	}
 
@@ -675,7 +672,7 @@ static void SV_AddBanToList( qboolean isexception )
 	serverBan_t *curban;
 
 	// make sure server is running
-	if ( !com_sv_running->integer ) {
+	if ( !sv_running->integer ) {
 		Com_Printf( "Server is not running.\n" );
 		return;
 	}
@@ -807,7 +804,7 @@ static void SV_DelBanFromList( qboolean isexception )
 	char *banstring;
 
 	// make sure server is running
-	if ( !com_sv_running->integer ) {
+	if ( !sv_running->integer ) {
 		Com_Printf( "Server is not running.\n" );
 		return;
 	}
@@ -890,7 +887,7 @@ static void SV_ListBans_f( void )
 	serverBan_t *ban;
 
 	// make sure server is running
-	if ( !com_sv_running->integer ) {
+	if ( !sv_running->integer ) {
 		Com_Printf( "Server is not running.\n" );
 		return;
 	}
@@ -925,7 +922,7 @@ static void SV_ListBans_f( void )
 static void SV_FlushBans_f( void )
 {
 	// make sure server is running
-	if ( !com_sv_running->integer ) {
+	if ( !sv_running->integer ) {
 		Com_Printf( "Server is not running.\n" );
 		return;
 	}
@@ -998,7 +995,7 @@ static void SV_Status_f( void )
 	qboolean		avoidTruncation = qfalse;
 
 	// make sure server is running
-	if ( !com_sv_running->integer )
+	if ( !sv_running->integer )
 	{
 		Com_Printf( "Server is not running.\n" );
 		return;
@@ -1049,8 +1046,8 @@ static void SV_Status_f( void )
 	Com_Printf( "hostname: %s^7\n", hostname );
 	Com_Printf( "version : %s %i\n", VERSION_STRING_DOTTED, PROTOCOL_VERSION );
 	Com_Printf( "game    : %s\n", FS_GetCurrentGameDir() );
-	Com_Printf( "udp/ip  : %s:%i os(%s) type(%s)\n", Cvar_VariableString( "net_ip" ), Cvar_VariableIntegerValue( "net_port" ), STATUS_OS, ded_table[com_dedicated->integer] );
-	Com_Printf( "map     : %s gametype(%i)\n", sv_mapname->string, sv_gametype->integer );
+	Com_Printf( "udp/ip  : %s:%i os(%s) type(%s)\n", net_ip->string, net_port->integer, STATUS_OS, ded_table[dedicated->integer] );
+	Com_Printf( "map     : %s gametype(%i)\n", mapname->string, g_gametype->integer );
 	Com_Printf( "players : %i humans, %i bots (%i max)\n", humans, bots, sv_maxclients->integer - sv_privateClients->integer );
 	Com_Printf( "uptime  : %s\n", SV_CalcUptime() );
 
@@ -1105,13 +1102,13 @@ char	*SV_ExpandNewlines( char *in );
 static void SV_ConSay_f(void) {
 	char	text[MAX_SAY_TEXT] = {0};
 
-	if( !com_dedicated->integer ) {
+	if( !dedicated->integer ) {
 		Com_Printf( "Server is not dedicated.\n" );
 		return;
 	}
 
 	// make sure server is running
-	if ( !com_sv_running->integer ) {
+	if ( !sv_running->integer ) {
 		Com_Printf( "Server is not running.\n" );
 		return;
 	}
@@ -1132,13 +1129,13 @@ static void SV_ConTell_f(void) {
 	char	text[MAX_SAY_TEXT] = {0};
 	client_t	*cl;
 
-	if( !com_dedicated->integer ) {
+	if( !dedicated->integer ) {
 		Com_Printf( "Server is not dedicated.\n" );
 		return;
 	}
 
 	// make sure server is running
-	if ( !com_sv_running->integer ) {
+	if ( !sv_running->integer ) {
 		Com_Printf( "Server is not running.\n" );
 		return;
 	}
@@ -1159,6 +1156,7 @@ static void SV_ConTell_f(void) {
 	SV_SendServerCommand(cl, "chat \"" SVTELL_PREFIX S_COLOR_MAGENTA "%s" S_COLOR_WHITE "\"\n", text);
 }
 
+//CJKFIXME: move forceToggle/weaponToggle to game/ - this has no business being in the server
 const char *forceToggleNamePrints[NUM_FORCE_POWERS] = {
 	"HEAL",
 	"JUMP",
@@ -1181,12 +1179,12 @@ const char *forceToggleNamePrints[NUM_FORCE_POWERS] = {
 };
 
 static void SV_ForceToggle_f( void ) {
-	int bits = Cvar_VariableIntegerValue("g_forcePowerDisable");
+	int bits = g_forcePowerDisable->integer;
 	int i, val;
 	char *s;
 
 	// make sure server is running
-	if( !com_sv_running->integer ) {
+	if( !sv_running->integer ) {
 		Com_Printf( "Server is not running.\n" );
 		return;
 	}
@@ -1254,17 +1252,17 @@ static void SV_WeaponToggle_f( void ) {
 	char *s;
 	const char *cvarStr = NULL;
 
-	if ( sv_gametype->integer == GT_DUEL || sv_gametype->integer == GT_POWERDUEL ) {
+	if ( g_gametype->integer == GT_DUEL || g_gametype->integer == GT_POWERDUEL ) {
 		cvarStr = "g_duelWeaponDisable";
-		bits = Cvar_VariableIntegerValue( "g_duelWeaponDisable" );
+		bits = g_duelWeaponDisable->integer;
 	}
 	else {
 		cvarStr = "g_weaponDisable";
-		bits = Cvar_VariableIntegerValue( "g_weaponDisable" );
+		bits = g_weaponDisable->integer;
 	}
 
 	// make sure server is running
-	if( !com_sv_running->integer ) {
+	if( !sv_running->integer ) {
 		Com_Printf( "Server is not running.\n" );
 		return;
 	}
@@ -1312,7 +1310,7 @@ void SV_Heartbeat_f( void ) {
 // Examine the serverinfo string
 static void SV_Serverinfo_f( void ) {
 	// make sure server is running
-	if ( !com_sv_running->integer ) {
+	if ( !sv_running->integer ) {
 		Com_Printf( "Server is not running.\n" );
 		return;
 	}
@@ -1324,7 +1322,7 @@ static void SV_Serverinfo_f( void ) {
 // Examine or change the serverinfo string
 static void SV_Systeminfo_f( void ) {
 	// make sure server is running
-	if ( !com_sv_running->integer ) {
+	if ( !sv_running->integer ) {
 		Com_Printf( "Server is not running.\n" );
 		return;
 	}
@@ -1338,7 +1336,7 @@ static void SV_DumpUser_f( void ) {
 	client_t	*cl;
 
 	// make sure server is running
-	if ( !com_sv_running->integer ) {
+	if ( !sv_running->integer ) {
 		Com_Printf( "Server is not running.\n" );
 		return;
 	}
@@ -1521,8 +1519,8 @@ void SV_AutoRecordDemo( client_t *cl ) {
 	Q_strncpyz( demoPlayerName, cl->name, sizeof( demoPlayerName ) );
 	Q_CleanStr( demoPlayerName );
 	Com_sprintf( demoFileName, sizeof( demoFileName ), "%d %s %s %s",
-			cl - svs.clients, demoPlayerName, Cvar_VariableString( "mapname" ), date );
-	Com_sprintf( demoFolderName, sizeof( demoFolderName ), "%s %s", Cvar_VariableString( "mapname" ), folderDate );
+			cl - svs.clients, demoPlayerName, mapname->string, date );
+	Com_sprintf( demoFolderName, sizeof( demoFolderName ), "%s %s", mapname->string, folderDate );
 	// sanitize filename
 	for ( char **start = demoNames; start - demoNames < (ptrdiff_t)ARRAY_LEN( demoNames ); start++ ) {
 		Q_strstrip( *start, "\n\r;:.?*<>|\\/\"", NULL );

@@ -21,6 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "tr_local.h"
+#include "rd-vanilla/tr_cvars.h"
 
 // SKINS
 
@@ -329,7 +330,7 @@ static char *CommaParse( char **data_p ) {
 qhandle_t RE_RegisterServerSkin( const char *name ) {
 	qhandle_t r;
 
-	if (ri.Cvar_VariableIntegerValue( "cl_running" ) &&
+	if (cl_running->integer &&
 		ri.Com_TheHunkMarkHasBeenMade() &&
 		ShaderHashTableExists())
 	{ //If the client is running then we can go straight into the normal registerskin func

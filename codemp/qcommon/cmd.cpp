@@ -25,6 +25,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // cmd.c -- Quake script command processing module
 
 #include "qcommon/qcommon.h"
+#include "qcommon/com_cvar.h"
+#include "qcommon/com_cvars.h"
 
 #include <vector>
 #include <algorithm>
@@ -603,7 +605,7 @@ void Cmd_Print( const cmd_function_t *cmd )
 	Com_Printf( "\n" );
 }
 
-void	Cmd_CommandCompletion( callbackFunc_t callback ) {
+void	Cmd_CommandCompletion( completionCallback_t callback ) {
 	cmd_function_t	*cmd;
 
 	for (cmd=cmd_functions ; cmd ; cmd=cmd->next) {
@@ -655,17 +657,17 @@ void	Cmd_ExecuteString( const char *text ) {
 	}
 
 	// check client game commands
-	if ( com_cl_running && com_cl_running->integer && CL_GameCommand() ) {
+	if ( cl_running && cl_running->integer && CL_GameCommand() ) {
 		return;
 	}
 
 	// check server game commands
-	if ( com_sv_running && com_sv_running->integer && SV_GameCommand() ) {
+	if ( sv_running && sv_running->integer && SV_GameCommand() ) {
 		return;
 	}
 
 	// check ui commands
-	if ( com_cl_running && com_cl_running->integer && UI_GameCommand() ) {
+	if ( cl_running && cl_running->integer && UI_GameCommand() ) {
 		return;
 	}
 

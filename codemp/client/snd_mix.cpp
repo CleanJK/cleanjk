@@ -25,6 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "client.h"
 #include "snd_local.h"
+#include "qcommon/com_cvars.h"
 
 portable_samplepair_t paintbuffer[PAINTBUFFER_SIZE];
 int 	*snd_p, snd_linear_count, snd_vol;

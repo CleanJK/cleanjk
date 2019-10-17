@@ -2707,7 +2707,7 @@ void ClientThink_real( gentity_t *ent ) {
 	// check for respawning
 	if ( client->ps.stats[STAT_HEALTH] <= 0 ) {
 		// wait for the attack button to be pressed
-		if ( level.time > client->respawnTime && !gDoSlowMoDuel ) {
+		if ( level.time > client->respawnTime ) {
 			// forcerespawn is to prevent users from waiting out powerups
 			int forceRes = g_forceRespawn.integer;
 
@@ -2726,10 +2726,6 @@ void ClientThink_real( gentity_t *ent ) {
 			if ( ucmd->buttons & ( BUTTON_ATTACK | BUTTON_USE_HOLDABLE ) ) {
 				ClientRespawn( ent );
 			}
-		}
-		else if (gDoSlowMoDuel)
-		{
-			client->respawnTime = level.time + 1000;
 		}
 		return;
 	}

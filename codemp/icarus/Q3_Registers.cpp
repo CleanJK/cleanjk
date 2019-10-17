@@ -21,6 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "game/g_public.h"
+#include "icarus/icarus.h"
 #include "Q3_Registers.h"
 
 extern	void	Q3_DebugPrint( int level, const char *format, ... );

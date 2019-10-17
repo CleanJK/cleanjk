@@ -27,6 +27,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define __STDC_FORMAT_MACROS
 #include <inttypes.h>
 #include "qcommon/qcommon.h"
+#include "qcommon/com_cvar.h"
+#include "qcommon/com_cvars.h"
 #include "sys_local.h"
 #include "sys_loadlib.h"
 #include "sys_public.h"
@@ -791,7 +793,7 @@ int main ( int argc, char* argv[] )
 			bool shouldSleep = false;
 
 #if !defined(_JK2EXE)
-			if ( com_dedicated->integer )
+			if ( dedicated->integer )
 			{
 				shouldSleep = true;
 			}

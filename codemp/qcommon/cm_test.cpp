@@ -22,6 +22,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "cm_local.h"
+#include "qcommon/com_cvars.h"
 
 int CM_PointLeafnum_r( const vec3_t p, int num, clipMap_t *local ) {
 	float		d;

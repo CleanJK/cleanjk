@@ -24,6 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // g_bot.c
 
 #include "g_local.h"
+#include "game/ai_main.h"
 
 #define BOT_BEGIN_DELAY_BASE		2000
 #define BOT_BEGIN_DELAY_INCREMENT	1500
@@ -34,8 +35,6 @@ static struct botSpawnQueue_s {
 	int		clientNum;
 	int		spawnTime;
 } botSpawnQueue[BOT_SPAWN_QUEUE_DEPTH];
-
-vmCvar_t bot_minplayers;
 
 float trap_Cvar_VariableValue( const char *var_name ) {
 	char buf[MAX_CVAR_VALUE_STRING];
@@ -211,7 +210,6 @@ const char *G_RefreshNextMap(int gametype, qboolean forced)
 	int			n = 0;
 	char		*type = NULL;
 	qboolean	loopingUp = qfalse;
-	vmCvar_t	mapname;
 
 	if (!g_autoMapCycle.integer && !forced)
 	{
@@ -223,7 +221,6 @@ const char *G_RefreshNextMap(int gametype, qboolean forced)
 		return NULL;
 	}
 
-	trap->Cvar_Register( &mapname, "mapname", "", CVAR_SERVERINFO | CVAR_ROM );
 	for( n = 0; n < level.arenas.num; n++ )
 	{
 		type = Info_ValueForKey( level.arenas.infos[n], "map" );
@@ -377,7 +374,7 @@ void G_AddRandomBot( int team ) {
 		if (i >= sv_maxclients.integer) {
 			num--;
 			if (num <= 0) {
-				skill = trap->Cvar_VariableIntegerValue( "g_npcspskill" );
+				skill = g_spSkill.integer;
 				if (team == TEAM_RED) teamstr = "red";
 				else if (team == TEAM_BLUE) teamstr = "blue";
 				else teamstr = "";
@@ -476,7 +473,6 @@ void G_CheckMinimumPlayers( void ) {
 		return;
 	}
 	checkminimumplayers_time = level.time;
-	trap->Cvar_Update(&bot_minplayers);
 	minplayers = bot_minplayers.integer;
 	if (minplayers <= 0) return;
 
@@ -850,7 +846,8 @@ void Svcmd_AddBot_f( void ) {
 	char			team[MAX_TOKEN_CHARS];
 
 	// are bots enabled?
-	if ( !trap->Cvar_VariableIntegerValue( "bot_enable" ) ) {
+	if ( !bot_enable.integer ) {
+		trap->Print( "Bots are disabled on this server" );
 		return;
 	}
 
@@ -889,8 +886,7 @@ void Svcmd_AddBot_f( void ) {
 
 	// if this was issued during gameplay and we are playing locally,
 	// go ahead and load the bot's media immediately
-	if ( level.time - level.startTime > 1000 &&
-		trap->Cvar_VariableIntegerValue( "cl_running" ) ) {
+	if ( level.time - level.startTime > 1000 && cl_running.integer ) {
 		trap->SendServerCommand( -1, "loaddefered\n" );	// FIXME: spelled wrong, but not changing for demo
 	}
 }
@@ -948,7 +944,6 @@ static void G_LoadBotsFromFile( char *filename ) {
 }
 
 static void G_LoadBots( void ) {
-	vmCvar_t	botsFile;
 	int			numdirs;
 	char		filename[128];
 	char		dirlist[1024];
@@ -956,20 +951,13 @@ static void G_LoadBots( void ) {
 	int			i;
 	int			dirlen;
 
-	if ( !trap->Cvar_VariableIntegerValue( "bot_enable" ) ) {
+	if ( !bot_enable.integer ) {
 		return;
 	}
 
 	level.bots.num = 0;
 
-	trap->Cvar_Register( &botsFile, "g_botsFile", "", CVAR_INIT|CVAR_ROM );
-	if( *botsFile.string ) {
-		G_LoadBotsFromFile(botsFile.string);
-	}
-	else {
-		//G_LoadBotsFromFile("scripts/bots.txt");
-		G_LoadBotsFromFile("botfiles/bots.txt");
-	}
+	G_LoadBotsFromFile( g_botsFile.string[0] ? g_botsFile.string : DEFAULT_BOTFILE );
 
 	// get all bots from .bot files
 	numdirs = trap->FS_GetFileList("scripts", ".bot", dirlist, 1024 );
@@ -1005,17 +993,8 @@ char *G_GetBotInfoByName( const char *name ) {
 	return NULL;
 }
 
-//rww - pd
-void LoadPath_ThisLevel(void);
-//end rww
-
 void G_InitBots( void ) {
 	G_LoadBots();
 	G_LoadArenas();
-
-	trap->Cvar_Register( &bot_minplayers, "bot_minplayers", "0", CVAR_SERVERINFO );
-
-	//rww - new bot route stuff
 	LoadPath_ThisLevel();
-	//end rww
 }

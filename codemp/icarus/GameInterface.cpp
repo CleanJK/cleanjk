@@ -30,6 +30,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "qcommon/RoffSystem.h"
 #include "Q3_Interface.h"
 #include "server/sv_gameapi.h"
+#include "icarus/icarus.h"
 
 ICARUS_Instance		*iICARUS;
 bufferlist_t		ICARUS_BufferList;

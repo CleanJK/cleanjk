@@ -22,6 +22,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <SDL.h>
 #include "qcommon/qcommon.h"
 #include "qcommon/q_shared.h"
+#include "qcommon/com_cvar.h"
+#include "qcommon/com_cvars.h"
 #include "client/client.h"
 #include "sys/sys_local.h"
 
@@ -35,7 +37,6 @@ static qboolean mouseActive = qfalse;
 static cvar_t *in_mouse             = NULL;
 static cvar_t *in_nograb;
 
-cvar_t *in_joystick          		= NULL;
 static cvar_t *in_joystickThreshold = NULL;
 static cvar_t *in_joystickNo        = NULL;
 static cvar_t *in_joystickUseAnalog = NULL;

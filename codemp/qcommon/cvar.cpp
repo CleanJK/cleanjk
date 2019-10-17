@@ -25,9 +25,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // cvar.c -- dynamic variable tracking
 
 #include "qcommon/qcommon.h"
+#include "qcommon/com_cvar.h"
+#include "qcommon/com_cvars.h"
 
 cvar_t		*cvar_vars = NULL;
-cvar_t		*cvar_cheats;
 uint32_t	cvar_modifiedFlags;
 
 #define	MAX_CVARS	8192
@@ -161,7 +162,7 @@ uint32_t Cvar_Flags( const char *var_name ) {
 	}
 }
 
-void	Cvar_CommandCompletion( callbackFunc_t callback ) {
+void	Cvar_CommandCompletion( completionCallback_t callback ) {
 	cvar_t		*cvar;
 
 	for ( cvar = cvar_vars ; cvar ; cvar = cvar->next ) {
@@ -597,7 +598,7 @@ cvar_t *Cvar_Set2( const char *var_name, const char *value, uint32_t defaultFlag
 			return var;
 		}
 
-		if ( (var->flags & CVAR_CHEAT) && !cvar_cheats->integer )
+		if ( (var->flags & CVAR_CHEAT) && !sv_cheats->integer )
 		{
 			Com_Printf ("%s is cheat protected.\n", var_name);
 			return var;
@@ -1312,8 +1313,6 @@ void Cvar_CompleteCvarName( char *args, int argNum )
 void Cvar_Init (void) {
 	memset( cvar_indexes, 0, sizeof( cvar_indexes ) );
 	memset( hashTable, 0, sizeof( hashTable ) );
-
-	cvar_cheats = Cvar_Get( "sv_cheats", "1", CVAR_ROM|CVAR_SYSTEMINFO, "Allow cheats on server if set to 1" );
 
 	Cmd_AddCommand( "print", Cvar_Print_f, "Print cvar help" );
 	Cmd_SetCommandCompletionFunc( "print", Cvar_CompleteCvarName );

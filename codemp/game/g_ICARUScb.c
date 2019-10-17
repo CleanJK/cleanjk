@@ -422,21 +422,13 @@ int Q3_PlaySound( int taskID, int entID, const char *name, const char *channel )
 
 	if ( type_voice )
 	{
-		char buf[128];
-		float tFVal = 0;
-
-		trap->Cvar_VariableStringBuffer("timescale", buf, sizeof(buf));
-
-		tFVal = atof(buf);
-
-		if ( tFVal > 1.0f )
-		{//Skip the damn sound!
+		if ( timescale.value > 1.0f ) {
+			//Skip the damn sound!
 			return qtrue;
 		}
-		else
-		{
+		else {
 			//This the voice channel
-			G_Sound( ent, voice_chan, G_SoundIndex((char *) finalName) );
+			G_Sound( ent, voice_chan, G_SoundIndex( (char *)finalName ) );
 		}
 		//Remember we're waiting for this
 		trap->ICARUS_TaskIDSet( (sharedEntity_t *)ent, TID_CHAN_VOICE, taskID );
