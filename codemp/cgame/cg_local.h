@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "qcommon/q_shared.h"
 #include "rd-common/tr_types.h"
 #include "game/bg_public.h"
-#include "cg_public.h"
+#include "cgame/cg_public.h"
 #include "ui/ui_shared.h"
 
 // The entire cgame module is unloaded and reloaded on each level change,
@@ -1138,7 +1138,7 @@ extern	markPoly_t		cg_markPolys[MAX_MARK_POLYS];
 
 // cg_cvar.c
 #define XCVAR_PROTO
-	#include "cg_xcvar.h"
+	#include "cgame/cg_xcvar.h"
 #undef XCVAR_PROTO
 void CG_RegisterCvars( void );
 void CG_UpdateCvars( void );

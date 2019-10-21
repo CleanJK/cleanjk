@@ -25,14 +25,14 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "qcommon/q_shared.h"
 #include "rd-common/tr_types.h"
-#include "ui_public.h"
-#include "keycodes.h"
+#include "ui/ui_public.h"
+#include "ui/keycodes.h"
 #include "game/bg_public.h"
-#include "ui_shared.h"
+#include "ui/ui_shared.h"
 
 // ui_cvar.c
 #define XCVAR_PROTO
-	#include "ui_xcvar.h"
+	#include "ui/ui_xcvar.h"
 #undef XCVAR_PROTO
 void UI_RegisterCvars( void );
 void UI_UpdateCvars( void );

@@ -23,7 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // tr_init.c -- functions that are not called every frame
 
-#include "tr_local.h"
+#include "rd-dedicated/tr_local.h"
 #include "rd-common/tr_common.h"
 #include "qcommon/MiniHeap.h"
 #include "ghoul2/g2_local.h"

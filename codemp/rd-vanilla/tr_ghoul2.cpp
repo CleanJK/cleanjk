@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "client/client.h"	//FIXME!! EVIL - just include the definitions needed
-#include "tr_local.h"
+#include "rd-vanilla/tr_local.h"
 #include "qcommon/matcomp.h"
 #include "qcommon/qcommon.h"
 #include "ghoul2/G2.h"

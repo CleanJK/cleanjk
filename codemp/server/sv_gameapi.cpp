@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // sv_gameapi.cpp  -- interface to the game dll
 //Anything above this #include will be ignored by the compiler
 
-#include "server.h"
+#include "server/server.h"
 #include "botlib/botlib.h"
 #include "qcommon/stringed_ingame.h"
 #include "qcommon/RoffSystem.h"

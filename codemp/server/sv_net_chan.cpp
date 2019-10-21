@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "server.h"
+#include "server/server.h"
 
 // TTimo: unused, commenting out to make gcc happy
 

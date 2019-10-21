@@ -24,14 +24,14 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // cg_draw.c -- draw all of the graphical elements during
 // active (after loading) gameplay
 
-#include "cg_local.h"
+#include "cgame/cg_local.h"
 
 #include "game/bg_saga.h"
 
 #include "ui/ui_shared.h"
 #include "ui/ui_public.h"
 #include "ui/menudef.h"
-#include "cg_media.h"
+#include "cgame/cg_media.h"
 
 extern float CG_RadiusForCent( centity_t *cent );
 qboolean CG_WorldCoordToScreenCoordFloat(vec3_t worldCoord, float *x, float *y);

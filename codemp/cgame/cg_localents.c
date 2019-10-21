@@ -24,8 +24,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // cg_localents.c -- every frame, generate renderer commands for locally
 // processed entities, like smoke puffs, gibs, shells, etc.
 
-#include "cg_local.h"
-#include "cg_media.h"
+#include "cgame/cg_local.h"
+#include "cgame/cg_media.h"
 
 #define	MAX_LOCAL_ENTITIES	2048 // 512
 localEntity_t	cg_localEntities[MAX_LOCAL_ENTITIES];

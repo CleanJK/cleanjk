@@ -33,7 +33,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 	#include "ui/ui_local.h"
 #endif
 
-#include "ui_shared.h"
+#include "ui/ui_shared.h"
 #include "ui/menudef.h"
 #include "game/bg_public.h"
 #include "game/anims.h"

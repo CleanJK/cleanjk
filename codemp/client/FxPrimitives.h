@@ -22,7 +22,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include "FxSystem.h"
+#include "client/FxSystem.h"
 
 #define MAX_EFFECTS			1800
 

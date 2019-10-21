@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // cl_main.c  -- client main loop
 
-#include "client.h"
+#include "client/client.h"
 
 #include <limits.h>
 #include "ghoul2/G2.h"
@@ -33,10 +33,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "qcommon/stringed_ingame.h"
 #include "qcommon/com_cvar.h"
 #include "qcommon/com_cvars.h"
-#include "cl_cgameapi.h"
-#include "cl_uiapi.h"
-#include "cl_lan.h"
-#include "snd_local.h"
+#include "client/cl_cgameapi.h"
+#include "client/cl_uiapi.h"
+#include "client/cl_lan.h"
+#include "client/snd_local.h"
 #include "sys/sys_loadlib.h"
 
 vec3_t cl_windVec;

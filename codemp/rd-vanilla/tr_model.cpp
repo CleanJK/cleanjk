@@ -23,7 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // tr_models.c -- model loading and caching
 
-#include "tr_local.h"
+#include "rd-vanilla/tr_local.h"
 #include "qcommon/disablewarnings.h"
 #include "qcommon/sstring.h"	// #include <string>
 #include "rd-vanilla/tr_cvars.h"

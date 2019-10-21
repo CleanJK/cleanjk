@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "g_local.h"
+#include "game/g_local.h"
 
 // Cvar callbacks
 
@@ -43,12 +43,12 @@ typedef struct cvarTable_s {
 } cvarTable_t;
 
 #define XCVAR_DECL
-	#include "g_xcvar.h"
+	#include "game/g_xcvar.h"
 #undef XCVAR_DECL
 
 static const cvarTable_t gameCvarTable[] = {
 	#define XCVAR_LIST
-		#include "g_xcvar.h"
+		#include "game/g_xcvar.h"
 	#undef XCVAR_LIST
 };
 static const size_t gameCvarTableSize = ARRAY_LEN( gameCvarTable );

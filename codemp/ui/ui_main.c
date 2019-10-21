@@ -27,13 +27,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <stdlib.h>
 
 #include "ghoul2/G2.h"
-#include "ui_local.h"
+#include "ui/ui_local.h"
 #include "qcommon/qfiles.h"
 #include "qcommon/game_version.h"
-#include "ui_force.h"
+#include "ui/ui_force.h"
 #include "cgame/animtable.h" //we want this to be compiled into the module because we access it in the shared module.
 #include "game/bg_saga.h"
-#include "ui_shared.h"
+#include "ui/ui_shared.h"
 #include "ui/menudef.h"
 
 extern void UI_SaberAttachToChar( itemDef_t *item );

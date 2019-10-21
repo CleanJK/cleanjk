@@ -22,9 +22,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 // cg_weapons.c -- events and effects dealing with weapons
-#include "cg_local.h"
-#include "cg_weaponfx.h"
-#include "cg_media.h"
+#include "cgame/cg_local.h"
+#include "cgame/cg_weaponfx.h"
+#include "cgame/cg_media.h"
 
 // set up the appropriate ghoul2 info to a refent
 void CG_SetGhoul2InfoRef( refEntity_t *ent, refEntity_t	*s1)

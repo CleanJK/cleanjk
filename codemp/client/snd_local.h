@@ -25,7 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // snd_local.h -- private sound definations
 
-#include "snd_public.h"
+#include "client/snd_public.h"
 #include "mp3code/mp3struct.h"
 
 // Open AL Specific
@@ -198,4 +198,4 @@ qboolean SND_RegisterAudio_LevelLoadEnd(qboolean bDeleteEverythingNotUsedThisLev
 void S_DisplayFreeMemory(void);
 void S_memoryLoad(sfx_t *sfx);
 
-#include "snd_mp3.h"
+#include "client/snd_mp3.h"

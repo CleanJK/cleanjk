@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "game/g_public.h"
 
-#include "interface.h"
+#include "icarus/interface.h"
 /*
 void Interface_Init( interface_export_t *pe )
 {

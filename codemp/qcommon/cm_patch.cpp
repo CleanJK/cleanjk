@@ -21,8 +21,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "cm_local.h"
-#include "cm_patch.h"
+#include "qcommon/cm_local.h"
+#include "qcommon/cm_patch.h"
 #include "qcommon/qcommon.h"
 #include "qcommon/com_cvars.h"
 

@@ -22,8 +22,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "g_local.h"
-#include "bg_saga.h"
+#include "game/g_local.h"
+#include "game/bg_saga.h"
 
 qboolean PM_SaberInTransition( int move );
 qboolean PM_SaberInStart( int move );

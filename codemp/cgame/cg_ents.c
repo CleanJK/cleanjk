@@ -24,10 +24,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // cg_ents.c -- present snapshot entities, happens every single frame
 
-#include "cg_local.h"
+#include "cgame/cg_local.h"
 #include "qcommon/q_shared.h"
 #include "ghoul2/G2.h"
-#include "cg_media.h"
+#include "cgame/cg_media.h"
 
 static void CG_Missile( centity_t *cent );
 

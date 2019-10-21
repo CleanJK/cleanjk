@@ -26,8 +26,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // following another player or playing back a demo, it will be checked
 // when the snapshot transitions like all the other entities
 
-#include "cg_local.h"
-#include "cg_media.h"
+#include "cgame/cg_local.h"
+#include "cgame/cg_media.h"
 
 void CG_DamageFeedback( int yawByte, int pitchByte, int damage ) {
 	float		left, front, up;

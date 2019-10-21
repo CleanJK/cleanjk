@@ -23,8 +23,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // tr_shade.c
 
-#include "tr_local.h"
-#include "tr_quicksprite.h"
+#include "rd-vanilla/tr_local.h"
+#include "rd-vanilla/tr_quicksprite.h"
 #include "rd-vanilla/tr_cvars.h"
 
 /*

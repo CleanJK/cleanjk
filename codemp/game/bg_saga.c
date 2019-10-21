@@ -23,12 +23,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // Siege module, shared for game, cgame, and ui.
 
 #include "qcommon/q_shared.h"
-#include "bg_public.h"
-#include "bg_saga.h"
-#include "bg_weapons.h"
+#include "game/bg_public.h"
+#include "game/bg_saga.h"
+#include "game/bg_weapons.h"
 
 #ifdef _GAME
-	#include "g_local.h"
+	#include "game/g_local.h"
 #elif _CGAME
 	#include "cgame/cg_local.h"
 #elif UI_BUILD

@@ -30,8 +30,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "icarus/icarus.h"
 #include "icarus/interface.h"
 #include "icarus/GameInterface.h"
-#include "Q3_Interface.h"
-#include "Q3_Registers.h"
+#include "icarus/Q3_Interface.h"
+#include "icarus/Q3_Registers.h"
 #include "server/sv_gameapi.h"
 #include "qcommon/com_cvars.h"
 

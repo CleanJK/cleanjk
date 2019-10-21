@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "tr_local.h"
+#include "rd-dedicated/tr_local.h"
 
 backEndData_t	*backEndData;
 backEndState_t	backEnd;

@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "ui_local.h"
+#include "ui/ui_local.h"
 
 // Cvar callbacks
 
@@ -94,12 +94,12 @@ typedef struct cvarTable_s {
 } cvarTable_t;
 
 #define XCVAR_DECL
-	#include "ui_xcvar.h"
+	#include "ui/ui_xcvar.h"
 #undef XCVAR_DECL
 
 static const cvarTable_t uiCvarTable[] = {
 	#define XCVAR_LIST
-		#include "ui_xcvar.h"
+		#include "ui/ui_xcvar.h"
 	#undef XCVAR_LIST
 };
 static const size_t uiCvarTableSize = ARRAY_LEN( uiCvarTable );

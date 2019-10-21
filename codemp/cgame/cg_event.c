@@ -23,12 +23,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // cg_event.c -- handle entity events at snapshot or playerstate transitions
 
-#include "cg_local.h"
-#include "cg_weaponfx.h"
+#include "cgame/cg_local.h"
+#include "cgame/cg_weaponfx.h"
 #include "ui/ui_shared.h"
 #include "ui/ui_public.h"
 #include "ghoul2/G2.h"
-#include "cg_media.h"
+#include "cgame/cg_media.h"
 
 extern qboolean WP_SaberBladeUseSecondBladeStyle( saberInfo_t *saber, int bladeNum );
 extern int cg_saberFlashTime;

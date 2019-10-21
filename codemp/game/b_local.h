@@ -25,9 +25,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //B_local.h
 //re-added by MCG
 
-#include "g_local.h"
-#include "b_public.h"
-#include "say.h"
+#include "game/g_local.h"
+#include "game/b_public.h"
+#include "game/say.h"
 
 #define	AI_TIMERS 0//turn on to see print-outs of AI/nav timing
 // Navigation susbsystem

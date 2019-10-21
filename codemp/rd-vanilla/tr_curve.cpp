@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "tr_local.h"
+#include "rd-vanilla/tr_local.h"
 #include "rd-vanilla/tr_cvars.h"
 
 // This file does all of the processing necessary to turn a raw grid of points read from the map file into a

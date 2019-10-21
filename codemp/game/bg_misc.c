@@ -24,10 +24,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // bg_misc.c -- both games misc functions, all completely stateless
 
 #include "qcommon/q_shared.h"
-#include "bg_public.h"
+#include "game/bg_public.h"
 
 #if defined(_GAME)
-	#include "g_local.h"
+	#include "game/g_local.h"
 #elif defined(_CGAME)
 	#include "cgame/cg_local.h"
 #elif defined(UI_BUILD)

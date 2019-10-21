@@ -26,7 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "qcommon/MiniHeap.h"
 #include "qcommon/com_cvars.h"
-#include "tr_local.h"
+#include "rd-dedicated/tr_local.h"
 #include "rd-dedicated/tr_cvars.h"
 
 #include <set>

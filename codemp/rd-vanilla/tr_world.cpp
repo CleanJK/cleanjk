@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "tr_local.h"
+#include "rd-vanilla/tr_local.h"
 #include "rd-vanilla/tr_cvars.h"
 
 inline void Q_CastShort2Float(float *f, const short *s)

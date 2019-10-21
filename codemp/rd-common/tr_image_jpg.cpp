@@ -22,7 +22,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "tr_common.h"
+#include "rd-common/tr_common.h"
 
 // Include file for users of JPEG library.
 // You will need to have included system headers that define at least the typedefs FILE and size_t before you can

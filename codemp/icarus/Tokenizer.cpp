@@ -1,13 +1,5 @@
 // Tokenizer.cpp
-#ifndef NOT_USING_MODULES
-// !!! if you are not using modules, read BELOW !!!
-#include "module.h" // if you are not using modules,
-					// create an empty Module.h in your
-					// project -- use of modules allows
-					// the error handler to be overridden
-					// with a custom CErrHandler
-#endif
-#include "tokenizer.h"
+#include "icarus/tokenizer.h"
 
 #pragma warning(disable : 4100) //unreferenced formal parameter
 #pragma warning(disable : 4127) //conditional expression is constant

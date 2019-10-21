@@ -20,7 +20,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "cg_local.h"
+#include "cgame/cg_local.h"
 
 typedef struct clightstyle_s {
 	int				length;

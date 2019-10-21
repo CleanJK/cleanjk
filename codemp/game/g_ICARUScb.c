@@ -23,8 +23,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // ICARUS callback file, all that can be handled within vm's is handled in here.
 
 #include "qcommon/q_shared.h"
-#include "bg_public.h"
-#include "b_local.h"
+#include "game/bg_public.h"
+#include "game/b_local.h"
 #include "icarus/Q3_Interface.h"
 #include "icarus/Q3_Registers.h"
 

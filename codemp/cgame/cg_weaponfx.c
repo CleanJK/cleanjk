@@ -22,9 +22,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // Blaster Weapon
 
-#include "cg_local.h"
-#include "cg_weaponfx.h"
-#include "cg_media.h"
+#include "cgame/cg_local.h"
+#include "cgame/cg_weaponfx.h"
+#include "cgame/cg_media.h"
 
 static const vec3_t WHITE =		{ 1.00f,	1.0f,	1.0f };
 static const vec3_t BRIGHT =	{ 0.75f,	0.5f,	1.0f };

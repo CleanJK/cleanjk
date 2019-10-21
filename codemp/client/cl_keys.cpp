@@ -22,9 +22,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "client.h"
-#include "cl_cgameapi.h"
-#include "cl_uiapi.h"
+#include "client/client.h"
+#include "client/cl_cgameapi.h"
+#include "client/cl_uiapi.h"
 #include "qcommon/stringed_ingame.h"
 #include "qcommon/com_cvar.h"
 #include "qcommon/com_cvars.h"

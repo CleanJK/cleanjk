@@ -23,9 +23,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // snd_mem.c: sound caching
 
-#include "snd_local.h"
-#include "snd_mp3.h"
-#include "snd_ambient.h"
+#include "client/snd_local.h"
+#include "client/snd_mp3.h"
+#include "client/snd_ambient.h"
 
 #include "qcommon/com_cvars.h"
 

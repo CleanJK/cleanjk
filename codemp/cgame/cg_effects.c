@@ -24,8 +24,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // cg_effects.c -- these functions generate localentities, usually as a result
 // of event processing
 
-#include "cg_local.h"
-#include "cg_media.h"
+#include "cgame/cg_local.h"
+#include "cgame/cg_media.h"
 
 // Bullets shot underwater
 void CG_BubbleTrail( vec3_t start, vec3_t end, float spacing ) {

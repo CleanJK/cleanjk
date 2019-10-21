@@ -22,9 +22,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "qcommon/q_shared.h"
-#include "bg_public.h"
-#include "bg_local.h"
-#include "w_saber.h"
+#include "game/bg_public.h"
+#include "game/bg_local.h"
+#include "game/w_saber.h"
 
 extern qboolean BG_SabersOff( playerState_t *ps );
 saberInfo_t *BG_MySaber( int clientNum, int saberNum );
@@ -883,7 +883,7 @@ int PM_SaberLockWinAnim( qboolean victory, qboolean superBreak )
 
 // Need to avoid nesting namespaces!
 #ifdef _GAME //including game headers on cgame is FORBIDDEN ^_^
-	#include "g_local.h"
+	#include "game/g_local.h"
 	extern gentity_t g_entities[];
 #elif defined(_CGAME)
 	#include "cgame/cg_local.h" //ahahahahhahahaha@$!$!

@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "q_shared.h"
+#include "qcommon/q_shared.h"
 
 typedef struct MD5Context {
 	uint32_t buf[4];

@@ -22,8 +22,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // Game-side module for Siege gametype.
 
-#include "g_local.h"
-#include "bg_saga.h"
+#include "game/g_local.h"
+#include "game/bg_saga.h"
 
 //bypass most of the normal checks in SetTeam
 void SetTeamQuick(gentity_t *ent, int team, qboolean doBegin)

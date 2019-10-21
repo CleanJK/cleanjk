@@ -22,7 +22,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "tr_common.h"
+#include "rd-common/tr_common.h"
 
 // My TGA loader...
 #pragma pack(push,1)

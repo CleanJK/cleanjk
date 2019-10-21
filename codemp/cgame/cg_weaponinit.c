@@ -21,9 +21,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 // cg_weaponinit.c -- events and effects dealing with weapons
-#include "cg_local.h"
-#include "cg_weaponfx.h"
-#include "cg_media.h"
+#include "cgame/cg_local.h"
+#include "cgame/cg_weaponfx.h"
+#include "cgame/cg_media.h"
 
 // The server says this item is used on this level
 void CG_RegisterWeapon( int weaponNum) {

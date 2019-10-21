@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // this file holds commands that can be executed by the server console, but not remote clients
 
-#include "g_local.h"
+#include "game/g_local.h"
 
 // PACKET FILTERING
 // You can add or remove addresses from the filter list with:

@@ -24,11 +24,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // ICARUS Intance header
 
-#include "blockstream.h"
-#include "interface.h"
-#include "taskmanager.h"
-#include "sequence.h"
-#include "sequencer.h"
+#include "icarus/blockstream.h"
+#include "icarus/interface.h"
+#include "icarus/taskmanager.h"
+#include "icarus/sequence.h"
+#include "icarus/sequencer.h"
 
 class ICARUS_Instance
 {

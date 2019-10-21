@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "RoffSystem.h"
+#include "qcommon/RoffSystem.h"
 
 #ifndef DEDICATED
 #include "client/cl_cgameapi.h"

@@ -20,8 +20,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "client.h"
-#include "FxScheduler.h"
+#include "client/client.h"
+#include "client/FxScheduler.h"
 
 //#define __FXCHECKER
 

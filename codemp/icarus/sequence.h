@@ -24,9 +24,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // Sequence Header File
 
-#include "blockstream.h"
-#include "interface.h"
-#include "taskmanager.h"
+#include "icarus/blockstream.h"
+#include "icarus/interface.h"
+#include "icarus/taskmanager.h"
 
 class ICARUS_Instance;
 

@@ -40,7 +40,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #endif //BOTLIB
 
 #if defined(QUAKE)
-#include "l_utils.h"
+#include "botlib/l_utils.h"
 #endif //QUAKE
 
 //#define DEBUG_EVAL

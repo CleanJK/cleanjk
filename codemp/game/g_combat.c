@@ -23,9 +23,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // g_combat.c
 
-#include "b_local.h"
-#include "bg_saga.h"
-#include "g_team.h"
+#include "game/b_local.h"
+#include "game/bg_saga.h"
+#include "game/g_team.h"
 
 extern int G_ShipSurfaceForSurfName( const char *surfaceName );
 extern void G_LetGoOfWall( gentity_t *ent );

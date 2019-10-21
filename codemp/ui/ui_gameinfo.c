@@ -23,7 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // gameinfo.c
 
-#include "ui_local.h"
+#include "ui/ui_local.h"
 
 // arena and bot info
 

@@ -23,9 +23,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // cl.input.c  -- builds an intended movement command to send to the server
 
-#include "client.h"
-#include "cl_cgameapi.h"
-#include "cl_uiapi.h"
+#include "client/client.h"
+#include "client/cl_cgameapi.h"
+#include "client/cl_uiapi.h"
 #include "qcommon/com_cvars.h"
 #include "qcommon/com_cvar.h"
 #ifndef _WIN32

@@ -22,7 +22,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 // cmodel.c -- model loading
-#include "cm_local.h"
+#include "qcommon/cm_local.h"
 #include "qcommon/qfiles.h"
 #include "qcommon/com_cvars.h"
 

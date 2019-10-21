@@ -23,7 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // g_bot.c
 
-#include "g_local.h"
+#include "game/g_local.h"
 #include "game/ai_main.h"
 
 #define BOT_BEGIN_DELAY_BASE		2000

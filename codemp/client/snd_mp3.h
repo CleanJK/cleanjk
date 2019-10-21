@@ -25,7 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // Filename:-	cl_mp3.h
 // (Interface to the rest of the game for the MP3 functions)
 
-#include "snd_local.h"
+#include "client/snd_local.h"
 
 typedef struct id3v1_1 {
     char id[3];

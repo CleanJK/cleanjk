@@ -22,7 +22,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 // tr_subs.cpp - common function replacements for modular renderer
-#include "tr_local.h"
+#include "rd-vanilla/tr_local.h"
 
 void QDECL Com_Printf( const char *fmt, ... )
 {

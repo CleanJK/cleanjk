@@ -23,11 +23,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // tr_init.c -- functions that are not called every frame
 
-#include "tr_local.h"
+#include "rd-vanilla/tr_local.h"
 
 #include <algorithm>
 #include "../rd-common/tr_common.h"
-#include "tr_WorldEffects.h"
+#include "rd-vanilla/tr_WorldEffects.h"
 #include "qcommon/MiniHeap.h"
 #include "ghoul2/g2_local.h"
 #include "rd-vanilla/tr_cvars.h"

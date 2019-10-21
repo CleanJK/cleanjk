@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 //	-- jweier
 
-#include "icarus.h"
+#include "icarus/icarus.h"
 
 #include <assert.h>
 #include "server/server.h"

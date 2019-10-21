@@ -23,11 +23,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 // cg_main.c -- initialization and primary entry point for cgame
-#include "cg_local.h"
+#include "cgame/cg_local.h"
 
 #include "ui/ui_shared.h"
 #include "ui/menudef.h"
-#include "cg_media.h"
+#include "cgame/cg_media.h"
 
 // display context for new ui stuff
 displayContextDef_t cgDC;

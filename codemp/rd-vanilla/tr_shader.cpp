@@ -23,7 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // tr_shader.c -- this file deals with the parsing and definition of shaders
 
-#include "tr_local.h"
+#include "rd-vanilla/tr_local.h"
 #include "rd-vanilla/tr_cvars.h"
 
 static char *s_shaderText;

@@ -21,9 +21,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "tr_local.h"
-#include "glext.h"
-#include "tr_WorldEffects.h"
+#include "rd-vanilla/tr_local.h"
+#include "rd-vanilla/glext.h"
+#include "rd-vanilla/tr_WorldEffects.h"
 #include "rd-vanilla/tr_cvars.h"
 
 backEndData_t	*backEndData;

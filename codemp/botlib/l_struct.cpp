@@ -25,12 +25,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #ifdef BOTLIB
 #include "qcommon/q_shared.h"
-#include "botlib.h"				//for the include of be_interface.h
-#include "l_script.h"
-#include "l_precomp.h"
-#include "l_struct.h"
-#include "l_utils.h"
-#include "be_interface.h"
+#include "botlib/botlib.h"				//for the include of be_interface.h
+#include "botlib/l_script.h"
+#include "botlib/l_precomp.h"
+#include "botlib/l_struct.h"
+#include "botlib/l_utils.h"
+#include "botlib/be_interface.h"
 #endif //BOTLIB
 
 fielddef_t *FindField(fielddef_t *defs, char *name)

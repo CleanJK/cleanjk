@@ -22,7 +22,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include "FxPrimitives.h"
+#include "client/FxPrimitives.h"
 
 bool	FX_Free( bool templates );	// ditches all active effects;
 int		FX_Init( refdef_t* refdef );	// called in CG_Init to purge the fx system.

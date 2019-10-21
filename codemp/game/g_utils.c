@@ -23,8 +23,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // g_utils.c -- misc utility functions for game module
 
-#include "g_local.h"
-#include "bg_saga.h"
+#include "game/g_local.h"
+#include "game/bg_saga.h"
 #include "qcommon/q_shared.h"
 
 typedef struct shaderRemap_s {

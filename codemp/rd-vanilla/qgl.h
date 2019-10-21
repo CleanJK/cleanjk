@@ -49,7 +49,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #	include <gl.h>
 #endif
 
-#include "glext.h"
+#include "rd-vanilla/glext.h"
 
 #define qglAccum glAccum
 #define qglAlphaFunc glAlphaFunc

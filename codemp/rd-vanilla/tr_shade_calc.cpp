@@ -23,8 +23,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // tr_shade_calc.c
 
-#include "tr_local.h"
-#include "../rd-common/tr_common.h"
+#include "rd-vanilla/tr_local.h"
+#include "rd-common/tr_common.h"
 
 #define	WAVEVALUE( table, base, amplitude, phase, freq )  ((base) + table[ Q_ftol( ( ( (phase) + tess.shaderTime * (freq) ) * FUNCTABLE_SIZE ) ) & FUNCTABLE_MASK ] * (amplitude))
 

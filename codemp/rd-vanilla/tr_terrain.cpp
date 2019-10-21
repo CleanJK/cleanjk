@@ -1,5 +1,5 @@
 // this include must remain at the top of every CPP file
-#include "tr_local.h"
+#include "rd-vanilla/tr_local.h"
 
 #include "qcommon/GenericParser2.h"
 
@@ -10,7 +10,7 @@
 // Post process generated light data to make sure there are no bands within a patch
 
 #include "qcommon/cm_landscape.h"
-#include "tr_landscape.h"
+#include "rd-vanilla/tr_landscape.h"
 
 static int		TerrainFog = 0;
 static float	TerrainDistanceCull;

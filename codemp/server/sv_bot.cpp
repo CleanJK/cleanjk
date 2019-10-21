@@ -22,7 +22,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 // sv_bot.c
-#include "server.h"
+#include "server/server.h"
 #include "botlib/botlib.h"
 #include "qcommon/cm_public.h"
 #include "server/sv_gameapi.h"

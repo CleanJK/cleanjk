@@ -23,10 +23,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 // Sequencer Header File
-#include "blockstream.h"
-#include "interface.h"
-#include "taskmanager.h"
-#include "sequence.h"
+#include "icarus/blockstream.h"
+#include "icarus/interface.h"
+#include "icarus/taskmanager.h"
+#include "icarus/sequence.h"
 
 #include <list>
 #include <vector>

@@ -22,10 +22,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 // cg_players.c -- handle the media and animation for player entities
-#include "cg_local.h"
+#include "cgame/cg_local.h"
 #include "ghoul2/G2.h"
 #include "game/bg_saga.h"
-#include "cg_media.h"
+#include "cgame/cg_media.h"
 
 extern void CG_AddRadarEnt(centity_t *cent);	//cg_ents.c
 extern void CG_AddBracketedEnt(centity_t *cent);	//cg_ents.c

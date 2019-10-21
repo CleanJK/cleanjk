@@ -22,8 +22,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // USER INTERFACE SABER LOADING & DISPLAY CODE
 
-#include "ui_local.h"
-#include "ui_shared.h"
+#include "ui/ui_local.h"
+#include "ui/ui_shared.h"
 
 void WP_SaberLoadParms( void );
 qboolean WP_SaberParseParm( const char *saberName, const char *parmname, char *saberData );

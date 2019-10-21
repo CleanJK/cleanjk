@@ -28,9 +28,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // stuff common to all qcommon files...
 #include "server/server.h"
 #include "qcommon/q_shared.h"
-#include "qcommon.h"
-#include "stringed_ingame.h"
-#include "stringed_interface.h"
+#include "qcommon/qcommon.h"
+#include "qcommon/stringed_ingame.h"
+#include "qcommon/stringed_interface.h"
 // some STL stuff...
 #include <list>
 #include <map>

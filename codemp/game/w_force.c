@@ -20,9 +20,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "b_local.h"
-#include "w_saber.h"
-#include "ai_main.h"
+#include "game/b_local.h"
+#include "game/w_saber.h"
+#include "game/ai_main.h"
 #include "ghoul2/G2.h"
 
 #define METROID_JUMP 1

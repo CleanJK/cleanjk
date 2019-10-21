@@ -20,7 +20,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "g_local.h"
+#include "game/g_local.h"
 
 extern void G_MoverTouchPushTriggers( gentity_t *ent, vec3_t oldOrg );
 void G_StopObjectMoving( gentity_t *object );

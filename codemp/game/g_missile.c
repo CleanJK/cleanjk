@@ -21,8 +21,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "g_local.h"
-#include "w_saber.h"
+#include "game/g_local.h"
+#include "game/w_saber.h"
 #include "qcommon/q_shared.h"
 
 #define	MISSILE_PRESTEP_TIME	50

@@ -25,10 +25,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "game/g_public.h"
 #include "server/server.h"
-#include "interface.h"
-#include "GameInterface.h"
+#include "icarus/interface.h"
+#include "icarus/GameInterface.h"
 #include "qcommon/RoffSystem.h"
-#include "Q3_Interface.h"
+#include "icarus/Q3_Interface.h"
 #include "server/sv_gameapi.h"
 #include "icarus/icarus.h"
 

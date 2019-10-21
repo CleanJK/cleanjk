@@ -20,9 +20,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "client.h"
-#include "cl_cgameapi.h"
-#include "FxScheduler.h"
+#include "client/client.h"
+#include "client/cl_cgameapi.h"
+#include "client/FxScheduler.h"
 #include "qcommon/com_cvars.h"
 
 extern int		drawnFx;

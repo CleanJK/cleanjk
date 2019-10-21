@@ -24,8 +24,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // cl_scrn.c -- master for refresh, status bar, console, chat, notify, etc
 
-#include "client.h"
-#include "cl_uiapi.h"
+#include "client/client.h"
+#include "client/cl_uiapi.h"
 #include "qcommon/com_cvars.h"
 
 extern console_t con;

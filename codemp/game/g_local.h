@@ -27,14 +27,14 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // g_local.h -- local definitions for game module
 
 #include "qcommon/q_shared.h"
-#include "bg_public.h"
-#include "g_public.h"
+#include "game/bg_public.h"
+#include "game/g_public.h"
 
 typedef struct gentity_s gentity_t;
 typedef struct gclient_s gclient_t;
 
 //npc stuff
-#include "b_public.h"
+#include "game/b_public.h"
 
 extern int gPainMOD;
 extern int gPainHitLoc;
@@ -1381,7 +1381,7 @@ void Svcmd_ToggleAllowVote_f( void );
 
 // g_cvar.c
 #define XCVAR_PROTO
-	#include "g_xcvar.h"
+	#include "game/g_xcvar.h"
 #undef XCVAR_PROTO
 void G_RegisterCvars( void );
 void G_UpdateCvars( void );

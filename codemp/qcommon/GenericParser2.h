@@ -26,7 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 	#pragma message("...including GenericParser2.h")
 #endif
 
-#include "disablewarnings.h"
+#include "qcommon/disablewarnings.h"
 
 #ifdef USE_LOCAL_GENERICPARSER
 #include <memory.h>

@@ -24,9 +24,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // video and cinematic playback
 
-#include "client.h"
-#include "cl_uiapi.h"
-#include "snd_local.h"
+#include "client/client.h"
+#include "client/cl_uiapi.h"
+#include "client/snd_local.h"
 #include "qcommon/com_cvar.h"
 #include "qcommon/com_cvars.h"
 #ifndef _WIN32

@@ -20,8 +20,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "q_shared.h"
-#include "matcomp.h"
+#include "qcommon/q_shared.h"
+#include "qcommon/matcomp.h"
 #include <assert.h>
 #include <math.h>
 #include <stdio.h>

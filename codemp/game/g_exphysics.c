@@ -22,7 +22,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // Custom physics system (Expensive Physics)
 
-#include "g_local.h"
+#include "game/g_local.h"
 
 #define MAX_GRAVITY_PULL 512
 

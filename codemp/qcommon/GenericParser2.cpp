@@ -20,7 +20,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "GenericParser2.h"
+#include "qcommon/GenericParser2.h"
 
 #include <cstring>
 #include "qcommon/qcommon.h"

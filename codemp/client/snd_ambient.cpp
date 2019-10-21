@@ -22,9 +22,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // Ambient Sound System (ASS!)
 
-#include "client.h"
-#include "snd_ambient.h"
-#include "snd_local.h"
+#include "client/client.h"
+#include "client/snd_ambient.h"
+#include "client/snd_local.h"
 
 static const int MAX_SET_VOLUME =	255;
 

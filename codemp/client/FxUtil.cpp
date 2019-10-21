@@ -20,8 +20,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "client.h"
-#include "FxScheduler.h"
+#include "client/client.h"
+#include "client/FxScheduler.h"
 #include "qcommon/com_cvars.h"
 
 vec3_t	WHITE = {1.0f, 1.0f, 1.0f};

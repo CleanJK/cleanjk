@@ -13,9 +13,9 @@ extern void  ICARUS_Free(void *pMem);
 #endif
 #include <stdio.h>
 
-#include "tokenizer.h"
-#include "blockstream.h"
-#include "interpreter.h"
+#include "icarus/tokenizer.h"
+#include "icarus/blockstream.h"
+#include "icarus/interpreter.h"
 
 // Table Definitions
 

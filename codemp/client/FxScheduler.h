@@ -22,7 +22,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include "FxUtil.h"
+#include "client/FxUtil.h"
 #include "qcommon/GenericParser2.h"
 
 #include <algorithm>

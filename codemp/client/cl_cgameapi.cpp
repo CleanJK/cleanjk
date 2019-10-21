@@ -24,12 +24,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "qcommon/stringed_ingame.h"
 #include "qcommon/timing.h"
 #include "qcommon/com_cvar.h"
-#include "client.h"
-#include "cl_uiapi.h"
+#include "client/client.h"
+#include "client/cl_uiapi.h"
 #include "botlib/botlib.h"
-#include "snd_ambient.h"
-#include "FXExport.h"
-#include "FxUtil.h"
+#include "client/snd_ambient.h"
+#include "client/FXExport.h"
+#include "client/FxUtil.h"
 
 extern IHeapAllocator *G2VertSpaceClient;
 extern botlib_export_t *botlib_export;

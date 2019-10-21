@@ -26,10 +26,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // these are processed at snapshot transition time, so there will definately
 // be a valid snapshot this frame
 
-#include "cg_local.h"
+#include "cgame/cg_local.h"
 #include "ghoul2/G2.h"
 #include "ui/ui_public.h"
-#include "cg_media.h"
+#include "cgame/cg_media.h"
 
 #define SCORE_OFFSET (14)
 static void CG_ParseScores( void ) {

@@ -23,7 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include "bg_saga.h"
+#include "game/bg_saga.h"
 
 //#define FORCEJUMP_INSTANTMETHOD 1
 
