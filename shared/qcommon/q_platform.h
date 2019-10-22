@@ -350,22 +350,6 @@ static QINLINE float FloatSwap(float f)
 	#error "Endianness not defined"
 #endif
 
-typedef unsigned char byte;
-typedef unsigned short word;
-typedef unsigned long ulong;
-
-typedef enum { qfalse, qtrue } qboolean;
-
-// 32 bit field aliasing
-typedef union byteAlias_u {
-	float f;
-	int32_t i;
-	uint32_t ui;
-	qboolean qb;
-	byte b[4];
-	char c[4];
-} byteAlias_t;
-
 // platform string
 #if defined(NDEBUG)
 	#define PLATFORM_STRING OS_STRING "-" ARCH_STRING

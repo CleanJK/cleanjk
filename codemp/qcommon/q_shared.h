@@ -72,11 +72,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #define MAX_TEAMNAME 32
 
-#include "qcommon/q_math.h"
-#include "qcommon/q_color.h"
-#include "qcommon/q_string.h"
-#include "qcommon/disablewarnings.h"
-
 #define MAX_WORLD_COORD		( 64 * 1024 )
 #define MIN_WORLD_COORD		( -64 * 1024 )
 #define WORLD_SIZE			( MAX_WORLD_COORD - MIN_WORLD_COORD )
@@ -143,7 +138,22 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 	#define idppc	0
 #endif
 
-#include "qcommon/q_platform.h"
+using byte = unsigned char;
+using word = unsigned short;
+using ulong = unsigned long;
+
+using qboolean = int32_t;
+enum qboolean_e : int32_t { qfalse, qtrue };
+
+// 32 bit field aliasing
+typedef union byteAlias_u {
+	float f;
+	int32_t i;
+	uint32_t ui;
+	qboolean qb;
+	byte b[4];
+	char c[4];
+} byteAlias_t;
 
 typedef union fileBuffer_u {
 	void *v;
@@ -174,6 +184,12 @@ typedef int32_t qhandle_t, thandle_t, fxHandle_t, sfxHandle_t, fileHandle_t, cli
 #ifndef NULL
 #define NULL ((void *)0)
 #endif
+
+#include "qcommon/q_platform.h"
+#include "qcommon/q_math.h"
+#include "qcommon/q_color.h"
+#include "qcommon/q_string.h"
+#include "qcommon/disablewarnings.h"
 
 #define INT_ID( a, b, c, d ) (uint32_t)((((a) & 0xff) << 24) | (((b) & 0xff) << 16) | (((c) & 0xff) << 8) | ((d) & 0xff))
 
