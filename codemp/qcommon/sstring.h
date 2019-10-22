@@ -22,7 +22,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include "../qcommon/q_shared.h"
+#include "qcommon/q_shared.h"
 
 // Filename:-	sstring.h
 // Gil's string template, used to replace Microsoft's <string> vrsion which doesn't compile under certain stl map<>

@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include "../qcommon/q_shared.h"
+#include "qcommon/q_shared.h"
 
 #define	MAX_DLIGHTS		32			// can't be increased, because bit flags are used on surfaces
 #define	REFENTITYNUM_BITS	11		// can't be increased without changing drawsurf bit packing

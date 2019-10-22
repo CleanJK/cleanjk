@@ -25,10 +25,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #ifndef TR_PUBLIC_H
 #define TR_PUBLIC_H
 
-#include "../rd-common/tr_types.h"
-#include "../qcommon/MiniHeap.h"
-#include "../qcommon/qcommon.h"
-#include "../ghoul2/ghoul2_shared.h"
+#include "rd-common/tr_types.h"
+#include "qcommon/MiniHeap.h"
+#include "qcommon/qcommon.h"
+#include "ghoul2/ghoul2_shared.h"
 
 #define	REF_API_VERSION 9
 

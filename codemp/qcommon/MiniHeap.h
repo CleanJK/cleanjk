@@ -22,7 +22,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include "../qcommon/q_shared.h"
+#include "qcommon/q_shared.h"
 
 class IHeapAllocator
 {
