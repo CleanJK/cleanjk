@@ -28,6 +28,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "game/b_local.h"
 #include "game/g_team.h"
 
+NORETURN_PTR void (*Com_Error)( int level, const char *fmt, ... );
+void (*Com_Printf)( const char *fmt, ... );
+
 level_locals_t	level;
 
 int		eventClearTime = 0;
@@ -125,7 +128,7 @@ void G_CacheGametype( void )
 			level.gametype = GT_FFA;
 		}
 		else
-			level.gametype = gt;
+			level.gametype = (gametype_t)gt;
 	}
 	else if ( g_gametype.integer < 0 || g_gametype.integer >= GT_MAX_GAME_TYPE )
 	{
@@ -133,7 +136,7 @@ void G_CacheGametype( void )
 		level.gametype = GT_FFA;
 	}
 	else
-		level.gametype = atoi( g_gametype.string );
+		level.gametype = (gametype_t)atoi( g_gametype.string );
 
 	trap->Cvar_Set( "g_gametype", va( "%i", level.gametype ) );
 	trap->Cvar_Update( &g_gametype );
@@ -145,7 +148,7 @@ void G_CacheMapname( const char *mapname ) {
 }
 
 extern void RemoveAllWP(void);
-gentity_t *SelectRandomDeathmatchSpawnPoint( void );
+gentity_t *SelectRandomDeathmatchSpawnPoint( qboolean isbot );
 void SP_info_jedimaster_start( gentity_t *ent );
 void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	int					i;
@@ -214,9 +217,9 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 			trap->FS_Open( SECURITY_LOG, &level.security.log, FS_APPEND_SYNC );
 
 		if ( level.security.log )
-			trap->Print( "Logging to "SECURITY_LOG"\n" );
+			trap->Print( "Logging to " SECURITY_LOG "\n" );
 		else
-			trap->Print( "WARNING: Couldn't open logfile: "SECURITY_LOG"\n" );
+			trap->Print( "WARNING: Couldn't open logfile: " SECURITY_LOG "\n" );
 	}
 	else
 		trap->Print( "Not logging security events to disk.\n" );
@@ -330,7 +333,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 
 		if ( i == level.num_entities ) {
 			// no JM saber found. drop one at one of the player spawnpoints
-			gentity_t *spawnpoint = SelectRandomDeathmatchSpawnPoint();
+			gentity_t *spawnpoint = SelectRandomDeathmatchSpawnPoint( qfalse );
 
 			if( !spawnpoint ) {
 				trap->Error( ERR_DROP, "Couldn't find an FFA spawnpoint to drop the jedimaster saber at!\n" );
@@ -2891,6 +2894,7 @@ static int G_ICARUS_GetSetIDForString( void ) {
 
 gameImport_t *trap = NULL;
 
+Q_CABI {
 Q_EXPORT gameExport_t* QDECL GetModuleAPI( int apiVersion, gameImport_t *import )
 {
 	static gameExport_t ge = {0};
@@ -2940,4 +2944,5 @@ Q_EXPORT gameExport_t* QDECL GetModuleAPI( int apiVersion, gameImport_t *import 
 	ge.BG_GetItemIndexByTag				= BG_GetItemIndexByTag;
 
 	return &ge;
+}
 }

@@ -800,13 +800,6 @@ static qboolean turretG2_find_enemies( gentity_t *self )
 
 	if ( found )
 	{
-		/*
-		if ( !self->enemy )
-		{//just aquired one
-			AddSoundEvent( bestTarget, self->r.currentOrigin, 256, AEL_DISCOVERED );
-			AddSightEvent( bestTarget, self->r.currentOrigin, 512, AEL_DISCOVERED, 20 );
-		}
-		*/
 		if ( VALIDSTRING( self->target2 ))
 		{
 			G_UseTargets2( self, self, self->target2 );

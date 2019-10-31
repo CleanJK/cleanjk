@@ -354,7 +354,7 @@ void CG_DrawNewTeamInfo(rectDef_t *rect, float text_x, float text_y, float scale
 			for (j = 0; j <= PW_NUM_POWERUPS; j++) {
 				if (ci->powerups & (1 << j)) {
 
-					item = BG_FindItemForPowerup( j );
+					item = BG_FindItemForPowerup( (powerup_t)j );
 
 					if (item) {
 						CG_DrawPic( xx, y, PIC_WIDTH, PIC_WIDTH, media.gfx.null /* item->icon */ );

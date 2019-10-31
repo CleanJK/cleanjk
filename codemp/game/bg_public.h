@@ -44,12 +44,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define	DEFAULT_MODEL			"kyle"
 #define DEFAULT_MODEL_FEMALE	"jan"
 
-#define DEFAULT_REDTEAM_NAME	"Empire"
-#define DEFAULT_BLUETEAM_NAME	"Rebellion"
+#define DEFAULT_REDTEAM_NAME	"Dreaded Reds"
+#define DEFAULT_BLUETEAM_NAME	"Noobie Blues"
 
 #define	STEPSIZE		18
 
-#define DEFAULT_FORCEPOWERS	"5-1-000000000000000000"
+#define DEFAULT_FORCEPOWERS	"7-1-032330000000001333"
 #define DEFAULT_FORCEPOWERS_LEN (22) // numPowers + rank + side + separators
 //"rank-side-heal.lev.speed.push.pull.tele.grip.lightning.rage.protect.absorb.teamheal.teamforce.drain.see"
 
@@ -81,6 +81,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define	DEAD_VIEWHEIGHT		-16
 
 #define MAX_CLIENT_SCORE_SEND 20
+
+//for supplier class items
+#define TOSS_DEBOUNCE_TIME				5000
 
 // config strings are a general means of communicating variable length strings from the server to all connected clients.
 
@@ -184,36 +187,28 @@ typedef enum {
 	HANDEXTEND_JEDITAUNT,
 } forceHandAnims_t;
 
-typedef enum
-{
+enum brokenLimb_t : int32_t {
 	BROKENLIMB_NONE = 0,
 	BROKENLIMB_LARM,
 	BROKENLIMB_RARM,
 	NUM_BROKENLIMBS
-} brokenLimb_t;
+};
 
-//for supplier class items
-#define TOSS_DEBOUNCE_TIME				5000
-
-typedef enum {
-	GT_FFA,				// free for all
-	GT_HOLOCRON,		// holocron ffa
-	GT_JEDIMASTER,		// jedi master
-	GT_DUEL,		// one on one tournament
+enum gametype_t : int32_t {
+	GT_FFA,        // free for all
+	GT_HOLOCRON,   // holocron ffa
+	GT_JEDIMASTER, // jedi master
+	GT_DUEL,       // one on one tournament
 	GT_POWERDUEL,
-	//GT_SINGLE_PLAYER,	// single player ffa
 
 	// team games go after this
-
-	GT_TEAM,			// team deathmatch
+	GT_TEAM,       // team deathmatch
 
 	// non-score based games go after this
-
-	//GT_SIEGE,			// siege
-	GT_CTF,				// capture the flag
+	GT_CTF,        // capture the flag
 	GT_CTY,
 	GT_MAX_GAME_TYPE
-} gametype_t;
+};
 
 // gametype bits
 #define GTB_NONE			0x000 // invalid
@@ -229,15 +224,16 @@ typedef enum {
 #define GTB_CTY				0x200 // capture the ysalimiri
 #define GTB_ALL				0x1FF // all
 
-typedef enum _flag_status {
+enum flagStatus_t : int32_t {
+	FLAG_INVALID = -1,
 	FLAG_ATBASE = 0,
 	FLAG_TAKEN,			// CTF
 	FLAG_TAKEN_RED,		// One Flag CTF
 	FLAG_TAKEN_BLUE,	// One Flag CTF
 	FLAG_DROPPED
-} flagStatus_t;
+};
 
-typedef enum { GENDER_MALE, GENDER_FEMALE, GENDER_NEUTER } gender_t;
+enum gender_t : int32_t { GENDER_MALE, GENDER_FEMALE, GENDER_NEUTER };
 
 extern vec3_t WP_MuzzlePoint[WP_NUM_WEAPONS];
 
@@ -436,8 +432,7 @@ extern int bgForcePowerCost[NUM_FORCE_POWERS][NUM_FORCE_POWER_LEVELS];
 
 #define	MAXTOUCH	32
 
-typedef struct bgEntity_s
-{
+struct bgEntity_t {
 	//CJKFIXME: bgentity_t substruct
 	entityState_t	s;
 	playerState_t	*playerState;
@@ -446,7 +441,7 @@ typedef struct bgEntity_s
 	vec3_t			modelScale; //needed for g2 collision
 
 	//Data type(s) must directly correspond to the head of the gentity and centity structures
-} bgEntity_t;
+};
 
 typedef struct pmove_s {
 	// state (in / out)
@@ -743,7 +738,7 @@ typedef enum
 	PDSOUND_FORCEGRIP
 } pdSounds_t;
 
-typedef enum {
+enum entity_event_t : int32_t {
 	EV_NONE,
 
 	EV_CLIENTJOIN,
@@ -982,7 +977,7 @@ typedef enum {
 
 	EV_NUM_ENTITY_EVENTS
 
-} entity_event_t;			// There is a maximum of 256 events (8 bits transmission, 2 high bits for uniqueness)
+}; // There is a maximum of 256 events (8 bits transmission, 2 high bits for uniqueness)
 
 typedef enum {
 	GTS_RED_CAPTURE,
@@ -998,14 +993,14 @@ typedef enum {
 	GTS_TEAMS_ARE_TIED
 } global_team_sound_t;
 
-typedef enum {
+enum team_t : int32_t {
 	TEAM_FREE,
 	TEAM_RED,
 	TEAM_BLUE,
 	TEAM_SPECTATOR,
 
 	TEAM_NUM_TEAMS
-} team_t;
+};
 
 typedef enum {
 	DUELTEAM_FREE,

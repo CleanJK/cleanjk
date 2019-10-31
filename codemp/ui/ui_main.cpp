@@ -36,6 +36,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "ui/ui_shared.h"
 #include "ui/menudef.h"
 
+NORETURN_PTR void (*Com_Error)( int level, const char *fmt, ... );
+void (*Com_Printf)( const char *fmt, ... );
+
 extern void UI_SaberAttachToChar( itemDef_t *item );
 
 const char *forcepowerDesc[NUM_FORCE_POWERS] =
@@ -1383,7 +1386,7 @@ void UI_LoadMenus(const char *menuFile, qboolean reset) {
 }
 
 void UI_Load( void ) {
-	char *menuSet;
+	const char *menuSet;
 	char lastName[1024];
 	menuDef_t *menu = Menu_GetFocused();
 
@@ -4920,8 +4923,8 @@ static void UI_GetSaberCvars ( void )
 	trap->Cvar_Set ( "ui_saber", UI_Cvar_VariableString ( "saber1" ) );
 	trap->Cvar_Set ( "ui_saber2", UI_Cvar_VariableString ( "saber2" ));
 
-	trap->Cvar_Set("g_saber_color", SaberColorToString(trap->Cvar_VariableValue("color1")));
-	trap->Cvar_Set("g_saber2_color", SaberColorToString(trap->Cvar_VariableValue("color2")));
+	trap->Cvar_Set("g_saber_color", SaberColorToString((saber_colors_t)trap->Cvar_VariableValue("color1")));
+	trap->Cvar_Set("g_saber2_color", SaberColorToString((saber_colors_t)trap->Cvar_VariableValue("color2")));
 
 	trap->Cvar_Set ( "ui_saber_color", UI_Cvar_VariableString ( "g_saber_color" ) );
 	trap->Cvar_Set ( "ui_saber2_color", UI_Cvar_VariableString ( "g_saber2_color" ) );
@@ -8005,7 +8008,7 @@ static void UI_BuildPlayerModel_List( qboolean inGameLoad )
 	int		i;
 	int		j;
 
-	dirlist = malloc(DIR_LIST_SIZE);
+	dirlist = (char *)malloc(DIR_LIST_SIZE);
 	if ( !dirlist )
 	{
 		Com_Printf(S_COLOR_YELLOW "WARNING: Failed to allocate %u bytes of memory for player model "
@@ -8058,7 +8061,7 @@ static void UI_BuildPlayerModel_List( qboolean inGameLoad )
 			int                  iSkinParts=0;
 			char                *buffer = NULL;
 
-			buffer = malloc(filelen + 1);
+			buffer = (char *)malloc(filelen + 1);
 			if(!buffer)
 			{
 				trap->FS_Close( f );
@@ -8848,6 +8851,7 @@ static void UI_StartServerRefresh(qboolean full)
 
 uiImport_t *trap = NULL;
 
+Q_CABI {
 Q_EXPORT uiExport_t* QDECL GetModuleAPI( int apiVersion, uiImport_t *import )
 {
 	static uiExport_t uie = {0};
@@ -8876,4 +8880,5 @@ Q_EXPORT uiExport_t* QDECL GetModuleAPI( int apiVersion, uiImport_t *import )
 	uie.MenuReset			= Menu_Reset;
 
 	return &uie;
+}
 }

@@ -689,7 +689,7 @@ int PlayersInGame(void)
 	return pl;
 }
 
-int BotAISetupClient(int client, struct bot_settings_s *settings, qboolean restart) {
+int BotAISetupClient(int client, bot_settings_t *settings, qboolean restart) {
 	bot_state_t *bs;
 
 	if (!botstates[client]) botstates[client] = (bot_state_t *) B_Alloc(sizeof(bot_state_t)); //G_Alloc(sizeof(bot_state_t));

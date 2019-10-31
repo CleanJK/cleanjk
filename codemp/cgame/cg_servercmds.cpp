@@ -121,7 +121,7 @@ void CG_ParseServerinfo( void ) {
 
 	cgs.showDuelHealths = atoi( Info_ValueForKey( info, "g_showDuelHealths" ) );
 
-	cgs.gametype = atoi( Info_ValueForKey( info, "g_gametype" ) );
+	cgs.gametype = (gametype_t)atoi( Info_ValueForKey( info, "g_gametype" ) );
 	trap->Cvar_Set("g_gametype", va("%i", cgs.gametype));
 	cgs.needpass = atoi( Info_ValueForKey( info, "g_needpass" ) );
 	cgs.jediVmerc = atoi( Info_ValueForKey( info, "g_jediVmerc" ) );
@@ -283,8 +283,7 @@ void CG_ShaderStateChanged(void) {
 	char originalShader[MAX_QPATH];
 	char newShader[MAX_QPATH];
 	char timeOffset[16];
-	const char *o;
-	char *n,*t;
+	const char *o, *n,*t;
 
 	o = CG_ConfigString( CS_SHADERSTATE );
 	while (o && *o) {
@@ -313,12 +312,6 @@ void CG_ShaderStateChanged(void) {
 		}
 	}
 }
-
-extern char *cg_customSoundNames[MAX_CUSTOM_SOUNDS];
-extern const char *cg_customCombatSoundNames[MAX_CUSTOM_COMBAT_SOUNDS];
-extern const char *cg_customExtraSoundNames[MAX_CUSTOM_EXTRA_SOUNDS];
-extern const char *cg_customJediSoundNames[MAX_CUSTOM_JEDI_SOUNDS];
-extern const char *cg_customDuelSoundNames[MAX_CUSTOM_DUEL_SOUNDS];
 
 void SetCustomSoundForType(clientInfo_t *ci, int setType, int index, sfxHandle_t sfx)
 {

@@ -777,34 +777,6 @@ tryAgain:
 // Chooses a player start, deathmatch start, etc
 gentity_t *SelectSpawnPoint ( vec3_t avoidPoint, vec3_t origin, vec3_t angles, team_t team, qboolean isbot ) {
 	return SelectRandomFurthestSpawnPoint( avoidPoint, origin, angles, team, isbot );
-
-	/*
-	gentity_t	*spot;
-	gentity_t	*nearestSpot;
-
-	nearestSpot = SelectNearestDeathmatchSpawnPoint( avoidPoint );
-
-	spot = SelectRandomDeathmatchSpawnPoint ( );
-	if ( spot == nearestSpot ) {
-		// roll again if it would be real close to point of death
-		spot = SelectRandomDeathmatchSpawnPoint ( );
-		if ( spot == nearestSpot ) {
-			// last try
-			spot = SelectRandomDeathmatchSpawnPoint ( );
-		}
-	}
-
-	// find a single player start spot
-	if (!spot) {
-		trap->Error( ERR_DROP, "Couldn't find a spawn point" );
-	}
-
-	VectorCopy (spot->s.origin, origin);
-	origin[2] += 9;
-	VectorCopy (spot->s.angles, angles);
-
-	return spot;
-	*/
 }
 
 // Try to find a spawn point marked 'initial', otherwise use normal spawn selection.
@@ -2069,7 +2041,6 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 
 extern qboolean g_dontPenalizeTeam; //g_cmds.c
 void G_WriteClientSessionData( gclient_t *client );
-void SetTeamQuick(gentity_t *ent, int team, qboolean doBegin);
 void WP_SetSaber( int entNum, saberInfo_t *sabers, int saberNum, const char *saberName );
 
 // called when a client has finished connecting, and is ready to be placed into the level.
@@ -2088,7 +2059,7 @@ void ClientBegin( int clientNum, qboolean allowTeamReset ) {
 		if (allowTeamReset)
 		{
 			const char *team = "Red";
-			int preSess;
+			team_t preSess;
 
 			//SetTeam(ent, "");
 			ent->client->sess.sessionTeam = PickTeam(-1);
@@ -2156,7 +2127,7 @@ void ClientBegin( int clientNum, qboolean allowTeamReset ) {
 	{
 		if (ent->client->ps.fd.forcePowersActive & (1 << i))
 		{
-			WP_ForcePowerStop(ent, i);
+			WP_ForcePowerStop(ent, (forcePowers_t)i);
 		}
 		i++;
 	}
@@ -3063,7 +3034,7 @@ void ClientDisconnect( int clientNum ) {
 	{
 		if (ent->client->ps.fd.forcePowersActive & (1 << i))
 		{
-			WP_ForcePowerStop(ent, i);
+			WP_ForcePowerStop(ent, (forcePowers_t)i);
 		}
 		i++;
 	}

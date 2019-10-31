@@ -224,7 +224,7 @@ typedef enum //# setType_e
 	SET_
 } setType_t;
 
-#ifdef __cplusplus
+#if !defined( _GAME ) && !defined( _CGAME ) && !defined( UI_BUILD )
 
 // this enum isn't used directly by the game, it's mainly for BehavEd to scan for...
 
@@ -261,4 +261,4 @@ extern	void		Q3_DeclareVariable ( int type, const char *name );
 extern	void		Q3_FreeVariable( const char *name );
 
 extern	void		Q3_DebugPrint( int level, const char *format, ... );
-#endif //__cplusplus
+#endif

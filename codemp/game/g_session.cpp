@@ -67,7 +67,7 @@ void G_ReadSessionData( gclient_t *client )
 {
 	char			s[MAX_CVAR_VALUE_STRING] = {0};
 	const char		*var;
-	int			i=0, tempSessionTeam=0, tempSpectatorState, tempTeamLeader;
+	int			i=0, tempSessionTeam=0, tempSpectatorState, tempTeamLeader, tempSelectedFP;
 
 	var = va( "session%i", client - level.clients );
 	trap->Cvar_VariableStringBuffer( var, s, sizeof(s) );
@@ -82,11 +82,12 @@ void G_ReadSessionData( gclient_t *client )
 		&tempTeamLeader, //&client->sess.teamLeader,
 		&client->sess.setForce,
 		&client->sess.saberLevel,
-		&client->sess.selectedFP,
+		&tempSelectedFP,
 		&client->sess.duelTeam,
 		client->sess.IP
 		);
 
+	client->sess.selectedFP     = (forcePowers_t)tempSelectedFP;
 	client->sess.sessionTeam	= (team_t)tempSessionTeam;
 	client->sess.spectatorState	= (spectatorState_t)tempSpectatorState;
 	client->sess.teamLeader		= (qboolean)tempTeamLeader;

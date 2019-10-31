@@ -21,11 +21,7 @@ typedef struct
 }
 IN_OUT;
 
-#ifdef WIN32 // Damn linux gcc isn't detecting byte as defined
-#ifndef byte
 typedef unsigned char byte;
-#endif
-#endif
 
 #endif	// #ifndef SMALL_HEADER_H
 

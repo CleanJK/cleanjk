@@ -2590,7 +2590,7 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 			for (j = 0; j <= PW_NUM_POWERUPS; j++) {
 				if (ci->powerups & (1 << j)) {
 
-					item = BG_FindItemForPowerup( j );
+					item = BG_FindItemForPowerup( (powerup_t)j );
 
 					if (item) {
 						CG_DrawPic( xx + xOffset, y, TINYCHAR_WIDTH, TINYCHAR_HEIGHT,
@@ -2635,7 +2635,7 @@ static void CG_DrawPowerupIcons(int y)
 		{
 			int secondsleft = (cg.snap->ps.powerups[j] - cg.time)/1000;
 
-			item = BG_FindItemForPowerup( j );
+			item = BG_FindItemForPowerup( (powerup_t)j );
 
 			if (item)
 			{
@@ -3273,7 +3273,7 @@ static void CG_DrawCrosshair( vec3_t worldPoint, int chEntValid ) {
 	const entityState_t	*chES = chEntValid ? &cg_entities[cg.crosshairClientNum].currentState : NULL;
 	const clientInfo_t	*chCI = chEntValid ? &cgs.clientinfo[chES->number] : NULL;
 	const clientInfo_t	*myCI = &cgs.clientinfo[cg.snap->ps.clientNum];
-	const team_t		 myTeam = cg.predictedPlayerState.persistant[PERS_TEAM]; // ci->team;
+	const team_t		 myTeam = (team_t)cg.predictedPlayerState.persistant[PERS_TEAM]; // ci->team;
 
 	if ( worldPoint ) {
 		VectorCopy( worldPoint, cg_crosshairPos );

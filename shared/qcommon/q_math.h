@@ -22,18 +22,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 #pragma once
 
-#include "q_platform.h"
-
 #if defined(__cplusplus)
 extern "C" {
 #endif
-
-typedef float vec_t;
-typedef float vec2_t[2], vec3_t[3], vec4_t[4], vec5_t[5];
-typedef int	  ivec2_t[2], ivec3_t[3], ivec4_t[4], ivec5_t[5];
-typedef vec3_t vec3pair_t[2], matrix3_t[3];
-
-typedef	int	fixed4_t, fixed8_t, fixed16_t;
 
 #ifndef M_PI
 #define M_PI		3.14159265358979323846f	// matches value in gcc v2 math.h

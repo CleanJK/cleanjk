@@ -531,8 +531,8 @@ void		Info_Print( const char *s );
 void		Com_BeginRedirect (char *buffer, int buffersize, void (*flush)(char *));
 void		Com_EndRedirect( void );
 #if defined( _GAME ) || defined( _CGAME ) || defined( UI_BUILD )
-	NORETURN_PTR void (*Com_Error)( int level, const char *fmt, ... );
-	void (*Com_Printf)( const char *fmt, ... );
+	extern NORETURN_PTR void (*Com_Error)( int level, const char *fmt, ... );
+	extern void (*Com_Printf)( const char *fmt, ... );
 #else
 	void NORETURN QDECL Com_Error( int level, const char *fmt, ... );
 	void QDECL Com_Printf( const char *fmt, ... );

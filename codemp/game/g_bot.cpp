@@ -86,7 +86,7 @@ int G_ParseInfos( char *buf, int max, char *infos[] ) {
 			Info_SetValueForKey( info, key, token );
 		}
 		//NOTE: extra space for arena number
-		infos[count] = (char *) G_Alloc(strlen(info) + strlen("\\num\\") + strlen(va("%d", MAX_ARENAS)) + 1);
+		infos[count] = (char *) G_Alloc( strlen(info) + strlen("\\num\\") + strlen(va("%d", MAX_ARENAS)) + 1);
 		if (infos[count]) {
 			strcpy(infos[count], info);
 			count++;
@@ -642,10 +642,15 @@ qboolean G_BotConnect( int clientNum, qboolean restart ) {
 }
 
 static void G_AddBot( const char *name, float skill, const char *team, int delay, char *altname) {
-	gentity_t		*bot = NULL;
-	int				clientNum, preTeam = TEAM_FREE;
-	char			userinfo[MAX_INFO_STRING] = {0},
-					*botinfo = NULL, *key = NULL, *s = NULL, *botname = NULL, *model = NULL;
+	gentity_t *bot = NULL;
+	int       clientNum;
+	team_t    preTeam = TEAM_FREE;
+	char      userinfo[MAX_INFO_STRING] = {0};
+	char      *botinfo = NULL;
+	char      *key = NULL;
+	char      *s = NULL;
+	char      *botname = NULL;
+	char      *model = NULL;
 
 	// have the server allocate a client slot
 	clientNum = trap->BotAllocateClient();
@@ -920,7 +925,7 @@ void Svcmd_BotList_f( void ) {
 	}
 }
 
-static void G_LoadBotsFromFile( char *filename ) {
+static void G_LoadBotsFromFile( const char *filename ) {
 	int				len;
 	fileHandle_t	f;
 	char			buf[MAX_BOTS_TEXT];

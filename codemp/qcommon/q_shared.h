@@ -103,6 +103,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <limits.h>
 #include <errno.h>
 #include <stddef.h>
+#include <cstdint>
 
 //Ignore __attribute__ on non-gcc platforms
 #if !defined(__GNUC__) && !defined(__attribute__)
@@ -144,6 +145,13 @@ using ulong = unsigned long;
 
 using qboolean = int32_t;
 enum qboolean_e : int32_t { qfalse, qtrue };
+
+using vec_t = float;
+using ivec_t = int32_t;
+
+typedef vec_t   vec2_t[2],  vec3_t[3],  vec4_t[4],  vec5_t[5];
+typedef ivec_t ivec2_t[2], ivec3_t[3], ivec4_t[4], ivec5_t[5];
+typedef vec3_t vec3pair_t[2], matrix3_t[3];
 
 // 32 bit field aliasing
 typedef union byteAlias_u {
@@ -337,13 +345,13 @@ void *Hunk_Alloc( int size, ha_pref preference );
 #define CIN_silent	8
 #define CIN_shader	16
 
-typedef enum {
+enum saberBlockType_t : int32_t {
 	BLK_NO,
 	BLK_TIGHT,		// Block only attacks and shots around the saber itself, a bbox of around 12x12x12
 	BLK_WIDE		// Block all attacks in an area around the player in a rough arc of 180 degrees
-} saberBlockType_t;
+};
 
-typedef enum {
+enum saberBlockedType_t : int32_t {
 	BLOCKED_NONE,
 	BLOCKED_BOUNCE_MOVE,
 	BLOCKED_PARRY_BROKEN,
@@ -358,10 +366,9 @@ typedef enum {
 	BLOCKED_LOWER_RIGHT_PROJ,
 	BLOCKED_LOWER_LEFT_PROJ,
 	BLOCKED_TOP_PROJ
-} saberBlockedType_t;
+};
 
-typedef enum
-{
+enum saber_colors_t : int32_t {
 	SABER_RED,
 	SABER_ORANGE,
 	SABER_YELLOW,
@@ -369,10 +376,10 @@ typedef enum
 	SABER_BLUE,
 	SABER_PURPLE,
 	NUM_SABER_COLORS
-} saber_colors_t;
+};
 
-typedef enum
-{
+enum forcePowers_t : int32_t {
+	FP_INVALID = -1,
 	FP_FIRST = 0,//marker
 	FP_HEAL = 0,//instant
 	FP_LEVITATION,//hold/duration
@@ -393,15 +400,15 @@ typedef enum
 	FP_SABER_DEFENSE,
 	FP_SABERTHROW,
 	NUM_FORCE_POWERS
-} forcePowers_t;
+};
 
-typedef enum forcePowerLevels_e {
+enum forcePowerLevels_t : int32_t {
 	FORCE_LEVEL_0,
 	FORCE_LEVEL_1,
 	FORCE_LEVEL_2,
 	FORCE_LEVEL_3,
 	NUM_FORCE_POWER_LEVELS
-} forcePowerLevels_t;
+};
 
 #define	FORCE_LEVEL_4 (FORCE_LEVEL_3+1)
 #define	FORCE_LEVEL_5 (FORCE_LEVEL_4+1)
@@ -513,7 +520,7 @@ enum sharedEIKMoveState
 };
 
 //material stuff needs to be shared
-typedef enum //# material_e
+enum material_t : int32_t
 {
 	MAT_METAL = 0,	// scorched blue-grey metal
 	MAT_GLASS,		// not a real chunk type, just plays an effect with glass sprites
@@ -534,7 +541,7 @@ typedef enum //# material_e
 	MAT_SNOWY_ROCK,	// gray & brown chunks
 
 	NUM_MATERIALS
-} material_t;
+};
 
 //rww - bot stuff that needs to be shared
 #define MAX_WPARRAY_SIZE 4096
@@ -688,8 +695,8 @@ qboolean Info_NextPair( const char **s, char *key, char *value );
 
 // this is only here so the functions in q_shared.c and bg_*.c can link
 #if defined( _GAME ) || defined( _CGAME ) || defined( UI_BUILD )
-	NORETURN_PTR void (*Com_Error)( int level, const char *fmt, ... );
-	void (*Com_Printf)( const char *fmt, ... );
+	extern NORETURN_PTR void (*Com_Error)( int level, const char *fmt, ... );
+	extern void (*Com_Printf)( const char *fmt, ... );
 #else
 	void NORETURN QDECL Com_Error( int level, const char *fmt, ... );
 	void QDECL Com_Printf( const char *fmt, ... );
@@ -922,7 +929,7 @@ typedef struct forcedata_s {
 	int			forcePowerDebounce[NUM_FORCE_POWERS];	//for effects that must have an interval
 	int			forcePowersKnown;
 	int			forcePowersActive;
-	int			forcePowerSelected;
+	forcePowers_t forcePowerSelected;
 	int			forceButtonNeedRelease;
 	int			forcePowerDuration[NUM_FORCE_POWERS];
 	int			forcePower;

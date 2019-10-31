@@ -132,8 +132,7 @@ enum
 	NUM_MESSAGES,
 };
 
-#ifdef __cplusplus
-
+#if !defined( _GAME ) && !defined( _CGAME ) && !defined( UI_BUILD )
 typedef struct variable_s
 {
 	char	name[MAX_VAR_NAME];
@@ -242,4 +241,4 @@ protected:
 	static keywordArray_t	m_conditionalKeywords[];	//Conditional
 };
 
-#endif //__cplusplus
+#endif

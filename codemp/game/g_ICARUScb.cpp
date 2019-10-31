@@ -2656,25 +2656,6 @@ static void Q3_SetLockAngle( int entID, const char *lockAngle)
 	}
 
 	G_DebugPrint( WL_WARNING, "Q3_SetLockAngle is not currently available. Ask if you really need it.\n");
-	/*
-	if(Q_stricmp("off", lockAngle) == 0)
-	{//free it
-		ent->client->renderInfo.renderFlags &= ~RF_LOCKEDANGLE;
-	}
-	else
-	{
-		ent->client->renderInfo.renderFlags |= RF_LOCKEDANGLE;
-
-		if(Q_stricmp("auto", lockAngle) == 0)
-		{//use current yaw
-			ent->client->renderInfo.lockYaw = ent->client->ps.viewangles[YAW];
-		}
-		else
-		{//specified yaw
-			ent->client->renderInfo.lockYaw = atof((char *)lockAngle);
-		}
-	}
-	*/
 }
 
 static void Q3_CameraGroup( int entID, char *camG)

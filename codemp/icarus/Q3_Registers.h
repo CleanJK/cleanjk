@@ -30,7 +30,7 @@ enum
 	VTYPE_VECTOR,
 };
 
-#ifdef __cplusplus
+#if !defined( _GAME ) && !defined( _CGAME ) && !defined( UI_BUILD )
 
 #define	MAX_VARIABLES	32
 

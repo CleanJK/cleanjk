@@ -349,16 +349,16 @@ saberMoveData_t	saberMoveData[LS_MOVE_MAX] = {//							NB:randomized
 	{"Reflect LL",	BOTH_P1_S1_BL,		Q_R,	Q_BR,	AFLAG_ACTIVE,	50,		BLK_WIDE,	LS_R_TL2BR,		LS_A_BR2TL,		300	},	// LS_PARRY_LL,
 };
 
-int transitionMove[Q_NUM_QUADS][Q_NUM_QUADS] =
+saberMoveName_t transitionMove[Q_NUM_QUADS][Q_NUM_QUADS] =
 {
-	{	LS_NONE,		LS_T1_BR__R,	LS_T1_BR_TR,	LS_T1_BR_T_,	LS_T1_BR_TL,	LS_T1_BR__L,	LS_T1_BR_BL,	LS_NONE		},
-	{	LS_T1__R_BR,	LS_NONE,		LS_T1__R_TR,	LS_T1__R_T_,	LS_T1__R_TL,	LS_T1__R__L,	LS_T1__R_BL,	LS_NONE		},
-	{	LS_T1_TR_BR,	LS_T1_TR__R,	LS_NONE,		LS_T1_TR_T_,	LS_T1_TR_TL,	LS_T1_TR__L,	LS_T1_TR_BL,	LS_NONE		},
-	{	LS_T1_T__BR,	LS_T1_T___R,	LS_T1_T__TR,	LS_NONE,		LS_T1_T__TL,	LS_T1_T___L,	LS_T1_T__BL,	LS_NONE		},
-	{	LS_T1_TL_BR,	LS_T1_TL__R,	LS_T1_TL_TR,	LS_T1_TL_T_,	LS_NONE,		LS_T1_TL__L,	LS_T1_TL_BL,	LS_NONE		},
-	{	LS_T1__L_BR,	LS_T1__L__R,	LS_T1__L_TR,	LS_T1__L_T_,	LS_T1__L_TL,	LS_NONE,		LS_T1__L_BL,	LS_NONE		},
-	{	LS_T1_BL_BR,	LS_T1_BL__R,	LS_T1_BL_TR,	LS_T1_BL_T_,	LS_T1_BL_TL,	LS_T1_BL__L,	LS_NONE,		LS_NONE		},
-	{	LS_T1_BL_BR,	LS_T1_BR__R,	LS_T1_BR_TR,	LS_T1_BR_T_,	LS_T1_BR_TL,	LS_T1_BR__L,	LS_T1_BR_BL,	LS_NONE		},
+	{ LS_NONE,     LS_T1_BR__R, LS_T1_BR_TR, LS_T1_BR_T_, LS_T1_BR_TL, LS_T1_BR__L, LS_T1_BR_BL, LS_NONE },
+	{ LS_T1__R_BR, LS_NONE,     LS_T1__R_TR, LS_T1__R_T_, LS_T1__R_TL, LS_T1__R__L, LS_T1__R_BL, LS_NONE },
+	{ LS_T1_TR_BR, LS_T1_TR__R, LS_NONE,     LS_T1_TR_T_, LS_T1_TR_TL, LS_T1_TR__L, LS_T1_TR_BL, LS_NONE },
+	{ LS_T1_T__BR, LS_T1_T___R, LS_T1_T__TR, LS_NONE,     LS_T1_T__TL, LS_T1_T___L, LS_T1_T__BL, LS_NONE },
+	{ LS_T1_TL_BR, LS_T1_TL__R, LS_T1_TL_TR, LS_T1_TL_T_, LS_NONE,     LS_T1_TL__L, LS_T1_TL_BL, LS_NONE },
+	{ LS_T1__L_BR, LS_T1__L__R, LS_T1__L_TR, LS_T1__L_T_, LS_T1__L_TL, LS_NONE,     LS_T1__L_BL, LS_NONE },
+	{ LS_T1_BL_BR, LS_T1_BL__R, LS_T1_BL_TR, LS_T1_BL_T_, LS_T1_BL_TL, LS_T1_BL__L, LS_NONE,     LS_NONE },
+	{ LS_T1_BL_BR, LS_T1_BR__R, LS_T1_BR_TR, LS_T1_BR_T_, LS_T1_BR_TL, LS_T1_BR__L, LS_T1_BR_BL, LS_NONE },
 };
 
 saberMoveName_t PM_AttackMoveForQuad( int quad )
@@ -393,9 +393,9 @@ saberMoveName_t PM_AttackMoveForQuad( int quad )
 
 qboolean PM_SaberKataDone(int curmove, int newmove);
 
-int PM_SaberAnimTransitionAnim( int curmove, int newmove )
+saberMoveName_t PM_SaberAnimTransitionAnim( saberMoveName_t curmove, saberMoveName_t newmove )
 {
-	int retmove = newmove;
+	saberMoveName_t retmove = newmove;
 	if ( curmove == LS_READY )
 	{//just standing there
 		switch ( newmove )
@@ -408,7 +408,9 @@ int PM_SaberAnimTransitionAnim( int curmove, int newmove )
 		case LS_A_TR2BL:
 		case LS_A_T2B:
 			//transition is the start
-			retmove = LS_S_TL2BR + (newmove-LS_A_TL2BR);
+			retmove = (saberMoveName_t)(LS_S_TL2BR + (newmove-LS_A_TL2BR));
+			break;
+		default:
 			break;
 		}
 	}
@@ -429,7 +431,9 @@ int PM_SaberAnimTransitionAnim( int curmove, int newmove )
 			case LS_A_TR2BL:
 			case LS_A_T2B:
 				//transition is the return
-				retmove = LS_R_TL2BR + (newmove-LS_A_TL2BR);
+				retmove = (saberMoveName_t)(LS_R_TL2BR + (newmove-LS_A_TL2BR));
+				break;
+			default:
 				break;
 			}
 			break;
@@ -446,7 +450,7 @@ int PM_SaberAnimTransitionAnim( int curmove, int newmove )
 				//going into an attack
 				if ( PM_SaberKataDone( curmove, newmove ) )
 				{//done with this kata, must return to ready before attack again
-					retmove = LS_R_TL2BR + (newmove-LS_A_TL2BR);
+					retmove = (saberMoveName_t)(LS_R_TL2BR + (newmove-LS_A_TL2BR));
 				}
 				else
 				{//okay to chain to another attack
@@ -536,9 +540,13 @@ int PM_SaberAnimTransitionAnim( int curmove, int newmove )
 				case LS_H1_BL:
 					retmove = transitionMove[saberMoveData[curmove].endQuad][saberMoveData[newmove].startQuad];
 					break;
+				default:
+					break;
 				//NB: transitioning from transitions is fine
 				}
 			}
+			break;
+		default:
 			break;
 		//transitioning to any other anim is not supported
 		}
@@ -1636,7 +1644,7 @@ saberMoveName_t PM_SaberFlipOverAttackMove(void)
 	}
 }
 
-int PM_SaberBackflipAttackMove( void )
+saberMoveName_t PM_SaberBackflipAttackMove( void )
 {
 	saberInfo_t *saber1 = BG_MySaber( pm->ps->clientNum, 0 );
 	saberInfo_t *saber2 = BG_MySaber( pm->ps->clientNum, 1 );
@@ -1674,7 +1682,7 @@ int PM_SaberBackflipAttackMove( void )
 	return LS_A_BACKFLIP_ATK;
 }
 
-int PM_SaberDualJumpAttackMove( void )
+saberMoveName_t PM_SaberDualJumpAttackMove( void )
 {
 	//FIXME: to make this move easier to execute, should be allowed to do it
 	//		after you've already started your jump... but jump is delayed in
@@ -2574,9 +2582,10 @@ qboolean BG_SuperBreakWinAnim( int anim );
 // Note that if the resultant animation is NONE, then the animation is essentially "idle", and is set in WP_TorsoAnim
 void PM_WeaponLightsaber(void)
 {
-	int			addTime;
-	qboolean	delayed_fire = qfalse;
-	int			anim=-1, curmove, newmove=LS_NONE;
+	int             addTime;
+	qboolean        delayed_fire = qfalse;
+	int             anim=-1;
+	saberMoveName_t curmove, newmove=LS_NONE;
 
 	qboolean checkOnlyWeap = qfalse;
 
@@ -3296,7 +3305,7 @@ weapChecks:
 		// Start with the current move, and cross index it with the current control states.
 		if ( pm->ps->saberMove > LS_NONE && pm->ps->saberMove < LS_MOVE_MAX )
 		{
-			curmove = pm->ps->saberMove;
+			curmove = (saberMoveName_t)pm->ps->saberMove;
 		}
 		else
 		{
@@ -3323,11 +3332,11 @@ weapChecks:
 			//Check for finishing an anim if necc.
 			if ( curmove >= LS_S_TL2BR && curmove <= LS_S_T2B )
 			{//started a swing, must continue from here
-				newmove = LS_A_TL2BR + (curmove-LS_S_TL2BR);
+				newmove = (saberMoveName_t)(LS_A_TL2BR + (curmove-LS_S_TL2BR));
 			}
 			else if ( curmove >= LS_A_TL2BR && curmove <= LS_A_T2B )
 			{//finished an attack, must continue from here
-				newmove = LS_R_TL2BR + (curmove-LS_A_TL2BR);
+				newmove = (saberMoveName_t)(LS_R_TL2BR + (curmove-LS_A_TL2BR));
 			}
 			else if ( PM_SaberInTransition( curmove ) )
 			{//in a transition, must play sequential attack
@@ -3410,7 +3419,7 @@ weapChecks:
 				}
 				else if ( curmove >= LS_S_TL2BR && curmove <= LS_S_T2B )
 				{//started a swing, must continue from here
-					newmove = LS_A_TL2BR + (curmove-LS_S_TL2BR);
+					newmove = (saberMoveName_t)(LS_A_TL2BR + (curmove-LS_S_TL2BR));
 				}
 				else if ( PM_SaberInBrokenParry( curmove ) )
 				{//broken parries must always return to ready

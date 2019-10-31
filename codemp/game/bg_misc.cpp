@@ -1873,7 +1873,7 @@ void BG_CycleForce( playerState_t *ps, int direction ) {
 
 	// if we found one, select it
 	if ( foundnext != -1 )
-		ps->fd.forcePowerSelected = foundnext;
+		ps->fd.forcePowerSelected = (forcePowers_t)foundnext;
 }
 
 int BG_GetItemIndexByTag(int tag, int type)

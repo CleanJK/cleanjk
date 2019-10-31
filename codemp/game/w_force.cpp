@@ -149,7 +149,8 @@ const int mindTrickTime[NUM_FORCE_POWER_LEVELS] =
 };
 
 void WP_InitForcePowers( gentity_t *ent ) {
-	int i, i_r, lastFPKnown = -1;
+	int i, i_r;
+	forcePowers_t lastFPKnown = FP_INVALID;
 	qboolean warnClient = qfalse, warnClientLimit = qfalse, didEvent = qfalse;
 	char userinfo[MAX_INFO_STRING], forcePowers[DEFAULT_FORCEPOWERS_LEN+1], readBuf[DEFAULT_FORCEPOWERS_LEN+1];
 
@@ -187,7 +188,7 @@ void WP_InitForcePowers( gentity_t *ent ) {
 		ent->client->ps.fd.forcePowersKnown &= ~(1<<i);
 	}
 
-	ent->client->ps.fd.forcePowerSelected = -1;
+	ent->client->ps.fd.forcePowerSelected = FP_INVALID;
 	ent->client->ps.fd.forceSide = 0;
 
 	trap->GetUserinfo( ent->s.number, userinfo, sizeof( userinfo ) );
@@ -356,17 +357,17 @@ void WP_InitForcePowers( gentity_t *ent ) {
 		if ( (ent->client->ps.fd.forcePowersKnown & (1 << i)) && !ent->client->ps.fd.forcePowerLevel[i] )
 			ent->client->ps.fd.forcePowersKnown &= ~(1 << i);
 		else if ( i != FP_LEVITATION && i != FP_SABER_OFFENSE && i != FP_SABER_DEFENSE && i != FP_SABERTHROW )
-			lastFPKnown = i;
+			lastFPKnown = (forcePowers_t)i;
 	}
 
 	if ( ent->client->ps.fd.forcePowersKnown & ent->client->sess.selectedFP )
 		ent->client->ps.fd.forcePowerSelected = ent->client->sess.selectedFP;
 
 	if ( !(ent->client->ps.fd.forcePowersKnown & (1 << ent->client->ps.fd.forcePowerSelected)) ) {
-		if ( lastFPKnown != -1 )
+		if ( lastFPKnown != FP_INVALID )
 			ent->client->ps.fd.forcePowerSelected = lastFPKnown;
 		else
-			ent->client->ps.fd.forcePowerSelected = 0;
+			ent->client->ps.fd.forcePowerSelected = FP_FIRST;
 	}
 
 	for ( /*i=0*/; i<NUM_FORCE_POWERS; i++ )
@@ -386,7 +387,7 @@ void WP_SpawnInitForcePowers( gentity_t *ent )
 	{
 		if (ent->client->ps.fd.forcePowersActive & (1 << i))
 		{
-			WP_ForcePowerStop(ent, i);
+			WP_ForcePowerStop(ent, (forcePowers_t)i);
 		}
 
 		i++;
@@ -2436,9 +2437,8 @@ void GEntity_UseFunc( gentity_t *self, gentity_t *other, gentity_t *activator )
 	GlobalUse(self, other, activator);
 }
 
-qboolean CanCounterThrow(gentity_t *self, gentity_t *thrower, qboolean pull)
-{
-	int powerUse = 0;
+qboolean CanCounterThrow(gentity_t *self, gentity_t *thrower, qboolean pull) {
+	const forcePowers_t powerUse = pull ? FP_PULL : FP_PUSH;
 
 	if (self->client->ps.forceHandExtend != HANDEXTEND_NONE)
 	{
@@ -2464,15 +2464,6 @@ qboolean CanCounterThrow(gentity_t *self, gentity_t *thrower, qboolean pull)
 		self->client->ps.weaponstate == WEAPON_CHARGING_ALT)
 	{ //don't autodefend when charging a weapon
 		return 0;
-	}
-
-	if (pull)
-	{
-		powerUse = FP_PULL;
-	}
-	else
-	{
-		powerUse = FP_PUSH;
 	}
 
 	if ( !WP_ForcePowerUsable( self, powerUse ) )
@@ -2595,7 +2586,7 @@ void ForceThrow( gentity_t *self, qboolean pull )
 	vec3_t		pushDir;
 	vec3_t		thispush_org;
 	vec3_t		tfrom, tto, fwd, a;
-	int			powerUse = 0;
+	const forcePowers_t powerUse = pull ? FP_PULL : FP_PUSH;
 
 	visionArc = 0;
 
@@ -2621,14 +2612,6 @@ void ForceThrow( gentity_t *self, qboolean pull )
 	if ( self->client->ps.powerups[PW_DISINT_4] > level.time )
 	{
 		return;
-	}
-	if (pull)
-	{
-		powerUse = FP_PULL;
-	}
-	else
-	{
-		powerUse = FP_PUSH;
 	}
 
 	if ( !WP_ForcePowerUsable( self, powerUse ) )
@@ -4366,7 +4349,7 @@ void HolocronUpdate(gentity_t *self)
 
 			if ((self->client->ps.fd.forcePowersActive & (1 << i)) && i != FP_LEVITATION && i != FP_SABER_OFFENSE)
 			{
-				WP_ForcePowerStop(self, i);
+				WP_ForcePowerStop(self, (forcePowers_t)i);
 			}
 
 			if (i == FP_LEVITATION)
@@ -4467,7 +4450,7 @@ void JediMasterUpdate(gentity_t *self)
 
 			if ((self->client->ps.fd.forcePowersActive & (1 << i)) && i != FP_LEVITATION)
 			{
-				WP_ForcePowerStop(self, i);
+				WP_ForcePowerStop(self, (forcePowers_t)i);
 			}
 
 			if (i == FP_LEVITATION)
@@ -4617,7 +4600,7 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 
 	if (self->client->ps.fd.forcePowerSelected < 0 || self->client->ps.fd.forcePowerSelected >= NUM_FORCE_POWERS)
 	{ //bad
-		self->client->ps.fd.forcePowerSelected = 0;
+		self->client->ps.fd.forcePowerSelected = FP_FIRST;
 	}
 
 	if ( ((self->client->sess.selectedFP != self->client->ps.fd.forcePowerSelected) ||
@@ -4751,7 +4734,7 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 		{
 			if ((self->client->ps.fd.forcePowersActive & (1 << i)) && i != FP_LEVITATION)
 			{
-				WP_ForcePowerStop(self, i);
+				WP_ForcePowerStop(self, (forcePowers_t)i);
 			}
 
 			i++;
@@ -4778,9 +4761,9 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 		while (i < NUM_FORCE_POWERS)
 		{
 			if ((self->client->ps.fd.forcePowersActive & (1 << i)) && i != FP_LEVITATION &&
-				!BG_CanUseFPNow(level.gametype, &self->client->ps, level.time, i))
+				!BG_CanUseFPNow(level.gametype, &self->client->ps, level.time, (forcePowers_t)i))
 			{
-				WP_ForcePowerStop(self, i);
+				WP_ForcePowerStop(self, (forcePowers_t)i);
 			}
 
 			i++;
@@ -4823,7 +4806,7 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 			{
 				if (self->client->ps.fd.forcePowersActive & (1 << i))
 				{
-					WP_ForcePowerStop(self, i);
+					WP_ForcePowerStop(self, (forcePowers_t)i);
 				}
 				self->client->ps.fd.forcePowersKnown &= ~(1 << i);
 			}

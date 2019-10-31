@@ -368,7 +368,7 @@ void FX_RepeaterHitPlayer( vec3_t origin, vec3_t normal, qboolean humanoid ) {
 }
 
 static void CG_DistortionOrb( centity_t *cent ) {
-	refEntity_t ent = {0};
+	refEntity_t ent{};
 	vec3_t ang;
 	float scale = 0.5f;
 	float vLen;

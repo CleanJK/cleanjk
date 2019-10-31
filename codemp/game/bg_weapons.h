@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // This crosses both client and server.  It could all be crammed into bg_public, but isolation of this type of data is best.
 
-typedef enum {
+enum weapon_t : int32_t {
 	WP_NONE,
 
 	WP_STUN_BATON,
@@ -58,7 +58,7 @@ typedef enum {
 //	WP_GRAPPLING_HOOK,
 
 	WP_NUM_WEAPONS
-} weapon_t;
+};
 
 //anything > this will be considered not player useable
 #define LAST_USEABLE_WEAPON			WP_BRYAR_OLD

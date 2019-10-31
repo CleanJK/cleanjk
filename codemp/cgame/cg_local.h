@@ -212,8 +212,8 @@ typedef struct clientInfo_s {
 	vec3_t			color1;
 	vec3_t			color2;
 
-	int				icolor1;
-	int				icolor2;
+	saber_colors_t	icolor1;
+	saber_colors_t	icolor2;
 
 	int				score;			// updated by score servercmds
 	int				location;		// location index for team mode
@@ -1471,3 +1471,8 @@ int CG_HandleAppendedSkin( char *modelName );
 void CG_CacheG2AnimInfo( char *modelName );
 
 extern cgameImport_t *trap;
+extern char *cg_customSoundNames[MAX_CUSTOM_SOUNDS];
+extern const char *cg_customCombatSoundNames[MAX_CUSTOM_COMBAT_SOUNDS];
+extern const char *cg_customExtraSoundNames[MAX_CUSTOM_EXTRA_SOUNDS];
+extern const char *cg_customJediSoundNames[MAX_CUSTOM_JEDI_SOUNDS];
+extern const char *cg_customDuelSoundNames[MAX_CUSTOM_DUEL_SOUNDS];

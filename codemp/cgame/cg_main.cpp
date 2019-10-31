@@ -29,6 +29,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "ui/menudef.h"
 #include "cgame/cg_media.h"
 
+NORETURN_PTR void (*Com_Error)( int level, const char *fmt, ... );
+void (*Com_Printf)( const char *fmt, ... );
+
 // display context for new ui stuff
 displayContextDef_t cgDC;
 
@@ -1311,7 +1314,7 @@ void CG_NextForcePower_f( void )
 //	BG_CycleForce(&cg.snap->ps, 1);
 	if (cg.forceSelect != -1)
 	{
-		cg.snap->ps.fd.forcePowerSelected = cg.forceSelect;
+		cg.snap->ps.fd.forcePowerSelected = (forcePowers_t)cg.forceSelect;
 	}
 
 	BG_CycleForce(&cg.snap->ps, 1);
@@ -1353,7 +1356,7 @@ void CG_PrevForcePower_f( void )
 //	BG_CycleForce(&cg.snap->ps, -1);
 	if (cg.forceSelect != -1)
 	{
-		cg.snap->ps.fd.forcePowerSelected = cg.forceSelect;
+		cg.snap->ps.fd.forcePowerSelected = (forcePowers_t)cg.forceSelect;
 	}
 
 	BG_CycleForce(&cg.snap->ps, -1);
@@ -1483,6 +1486,7 @@ static void CG_FX_CameraShake( void ) {
 
 cgameImport_t *trap = NULL;
 
+Q_CABI {
 Q_EXPORT cgameExport_t* QDECL GetModuleAPI( int apiVersion, cgameImport_t *import )
 {
 	static cgameExport_t cge = {0};
@@ -1528,4 +1532,5 @@ Q_EXPORT cgameExport_t* QDECL GetModuleAPI( int apiVersion, cgameImport_t *impor
 	cge.CameraShake				= CG_FX_CameraShake;
 
 	return &cge;
+}
 }

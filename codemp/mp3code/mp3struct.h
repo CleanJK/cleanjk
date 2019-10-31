@@ -5,7 +5,7 @@
 #define MP3STRUCT_H
 
 #include "small_header.h"	// for SAMPLE and IN_OUT
-#include "qcommon/q_shared.h"
+//#include "qcommon/q_shared.h"
 
 typedef void (*SBT_FUNCTION) (float *sample, short *pcm, int n);
 typedef void (*XFORM_FUNCTION) (void *pcm, int igr);

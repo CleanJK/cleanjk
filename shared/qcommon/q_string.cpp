@@ -1,4 +1,5 @@
-#include "q_string.h"
+#include "qcommon/q_shared.h"
+#include "qcommon/q_string.h"
 
 #include <assert.h>
 #include <ctype.h>

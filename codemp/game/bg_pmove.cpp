@@ -329,14 +329,6 @@ void PM_SetSpecialMoveValues( void ) {
 	pm_flying = FLY_NONE;
 }
 
-// Following couple things don't belong in the DLL namespace!
-#ifdef _GAME
-	#if !defined(MACOS_X) && !defined(__GCC__) && !defined(__GNUC__)
-		typedef struct gentity_s gentity_t;
-	#endif
-	gentity_t *G_PlayEffectID( const int fxID, vec3_t org, vec3_t ang );
-#endif
-
 static void PM_GroundTraceMissed( void );
 
 void PM_AddEvent( int newEvent ) {
@@ -8273,7 +8265,7 @@ void PmoveSingle (pmove_t *pmove) {
 	PM_SetWaterLevel();
 	if (pm->cmd.forcesel != (byte)-1 && (pm->ps->fd.forcePowersKnown & (1 << pm->cmd.forcesel)))
 	{
-		pm->ps->fd.forcePowerSelected = pm->cmd.forcesel;
+		pm->ps->fd.forcePowerSelected = (forcePowers_t)pm->cmd.forcesel;
 	}
 	if (pm->cmd.invensel != (byte)-1 && (pm->ps->stats[STAT_HOLDABLE_ITEMS] & (1 << pm->cmd.invensel)))
 	{

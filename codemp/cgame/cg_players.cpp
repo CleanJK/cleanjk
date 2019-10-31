@@ -1398,41 +1398,27 @@ static void CG_SetDeferredClientInfo( clientInfo_t *ci ) {
 void WP_SetSaber( int entNum, saberInfo_t *sabers, int saberNum, const char *saberName );
 
 void CG_NewClientInfo( int clientNum, qboolean entitiesInitialized ) {
-	clientInfo_t *ci;
-	clientInfo_t newInfo;
-	const char	*configstring;
-	const char	*v;
-	char		*slash;
-	void *oldGhoul2;
-	void *oldG2Weapons[MAX_SABERS];
-	int i = 0;
-	int k = 0;
-	qboolean saberUpdate[MAX_SABERS];
+	clientInfo_t *ci = &cgs.clientinfo[clientNum];
+	clientInfo_t  newInfo;
+	const char   *configstring = CG_ConfigString( clientNum + CS_PLAYERS );
+	const char   *v;
+	void         *oldGhoul2 = ci->ghoul2Model;
+	void         *oldG2Weapons[MAX_SABERS];
+	qboolean      saberUpdate[MAX_SABERS];
 
-	ci = &cgs.clientinfo[clientNum];
-
-	oldGhoul2 = ci->ghoul2Model;
-
-	while (k < MAX_SABERS)
-	{
-		oldG2Weapons[k] = ci->ghoul2Weapons[k];
-		k++;
+	for ( int saberNum=0; saberNum<MAX_SABERS; saberNum++ ) {
+		oldG2Weapons[saberNum] = ci->ghoul2Weapons[saberNum];
 	}
 
-	configstring = CG_ConfigString( clientNum + CS_PLAYERS );
 	if ( !configstring[0] ) {
 		if (ci->ghoul2Model && trap->G2_HaveWeGhoul2Models(ci->ghoul2Model))
 		{ //clean this stuff up first
 			trap->G2API_CleanGhoul2Models(&ci->ghoul2Model);
 		}
-		k = 0;
-		while (k < MAX_SABERS)
-		{
-			if (ci->ghoul2Weapons[k] && trap->G2_HaveWeGhoul2Models(ci->ghoul2Weapons[k]))
-			{
-				trap->G2API_CleanGhoul2Models(&ci->ghoul2Weapons[k]);
+		for ( int saberNum=0; saberNum<MAX_SABERS; saberNum++ ) {
+			if ( ci->ghoul2Weapons[saberNum] && trap->G2_HaveWeGhoul2Models( ci->ghoul2Weapons[saberNum] ) ) {
+				trap->G2API_CleanGhoul2Models(&ci->ghoul2Weapons[saberNum]);
 			}
-			k++;
 		}
 
 		memset( ci, 0, sizeof( *ci ) );
@@ -1453,12 +1439,12 @@ void CG_NewClientInfo( int clientNum, qboolean entitiesInitialized ) {
 	v = Info_ValueForKey( configstring, "c1" );
 	CG_ColorFromString( v, newInfo.color1 );
 
-	newInfo.icolor1 = atoi(v);
+	newInfo.icolor1 = (saber_colors_t)atoi(v);
 
 	v = Info_ValueForKey( configstring, "c2" );
 	CG_ColorFromString( v, newInfo.color2 );
 
-	newInfo.icolor2 = atoi(v);
+	newInfo.icolor2 = (saber_colors_t)atoi(v);
 
 	// bot skill
 	v = Info_ValueForKey( configstring, "skill" );
@@ -1478,7 +1464,7 @@ void CG_NewClientInfo( int clientNum, qboolean entitiesInitialized ) {
 
 	// team
 	v = Info_ValueForKey( configstring, "t" );
-	newInfo.team = atoi( v );
+	newInfo.team = (team_t)atoi( v );
 
 //copy team info out to menu
 	if ( clientNum == cg.clientNum)	//this is me
@@ -1528,7 +1514,7 @@ void CG_NewClientInfo( int clientNum, qboolean entitiesInitialized ) {
 
 		if ( cgs.gametype >= GT_TEAM ) {
 			// keep skin name
-			slash = strchr( v, '/' );
+			const char *slash = strchr( v, '/' );
 			if ( slash ) {
 				Q_strncpyz( newInfo.skinName, slash + 1, sizeof( newInfo.skinName ) );
 			}
@@ -1536,7 +1522,7 @@ void CG_NewClientInfo( int clientNum, qboolean entitiesInitialized ) {
 	} else {
 		Q_strncpyz( newInfo.modelName, v, sizeof( newInfo.modelName ) );
 
-		slash = strchr( newInfo.modelName, '/' );
+		char *slash = strchr( newInfo.modelName, '/' );
 		if ( !slash ) {
 			// modelName didn not include a skin name
 			Q_strncpyz( newInfo.skinName, "default", sizeof( newInfo.skinName ) );
@@ -1616,14 +1602,10 @@ void CG_NewClientInfo( int clientNum, qboolean entitiesInitialized ) {
 	}
 
 	//Check for any sabers that didn't get set again, if they didn't, then reassign the pointers for the new ci
-	k = 0;
-	while (k < MAX_SABERS)
-	{
-		if (oldG2Weapons[k])
-		{
-			newInfo.ghoul2Weapons[k] = oldG2Weapons[k];
+	for ( int saberNum=0; saberNum<MAX_SABERS; saberNum++ ) {
+		if ( oldG2Weapons[saberNum] ) {
+			newInfo.ghoul2Weapons[saberNum] = oldG2Weapons[saberNum];
 		}
-		k++;
 	}
 
 	//duel team
@@ -1679,10 +1661,8 @@ void CG_NewClientInfo( int clientNum, qboolean entitiesInitialized ) {
 	*ci = newInfo;
 
 	//force a weapon change anyway, for all clients being rendered to the current client
-	while (i < MAX_CLIENTS)
-	{
+	for ( int i=0; i<MAX_CLIENTS; i++ ) {
 		cg_entities[i].ghoul2weapon = NULL;
-		i++;
 	}
 
 	if (clientNum != -1)
@@ -1782,16 +1762,10 @@ void CG_NewClientInfo( int clientNum, qboolean entitiesInitialized ) {
 				BG_SI_SetDesiredLength(&ci->saber[0], 0, -1);
 				BG_SI_SetDesiredLength(&ci->saber[1], 0, -1);
 
-				i = 0;
-				while (i < MAX_SABERS)
-				{
-					j = 0;
-					while (j < ci->saber[i].numBlades)
-					{
-						ci->saber[i].blade[j].length = ci->saber[i].blade[j].lengthMax;
-						j++;
+				for ( int saberNum=0; saberNum<MAX_SABERS; saberNum++ ) {
+					for ( int bladeNum=0; bladeNum<ci->saber[saberNum].numBlades; bladeNum++ ) {
+						ci->saber[saberNum].blade[bladeNum].length = ci->saber[saberNum].blade[bladeNum].lengthMax;
 					}
-					i++;
 				}
 			}
 		}
@@ -5194,7 +5168,7 @@ void CG_AddSaberBlade( centity_t *cent, centity_t *scent, refEntity_t *saber, in
 	mdxaBone_t	boltMatrix;
 	vec3_t futureAngles;
 	effectTrailArgStruct_t fx;
-	int scolor = 0;
+	saber_colors_t scolor = SABER_RED;
 	int	useModelIndex = 0;
 
 	client = &cgs.clientinfo[cent->currentState.number];
