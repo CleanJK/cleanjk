@@ -268,7 +268,7 @@ void R_InitCvars( void ) {
 	r_texturebits =                    ri.Cvar_Get( "r_texturebits",                    "0",                              CVAR_ARCHIVE_ND | CVAR_LATCH,  "" );
 	r_texturebitslm =                  ri.Cvar_Get( "r_texturebitslm",                  "0",                              CVAR_ARCHIVE_ND | CVAR_LATCH,  "" );
 	r_textureMode =                    ri.Cvar_Get( "r_textureMode",                    "GL_LINEAR_MIPMAP_LINEAR",        CVAR_ARCHIVE,                  "" );
-	r_uiFullScreen =                   ri.Cvar_Get( "r_uiFullScreen",                   "0",                              CVAR_NONE,                     "" );
+	r_uiFullScreen =                   ri.Cvar_Get( "r_uiFullScreen",                   "1",                              CVAR_NONE,                     "" );
 	r_verbose =                        ri.Cvar_Get( "r_verbose",                        "0",                              CVAR_CHEAT,                    "" );
 	r_vertexLight =                    ri.Cvar_Get( "r_vertexLight",                    "0",                              CVAR_ARCHIVE | CVAR_LATCH,     "" );
 	r_windAngle =                      ri.Cvar_Get( "r_windAngle",                      "0",                              CVAR_NONE,                     "" );

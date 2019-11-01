@@ -955,7 +955,7 @@ void Com_Init( char *commandLine ) {
 
 		// Pick a random port value
 		Com_RandomBytes( (byte*)&qport, sizeof(int) );
-		Netchan_Init( qport & 0xffff );	// pick a port value that should be nice and random
+		Netchan_Init( qport );	// pick a port value that should be nice and random
 
 		VM_Init();
 		SV_Init();

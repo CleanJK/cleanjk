@@ -50,13 +50,14 @@ static char *netsrcString[2] = {
 };
 
 void Netchan_Init( int port ) {
-	port &= 0xffff;
-	Cvar_Set( "net_qport", va( "%i", port ) );
+	Cvar_Set( "net_qport", va( "%i", port & 0x7fff ) );
 }
 
 // called to open a channel to a remote system
 void Netchan_Setup( netsrc_t sock, netchan_t *chan, netadr_t adr, int qport ) {
 	Com_Memset (chan, 0, sizeof(*chan));
+
+	assert( qport == (qport & 0x7fff) && "Netchan_Setup: qport overflow (qport > 0x7fff)" );
 
 	chan->sock = sock;
 	chan->remoteAddress = adr;
@@ -78,7 +79,7 @@ void Netchan_TransmitNextFragment( netchan_t *chan ) {
 
 	// send the qport if we are a client
 	if ( chan->sock == NS_CLIENT ) {
-		MSG_WriteShort( &send, net_qport->integer & 0xffff );
+		MSG_WriteShort( &send, net_qport->integer & 0x7fff );
 	}
 
 	// copy the reliable message to the packet first
@@ -150,7 +151,7 @@ void Netchan_Transmit( netchan_t *chan, int length, const byte *data ) {
 
 	// send the qport if we are a client
 	if ( chan->sock == NS_CLIENT ) {
-		MSG_WriteShort( &send, net_qport->integer & 0xffff );
+		MSG_WriteShort( &send, net_qport->integer & 0x7fff );
 	}
 
 	MSG_WriteData( &send, data, length );

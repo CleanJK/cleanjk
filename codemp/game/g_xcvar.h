@@ -61,7 +61,7 @@ XCVAR_DEF( bot_wp_distconnect,          "1",           NULL, CVAR_NONE,         
 XCVAR_DEF( bot_wp_edit,                 "0",           NULL, CVAR_CHEAT,                                      qtrue )
 XCVAR_DEF( bot_wp_info,                 "1",           NULL, CVAR_NONE,                                       qtrue )
 XCVAR_DEF( bot_wp_visconnect,           "1",           NULL, CVAR_NONE,                                       qtrue )
-XCVAR_DEF( capturelimit,                "8",           NULL, CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, qtrue )
+XCVAR_DEF( capturelimit,                "0",           NULL, CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, qtrue )
 XCVAR_DEF( cjk_saberSpecialMoves,       "0",           NULL, CVAR_SERVERINFO | CVAR_ARCHIVE,                  qtrue )
 XCVAR_DEF( cjk_saberTweaks,             "0",           NULL, CVAR_SERVERINFO | CVAR_ARCHIVE,                  qtrue )
 XCVAR_DEF( cl_running,                  "",            NULL, CVAR_NONE,                                       qfalse )
