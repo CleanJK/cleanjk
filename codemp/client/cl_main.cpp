@@ -2684,7 +2684,6 @@ void CL_GetPing( int n, char *buf, int buflen, int *pingtime )
 {
 	const char	*str;
 	int		time;
-	int		maxPing;
 
 	if (n < 0 || n >= MAX_PINGREQUESTS || !cl_pinglist[n].adr.port)
 	{

@@ -23,7 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#define UI_API_VERSION 3
+#define UI_API_VERSION 4
 #define UI_LEGACY_API_VERSION 7
 
 typedef struct uiClientState_s {
@@ -69,6 +69,7 @@ typedef struct uiImport_s {
 	void			(*Cvar_Update)							( vmCvar_t *cvar );
 	void			(*Cvar_VariableStringBuffer)			( const char *var_name, char *buffer, int bufsize );
 	float			(*Cvar_VariableValue)					( const char *var_name );
+	int				(*Cvar_VariableIntegerValue)			(const char* var_name);
 
 	int				(*Cmd_Argc)								( void );
 	void			(*Cmd_Argv)								( int n, char *buffer, int bufferLength );

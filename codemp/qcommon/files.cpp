@@ -1018,7 +1018,7 @@ bool Sys_FileOutOfDate( LPCSTR psFinalFileName /* dest */, LPCSTR psDataFileName
 
 	// extra error check, report as suspicious if you find a file locally but not out on the net.,.
 
-	if (com_developer->integer)
+	if (developer->integer)
 	{
 		if (!Sys_GetFileTime(psDataFileName, ftDataFile))
 		{

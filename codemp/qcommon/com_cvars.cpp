@@ -217,6 +217,7 @@ cvar_t *s_threshold1;
 cvar_t *s_threshold2;
 cvar_t *s_threshold3;
 cvar_t *s_threshold4;
+cvar_t *s_UseOpenAL;
 cvar_t *s_volume;
 cvar_t *s_volumeVoice;
 cvar_t *saber1;
@@ -511,6 +512,7 @@ void Com_InitCvars( void ) {
 	s_threshold2 =              Cvar_Get( "s_threshold2",              "4.0",                                  CVAR_NONE,                                   "" );
 	s_threshold3 =              Cvar_Get( "s_threshold3",              "7.0",                                  CVAR_NONE,                                   "" );
 	s_threshold4 =              Cvar_Get( "s_threshold4",              "8.0",                                  CVAR_NONE,                                   "" );
+	s_UseOpenAL =               Cvar_Get( "s_UseOpenAL",               "1",                                    CVAR_ARCHIVE,                                "" );
 	s_volume =                  Cvar_Get( "s_volume",                  "0.5",                                  CVAR_ARCHIVE,                                "Volume" );
 	s_volumeVoice =             Cvar_Get( "s_volumeVoice",             "1.0",                                  CVAR_ARCHIVE,                                "Volume for voice channels" );
 	saber1 =                    Cvar_Get( "saber1",                    DEFAULT_SABER,                          CVAR_USERINFO | CVAR_ARCHIVE,                "Player default right hand saber" );

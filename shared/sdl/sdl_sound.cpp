@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "qcommon/q_shared.h"
 #include "qcommon/com_cvar.h"
+#include "qcommon/com_cvars.h"
 #include "client/client.h"
 #include "client/snd_local.h"
 
@@ -307,15 +308,11 @@ void SNDDMA_BeginPainting (void)
 	SDL_LockAudioDevice(dev);
 }
 
-#ifdef USE_OPENAL
-extern int s_UseOpenAL;
-#endif
-
 // (De)activates sound playback
 void SNDDMA_Activate( qboolean activate )
 {
 #ifdef USE_OPENAL
-	if ( s_UseOpenAL )
+	if ( s_UseOpenAL->integer )
 	{
 		S_AL_MuteAllSounds( (qboolean)!activate );
 	}

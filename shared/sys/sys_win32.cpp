@@ -25,6 +25,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <shlobj.h>
 #include <windows.h>
 
+#include "qcommon/com_cvar.h"
+#include "qcommon/com_cvars.h"
+
 #define MEM_THRESHOLD (128*1024*1024)
 
 // Used to determine where to store user-specific files
@@ -171,10 +174,11 @@ char *Sys_DefaultHomePath( void )
 		}
 
 		Com_sprintf( homePath, sizeof( homePath ), "%s%cMy Games%c", homeDirectory, PATH_SEP, PATH_SEP );
-		if ( com_homepath && com_homepath->string[0] )
-			Q_strcat( homePath, sizeof( homePath ), com_homepath->string );
+
+		if (fs_homepath && fs_homepath->string[0])
+			Q_strcat(homePath, sizeof(homePath), fs_homepath->string);
 		else
-			Q_strcat( homePath, sizeof( homePath ), HOMEPATH_NAME_WIN );
+			Q_strcat(homePath, sizeof(homePath), HOMEPATH_NAME_WIN);
 	}
 
 	return homePath;

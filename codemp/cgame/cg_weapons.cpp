@@ -207,7 +207,7 @@ static void CG_CalculateWeaponPosition( vec3_t origin, vec3_t angles ) {
 
 	if ( cg_gunMomentumEnable.integer ) {
 		// sway viewmodel when changing viewangles
-		static vec3_t previousAngles ={};
+		static vec3_t previousAngles = { 0 };
 
 		vec3_t deltaAngles;
 		AnglesSubtract( angles, previousAngles, deltaAngles );

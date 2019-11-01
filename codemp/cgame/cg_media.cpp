@@ -24,7 +24,7 @@ typedef struct resource_s {
 } resource_t;
 
 static const resource_t efx[] = {
-//	{ &media.efx.null, "", RFL_NONE, GTB_ALL },
+	{ &media.efx.null, "", RFL_NONE, GTB_ALL }
 };
 
 static const resource_t gfx[] = {
@@ -44,11 +44,11 @@ static const resource_t gfx[] = {
 };
 
 static const resource_t models[] = {
-//	{ &media.models.null, "", RFL_NONE, GTB_ALL },
+	{ &media.models.null, "", RFL_NONE, GTB_ALL }
 };
 
 static const resource_t sounds[] = {
-//	{ &media.sounds.null, "", RFL_NONE, GTB_ALL },
+	{ &media.sounds.null, "", RFL_NONE, GTB_ALL }
 };
 
 static const size_t	numEffects	= ARRAY_LEN( efx );
