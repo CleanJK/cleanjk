@@ -1764,7 +1764,7 @@ typedef struct stringID_table_s
 	int		id;
 } stringID_table_t;
 
-int GetIDForString ( stringID_table_t *table, const char *string );
+int GetIDForString ( const stringID_table_t *table, const char *string );
 const char *GetStringForID( stringID_table_t *table, int id );
 
 // stuff to help out during development process, force reloading/uncacheing of certain filetypes...

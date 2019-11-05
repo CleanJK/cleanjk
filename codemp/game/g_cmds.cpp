@@ -1372,66 +1372,6 @@ static void Cmd_VoiceCommand_f(gentity_t *ent)
 	te->r.svFlags |= SVF_BROADCAST;
 }
 
-static char	*gc_orders[] = {
-	"hold your position",
-	"hold this position",
-	"come here",
-	"cover me",
-	"guard location",
-	"search and destroy",
-	"report"
-};
-static size_t numgc_orders = ARRAY_LEN( gc_orders );
-
-void Cmd_GameCommand_f( gentity_t *ent ) {
-	int				targetNum;
-	unsigned int	order;
-	gentity_t		*target;
-	char			arg[MAX_TOKEN_CHARS] = {0};
-
-	if ( trap->Argc() != 3 ) {
-		trap->SendServerCommand( ent-g_entities, va( "print \"Usage: gc <player id> <order 0-%d>\n\"", numgc_orders - 1 ) );
-		return;
-	}
-
-	trap->Argv( 2, arg, sizeof( arg ) );
-	order = atoi( arg );
-
-	if ( order >= numgc_orders ) {
-		trap->SendServerCommand( ent-g_entities, va("print \"Bad order: %i\n\"", order));
-		return;
-	}
-
-	trap->Argv( 1, arg, sizeof( arg ) );
-	targetNum = ClientNumberFromString( ent, arg, qfalse );
-	if ( targetNum == -1 )
-		return;
-
-	target = &g_entities[targetNum];
-	if ( !target->inuse || !target->client )
-		return;
-
-	G_LogPrintf( "tell: %s to %s: %s\n", ent->client->pers.netname, target->client->pers.netname, gc_orders[order] );
-	G_Say( ent, target, SAY_TELL, gc_orders[order] );
-	// don't tell to the player self if it was already directed to this player
-	// also don't send the chat back to a bot
-	if ( ent != target && !(ent->r.svFlags & SVF_BOT) )
-		G_Say( ent, ent, SAY_TELL, gc_orders[order] );
-}
-
-void Cmd_Where_f( gentity_t *ent ) {
-	//JAC: This wasn't working for non-spectators since s.origin doesn't update for active players.
-	if(ent->client && ent->client->sess.sessionTeam != TEAM_SPECTATOR )
-	{//active players use currentOrigin
-		trap->SendServerCommand( ent-g_entities, va("print \"%s\n\"", vtos( ent->r.currentOrigin ) ) );
-	}
-	else
-	{
-		trap->SendServerCommand( ent-g_entities, va("print \"%s\n\"", vtos( ent->s.origin ) ) );
-	}
-	//trap->SendServerCommand( ent-g_entities, va("print \"%s\n\"", vtos( ent->s.origin ) ) );
-}
-
 static const char *gameNames[GT_MAX_GAME_TYPE] = {
 	"Free For All",
 	"Holocron FFA",
@@ -2768,78 +2708,6 @@ void Cmd_TargetUse_f( gentity_t *ent )
 	}
 }
 
-void Cmd_TheDestroyer_f( gentity_t *ent ) {
-	if ( !ent->client->ps.saberHolstered || ent->client->ps.weapon != WP_SABER )
-		return;
-
-	Cmd_ToggleSaber_f( ent );
-}
-
-void Cmd_BotMoveForward_f( gentity_t *ent ) {
-	int arg = 4000;
-	int bCl = 0;
-	char sarg[MAX_STRING_CHARS];
-
-	assert( trap->Argc() > 1 );
-	trap->Argv( 1, sarg, sizeof( sarg ) );
-
-	assert( sarg[0] );
-	bCl = atoi( sarg );
-	Bot_SetForcedMovement( bCl, arg, -1, -1 );
-}
-
-void Cmd_BotMoveBack_f( gentity_t *ent ) {
-	int arg = -4000;
-	int bCl = 0;
-	char sarg[MAX_STRING_CHARS];
-
-	assert( trap->Argc() > 1 );
-	trap->Argv( 1, sarg, sizeof( sarg ) );
-
-	assert( sarg[0] );
-	bCl = atoi( sarg );
-	Bot_SetForcedMovement( bCl, arg, -1, -1 );
-}
-
-void Cmd_BotMoveRight_f( gentity_t *ent ) {
-	int arg = 4000;
-	int bCl = 0;
-	char sarg[MAX_STRING_CHARS];
-
-	assert( trap->Argc() > 1 );
-	trap->Argv( 1, sarg, sizeof( sarg ) );
-
-	assert( sarg[0] );
-	bCl = atoi( sarg );
-	Bot_SetForcedMovement( bCl, -1, arg, -1 );
-}
-
-void Cmd_BotMoveLeft_f( gentity_t *ent ) {
-	int arg = -4000;
-	int bCl = 0;
-	char sarg[MAX_STRING_CHARS];
-
-	assert( trap->Argc() > 1 );
-	trap->Argv( 1, sarg, sizeof( sarg ) );
-
-	assert( sarg[0] );
-	bCl = atoi( sarg );
-	Bot_SetForcedMovement( bCl, -1, arg, -1 );
-}
-
-void Cmd_BotMoveUp_f( gentity_t *ent ) {
-	int arg = 4000;
-	int bCl = 0;
-	char sarg[MAX_STRING_CHARS];
-
-	assert( trap->Argc() > 1 );
-	trap->Argv( 1, sarg, sizeof( sarg ) );
-
-	assert( sarg[0] );
-	bCl = atoi( sarg );
-	Bot_SetForcedMovement( bCl, -1, -1, arg );
-}
-
 void Cmd_AddBot_f( gentity_t *ent ) {
 	//because addbot isn't a recognized command unless you're the server, but it is in the menus regardless
 	trap->SendServerCommand( ent-g_entities, va( "print \"%s.\n\"", G_GetStringEdString( "MP_SVGAME", "ONLY_ADD_BOTS_AS_SERVER" ) ) );
@@ -2863,23 +2731,16 @@ command_t commands[] = {
 	{ "addbot",				Cmd_AddBot_f,				0 },
 	{ "callteamvote",		Cmd_CallTeamVote_f,			CMD_NOINTERMISSION },
 	{ "callvote",			Cmd_CallVote_f,				CMD_NOINTERMISSION },
-	{ "debugBMove_Back",	Cmd_BotMoveBack_f,			CMD_CHEAT|CMD_ALIVE },
-	{ "debugBMove_Forward",	Cmd_BotMoveForward_f,		CMD_CHEAT|CMD_ALIVE },
-	{ "debugBMove_Left",	Cmd_BotMoveLeft_f,			CMD_CHEAT|CMD_ALIVE },
-	{ "debugBMove_Right",	Cmd_BotMoveRight_f,			CMD_CHEAT|CMD_ALIVE },
-	{ "debugBMove_Up",		Cmd_BotMoveUp_f,			CMD_CHEAT|CMD_ALIVE },
 	{ "duelteam",			Cmd_DuelTeam_f,				CMD_NOINTERMISSION },
 	{ "follow",				Cmd_Follow_f,				CMD_NOINTERMISSION },
 	{ "follownext",			Cmd_FollowNext_f,			CMD_NOINTERMISSION },
 	{ "followprev",			Cmd_FollowPrev_f,			CMD_NOINTERMISSION },
 	{ "forcechanged",		Cmd_ForceChanged_f,			0 },
-	{ "gc",					Cmd_GameCommand_f,			CMD_NOINTERMISSION },
 	{ "give",				Cmd_Give_f,					CMD_CHEAT|CMD_ALIVE|CMD_NOINTERMISSION },
 	{ "giveother",			Cmd_GiveOther_f,			CMD_CHEAT|CMD_NOINTERMISSION },
 	{ "god",				Cmd_God_f,					CMD_CHEAT|CMD_ALIVE|CMD_NOINTERMISSION },
 	{ "kill",				Cmd_Kill_f,					CMD_ALIVE|CMD_NOINTERMISSION },
 	{ "killother",			Cmd_KillOther_f,			CMD_CHEAT|CMD_NOINTERMISSION },
-//	{ "kylesmash",			TryGrapple,					0 },
 	{ "levelshot",			Cmd_LevelShot_f,			CMD_CHEAT|CMD_ALIVE|CMD_NOINTERMISSION },
 	{ "maplist",			Cmd_MapList_f,				CMD_NOINTERMISSION },
 	{ "noclip",				Cmd_Noclip_f,				CMD_CHEAT|CMD_ALIVE|CMD_NOINTERMISSION },
@@ -2889,14 +2750,11 @@ command_t commands[] = {
 	{ "score",				Cmd_Score_f,				0 },
 	{ "setviewpos",			Cmd_SetViewpos_f,			CMD_CHEAT|CMD_NOINTERMISSION },
 	{ "team",				Cmd_Team_f,					CMD_NOINTERMISSION },
-//	{ "teamtask",			Cmd_TeamTask_f,				CMD_NOINTERMISSION },
 	{ "teamvote",			Cmd_TeamVote_f,				CMD_NOINTERMISSION },
 	{ "tell",				Cmd_Tell_f,					0 },
-	{ "thedestroyer",		Cmd_TheDestroyer_f,			CMD_CHEAT|CMD_ALIVE|CMD_NOINTERMISSION },
 	{ "t_use",				Cmd_TargetUse_f,			CMD_CHEAT|CMD_ALIVE },
 	{ "voice_cmd",			Cmd_VoiceCommand_f,			CMD_NOINTERMISSION },
 	{ "vote",				Cmd_Vote_f,					CMD_NOINTERMISSION },
-	{ "where",				Cmd_Where_f,				CMD_NOINTERMISSION },
 };
 static const size_t numCommands = ARRAY_LEN( commands );
 

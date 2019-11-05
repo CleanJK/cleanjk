@@ -520,15 +520,15 @@ static void SV_BotUserCommand( int clientNum, usercmd_t *ucmd ) {
 	SV_ClientThink( &svs.clients[clientNum], ucmd );
 }
 
-static void SV_EA_Say( int client, char *str ) {
+static void SV_EA_Say( int client, const char *str ) {
 	botlib_export->ea.EA_Say( client, str );
 }
 
-static void SV_EA_SayTeam( int client, char *str ) {
+static void SV_EA_SayTeam( int client, const char *str ) {
 	botlib_export->ea.EA_SayTeam( client, str );
 }
 
-static void SV_EA_Command( int client, char *command ) {
+static void SV_EA_Command( int client, const char *command ) {
 	botlib_export->ea.EA_Command( client, command );
 }
 

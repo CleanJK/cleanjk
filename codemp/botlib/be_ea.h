@@ -26,9 +26,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 //ClientCommand elementary actions
-void EA_Say(int client, char *str);
-void EA_SayTeam(int client, char *str);
-void EA_Command(int client, char *command );
+void EA_Say(int client, const char *str);
+void EA_SayTeam(int client, const char *str);
+void EA_Command(int client, const char *command );
 
 void EA_Action(int client, int action);
 void EA_Crouch(int client);

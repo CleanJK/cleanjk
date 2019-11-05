@@ -72,11 +72,11 @@ int cmdcmp( const void *a, const void *b ) {
 	return Q_stricmp( (const char *)a, ((consoleCommand_t*)b)->cmd );
 }
 
-static consoleCommand_t	commands[] = {
-	{ "ui_cache",			UI_Cache_f },
-	{ "ui_load",			UI_Load },
-	{ "ui_openmenu",		UI_OpenMenu_f },
-	{ "ui_report",			UI_Report },
+static const consoleCommand_t commands[] = {
+	{ "ui_cache",    UI_Cache_f },
+	{ "ui_load",     UI_Load },
+	{ "ui_openmenu", UI_OpenMenu_f },
+	{ "ui_report",   UI_Report },
 };
 
 static const size_t numCommands = ARRAY_LEN( commands );

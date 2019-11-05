@@ -209,7 +209,7 @@ static void CG_ParseWarmup( void ) {
 
 // this is a reverse map of flag statuses as seen in g_team.c
 //static char ctfFlagStatusRemap[] = { '0', '1', '*', '*', '2' };
-static char ctfFlagStatusRemap[] = {
+static const char ctfFlagStatusRemap[] = {
 	FLAG_ATBASE,
 	FLAG_TAKEN,			// CTF
 	// server doesn't use FLAG_TAKEN_RED or FLAG_TAKEN_BLUE
@@ -1169,27 +1169,27 @@ int svcmdcmp( const void *a, const void *b ) {
 	return Q_stricmp( (const char *)a, ((serverCommand_t*)b)->cmd );
 }
 
-static serverCommand_t	commands[] = {
-	{ "chat",				CG_Chat_f },
-	{ "clientLevelShot",	CG_ClientLevelShot_f },
-	{ "cp",					CG_CenterPrint_f },
-	{ "cps",				CG_CenterPrintSE_f },
-	{ "cs",					CG_ConfigStringModified },
-	{ "ircg",				CG_RestoreClientGhoul_f },
-	{ "kg2",				CG_KillGhoul2_f },
-	{ "kls",				CG_KillLoopSounds_f },
-	{ "lchat",				CG_Chat_f },
+static const serverCommand_t commands[] = {
+	{ "chat",            CG_Chat_f },
+	{ "clientLevelShot", CG_ClientLevelShot_f },
+	{ "cp",              CG_CenterPrint_f },
+	{ "cps",             CG_CenterPrintSE_f },
+	{ "cs",              CG_ConfigStringModified },
+	{ "ircg",            CG_RestoreClientGhoul_f },
+	{ "kg2",             CG_KillGhoul2_f },
+	{ "kls",             CG_KillLoopSounds_f },
+	{ "lchat",           CG_Chat_f },
 	// loaddeferred can be both a servercmd and a consolecmd
-	{ "loaddefered",		CG_LoadDeferredPlayers }, // FIXME: spelled wrong, but not changing for demo
-	{ "ltchat",				CG_Chat_f },
-	{ "map_restart",		CG_MapRestart },
-	{ "nfr",				CG_NewForceRank_f },
-	{ "print",				CG_Print_f },
-	{ "rcg",				CG_RestoreClientGhoul_f },
-	{ "remapShader",		CG_RemapShader_f },
-	{ "scores",				CG_ParseScores },
-	{ "tchat",				CG_Chat_f },
-	{ "tinfo",				CG_ParseTeamInfo },
+	{ "loaddefered",     CG_LoadDeferredPlayers }, // FIXME: spelled wrong, but not changing for demo
+	{ "ltchat",          CG_Chat_f },
+	{ "map_restart",     CG_MapRestart },
+	{ "nfr",             CG_NewForceRank_f },
+	{ "print",           CG_Print_f },
+	{ "rcg",             CG_RestoreClientGhoul_f },
+	{ "remapShader",     CG_RemapShader_f },
+	{ "scores",          CG_ParseScores },
+	{ "tchat",           CG_Chat_f },
+	{ "tinfo",           CG_ParseTeamInfo },
 };
 
 static const size_t numCommands = ARRAY_LEN( commands );

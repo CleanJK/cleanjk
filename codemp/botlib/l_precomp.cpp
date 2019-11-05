@@ -518,7 +518,7 @@ void PC_AddBuiltinDefines(source_t *source)
 {
 	int i;
 	define_t *define;
-	struct builtin
+	const struct builtin
 	{
 		char *string;
 		int mBuiltin;

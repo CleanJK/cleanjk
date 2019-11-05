@@ -25,7 +25,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // q_shared.c -- stateless support routines that are included in each code dll
 #include "qcommon/q_shared.h"
 
-int GetIDForString ( stringID_table_t *table, const char *string )
+/*
+int GetIDForString ( const stringID_table_t *table, const char *string )
 {
 	int	index = 0;
 
@@ -36,6 +37,16 @@ int GetIDForString ( stringID_table_t *table, const char *string )
 			return table[index].id;
 
 		index++;
+	}
+
+	return -1;
+}
+*/
+int GetIDForString ( const stringID_table_t *table, const char *string ) {
+	for ( const auto *item = table; item->name && item->name[0]; item++ ) {
+		if ( !Q_stricmp( item->name, string ) ) {
+			return item->id;
+		}
 	}
 
 	return -1;

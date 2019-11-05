@@ -352,20 +352,23 @@ int CFxScheduler::RegisterEffect( const char *file, bool bHasCorrectPath /*= fal
 // Then we call the appropriate function to parse the specified effect group.
 //	name	base group, essentially the whole files contents
 // Returns handle of the effect
-struct primitiveType_s { const char *name; EPrimType type; } primitiveTypes[] = {
-	{ "particle", Particle },
-	{ "line", Line },
-	{ "tail", Tail },
-	{ "sound", Sound },
-	{ "cylinder", Cylinder },
-	{ "electricity", Electricity },
-	{ "emitter", Emitter },
-	{ "decal", Decal },
+const struct primitiveType_s {
+	const char *name;
+	EPrimType type;
+} primitiveTypes[] = {
+	{ "particle",         Particle },
+	{ "line",             Line },
+	{ "tail",             Tail },
+	{ "sound",            Sound },
+	{ "cylinder",         Cylinder },
+	{ "electricity",      Electricity },
+	{ "emitter",          Emitter },
+	{ "decal",            Decal },
 	{ "orientedparticle", OrientedParticle },
-	{ "fxrunner", FxRunner },
-	{ "light", Light },
-	{ "cameraShake", CameraShake },
-	{ "flash", ScreenFlash },
+	{ "fxrunner",         FxRunner },
+	{ "light",            Light },
+	{ "cameraShake",      CameraShake },
+	{ "flash",            ScreenFlash },
 };
 static const size_t numPrimitiveTypes = ARRAY_LEN( primitiveTypes );
 

@@ -530,9 +530,9 @@ typedef struct gameImport_s {
 	void		(*BotCalculatePaths)					( int rmg );
 
 	// elementary action
-	void		(*EA_Say)								( int client, char *str );
-	void		(*EA_SayTeam)							( int client, char *str );
-	void		(*EA_Command)							( int client, char *command );
+	void		(*EA_Say)								( int client, const char *str );
+	void		(*EA_SayTeam)							( int client, const char *str );
+	void		(*EA_Command)							( int client, const char *command );
 	void		(*EA_Action)							( int client, int action );
 	void		(*EA_Gesture)							( int client );
 	void		(*EA_Talk)								( int client );

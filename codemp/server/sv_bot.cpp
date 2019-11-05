@@ -462,7 +462,7 @@ void BotImport_DebugLineShow(int line, vec3_t start, vec3_t end, int color) {
 	BotImport_DebugPolygonShow(line, color, 4, points);
 }
 
-void BotClientCommand( int client, char *command ) {
+void BotClientCommand( int client, const char *command ) {
 	SV_ExecuteClientCommand( &svs.clients[client], command, qtrue );
 }
 

@@ -493,12 +493,11 @@ static const char *gameTypes[GT_MAX_GAME_TYPE] = {
 };
 static const int numGameTypes = ARRAY_LEN( gameTypes );
 
-static char* netNames[] = {
+static const char *netNames[] = {
 	"???",
 	"UDP",
 	NULL
 };
-
 static const int numNetNames = ARRAY_LEN( netNames ) - 1;
 
 const char *UI_GetStringEdString(const char *refSection, const char *refName);
@@ -573,15 +572,6 @@ int UI_SourceForLAN( void ) {
 	}
 }
 
-/*
-static const char *netSources[] = {
-	"Local",
-	"Internet",
-	"Favorites"
-//	"Mplayer"
-};
-static const int numNetSources = ARRAY_LEN(netSources);
-*/
 static const int numNetSources = 7;	// now hard-entered in StringEd file
 static const char *GetNetSourceString(int iSource)
 {
@@ -6330,17 +6320,17 @@ typedef struct serverStatusCvar_s {
 	char *name, *altName;
 } serverStatusCvar_t;
 
-serverStatusCvar_t serverStatusCvars[] = {
-	{"sv_hostname", "Name"},
-	{"Address", ""},
-	{"gamename", "Game name"},
-	{"g_gametype", "Game type"},
-	{"mapname", "Map"},
-	{"version", ""},
-	{"protocol", ""},
-	{"timelimit", ""},
-	{"fraglimit", ""},
-	{NULL, NULL}
+const serverStatusCvar_t serverStatusCvars[] = {
+	{ "sv_hostname", "Name" },
+	{ "Address",     "" },
+	{ "gamename",    "Game name" },
+	{ "g_gametype",  "Game type" },
+	{ "mapname",     "Map" },
+	{ "version",     "" },
+	{ "protocol",    "" },
+	{ "timelimit",   "" },
+	{ "fraglimit",   "" },
+	{ NULL,          NULL }
 };
 
 static void UI_SortServerStatusInfo( serverStatusInfo_t *info ) {

@@ -210,11 +210,11 @@ typedef struct spawn_s {
 	void		(*spawn)( void );
 } spawn_t;
 
-spawn_t spawns [] = {
-	{ "misc_model_static",		SP_misc_model_static		},
-	{ "misc_skyportal",			SP_misc_skyportal			},
-	{ "misc_skyportal_orient",	SP_misc_skyportal_orient	},
-	{ "misc_weather_zone",		SP_misc_weather_zone		},
+const spawn_t spawns [] = {
+	{ "misc_model_static",     SP_misc_model_static },
+	{ "misc_skyportal",        SP_misc_skyportal },
+	{ "misc_skyportal_orient", SP_misc_skyportal_orient },
+	{ "misc_weather_zone",     SP_misc_weather_zone },
 };
 
 // Spawn an entity and fill in all of the level fields from cg.spawnVars[], then call the class specfic spawn function

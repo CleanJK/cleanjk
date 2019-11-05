@@ -1908,43 +1908,38 @@ typedef struct infoParm_s {
 	uint32_t	clearSolid, surfaceFlags, contents;
 } infoParm_t;
 
-infoParm_t	infoParms[] = {
-	// Game content Flags
-	{ "nonsolid",		~CONTENTS_SOLID,					SURF_NONE,			CONTENTS_NONE },		// special hack to clear solid flag
-	{ "nonopaque",		~CONTENTS_OPAQUE,					SURF_NONE,			CONTENTS_NONE },		// special hack to clear opaque flag
-	{ "lava",			~CONTENTS_SOLID,					SURF_NONE,			CONTENTS_LAVA },		// very damaging
-	{ "slime",			~CONTENTS_SOLID,					SURF_NONE,			CONTENTS_SLIME },		// mildly damaging
-	{ "water",			~CONTENTS_SOLID,					SURF_NONE,			CONTENTS_WATER },		//
-	{ "fog",			~CONTENTS_SOLID,					SURF_NONE,			CONTENTS_FOG},			// carves surfaces entering
-	{ "shotclip",		~CONTENTS_SOLID,					SURF_NONE,			CONTENTS_SHOTCLIP },	// block shots, but not people
-	{ "playerclip",		~(CONTENTS_SOLID|CONTENTS_OPAQUE),	SURF_NONE,			CONTENTS_PLAYERCLIP },	// block only the player
-	{ "monsterclip",	~(CONTENTS_SOLID|CONTENTS_OPAQUE),	SURF_NONE,			CONTENTS_MONSTERCLIP },	//
-	{ "botclip",		~(CONTENTS_SOLID|CONTENTS_OPAQUE),	SURF_NONE,			CONTENTS_BOTCLIP },		// for bots
-	{ "trigger",		~(CONTENTS_SOLID|CONTENTS_OPAQUE),	SURF_NONE,			CONTENTS_TRIGGER },		//
-	{ "nodrop",			~(CONTENTS_SOLID|CONTENTS_OPAQUE),	SURF_NONE,			CONTENTS_NODROP },		// don't drop items or leave bodies (death fog, lava, etc)
-	{ "terrain",		~(CONTENTS_SOLID|CONTENTS_OPAQUE),	SURF_NONE,			CONTENTS_TERRAIN },		// use special terrain collsion
-	{ "ladder",			~(CONTENTS_SOLID|CONTENTS_OPAQUE),	SURF_NONE,			CONTENTS_LADDER },		// climb up in it like water
-	{ "abseil",			~(CONTENTS_SOLID|CONTENTS_OPAQUE),	SURF_NONE,			CONTENTS_ABSEIL },		// can abseil down this brush
-	{ "outside",		~(CONTENTS_SOLID|CONTENTS_OPAQUE),	SURF_NONE,			CONTENTS_OUTSIDE },		// volume is considered to be in the outside (i.e. not indoors)
-	{ "inside",			~(CONTENTS_SOLID|CONTENTS_OPAQUE),	SURF_NONE,			CONTENTS_INSIDE },		// volume is considered to be inside (i.e. indoors)
-
-	{ "detail",			CONTENTS_ALL,						SURF_NONE,			CONTENTS_DETAIL },		// don't include in structural bsp
-	{ "trans",			CONTENTS_ALL,						SURF_NONE,			CONTENTS_TRANSLUCENT },	// surface has an alpha component
-
-	/* Game surface flags */
-	{ "sky",			CONTENTS_ALL,						SURF_SKY,			CONTENTS_NONE },		// emit light from an environment map
-	{ "slick",			CONTENTS_ALL,						SURF_SLICK,			CONTENTS_NONE },		//
-
-	{ "nodamage",		CONTENTS_ALL,						SURF_NODAMAGE,		CONTENTS_NONE },		//
-	{ "noimpact",		CONTENTS_ALL,						SURF_NOIMPACT,		CONTENTS_NONE },		// don't make impact explosions or marks
-	{ "nomarks",		CONTENTS_ALL,						SURF_NOMARKS,		CONTENTS_NONE },		// don't make impact marks, but still explode
-	{ "nodraw",			CONTENTS_ALL,						SURF_NODRAW,		CONTENTS_NONE },		// don't generate a drawsurface (or a lightmap)
-	{ "nosteps",		CONTENTS_ALL,						SURF_NOSTEPS,		CONTENTS_NONE },		//
-	{ "nodlight",		CONTENTS_ALL,						SURF_NODLIGHT,		CONTENTS_NONE },		// don't ever add dynamic lights
-	{ "metalsteps",		CONTENTS_ALL,						SURF_METALSTEPS,	CONTENTS_NONE },		//
-	{ "nomiscents",		CONTENTS_ALL,						SURF_NOMISCENTS,	CONTENTS_NONE },		// No misc ents on this surface
-	{ "forcefield",		CONTENTS_ALL,						SURF_FORCEFIELD,	CONTENTS_NONE },		//
-	{ "forcesight",		CONTENTS_ALL,						SURF_FORCESIGHT,	CONTENTS_NONE },		// only visible with force sight
+const infoParm_t infoParms[] = {
+	{ "nonsolid",    ~CONTENTS_SOLID,                   SURF_NONE,       CONTENTS_NONE },        // special hack to clear solid flag
+	{ "nonopaque",   ~CONTENTS_OPAQUE,                  SURF_NONE,       CONTENTS_NONE },        // special hack to clear opaque flag
+	{ "lava",        ~CONTENTS_SOLID,                   SURF_NONE,       CONTENTS_LAVA },        // very damaging
+	{ "slime",       ~CONTENTS_SOLID,                   SURF_NONE,       CONTENTS_SLIME },       // mildly damaging
+	{ "water",       ~CONTENTS_SOLID,                   SURF_NONE,       CONTENTS_WATER },       //
+	{ "fog",         ~CONTENTS_SOLID,                   SURF_NONE,       CONTENTS_FOG },         // carves surfaces entering
+	{ "shotclip",    ~CONTENTS_SOLID,                   SURF_NONE,       CONTENTS_SHOTCLIP },    // block shots, but not people
+	{ "playerclip",  ~(CONTENTS_SOLID|CONTENTS_OPAQUE), SURF_NONE,       CONTENTS_PLAYERCLIP },  // block only the player
+	{ "monsterclip", ~(CONTENTS_SOLID|CONTENTS_OPAQUE), SURF_NONE,       CONTENTS_MONSTERCLIP }, //
+	{ "botclip",     ~(CONTENTS_SOLID|CONTENTS_OPAQUE), SURF_NONE,       CONTENTS_BOTCLIP },     // for bots
+	{ "trigger",     ~(CONTENTS_SOLID|CONTENTS_OPAQUE), SURF_NONE,       CONTENTS_TRIGGER },     //
+	{ "nodrop",      ~(CONTENTS_SOLID|CONTENTS_OPAQUE), SURF_NONE,       CONTENTS_NODROP },      // don't drop items or leave bodies (death fog, lava, etc)
+	{ "terrain",     ~(CONTENTS_SOLID|CONTENTS_OPAQUE), SURF_NONE,       CONTENTS_TERRAIN },     // use special terrain collsion
+	{ "ladder",      ~(CONTENTS_SOLID|CONTENTS_OPAQUE), SURF_NONE,       CONTENTS_LADDER },      // climb up in it like water
+	{ "abseil",      ~(CONTENTS_SOLID|CONTENTS_OPAQUE), SURF_NONE,       CONTENTS_ABSEIL },      // can abseil down this brush
+	{ "outside",     ~(CONTENTS_SOLID|CONTENTS_OPAQUE), SURF_NONE,       CONTENTS_OUTSIDE },     // volume is considered to be in the outside (i.e. not indoors)
+	{ "inside",      ~(CONTENTS_SOLID|CONTENTS_OPAQUE), SURF_NONE,       CONTENTS_INSIDE },      // volume is considered to be inside (i.e. indoors)
+	{ "detail",      CONTENTS_ALL,                      SURF_NONE,       CONTENTS_DETAIL },      // don't include in structural bsp
+	{ "trans",       CONTENTS_ALL,                      SURF_NONE,       CONTENTS_TRANSLUCENT }, // surface has an alpha component
+	{ "sky",         CONTENTS_ALL,                      SURF_SKY,        CONTENTS_NONE },        // emit light from an environment map
+	{ "slick",       CONTENTS_ALL,                      SURF_SLICK,      CONTENTS_NONE },        //
+	{ "nodamage",    CONTENTS_ALL,                      SURF_NODAMAGE,   CONTENTS_NONE },        //
+	{ "noimpact",    CONTENTS_ALL,                      SURF_NOIMPACT,   CONTENTS_NONE },        // don't make impact explosions or marks
+	{ "nomarks",     CONTENTS_ALL,                      SURF_NOMARKS,    CONTENTS_NONE },        // don't make impact marks, but still explode
+	{ "nodraw",      CONTENTS_ALL,                      SURF_NODRAW,     CONTENTS_NONE },        // don't generate a drawsurface (or a lightmap)
+	{ "nosteps",     CONTENTS_ALL,                      SURF_NOSTEPS,    CONTENTS_NONE },        //
+	{ "nodlight",    CONTENTS_ALL,                      SURF_NODLIGHT,   CONTENTS_NONE },        // don't ever add dynamic lights
+	{ "metalsteps",  CONTENTS_ALL,                      SURF_METALSTEPS, CONTENTS_NONE },        //
+	{ "nomiscents",  CONTENTS_ALL,                      SURF_NOMISCENTS, CONTENTS_NONE },        // No misc ents on this surface
+	{ "forcefield",  CONTENTS_ALL,                      SURF_FORCEFIELD, CONTENTS_NONE },        //
+	{ "forcesight",  CONTENTS_ALL,                      SURF_FORCESIGHT, CONTENTS_NONE },        // only visible with force sight
 };
 
 // surfaceparm <name>
@@ -2259,36 +2254,62 @@ static qboolean ParseShader( const char **text )
 typedef struct collapse_s {
 	int		blendA;
 	int		blendB;
-
 	int		multitextureEnv;
 	int		multitextureBlend;
 } collapse_t;
 
-static collapse_t	collapse[] = {
-	{ 0, GLS_DSTBLEND_SRC_COLOR | GLS_SRCBLEND_ZERO,
-		GL_MODULATE, 0 },
-
-	{ 0, GLS_DSTBLEND_ZERO | GLS_SRCBLEND_DST_COLOR,
-		GL_MODULATE, 0 },
-
-	{ GLS_DSTBLEND_ZERO | GLS_SRCBLEND_DST_COLOR, GLS_DSTBLEND_ZERO | GLS_SRCBLEND_DST_COLOR,
-		GL_MODULATE, GLS_DSTBLEND_ZERO | GLS_SRCBLEND_DST_COLOR },
-
-	{ GLS_DSTBLEND_SRC_COLOR | GLS_SRCBLEND_ZERO, GLS_DSTBLEND_ZERO | GLS_SRCBLEND_DST_COLOR,
-		GL_MODULATE, GLS_DSTBLEND_ZERO | GLS_SRCBLEND_DST_COLOR },
-
-	{ GLS_DSTBLEND_ZERO | GLS_SRCBLEND_DST_COLOR, GLS_DSTBLEND_SRC_COLOR | GLS_SRCBLEND_ZERO,
-		GL_MODULATE, GLS_DSTBLEND_ZERO | GLS_SRCBLEND_DST_COLOR },
-
-	{ GLS_DSTBLEND_SRC_COLOR | GLS_SRCBLEND_ZERO, GLS_DSTBLEND_SRC_COLOR | GLS_SRCBLEND_ZERO,
-		GL_MODULATE, GLS_DSTBLEND_ZERO | GLS_SRCBLEND_DST_COLOR },
-
-	{ 0, GLS_DSTBLEND_ONE | GLS_SRCBLEND_ONE,
-		GL_ADD, 0 },
-
-	{ GLS_DSTBLEND_ONE | GLS_SRCBLEND_ONE, GLS_DSTBLEND_ONE | GLS_SRCBLEND_ONE,
-		GL_ADD, GLS_DSTBLEND_ONE | GLS_SRCBLEND_ONE },
-	{ -1 }
+static const collapse_t collapse[] = {
+	{
+		0,
+		GLS_DSTBLEND_SRC_COLOR | GLS_SRCBLEND_ZERO,
+		GL_MODULATE,
+		0
+	},
+	{
+		0,
+		GLS_DSTBLEND_ZERO | GLS_SRCBLEND_DST_COLOR,
+		GL_MODULATE,
+		0
+	},
+	{
+		GLS_DSTBLEND_ZERO | GLS_SRCBLEND_DST_COLOR,
+		GLS_DSTBLEND_ZERO | GLS_SRCBLEND_DST_COLOR,
+		GL_MODULATE,
+		GLS_DSTBLEND_ZERO | GLS_SRCBLEND_DST_COLOR
+	},
+	{
+		GLS_DSTBLEND_SRC_COLOR | GLS_SRCBLEND_ZERO,
+		GLS_DSTBLEND_ZERO | GLS_SRCBLEND_DST_COLOR,
+		GL_MODULATE,
+		GLS_DSTBLEND_ZERO | GLS_SRCBLEND_DST_COLOR
+	},
+	{
+		GLS_DSTBLEND_ZERO | GLS_SRCBLEND_DST_COLOR,
+		GLS_DSTBLEND_SRC_COLOR | GLS_SRCBLEND_ZERO,
+		GL_MODULATE,
+		GLS_DSTBLEND_ZERO | GLS_SRCBLEND_DST_COLOR
+	},
+	{
+		GLS_DSTBLEND_SRC_COLOR | GLS_SRCBLEND_ZERO,
+		GLS_DSTBLEND_SRC_COLOR | GLS_SRCBLEND_ZERO,
+		GL_MODULATE,
+		GLS_DSTBLEND_ZERO | GLS_SRCBLEND_DST_COLOR
+	},
+	{
+		0,
+		GLS_DSTBLEND_ONE | GLS_SRCBLEND_ONE,
+		GL_ADD,
+		0
+	},
+	{
+		GLS_DSTBLEND_ONE | GLS_SRCBLEND_ONE,
+		GLS_DSTBLEND_ONE | GLS_SRCBLEND_ONE,
+		GL_ADD,
+		GLS_DSTBLEND_ONE | GLS_SRCBLEND_ONE
+	},
+	{
+		-1
+	}
 };
 
 // Attempt to combine two stages into a single multitexture stage

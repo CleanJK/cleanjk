@@ -51,14 +51,14 @@ extern stringID_table_t FPTable[];
 #define MAX_SABER_DATA_SIZE (1024*128) // 128kb, was 1mb, was 512kb
 static char saberParms[MAX_SABER_DATA_SIZE];
 
-stringID_table_t saberTable[] = {
+const stringID_table_t saberTable[] = {
 	ENUM2STRING( SABER_NONE ),
 	ENUM2STRING( SABER_SINGLE ),
 	ENUM2STRING( SABER_STAFF ),
 	{ "", -1 }
 };
 
-stringID_table_t saberMoveTable[] = {
+const stringID_table_t saberMoveTable[] = {
 	ENUM2STRING( LS_NONE ),
 	// Attacks
 	ENUM2STRING( LS_A_TL2BR ),

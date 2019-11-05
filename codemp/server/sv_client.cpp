@@ -1113,28 +1113,27 @@ typedef struct ucmd_s {
 	void	(*func)( client_t *cl );
 } ucmd_t;
 
-static ucmd_t ucmds[] = {
-	{"userinfo", SV_UpdateUserinfo_f},
-	{"disconnect", SV_Disconnect_f},
-	{"cp", SV_VerifyPaks_f},
-	{"vdr", SV_ResetPureClient_f},
-	{"download", SV_BeginDownload_f},
-	{"nextdl", SV_NextDownload_f},
-	{"stopdl", SV_StopDownload_f},
-	{"donedl", SV_DoneDownload_f},
-
-	{NULL, NULL}
+static const ucmd_t ucmds[] = {
+	{ "userinfo",   SV_UpdateUserinfo_f },
+	{ "disconnect", SV_Disconnect_f },
+	{ "cp",         SV_VerifyPaks_f },
+	{ "vdr",        SV_ResetPureClient_f },
+	{ "download",   SV_BeginDownload_f },
+	{ "nextdl",     SV_NextDownload_f },
+	{ "stopdl",     SV_StopDownload_f },
+	{ "donedl",     SV_DoneDownload_f },
+	{ NULL,         NULL }
 };
 
 // Also called by bot code
 void SV_ExecuteClientCommand( client_t *cl, const char *s, qboolean clientOK ) {
-	ucmd_t	*u;
 	qboolean bProcessed = qfalse;
 
 	Cmd_TokenizeString( s );
 
 	// see if it is a server level command
-	for (u=ucmds ; u->name ; u++) {
+	const ucmd_t *u;
+	for ( u=ucmds; u->name; u++ ) {
 		if (!strcmp (Cmd_Argv(0), u->name) ) {
 			u->func( cl );
 			bProcessed = qtrue;
