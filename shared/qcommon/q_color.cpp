@@ -42,6 +42,7 @@ vec4_t colorTable[CT_MAX] =
 	{0, 1, 1, 1},			// CT_CYAN
 	{1, 1, 1, 1},			// CT_WHITE
 	{0.75f, 0.75f, 0.75f, 1},	// CT_LTGREY
+	{0.666f, 0.666f, 0.666f, 1},	// CT_LTGREY
 	{0.50f, 0.50f, 0.50f, 1},	// CT_MDGREY
 	{0.25f, 0.25f, 0.25f, 1},	// CT_DKGREY
 	{0.15f, 0.15f, 0.15f, 1},	// CT_DKGREY2

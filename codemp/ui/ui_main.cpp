@@ -781,7 +781,7 @@ static void Text_Paint_Limit(float *maxX, float x, float y, float scale, vec4_t 
 }
 
 void UI_LoadNonIngame() {
-	UI_LoadMenus( "ui/menus.txt", qfalse );
+	UI_LoadMenus( MENUSET_DEFAULT, qfalse );
 	uiInfo.inGameLoad = qfalse;
 }
 
@@ -1327,7 +1327,7 @@ qboolean Load_Menu( int handle ) {
 	return qtrue;
 }
 
-void UI_LoadMenus(const char *menuFile, qboolean reset) {
+void UI_LoadMenus( const char *menuFile, qboolean reset ) {
 	pc_token_t token;
 	int handle;
 //	int start = trap->Milliseconds();
@@ -1338,9 +1338,9 @@ void UI_LoadMenus(const char *menuFile, qboolean reset) {
 	handle = trap->PC_LoadSource( menuFile );
 	if (!handle) {
 		Com_Printf( S_COLOR_YELLOW "menu file not found: %s, using default\n", menuFile );
-		handle = trap->PC_LoadSource( "ui/menus.txt" );
+		handle = trap->PC_LoadSource( MENUSET_DEFAULT );
 		if (!handle) {
-			trap->Error( ERR_DROP, S_COLOR_RED "default menu file not found: ui/menus.txt, unable to continue!\n" );
+			trap->Error( ERR_DROP, S_COLOR_RED "default menu file not found: " MENUSET_DEFAULT ", unable to continue!\n" );
 		}
 	}
 
@@ -1376,29 +1376,25 @@ void UI_LoadMenus(const char *menuFile, qboolean reset) {
 }
 
 void UI_Load( void ) {
-	const char *menuSet;
 	char lastName[1024];
-	menuDef_t *menu = Menu_GetFocused();
 
-	if (menu && menu->window.name) {
-		Q_strncpyz(lastName, menu->window.name, sizeof(lastName));
+	const menuDef_t *menu = Menu_GetFocused();
+	if ( menu && menu->window.name ) {
+		Q_strncpyz( lastName, menu->window.name, sizeof(lastName) );
 	}
-	else
-	{
+	else {
 		lastName[0] = 0;
 	}
 
-	menuSet = uiInfo.inGameLoad ? "ui/ingame.txt" : "ui/menus.txt";
-
 	String_Init();
 
-	UI_ParseGameInfo("ui/gameinfo.txt");
+	UI_ParseGameInfo( "ui/gameinfo.txt" );
 	UI_LoadArenas();
 	UI_LoadBots();
 
-	UI_LoadMenus(menuSet, qtrue);
+	UI_LoadMenus( uiInfo.inGameLoad ? MENUSET_INGAME : MENUSET_DEFAULT, qtrue );
 	Menus_CloseAll();
-	Menus_ActivateByName(lastName);
+	Menus_ActivateByName( lastName );
 }
 
 char	sAll[15] = {0};
@@ -8281,18 +8277,13 @@ void UI_Init( qboolean inGameLoad ) {
 
 	UI_ParseGameInfo("ui/gameinfo.txt");
 
-	menuSet = "ui/menus.txt";
-#if 1
+	menuSet = MENUSET_DEFAULT;
 	if ( inGameLoad ) {
-		UI_LoadMenus( "ui/ingame.txt", qtrue );
+		UI_LoadMenus( MENUSET_INGAME, qtrue );
 	}
 	else if ( !ui_bypassMainMenuLoad.integer ) {
 		UI_LoadMenus( menuSet, qtrue );
 	}
-#else //this was adding quite a giant amount of time to the load time
-	UI_LoadMenus( menuSet, qtrue );
-	UI_LoadMenus( "ui/ingame.txt", qtrue );
-#endif
 
 	{
 		char buf[MAX_NETNAME] = {0};
@@ -8354,7 +8345,7 @@ void UI_Refresh( int realtime )
 		if ( !total ) {
 			total = 1;
 		}
-		uiInfo.uiDC.FPS = 1000 * UI_FPS_FRAMES / total;
+		uiInfo.uiDC.FPS = 1000.0f * UI_FPS_FRAMES / total;
 	}
 
 	UI_UpdateCvars();

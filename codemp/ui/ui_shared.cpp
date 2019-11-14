@@ -561,6 +561,7 @@ void Window_Init(windowDef_t *w) {
 	w->borderSize = 1;
 	w->foreColor[0] = w->foreColor[1] = w->foreColor[2] = w->foreColor[3] = 1.0;
 	w->cinematic = -1;
+	w->flags |= WINDOW_VISIBLE;
 }
 
 void Fade(int *flags, float *f, float clamp, int *nextTime, int offsetTime, qboolean bFlags, float fadeAmount) {
@@ -780,8 +781,8 @@ void Menu_PostParse(menuDef_t *menu) {
 	if ( menu->fullScreen ) {
 		menu->window.rect.x = 0;
 		menu->window.rect.y = 0;
-		menu->window.rect.w = 640;
-		menu->window.rect.h = 480;
+		menu->window.rect.w = SCREEN_WIDTH;
+		menu->window.rect.h = SCREEN_HEIGHT;
 	}
 	Menu_UpdatePosition( menu );
 }
@@ -1307,8 +1308,14 @@ void Menus_ShowByName(const char *p) {
 	}
 }
 
-void Menus_OpenByName(const char *p) {
-	Menus_ActivateByName(p);
+menuDef_t *Menus_OpenByName( const char *p ) {
+	menuDef_t *result = Menus_ActivateByName( p );
+	if ( !result ) {
+		if ( DC->getCVarValue( "developer" ) ) {
+			DC->Print( va( "%s couldn't find menu \"%s\"\n", __FUNCTION__, p ) );
+		}
+	}
+	return result;
 }
 
 static void Menu_RunCloseScript(menuDef_t *menu) {
@@ -1416,12 +1423,10 @@ qboolean Script_FadeOut(itemDef_t *item, char **args)
 	return qtrue;
 }
 
-qboolean Script_Open(itemDef_t *item, char **args)
-{
+qboolean Script_Open( itemDef_t *item, char **args ) {
 	const char *name;
-	if (String_Parse(args, &name))
-	{
-		Menus_OpenByName(name);
+	if ( String_Parse( args, &name ) ) {
+		Menus_OpenByName( name );
 	}
 	return qtrue;
 }
@@ -1429,15 +1434,12 @@ qboolean Script_Open(itemDef_t *item, char **args)
 qboolean Script_Close(itemDef_t *item, char **args)
 {
 	const char *name;
-	if (String_Parse(args, &name))
-	{
-		if (Q_stricmp(name, "all") == 0)
-		{
+	if ( String_Parse( args, &name ) ) {
+		if ( !Q_stricmp( name, "all" ) ) {
 			Menus_CloseAll();
 		}
-		else
-		{
-			Menus_CloseByName(name);
+		else {
+			Menus_CloseByName( name );
 		}
 	}
 	return qtrue;
@@ -1853,7 +1855,7 @@ qboolean Script_Transition3(itemDef_t *item, char **args)
 		}
 	}
 	if ( name ) {
-		Com_Printf( S_COLOR_YELLOW "WARNING: Script_Transition2: error parsing '%s'\n", name );
+		Com_Printf( S_COLOR_YELLOW "WARNING: Script_Transition3: error parsing '%s'\n", name );
 	}
 	return qtrue;
 }
@@ -1904,38 +1906,38 @@ qboolean Script_playLooped(itemDef_t *item, char **args) {
 	return qtrue;
 }
 
-commandDef_t commandList[] =
-{
-  {"fadein", &Script_FadeIn},                   // group/name
-  {"fadeout", &Script_FadeOut},                 // group/name
-  {"show", &Script_Show},                       // group/name
-  {"hide", &Script_Hide},                       // group/name
-  {"setcolor", &Script_SetColor},               // works on this
-  {"open", &Script_Open},                       // nenu
-  {"close", &Script_Close},                     // menu
-  {"setasset", &Script_SetAsset},               // works on this
-  {"setbackground", &Script_SetBackground},     // works on this
-  {"setitemrectcvar", &Script_SetItemRectCvar},			// group/name
-  {"setitembackground", &Script_SetItemBackground},// group/name
-  {"setitemtext", &Script_SetItemText},			// group/name
-  {"setitemcolor", &Script_SetItemColor},       // group/name
-  {"setitemcolorcvar", &Script_SetItemColorCvar},// group/name
-  {"setitemrect", &Script_SetItemRect},			// group/name
-  {"setteamcolor", &Script_SetTeamColor},       // sets this background color to team color
-  {"setfocus", &Script_SetFocus},               // sets focus
-  {"setplayermodel", &Script_SetPlayerModel},   // sets model
-  {"transition", &Script_Transition},           // group/name
-  {"setcvar", &Script_SetCvar},					// name
-  {"setcvartocvar", &Script_SetCvarToCvar},     // name
-  {"exec", &Script_Exec},						// group/name
-  {"play", &Script_Play},						// group/name
-  {"playlooped", &Script_playLooped},           // group/name
-  {"orbit", &Script_Orbit},                     // group/name
-  {"scale",			&Script_Scale},				// group/name
-  {"disable",		&Script_Disable},			// group/name
-  {"defer",			&Script_Defer},				//
-  {"rundeferred",	&Script_RunDeferred},		//
-  {"transition2",	&Script_Transition2},			// group/name
+commandDef_t commandList[] = {
+  { "close",             &Script_Close },             // menu
+  { "defer",             &Script_Defer },             //
+  { "disable",           &Script_Disable },           // group/name
+  { "exec",              &Script_Exec },              // group/name
+  { "fadein",            &Script_FadeIn },            // group/name
+  { "fadeout",           &Script_FadeOut },           // group/name
+  { "hide",              &Script_Hide },              // group/name
+  { "open",              &Script_Open },              // menu
+  { "orbit",             &Script_Orbit },             // group/name
+  { "play",              &Script_Play },              // group/name
+  { "playlooped",        &Script_playLooped },        // group/name
+  { "rundeferred",       &Script_RunDeferred },       //
+  { "scale",             &Script_Scale },             // group/name
+  { "setasset",          &Script_SetAsset },          // works on this
+  { "setbackground",     &Script_SetBackground },     // works on this
+  { "setcolor",          &Script_SetColor },          // works on this
+  { "setcvar",           &Script_SetCvar },           // name
+  { "setcvartocvar",     &Script_SetCvarToCvar },     // name
+  { "setfocus",          &Script_SetFocus },          // sets focus
+  { "setitembackground", &Script_SetItemBackground }, // group/name
+  { "setitemcolor",      &Script_SetItemColor },      // group/name
+  { "setitemcolorcvar",  &Script_SetItemColorCvar },  // group/name
+  { "setitemrect",       &Script_SetItemRect },       // group/name
+  { "setitemrectcvar",   &Script_SetItemRectCvar },   // group/name
+  { "setitemtext",       &Script_SetItemText },       // group/name
+  { "setplayermodel",    &Script_SetPlayerModel },    // sets model
+  { "setteamcolor",      &Script_SetTeamColor },      // sets this background color to team color
+  { "show",              &Script_Show },              // group/name
+  { "transition",        &Script_Transition },        // group/name
+  { "transition2",       &Script_Transition2 },       // group/name
+  { "transition3",       &Script_Transition3 },       // group/name
 };
 
 // Set all the items within a given menu, with the given itemName, to the given shader
@@ -4052,218 +4054,184 @@ void Menus_HandleOOBClick(menuDef_t *menu, int key, qboolean down) {
 }
 
 void Menu_HandleKey(menuDef_t *menu, int key, qboolean down) {
-	int i;
-	itemDef_t *item = NULL;
-
-	if (g_waitingForKey && down) {
-		Item_Bind_HandleKey(g_bindItem, key, down);
+	if ( g_waitingForKey && down ) {
+		Item_Bind_HandleKey( g_bindItem, key, down );
 		return;
 	}
 
-	if (g_editingField && down)
-	{
-		if (!Item_TextField_HandleKey(g_editItem, key))
-		{
+	if ( g_editingField && down ) {
+		if ( !Item_TextField_HandleKey( g_editItem, key ) ) {
 			g_editingField = qfalse;
 			g_editItem = NULL;
 			return;
 		}
-		else if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_MOUSE3)
-		{
+		else if ( key == A_MOUSE1 || key == A_MOUSE2 || key == A_MOUSE3 ) {
 			// switching fields so reset printed text of edit field
-			Leaving_EditField(g_editItem);
+			Leaving_EditField( g_editItem );
 			g_editingField = qfalse;
 			g_editItem = NULL;
-			Display_MouseMove(NULL, DC->cursorx, DC->cursory);
+			Display_MouseMove( NULL, DC->cursorx, DC->cursory );
 		}
-		else if (key == A_TAB || key == A_CURSOR_UP || key == A_CURSOR_DOWN)
-		{
+		else if ( key == A_TAB || key == A_CURSOR_UP || key == A_CURSOR_DOWN ) {
 			return;
 		}
 	}
 
-	if (menu == NULL) {
+	if ( menu == NULL ) {
 		return;
 	}
-		// see if the mouse is within the window bounds and if so is this a mouse click
-	if (down && !(menu->window.flags & WINDOW_POPUP) && !Rect_ContainsPoint(&menu->window.rect, DC->cursorx, DC->cursory))
-	{
+
+	// see if the mouse is within the window bounds and if so is this a mouse click
+	if ( down && !(menu->window.flags & WINDOW_POPUP) && !Rect_ContainsPoint( &menu->window.rect, DC->cursorx, DC->cursory ) ) {
 		static qboolean inHandleKey = qfalse;
-		if (!inHandleKey && ( key == A_MOUSE1 || key == A_MOUSE2 || key == A_MOUSE3 ) ) {
+		if ( !inHandleKey && (key == A_MOUSE1 || key == A_MOUSE2 || key == A_MOUSE3) ) {
 			inHandleKey = qtrue;
-			Menus_HandleOOBClick(menu, key, down);
+			Menus_HandleOOBClick( menu, key, down );
 			inHandleKey = qfalse;
 			return;
 		}
 	}
 
 	// get the item with focus
-	for (i = 0; i < menu->itemCount; i++) {
-		if (menu->items[i]->window.flags & WINDOW_HASFOCUS) {
+	itemDef_t *item = nullptr;
+	for ( int i=0; i<menu->itemCount; i++ ) {
+		if ( menu->items[i]->window.flags & WINDOW_HASFOCUS ) {
 			item = menu->items[i];
 		}
 	}
 
 	// Ignore if disabled
-	if (item && item->disabled)
-	{
+	if ( item && item->disabled ) {
 		return;
 	}
 
-	if (item != NULL) {
-		if (Item_HandleKey(item, key, down))
-		{
+	if ( item != NULL ) {
+		if ( Item_HandleKey( item, key, down ) ) {
 			// It is possible for an item to be disable after Item_HandleKey is run (like in Voice Chat)
-			if (!item->disabled)
-			{
-				Item_Action(item);
+			if ( !item->disabled ) {
+				Item_Action( item );
 			}
 			return;
 		}
 	}
 
-	if (!down) {
+	if ( !down ) {
 		return;
 	}
 
 	// default handling
 	switch ( key ) {
 
-		case A_F11:
-			if (DC->getCVarValue("developer")) {
+		case A_F11: {
+			if ( DC->getCVarValue( "developer" ) ) {
 				debugMode ^= 1;
 			}
-			break;
+		} break;
 
-		case A_F12:
-			if (DC->getCVarValue("developer")) {
+		case A_F12: {
+			if ( DC->getCVarValue( "developer" ) ) {
 				switch ( DC->screenshotFormat ) {
 					case SSF_JPEG:
-						DC->executeText(EXEC_APPEND, "screenshot\n");
+						DC->executeText( EXEC_APPEND, "screenshot\n" );
 						break;
 					case SSF_TGA:
-						DC->executeText(EXEC_APPEND, "screenshot_tga\n");
+						DC->executeText( EXEC_APPEND, "screenshot_tga\n" );
 						break;
 					case SSF_PNG:
-						DC->executeText(EXEC_APPEND, "screenshot_png\n");
+						DC->executeText( EXEC_APPEND, "screenshot_png\n" );
 						break;
 					default:
-						if (DC->Print) {
-							DC->Print(S_COLOR_YELLOW "Menu_HandleKey[F12]: Unknown screenshot format assigned! This should not happen.\n");
+						if ( DC->Print ) {
+							DC->Print( S_COLOR_YELLOW "Menu_HandleKey[F12]: Unknown screenshot format assigned! This should not happen.\n" );
 						}
 						break;
 				}
 			}
-			break;
-		case A_KP_8:
-		case A_CURSOR_UP:
-			Menu_SetPrevCursorItem(menu);
-			break;
+		} break;
 
-		case A_ESCAPE:
-			if (!g_waitingForKey && menu->onESC) {
+		case A_KP_8:
+		case A_CURSOR_UP: {
+			Menu_SetPrevCursorItem( menu );
+		} break;
+
+		case A_ESCAPE: {
+			if ( !g_waitingForKey && menu->onESC ) {
 				itemDef_t it;
-		    it.parent = menu;
-		    Item_RunScript(&it, menu->onESC);
+				it.parent = menu;
+				Item_RunScript( &it, menu->onESC );
 			}
 		    g_waitingForKey = qfalse;
-			break;
+		} break;
+
 		case A_TAB:
 		case A_KP_2:
-		case A_CURSOR_DOWN:
-			Menu_SetNextCursorItem(menu);
-			break;
+		case A_CURSOR_DOWN: {
+			Menu_SetNextCursorItem( menu );
+		} break;
 
 		case A_MOUSE1:
-		case A_MOUSE2:
-			if (item) {
-				if (item->type == ITEM_TYPE_TEXT) {
-					if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory))
-					{
-						Item_Action(item);
-					}
-				} else if (item->type == ITEM_TYPE_EDITFIELD || item->type == ITEM_TYPE_NUMERICFIELD) {
-					if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory))
-					{
-						Item_Action(item);
+		case A_MOUSE2: {
+			if ( item ) {
+				// add new types here as needed
+				/* Notes:
+					Most controls will use the dpad to move through the selection possibilies. Buttons are the only exception. Buttons will be assumed to all be
+					on one menu together. If the start or A button is pressed on a control focus, that means that the menu is accepted and move onto the next
+					menu. If the start or A button is pressed on a button focus it should just process the action and not support the accept functionality.
+				*/
+				switch ( item->type ) {
+
+				case ITEM_TYPE_EDITFIELD:
+				case ITEM_TYPE_NUMERICFIELD: {
+					if ( Rect_ContainsPoint( &item->window.rect, DC->cursorx, DC->cursory ) ) {
+						Item_Action( item );
 						item->cursorPos = 0;
 						g_editingField = qtrue;
 						g_editItem = item;
-						//DC->setOverstrikeMode(qtrue);
+						//DC->setOverstrikeMode( qtrue );
 					}
-				}
+				} break;
 
-	//JLFACCEPT
-// add new types here as needed
-/* Notes:
-	Most controls will use the dpad to move through the selection possibilies.  Buttons are the only exception.
-	Buttons will be assumed to all be on one menu together.  If the start or A button is pressed on a control focus, that
-	means that the menu is accepted and move onto the next menu.  If the start or A button is pressed on a button focus it
-	should just process the action and not support the accept functionality.
-*/
-
-//JLFACCEPT MPMOVED
-				else if ( item->type == ITEM_TYPE_MULTI || item->type == ITEM_TYPE_YESNO || item->type == ITEM_TYPE_SLIDER)
-				{
-					if (Item_HandleAccept(item))
-					{
-						//Item processed it overriding the menu processing
-						return;
+				case ITEM_TYPE_MULTI:
+				case ITEM_TYPE_YESNO:
+				case ITEM_TYPE_SLIDER: {
+					if ( Item_HandleAccept( item ) ) {
+						return; // Item processed it overriding the menu processing
 					}
-					else if (menu->onAccept)
-					{
+					else if ( menu->onAccept ) {
 						itemDef_t it;
 						it.parent = menu;
-						Item_RunScript(&it, menu->onAccept);
+						Item_RunScript( &it, menu->onAccept );
 					}
-				}
-//END JLFACCEPT
-				else {
-					if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory))
-					{
+				} break;
 
-						Item_Action(item);
+				default: {
+					if ( Rect_ContainsPoint( &item->window.rect, DC->cursorx, DC->cursory ) ) {
+						Item_Action( item );
 					}
+				} break;
+
 				}
 			}
-			break;
+		} break;
 
-		case A_JOY0:
-		case A_JOY1:
-		case A_JOY2:
-		case A_JOY3:
-		case A_JOY4:
-		case A_AUX0:
-		case A_AUX1:
-		case A_AUX2:
-		case A_AUX3:
-		case A_AUX4:
-		case A_AUX5:
-		case A_AUX6:
-		case A_AUX7:
-		case A_AUX8:
-		case A_AUX9:
-		case A_AUX10:
-		case A_AUX11:
-		case A_AUX12:
-		case A_AUX13:
-		case A_AUX14:
-		case A_AUX15:
-		case A_AUX16:
-			break;
 		case A_KP_ENTER:
-		case A_ENTER:
-			if (item) {
-				if (item->type == ITEM_TYPE_EDITFIELD || item->type == ITEM_TYPE_NUMERICFIELD) {
+		case A_ENTER: {
+			if ( item ) {
+				if ( item->type == ITEM_TYPE_EDITFIELD || item->type == ITEM_TYPE_NUMERICFIELD ) {
 					item->cursorPos = 0;
 					g_editingField = qtrue;
 					g_editItem = item;
-					//DC->setOverstrikeMode(qtrue);
-				} else {
-						Item_Action(item);
+					//DC->setOverstrikeMode( qtrue );
+				}
+				else {
+					Item_Action( item );
 				}
 			}
-			break;
+		} break;
+
+		default: {
+			// ...
+		} break;
 	}
 }
 
@@ -5816,7 +5784,12 @@ void Item_Paint(itemDef_t *item)
 		if (DC->realTime > item->window.nextTime)
 		{
 			int done = 0;
-			item->window.nextTime = DC->realTime + item->window.offsetTime;
+
+			// target 60fps
+			const float tAdjust = (60.0f / DC->FPS);
+
+			item->window.nextTime = DC->realTime + (item->window.offsetTime * tAdjust);
+
 
 			// transition the x,y
 			if (item->window.rectClient.x == item->window.rectEffects.x)
@@ -5827,7 +5800,7 @@ void Item_Paint(itemDef_t *item)
 			{
 				if (item->window.rectClient.x < item->window.rectEffects.x)
 				{
-					item->window.rectClient.x += item->window.rectEffects2.x;
+					item->window.rectClient.x += item->window.rectEffects2.x * tAdjust;
 					if (item->window.rectClient.x > item->window.rectEffects.x)
 					{
 						item->window.rectClient.x = item->window.rectEffects.x;
@@ -5836,7 +5809,7 @@ void Item_Paint(itemDef_t *item)
 				}
 				else
 				{
-					item->window.rectClient.x -= item->window.rectEffects2.x;
+					item->window.rectClient.x -= item->window.rectEffects2.x * tAdjust;
 					if (item->window.rectClient.x < item->window.rectEffects.x)
 					{
 						item->window.rectClient.x = item->window.rectEffects.x;
@@ -5853,7 +5826,7 @@ void Item_Paint(itemDef_t *item)
 			{
 				if (item->window.rectClient.y < item->window.rectEffects.y)
 				{
-					item->window.rectClient.y += item->window.rectEffects2.y;
+					item->window.rectClient.y += item->window.rectEffects2.y * tAdjust;
 					if (item->window.rectClient.y > item->window.rectEffects.y)
 					{
 						item->window.rectClient.y = item->window.rectEffects.y;
@@ -5862,7 +5835,7 @@ void Item_Paint(itemDef_t *item)
 				}
 				else
 				{
-					item->window.rectClient.y -= item->window.rectEffects2.y;
+					item->window.rectClient.y -= item->window.rectEffects2.y * tAdjust;
 					if (item->window.rectClient.y < item->window.rectEffects.y)
 					{
 						item->window.rectClient.y = item->window.rectEffects.y;
@@ -5879,7 +5852,7 @@ void Item_Paint(itemDef_t *item)
 			{
 				if (item->window.rectClient.w < item->window.rectEffects.w)
 				{
-					item->window.rectClient.w += item->window.rectEffects2.w;
+					item->window.rectClient.w += item->window.rectEffects2.w * tAdjust;
 					if (item->window.rectClient.w > item->window.rectEffects.w)
 					{
 						item->window.rectClient.w = item->window.rectEffects.w;
@@ -5888,7 +5861,7 @@ void Item_Paint(itemDef_t *item)
 				}
 				else
 				{
-					item->window.rectClient.w -= item->window.rectEffects2.w;
+					item->window.rectClient.w -= item->window.rectEffects2.w * tAdjust;
 					if (item->window.rectClient.w < item->window.rectEffects.w)
 					{
 						item->window.rectClient.w = item->window.rectEffects.w;
@@ -5905,7 +5878,7 @@ void Item_Paint(itemDef_t *item)
 			{
 				if (item->window.rectClient.h < item->window.rectEffects.h)
 				{
-					item->window.rectClient.h += item->window.rectEffects2.h;
+					item->window.rectClient.h += item->window.rectEffects2.h * tAdjust;
 					if (item->window.rectClient.h > item->window.rectEffects.h)
 					{
 						item->window.rectClient.h = item->window.rectEffects.h;
@@ -5914,7 +5887,7 @@ void Item_Paint(itemDef_t *item)
 				}
 				else
 				{
-					item->window.rectClient.h -= item->window.rectEffects2.h;
+					item->window.rectClient.h -= item->window.rectEffects2.h * tAdjust;
 					if (item->window.rectClient.h < item->window.rectEffects.h)
 					{
 						item->window.rectClient.h = item->window.rectEffects.h;
@@ -6278,11 +6251,10 @@ void Item_Paint(itemDef_t *item)
 	}
 
 	// paint the rect first..
-	Window_Paint(&item->window, parent->fadeAmount , parent->fadeClamp, parent->fadeCycle);
+	Window_Paint( &item->window, parent->fadeAmount , parent->fadeClamp, parent->fadeCycle );
 
 	// Draw box to show rectangle extents, in debug mode
-	if (debugMode)
-	{
+	if ( debugMode ) {
 		vec4_t color;
 		color[1] = color[3] = 1;
 		color[0] = color[2] = 0;
@@ -6292,55 +6264,69 @@ void Item_Paint(itemDef_t *item)
 			item->window.rect.w,
 			item->window.rect.h,
 			1,
-			color);
+			color
+		);
 	}
 
 	//DC->drawRect(item->window.rect.x, item->window.rect.y, item->window.rect.w, item->window.rect.h, 1, red);
 
-	switch (item->type) {
-	case ITEM_TYPE_OWNERDRAW:
-		Item_OwnerDraw_Paint(item);
-		break;
+	switch ( item->type ) {
+
+	case ITEM_TYPE_OWNERDRAW: {
+		Item_OwnerDraw_Paint( item );
+	} break;
+
 	case ITEM_TYPE_TEXT:
-	case ITEM_TYPE_BUTTON:
-		Item_Text_Paint(item);
-		break;
-	case ITEM_TYPE_RADIOBUTTON:
-		break;
-	case ITEM_TYPE_CHECKBOX:
-		break;
+	case ITEM_TYPE_BUTTON: {
+		Item_Text_Paint( item );
+	} break;
+
 	case ITEM_TYPE_EDITFIELD:
-	case ITEM_TYPE_NUMERICFIELD:
-		Item_TextField_Paint(item);
-		break;
+	case ITEM_TYPE_NUMERICFIELD: {
+		Item_TextField_Paint( item );
+	} break;
+
+	case ITEM_TYPE_LISTBOX: {
+		Item_ListBox_Paint( item );
+	} break;
+
+	case ITEM_TYPE_TEXTSCROLL: {
+		Item_TextScroll_Paint( item );
+	} break;
+
+	/*
+	case ITEM_TYPE_IMAGE: {
+		Item_Image_Paint( item );
+	} break;
+	*/
+
+	case ITEM_TYPE_MODEL: {
+		Item_Model_Paint( item );
+	} break;
+
+	case ITEM_TYPE_YESNO: {
+		Item_YesNo_Paint( item );
+	} break;
+
+	case ITEM_TYPE_MULTI: {
+		Item_Multi_Paint( item );
+	} break;
+
+	case ITEM_TYPE_BIND: {
+		Item_Bind_Paint( item );
+	} break;
+
+	case ITEM_TYPE_SLIDER: {
+		Item_Slider_Paint( item );
+	} break;
+
+	case ITEM_TYPE_RADIOBUTTON:
+	case ITEM_TYPE_CHECKBOX:
 	case ITEM_TYPE_COMBO:
-		break;
-	case ITEM_TYPE_LISTBOX:
-		Item_ListBox_Paint(item);
-		break;
-	case ITEM_TYPE_TEXTSCROLL:
-		Item_TextScroll_Paint ( item );
-		break;
-		//case ITEM_TYPE_IMAGE:
-		//  Item_Image_Paint(item);
-		//  break;
-	case ITEM_TYPE_MODEL:
-		Item_Model_Paint(item);
-		break;
-	case ITEM_TYPE_YESNO:
-		Item_YesNo_Paint(item);
-		break;
-	case ITEM_TYPE_MULTI:
-		Item_Multi_Paint(item);
-		break;
-	case ITEM_TYPE_BIND:
-		Item_Bind_Paint(item);
-		break;
-	case ITEM_TYPE_SLIDER:
-		Item_Slider_Paint(item);
-		break;
-	default:
-		break;
+	case ITEM_TYPE_SHADER:
+	default: {
+	} break;
+
 	}
 
 	//FIXME: this might be bad
@@ -6427,31 +6413,34 @@ qboolean Menus_AnyFullScreenVisible( void ) {
 }
 
 menuDef_t *Menus_ActivateByName(const char *p) {
-  int i;
-  menuDef_t *m = NULL;
 	menuDef_t *focus = Menu_GetFocused();
-  for (i = 0; i < menuCount; i++) {
-    if (Q_stricmp(Menus[i].window.name, p) == 0) {
-	    m = &Menus[i];
-			Menus_Activate(m);
-			if (openMenuCount < MAX_OPEN_MENUS && focus != NULL) {
+
+	menuDef_t *m = NULL;
+	for ( int i=0; i<menuCount; i++ ) {
+		if ( !Q_stricmp( Menus[i].window.name, p ) ) {
+			m = &Menus[i];
+			Menus_Activate( m );
+			if ( openMenuCount < MAX_OPEN_MENUS && focus != NULL ) {
 				menuStack[openMenuCount++] = focus;
 			}
-    } else {
-      Menus[i].window.flags &= ~WINDOW_HASFOCUS;
-    }
-  }
+		}
+		else {
+			Menus[i].window.flags &= ~WINDOW_HASFOCUS;
+		}
+	}
+
 	Display_CloseCinematics();
 
 	// Want to handle a mouse move on the new menu in case your already over an item
-	Menu_HandleMouseMove ( m, DC->cursorx, DC->cursory );
+	Menu_HandleMouseMove( m, DC->cursorx, DC->cursory );
 
 	return m;
 }
 
 void Item_Init(itemDef_t *item) {
 	memset(item, 0, sizeof(itemDef_t));
-	item->textscale = 0.55f;
+	item->textscale = 1.0f;
+	item->iMenuFont = FONT_SMALL;
 	Window_Init(&item->window);
 }
 
@@ -8075,10 +8064,10 @@ keywordHash_t itemParseKeywords[] = {
 	{ "action",           ItemParse_action,           NULL },
 	{ "addColorRange",    ItemParse_addColorRange,    NULL },
 	{ "align",            ItemParse_align,            NULL },
-	{ "autowrapped",      ItemParse_autowrapped,      NULL },
 	{ "appearance_slot",  ItemParse_Appearance_slot,  NULL },
 	{ "asset_model",      ItemParse_asset_model,      NULL },
 	{ "asset_shader",     ItemParse_asset_shader,     NULL },
+	{ "autowrapped",      ItemParse_autowrapped,      NULL },
 	{ "backcolor",        ItemParse_backcolor,        NULL },
 	{ "background",       ItemParse_background,       NULL },
 	{ "border",           ItemParse_border,           NULL },
@@ -8091,8 +8080,8 @@ keywordHash_t itemParseKeywords[] = {
 	{ "cvarFloatList",    ItemParse_cvarFloatList,    NULL },
 	{ "cvarStrList",      ItemParse_cvarStrList,      NULL },
 	{ "cvarTest",         ItemParse_cvarTest,         NULL },
-	{ "desctext",         ItemParse_descText,         NULL },
 	{ "decoration",       ItemParse_decoration,       NULL },
+	{ "desctext",         ItemParse_descText,         NULL },
 	{ "disableCvar",      ItemParse_disableCvar,      NULL },
 	{ "doubleclick",      ItemParse_doubleClick,      NULL },
 	{ "elementheight",    ItemParse_elementheight,    NULL },
@@ -8107,22 +8096,25 @@ keywordHash_t itemParseKeywords[] = {
 	{ "group",            ItemParse_group,            NULL },
 	{ "hideCvar",         ItemParse_hideCvar,         NULL },
 	{ "horizontalscroll", ItemParse_horizontalscroll, NULL },
+	{ "invertyesno",      ItemParse_invertyesno,      NULL },
 	{ "isCharacter",      ItemParse_isCharacter,      NULL },
 	{ "isSaber",          ItemParse_isSaber,          NULL },
 	{ "isSaber2",         ItemParse_isSaber2,         NULL },
 	{ "leaveFocus",       ItemParse_leaveFocus,       NULL },
+	{ "lineHeight",       ItemParse_lineHeight,       NULL },
 	{ "maxChars",         ItemParse_maxChars,         NULL },
+	{ "maxLineChars",     ItemParse_maxLineChars,     NULL },
 	{ "maxPaintChars",    ItemParse_maxPaintChars,    NULL },
 	{ "model_angle",      ItemParse_model_angle,      NULL },
 	{ "model_fovx",       ItemParse_model_fovx,       NULL },
 	{ "model_fovy",       ItemParse_model_fovy,       NULL },
-	{ "model_origin",     ItemParse_model_origin,     NULL },
-	{ "model_rotation",   ItemParse_model_rotation,   NULL },
-	{ "model_g2mins",     ItemParse_model_g2mins,     NULL },
+	{ "model_g2anim",     ItemParse_model_g2anim,     NULL },
 	{ "model_g2maxs",     ItemParse_model_g2maxs,     NULL },
+	{ "model_g2mins",     ItemParse_model_g2mins,     NULL },
 	{ "model_g2scale",    ItemParse_model_g2scale,    NULL },
 	{ "model_g2skin",     ItemParse_model_g2skin,     NULL },
-	{ "model_g2anim",     ItemParse_model_g2anim,     NULL },
+	{ "model_origin",     ItemParse_model_origin,     NULL },
+	{ "model_rotation",   ItemParse_model_rotation,   NULL },
 	{ "mouseEnter",       ItemParse_mouseEnter,       NULL },
 	{ "mouseEnterText",   ItemParse_mouseEnterText,   NULL },
 	{ "mouseExit",        ItemParse_mouseExit,        NULL },
@@ -8135,25 +8127,22 @@ keywordHash_t itemParseKeywords[] = {
 	{ "ownerdrawFlag",    ItemParse_ownerdrawFlag,    NULL },
 	{ "rect",             ItemParse_rect,             NULL },
 	{ "rectcvar",         ItemParse_rectcvar,         NULL },
+	{ "scrollhidden",     ItemParse_scrollhidden,     NULL },
 	{ "showCvar",         ItemParse_showCvar,         NULL },
 	{ "special",          ItemParse_special,          NULL },
 	{ "style",            ItemParse_style,            NULL },
 	{ "text",             ItemParse_text,             NULL },
+	{ "text2",            ItemParse_text2,            NULL },
+	{ "text2alignx",      ItemParse_text2alignx,      NULL },
+	{ "text2aligny",      ItemParse_text2aligny,      NULL },
 	{ "textalign",        ItemParse_textalign,        NULL },
 	{ "textalignx",       ItemParse_textalignx,       NULL },
 	{ "textaligny",       ItemParse_textaligny,       NULL },
 	{ "textscale",        ItemParse_textscale,        NULL },
 	{ "textstyle",        ItemParse_textstyle,        NULL },
-	{ "text2",            ItemParse_text2,            NULL },
-	{ "text2alignx",      ItemParse_text2alignx,      NULL },
-	{ "text2aligny",      ItemParse_text2aligny,      NULL },
 	{ "type",             ItemParse_type,             NULL },
 	{ "visible",          ItemParse_visible,          NULL },
 	{ "wrapped",          ItemParse_wrapped,          NULL },
-	{ "maxLineChars",     ItemParse_maxLineChars,     NULL },
-	{ "lineHeight",       ItemParse_lineHeight,       NULL },
-	{ "invertyesno",      ItemParse_invertyesno,      NULL },
-	{ "scrollhidden",     ItemParse_scrollhidden,     NULL },
 	{ "xoffset",          ItemParse_xoffset,          NULL },
 	{ 0,                  0,                          0 }
 };

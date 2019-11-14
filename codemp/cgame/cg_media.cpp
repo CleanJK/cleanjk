@@ -426,7 +426,7 @@ void CG_PreloadMedia( void ) {
 	//FIXME: these are registered in UI first, we can just grab the handle.
 	cgDC.Assets.qhSmallFont  = trap->R_RegisterFont( "ocr_a" );
 	cgDC.Assets.qhMediumFont = trap->R_RegisterFont( "ergoec" );
-	cgDC.Assets.qhBigFont = cgDC.Assets.qhMediumFont;
+	cgDC.Assets.qhBigFont =    trap->R_RegisterFont( "arialnb" );
 	/*
 	cgDC.Assets.qhSmallFont = CG_Cvar_Get( "font_small" );
 	cgDC.Assets.qhMediumFont = CG_Cvar_Get( "font_medium" );

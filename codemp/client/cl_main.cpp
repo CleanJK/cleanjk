@@ -1026,7 +1026,7 @@ void CL_DownloadsComplete( void ) {
 	}
 
 	// starting to load a map so we get out of full screen ui mode
-	Cvar_Set("r_uiFullScreen", "0");
+	Cvar_Set( "r_uiFullScreen", "0" );
 
 	// flush client memory and start loading stuff
 	// this will also (re)load the UI

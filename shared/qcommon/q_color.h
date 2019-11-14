@@ -51,6 +51,7 @@ typedef enum ct_table_e
 	CT_CYAN,
 	CT_WHITE,
 	CT_LTGREY,
+	CT_LTGREY2,
 	CT_MDGREY,
 	CT_DKGREY,
 	CT_DKGREY2,
