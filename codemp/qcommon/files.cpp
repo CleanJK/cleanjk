@@ -2905,17 +2905,18 @@ static void FS_ReorderPurePaks()
 	@param gameName Name of the default folder (i.e. always BASEGAME = "base" in OpenJK)
 */
 void FS_Startup( const char *gameName ) {
-	const char *homePath;
-
 	Com_Printf( "----- FS_Startup -----\n" );
 
 	fs_packFiles = 0;
 
-	homePath = Sys_DefaultHomePath();
-	if (!homePath || !homePath[0]) {
-		homePath = fs_basepath->string;
+	// set homepath if not overridden
+	if ( !strcmp( fs_homepath->string, fs_homepath->resetString ) ) {
+		const char *homePath = Sys_DefaultHomePath();
+		if (!homePath || !homePath[0]) {
+			homePath = fs_basepath->string;
+		}
+		Cvar_Set( "fs_homepath", homePath );
 	}
-	Cvar_Set( "fs_homepath", homePath );
 
 	// add search path elements in reverse priority order (lowest priority first)
 	if (fs_cdpath->string[0]) {
