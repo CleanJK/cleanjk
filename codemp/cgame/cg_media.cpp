@@ -44,11 +44,11 @@ static const resource_t gfx[] = {
 };
 
 static const resource_t models[] = {
-	{ &media.models.null, "", RFL_NONE, GTB_ALL }
+	{ &media.models.null, "models/null.md3", RFL_NONE, GTB_ALL }
 };
 
 static const resource_t sounds[] = {
-	{ &media.sounds.null, "", RFL_NONE, GTB_ALL }
+	{ &media.sounds.null, "sounds/null.wav", RFL_NONE, GTB_ALL }
 };
 
 static const size_t	numEffects	= ARRAY_LEN( efx );
