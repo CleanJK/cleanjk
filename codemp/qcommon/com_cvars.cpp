@@ -30,7 +30,6 @@ cvar_t *activeAction;
 cvar_t *bot_aasoptimize;
 cvar_t *bot_challenge;
 cvar_t *bot_debug;
-cvar_t *bot_developer;
 cvar_t *bot_enable;
 cvar_t *bot_fastchat;
 cvar_t *bot_forceclustering;
@@ -320,7 +319,6 @@ void Com_InitCvars( void ) {
 	bot_challenge =             Cvar_Get( "bot_challenge",             "0",                                    CVAR_NONE,                                   "" ); // challenging bot
 	bot_debug =                 Cvar_Get( "bot_debug",                 "0",                                    CVAR_CHEAT,                                  "" ); // enable bot debugging
 	bot_debug =                 Cvar_Get( "bot_debug",                 "0",                                    CVAR_NONE,                                   "" );
-	bot_developer =             Cvar_Get( "bot_developer",             "0",                                    CVAR_CHEAT,                                  "" ); // bot developer mode
 	bot_enable =                Cvar_Get( "bot_enable",                "1",                                    CVAR_LATCH,                                  "" ); // enable the bot
 	bot_fastchat =              Cvar_Get( "bot_fastchat",              "0",                                    CVAR_NONE,                                   "" ); // fast chatting bots
 	bot_forceclustering =       Cvar_Get( "bot_forceclustering",       "0",                                    CVAR_NONE,                                   "" ); // force cluster calculations

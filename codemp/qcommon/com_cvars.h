@@ -24,7 +24,6 @@ extern cvar_t *activeAction;
 extern cvar_t *bot_aasoptimize;
 extern cvar_t *bot_challenge;
 extern cvar_t *bot_debug;
-extern cvar_t *bot_developer;
 extern cvar_t *bot_enable;
 extern cvar_t *bot_fastchat;
 extern cvar_t *bot_forceclustering;

@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "qcommon/q_shared.h"
 #include "botlib/botlib.h"		//bot lib interface
 #include "botlib/be_ea.h"
-
+#include "game/ai_botlib.h"
 #include "game/ai_main.h"
 #include "game/w_saber.h"
 
@@ -557,7 +557,7 @@ void BotUpdateInput(bot_state_t *bs, int time, int elapsed_time) {
 
 void BotAIRegularUpdate(void) {
 	if (regularupdate_time < FloatTime()) {
-		trap->BotUpdateEntityItems();
+		BotUpdateEntityItems();
 		regularupdate_time = FloatTime() + 0.3;
 	}
 }
@@ -733,16 +733,16 @@ int BotAISetupClient(int client, bot_settings_t *settings, qboolean restart) {
 	}
 
 	//allocate a goal state
-	bs->gs = trap->BotAllocGoalState(client);
+	bs->gs = BotAllocGoalState(client);
 
 	//allocate a weapon state
-	bs->ws = trap->BotAllocWeaponState();
+	bs->ws = BotAllocWeaponState();
 
 	bs->inuse = qtrue;
 	bs->entitynum = client;
 	bs->setupcount = 4;
 	bs->entergame_time = FloatTime();
-	bs->ms = trap->BotAllocMoveState();
+	bs->ms = BotAllocMoveState();
 	numbots++;
 
 	//NOTE: reschedule the bot thinking
@@ -765,11 +765,11 @@ int BotAIShutdownClient(int client, qboolean restart) {
 		return qfalse;
 	}
 
-	trap->BotFreeMoveState(bs->ms);
+	BotFreeMoveState(bs->ms);
 	//free the goal state`
-	trap->BotFreeGoalState(bs->gs);
+	BotFreeGoalState(bs->gs);
 	//free the weapon weights
-	trap->BotFreeWeaponState(bs->ws);
+	BotFreeWeaponState(bs->ws);
 
 	//clear the bot state
 	memset(bs, 0, sizeof(bot_state_t));
@@ -812,11 +812,21 @@ void BotResetState(bot_state_t *bs) {
 	bs->entitynum = entitynum;
 	bs->entergame_time = entergame_time;
 	//reset several states
-	if (bs->ms) trap->BotResetMoveState(bs->ms);
-	if (bs->gs) trap->BotResetGoalState(bs->gs);
-	if (bs->ws) trap->BotResetWeaponState(bs->ws);
-	if (bs->gs) trap->BotResetAvoidGoals(bs->gs);
-	if (bs->ms) trap->BotResetAvoidReach(bs->ms);
+	if ( bs->ms ) {
+		BotResetMoveState( bs->ms );
+	}
+	if ( bs->gs ) {
+		BotResetGoalState( bs->gs );
+	}
+	if ( bs->ws ) {
+		BotResetWeaponState( bs->ws );
+	}
+	if ( bs->gs ) {
+		BotResetAvoidGoals( bs->gs );
+	}
+	if ( bs->ms ) {
+		BotResetAvoidReach( bs->ms );
+	}
 }
 
 int BotAILoadMap( int restart ) {

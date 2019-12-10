@@ -1000,6 +1000,7 @@ void SV_BindGame( void ) {
 	gi.EntitiesInBox						= SV_AreaEntities;
 	gi.EntityContact						= SV_EntityContact;
 	gi.Trace								= SV_Trace;
+	gi.TraceEntity							= SV_ClipToEntity;
 	gi.GetConfigstring						= SV_GetConfigstring;
 	gi.GetEntityToken						= SV_GetEntityToken;
 	gi.GetServerinfo						= SV_GetServerinfo;

@@ -50,6 +50,7 @@ XCVAR_DEF( bg_showEvents,               "0",           NULL, CVAR_NONE,         
 XCVAR_DEF( bot_attachments,             "1",           NULL, CVAR_NONE,                                       qtrue )
 XCVAR_DEF( bot_camp,                    "1",           NULL, CVAR_NONE,                                       qtrue )
 XCVAR_DEF( bot_enable,                  "1",           NULL, CVAR_NONE,                                       qtrue )
+XCVAR_DEF( bot_developer,               "0",           NULL, CVAR_CHEAT,                                      qfalse )
 XCVAR_DEF( bot_forcepowers,             "1",           NULL, CVAR_CHEAT,                                      qtrue )
 XCVAR_DEF( bot_forgimmick,              "0",           NULL, CVAR_CHEAT,                                      qtrue )
 XCVAR_DEF( bot_honorableduelacceptance, "0",           NULL, CVAR_CHEAT,                                      qtrue )

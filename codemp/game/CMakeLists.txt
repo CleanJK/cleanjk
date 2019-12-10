@@ -31,6 +31,7 @@ if(WIN32)
 endif(WIN32)
 set(MPGameDefines ${MPSharedDefines} "_GAME" )
 set(MPGameGameFiles
+	"${MPDir}/game/ai_botlib.cpp"
 	"${MPDir}/game/ai_main.cpp"
 	"${MPDir}/game/ai_util.cpp"
 	"${MPDir}/game/ai_wpnav.cpp"
@@ -76,6 +77,7 @@ set(MPGameGameFiles
 	"${MPDir}/game/tri_coll_test.cpp"
 	"${MPDir}/game/w_force.cpp"
 	"${MPDir}/game/w_saber.cpp"
+	"${MPDir}/game/ai_botlib.h"
 	"${MPDir}/game/ai_main.h"
 	"${MPDir}/game/anims.h"
 	"${MPDir}/game/b_local.h"
