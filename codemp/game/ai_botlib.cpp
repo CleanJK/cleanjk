@@ -724,6 +724,7 @@ int BotAllocGoalState( int client ) {
 	for ( int i=1; i<=MAX_CLIENTS; i++ ) {
 		if ( !botgoalstates[i] ) {
 			botgoalstates[i] = (bot_goalstate_t *)malloc( sizeof(bot_goalstate_t) );
+			memset( botgoalstates[i], 0, sizeof( bot_goalstate_t ) );
 			botgoalstates[i]->client = client;
 			return i;
 		}
@@ -735,6 +736,7 @@ int BotAllocMoveState( void ) {
 	for ( int i=1; i<=MAX_CLIENTS; i++ ) {
 		if ( !botmovestates[i] ) {
 			botmovestates[i] = (bot_movestate_t *)malloc( sizeof(bot_movestate_t) );
+			memset( botmovestates[i], 0, sizeof( bot_movestate_t ) );
 			return i;
 		}
 	}
@@ -745,6 +747,7 @@ int BotAllocWeaponState( void ) {
 	for ( int i=1; i<=MAX_CLIENTS; i++ ) {
 		if ( !botweaponstates[i] ) {
 			botweaponstates[i] = (bot_weaponstate_t *)malloc( sizeof(bot_weaponstate_t) );
+			memset( botweaponstates[i], 0, sizeof( bot_weaponstate_t ) );
 			return i;
 		}
 	}

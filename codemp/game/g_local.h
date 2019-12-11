@@ -698,7 +698,7 @@ struct reference_tag_t {
 };
 
 struct bot_settings_t {
-	char  personalityfile[MAX_FILEPATH];
+	char  personalityfile[MAX_QPATH];
 	float skill;
 	char  team[MAX_FILEPATH];
 };

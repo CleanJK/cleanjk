@@ -629,7 +629,7 @@ qboolean G_BotConnect( int clientNum, qboolean restart ) {
 
 	trap->GetUserinfo( clientNum, userinfo, sizeof(userinfo) );
 
-	Q_strncpyz( settings.personalityfile, Info_ValueForKey( userinfo, "personality" ), sizeof(settings.personalityfile) );
+	Q_strncpyz( settings.personalityfile, va( "botfiles/%s.jkb", Info_ValueForKey( userinfo, "personality" ) ), sizeof(settings.personalityfile) );
 	settings.skill = atof( Info_ValueForKey( userinfo, "skill" ) );
 	Q_strncpyz( settings.team, Info_ValueForKey( userinfo, "team" ), sizeof(settings.team) );
 

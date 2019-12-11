@@ -640,7 +640,7 @@ void BotUtilizePersonality(bot_state_t *bs)
 	char *buf = (char *)B_TempAlloc(131072);
 	char *readbuf, *group;
 
-	len = trap->FS_Open( va( "botfiles/%s.jkb", bs->settings.personalityfile ), &f, FS_READ);
+	len = trap->FS_Open( bs->settings.personalityfile, &f, FS_READ );
 
 	failed = 0;
 
