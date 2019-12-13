@@ -444,6 +444,13 @@ float LerpAngle(float from, float to, float frac)
 	return a;
 }
 
+void Q_LerpColour( const vec4_t start, const vec4_t end, vec4_t out, float point ) {
+	out[0] = start[0] + point*(end[0] - start[0]);
+	out[1] = start[1] + point*(end[1] - start[1]);
+	out[2] = start[2] + point*(end[2] - start[2]);
+}
+
+
 // Always returns a value from -180 to 180
 float AngleSubtract( float a1, float a2 ) {
 	float	a;

@@ -24,12 +24,15 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // cg_draw.c -- draw all of the graphical elements during
 // active (after loading) gameplay
 
+#include <algorithm>
+
 #include "cgame/cg_local.h"
 
 #include "game/bg_saga.h"
 
 #include "ui/ui_shared.h"
 #include "ui/ui_public.h"
+#include "ui/ui_fonts.h"
 #include "ui/menudef.h"
 #include "cgame/cg_media.h"
 
@@ -2029,44 +2032,58 @@ static float CG_DrawSnapshot( float y ) {
 	return y + BIGCHAR_HEIGHT + 4;
 }
 
-#define	FPS_FRAMES	16
+#define IDEAL_FPS (60.0f)
+#define	FPS_FRAMES (16)
 static float CG_DrawFPS( float y ) {
-	char		*s;
-	int			w;
-	static unsigned short previousTimes[FPS_FRAMES];
-	static unsigned short index;
-	static int	previous, lastupdate;
-	int		t, i, fps, total;
+	const char *s;
+	int w, t, i, fps, total;
+	static unsigned short previousTimes[FPS_FRAMES], index;
+	static int previous, lastupdate;
 	unsigned short frameTime;
-	const int		xOffset = 0;
 
-	// don't use serverTime, because that will be drifting to
-	// correct for internet lag changes, timescales, timedemos, etc
+	// don't use serverTime, because that will be drifting to correct for internet lag changes, timescales, timedemos, etc
 	t = trap->Milliseconds();
 	frameTime = t - previous;
 	previous = t;
-	if (t - lastupdate > 50)	//don't sample faster than this
-	{
+	if ( t - lastupdate > 100 ) {
 		lastupdate = t;
 		previousTimes[index % FPS_FRAMES] = frameTime;
 		index++;
 	}
 	// average multiple frames together to smooth changes out a bit
 	total = 0;
-	for ( i = 0 ; i < FPS_FRAMES ; i++ ) {
+	for ( i = 0; i < FPS_FRAMES; i++ )
 		total += previousTimes[i];
-	}
-	if ( !total ) {
+	if ( !total )
 		total = 1;
+
+	cg.fps = fps = 1000.0f * (float)((float)(FPS_FRAMES) / (float)total);
+
+	const Font font( FONT_SMALL, 1.0f, false );
+	if ( cg_drawFPS.integer ) {
+		vec4_t fpsColour = { 1.0f, 1.0f, 1.0f, 1.0f }, fpsGood = { 0.0f, 1.0f, 0.0f, 1.0f }, fpsBad = { 1.0f, 0.0f, 0.0f, 1.0f };
+		Q_LerpColour(
+			fpsBad, fpsGood, fpsColour,
+			std::min(
+				std::max( 0.0f, static_cast<float>( fps ) ) / std::max( IDEAL_FPS, com_maxFPS.value ),
+				1.0f
+			)
+		);
+
+		s = va( "%ifps", fps );
+		w = font.Width( s );
+		font.Paint( SCREEN_WIDTH - w, y, s, fpsColour, ITEM_TEXTSTYLE_SHADOWED );
+		y += font.Height( s );
 	}
-	fps = 1000 * FPS_FRAMES / total;
+	if ( cg_drawFPS.integer == 2 ) {
+		s = va( "%i/%3.2f msec", frameTime, 1000.0f / (float)fps );
 
-	s = va( "%ifps", fps );
-	w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
+		w = font.Width( s );
+		font.Paint( SCREEN_WIDTH - w, y, s, g_color_table[ColorIndex(COLOR_GREY)], ITEM_TEXTSTYLE_SHADOWED );
+		y += font.Height( s );
+	}
 
-	CG_DrawBigString( 635 - w + xOffset, y + 2, s, 1.0F);
-
-	return y + BIGCHAR_HEIGHT + 4;
+	return y;
 }
 
 // nmckenzie: DUEL_HEALTH

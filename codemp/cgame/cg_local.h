@@ -970,6 +970,7 @@ typedef struct cg_s {
 	vec3_t		gunBob;
 
 	float	loadFrac;
+	float	fps;
 } cg_t;
 
 #define MAX_TICS	14

@@ -97,6 +97,7 @@ qboolean Q_isnan (float f);
 int Q_log2( int val );
 
 float LerpAngle(float from, float to, float frac);
+void Q_LerpColour( const vec4_t start, const vec4_t end, vec4_t out, float point );
 float AngleSubtract( float a1, float a2 );
 void AnglesSubtract( vec3_t v1, vec3_t v2, vec3_t v3 );
 float AngleMod(float a);
