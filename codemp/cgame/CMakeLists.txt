@@ -106,9 +106,11 @@ source_group("common/safe" FILES ${MPCGameCommonSafeFiles})
 set(MPCGameFiles ${MPCGameFiles} ${MPCGameCommonSafeFiles})
 
 set(MPCGameUiFiles
+	"${MPDir}/ui/ui_fonts.cpp"
 	"${MPDir}/ui/ui_shared.cpp"
 	"${MPDir}/ui/keycodes.h"
 	"${MPDir}/ui/menudef.h"
+	"${MPDir}/ui/ui_fonts.h"
 	"${MPDir}/ui/ui_shared.h"
 	)
 source_group("ui" FILES ${MPCGameUiFiles})

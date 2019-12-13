@@ -68,6 +68,7 @@ set(MPUIFiles ${MPUIFiles} ${MPUICommonSafeFiles})
 set(MPUIUIFiles
 	"${MPDir}/ui/ui_atoms.cpp"
 	"${MPDir}/ui/ui_cvar.cpp"
+	"${MPDir}/ui/ui_fonts.cpp"
 	"${MPDir}/ui/ui_force.cpp"
 	"${MPDir}/ui/ui_gameinfo.cpp"
 	"${MPDir}/ui/ui_main.cpp"
@@ -75,6 +76,7 @@ set(MPUIUIFiles
 	"${MPDir}/ui/ui_shared.cpp"
 	"${MPDir}/ui/keycodes.h"
 	"${MPDir}/ui/menudef.h"
+	"${MPDir}/ui/ui_fonts.h"
 	"${MPDir}/ui/ui_force.h"
 	"${MPDir}/ui/ui_local.h"
 	"${MPDir}/ui/ui_public.h"
