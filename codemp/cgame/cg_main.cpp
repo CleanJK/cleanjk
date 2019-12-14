@@ -26,6 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "cgame/cg_local.h"
 
 #include "ui/ui_shared.h"
+#include "ui/ui_fonts.h"
 #include "ui/menudef.h"
 #include "cgame/cg_media.h"
 
@@ -868,25 +869,23 @@ static float CG_Cvar_Get(const char *cvar) {
 	return atof(buff);
 }
 
-void CG_Text_PaintWithCursor(float x, float y, float scale, vec4_t color, const char *text, int cursorPos, char cursor, int limit, int style, int iMenuFont) {
-	CG_Text_Paint(x, y, scale, color, text, 0, limit, style, iMenuFont);
-}
-
 static int CG_OwnerDrawWidth(int ownerDraw, float scale) {
+	//FIXME: we don't know the actual font...
+	Font font( FONT_MEDIUM, scale );
 	switch (ownerDraw) {
 	  case CG_GAME_TYPE:
-			return CG_Text_Width(BG_GetGametypeString( cgs.gametype ), scale, FONT_MEDIUM);
+			return font.Width(BG_GetGametypeString( cgs.gametype ));
 	  case CG_GAME_STATUS:
-			return CG_Text_Width(CG_GetGameStatusText(), scale, FONT_MEDIUM);
+			return font.Width(CG_GetGameStatusText());
 			break;
 	  case CG_KILLER:
-			return CG_Text_Width(CG_GetKillerText(), scale, FONT_MEDIUM);
+			return font.Width(CG_GetKillerText());
 			break;
 	  case CG_RED_NAME:
-			return CG_Text_Width(DEFAULT_REDTEAM_NAME/*cg_redTeamName.string*/, scale, FONT_MEDIUM);
+			return font.Width(DEFAULT_REDTEAM_NAME/*cg_redTeamName.string*/);
 			break;
 	  case CG_BLUE_NAME:
-			return CG_Text_Width(DEFAULT_BLUETEAM_NAME/*cg_blueTeamName.string*/, scale, FONT_MEDIUM);
+			return font.Width(DEFAULT_BLUETEAM_NAME/*cg_blueTeamName.string*/);
 			break;
 	}
 	return 0;
@@ -983,9 +982,6 @@ void CG_LoadHudMenu()
 	cgDC.setColor						= trap->R_SetColor;
 	cgDC.drawHandlePic					= &CG_DrawPic;
 	cgDC.drawStretchPic					= trap->R_DrawStretchPic;
-	cgDC.drawText						= &CG_Text_Paint;
-	cgDC.textWidth						= &CG_Text_Width;
-	cgDC.textHeight						= &CG_Text_Height;
 	cgDC.registerModel					= trap->R_RegisterModel;
 	cgDC.modelBounds					= trap->R_ModelBounds;
 	cgDC.fillRect						= &CG_FillRect;
@@ -1012,7 +1008,6 @@ void CG_LoadHudMenu()
 	cgDC.setCVar						= trap->Cvar_Set;
 	cgDC.getCVarString					= trap->Cvar_VariableStringBuffer;
 	cgDC.getCVarValue					= CG_Cvar_Get;
-	cgDC.drawTextWithCursor				= &CG_Text_PaintWithCursor;
 	//cgDC.setOverstrikeMode			= &trap->Key_SetOverstrikeMode;
 	//cgDC.getOverstrikeMode			= &trap->Key_GetOverstrikeMode;
 	cgDC.startLocalSound				= trap->S_StartLocalSound;

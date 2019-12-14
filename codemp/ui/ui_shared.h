@@ -245,10 +245,6 @@ typedef struct textScrollDef_s
 
 } textScrollDef_t;
 
-#define ITEM_ALIGN_LEFT		0		// left alignment
-#define ITEM_ALIGN_CENTER	1		// center alignment
-#define ITEM_ALIGN_RIGHT	2		// right alignment
-
 #define CVAR_ENABLE			0x00000001
 #define CVAR_DISABLE		0x00000002
 #define CVAR_SHOW			0x00000004
@@ -415,9 +411,6 @@ typedef struct displayContextDef_s {
 	void			(*setColor)							( const vec4_t v );
 	void			(*drawHandlePic)					( float x, float y, float w, float h, qhandle_t asset );
 	void			(*drawStretchPic)					( float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader );
-	void			(*drawText)							( float x, float y, float scale, vec4_t color, const char *text, float adjust, int limit, int style, int iMenuFont );
-	int				(*textWidth)						( const char *text, float scale, int iMenuFont );
-	int				(*textHeight)						( const char *text, float scale, int iMenuFont );
 	qhandle_t		(*registerModel)					( const char *p );
 	void			(*modelBounds)						( qhandle_t model, vec3_t min, vec3_t max );
 	void			(*fillRect)							( float x, float y, float w, float h, const vec4_t color );
@@ -444,7 +437,6 @@ typedef struct displayContextDef_s {
 	void			(*getCVarString)					( const char *cvar, char *buffer, int bufsize );
 	float			(*getCVarValue)						( const char *cvar );
 	void			(*setCVar)							( const char *cvar, const char *value );
-	void			(*drawTextWithCursor)				( float x, float y, float scale, vec4_t color, const char *text, int cursorPos, char cursor, int limit, int style, int iFontIndex );
 	void			(*setOverstrikeMode)				( qboolean b );
 	qboolean		(*getOverstrikeMode)				( void );
 	void			(*startLocalSound)					( sfxHandle_t sfx, int channelNum );

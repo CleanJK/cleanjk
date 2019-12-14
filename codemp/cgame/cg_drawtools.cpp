@@ -24,6 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // cg_drawtools.c -- helper functions called by cg_draw, cg_scoreboard, cg_info, etc
 #include "cgame/cg_local.h"
 #include "qcommon/q_shared.h"
+#include "ui/ui_fonts.h"
 #include "ui/menudef.h"
 #include "cgame/cg_media.h"
 
@@ -163,14 +164,8 @@ void CG_DrawStringExt( int x, int y, const char *string, const float *setColor, 
 
 		vec4_t color;
 		memcpy(color,setColor, sizeof(color));	// de-const it
-		CG_Text_Paint(x, y, 1.0f,	// float scale,
-						color,		// vec4_t color,
-						string,		// const char *text,
-						0.0f,		// float adjust,
-						0,			// int limit,
-						shadow ? ITEM_TEXTSTYLE_SHADOWED : 0,	// int style,
-						FONT_MEDIUM		// iMenuFont
-						) ;
+		Font font( FONT_MEDIUM, 1.0f );
+		font.Paint( x, y, string, color, shadow ? ITEM_TEXTSTYLE_SHADOWED : 0 );
 	}
 	else
 	{
@@ -501,90 +496,4 @@ void CG_DrawNumField (int x, int y, int width, int value,int charWidth,int charH
 		l--;
 	}
 
-}
-
-#include "ui/ui_shared.h"	// for some text style junk
-void CG_DrawProportionalString( int x, int y, const char* str, int style, vec4_t color )
-{
-	// having all these different style defines (1 for UI, one for CG, and now one for the re->font stuff)
-	//	is dumb, but for now...
-
-	int iStyle = 0;
-	int iMenuFont = (style & UI_SMALLFONT) ? FONT_SMALL : FONT_MEDIUM;
-
-	switch (style & (UI_LEFT|UI_CENTER|UI_RIGHT))
-	{
-		default:
-		case UI_LEFT:
-		{
-			// nada...
-		}
-		break;
-
-		case UI_CENTER:
-		{
-			x -= CG_Text_Width(str, 1.0, iMenuFont) / 2;
-		}
-		break;
-
-		case UI_RIGHT:
-		{
-			x -= CG_Text_Width(str, 1.0, iMenuFont) / 2;
-		}
-		break;
-	}
-
-	if (style & UI_DROPSHADOW)
-	{
-		iStyle = ITEM_TEXTSTYLE_SHADOWED;
-	}
-	else
-	if ( style & (UI_BLINK|UI_PULSE) )
-	{
-		iStyle = ITEM_TEXTSTYLE_BLINK;
-	}
-
-	CG_Text_Paint(x, y, 1.0, color, str, 0, 0, iStyle, iMenuFont);
-}
-
-void CG_DrawScaledProportionalString( int x, int y, const char* str, int style, vec4_t color, float scale)
-{
-	// having all these different style defines (1 for UI, one for CG, and now one for the re->font stuff)
-	//	is dumb, but for now...
-
-	int iStyle = 0;
-
-	switch (style & (UI_LEFT|UI_CENTER|UI_RIGHT))
-	{
-		default:
-		case UI_LEFT:
-		{
-			// nada...
-		}
-		break;
-
-		case UI_CENTER:
-		{
-			x -= CG_Text_Width(str, scale, FONT_MEDIUM) / 2;
-		}
-		break;
-
-		case UI_RIGHT:
-		{
-			x -= CG_Text_Width(str, scale, FONT_MEDIUM) / 2;
-		}
-		break;
-	}
-
-	if (style & UI_DROPSHADOW)
-	{
-		iStyle = ITEM_TEXTSTYLE_SHADOWED;
-	}
-	else
-	if ( style & (UI_BLINK|UI_PULSE) )
-	{
-		iStyle = ITEM_TEXTSTYLE_BLINK;
-	}
-
-	CG_Text_Paint(x, y, scale, color, str, 0, 0, iStyle, FONT_MEDIUM);
 }

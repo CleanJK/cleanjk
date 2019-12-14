@@ -23,6 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "cgame/cg_local.h"
 #include "ui/ui_shared.h"
+#include "ui/ui_fonts.h"
 #include "ui/menudef.h"
 #include "cgame/cg_media.h"
 
@@ -248,64 +249,7 @@ const char *CG_GetGameStatusText(void) {
 	return s;
 }
 
-extern int MenuFontToHandle(int iMenuFont);
-
 // maxX param is initially an X limit, but is also used as feedback. 0 = text was clipped to fit within, else maxX = next pos
-
-static void CG_Text_Paint_Limit(float *maxX, float x, float y, float scale, vec4_t color, const char* text, float adjust, int limit, int iMenuFont)
-{
-	qboolean bIsTrailingPunctuation;
-
-	// this is kinda dirty, but...
-
-	int iFontIndex = MenuFontToHandle(iMenuFont);
-
-	//float fMax = *maxX;
-	int iPixelLen = trap->R_Font_StrLenPixels(text, iFontIndex, scale);
-	if (x + iPixelLen > *maxX)
-	{
-		// whole text won't fit, so we need to print just the amount that does...
-		//  Ok, this is slow and tacky, but only called occasionally, and it works...
-
-		char sTemp[4096]={0};	// lazy assumption
-		const char *psText = text;
-		char *psOut = &sTemp[0];
-		char *psOutLastGood = psOut;
-		unsigned int uiLetter;
-
-		while (*psText && (x + trap->R_Font_StrLenPixels(sTemp, iFontIndex, scale)<=*maxX)
-			&& psOut < &sTemp[sizeof(sTemp)-1]	// sanity
-		)
-		{
-			int iAdvanceCount;
-			psOutLastGood = psOut;
-
-			uiLetter = trap->R_AnyLanguage_ReadCharFromString(psText, &iAdvanceCount, &bIsTrailingPunctuation);
-			psText += iAdvanceCount;
-
-			if (uiLetter > 255)
-			{
-				*psOut++ = uiLetter>>8;
-				*psOut++ = uiLetter&0xFF;
-			}
-			else
-			{
-				*psOut++ = uiLetter&0xFF;
-			}
-		}
-		*psOutLastGood = '\0';
-
-		*maxX = 0;	// feedback
-		CG_Text_Paint(x, y, scale, color, sTemp, adjust, limit, ITEM_TEXTSTYLE_NORMAL, iMenuFont);
-	}
-	else
-	{
-		// whole text fits fine, so print it all...
-
-		*maxX = x + iPixelLen;	// feedback the next position, as the caller expects
-		CG_Text_Paint(x, y, scale, color, text, adjust, limit, ITEM_TEXTSTYLE_NORMAL, iMenuFont);
-	}
-}
 
 #define PIC_WIDTH 12
 
@@ -321,13 +265,15 @@ void CG_DrawNewTeamInfo(rectDef_t *rect, float text_x, float text_y, float scale
 	gitem_t	*item;
 	qhandle_t h;
 
+	Font font( FONT_MEDIUM, scale );
+
 	// max player name width
 	pwidth = 0;
 	count = (numSortedTeamPlayers > 8) ? 8 : numSortedTeamPlayers;
 	for (i = 0; i < count; i++) {
 		ci = cgs.clientinfo + sortedTeamPlayers[i];
 		if ( ci->infoValid && ci->team == cg.snap->ps.persistant[PERS_TEAM]) {
-			len = CG_Text_Width( ci->name, scale, 0);
+			len = font.Width( ci->name );
 			if (len > pwidth)
 				pwidth = len;
 		}
@@ -338,7 +284,7 @@ void CG_DrawNewTeamInfo(rectDef_t *rect, float text_x, float text_y, float scale
 	for (i = 1; i < MAX_LOCATIONS; i++) {
 		p = CG_GetLocationString(CG_ConfigString(CS_LOCATIONS+i));
 		if (p && *p) {
-			len = CG_Text_Width(p, scale, 0);
+			len = font.Width(p);
 			if (len > lwidth)
 				lwidth = len;
 		}
@@ -371,7 +317,7 @@ void CG_DrawNewTeamInfo(rectDef_t *rect, float text_x, float text_y, float scale
 			CG_DrawPic( xx, y + 1, PIC_WIDTH - 2, PIC_WIDTH - 2, media.gfx.null );
 
 			//Com_sprintf (st, sizeof(st), "%3i %3i", ci->health,	ci->armor);
-			//CG_Text_Paint(xx, y + text_y, scale, hcolor, st, 0, 0);
+			//font.Paint(xx, y + text_y, scale, hcolor, st, 0, 0);
 
 			// draw weapon icon
 			xx += PIC_WIDTH + 1;
@@ -388,7 +334,7 @@ void CG_DrawNewTeamInfo(rectDef_t *rect, float text_x, float text_y, float scale
 			leftOver = rect->w - xx;
 			maxx = xx + leftOver / 3;
 
-			CG_Text_Paint_Limit(&maxx, xx, y + text_y, scale, color, ci->name, 0, 0, FONT_MEDIUM);
+			Text_Paint_Limit(&maxx, xx, y + text_y, scale, color, ci->name, 0, 0, FONT_MEDIUM);
 
 			p = CG_GetLocationString(CG_ConfigString(CS_LOCATIONS+ci->location));
 			if (!p || !*p) {
@@ -398,7 +344,7 @@ void CG_DrawNewTeamInfo(rectDef_t *rect, float text_x, float text_y, float scale
 			xx += leftOver / 3 + 2;
 			maxx = rect->w - 4;
 
-			CG_Text_Paint_Limit(&maxx, xx, y + text_y, scale, color, p, 0, 0, FONT_MEDIUM);
+			Text_Paint_Limit(&maxx, xx, y + text_y, scale, color, p, 0, 0, FONT_MEDIUM);
 			y += text_y + 2;
 			if ( y + text_y + 2 > rect->y + rect->h ) {
 				break;
@@ -428,7 +374,8 @@ void CG_DrawTeamSpectators(rectDef_t *rect, float scale, vec4_t color, qhandle_t
 			cg.spectatorTime = cg.time + 10;
 			if (cg.spectatorPaintX <= rect->x + 2) {
 				if (cg.spectatorOffset < cg.spectatorLen) {
-					cg.spectatorPaintX += CG_Text_Width(&cg.spectatorList[cg.spectatorOffset], scale, 1) - 1;
+					Font font( FONT_MEDIUM, scale );
+					cg.spectatorPaintX += font.Width(&cg.spectatorList[cg.spectatorOffset]) - 1;
 					cg.spectatorOffset++;
 				} else {
 					cg.spectatorOffset = 0;
@@ -448,10 +395,10 @@ void CG_DrawTeamSpectators(rectDef_t *rect, float scale, vec4_t color, qhandle_t
 		}
 
 		maxX = rect->x + rect->w - 2;
-		CG_Text_Paint_Limit(&maxX, cg.spectatorPaintX, rect->y + rect->h - 3, scale, color, &cg.spectatorList[cg.spectatorOffset], 0, 0, FONT_MEDIUM);
+		Text_Paint_Limit(&maxX, cg.spectatorPaintX, rect->y + rect->h - 3, scale, color, &cg.spectatorList[cg.spectatorOffset], 0, 0, FONT_MEDIUM);
 		if (cg.spectatorPaintX2 >= 0) {
 			float maxX2 = rect->x + rect->w - 2;
-			CG_Text_Paint_Limit(&maxX2, cg.spectatorPaintX2, rect->y + rect->h - 3, scale, color, cg.spectatorList, 0, cg.spectatorOffset, FONT_MEDIUM);
+			Text_Paint_Limit(&maxX2, cg.spectatorPaintX2, rect->y + rect->h - 3, scale, color, cg.spectatorList, 0, cg.spectatorOffset, FONT_MEDIUM);
 		}
 		if (cg.spectatorOffset && maxX > 0) {
 			// if we have an offset ( we are skipping the first part of the string ) and we fit the string
@@ -522,8 +469,9 @@ void CG_DrawMedal(int ownerDraw, rectDef_t *rect, float scale, vec4_t color, qha
 
 	if (text) {
 		color[3] = 1.0;
-		value = CG_Text_Width(text, scale, 0);
-		CG_Text_Paint(rect->x + (rect->w - value) / 2, rect->y + rect->h + 10 , scale, color, text, 0, 0, 0, FONT_MEDIUM);
+		Font font( FONT_MEDIUM, scale );
+		value = font.Width(text);
+		font.Paint(rect->x + (rect->w - value) / 2, rect->y + rect->h + 10 , text, color);
 	}
 	trap->R_SetColor(NULL);
 

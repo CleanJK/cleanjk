@@ -34,6 +34,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #endif
 
 #include "ui/ui_shared.h"
+#include "ui/ui_fonts.h"
 #include "ui/menudef.h"
 #include "game/bg_public.h"
 #include "game/anims.h"
@@ -148,8 +149,6 @@ const itemFlagsDef_t itemFlags[] = {
 	{ "WINDOW_INACTIVE", WINDOW_INACTIVE },
 	{ NULL,              0 }
 };
-
-extern int MenuFontToHandle(int iMenuFont);
 
 void *UI_Alloc( int size ) {
 	char	*p;
@@ -4267,7 +4266,8 @@ void Item_SetTextExtents(itemDef_t *item, int *width, int *height, const char *t
 #endif
 		)
 	{
-		int originalWidth = DC->textWidth(textPtr, item->textscale, item->iMenuFont);
+		Font font( item->iMenuFont, item->textscale );
+		int originalWidth = font.Width(textPtr);
 
 		if (item->type == ITEM_TYPE_OWNERDRAW && (item->textalignment == ITEM_ALIGN_CENTER || item->textalignment == ITEM_ALIGN_RIGHT))
 		{
@@ -4277,11 +4277,11 @@ void Item_SetTextExtents(itemDef_t *item, int *width, int *height, const char *t
 		{
 			char buff[256];
 			DC->getCVarString(item->cvar, buff, 256);
-			originalWidth += DC->textWidth(buff, item->textscale, item->iMenuFont);
+			originalWidth += font.Width(buff);
 		}
 
-		*width = DC->textWidth(textPtr, item->textscale, item->iMenuFont);
-		*height = DC->textHeight(textPtr, item->textscale, item->iMenuFont);
+		*width = font.Width(textPtr);
+		*height = font.Height(textPtr);
 
 		item->textRect.w = *width;
 		item->textRect.h = *height;
@@ -4373,9 +4373,10 @@ void Item_Text_AutoWrapped_Paint(itemDef_t *item) {
 	//Item_SetTextExtents(item, &width, &height, textPtr);
 	//if (item->value == 0)
 	//{
-	//	item->value = (int)(0.5 + (float)DC->textWidth(textPtr, item->textscale, item->font) / item->window.rect.w);
+	//	item->value = (int)(0.5 + (float)font.Width(textPtr, item->textscale, item->font) / item->window.rect.w);
 	//}
-	height = DC->textHeight(textPtr, item->textscale, item->iMenuFont);
+	Font font( item->iMenuFont, item->textscale );
+	height = font.Height(textPtr);
 
 	y = item->textaligny;
 	len = 0;
@@ -4389,7 +4390,7 @@ void Item_Text_AutoWrapped_Paint(itemDef_t *item) {
 			newLinePtr = p+1;
 			newLineWidth = textWidth;
 		}
-		textWidth = DC->textWidth(buff, item->textscale, 0);
+		textWidth = font.Width(buff);
 		if ( (newLine && textWidth > item->window.rect.w) || *p == '\n' || *p == '\0') {
 			if (len) {
 				if (item->textalignment == ITEM_ALIGN_LEFT) {
@@ -4403,7 +4404,7 @@ void Item_Text_AutoWrapped_Paint(itemDef_t *item) {
 				ToWindowCoords(&item->textRect.x, &item->textRect.y, &item->window);
 
 				buff[newLine] = '\0';
-				DC->drawText(item->textRect.x, item->textRect.y, item->textscale, color, buff, 0, 0, item->textStyle, item->iMenuFont);
+				font.Paint(item->textRect.x, item->textRect.y, buff, color, item->textStyle);
 			}
 			if (*p == '\0') {
 				break;
@@ -4460,15 +4461,16 @@ void Item_Text_Wrapped_Paint(itemDef_t *item) {
 	y = item->textRect.y;
 	start = textPtr;
 	p = strchr(textPtr, '\r');
+	Font font( item->iMenuFont, item->textscale );
 	while (p && *p) {
 		strncpy(buff, start, p-start+1);
 		buff[p-start] = '\0';
-		DC->drawText(x, y, item->textscale, color, buff, 0, 0, item->textStyle, item->iMenuFont);
+		font.Paint(x, y, buff, color, item->textStyle);
 		y += height + 2;
 		start += p - start + 1;
 		p = strchr(p+1, '\r');
 	}
-	DC->drawText(x, y, item->textscale, color, start, 0, 0, item->textStyle, item->iMenuFont);
+	font.Paint(x, y, start, color, item->textStyle);
 }
 
 void Item_Text_Paint(itemDef_t *item) {
@@ -4513,7 +4515,8 @@ void Item_Text_Paint(itemDef_t *item) {
 
 	Item_TextColor(item, &color);
 
-	DC->drawText(item->textRect.x, item->textRect.y, item->textscale, color, textPtr, 0, 0, item->textStyle, item->iMenuFont);
+	Font font( item->iMenuFont, item->textscale );
+	font.Paint(item->textRect.x, item->textRect.y, textPtr, color, item->textStyle);
 
 	if (item->text2)	// Is there a second line of text?
 	{
@@ -4524,7 +4527,7 @@ void Item_Text_Paint(itemDef_t *item) {
 			textPtr = text;
 		}
 		Item_TextColor(item, &color);
-		DC->drawText(item->textRect.x + item->text2alignx, item->textRect.y + item->text2aligny, item->textscale, color, textPtr, 0, 0, item->textStyle,item->iMenuFont);
+		font.Paint(item->textRect.x + item->text2alignx, item->textRect.y + item->text2aligny, textPtr, color, item->textStyle);
 	}
 }
 
@@ -4559,12 +4562,17 @@ void Item_TextField_Paint(itemDef_t *item) {
 		memcpy(&newColor, &item->window.foreColor, sizeof(vec4_t));
 	}
 
+	Font font( item->iMenuFont, item->textscale );
 	offset = (item->text && *item->text) ? 8 : 0;
 	if (item->window.flags & WINDOW_HASFOCUS && g_editingField) {
-		char cursor = DC->getOverstrikeMode() ? '_' : '|';
-		DC->drawTextWithCursor(item->textRect.x + item->textRect.w + offset, item->textRect.y, item->textscale, newColor, buff + editPtr->paintOffset, item->cursorPos - editPtr->paintOffset , cursor, item->window.rect.w, item->textStyle, item->iMenuFont);
+		font.Paint(
+			item->textRect.x + item->textRect.w + offset, item->textRect.y, buff + editPtr->paintOffset, newColor, item->textStyle, item->window.rect.w, 0.0f,
+			item->cursorPos - editPtr->paintOffset, DC->getOverstrikeMode()
+		);
 	} else {
-		DC->drawText(item->textRect.x + item->textRect.w + offset, item->textRect.y, item->textscale, newColor, buff + editPtr->paintOffset, 0, item->window.rect.w, item->textStyle,item->iMenuFont);
+		font.Paint(
+			item->textRect.x + item->textRect.w + offset, item->textRect.y, buff + editPtr->paintOffset, newColor, item->textStyle, item->window.rect.w
+		);
 	}
 }
 
@@ -4587,24 +4595,25 @@ void Item_YesNo_Paint(itemDef_t *item) {
 		yesnovalue = (value != 0) ? sYES : sNO;
 
 	Item_TextColor(item, &color);
+	Font font( item->iMenuFont, item->textscale );
 	if (item->text)
 	{
 		Item_Text_Paint(item);
-		DC->drawText(item->textRect.x + item->textRect.w + 8, item->textRect.y, item->textscale, color, yesnovalue, 0, 0, item->textStyle, item->iMenuFont);
+		font.Paint(item->textRect.x + item->textRect.w + 8, item->textRect.y, yesnovalue, color, item->textStyle);
 	}
 	else
 	{
-		DC->drawText(item->textRect.x, item->textRect.y, item->textscale, color, yesnovalue , 0, 0, item->textStyle, item->iMenuFont);
+		font.Paint(item->textRect.x, item->textRect.y, yesnovalue, color, item->textStyle);
 	}
 
 /* JLF ORIGINAL CODE
 	if (item->text) {
 		Item_Text_Paint(item);
-//		DC->drawText(item->textRect.x + item->textRect.w + 8, item->textRect.y, item->textscale, newColor, (value != 0) ? sYES : sNO, 0, 0, item->textStyle);
-		DC->drawText(item->textRect.x + item->textRect.w + 8, item->textRect.y, item->textscale, newColor, (value != 0) ? sYES : sNO, 0, 0, item->textStyle,item->iMenuFont);
+//		font.Paint(item->textRect.x + item->textRect.w + 8, item->textRect.y, item->textscale, newColor, (value != 0) ? sYES : sNO, 0, 0, item->textStyle);
+		font.Paint(item->textRect.x + item->textRect.w + 8, item->textRect.y, item->textscale, newColor, (value != 0) ? sYES : sNO, 0, 0, item->textStyle,item->iMenuFont);
 	} else {
-//		DC->drawText(item->textRect.x, item->textRect.y, item->textscale, newColor, (value != 0) ? sYES : sNO, 0, 0, item->textStyle);
-		DC->drawText(item->textRect.x, item->textRect.y, item->textscale, newColor, (value != 0) ? sYES : sNO, 0, 0, item->textStyle,item->iMenuFont);
+//		font.Paint(item->textRect.x, item->textRect.y, item->textscale, newColor, (value != 0) ? sYES : sNO, 0, 0, item->textStyle);
+		font.Paint(item->textRect.x, item->textRect.y, item->textscale, newColor, (value != 0) ? sYES : sNO, 0, 0, item->textStyle,item->iMenuFont);
 	}
 */
 }
@@ -4628,12 +4637,13 @@ void Item_Multi_Paint(itemDef_t *item) {
 	}
 
 	Item_TextColor(item, &color);
+	Font font( item->iMenuFont, item->textscale );
 	if (item->text) {
 		Item_Text_Paint(item);
-		DC->drawText(item->textRect.x + item->textRect.w + 8, item->textRect.y, item->textscale, color, text, 0, 0, item->textStyle,item->iMenuFont);
+		font.Paint(item->textRect.x + item->textRect.w + 8, item->textRect.y, text, color, item->textStyle);
 	} else {
 		//JLF added xoffset
-		DC->drawText(item->textRect.x+item->xoffset, item->textRect.y, item->textscale, color, text, 0, 0, item->textStyle,item->iMenuFont);
+		font.Paint(item->textRect.x+item->xoffset, item->textRect.y, text, color, item->textStyle);
 	}
 }
 
@@ -4889,6 +4899,7 @@ void Item_Bind_Paint(itemDef_t *item)
 		memcpy(&newColor, &item->window.foreColor, sizeof(vec4_t));
 	}
 
+	Font font( item->iMenuFont, item->textscale );
 	if (item->text)
 	{
 		Item_Text_Paint(item);
@@ -4896,28 +4907,28 @@ void Item_Bind_Paint(itemDef_t *item)
 
 		// If the text runs past the limit bring the scale down until it fits.
 		textScale = item->textscale;
-		textWidth = DC->textWidth(g_nameBind,(float) textScale, item->iMenuFont);
+		textWidth = font.Width(g_nameBind);
 		startingXPos = (item->textRect.x + item->textRect.w + 8);
 
 		while ((startingXPos + textWidth) >= SCREEN_WIDTH)
 		{
 			textScale -= .05f;
-			textWidth = DC->textWidth(g_nameBind,(float) textScale, item->iMenuFont);
+			textWidth = font.Width(g_nameBind);
 		}
 
 		// Try to adjust it's y placement if the scale has changed.
 		yAdj = 0;
 		if (textScale != item->textscale)
 		{
-			textHeight = DC->textHeight(g_nameBind, item->textscale, item->iMenuFont);
-			yAdj = textHeight - DC->textHeight(g_nameBind, textScale, item->iMenuFont);
+			textHeight = font.Height(g_nameBind);
+			yAdj = textHeight - font.Height(g_nameBind);
 		}
 
-		DC->drawText(startingXPos, item->textRect.y + yAdj, textScale, newColor, g_nameBind, 0, maxChars, item->textStyle,item->iMenuFont);
+		font.Paint(startingXPos, item->textRect.y + yAdj, g_nameBind, newColor, maxChars, item->textStyle);
 	}
 	else
 	{
-		DC->drawText(item->textRect.x, item->textRect.y, item->textscale, newColor, (value != 0) ? "FIXME" : "FIXME", 0, maxChars, item->textStyle,item->iMenuFont);
+		font.Paint(item->textRect.x, item->textRect.y, (value != 0) ? "FIXME" : "FIXME", newColor, maxChars, item->textStyle);
 	}
 }
 
@@ -5300,6 +5311,8 @@ void Item_TextScroll_Paint(itemDef_t *item)
 	x	 = item->window.rect.x + item->textalignx + 1;
 	y	 = item->window.rect.y + item->textaligny + 1;
 
+	Font font( item->iMenuFont, item->textscale );
+
 	for (i = scrollPtr->startPos; i < count; i++)
 	{
 		const char *text;
@@ -5310,7 +5323,7 @@ void Item_TextScroll_Paint(itemDef_t *item)
 			continue;
 		}
 
-		DC->drawText(x + 4, y, item->textscale, item->window.foreColor, text, 0, 0, item->textStyle, item->iMenuFont);
+		font.Paint(x + 4, y, text, item->window.foreColor, item->textStyle);
 
 		size -= scrollPtr->lineHeight;
 		if (size < scrollPtr->lineHeight)
@@ -5446,7 +5459,8 @@ void Item_ListBox_Paint(itemDef_t *item) {
 		text = DC->feederItemText(item->special, item->cursorPos, 0, &optionalImage1, &optionalImage2, &optionalImage3);
 		if (text)
 		{
-			DC->drawText(item->window.rect.x, item->window.rect.y+item->window.rect.h, item->textscale, item->window.foreColor, text, 0, 0, item->textStyle, item->iMenuFont);
+			Font font( item->iMenuFont, item->textscale );
+			font.Paint(item->window.rect.x, item->window.rect.y+item->window.rect.h, text, item->window.foreColor, item->textStyle);
 		}
 #endif
 
@@ -5590,6 +5604,7 @@ void Item_ListBox_Paint(itemDef_t *item) {
 //JLF MPMOVED
 			y = item->window.rect.y + 1 - listPtr->elementHeight;
 			i = listPtr->startPos;
+			Font font( item->iMenuFont, item->textscale );
 
 			for (; i < count; i++)
 //JLF END
@@ -5628,9 +5643,9 @@ void Item_ListBox_Paint(itemDef_t *item) {
 //JLF MPMOVED
 							int textyOffset;
 							textyOffset = 0;
-//							DC->drawText(x + 4 + listPtr->columnInfo[j].pos, y + listPtr->elementHeight, item->textscale, item->window.foreColor, text, 0, listPtr->columnInfo[j].maxChars, item->textStyle);
-	//WAS LAST						DC->drawText(x + 4 + listPtr->columnInfo[j].pos, y, item->textscale, item->window.foreColor, text, 0, listPtr->columnInfo[j].maxChars, item->textStyle, item->iMenuFont);
-							DC->drawText(x + 4 + listPtr->columnInfo[j].pos, y + listPtr->elementHeight+ textyOffset + item->textaligny, item->textscale, item->window.foreColor, text, 0,listPtr->columnInfo[j].maxChars, item->textStyle, item->iMenuFont);
+//							font.Paint(x + 4 + listPtr->columnInfo[j].pos, y + listPtr->elementHeight, item->textscale, item->window.foreColor, text, 0, listPtr->columnInfo[j].maxChars, item->textStyle);
+	//WAS LAST						font.Paint(x + 4 + listPtr->columnInfo[j].pos, y, item->textscale, item->window.foreColor, text, 0, listPtr->columnInfo[j].maxChars, item->textStyle);
+							font.Paint(x + 4 + listPtr->columnInfo[j].pos, y + listPtr->elementHeight+ textyOffset + item->textaligny, text, item->window.foreColor, listPtr->columnInfo[j].maxChars, item->textStyle);
 
 //JLF END
 						}
@@ -5662,8 +5677,8 @@ void Item_ListBox_Paint(itemDef_t *item) {
 					}
 					else if (text)
 					{
-//						DC->drawText(x + 4, y + listPtr->elementHeight, item->textscale, item->window.foreColor, text, 0, 0, item->textStyle);
-						DC->drawText(x + 4, y + item->textaligny, item->textscale, item->window.foreColor, text, 0, 0, item->textStyle, item->iMenuFont);
+//						font.Paint(x + 4, y + listPtr->elementHeight, item->textscale, item->window.foreColor, text, 0, 0, item->textStyle);
+						font.Paint(x + 4, y + item->textaligny, text, item->window.foreColor, item->textStyle);
 					}
 				}
 
@@ -6208,9 +6223,10 @@ void Item_Paint(itemDef_t *item)
 					float fDescScale = parent->descScale ? parent->descScale : 1;
 					float fDescScaleCopy = fDescScale;
 					int iYadj = 0;
+					Font font( FONT_SMALL2, fDescScale );
 					while (1)
 					{
-						textWidth = DC->textWidth(textPtr,fDescScale, FONT_SMALL2);
+						textWidth = font.Width(textPtr);
 
 						if (parent->descAlignment == ITEM_ALIGN_RIGHT)
 						{
@@ -6239,11 +6255,11 @@ void Item_Paint(itemDef_t *item)
 
 						if (fDescScale != fDescScaleCopy)
 						{
-							int iOriginalTextHeight = DC->textHeight(textPtr, fDescScaleCopy, FONT_MEDIUM);
-							iYadj = iOriginalTextHeight - DC->textHeight(textPtr, fDescScale, FONT_MEDIUM);
+							int iOriginalTextHeight = font.Height(textPtr);
+							iYadj = iOriginalTextHeight - font.Height(textPtr);
 						}
 
-						DC->drawText(xPos, parent->descY + iYadj, fDescScale, parent->descColor, textPtr, 0, 0, item->textStyle, FONT_SMALL2);
+						font.Paint(xPos, parent->descY + iYadj, textPtr, parent->descColor, item->textStyle);
 						break;
 					}
 				}
@@ -8301,6 +8317,7 @@ static void Item_TextScroll_BuildLines ( itemDef_t* item )
 
 	scrollPtr->iLineCount = 0;
 	memset((char*)scrollPtr->pLines,0,sizeof(scrollPtr->pLines));
+	Font font( item->iMenuFont, item->textscale );
 
 	while (*psCurrentTextReadPos && (scrollPtr->iLineCount < MAX_TEXTSCROLL_LINES) )
 	{
@@ -8350,8 +8367,7 @@ static void Item_TextScroll_BuildLines ( itemDef_t* item )
 				scrollPtr->pLines[ scrollPtr->iLineCount ] = String_Alloc ( sLineForDisplay );
 				break;	// print this line
 			}
-			else
-			if ( DC->textWidth( sLineForDisplay, item->textscale, item->iMenuFont ) >= iBoxWidth )
+			else if ( font.Width( sLineForDisplay ) >= iBoxWidth )
 			{
 				// reached screen edge, so cap off string at bytepos after last good position...
 
@@ -8448,7 +8464,7 @@ static void Item_TextScroll_BuildLines ( itemDef_t* item )
 		}
 
 		// Get the current character width
-		cw = DC->textWidth ( va("%c", *lineEnd), item->textscale, item->iMenuFont );
+		cw = font.Width ( va("%c", *lineEnd), item->textscale, item->iMenuFont );
 
 		// Past the end of the boundary?
 		if ( w + cw > (item->window.rect.w - SCROLLBAR_SIZE - 10) )
@@ -9003,8 +9019,9 @@ void Menu_PaintAll() {
 
 	if (debugMode) {
 		vec4_t v = {1, 1, 1, 1};
-		DC->drawText(5, 25, .75, v, va("fps: %f", DC->FPS), 0, 0, 0, 0);
-		DC->drawText(5, 45, .75, v, va("x: %d  y:%d", DC->cursorx,DC->cursory), 0, 0, 0, 0);
+		Font font( FONT_SMALL2, 0.75f );
+		font.Paint(5, 25, va("fps: %f", DC->FPS), v);
+		font.Paint(5, 45, va("x: %d  y:%d", DC->cursorx,DC->cursory), v);
 	}
 }
 

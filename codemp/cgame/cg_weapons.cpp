@@ -25,6 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "cgame/cg_local.h"
 #include "cgame/cg_weaponfx.h"
 #include "cgame/cg_media.h"
+#include "ui/ui_fonts.h"
 
 // set up the appropriate ghoul2 info to a refent
 void CG_SetGhoul2InfoRef( refEntity_t *ent, refEntity_t	*s1)
@@ -1198,11 +1199,11 @@ void CG_DrawWeaponSelect( void ) {
 
 		if ( trap->SE_GetStringTextString( va("SP_INGAME_%s",Q_strupr(upperKey)), text, sizeof( text )))
 		{
-			CG_DrawProportionalString(320, y+45+yOffset, text, UI_CENTER|UI_SMALLFONT, textColor);
+			Text_Paint_Proportional(320, y+45+yOffset, text, UI_CENTER, textColor, FONT_SMALL);
 		}
 		else
 		{
-			CG_DrawProportionalString(320, y+45+yOffset, cg_weapons[ cg.weaponSelect ].item->classname, UI_CENTER|UI_SMALLFONT, textColor);
+			Text_Paint_Proportional(320, y+45+yOffset, cg_weapons[ cg.weaponSelect ].item->classname, UI_CENTER, textColor, FONT_SMALL);
 		}
 	}
 

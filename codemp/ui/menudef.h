@@ -58,13 +58,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 
 // text styles
-#define ITEM_TEXTSTYLE_NORMAL          0 // normal text
-#define ITEM_TEXTSTYLE_BLINK           1 // fast blinking
-#define ITEM_TEXTSTYLE_PULSE           2 // slow pulsing
-#define ITEM_TEXTSTYLE_SHADOWED        3 // drop shadow ( need a color for this )
-#define ITEM_TEXTSTYLE_OUTLINED        4 // drop shadow ( need a color for this )
-#define ITEM_TEXTSTYLE_OUTLINESHADOWED 5 // drop shadow ( need a color for this )
-#define ITEM_TEXTSTYLE_SHADOWEDMORE    6 // drop shadow ( need a color for this )
+#define ITEM_TEXTSTYLE_NORMAL          0  // normal text
+#define ITEM_TEXTSTYLE_BLINK           1  // fast blinking
+#define ITEM_TEXTSTYLE_PULSE           2  // slow pulsing
+#define ITEM_TEXTSTYLE_SHADOWED        4  // drop shadow ( need a color for this )
+#define ITEM_TEXTSTYLE_OUTLINED        8  // drop shadow ( need a color for this )
+#define ITEM_TEXTSTYLE_OUTLINESHADOWED 16 // drop shadow ( need a color for this )
+#define ITEM_TEXTSTYLE_SHADOWEDMORE    32 // drop shadow ( need a color for this )
 
 
 // borders

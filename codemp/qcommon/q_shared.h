@@ -315,9 +315,6 @@ typedef enum {
 #define UI_LEFT			0x00000000	// default
 #define UI_CENTER		0x00000001
 #define UI_RIGHT		0x00000002
-#define UI_FORMATMASK	0x00000007
-#define UI_SMALLFONT	0x00000010
-#define UI_BIGFONT		0x00000020	// default
 
 #define UI_DROPSHADOW	0x00000800
 #define UI_BLINK		0x00001000
