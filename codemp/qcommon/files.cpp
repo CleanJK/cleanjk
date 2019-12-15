@@ -25,6 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "qcommon/qcommon.h"
 #include "qcommon/com_cvar.h"
 #include "qcommon/com_cvars.h"
+#include "qcommon/stringed_ingame.h"
 
 #ifndef DEDICATED
 #ifndef FINAL_BUILD
@@ -2188,9 +2189,6 @@ static char** Sys_ConcatenateFileLists( char **list0, char **list1, char **list2
 	return cat;
 }
 //#endif
-
-// For base game mod listing
-const char *SE_GetString( const char *psPackageAndStringReference );
 
 // Returns a list of mod directory names
 // A mod directory is a peer to base with a pk3 in it

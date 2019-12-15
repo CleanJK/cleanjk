@@ -36,12 +36,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "ui/menudef.h"
 #include "cgame/cg_media.h"
 
-extern float CG_RadiusForCent( centity_t *cent );
-qboolean CG_WorldCoordToScreenCoordFloat(vec3_t worldCoord, float *x, float *y);
-qboolean CG_CalcMuzzlePoint( int entityNum, vec3_t muzzle );
-// nmckenzie: DUEL_HEALTH
-void CG_DrawDuelistHealth ( float x, float y, float w, float h, int duelist );
-
 // used for scoreboard
 extern displayContextDef_t cgDC;
 
@@ -1794,6 +1788,51 @@ static float CG_DrawMiniScoreboard ( float y )
 	return y;
 }
 
+static void CG_DrawHealthBarRough (float x, float y, int width, int height, float ratio, const float *color1, const float *color2)
+{
+	float midpoint, remainder;
+	float color3[4] = {1, 0, 0, .7f};
+
+	midpoint = width * ratio - 1;
+	remainder = width - midpoint;
+	color3[0] = color1[0] * 0.5f;
+
+	assert(!(height%4));//this won't line up otherwise.
+	CG_DrawRect(x + 1,			y + height/2-1,  midpoint,	1,	   height/4+1,  color1);	// creme-y filling.
+	CG_DrawRect(x + midpoint,	y + height/2-1,  remainder,	1,	   height/4+1,  color3);	// used-up-ness.
+	CG_DrawRect(x,				y,				 width,		height, 1,			color2);	// hard crispy shell
+}
+
+#define MAX_HEALTH_FOR_IFACE	100
+void CG_DrawDuelistHealth ( float x, float y, float w, float h, int duelist )
+{
+	float	duelHealthColor[4] = {1, 0, 0, 0.7f};
+	float	healthSrc = 0.0f;
+	float	ratio;
+
+	if ( duelist == 1 )
+	{
+		healthSrc = cgs.duelist1health;
+	}
+	else if (duelist == 2 )
+	{
+		healthSrc = cgs.duelist2health;
+	}
+
+	ratio = healthSrc / MAX_HEALTH_FOR_IFACE;
+	if ( ratio > 1.0f )
+	{
+		ratio = 1.0f;
+	}
+	if ( ratio < 0.0f )
+	{
+		ratio = 0.0f;
+	}
+	duelHealthColor[0] = (ratio * 0.2f) + 0.5f;
+
+	CG_DrawHealthBarRough (x, y, w, h, ratio, duelHealthColor, colorTable[CT_WHITE]);	// new art for this?  I'm not crazy about how this looks.
+}
+
 static float CG_DrawEnemyInfo ( float y )
 {
 	float		size;
@@ -2031,52 +2070,6 @@ static float CG_DrawFPS( float y ) {
 	}
 
 	return y;
-}
-
-// nmckenzie: DUEL_HEALTH
-#define MAX_HEALTH_FOR_IFACE	100
-void CG_DrawHealthBarRough (float x, float y, int width, int height, float ratio, const float *color1, const float *color2)
-{
-	float midpoint, remainder;
-	float color3[4] = {1, 0, 0, .7f};
-
-	midpoint = width * ratio - 1;
-	remainder = width - midpoint;
-	color3[0] = color1[0] * 0.5f;
-
-	assert(!(height%4));//this won't line up otherwise.
-	CG_DrawRect(x + 1,			y + height/2-1,  midpoint,	1,	   height/4+1,  color1);	// creme-y filling.
-	CG_DrawRect(x + midpoint,	y + height/2-1,  remainder,	1,	   height/4+1,  color3);	// used-up-ness.
-	CG_DrawRect(x,				y,				 width,		height, 1,			color2);	// hard crispy shell
-}
-
-void CG_DrawDuelistHealth ( float x, float y, float w, float h, int duelist )
-{
-	float	duelHealthColor[4] = {1, 0, 0, 0.7f};
-	float	healthSrc = 0.0f;
-	float	ratio;
-
-	if ( duelist == 1 )
-	{
-		healthSrc = cgs.duelist1health;
-	}
-	else if (duelist == 2 )
-	{
-		healthSrc = cgs.duelist2health;
-	}
-
-	ratio = healthSrc / MAX_HEALTH_FOR_IFACE;
-	if ( ratio > 1.0f )
-	{
-		ratio = 1.0f;
-	}
-	if ( ratio < 0.0f )
-	{
-		ratio = 0.0f;
-	}
-	duelHealthColor[0] = (ratio * 0.2f) + 0.5f;
-
-	CG_DrawHealthBarRough (x, y, w, h, ratio, duelHealthColor, colorTable[CT_WHITE]);	// new art for this?  I'm not crazy about how this looks.
 }
 
 float	cg_radarRange = 2500.0f;
@@ -2404,7 +2397,6 @@ static float CG_DrawTimer( float y ) {
 	return y + BIGCHAR_HEIGHT + 4;
 }
 
-extern const char *CG_GetLocationString(const char *loc); //cg_main.c
 static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 	int x, w, h, xx;
 	int i, j, len;
@@ -3228,6 +3220,31 @@ void CG_LerpCrosshairPos( float *x, float *y )
 	cg_crosshairPrevPosY = *y;
 }
 
+static qboolean CG_WorldCoordToScreenCoordFloat(vec3_t worldCoord, float *x, float *y) {
+    vec3_t trans;
+    float xc, yc;
+    float px, py;
+    float z;
+
+    px = tan(cg.refdef.fov_x * (M_PI / 360) );
+    py = tan(cg.refdef.fov_y * (M_PI / 360) );
+
+    VectorSubtract(worldCoord, cg.refdef.vieworg, trans);
+
+    xc = 640 / 2.0;
+    yc = 480 / 2.0;
+
+	// z = how far is the object in our forward direction
+    z = DotProduct(trans, cg.refdef.viewaxis[0]);
+    if (z <= 0.001)
+        return qfalse;
+
+    *x = xc - DotProduct(trans, cg.refdef.viewaxis[1])*xc/(z*px);
+    *y = yc - DotProduct(trans, cg.refdef.viewaxis[2])*yc/(z*py);
+
+    return qtrue;
+}
+
 vec3_t cg_crosshairPos={0,0,0};
 static void CG_DrawCrosshair( vec3_t worldPoint, int chEntValid ) {
 	float		x, y, w, h, f, chX, chY;
@@ -3494,32 +3511,6 @@ static void CG_DrawCrosshair( vec3_t worldPoint, int chEntValid ) {
 	}
 
 	trap->R_SetColor( NULL );
-}
-
-qboolean CG_WorldCoordToScreenCoordFloat(vec3_t worldCoord, float *x, float *y)
-{
-    vec3_t trans;
-    float xc, yc;
-    float px, py;
-    float z;
-
-    px = tan(cg.refdef.fov_x * (M_PI / 360) );
-    py = tan(cg.refdef.fov_y * (M_PI / 360) );
-
-    VectorSubtract(worldCoord, cg.refdef.vieworg, trans);
-
-    xc = 640 / 2.0;
-    yc = 480 / 2.0;
-
-	// z = how far is the object in our forward direction
-    z = DotProduct(trans, cg.refdef.viewaxis[0]);
-    if (z <= 0.001)
-        return qfalse;
-
-    *x = xc - DotProduct(trans, cg.refdef.viewaxis[1])*xc/(z*px);
-    *y = yc - DotProduct(trans, cg.refdef.viewaxis[2])*yc/(z*py);
-
-    return qtrue;
 }
 
 qboolean CG_WorldCoordToScreenCoord( vec3_t worldCoord, int *x, int *y ) {
@@ -4971,7 +4962,7 @@ static QINLINE void CG_ChatBox_DrawStrings(void)
 	int i = 0;
 	int x = 30;
 	float y = cg.scoreBoardShowing ? 475 : cg_chatBoxHeight.integer;
-	float fontScale = 0.65f;
+	float fontScale = 1.0f;
 
 	if (!cg_chatBox.integer)
 	{
@@ -5665,7 +5656,6 @@ static void CG_Draw2D( void ) {
 	CG_ChatBox_DrawStrings();
 }
 
-qboolean CG_CullPointAndRadius( const vec3_t pt, float radius);
 void CG_DrawMiscStaticModels( void ) {
 	int i, j;
 	refEntity_t ent;

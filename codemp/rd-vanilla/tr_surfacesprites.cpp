@@ -1407,9 +1407,7 @@ static void RB_DrawEffectSurfaceSprites( shaderStage_t *stage, shaderCommands_t 
 	}
 }
 
-extern void R_WorldToLocal (vec3_t world, vec3_t localVec) ;
 extern float preTransEntMatrix[16], invEntMatrix[16];
-extern void R_InvertMatrix(float *sourcemat, float *destmat);
 
 void RB_DrawSurfaceSprites( shaderStage_t *stage, shaderCommands_t *input)
 {

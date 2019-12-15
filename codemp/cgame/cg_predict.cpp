@@ -569,8 +569,6 @@ qboolean CG_UsingEWeb(void)
 	return qfalse;
 }
 
-extern void CG_Cube( vec3_t mins, vec3_t maxs, vec3_t color, float alpha );
-
 // Generates cg.predictedPlayerState for the current cg.time
 // cg.predictedPlayerState is guaranteed to be valid after exiting.
 // For demo playback, this will be an interpolation between two valid playerState_t.

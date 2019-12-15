@@ -31,11 +31,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <string>
 
-#ifdef USE_OPENAL
-// Open AL
-void S_PreProcessLipSync(sfx_t *sfx);
-#endif
-
 // WAV loading
 
 byte	*data_p;

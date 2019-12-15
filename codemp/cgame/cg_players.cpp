@@ -27,10 +27,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "game/bg_saga.h"
 #include "cgame/cg_media.h"
 
-extern void CG_AddRadarEnt(centity_t *cent);	//cg_ents.c
-extern void CG_AddBracketedEnt(centity_t *cent);	//cg_ents.c
-extern qboolean WP_SaberBladeUseSecondBladeStyle( saberInfo_t *saber, int bladeNum );
-
 //for g2 surface routines
 #define TURN_ON				0x00000000
 #define TURN_OFF			0x00000100
@@ -173,8 +169,6 @@ const char	*cg_customDuelSoundNames[MAX_CUSTOM_DUEL_SOUNDS] =
 	"*gloat3",
 	NULL
 };
-
-void CG_Disintegration(centity_t *cent, refEntity_t *ent);
 
 sfxHandle_t	CG_CustomSound( int clientNum, const char *soundName ) {
 	clientInfo_t *ci = NULL;
@@ -407,8 +401,6 @@ qboolean CG_ParseSurfsFile( const char *modelName, const char *skinName, char *s
 	}
 	return qtrue;
 }
-
-qboolean BG_ValidateSkinForTeam( const char *modelName, char *skinName, int team, float *colors );
 
 static qboolean CG_RegisterClientModelname( clientInfo_t *ci, const char *modelName, const char *skinName, const char *teamName, int clientNum ) {
 	int handle;
@@ -1394,8 +1386,6 @@ static void CG_SetDeferredClientInfo( clientInfo_t *ci ) {
 
 	CG_LoadClientInfo( ci );
 }
-
-void WP_SetSaber( int entNum, saberInfo_t *sabers, int saberNum, const char *saberName );
 
 void CG_NewClientInfo( int clientNum, qboolean entitiesInitialized ) {
 	clientInfo_t *ci = &cgs.clientinfo[clientNum];
@@ -2515,8 +2505,6 @@ qboolean CG_InRollAnim( centity_t *cent )
 	return qfalse;
 }
 
-qboolean BG_SaberStanceAnim( int anim );
-qboolean PM_RunningAnim( int anim );
 static void CG_SetLerpFrameAnimation( centity_t *cent, clientInfo_t *ci, lerpFrame_t *lf, int newAnimation, float animSpeedMult, qboolean torsoOnly, qboolean flipState) {
 	animation_t	*anim;
 	float animSpeed;
@@ -2816,8 +2804,6 @@ static void CG_ClearLerpFrame( centity_t *cent, clientInfo_t *ci, lerpFrame_t *l
 		lf->oldFrame = lf->frame = lf->animation->firstFrame;
 	}
 }
-
-qboolean PM_WalkingAnim( int anim );
 
 static void CG_PlayerAnimation( centity_t *cent, int *legsOld, int *legs, float *legsBackLerp,
 						int *torsoOld, int *torso, float *torsoBackLerp ) {
@@ -4648,7 +4634,6 @@ void CG_GetTagWorldPosition( refEntity_t *model, char *tag, vec3_t pos, matrix3_
 
 #define	MAX_MARK_FRAGMENTS	128
 #define	MAX_MARK_POINTS		384
-extern markPoly_t *CG_AllocMark();
 
 void CG_CreateSaberMarks( vec3_t start, vec3_t end, vec3_t normal )
 {
@@ -5150,8 +5135,6 @@ void CG_SaberCompWork(vec3_t start, vec3_t end, centity_t *owner, int saberNum, 
 
 #define SABER_TRAIL_TIME	40.0f
 #define FX_USE_ALPHA		0x08000000
-
-qboolean BG_SuperBreakWinAnim( int anim );
 
 void CG_AddSaberBlade( centity_t *cent, centity_t *scent, refEntity_t *saber, int renderfx, int modelIndex, int saberNum, int bladeNum, vec3_t origin, vec3_t angles, qboolean fromSaber, qboolean dontDraw)
 {
@@ -6176,8 +6159,6 @@ void CG_CleanJetpackGhoul2(void)
 
 #define	FLYBYSOUNDTIME 2000
 int	cg_lastHyperSpaceEffectTime = 0;
-
-int BG_EmplacedView(vec3_t baseAngles, vec3_t angles, float *newYaw, float constraint);
 
 float CG_RadiusForCent( centity_t *cent ) {
 	return cent->currentState.g2radius

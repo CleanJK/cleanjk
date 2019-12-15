@@ -32,8 +32,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define MAX_AMMO_GIVE 2
 #define STATION_RECHARGE_TIME 100
 
-void HolocronThink(gentity_t *ent);
-
 /*QUAKED func_group (0 0 0) ?
 Used to group brushes together just for editor convenience.  They are turned into normal brushes by the utilities.
 */
@@ -269,96 +267,27 @@ void SP_misc_model_static(gentity_t *ent)
 	G_FreeEntity( ent );
 }
 
-/*QUAKED misc_model_breakable (1 0 0) (-16 -16 -16) (16 16 16) SOLID AUTOANIMATE DEADSOLID NO_DMODEL NO_SMOKE USE_MODEL USE_NOT_BREAK PLAYER_USE NO_EXPLOSION
-SOLID - Movement is blocked by it, if not set, can still be broken by explosions and shots if it has health
-AUTOANIMATE - Will cycle it's anim
-DEADSOLID - Stay solid even when destroyed (in case damage model is rather large).
-NO_DMODEL - Makes it NOT display a damage model when destroyed, even if one exists
-USE_MODEL - When used, will toggle to it's usemodel (model name + "_u1.md3")... this obviously does nothing if USE_NOT_BREAK is not checked
-USE_NOT_BREAK - Using it, doesn't make it break, still can be destroyed by damage
-PLAYER_USE - Player can use it with the use button
-NO_EXPLOSION - By default, will explode when it dies...this is your override.
-
-"model"		arbitrary .md3 file to display
-"health"	how much health to have - default is zero (not breakable)  If you don't set the SOLID flag, but give it health, it can be shot but will not block NPCs or players from moving
-"targetname" when used, dies and displays damagemodel, if any (if not, removes itself)
-"target" What to use when it dies
-"target2" What to use when it's repaired
-"target3" What to use when it's used while it's broken
-"paintarget" target to fire when hit (but not destroyed)
-"count"  the amount of armor/health/ammo given (default 50)
-"gravity"	if set to 1, this will be affected by gravity
-"radius"  Chunk code tries to pick a good volume of chunks, but you can alter this to scale the number of spawned chunks. (default 1)  (.5) is half as many chunks, (2) is twice as many chunks
-
-Damage: default is none
-"splashDamage" - damage to do (will make it explode on death)
-"splashRadius" - radius for above damage
-
-"team" - This cannot take damage from members of this team:
-	"player"
-	"neutral"
-	"enemy"
-
-"material" - default is "8 - MAT_NONE" - choose from this list:
-0 = MAT_METAL		(grey metal)
-1 = MAT_GLASS
-2 = MAT_ELECTRICAL	(sparks only)
-3 = MAT_ELEC_METAL	(METAL chunks and sparks)
-4 =	MAT_DRK_STONE	(brown stone chunks)
-5 =	MAT_LT_STONE	(tan stone chunks)
-6 =	MAT_GLASS_METAL (glass and METAL chunks)
-7 = MAT_METAL2		(blue/grey metal)
-8 = MAT_NONE		(no chunks-DEFAULT)
-9 = MAT_GREY_STONE	(grey colored stone)
-10 = MAT_METAL3		(METAL and METAL2 chunk combo)
-11 = MAT_CRATE1		(yellow multi-colored crate chunks)
-12 = MAT_GRATE1		(grate chunks--looks horrible right now)
-13 = MAT_ROPE		(for yavin_trial, no chunks, just wispy bits )
-14 = MAT_CRATE2		(red multi-colored crate chunks)
-15 = MAT_WHITE_METAL (white angular chunks for Stu, NS_hideout )
-FIXME/TODO:
-set size better?
-multiple damage models?
-custom explosion effect/sound?
-*/
-void misc_model_breakable_gravity_init( gentity_t *ent, qboolean dropToFloor );
-void misc_model_breakable_init( gentity_t *ent );
-
-void SP_misc_model_breakable( gentity_t *ent )
+void misc_model_breakable_init( gentity_t *ent )
 {
-	float grav;
-	G_SpawnInt( "material", "8", (int*)&ent->material );
-	G_SpawnFloat( "radius", "1", &ent->radius ); // used to scale chunk code if desired by a designer
-
-	misc_model_breakable_init( ent );
-
-	if ( !ent->r.mins[0] && !ent->r.mins[1] && !ent->r.mins[2] )
-	{
-		VectorSet (ent->r.mins, -16, -16, -16);
-	}
-	if ( !ent->r.maxs[0] && !ent->r.maxs[1] && !ent->r.maxs[2] )
-	{
-		VectorSet (ent->r.maxs, 16, 16, 16);
+	if (!ent->model) {
+		trap->Error( ERR_DROP, "no model set on %s at (%.1f %.1f %.1f)\n", ent->classname, ent->s.origin[0],ent->s.origin[1],ent->s.origin[2] );
 	}
 
-	G_SetOrigin( ent, ent->s.origin );
-	G_SetAngles( ent, ent->s.angles );
-	trap->LinkEntity ((sharedEntity_t *)ent);
+	//Main model
+	ent->s.modelindex = ent->sound2to1 = G_ModelIndex( ent->model );
 
-	if ( ent->spawnflags & 128 )
-	{//Can be used by the player's BUTTON_USE
-		ent->r.svFlags |= SVF_PLAYER_USABLE;
+	if ( ent->spawnflags & 1 )
+	{//Blocks movement
+		ent->r.contents = CONTENTS_SOLID|CONTENTS_OPAQUE|CONTENTS_BODY|CONTENTS_MONSTERCLIP|CONTENTS_BOTCLIP;//Was CONTENTS_SOLID, but only architecture should be this
+	}
+	else if ( ent->health )
+	{//Can only be shot
+		ent->r.contents = CONTENTS_SHOTCLIP;
 	}
 
-	ent->s.teamowner = 0;
+	// TODO: fix using
 
-	G_SpawnFloat( "gravity", "0", &grav );
-	if ( grav )
-	{//affected by gravity
-		G_SetAngles( ent, ent->s.angles );
-		G_SetOrigin( ent, ent->r.currentOrigin );
-		misc_model_breakable_gravity_init( ent, qtrue );
-	}
+	// TODO: fix health/dying funcs
 }
 
 void misc_model_breakable_gravity_init( gentity_t *ent, qboolean dropToFloor )
@@ -416,27 +345,93 @@ void misc_model_breakable_gravity_init( gentity_t *ent, qboolean dropToFloor )
 	ent->s.apos.trTime = level.time;
 }
 
-void misc_model_breakable_init( gentity_t *ent )
+/*QUAKED misc_model_breakable (1 0 0) (-16 -16 -16) (16 16 16) SOLID AUTOANIMATE DEADSOLID NO_DMODEL NO_SMOKE USE_MODEL USE_NOT_BREAK PLAYER_USE NO_EXPLOSION
+SOLID - Movement is blocked by it, if not set, can still be broken by explosions and shots if it has health
+AUTOANIMATE - Will cycle it's anim
+DEADSOLID - Stay solid even when destroyed (in case damage model is rather large).
+NO_DMODEL - Makes it NOT display a damage model when destroyed, even if one exists
+USE_MODEL - When used, will toggle to it's usemodel (model name + "_u1.md3")... this obviously does nothing if USE_NOT_BREAK is not checked
+USE_NOT_BREAK - Using it, doesn't make it break, still can be destroyed by damage
+PLAYER_USE - Player can use it with the use button
+NO_EXPLOSION - By default, will explode when it dies...this is your override.
+
+"model"		arbitrary .md3 file to display
+"health"	how much health to have - default is zero (not breakable)  If you don't set the SOLID flag, but give it health, it can be shot but will not block NPCs or players from moving
+"targetname" when used, dies and displays damagemodel, if any (if not, removes itself)
+"target" What to use when it dies
+"target2" What to use when it's repaired
+"target3" What to use when it's used while it's broken
+"paintarget" target to fire when hit (but not destroyed)
+"count"  the amount of armor/health/ammo given (default 50)
+"gravity"	if set to 1, this will be affected by gravity
+"radius"  Chunk code tries to pick a good volume of chunks, but you can alter this to scale the number of spawned chunks. (default 1)  (.5) is half as many chunks, (2) is twice as many chunks
+
+Damage: default is none
+"splashDamage" - damage to do (will make it explode on death)
+"splashRadius" - radius for above damage
+
+"team" - This cannot take damage from members of this team:
+	"player"
+	"neutral"
+	"enemy"
+
+"material" - default is "8 - MAT_NONE" - choose from this list:
+0 = MAT_METAL		(grey metal)
+1 = MAT_GLASS
+2 = MAT_ELECTRICAL	(sparks only)
+3 = MAT_ELEC_METAL	(METAL chunks and sparks)
+4 =	MAT_DRK_STONE	(brown stone chunks)
+5 =	MAT_LT_STONE	(tan stone chunks)
+6 =	MAT_GLASS_METAL (glass and METAL chunks)
+7 = MAT_METAL2		(blue/grey metal)
+8 = MAT_NONE		(no chunks-DEFAULT)
+9 = MAT_GREY_STONE	(grey colored stone)
+10 = MAT_METAL3		(METAL and METAL2 chunk combo)
+11 = MAT_CRATE1		(yellow multi-colored crate chunks)
+12 = MAT_GRATE1		(grate chunks--looks horrible right now)
+13 = MAT_ROPE		(for yavin_trial, no chunks, just wispy bits )
+14 = MAT_CRATE2		(red multi-colored crate chunks)
+15 = MAT_WHITE_METAL (white angular chunks for Stu, NS_hideout )
+FIXME/TODO:
+set size better?
+multiple damage models?
+custom explosion effect/sound?
+*/
+void SP_misc_model_breakable( gentity_t *ent )
 {
-	if (!ent->model) {
-		trap->Error( ERR_DROP, "no model set on %s at (%.1f %.1f %.1f)\n", ent->classname, ent->s.origin[0],ent->s.origin[1],ent->s.origin[2] );
+	float grav;
+	G_SpawnInt( "material", "8", (int*)&ent->material );
+	G_SpawnFloat( "radius", "1", &ent->radius ); // used to scale chunk code if desired by a designer
+
+	misc_model_breakable_init( ent );
+
+	if ( !ent->r.mins[0] && !ent->r.mins[1] && !ent->r.mins[2] )
+	{
+		VectorSet (ent->r.mins, -16, -16, -16);
+	}
+	if ( !ent->r.maxs[0] && !ent->r.maxs[1] && !ent->r.maxs[2] )
+	{
+		VectorSet (ent->r.maxs, 16, 16, 16);
 	}
 
-	//Main model
-	ent->s.modelindex = ent->sound2to1 = G_ModelIndex( ent->model );
+	G_SetOrigin( ent, ent->s.origin );
+	G_SetAngles( ent, ent->s.angles );
+	trap->LinkEntity ((sharedEntity_t *)ent);
 
-	if ( ent->spawnflags & 1 )
-	{//Blocks movement
-		ent->r.contents = CONTENTS_SOLID|CONTENTS_OPAQUE|CONTENTS_BODY|CONTENTS_MONSTERCLIP|CONTENTS_BOTCLIP;//Was CONTENTS_SOLID, but only architecture should be this
-	}
-	else if ( ent->health )
-	{//Can only be shot
-		ent->r.contents = CONTENTS_SHOTCLIP;
+	if ( ent->spawnflags & 128 )
+	{//Can be used by the player's BUTTON_USE
+		ent->r.svFlags |= SVF_PLAYER_USABLE;
 	}
 
-	// TODO: fix using
+	ent->s.teamowner = 0;
 
-	// TODO: fix health/dying funcs
+	G_SpawnFloat( "gravity", "0", &grav );
+	if ( grav )
+	{//affected by gravity
+		G_SetAngles( ent, ent->s.angles );
+		G_SetOrigin( ent, ent->r.currentOrigin );
+		misc_model_breakable_gravity_init( ent, qtrue );
+	}
 }
 
 /*QUAKED misc_G2model (1 0 0) (-16 -16 -16) (16 16 16)
@@ -623,7 +618,6 @@ miscentDef - defines which client models spawn on the terrain (file is base/ext_
 densityMap - how dense the client models are packed
 
 */
-void AddSpawnField(char *field, char *value);
 #define MAX_INSTANCE_TYPES		16
 void SP_terrain(gentity_t *ent)
 {
@@ -2335,8 +2329,6 @@ void SP_target_screenshake(gentity_t *ent)
 	ent->use = Use_Target_Screenshake;
 }
 
-void LogExit( const char *string );
-
 void Use_Target_Escapetrig( gentity_t *ent, gentity_t *other, gentity_t *activator )
 {
 	if (!ent->genericValue6)
@@ -2394,23 +2386,6 @@ void maglock_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 //	WP_Explode( self );
 }
 
-void maglock_link( gentity_t *self );
-gentity_t *G_FindDoorTrigger( gentity_t *ent );
-
-void SP_misc_maglock ( gentity_t *self )
-{
-	//NOTE: May have to make these only work on doors that are either untargeted
-	//		or are targeted by a trigger, not doors fired off by scripts, counters
-	//		or other such things?
-	self->s.modelindex = G_ModelIndex( "models/map_objects/imp_detention/door_lock.md3" );
-	self->genericValue1 = G_EffectIndex( "maglock/explosion" );
-
-	G_SetOrigin( self, self->s.origin );
-
-	self->think = maglock_link;
-	//FIXME: for some reason, when you re-load a level, these fail to find their doors...?  Random?  Testing an additional 200ms after the START_TIME_FIND_LINKS
-	self->nextthink = level.time + START_TIME_FIND_LINKS+200;//START_TIME_FIND_LINKS;//because we need to let the doors link up and spawn their triggers first!
-}
 void maglock_link( gentity_t *self )
 {
 	//find what we're supposed to be attached to
@@ -2480,6 +2455,21 @@ void maglock_link( gentity_t *self )
 	//self->fxID = G_EffectIndex( "maglock/explosion" );
 
 	trap->LinkEntity( (sharedEntity_t *)self );
+}
+
+void SP_misc_maglock ( gentity_t *self )
+{
+	//NOTE: May have to make these only work on doors that are either untargeted
+	//		or are targeted by a trigger, not doors fired off by scripts, counters
+	//		or other such things?
+	self->s.modelindex = G_ModelIndex( "models/map_objects/imp_detention/door_lock.md3" );
+	self->genericValue1 = G_EffectIndex( "maglock/explosion" );
+
+	G_SetOrigin( self, self->s.origin );
+
+	self->think = maglock_link;
+	//FIXME: for some reason, when you re-load a level, these fail to find their doors...?  Random?  Testing an additional 200ms after the START_TIME_FIND_LINKS
+	self->nextthink = level.time + START_TIME_FIND_LINKS+200;//START_TIME_FIND_LINKS;//because we need to let the doors link up and spawn their triggers first!
 }
 
 void faller_touch(gentity_t *self, gentity_t *other, trace_t *trace)

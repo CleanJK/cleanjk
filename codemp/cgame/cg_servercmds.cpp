@@ -1070,7 +1070,6 @@ static void CG_Print_f( void ) {
 	trap->Print( "%s", strEd );
 }
 
-void CG_ChatBox_AddString(char *chatStr);
 static void CG_Chat_f( void ) {
 	char cmd[MAX_STRING_CHARS] = {0}, text[MAX_SAY_TEXT] = {0};
 

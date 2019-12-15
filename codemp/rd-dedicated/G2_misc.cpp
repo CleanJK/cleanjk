@@ -97,7 +97,7 @@ int AllocGoreRecord()
 	return ret;
 }
 
-void ResetGoreTag()
+void ResetGoreTag( void )
 {
 	GoreTagsTemp.clear();
 	CurrentTag=CurrentTagUpper;
@@ -173,7 +173,6 @@ CGoreSet::~CGoreSet()
 };
 #endif // _SOF2
 
-const mdxaBone_t &EvalBoneCache(int index,CBoneCache *boneCache);
 class CTraceSurface
 {
 public:
@@ -757,7 +756,6 @@ static int GoreTouch=1;
 static int GoreIndecies[MAX_GORE_INDECIES];
 
 #define GORE_MARGIN (0.0f)
-int	G2API_GetTime(int argTime);
 
 // now we at poly level, check each model space transformed poly against the model world transfomed ray
 void G2_GorePolys( const mdxmSurface_t *surface, CTraceSurface &TS, const mdxmSurfHierarchy_t *surfInfo)
@@ -1750,9 +1748,6 @@ void G2_FreeSaveBuffer(char *buffer)
 {
 	Z_Free(buffer);
 }
-
-qboolean G2_SetupModelPointers(CGhoul2Info *ghlInfo);
-qboolean G2_SetupModelPointers(CGhoul2Info_v &ghoul2);
 
 void G2_LoadGhoul2Model(CGhoul2Info_v &ghoul2, char *buffer)
 {

@@ -60,9 +60,6 @@ inline float WE_flrand(float min, float max) {
 	return ((rand() * (max - min)) / (RAND_MAX)) + min;
 }
 
-// Externs & Fwd Decl.
-extern void			SetViewportAndScissor( void );
-
 inline void VectorFloor(vec3_t in)
 {
 	in[0] = floorf(in[0]);

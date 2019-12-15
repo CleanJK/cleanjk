@@ -36,19 +36,6 @@ void (*Com_Printf)( const char *fmt, ... );
 // display context for new ui stuff
 displayContextDef_t cgDC;
 
-void CG_InitItems(void);
-
-void CG_InitJetpackGhoul2(void);
-void CG_CleanJetpackGhoul2(void);
-
-void CG_Init( int serverMessageNum, int serverCommandSequence, int clientNum );
-void CG_Shutdown( void );
-
-void CG_CalcEntityLerpPositions( centity_t *cent );
-void CG_ROFF_NotetrackCallback( centity_t *cent, const char *notetrack);
-
-void UI_CleanupGhoul2(void);
-
 static int	C_PointContents(void);
 static void C_GetLerpOrigin(void);
 static void C_GetLerpData(void);
@@ -60,9 +47,6 @@ static int	CG_RagCallback(int callType);
 extern autoMapInput_t cg_autoMapInput; //cg_view.c
 extern int cg_autoMapInputTime;
 extern vec3_t cg_autoMapAngle;
-
-void CG_MiscEnt(void);
-void CG_DoCameraShake( vec3_t origin, float intensity, int radius, int time );
 
 //do we have any force powers that we would normally need to cycle to?
 qboolean CG_NoUseableForce(void)
@@ -362,8 +346,6 @@ const char *CG_GetStringEdString(char *refSection, char *refName)
 	trap->SE_GetStringTextString(va("%s_%s", refSection, refName), text[index], sizeof(text[0]));
 	return text[index];
 }
-
-int CG_GetTeamNonScoreCount(team_t team);
 
 void CG_BuildSpectatorString(void) {
 	int i;
@@ -1103,9 +1085,6 @@ void CG_TransitionPermanent(void)
 }
 
 extern playerState_t *cgSendPS[MAX_GENTITIES]; //is not MAX_CLIENTS because NPCs exceed MAX_CLIENTS
-void CG_PmoveClientPointerUpdate();
-
-void WP_SaberLoadParms( void );
 
 // Called after every level change or subsystem restart
 // Will perform callbacks to make the loading info screen update.
@@ -1222,7 +1201,6 @@ const char *CG_GetLocationString(const char *loc)
 }
 
 //clean up all the ghoul2 allocations, the nice and non-hackly way -rww
-void CG_KillCEntityG2(int entNum);
 void CG_DestroyAllGhoul2(void)
 {
 	int i = 0;

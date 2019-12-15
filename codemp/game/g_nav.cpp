@@ -37,10 +37,24 @@ void G_DrawCombatPoint( vec3_t origin, int type ) {
 void TAG_ShowTags( int flags ) {
 }
 
-void SP_waypoint( gentity_t *ent )				{ G_FreeEntity( ent ); }
-void SP_waypoint_small( gentity_t *ent )		{ G_FreeEntity( ent ); }
-void SP_waypoint_navgoal( gentity_t *ent )		{ G_FreeEntity( ent ); }
-void SP_waypoint_navgoal_8( gentity_t *ent )	{ G_FreeEntity( ent ); }
-void SP_waypoint_navgoal_4( gentity_t *ent )	{ G_FreeEntity( ent ); }
-void SP_waypoint_navgoal_2( gentity_t *ent )	{ G_FreeEntity( ent ); }
-void SP_waypoint_navgoal_1( gentity_t *ent )	{ G_FreeEntity( ent ); }
+void SP_waypoint( gentity_t *ent ) {
+	G_FreeEntity( ent );
+}
+void SP_waypoint_small( gentity_t *ent ) {
+	G_FreeEntity( ent );
+}
+void SP_waypoint_navgoal( gentity_t *ent ) {
+	G_FreeEntity( ent );
+}
+void SP_waypoint_navgoal_8( gentity_t *ent ) {
+	G_FreeEntity( ent );
+}
+void SP_waypoint_navgoal_4( gentity_t *ent ) {
+	G_FreeEntity( ent );
+}
+void SP_waypoint_navgoal_2( gentity_t *ent ) {
+	G_FreeEntity( ent );
+}
+void SP_waypoint_navgoal_1( gentity_t *ent ) {
+	G_FreeEntity( ent );
+}

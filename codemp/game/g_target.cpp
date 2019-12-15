@@ -23,6 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "game/g_local.h"
 #include "game/g_team.h"
+#include "game/g_ICARUScb.h"
 
 /*QUAKED target_give (1 0 0) (-8 -8 -8) (8 8 8)
 Gives the activator all the items pointed to.
@@ -594,7 +595,6 @@ After the counter has been triggered "count" times (default 2), it will fire all
 
 bounceCount - number of times the counter should reset to it's full count when it's done
 */
-extern void G_DebugPrint( int level, const char *format, ... );
 void target_counter_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 {
 	if ( self->count == 0 )

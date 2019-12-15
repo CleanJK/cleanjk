@@ -113,8 +113,6 @@ void CG_SetInitialSnapshot( snapshot_t *snap ) {
 	}
 }
 
-extern qboolean CG_UsingEWeb(void); //cg_predict.c
-
 // The transition point from snap to nextSnap has passed
 static void CG_TransitionSnapshot( void ) {
 	centity_t			*cent;

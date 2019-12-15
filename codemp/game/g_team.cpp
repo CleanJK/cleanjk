@@ -37,7 +37,46 @@ typedef struct teamgame_s {
 
 teamgame_t teamgame;
 
-void Team_SetFlagStatus( int team, flagStatus_t status );
+static const char ctfFlagStatusRemap[] = { '0', '1', '*', '*', '2' };
+
+void Team_SetFlagStatus( int team, flagStatus_t status ) {
+	qboolean modified = qfalse;
+
+	switch( team ) {
+	case TEAM_RED:	// CTF
+		if( teamgame.redStatus != status ) {
+			teamgame.redStatus = status;
+			modified = qtrue;
+		}
+		break;
+
+	case TEAM_BLUE:	// CTF
+		if( teamgame.blueStatus != status ) {
+			teamgame.blueStatus = status;
+			modified = qtrue;
+		}
+		break;
+
+	case TEAM_FREE:	// One Flag CTF
+		if( teamgame.flagStatus != status ) {
+			teamgame.flagStatus = status;
+			modified = qtrue;
+		}
+		break;
+	}
+
+	if( modified ) {
+		char st[4];
+
+		if( level.gametype == GT_CTF || level.gametype == GT_CTY ) {
+			st[0] = ctfFlagStatusRemap[teamgame.redStatus];
+			st[1] = ctfFlagStatusRemap[teamgame.blueStatus];
+			st[2] = 0;
+		}
+
+		trap->SetConfigstring( CS_FLAGSTATUS, st );
+	}
+}
 
 void Team_InitGame( void ) {
 	memset(&teamgame, 0, sizeof teamgame);
@@ -210,47 +249,6 @@ qboolean OnSameTeam( gentity_t *ent1, gentity_t *ent2 ) {
 	}
 
 	return qfalse;
-}
-
-static const char ctfFlagStatusRemap[] = { '0', '1', '*', '*', '2' };
-
-void Team_SetFlagStatus( int team, flagStatus_t status ) {
-	qboolean modified = qfalse;
-
-	switch( team ) {
-	case TEAM_RED:	// CTF
-		if( teamgame.redStatus != status ) {
-			teamgame.redStatus = status;
-			modified = qtrue;
-		}
-		break;
-
-	case TEAM_BLUE:	// CTF
-		if( teamgame.blueStatus != status ) {
-			teamgame.blueStatus = status;
-			modified = qtrue;
-		}
-		break;
-
-	case TEAM_FREE:	// One Flag CTF
-		if( teamgame.flagStatus != status ) {
-			teamgame.flagStatus = status;
-			modified = qtrue;
-		}
-		break;
-	}
-
-	if( modified ) {
-		char st[4];
-
-		if( level.gametype == GT_CTF || level.gametype == GT_CTY ) {
-			st[0] = ctfFlagStatusRemap[teamgame.redStatus];
-			st[1] = ctfFlagStatusRemap[teamgame.blueStatus];
-			st[2] = 0;
-		}
-
-		trap->SetConfigstring( CS_FLAGSTATUS, st );
-	}
 }
 
 void Team_CheckDroppedItem( gentity_t *dropped ) {
@@ -608,7 +606,76 @@ void Team_DroppedFlagThink(gentity_t *ent) {
 static vec3_t	minFlagRange = { 50, 36, 36 };
 static vec3_t	maxFlagRange = { 44, 36, 36 };
 
+int Team_TouchOurFlag  ( gentity_t *ent, gentity_t *other, int team );
 int Team_TouchEnemyFlag( gentity_t *ent, gentity_t *other, int team );
+
+int Team_TouchEnemyFlag( gentity_t *ent, gentity_t *other, int team ) {
+	gclient_t *cl = other->client;
+	vec3_t		mins, maxs;
+	int			num, j, ourFlag;
+	int			touch[MAX_GENTITIES];
+	gentity_t*	enemy;
+	float		enemyDist, dist;
+
+	VectorSubtract( ent->s.pos.trBase, minFlagRange, mins );
+	VectorAdd( ent->s.pos.trBase, maxFlagRange, maxs );
+
+	num = trap->EntitiesInBox( mins, maxs, touch, MAX_GENTITIES );
+
+	dist = Distance(ent->s.pos.trBase, other->client->ps.origin);
+
+	if (other->client->sess.sessionTeam == TEAM_RED){
+		ourFlag   = PW_REDFLAG;
+	} else {
+		ourFlag   = PW_BLUEFLAG;
+	}
+
+	for(j = 0; j < num; ++j){
+		enemy = (g_entities + touch[j]);
+
+		if (!enemy || !enemy->inuse || !enemy->client){
+			continue;
+		}
+
+		//ignore specs
+		if (enemy->client->sess.sessionTeam == TEAM_SPECTATOR)
+			continue;
+
+		//check if its alive
+		if (enemy->health < 1)
+			continue;		// dead people can't pick up items
+
+		//lets check if he has our flag
+		if (!enemy->client->ps.powerups[ourFlag])
+			continue;
+
+		//check if enemy is closer to our flag than us
+		enemyDist = Distance(ent->s.pos.trBase,enemy->client->ps.origin);
+		if (enemyDist < dist){
+			// possible recursion is hidden in this, but
+			// infinite recursion wont happen, because we cant
+			// have a < b and b < a at the same time
+			return Team_TouchOurFlag( ent, enemy, team );
+		}
+	}
+
+	//PrintMsg (NULL, "%s" S_COLOR_WHITE " got the %s flag!\n",
+	//	other->client->pers.netname, TeamName(team));
+	PrintCTFMessage(other->s.number, team, CTFMESSAGE_PLAYER_GOT_FLAG);
+
+	if (team == TEAM_RED)
+		cl->ps.powerups[PW_REDFLAG] = INT_MAX; // flags never expire
+	else
+		cl->ps.powerups[PW_BLUEFLAG] = INT_MAX; // flags never expire
+
+	Team_SetFlagStatus( team, FLAG_TAKEN );
+
+	AddScore(other, ent->r.currentOrigin, CTF_FLAG_BONUS);
+	cl->pers.teamState.flagsince = level.time;
+	Team_TakeFlagSound( ent, team );
+
+	return -1; // Do not respawn this automatically, but do delete it if it was FL_DROPPED
+}
 
 int Team_TouchOurFlag( gentity_t *ent, gentity_t *other, int team ) {
 	int			i, num, j, enemyTeam;
@@ -752,74 +819,6 @@ int Team_TouchOurFlag( gentity_t *ent, gentity_t *other, int team ) {
 	CalculateRanks();
 
 	return 0; // Do not respawn this automatically
-}
-
-int Team_TouchEnemyFlag( gentity_t *ent, gentity_t *other, int team ) {
-	gclient_t *cl = other->client;
-	vec3_t		mins, maxs;
-	int			num, j, ourFlag;
-	int			touch[MAX_GENTITIES];
-	gentity_t*	enemy;
-	float		enemyDist, dist;
-
-	VectorSubtract( ent->s.pos.trBase, minFlagRange, mins );
-	VectorAdd( ent->s.pos.trBase, maxFlagRange, maxs );
-
-	num = trap->EntitiesInBox( mins, maxs, touch, MAX_GENTITIES );
-
-	dist = Distance(ent->s.pos.trBase, other->client->ps.origin);
-
-	if (other->client->sess.sessionTeam == TEAM_RED){
-		ourFlag   = PW_REDFLAG;
-	} else {
-		ourFlag   = PW_BLUEFLAG;
-	}
-
-	for(j = 0; j < num; ++j){
-		enemy = (g_entities + touch[j]);
-
-		if (!enemy || !enemy->inuse || !enemy->client){
-			continue;
-		}
-
-		//ignore specs
-		if (enemy->client->sess.sessionTeam == TEAM_SPECTATOR)
-			continue;
-
-		//check if its alive
-		if (enemy->health < 1)
-			continue;		// dead people can't pick up items
-
-		//lets check if he has our flag
-		if (!enemy->client->ps.powerups[ourFlag])
-			continue;
-
-		//check if enemy is closer to our flag than us
-		enemyDist = Distance(ent->s.pos.trBase,enemy->client->ps.origin);
-		if (enemyDist < dist){
-			// possible recursion is hidden in this, but
-			// infinite recursion wont happen, because we cant
-			// have a < b and b < a at the same time
-			return Team_TouchOurFlag( ent, enemy, team );
-		}
-	}
-
-	//PrintMsg (NULL, "%s" S_COLOR_WHITE " got the %s flag!\n",
-	//	other->client->pers.netname, TeamName(team));
-	PrintCTFMessage(other->s.number, team, CTFMESSAGE_PLAYER_GOT_FLAG);
-
-	if (team == TEAM_RED)
-		cl->ps.powerups[PW_REDFLAG] = INT_MAX; // flags never expire
-	else
-		cl->ps.powerups[PW_BLUEFLAG] = INT_MAX; // flags never expire
-
-	Team_SetFlagStatus( team, FLAG_TAKEN );
-
-	AddScore(other, ent->r.currentOrigin, CTF_FLAG_BONUS);
-	cl->pers.teamState.flagsince = level.time;
-	Team_TakeFlagSound( ent, team );
-
-	return -1; // Do not respawn this automatically, but do delete it if it was FL_DROPPED
 }
 
 int Pickup_Team( gentity_t *ent, gentity_t *other ) {

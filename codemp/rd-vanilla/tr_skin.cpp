@@ -30,7 +30,6 @@ static char *CommaParse( char **data_p );
 
 bool gServerSkinHack = false;
 
-shader_t *R_FindServerShader( const char *name, const int *lightmapIndex, const byte *styles, qboolean mipRawImage );
 static char *CommaParse( char **data_p );
 
 // input = skinname, possibly being a macro for three skins

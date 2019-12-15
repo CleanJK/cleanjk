@@ -176,10 +176,6 @@ int Export_BotLibVarGet(char *var_name, char *value, int size)
 	return BLERR_NOERROR;
 } //end of the function Export_BotLibVarGet
 
-int BotFuzzyPointReachabilityArea(vec3_t origin);
-
-float BotGapDistance(vec3_t origin, vec3_t hordir, int entnum);
-
 static void Init_EA_Export( ea_export_t *ea ) {
 	//ClientCommand elementary actions
 	ea->EA_Command = EA_Command;

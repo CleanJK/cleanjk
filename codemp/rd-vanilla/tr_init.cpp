@@ -93,9 +93,6 @@ PFNGLUNLOCKARRAYSEXTPROC qglUnlockArraysEXT;
 
 bool g_bTextureRectangleHack = false;
 
-void RE_SetLightStyle(int style, int color);
-void RE_GetBModelVerts( int bmodelIndex, vec3_t *verts, vec3_t normal );
-
 void R_Splash()
 {
 	image_t *pImage;
@@ -1263,7 +1260,20 @@ void R_Register( void )
 		ri.Cmd_AddCommand( commands[i].cmd, commands[i].func, "" );
 }
 
-extern void R_InitWorldEffects(void); //tr_WorldEffects.cpp
+void RE_SetLightStyle(int style, int color)
+{
+	if (style >= MAX_LIGHT_STYLES)
+	{
+	    Com_Error( ERR_FATAL, "RE_SetLightStyle: %d is out of range", (int)style );
+		return;
+	}
+
+	byteAlias_t *ba = (byteAlias_t *)&styleColors[style];
+	if ( ba->i != color) {
+		ba->i = color;
+	}
+}
+
 void R_Init( void ) {
 	int i;
 	byte *ptr;
@@ -1449,20 +1459,6 @@ void RE_GetLightStyle(int style, color4ub_t color)
 	baDest->i = baSource->i;
 }
 
-void RE_SetLightStyle(int style, int color)
-{
-	if (style >= MAX_LIGHT_STYLES)
-	{
-	    Com_Error( ERR_FATAL, "RE_SetLightStyle: %d is out of range", (int)style );
-		return;
-	}
-
-	byteAlias_t *ba = (byteAlias_t *)&styleColors[style];
-	if ( ba->i != color) {
-		ba->i = color;
-	}
-}
-
 static void SetRangedFog( float range ) { tr.rangedFog = range; }
 
 extern qboolean gG2_GBMNoReconstruct;
@@ -1487,12 +1483,6 @@ static void GetRealRes( int *w, int *h ) {
 	*w = glConfig.vidWidth;
 	*h = glConfig.vidHeight;
 }
-
-extern void R_SVModelInit( void ); //tr_model.cpp
-extern void R_AutomapElevationAdjustment( float newHeight ); //tr_world.cpp
-extern qboolean R_InitializeWireframeAutomap( void ); //tr_world.cpp
-
-extern qhandle_t RE_RegisterServerSkin( const char *name );
 
 extern "C" {
 Q_EXPORT refexport_t* QDECL GetRefAPI( int apiVersion, refimport_t *rimp ) {

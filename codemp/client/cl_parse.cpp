@@ -322,8 +322,6 @@ void CL_ParseSnapshot( msg_t *msg ) {
 	cl.newSnapshots = qtrue;
 }
 
-void FS_UpdateGamedir(void);
-
 // rww - Update fs_game, this message is so we can use the ext_data *_overrides.txt files for mods.
 void CL_ParseSetGame( msg_t *msg )
 {

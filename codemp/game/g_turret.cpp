@@ -24,9 +24,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "game/g_local.h"
 #include "qcommon/q_shared.h"
 
-qboolean turret_base_spawn_top( gentity_t *base );
-void ObjectDie (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath );
-
 void TurretPain( gentity_t *self, gentity_t *attacker, int damage )
 {
 	if (self->target_ent)
@@ -610,86 +607,6 @@ void turret_base_use( gentity_t *self, gentity_t *other, gentity_t *activator )
 	*/
 }
 
-/*QUAKED misc_turret (1 0 0) (-48 -48 0) (48 48 144) START_OFF
-Large 2-piece turbolaser turret
-
-  START_OFF - Starts off
-
-  radius - How far away an enemy can be for it to pick it up (default 1024)
-  wait	- Time between shots (default 300 ms)
-  dmg	- How much damage each shot does (default 100)
-  health - How much damage it can take before exploding (default 3000)
-  speed - how fast it turns (default 10)
-
-  splashDamage - How much damage the explosion does (300)
-  splashRadius - The radius of the explosion (128)
-
-  shotspeed - speed at which projectiles will move
-
-  targetname - Toggles it on/off
-  target - What to use when destroyed
-  target2 - What to use when it decides to start shooting at an enemy
-
-  showhealth - set to 1 to show health bar on this entity when crosshair is over it
-
-  teamowner - crosshair shows green for this team, red for opposite team
-	0 - none
-	1 - red
-	2 - blue
-
-  alliedTeam - team that this turret won't target
-	0 - none
-	1 - red
-	2 - blue
-
-  teamnodmg - team that turret does not take damage from
-	0 - none
-	1 - red
-	2 - blue
-
-"icon" - icon that represents the objective on the radar
-*/
-void SP_misc_turret( gentity_t *base )
-{
-	char* s;
-
-	base->s.modelindex2 = G_ModelIndex( "models/map_objects/hoth/turret_bottom.md3" );
-	base->s.modelindex = G_ModelIndex( "models/map_objects/hoth/turret_base.md3" );
-	//base->playerModel = trap->G2API_InitGhoul2Model( base->ghoul2, "models/map_objects/imp_mine/turret_canon.glm", base->s.modelindex );
-	//base->s.radius = 80.0f;
-
-	//trap->G2API_SetBoneAngles( &base->ghoul2[base->playerModel], "Bone_body", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_Y, POSITIVE_Z, POSITIVE_X, NULL );
-	//base->torsoBolt = trap->G2API_AddBolt( &base->ghoul2[base->playerModel], "*flash03" );
-
-	G_SpawnString( "icon", "", &s );
-	if (s && s[0])
-	{
-		// We have an icon, so index it now.  We are reusing the genericenemyindex
-		// variable rather than adding a new one to the entity state.
-		base->s.genericenemyindex = G_IconIndex(s);
-	}
-
-	G_SetAngles( base, base->s.angles );
-	G_SetOrigin( base, base->s.origin );
-
-	base->r.contents = CONTENTS_BODY;
-
-	VectorSet( base->r.maxs, 32.0f, 32.0f, 128.0f );
-	VectorSet( base->r.mins, -32.0f, -32.0f, 0.0f );
-
-	base->use = turret_base_use;
-	base->think = turret_base_think;
-	// don't start working right away
-	base->nextthink = level.time + FRAMETIME * 5;
-
-	trap->LinkEntity( (sharedEntity_t *)base );
-
-	if ( !turret_base_spawn_top( base ) )
-	{
-		G_FreeEntity( base );
-	}
-}
-
 qboolean turret_base_spawn_top( gentity_t *base )
 {
 	vec3_t		org;
@@ -844,4 +761,84 @@ qboolean turret_base_spawn_top( gentity_t *base )
 
 	trap->LinkEntity( (sharedEntity_t *)top );
 	return qtrue;
+}
+
+/*QUAKED misc_turret (1 0 0) (-48 -48 0) (48 48 144) START_OFF
+Large 2-piece turbolaser turret
+
+  START_OFF - Starts off
+
+  radius - How far away an enemy can be for it to pick it up (default 1024)
+  wait	- Time between shots (default 300 ms)
+  dmg	- How much damage each shot does (default 100)
+  health - How much damage it can take before exploding (default 3000)
+  speed - how fast it turns (default 10)
+
+  splashDamage - How much damage the explosion does (300)
+  splashRadius - The radius of the explosion (128)
+
+  shotspeed - speed at which projectiles will move
+
+  targetname - Toggles it on/off
+  target - What to use when destroyed
+  target2 - What to use when it decides to start shooting at an enemy
+
+  showhealth - set to 1 to show health bar on this entity when crosshair is over it
+
+  teamowner - crosshair shows green for this team, red for opposite team
+	0 - none
+	1 - red
+	2 - blue
+
+  alliedTeam - team that this turret won't target
+	0 - none
+	1 - red
+	2 - blue
+
+  teamnodmg - team that turret does not take damage from
+	0 - none
+	1 - red
+	2 - blue
+
+"icon" - icon that represents the objective on the radar
+*/
+void SP_misc_turret( gentity_t *base )
+{
+	char* s;
+
+	base->s.modelindex2 = G_ModelIndex( "models/map_objects/hoth/turret_bottom.md3" );
+	base->s.modelindex = G_ModelIndex( "models/map_objects/hoth/turret_base.md3" );
+	//base->playerModel = trap->G2API_InitGhoul2Model( base->ghoul2, "models/map_objects/imp_mine/turret_canon.glm", base->s.modelindex );
+	//base->s.radius = 80.0f;
+
+	//trap->G2API_SetBoneAngles( &base->ghoul2[base->playerModel], "Bone_body", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_Y, POSITIVE_Z, POSITIVE_X, NULL );
+	//base->torsoBolt = trap->G2API_AddBolt( &base->ghoul2[base->playerModel], "*flash03" );
+
+	G_SpawnString( "icon", "", &s );
+	if (s && s[0])
+	{
+		// We have an icon, so index it now.  We are reusing the genericenemyindex
+		// variable rather than adding a new one to the entity state.
+		base->s.genericenemyindex = G_IconIndex(s);
+	}
+
+	G_SetAngles( base, base->s.angles );
+	G_SetOrigin( base, base->s.origin );
+
+	base->r.contents = CONTENTS_BODY;
+
+	VectorSet( base->r.maxs, 32.0f, 32.0f, 128.0f );
+	VectorSet( base->r.mins, -32.0f, -32.0f, 0.0f );
+
+	base->use = turret_base_use;
+	base->think = turret_base_think;
+	// don't start working right away
+	base->nextthink = level.time + FRAMETIME * 5;
+
+	trap->LinkEntity( (sharedEntity_t *)base );
+
+	if ( !turret_base_spawn_top( base ) )
+	{
+		G_FreeEntity( base );
+	}
 }

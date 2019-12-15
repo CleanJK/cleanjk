@@ -36,9 +36,6 @@ ICARUS_Instance		*iICARUS;
 bufferlist_t		ICARUS_BufferList;
 entlist_t			ICARUS_EntList;
 
-extern uint32_t Com_BlockChecksum (const void *buffer, int length);
-extern	void	Q3_DebugPrint( int level, const char *format, ... );
-
 int			ICARUS_entFilter = -1;
 
 // gets the named script from the cache or disk if not already loaded
@@ -552,8 +549,6 @@ void ICARUS_PrecacheEnt( sharedEntity_t *ent )
 		}
 	}
 }
-
-void Q3_TaskIDClear( int *taskID );
 
 // Allocates a sequencer and task manager only if an entity is a potential script user
 void ICARUS_InitEnt( sharedEntity_t *ent )

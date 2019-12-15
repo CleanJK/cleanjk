@@ -62,86 +62,14 @@ kbutton_t	in_buttons[MAX_KBUTTONS];
 
 qboolean	in_mlooking;
 
-void IN_Button11Down(void);
-void IN_Button11Up(void);
-void IN_Button10Down(void);
-void IN_Button10Up(void);
-void IN_Button6Down(void);
-void IN_Button6Up(void);
-void IN_UseGivenForce(void)
-{
-	char *c = Cmd_Argv(1);
-	int forceNum =-1;
-	int genCmdNum = 0;
-
-	if(c) {
-		forceNum = atoi(c);
-	} else {
-		return;
-	}
-
-	switch(forceNum) {
-	case FP_DRAIN:
-		IN_Button11Down();
-		IN_Button11Up();
-		break;
-	case FP_PUSH:
-		genCmdNum = GENCMD_FORCE_THROW;
-		break;
-	case FP_SPEED:
-		genCmdNum = GENCMD_FORCE_SPEED;
-		break;
-	case FP_PULL:
-		genCmdNum = GENCMD_FORCE_PULL;
-		break;
-	case FP_TELEPATHY:
-		genCmdNum = GENCMD_FORCE_DISTRACT;
-		break;
-	case FP_GRIP:
-		IN_Button6Down();
-		IN_Button6Up();
-		break;
-	case FP_LIGHTNING:
-		IN_Button10Down();
-		IN_Button10Up();
-		break;
-	case FP_RAGE:
-		genCmdNum = GENCMD_FORCE_RAGE;
-		break;
-	case FP_PROTECT:
-		genCmdNum = GENCMD_FORCE_PROTECT;
-		break;
-	case FP_ABSORB:
-		genCmdNum = GENCMD_FORCE_ABSORB;
-		break;
-	case FP_SEE:
-		genCmdNum = GENCMD_FORCE_SEEING;
-		break;
-	case FP_HEAL:
-		genCmdNum = GENCMD_FORCE_HEAL;
-		break;
-	case FP_TEAM_HEAL:
-		genCmdNum = GENCMD_FORCE_HEALOTHER;
-		break;
-	case FP_TEAM_FORCE:
-		genCmdNum = GENCMD_FORCE_FORCEPOWEROTHER;
-		break;
-	default:
-		assert(0);
-		break;
-	}
-
-	if(genCmdNum != 0) {
-		cl.gcmdSendValue = qtrue;
-		cl.gcmdValue = genCmdNum;
-	}
-}
-
 void IN_MLookDown( void ) {
 	in_mlooking = qtrue;
 }
 
-void IN_CenterView( void );
+void IN_CenterView (void) {
+	cl.viewangles[PITCH] = -SHORT2ANGLE(cl.snap.ps.delta_angles[PITCH]);
+}
+
 void IN_MLookUp( void ) {
 	in_mlooking = qfalse;
 	if ( !cl_freelook->integer ) {
@@ -746,8 +674,73 @@ void IN_Button14Up(void) {IN_KeyUp(&in_buttons[14]);}
 void IN_Button15Down(void) {IN_KeyDown(&in_buttons[15]);}
 void IN_Button15Up(void) {IN_KeyUp(&in_buttons[15]);}
 
-void IN_CenterView (void) {
-	cl.viewangles[PITCH] = -SHORT2ANGLE(cl.snap.ps.delta_angles[PITCH]);
+void IN_UseGivenForce(void)
+{
+	char *c = Cmd_Argv(1);
+	int forceNum =-1;
+	int genCmdNum = 0;
+
+	if(c) {
+		forceNum = atoi(c);
+	} else {
+		return;
+	}
+
+	switch(forceNum) {
+	case FP_DRAIN:
+		IN_Button11Down();
+		IN_Button11Up();
+		break;
+	case FP_PUSH:
+		genCmdNum = GENCMD_FORCE_THROW;
+		break;
+	case FP_SPEED:
+		genCmdNum = GENCMD_FORCE_SPEED;
+		break;
+	case FP_PULL:
+		genCmdNum = GENCMD_FORCE_PULL;
+		break;
+	case FP_TELEPATHY:
+		genCmdNum = GENCMD_FORCE_DISTRACT;
+		break;
+	case FP_GRIP:
+		IN_Button6Down();
+		IN_Button6Up();
+		break;
+	case FP_LIGHTNING:
+		IN_Button10Down();
+		IN_Button10Up();
+		break;
+	case FP_RAGE:
+		genCmdNum = GENCMD_FORCE_RAGE;
+		break;
+	case FP_PROTECT:
+		genCmdNum = GENCMD_FORCE_PROTECT;
+		break;
+	case FP_ABSORB:
+		genCmdNum = GENCMD_FORCE_ABSORB;
+		break;
+	case FP_SEE:
+		genCmdNum = GENCMD_FORCE_SEEING;
+		break;
+	case FP_HEAL:
+		genCmdNum = GENCMD_FORCE_HEAL;
+		break;
+	case FP_TEAM_HEAL:
+		genCmdNum = GENCMD_FORCE_HEALOTHER;
+		break;
+	case FP_TEAM_FORCE:
+		genCmdNum = GENCMD_FORCE_FORCEPOWEROTHER;
+		break;
+	default:
+		assert(0);
+		break;
+	}
+
+	if(genCmdNum != 0) {
+		cl.gcmdSendValue = qtrue;
+		cl.gcmdValue = genCmdNum;
+	}
 }
 
 // Moves the local angle positions

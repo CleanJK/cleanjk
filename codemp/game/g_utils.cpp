@@ -315,8 +315,6 @@ void G_Throw( gentity_t *targ, vec3_t newDir, float push )
 	}
 }
 
-void BG_SetAnim(playerState_t *ps, animation_t *animations, int setAnimParts,int anim,int setAnimFlags);
-
 // Finally reworked PM_SetAnim to allow non-pmove calls, so we take our local anim index into account and make the call
 void G_SetAnim(gentity_t *ent, usercmd_t *ucmd, int setAnimParts, int anim, int setAnimFlags, int blendTime)
 {
@@ -1137,7 +1135,6 @@ int G_CanUseDispOn(gentity_t *ent, int dispType)
 
 #define USE_DISTANCE	64.0f
 
-extern void Touch_Button(gentity_t *ent, gentity_t *other, trace_t *trace );
 static vec3_t	playerMins = {-15, -15, DEFAULT_MINS_2};
 static vec3_t	playerMaxs = {15, 15, DEFAULT_MAXS_2};
 
@@ -1533,7 +1530,6 @@ qboolean G_ExpandPointToBBox( vec3_t point, const vec3_t mins, const vec3_t maxs
 	return qtrue;
 }
 
-extern qboolean G_FindClosestPointOnLineSegment( const vec3_t start, const vec3_t end, const vec3_t from, vec3_t result );
 float ShortestLineSegBewteen2LineSegs( vec3_t start1, vec3_t end1, vec3_t start2, vec3_t end2, vec3_t close_pnt1, vec3_t close_pnt2 )
 {
 	float	current_dist, new_dist;

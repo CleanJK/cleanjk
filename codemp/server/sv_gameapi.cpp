@@ -28,6 +28,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "ghoul2/ghoul2_shared.h"
 #include "qcommon/cm_public.h"
 #include "icarus/GameInterface.h"
+#include "icarus/Q3_Interface.h"
+#include "icarus/Q3_Registers.h"
 #include "icarus/icarus.h"
 #include "qcommon/timing.h"
 #include "qcommon/com_cvar.h"
@@ -200,20 +202,6 @@ int GVM_BG_GetItemIndexByTag( int tag, int type ) {
 
 // legacy syscall
 extern float g_svCullDist;
-int CM_ModelContents( clipHandle_t model, int subBSPIndex );
-int CM_LoadSubBSP( const char *name, qboolean clientload );
-int CM_FindSubBSP( int modelIndex );
-char *CM_SubBSPEntityString( int index );
-qboolean Q3_TaskIDPending( sharedEntity_t *ent, taskID_t taskType );
-void Q3_TaskIDSet( sharedEntity_t *ent, taskID_t taskType, int taskID );
-void Q3_TaskIDComplete( sharedEntity_t *ent, taskID_t taskType );
-void Q3_SetVar( int taskID, int entID, const char *type_name, const char *data );
-int Q3_VariableDeclared( const char *name );
-int Q3_GetFloatVariable( const char *name, float *value );
-int Q3_GetStringVariable( const char *name, const char **value );
-int Q3_GetVectorVariable( const char *name, vec3_t value );
-void SV_BotWaypointReception( int wpnum, wpobject_t **wps );
-void SV_BotCalculatePaths( int rmg );
 
 static void SV_LocateGameData( sharedEntity_t *gEnts, int numGEntities, int sizeofGEntity_t, playerState_t *clients, int sizeofGameClient ) {
 	sv.gentities = gEnts;

@@ -32,8 +32,6 @@ backEndState_t	backEnd;
 bool tr_stencilled = false;
 extern qboolean tr_distortionPrePost; //tr_shadows.cpp
 extern qboolean tr_distortionNegate; //tr_shadows.cpp
-extern void RB_CaptureScreenImage(void); //tr_shadows.cpp
-extern void RB_DistortionFill(void); //tr_shadows.cpp
 static void RB_DrawGlowOverlay();
 static void RB_BlurGlowTexture();
 
@@ -42,9 +40,6 @@ bool g_bRenderGlowingObjects = false;
 
 // Whether the current hardware supports dynamic glows/flares.
 bool g_bDynamicGlowSupported = false;
-
-extern void R_RotateForViewer(void);
-extern void R_SetupFrustum(void);
 
 static const float s_flipMatrix[16] = {
 	// convert from our coordinate system (looking down X)
@@ -1751,7 +1746,6 @@ const void	*RB_WorldEffects( const void *data )
 	return (const void *)(cmd + 1);
 }
 
-extern const void *R_DrawWireframeAutomap(const void *data); //tr_world.cpp
 void RB_ExecuteRenderCommands( const void *data ) {
 	int		t1, t2;
 

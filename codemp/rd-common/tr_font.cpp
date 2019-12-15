@@ -260,8 +260,6 @@ int g_iNonScaledCharRange;	// this is used with auto-scaling of asian fonts, any
 #define KSC5601_HANGUL_LOBYTE_HIBOUND	0xFF	// ...bounding (ie only valid in between these points, but NULLs in charsets for these codes)
 #define KSC5601_HANGUL_CODES_PER_ROW	96		// 2 more than the number of glyphs
 
-extern qboolean Language_IsKorean( void );
-
 static inline bool Korean_ValidKSC5601Hangul( byte _iHi, byte _iLo )
 {
 	return (_iHi >=KSC5601_HANGUL_HIBYTE_START		&&
@@ -311,8 +309,6 @@ static int Korean_InitFields(int &iGlyphTPs, const char *&psLang)
 #define BIG5_LOBYTE_LOBOUND1	0xA1	//
 #define BIG5_LOBYTE_HIBOUND1	0xFE	//
 #define BIG5_CODES_PER_ROW		160		// 3 more than the number of glyphs
-
-extern qboolean Language_IsTaiwanese( void );
 
 static bool Taiwanese_ValidBig5Code( unsigned int uiCode )
 {
@@ -390,8 +386,6 @@ static int Taiwanese_InitFields(int &iGlyphTPs, const char *&psLang)
 #define SHIFTJIS_LOBYTE_START1	0x80
 #define SHIFTJIS_LOBYTE_STOP1	0xFC
 #define SHIFTJIS_CODES_PER_ROW	(((SHIFTJIS_LOBYTE_STOP0-SHIFTJIS_LOBYTE_START0)+1)+((SHIFTJIS_LOBYTE_STOP1-SHIFTJIS_LOBYTE_START1)+1))
-
-extern qboolean Language_IsJapanese( void );
 
 static bool Japanese_ValidShiftJISCode( byte _iHi, byte _iLo )
 {
@@ -472,8 +466,6 @@ static int Japanese_InitFields(int &iGlyphTPs, const char *&psLang)
 #define GB_LOBYTE_HIBOUND	0xFF	// ...bounding (ie only valid in between these points, but NULLs in charsets for these codes)
 #define GB_CODES_PER_ROW	95		// 1 more than the number of glyphs
 
-extern qboolean Language_IsChinese( void );
-
 static inline bool Chinese_ValidGBCode( byte _iHi, byte _iLo )
 {
 	return (_iHi >=GB_HIBYTE_START		&&
@@ -534,8 +526,6 @@ static int Chinese_InitFields(int &iGlyphTPs, const char *&psLang)
 #define TIS_GLYPHS_START	160
 #define TIS_SARA_AM			0xD3		// special case letter, both a new letter and a trailing accent for the prev one
 ThaiCodes_t g_ThaiCodes;	// the one and only instance of this object
-
-extern qboolean Language_IsThai( void );
 
 /*
 static int Thai_IsAccentChar( unsigned int uiCode )

@@ -26,8 +26,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "game/bg_local.h"
 #include "game/w_saber.h"
 
-extern qboolean BG_SabersOff( playerState_t *ps );
-saberInfo_t *BG_MySaber( int clientNum, int saberNum );
 
 int PM_irand_timesync(int val1, int val2)
 {
@@ -391,7 +389,112 @@ saberMoveName_t PM_AttackMoveForQuad( int quad )
 	return LS_NONE;
 }
 
-qboolean PM_SaberKataDone(int curmove, int newmove);
+static const int saberMoveTransitionAngle[Q_NUM_QUADS][Q_NUM_QUADS] = {
+//		Q_BR,Q_BR,	Q_BR,Q_R,	Q_BR,Q_TR,	Q_BR,Q_T,	Q_BR,Q_TL,	Q_BR,Q_L,	Q_BR,Q_BL,	Q_BR,Q_B,
+	{	0,			45,			90,			135,		180,		215,		270,		45			},
+//		Q_R,Q_BR,	Q_R,Q_R,	Q_R,Q_TR,	Q_R,Q_T,	Q_R,Q_TL,	Q_R,Q_L,	Q_R,Q_BL,	Q_R,Q_B,
+	{	45,			0,			45,			90,			135,		180,		215,		90			},
+//		Q_TR,Q_BR,	Q_TR,Q_R,	Q_TR,Q_TR,	Q_TR,Q_T,	Q_TR,Q_TL,	Q_TR,Q_L,	Q_TR,Q_BL,	Q_TR,Q_B,
+	{	90,			45,			0,			45,			90,			135,		180,		135			},
+//		Q_T,Q_BR,	Q_T,Q_R,	Q_T,Q_TR,	Q_T,Q_T,	Q_T,Q_TL,	Q_T,Q_L,	Q_T,Q_BL,	Q_T,Q_B,
+	{	135,		90,			45,			0,			45,			90,			135,		180			},
+//		Q_TL,Q_BR,	Q_TL,Q_R,	Q_TL,Q_TR,	Q_TL,Q_T,	Q_TL,Q_TL,	Q_TL,Q_L,	Q_TL,Q_BL,	Q_TL,Q_B,
+	{	180,		135,		90,			45,			0,			45,			90,			135			},
+//		Q_L,Q_BR,	Q_L,Q_R,	Q_L,Q_TR,	Q_L,Q_T,	Q_L,Q_TL,	Q_L,Q_L,	Q_L,Q_BL,	Q_L,Q_B,
+	{	215,		180,		135,		90,			45,			0,			45,			90			},
+//		Q_BL,Q_BR,	Q_BL,Q_R,	Q_BL,Q_TR,	Q_BL,Q_T,	Q_BL,Q_TL,	Q_BL,Q_L,	Q_BL,Q_BL,	Q_BL,Q_B,
+	{	270,		215,		180,		135,		90,			45,			0,			45			},
+//		Q_B,Q_BR,	Q_B,Q_R,	Q_B,Q_TR,	Q_B,Q_T,	Q_B,Q_TL,	Q_B,Q_L,	Q_B,Q_BL,	Q_B,Q_B,
+	{	45,			90,			135,		180,		135,		90,			45,			0			},
+};
+
+int PM_SaberAttackChainAngle( int move1, int move2 ) {
+	if ( move1 == -1 || move2 == -1 ) {
+		return -1;
+	}
+	return saberMoveTransitionAngle[saberMoveData[move1].endQuad][saberMoveData[move2].startQuad];
+}
+
+static qboolean PM_SaberKataDone(int curmove, int newmove)
+{
+	if ( pm->ps->fd.saberAnimLevel == SS_STAFF )
+	{
+		//TEMP: for now, let staff attacks infinitely chain
+		return qfalse;
+	}
+	else if ( pm->ps->fd.saberAnimLevel == SS_DUAL )
+	{
+		//TEMP: for now, let staff attacks infinitely chain
+		return qfalse;
+	}
+	else if ( pm->ps->fd.saberAnimLevel == FORCE_LEVEL_3 )
+	{
+		if ( curmove == LS_NONE || newmove == LS_NONE )
+		{
+			if ( pm->ps->fd.saberAnimLevel >= FORCE_LEVEL_3 && pm->ps->saberAttackChainCount > PM_irand_timesync( 0, 1 ) )
+			{
+				return qtrue;
+			}
+		}
+		else if ( pm->ps->saberAttackChainCount > PM_irand_timesync( 2, 3 ) )
+		{
+			return qtrue;
+		}
+		else if ( pm->ps->saberAttackChainCount > 0 )
+		{
+			int chainAngle = PM_SaberAttackChainAngle( curmove, newmove );
+			if ( chainAngle < 135 || chainAngle > 215 )
+			{//if trying to chain to a move that doesn't continue the momentum
+				return qtrue;
+			}
+			else if ( chainAngle == 180 )
+			{//continues the momentum perfectly, allow it to chain 66% of the time
+				if ( pm->ps->saberAttackChainCount > 1 )
+				{
+					return qtrue;
+				}
+			}
+			else
+			{//would continue the movement somewhat, 50% chance of continuing
+				if ( pm->ps->saberAttackChainCount > 2 )
+				{
+					return qtrue;
+				}
+			}
+		}
+	}
+	else
+	{//Perhaps have chainAngle influence fast and medium chains as well? For now, just do level 3.
+		if (newmove == LS_A_TL2BR ||
+			newmove == LS_A_L2R ||
+			newmove == LS_A_BL2TR ||
+			newmove == LS_A_BR2TL ||
+			newmove == LS_A_R2L ||
+			newmove == LS_A_TR2BL )
+		{ //lower chaining tolerance for spinning saber anims
+			int chainTolerance;
+
+			if (pm->ps->fd.saberAnimLevel == FORCE_LEVEL_1)
+			{
+				chainTolerance = 5;
+			}
+			else
+			{
+				chainTolerance = 3;
+			}
+
+			if (pm->ps->saberAttackChainCount >= chainTolerance && PM_irand_timesync(1, pm->ps->saberAttackChainCount) > chainTolerance)
+			{
+				return qtrue;
+			}
+		}
+		if ( pm->ps->fd.saberAnimLevel == FORCE_LEVEL_2 && pm->ps->saberAttackChainCount > PM_irand_timesync( 2, 5 ) )
+		{
+			return qtrue;
+		}
+	}
+	return qfalse;
+}
 
 saberMoveName_t PM_SaberAnimTransitionAnim( saberMoveName_t curmove, saberMoveName_t newmove )
 {
@@ -560,7 +663,6 @@ saberMoveName_t PM_SaberAnimTransitionAnim( saberMoveName_t curmove, saberMoveNa
 	return retmove;
 }
 
-extern qboolean BG_InKnockDown( int anim );
 saberMoveName_t PM_CheckStabDown( void )
 {
 	vec3_t faceFwd, facingAngles;
@@ -674,118 +776,6 @@ qboolean PM_SaberInBounce( int move )
 	if ( move >= LS_D1_BR && move <= LS_D1_BL )
 	{
 		return qtrue;
-	}
-	return qfalse;
-}
-
-qboolean PM_SaberInTransition( int move );
-
-int saberMoveTransitionAngle[Q_NUM_QUADS][Q_NUM_QUADS] =
-{
-//		Q_BR,Q_BR,	Q_BR,Q_R,	Q_BR,Q_TR,	Q_BR,Q_T,	Q_BR,Q_TL,	Q_BR,Q_L,	Q_BR,Q_BL,	Q_BR,Q_B,
-	{	0,			45,			90,			135,		180,		215,		270,		45			},
-//		Q_R,Q_BR,	Q_R,Q_R,	Q_R,Q_TR,	Q_R,Q_T,	Q_R,Q_TL,	Q_R,Q_L,	Q_R,Q_BL,	Q_R,Q_B,
-	{	45,			0,			45,			90,			135,		180,		215,		90			},
-//		Q_TR,Q_BR,	Q_TR,Q_R,	Q_TR,Q_TR,	Q_TR,Q_T,	Q_TR,Q_TL,	Q_TR,Q_L,	Q_TR,Q_BL,	Q_TR,Q_B,
-	{	90,			45,			0,			45,			90,			135,		180,		135			},
-//		Q_T,Q_BR,	Q_T,Q_R,	Q_T,Q_TR,	Q_T,Q_T,	Q_T,Q_TL,	Q_T,Q_L,	Q_T,Q_BL,	Q_T,Q_B,
-	{	135,		90,			45,			0,			45,			90,			135,		180			},
-//		Q_TL,Q_BR,	Q_TL,Q_R,	Q_TL,Q_TR,	Q_TL,Q_T,	Q_TL,Q_TL,	Q_TL,Q_L,	Q_TL,Q_BL,	Q_TL,Q_B,
-	{	180,		135,		90,			45,			0,			45,			90,			135			},
-//		Q_L,Q_BR,	Q_L,Q_R,	Q_L,Q_TR,	Q_L,Q_T,	Q_L,Q_TL,	Q_L,Q_L,	Q_L,Q_BL,	Q_L,Q_B,
-	{	215,		180,		135,		90,			45,			0,			45,			90			},
-//		Q_BL,Q_BR,	Q_BL,Q_R,	Q_BL,Q_TR,	Q_BL,Q_T,	Q_BL,Q_TL,	Q_BL,Q_L,	Q_BL,Q_BL,	Q_BL,Q_B,
-	{	270,		215,		180,		135,		90,			45,			0,			45			},
-//		Q_B,Q_BR,	Q_B,Q_R,	Q_B,Q_TR,	Q_B,Q_T,	Q_B,Q_TL,	Q_B,Q_L,	Q_B,Q_BL,	Q_B,Q_B,
-	{	45,			90,			135,		180,		135,		90,			45,			0			},
-};
-
-int PM_SaberAttackChainAngle( int move1, int move2 )
-{
-	if ( move1 == -1 || move2 == -1 )
-	{
-		return -1;
-	}
-	return saberMoveTransitionAngle[saberMoveData[move1].endQuad][saberMoveData[move2].startQuad];
-}
-
-qboolean PM_SaberKataDone(int curmove, int newmove)
-{
-	if ( pm->ps->fd.saberAnimLevel == SS_STAFF )
-	{
-		//TEMP: for now, let staff attacks infinitely chain
-		return qfalse;
-	}
-	else if ( pm->ps->fd.saberAnimLevel == SS_DUAL )
-	{
-		//TEMP: for now, let staff attacks infinitely chain
-		return qfalse;
-	}
-	else if ( pm->ps->fd.saberAnimLevel == FORCE_LEVEL_3 )
-	{
-		if ( curmove == LS_NONE || newmove == LS_NONE )
-		{
-			if ( pm->ps->fd.saberAnimLevel >= FORCE_LEVEL_3 && pm->ps->saberAttackChainCount > PM_irand_timesync( 0, 1 ) )
-			{
-				return qtrue;
-			}
-		}
-		else if ( pm->ps->saberAttackChainCount > PM_irand_timesync( 2, 3 ) )
-		{
-			return qtrue;
-		}
-		else if ( pm->ps->saberAttackChainCount > 0 )
-		{
-			int chainAngle = PM_SaberAttackChainAngle( curmove, newmove );
-			if ( chainAngle < 135 || chainAngle > 215 )
-			{//if trying to chain to a move that doesn't continue the momentum
-				return qtrue;
-			}
-			else if ( chainAngle == 180 )
-			{//continues the momentum perfectly, allow it to chain 66% of the time
-				if ( pm->ps->saberAttackChainCount > 1 )
-				{
-					return qtrue;
-				}
-			}
-			else
-			{//would continue the movement somewhat, 50% chance of continuing
-				if ( pm->ps->saberAttackChainCount > 2 )
-				{
-					return qtrue;
-				}
-			}
-		}
-	}
-	else
-	{//Perhaps have chainAngle influence fast and medium chains as well? For now, just do level 3.
-		if (newmove == LS_A_TL2BR ||
-			newmove == LS_A_L2R ||
-			newmove == LS_A_BL2TR ||
-			newmove == LS_A_BR2TL ||
-			newmove == LS_A_R2L ||
-			newmove == LS_A_TR2BL )
-		{ //lower chaining tolerance for spinning saber anims
-			int chainTolerance;
-
-			if (pm->ps->fd.saberAnimLevel == FORCE_LEVEL_1)
-			{
-				chainTolerance = 5;
-			}
-			else
-			{
-				chainTolerance = 3;
-			}
-
-			if (pm->ps->saberAttackChainCount >= chainTolerance && PM_irand_timesync(1, pm->ps->saberAttackChainCount) > chainTolerance)
-			{
-				return qtrue;
-			}
-		}
-		if ( pm->ps->fd.saberAnimLevel == FORCE_LEVEL_2 && pm->ps->saberAttackChainCount > PM_irand_timesync( 2, 5 ) )
-		{
-			return qtrue;
-		}
 	}
 	return qfalse;
 }
@@ -1291,7 +1281,6 @@ qboolean BG_CheckIncrementLockAnim( int anim, int winOrLose )
 	return increment;
 }
 
-extern qboolean ValidAnimFileIndex ( int index );
 void PM_SaberLocked( void )
 {
 	int	remaining = 0;
@@ -1921,7 +1910,6 @@ float PM_WalkableGroundDistance(void)
 	return VectorLength(down);
 }
 
-qboolean BG_SaberInTransitionAny( int move );
 static qboolean PM_CanDoDualDoubleAttacks(void)
 {
 	if ( pm->ps->weapon == WP_SABER )
@@ -1995,7 +1983,6 @@ static qboolean PM_CheckEnemyPresence( int dir, float radius )
 #define SABER_ALT_ATTACK_POWER_LR	10//30?
 #define SABER_ALT_ATTACK_POWER_FB	25//30/50?
 
-extern qboolean PM_SaberInReturn( int move ); //bg_panimate.c
 saberMoveName_t PM_CheckPullAttack( void )
 {
 	return LS_NONE;
@@ -2459,9 +2446,6 @@ int PM_KickMoveForConditions(void)
 	return kickMove;
 }
 
-qboolean BG_InSlopeAnim( int anim );
-qboolean PM_RunningAnim( int anim );
-
 qboolean PM_SaberMoveOkayForKata( void )
 {
 	if ( pm->ps->saberMove == LS_READY
@@ -2569,12 +2553,6 @@ qboolean PM_CanDoRollStab( void )
 	}
 	return qtrue;
 }
-
-qboolean PM_WalkingAnim( int anim );
-qboolean PM_SwimmingAnim( int anim );
-int PM_SaberBounceForAttack( int move );
-qboolean BG_SuperBreakLoseAnim( int anim );
-qboolean BG_SuperBreakWinAnim( int anim );
 
 // Consults a chart to choose what to do with the lightsaber.
 // While this is a little different than the Quake 3 code, there is no clean way of using the Q3 code for this kind of thing.

@@ -677,7 +677,39 @@ void pas_adjust_enemy( gentity_t *ent )
 #define TURRET_DEATH_DELAY 2000
 #define TURRET_LIFETIME 60000
 
-void turret_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod);
+static void turret_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod)
+{
+	// Turn off the thinking of the base & use it's targets
+	self->think = 0;//NULL;
+	self->use = 0;//NULL;
+
+	if ( self->target )
+	{
+		G_UseTargets( self, attacker );
+	}
+
+	if (!g_entities[self->genericValue3].inuse || !g_entities[self->genericValue3].client)
+	{
+		G_FreeEntity(self);
+		return;
+	}
+
+	// clear my data
+	self->die  = 0;//NULL;
+	self->takedamage = qfalse;
+	self->health = 0;
+
+	// hack the effect angle so that explode death can orient the effect properly
+	VectorSet( self->s.angles, 0, 0, 1 );
+
+	G_PlayEffect(EFFECT_EXPLOSION_PAS, self->s.pos.trBase, self->s.angles);
+	G_RadiusDamage(self->s.pos.trBase, &g_entities[self->genericValue3], 30, 256, self, self, MOD_UNKNOWN);
+
+	g_entities[self->genericValue3].client->ps.fd.sentryDeployed = qfalse;
+
+	//ExplodeDeath( self );
+	G_FreeEntity( self );
+}
 
 void sentryExpire(gentity_t *self)
 {
@@ -911,40 +943,6 @@ void pas_think( gentity_t *ent )
 	{
 		ent->s.fireflag = 0;
 	}
-}
-
-void turret_die(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod)
-{
-	// Turn off the thinking of the base & use it's targets
-	self->think = 0;//NULL;
-	self->use = 0;//NULL;
-
-	if ( self->target )
-	{
-		G_UseTargets( self, attacker );
-	}
-
-	if (!g_entities[self->genericValue3].inuse || !g_entities[self->genericValue3].client)
-	{
-		G_FreeEntity(self);
-		return;
-	}
-
-	// clear my data
-	self->die  = 0;//NULL;
-	self->takedamage = qfalse;
-	self->health = 0;
-
-	// hack the effect angle so that explode death can orient the effect properly
-	VectorSet( self->s.angles, 0, 0, 1 );
-
-	G_PlayEffect(EFFECT_EXPLOSION_PAS, self->s.pos.trBase, self->s.angles);
-	G_RadiusDamage(self->s.pos.trBase, &g_entities[self->genericValue3], 30, 256, self, self, MOD_UNKNOWN);
-
-	g_entities[self->genericValue3].client->ps.fd.sentryDeployed = qfalse;
-
-	//ExplodeDeath( self );
-	G_FreeEntity( self );
 }
 
 void turret_free(gentity_t *self)
@@ -1397,8 +1395,6 @@ void EWebPrecache(void)
 #define EWEB_DEATH_RADIUS		128
 #define EWEB_DEATH_DMG			90
 
-extern void BG_CycleInven(playerState_t *ps, int direction); //bg_misc.c
-
 void EWebDie(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod)
 {
 	vec3_t fxDir;
@@ -1717,8 +1713,6 @@ void EWebUpdateBoneAngles(gentity_t *owner, gentity_t *eweb)
 }
 
 //keep it updated
-extern int BG_EmplacedView(vec3_t baseAngles, vec3_t angles, float *newYaw, float constraint); //bg_misc.c
-
 void EWebThink(gentity_t *self)
 {
 	qboolean killMe = qfalse;

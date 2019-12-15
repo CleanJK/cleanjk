@@ -27,8 +27,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #define METROID_JUMP 1
 
-extern qboolean BG_FullBodyTauntAnim( int anim );
-
 extern bot_state_t *botstates[MAX_CLIENTS];
 
 int		speedLoopSound		= 0;
@@ -39,8 +37,6 @@ int		seeLoopSound		= 0;
 int		ysalamiriLoopSound	= 0;
 
 #define FORCE_VELOCITY_DAMAGE 0
-
-int ForceShootDrain( gentity_t *self );
 
 gentity_t *G_PreDefSound(vec3_t org, int pdSound)
 {
@@ -471,8 +467,6 @@ void WP_SpawnInitForcePowers( gentity_t *ent )
 		i++;
 	}
 }
-
-extern qboolean BG_InKnockDown( int anim ); //bg_pmove.c
 
 int ForcePowerUsableOn(gentity_t *attacker, gentity_t *other, forcePowers_t forcePower)
 {
@@ -2561,7 +2555,6 @@ float forcePushPullRadius[NUM_FORCE_POWER_LEVELS] =
 };
 //rwwFIXMEFIXME: incorporate this into the below function? Currently it's only being used by jedi AI
 
-extern void Touch_Button(gentity_t *ent, gentity_t *other, trace_t *trace );
 void ForceThrow( gentity_t *self, qboolean pull )
 {
 	//shove things in front of you away

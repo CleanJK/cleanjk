@@ -74,8 +74,6 @@ int SV_OrgVisibleBox(vec3_t org1, vec3_t mins, vec3_t maxs, vec3_t org2, int ign
 	return 0;
 }
 
-void *BotVMShift( intptr_t ptr );
-
 void SV_BotWaypointReception(int wpnum, wpobject_t **wps)
 {
 	int i = 0;
@@ -501,8 +499,6 @@ int SV_BotLibShutdown( void ) {
 void SV_BotInitCvars(void) {
 	//CJKFIXME: move bot cvar registration here
 }
-
-extern botlib_export_t *GetBotLibAPI( int apiVersion, botlib_import_t *import );
 
 // there's no such thing as this now, since the zone is unlimited, but I have to provide something
 //	so it doesn't run out of control alloc-wise (since the bot code calls this in a while() loop to free

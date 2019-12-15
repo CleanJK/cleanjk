@@ -36,7 +36,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "qcommon/qcommon.h"
 #include "qcommon/q_shared.h"
 #include "qcommon/com_cvars.h"
-#include "sys_local.h"
+#include "sys/sys_local.h"
 
 qboolean stdinIsATTY = qfalse;
 

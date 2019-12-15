@@ -26,7 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "qcommon/com_cvars.h"
 #include "rd-common/tr_types.h"
 #include "sys/sys_local.h"
-#include "sdl_icon.h"
+#include "sdl/sdl_icon.h"
 
 enum rserr_t
 {

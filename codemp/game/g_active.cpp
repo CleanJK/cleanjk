@@ -25,12 +25,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "game/g_local.h"
 #include "game/bg_saga.h"
 
-qboolean PM_SaberInTransition( int move );
-qboolean PM_SaberInStart( int move );
-qboolean PM_SaberInReturn( int move );
-qboolean WP_SaberStyleValidForSaber( saberInfo_t *saber1, saberInfo_t *saber2, int saberHolstered, int saberAnimLevel );
-qboolean saberCheckKnockdown_DuelLoss(gentity_t *saberent, gentity_t *saberOwner, gentity_t *other);
-
 void P_SetTwitchInfo(gclient_t	*client)
 {
 	client->ps.painTime = level.time;
@@ -197,7 +191,6 @@ void P_WorldEffects( gentity_t *ent ) {
 	}
 }
 
-extern void G_ApplyKnockback( gentity_t *targ, vec3_t newDir, float knockback );
 void DoImpact( gentity_t *self, gentity_t *other, qboolean damageSelf )
 {
 	float magnitude, my_mass;
@@ -767,7 +760,6 @@ void ClientIntermissionThink( gclient_t *client ) {
 }
 
 //called gameside only from pmove code (convenience)
-extern qboolean BG_SabersOff( playerState_t *ps );
 void G_CheapWeaponFire(int entNum, int ev)
 {
 	gentity_t *ent = &g_entities[entNum];
@@ -791,8 +783,6 @@ void G_CheapWeaponFire(int entNum, int ev)
 		assert( !"G_CheapWeaponFire: unknown ev" );
 	}
 }
-
-qboolean BG_InKnockDownOnly( int anim );
 
 // Events will be passed on to the clients for presentation, but any server game effects are handled here
 void ClientEvents( gentity_t *ent, int oldEventSequence ) {

@@ -70,11 +70,6 @@ int serverStatusCount;
 
 IHeapAllocator *G2VertSpaceClient = 0;
 
-extern void SV_BotFrame( int time );
-void CL_CheckForResend( void );
-void CL_ShowIP_f(void);
-void CL_ServerStatus_f(void);
-void CL_ServerStatusResponse( netadr_t from, msg_t *msg );
 static void CL_ShutdownRef( qboolean restarting );
 
 // CLIENT RELIABLE COMMAND COMMUNICATION
@@ -483,6 +478,61 @@ void CL_FlushMemory( void ) {
 	}
 
 	CL_StartHunkUsers();
+}
+
+// Resend a connect message if the last one has timed out
+static void CL_CheckForResend( void ) {
+	int		port;
+	char	info[MAX_INFO_STRING];
+	char	data[MAX_INFO_STRING+10];
+
+	// don't send anything if playing back a demo
+	if ( clc.demoplaying ) {
+		return;
+	}
+
+	// resend if we haven't gotten a reply yet
+	if ( cls.state != CA_CONNECTING && cls.state != CA_CHALLENGING ) {
+		return;
+	}
+
+	if ( cls.realtime - clc.connectTime < RETRANSMIT_TIMEOUT ) {
+		return;
+	}
+
+	clc.connectTime = cls.realtime;	// for retransmit requests
+	clc.connectPacketCount++;
+
+	switch ( cls.state ) {
+	case CA_CONNECTING:
+		// requesting a challenge
+
+		// The challenge request shall be followed by a client challenge so no malicious server can hijack this connection.
+		Com_sprintf(data, sizeof(data), "getchallenge %d", clc.challenge);
+
+		NET_OutOfBandPrint(NS_CLIENT, clc.serverAddress, data);
+		break;
+
+	case CA_CHALLENGING:
+		// sending back the challenge
+		port = (int)net_qport->integer;
+
+		Q_strncpyz( info, Cvar_InfoString( CVAR_USERINFO ), sizeof( info ) );
+		Info_SetValueForKey( info, "protocol", va("%i", PROTOCOL_VERSION ) );
+		Info_SetValueForKey( info, "qport", va("%i", port ) );
+		Info_SetValueForKey( info, "challenge", va("%i", clc.challenge ) );
+
+		Com_sprintf(data, sizeof(data), "connect \"%s\"", info );
+		NET_OutOfBandData( NS_CLIENT, clc.serverAddress, (byte *)data, strlen(data) );
+
+		// the most current userinfo has been sent, so watch for any
+		// newer changes to userinfo variables
+		cvar_modifiedFlags &= ~CVAR_USERINFO;
+		break;
+
+	default:
+		Com_Error( ERR_FATAL, "CL_CheckForResend: bad cls.state" );
+	}
 }
 
 // A local server is starting to load a map, so update the screen to let the user know about it, then dump all client
@@ -1166,61 +1216,6 @@ void CL_InitDownloads(void) {
 	CL_DownloadsComplete();
 }
 
-// Resend a connect message if the last one has timed out
-void CL_CheckForResend( void ) {
-	int		port;
-	char	info[MAX_INFO_STRING];
-	char	data[MAX_INFO_STRING+10];
-
-	// don't send anything if playing back a demo
-	if ( clc.demoplaying ) {
-		return;
-	}
-
-	// resend if we haven't gotten a reply yet
-	if ( cls.state != CA_CONNECTING && cls.state != CA_CHALLENGING ) {
-		return;
-	}
-
-	if ( cls.realtime - clc.connectTime < RETRANSMIT_TIMEOUT ) {
-		return;
-	}
-
-	clc.connectTime = cls.realtime;	// for retransmit requests
-	clc.connectPacketCount++;
-
-	switch ( cls.state ) {
-	case CA_CONNECTING:
-		// requesting a challenge
-
-		// The challenge request shall be followed by a client challenge so no malicious server can hijack this connection.
-		Com_sprintf(data, sizeof(data), "getchallenge %d", clc.challenge);
-
-		NET_OutOfBandPrint(NS_CLIENT, clc.serverAddress, data);
-		break;
-
-	case CA_CHALLENGING:
-		// sending back the challenge
-		port = (int)net_qport->integer;
-
-		Q_strncpyz( info, Cvar_InfoString( CVAR_USERINFO ), sizeof( info ) );
-		Info_SetValueForKey( info, "protocol", va("%i", PROTOCOL_VERSION ) );
-		Info_SetValueForKey( info, "qport", va("%i", port ) );
-		Info_SetValueForKey( info, "challenge", va("%i", clc.challenge ) );
-
-		Com_sprintf(data, sizeof(data), "connect \"%s\"", info );
-		NET_OutOfBandData( NS_CLIENT, clc.serverAddress, (byte *)data, strlen(data) );
-
-		// the most current userinfo has been sent, so watch for any
-		// newer changes to userinfo variables
-		cvar_modifiedFlags &= ~CVAR_USERINFO;
-		break;
-
-	default:
-		Com_Error( ERR_FATAL, "CL_CheckForResend: bad cls.state" );
-	}
-}
-
 // Sometimes the server can drop the client and the netchan based disconnect can be lost.
 // If the client continues to send packets to the server, the server will send out of band disconnect packets to the client so it doesn't have to wait for the
 //	full timeout period.
@@ -1464,6 +1459,96 @@ static void CL_CheckSVStringEdRef(char *buf, const char *str)
 	buf[b] = 0;
 }
 
+static void CL_ServerStatusResponse( netadr_t from, msg_t *msg ) {
+	char	*s;
+	char	info[MAX_INFO_STRING];
+	int		i, l, score, ping;
+	int		len;
+	serverStatus_t *serverStatus;
+
+	serverStatus = NULL;
+	for (i = 0; i < MAX_SERVERSTATUSREQUESTS; i++) {
+		if ( NET_CompareAdr( from, cl_serverStatusList[i].address ) ) {
+			serverStatus = &cl_serverStatusList[i];
+			break;
+		}
+	}
+	// if we didn't request this server status
+	if (!serverStatus) {
+		return;
+	}
+
+	s = MSG_ReadStringLine( msg );
+
+	len = 0;
+	Com_sprintf(&serverStatus->string[len], sizeof(serverStatus->string)-len, "%s", s);
+
+	if (serverStatus->print) {
+		Com_Printf( "Server (%s)\n",
+			NET_AdrToString( serverStatus->address ) );
+		Com_Printf("Server settings:\n");
+		// print cvars
+		while (*s) {
+			for (i = 0; i < 2 && *s; i++) {
+				if (*s == '\\')
+					s++;
+				l = 0;
+				while (*s) {
+					info[l++] = *s;
+					if (l >= MAX_INFO_STRING-1)
+						break;
+					s++;
+					if (*s == '\\') {
+						break;
+					}
+				}
+				info[l] = '\0';
+				if (i) {
+					Com_Printf("%s\n", info);
+				}
+				else {
+					Com_Printf("%-24s", info);
+				}
+			}
+		}
+	}
+
+	len = strlen(serverStatus->string);
+	Com_sprintf(&serverStatus->string[len], sizeof(serverStatus->string)-len, "\\");
+
+	if (serverStatus->print) {
+		Com_Printf("\nPlayers:\n");
+		Com_Printf("num: score: ping: name:\n");
+	}
+	for (i = 0, s = MSG_ReadStringLine( msg ); *s; s = MSG_ReadStringLine( msg ), i++) {
+
+		len = strlen(serverStatus->string);
+		Com_sprintf(&serverStatus->string[len], sizeof(serverStatus->string)-len, "\\%s", s);
+
+		if (serverStatus->print) {
+			score = ping = 0;
+			sscanf(s, "%d %d", &score, &ping);
+			s = strchr(s, ' ');
+			if (s)
+				s = strchr(s+1, ' ');
+			if (s)
+				s++;
+			else
+				s = "unknown";
+			Com_Printf("%-2d   %-3d    %-3d   %s\n", i, score, ping, s );
+		}
+	}
+	len = strlen(serverStatus->string);
+	Com_sprintf(&serverStatus->string[len], sizeof(serverStatus->string)-len, "\\");
+
+	serverStatus->time = Com_Milliseconds();
+	serverStatus->address = from;
+	serverStatus->pending = qfalse;
+	if (serverStatus->print) {
+		serverStatus->retrieved = qtrue;
+	}
+}
+
 // Responses to broadcasts, etc
 void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 	char	*s;
@@ -1704,7 +1789,6 @@ void CL_CheckUserinfo( void ) {
 
 static unsigned int frameCount;
 static float avgFrametime=0.0;
-extern void SE_CheckForLanguageUpdates(void);
 void CL_Frame ( int msec ) {
 	qboolean takeVideoFrame = qfalse;
 
@@ -1879,8 +1963,6 @@ void CL_StartHunkUsers( void ) {
 		CL_InitUI();
 	}
 }
-
-qboolean Com_TheHunkMarkHasBeenMade(void);
 
 //qcommon/cm_load.cpp
 extern void *gpvCachedMapDiskImage;
@@ -2154,6 +2236,72 @@ static void CL_GenerateQKey(void)
 	}
 }
 
+static serverStatus_t *CL_GetServerStatus( netadr_t from ) {
+	int i, oldest, oldestTime;
+
+	for (i = 0; i < MAX_SERVERSTATUSREQUESTS; i++) {
+		if ( NET_CompareAdr( from, cl_serverStatusList[i].address ) ) {
+			return &cl_serverStatusList[i];
+		}
+	}
+	for (i = 0; i < MAX_SERVERSTATUSREQUESTS; i++) {
+		if ( cl_serverStatusList[i].retrieved ) {
+			return &cl_serverStatusList[i];
+		}
+	}
+	oldest = -1;
+	oldestTime = 0;
+	for (i = 0; i < MAX_SERVERSTATUSREQUESTS; i++) {
+		if (oldest == -1 || cl_serverStatusList[i].startTime < oldestTime) {
+			oldest = i;
+			oldestTime = cl_serverStatusList[i].startTime;
+		}
+	}
+	if (oldest != -1) {
+		return &cl_serverStatusList[oldest];
+	}
+	serverStatusCount++;
+	return &cl_serverStatusList[serverStatusCount & (MAX_SERVERSTATUSREQUESTS-1)];
+}
+
+static void CL_ServerStatus_f(void) {
+	netadr_t	to, *toptr = NULL;
+	char		*server;
+	serverStatus_t *serverStatus;
+
+	if ( Cmd_Argc() != 2 ) {
+		if ( cls.state != CA_ACTIVE || clc.demoplaying ) {
+			Com_Printf ("Not connected to a server.\n");
+			Com_Printf( "Usage: serverstatus [server]\n");
+			return;
+		}
+
+		toptr = &clc.serverAddress;
+	}
+
+	if(!toptr)
+	{
+		Com_Memset( &to, 0, sizeof(netadr_t) );
+
+		server = Cmd_Argv(1);
+
+		toptr = &to;
+		if ( !NET_StringToAdr( server, toptr ) )
+			return;
+	}
+
+	NET_OutOfBandPrint( NS_CLIENT, *toptr, "getstatus" );
+
+	serverStatus = CL_GetServerStatus( *toptr );
+	serverStatus->address = *toptr;
+	serverStatus->print = qtrue;
+	serverStatus->pending = qtrue;
+}
+
+static void CL_ShowIP_f( void ) {
+	Sys_ShowIP();
+}
+
 void CL_Init( void ) {
 //	Com_Printf( "----- Client Initialization -----\n" );
 
@@ -2412,34 +2560,6 @@ void CL_ServerInfoPacket( netadr_t from, msg_t *msg ) {
 	}
 }
 
-serverStatus_t *CL_GetServerStatus( netadr_t from ) {
-	int i, oldest, oldestTime;
-
-	for (i = 0; i < MAX_SERVERSTATUSREQUESTS; i++) {
-		if ( NET_CompareAdr( from, cl_serverStatusList[i].address ) ) {
-			return &cl_serverStatusList[i];
-		}
-	}
-	for (i = 0; i < MAX_SERVERSTATUSREQUESTS; i++) {
-		if ( cl_serverStatusList[i].retrieved ) {
-			return &cl_serverStatusList[i];
-		}
-	}
-	oldest = -1;
-	oldestTime = 0;
-	for (i = 0; i < MAX_SERVERSTATUSREQUESTS; i++) {
-		if (oldest == -1 || cl_serverStatusList[i].startTime < oldestTime) {
-			oldest = i;
-			oldestTime = cl_serverStatusList[i].startTime;
-		}
-	}
-	if (oldest != -1) {
-		return &cl_serverStatusList[oldest];
-	}
-	serverStatusCount++;
-	return &cl_serverStatusList[serverStatusCount & (MAX_SERVERSTATUSREQUESTS-1)];
-}
-
 int CL_ServerStatus( const char *serverAddress, char *serverStatusString, int maxLen ) {
 	int i;
 	netadr_t	to;
@@ -2496,96 +2616,6 @@ int CL_ServerStatus( const char *serverAddress, char *serverStatusString, int ma
 		return qfalse;
 	}
 	return qfalse;
-}
-
-void CL_ServerStatusResponse( netadr_t from, msg_t *msg ) {
-	char	*s;
-	char	info[MAX_INFO_STRING];
-	int		i, l, score, ping;
-	int		len;
-	serverStatus_t *serverStatus;
-
-	serverStatus = NULL;
-	for (i = 0; i < MAX_SERVERSTATUSREQUESTS; i++) {
-		if ( NET_CompareAdr( from, cl_serverStatusList[i].address ) ) {
-			serverStatus = &cl_serverStatusList[i];
-			break;
-		}
-	}
-	// if we didn't request this server status
-	if (!serverStatus) {
-		return;
-	}
-
-	s = MSG_ReadStringLine( msg );
-
-	len = 0;
-	Com_sprintf(&serverStatus->string[len], sizeof(serverStatus->string)-len, "%s", s);
-
-	if (serverStatus->print) {
-		Com_Printf( "Server (%s)\n",
-			NET_AdrToString( serverStatus->address ) );
-		Com_Printf("Server settings:\n");
-		// print cvars
-		while (*s) {
-			for (i = 0; i < 2 && *s; i++) {
-				if (*s == '\\')
-					s++;
-				l = 0;
-				while (*s) {
-					info[l++] = *s;
-					if (l >= MAX_INFO_STRING-1)
-						break;
-					s++;
-					if (*s == '\\') {
-						break;
-					}
-				}
-				info[l] = '\0';
-				if (i) {
-					Com_Printf("%s\n", info);
-				}
-				else {
-					Com_Printf("%-24s", info);
-				}
-			}
-		}
-	}
-
-	len = strlen(serverStatus->string);
-	Com_sprintf(&serverStatus->string[len], sizeof(serverStatus->string)-len, "\\");
-
-	if (serverStatus->print) {
-		Com_Printf("\nPlayers:\n");
-		Com_Printf("num: score: ping: name:\n");
-	}
-	for (i = 0, s = MSG_ReadStringLine( msg ); *s; s = MSG_ReadStringLine( msg ), i++) {
-
-		len = strlen(serverStatus->string);
-		Com_sprintf(&serverStatus->string[len], sizeof(serverStatus->string)-len, "\\%s", s);
-
-		if (serverStatus->print) {
-			score = ping = 0;
-			sscanf(s, "%d %d", &score, &ping);
-			s = strchr(s, ' ');
-			if (s)
-				s = strchr(s+1, ' ');
-			if (s)
-				s++;
-			else
-				s = "unknown";
-			Com_Printf("%-2d   %-3d    %-3d   %s\n", i, score, ping, s );
-		}
-	}
-	len = strlen(serverStatus->string);
-	Com_sprintf(&serverStatus->string[len], sizeof(serverStatus->string)-len, "\\");
-
-	serverStatus->time = Com_Milliseconds();
-	serverStatus->address = from;
-	serverStatus->pending = qfalse;
-	if (serverStatus->print) {
-		serverStatus->retrieved = qtrue;
-	}
 }
 
 void CL_LocalServers_f( void ) {
@@ -2933,42 +2963,3 @@ qboolean CL_UpdateVisiblePings_f(int source) {
 
 	return status;
 }
-
-void CL_ServerStatus_f(void) {
-	netadr_t	to, *toptr = NULL;
-	char		*server;
-	serverStatus_t *serverStatus;
-
-	if ( Cmd_Argc() != 2 ) {
-		if ( cls.state != CA_ACTIVE || clc.demoplaying ) {
-			Com_Printf ("Not connected to a server.\n");
-			Com_Printf( "Usage: serverstatus [server]\n");
-			return;
-		}
-
-		toptr = &clc.serverAddress;
-	}
-
-	if(!toptr)
-	{
-		Com_Memset( &to, 0, sizeof(netadr_t) );
-
-		server = Cmd_Argv(1);
-
-		toptr = &to;
-		if ( !NET_StringToAdr( server, toptr ) )
-			return;
-	}
-
-	NET_OutOfBandPrint( NS_CLIENT, *toptr, "getstatus" );
-
-	serverStatus = CL_GetServerStatus( *toptr );
-	serverStatus->address = *toptr;
-	serverStatus->print = qtrue;
-	serverStatus->pending = qtrue;
-}
-
-void CL_ShowIP_f(void) {
-	Sys_ShowIP();
-}
-

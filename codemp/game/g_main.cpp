@@ -43,23 +43,7 @@ gclient_t		g_clients[MAX_CLIENTS];
 
 qboolean gDuelExit = qfalse;
 
-void G_InitGame					( int levelTime, int randomSeed, int restart );
-void G_RunFrame					( int levelTime );
-void G_ShutdownGame				( int restart );
-void CheckExitRules				( void );
-void G_ROFF_NotetrackCallback	( gentity_t *cent, const char *notetrack);
-
 extern stringID_table_t setTable[];
-
-qboolean G_ParseSpawnVars( qboolean inSubBSP );
-void G_SpawnGEntityFromSpawnVars( qboolean inSubBSP );
-
-int NAVNEW_ClearPathBetweenPoints(vec3_t start, vec3_t end, vec3_t mins, vec3_t maxs, int ignore, int clipmask);
-qboolean G_EntIsUnlockedDoor( int entityNum );
-qboolean G_EntIsDoor( int entityNum );
-qboolean G_EntIsBreakable( int entityNum );
-qboolean G_EntIsRemovableUsable( int entNum );
-void CP_FindCombatPointWaypoints( void );
 
 // Chain together all entities with a matching team field.
 // Entity teams are used for item groups and multi-entity mover groups.
@@ -114,8 +98,6 @@ void G_FindTeams( void ) {
 
 sharedBuffer_t gSharedBuffer;
 
-void WP_SaberLoadParms( void );
-
 void G_CacheGametype( void )
 {
 	// check some things
@@ -147,9 +129,6 @@ void G_CacheMapname( const char *mapname ) {
 	Com_sprintf( level.rawmapname, sizeof( level.rawmapname ), "maps/%s", mapname );
 }
 
-extern void RemoveAllWP(void);
-gentity_t *SelectRandomDeathmatchSpawnPoint( qboolean isbot );
-void SP_info_jedimaster_start( gentity_t *ent );
 void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	int					i;
 	char serverinfo[MAX_INFO_STRING] = {0};
@@ -1119,7 +1098,20 @@ void FindIntermissionPoint( void ) {
 	}
 }
 
-qboolean DuelLimitHit(void);
+static bool DuelLimitHit( void ) {
+	for ( int i=0; i<sv_maxclients.integer; i++ ) {
+		const gclient_t *cl = level.clients + i;
+		if ( cl->pers.connected != CON_CONNECTED ) {
+			continue;
+		}
+
+		if ( duel_fraglimit.integer && cl->sess.wins >= duel_fraglimit.integer ) {
+			return true;
+		}
+	}
+
+	return false;
+}
 
 void BeginIntermission( void ) {
 	int			i;
@@ -1168,26 +1160,6 @@ void BeginIntermission( void ) {
 
 	// send the current scoring to all clients
 	SendScoreboardMessageToAllClients();
-}
-
-qboolean DuelLimitHit(void)
-{
-	int i;
-	gclient_t *cl;
-
-	for ( i=0 ; i< sv_maxclients.integer ; i++ ) {
-		cl = level.clients + i;
-		if ( cl->pers.connected != CON_CONNECTED ) {
-			continue;
-		}
-
-		if ( duel_fraglimit.integer && cl->sess.wins >= duel_fraglimit.integer )
-		{
-			return qtrue;
-		}
-	}
-
-	return qfalse;
 }
 
 void DuelResetWinsLosses(void)
@@ -2448,14 +2420,6 @@ int g_TimeSinceLastFrame = 0;
 int BG_GetTime( void ) {
 	return level.time;
 }
-
-void ClearNPCGlobals( void );
-void AI_UpdateGroups( void );
-void ClearPlayerAlertEvents( void );
-void WP_SaberStartMissileBlockCheck( gentity_t *self, usercmd_t *ucmd );
-qboolean G_PointInBounds( vec3_t point, vec3_t mins, vec3_t maxs );
-
-void SetMoverState( gentity_t *ent, moverState_t moverState, int time );
 
 // Advances the non-player objects in the world
 void G_RunFrame( int levelTime ) {

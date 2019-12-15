@@ -569,8 +569,6 @@ static int SV_RateMsec( client_t *client, int messageSize ) {
 	return rateMsec;
 }
 
-extern void SV_WriteDemoMessage ( client_t *cl, msg_t *msg, int headerBytes );
-
 // Called by SV_SendClientSnapshot and SV_SendClientGameState
 void SV_SendMessageToClient( msg_t *msg, client_t *client ) {
 	int			rateMsec;

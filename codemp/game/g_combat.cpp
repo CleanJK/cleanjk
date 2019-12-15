@@ -27,15 +27,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "game/bg_saga.h"
 #include "game/g_team.h"
 
-extern int G_ShipSurfaceForSurfName( const char *surfaceName );
-extern void G_LetGoOfWall( gentity_t *ent );
-extern void BG_ClearRocketLock( playerState_t *ps );
-//rww - pd
-void BotDamageNotification(gclient_t *bot, gentity_t *attacker);
-//end rww
-
-void ThrowSaberToAttacker(gentity_t *self, gentity_t *attacker);
-
 void ObjectDie (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath )
 {
 	if(self->target)
@@ -1674,18 +1665,9 @@ void G_AddPowerDuelLoserScore(int team, int score)
 
 extern stringID_table_t animTable[MAX_ANIMATIONS+1];
 
-extern void AI_DeleteSelfFromGroup( gentity_t *self );
-extern void AI_GroupMemberKilled( gentity_t *self );
-extern void Boba_FlyStop( gentity_t *self );
-extern qboolean Jedi_WaitingAmbush( gentity_t *self );
-void CheckExitRules( void );
-extern void Rancor_DropVictim( gentity_t *self );
-
 extern qboolean g_dontFrickinCheck;
 extern qboolean g_endPDuel;
 extern qboolean g_noPDuelCheck;
-extern void saberReactivate(gentity_t *saberent, gentity_t *saberOwner);
-extern void saberBackToOwner(gentity_t *saberent);
 void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath ) {
 	gentity_t	*ent;
 	int			anim;
@@ -2629,8 +2611,6 @@ void LimbThink( gentity_t *ent )
 	ent->nextthink = level.time;
 }
 
-extern qboolean BG_GetRootSurfNameWithVariant( void *ghoul2, const char *rootSurfName, char *returnSurfName, int returnSize );
-
 void G_Dismember( gentity_t *ent, gentity_t *enemy, vec3_t point, int limbType, float limbRollBase, float limbPitchBase, int deathAnim, qboolean postDeath )
 {
 	vec3_t	newPoint, dir, vel;
@@ -2970,8 +2950,6 @@ int G_GetHitQuad( gentity_t *self, vec3_t hitloc )
 }
 
 int gGAvoidDismember = 0;
-
-void UpdateClientRenderBolts(gentity_t *self, vec3_t renderOrigin, vec3_t renderAngles);
 
 qboolean G_GetHitLocFromSurfName( gentity_t *ent, const char *surfName, int *hitLoc, vec3_t point, vec3_t dir, vec3_t bladeDir, int mod )
 {

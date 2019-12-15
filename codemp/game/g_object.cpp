@@ -22,9 +22,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "game/g_local.h"
 
-extern void G_MoverTouchPushTriggers( gentity_t *ent, vec3_t oldOrg );
-void G_StopObjectMoving( gentity_t *object );
-
 void G_BounceObject( gentity_t *ent, trace_t *trace )
 {
 	vec3_t	velocity;
@@ -72,7 +69,21 @@ void G_BounceObject( gentity_t *ent, trace_t *trace )
 	VectorCopy( trace->plane.normal, ent->pos1 );//???
 }
 
-extern void DoImpact( gentity_t *self, gentity_t *other, qboolean damageSelf );
+static void G_StopObjectMoving( gentity_t *object ) {
+	object->s.pos.trType = TR_STATIONARY;
+	VectorCopy( object->r.currentOrigin, object->s.origin );
+	VectorCopy( object->r.currentOrigin, object->s.pos.trBase );
+	VectorClear( object->s.pos.trDelta );
+
+	/*
+	//Stop spinning
+	VectorClear( self->s.apos.trDelta );
+	vectoangles(trace->plane.normal, self->s.angles);
+	VectorCopy(self->s.angles, self->r.currentAngles );
+	VectorCopy(self->s.angles, self->s.apos.trBase);
+	*/
+}
+
 //TODO: When transition to 0 grav, push away from surface you were resting on
 //TODO: When free-floating in air, apply some friction to your trDelta (based on mass?)
 void G_RunObject( gentity_t *ent )
@@ -245,22 +256,6 @@ void G_RunObject( gentity_t *ent )
 
 	//call touch func
 	ent->touch( ent, &g_entities[tr.entityNum], &tr );
-}
-
-void G_StopObjectMoving( gentity_t *object )
-{
-	object->s.pos.trType = TR_STATIONARY;
-	VectorCopy( object->r.currentOrigin, object->s.origin );
-	VectorCopy( object->r.currentOrigin, object->s.pos.trBase );
-	VectorClear( object->s.pos.trDelta );
-
-	/*
-	//Stop spinning
-	VectorClear( self->s.apos.trDelta );
-	vectoangles(trace->plane.normal, self->s.angles);
-	VectorCopy(self->s.angles, self->r.currentAngles );
-	VectorCopy(self->s.angles, self->s.apos.trBase);
-	*/
 }
 
 void G_StartObjectMoving( gentity_t *object, vec3_t dir, float speed, trType_t trType )

@@ -44,13 +44,9 @@ stringID_table_t tagsTable [] =
 }
 */
 
-extern float Q_flrand(float min, float max);
-extern qboolean COM_ParseString( char **data, char **s );
-
 interface_export_t	interface_export;
 
 // Reads in a file and attaches the script directory properly
-extern int ICARUS_GetScript( const char *name, char **buf );	//g_icarus.cpp
 static int Q3_ReadScript( const char *name, void **buf )
 {
 	return ICARUS_GetScript( va( "%s/%s", Q3_SCRIPT_DIR, name ), (char**)buf );	//get a (hopefully) cached file
@@ -633,8 +629,6 @@ void CGCam_Roll( float	dest, float duration )
 {
 	CGCam_Anything();
 }
-
-int ICARUS_LinkEntity( int entID, CSequencer *sequencer, CTaskManager *taskManager );
 
 static unsigned int Q3_GetTimeScale( void )
 {

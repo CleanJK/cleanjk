@@ -27,8 +27,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "rd-vanilla/tr_quicksprite.h"
 #include "rd-vanilla/tr_cvars.h"
 
-void R_BindAnimatedImage( textureBundle_t *bundle );
-
 // Singleton System
 CQuickSpriteSystem SQuickSprite;
 

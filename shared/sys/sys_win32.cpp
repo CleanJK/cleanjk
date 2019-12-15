@@ -19,7 +19,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "sys_local.h"
+#include "sys/sys_local.h"
 #include <direct.h>
 #include <io.h>
 #include <shlobj.h>

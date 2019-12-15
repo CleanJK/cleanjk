@@ -53,8 +53,6 @@ output: origin, velocity, impacts, stairup boolean
 extern bgEntity_t *pm_entSelf;
 extern bgEntity_t *pm_entVeh;
 
-extern void PM_SetPMViewAngle(playerState_t *ps, vec3_t angle, usercmd_t *ucmd);
-
 qboolean PM_GroundSlideOkay( float zNormal )
 {
 	if ( zNormal > 0 )
@@ -79,7 +77,6 @@ qboolean PM_GroundSlideOkay( float zNormal )
 }
 
 #ifdef _GAME
-extern void Client_CheckImpactBBrush( gentity_t *self, gentity_t *other );
 qboolean PM_ClientImpact( trace_t *trace )
 {
 	//don't try to predict this

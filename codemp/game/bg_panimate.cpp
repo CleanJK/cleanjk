@@ -37,8 +37,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 	#include "ui/ui_local.h"
 #endif
 
-extern saberInfo_t *BG_MySaber( int clientNum, int saberNum );
-
 // BEGIN: Animation utility functions (sequence checking)
 
 // Called regardless of pm validity:
@@ -2694,9 +2692,6 @@ void BG_SaberStartTransAnim( int clientNum, int saberAnimLevel, int weapon, int 
 		}
 	}
 }
-
-qboolean PM_RunningAnim( int anim );
-qboolean PM_WalkingAnim( int anim );
 
 void BG_SetAnimFinal(playerState_t *ps, animation_t *animations,
 					 int setAnimParts,int anim,int setAnimFlags)

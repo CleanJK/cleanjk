@@ -119,7 +119,6 @@ void R_Register( void )
 		ri.Cmd_AddCommand( commands[i].cmd, commands[i].func, "" );
 }
 
-extern void R_InitWorldEffects(void); //tr_WorldEffects.cpp
 void R_Init( void ) {
 	int i;
 	byte *ptr;
@@ -184,10 +183,8 @@ void RE_Shutdown( qboolean destroyWindow, qboolean restarting ) {
 static void G2API_BoltMatrixReconstruction( qboolean reconstruct ) { gG2_GBMNoReconstruct = (qboolean)!reconstruct; }
 static void G2API_BoltMatrixSPMethod( qboolean spMethod ) { gG2_GBMUseSPMethod = spMethod; }
 
-extern void R_SVModelInit( void ); //tr_model.cpp
 extern qboolean gG2_GBMNoReconstruct;
 extern qboolean gG2_GBMUseSPMethod;
-extern qhandle_t RE_RegisterServerSkin( const char *name );
 
 refexport_t *GetRefAPI ( int apiVersion, refimport_t *rimp ) {
 	static refexport_t re;

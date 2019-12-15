@@ -226,3 +226,5 @@ void		CM_GetModelFormalName ( const char* model, const char* skin, char* name, i
 
 // cm_load.cpp
 void CM_GetWorldBounds ( vec3_t mins, vec3_t maxs );
+void CM_InitBoxHull (void);
+void CM_FloodAreaConnections( clipMap_t &cm );

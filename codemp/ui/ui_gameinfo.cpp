@@ -80,7 +80,7 @@ int UI_ParseInfos( char *buf, int max, char *infos[] ) {
 		if (infos[count]) {
 			strcpy(infos[count], info);
 #ifndef FINAL_BUILD
-			if (trap->Cvar_VariableValue("com_buildScript"))
+			if (com_buildScript.value)
 			{
 				char *personality = Info_ValueForKey(info, "personality");
 				if ( VALIDSTRING( personality ) ) {

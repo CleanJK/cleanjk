@@ -24,10 +24,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "ghoul2/G2.h"
 #include "qcommon/q_shared.h"
 
-void finish_spawning_turretG2( gentity_t *base );
-void ObjectDie (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath );
-void turretG2_base_use( gentity_t *self, gentity_t *other, gentity_t *activator );
-
 #define SPF_TURRETG2_CANRESPAWN	4
 #define SPF_TURRETG2_TURBO		8
 #define SPF_TURRETG2_LEAD_ENEMY	16
@@ -339,7 +335,6 @@ void TurboLaser_SetBoneAnim(gentity_t *eweb, int startFrame, int endFrame)
 		(BONE_ANIM_OVERRIDE_FREEZE|BONE_ANIM_BLEND), 1.0f, level.time, -1, 100);
 }
 
-extern void WP_FireTurboLaserMissile( gentity_t *ent, vec3_t start, vec3_t dir );
 static void turretG2_fire ( gentity_t *ent, vec3_t start, vec3_t dir )
 {
 	vec3_t		org, ang;
@@ -406,6 +401,21 @@ static void turretG2_fire ( gentity_t *ent, vec3_t start, vec3_t dir )
 		VectorScale( dir, ent->mass, bolt->s.pos.trDelta );
 		SnapVector( bolt->s.pos.trDelta );		// save net bandwidth
 		VectorCopy( start, bolt->r.currentOrigin);
+	}
+}
+
+static void turretG2_base_use( gentity_t *self, gentity_t *other, gentity_t *activator )
+{
+	// Toggle on and off
+	self->spawnflags = (self->spawnflags ^ 1);
+
+	if (( self->s.eFlags & EF_SHADER_ANIM ) && ( self->spawnflags & 1 )) // Start_Off
+	{
+		self->s.frame = 1; // black
+	}
+	else
+	{
+		self->s.frame = 0; // glow
 	}
 }
 
@@ -941,127 +951,7 @@ void turretG2_base_think( gentity_t *self )
 	}
 }
 
-void turretG2_base_use( gentity_t *self, gentity_t *other, gentity_t *activator )
-{
-	// Toggle on and off
-	self->spawnflags = (self->spawnflags ^ 1);
-
-	if (( self->s.eFlags & EF_SHADER_ANIM ) && ( self->spawnflags & 1 )) // Start_Off
-	{
-		self->s.frame = 1; // black
-	}
-	else
-	{
-		self->s.frame = 0; // glow
-	}
-}
-
-/*QUAKED misc_turretG2 (1 0 0) (-8 -8 -22) (8 8 0) START_OFF UPSIDE_DOWN CANRESPAWN TURBO LEAD SHOWRADAR
-
-Turret that hangs from the ceiling, will aim and shoot at enemies
-
-  START_OFF - Starts off
-  UPSIDE_DOWN - make it rest on a surface/floor instead of hanging from the ceiling
-  CANRESPAWN - will respawn after being killed (use count)
-  TURBO - Big-ass, Boxy Death Star Turbo Laser version
-  LEAD - Turret will aim ahead of moving targets ("lead" them)
-  SHOWRADAR - show on radar
-
-  radius - How far away an enemy can be for it to pick it up (default 512)
-  wait	- Time between shots (default 150 ms)
-  dmg	- How much damage each shot does (default 5)
-  health - How much damage it can take before exploding (default 100)
-  count - if CANRESPAWN spawnflag, decides how long it is before gun respawns (in ms) - defaults to 20000 (20 seconds)
-
-  paintarget - target to fire off upon being hurt
-  painwait - ms to wait between firing off pain targets
-
-  random - random error (in degrees) of projectile direction when it comes out of the muzzle (default is 2)
-
-  shotspeed - the speed of the missile it fires travels at (default is 1100 for regular turrets, 20000 for TURBOLASERS)
-
-  splashDamage - How much damage the explosion does
-  splashRadius - The radius of the explosion
-
-  targetname - Toggles it on/off
-  target - What to use when destroyed
-  target2 - What to use when it decides to start shooting at an enemy
-
-  showhealth - set to 1 to show health bar on this entity when crosshair is over it
-
-  teamowner - crosshair shows green for this team, red for opposite team
-	0 - none
-	1 - red
-	2 - blue
-
-  alliedTeam - team that this turret won't target
-	0 - none
-	1 - red
-	2 - blue
-
-  teamnodmg - team that turret does not take damage from
-	0 - none
-	1 - red
-	2 - blue
-
-  customscale - custom scaling size. 100 is normal size, 1024 is the max scaling. this will change the bounding box size, so be careful of starting in solid!
-
-"icon" - icon that represents the objective on the radar
-*/
-void SP_misc_turretG2( gentity_t *base )
-{
-	int customscaleVal;
-	char* s;
-
-	turretG2_set_models( base, qfalse );
-
-	G_SpawnInt("painwait", "0", &base->genericValue4);
-	base->genericValue8 = 0;
-
-	G_SpawnInt("customscale", "0", &customscaleVal);
-	base->s.iModelScale = customscaleVal;
-	if (base->s.iModelScale)
-	{
-		if (base->s.iModelScale > 1023)
-		{
-			base->s.iModelScale = 1023;
-		}
-		base->modelScale[0] = base->modelScale[1] = base->modelScale[2] = base->s.iModelScale/100.0f;
-	}
-
-	G_SpawnString( "icon", "", &s );
-	if (s && s[0])
-	{
-		// We have an icon, so index it now.  We are reusing the genericenemyindex
-		// variable rather than adding a new one to the entity state.
-		base->s.genericenemyindex = G_IconIndex(s);
-	}
-
-	finish_spawning_turretG2( base );
-
-	if (( base->spawnflags & 1 )) // Start_Off
-	{
-		base->s.frame = 1; // black
-	}
-	else
-	{
-		base->s.frame = 0; // glow
-	}
-	if ( !(base->spawnflags&SPF_TURRETG2_TURBO) )
-	{
-		base->s.eFlags |= EF_SHADER_ANIM;
-	}
-
-	if (base->spawnflags & SPF_SHOWONRADAR)
-	{
-		base->s.eFlags |= EF_RADAROBJECT;
-	}
-#undef name
-#undef name2
-#undef name3
-}
-
-void finish_spawning_turretG2( gentity_t *base )
+static void finish_spawning_turretG2( gentity_t *base )
 {
 	vec3_t		fwd;
 	int			t;
@@ -1269,3 +1159,109 @@ void finish_spawning_turretG2( gentity_t *base )
 
 	trap->LinkEntity( (sharedEntity_t *)base );
 }
+
+/*QUAKED misc_turretG2 (1 0 0) (-8 -8 -22) (8 8 0) START_OFF UPSIDE_DOWN CANRESPAWN TURBO LEAD SHOWRADAR
+
+Turret that hangs from the ceiling, will aim and shoot at enemies
+
+  START_OFF - Starts off
+  UPSIDE_DOWN - make it rest on a surface/floor instead of hanging from the ceiling
+  CANRESPAWN - will respawn after being killed (use count)
+  TURBO - Big-ass, Boxy Death Star Turbo Laser version
+  LEAD - Turret will aim ahead of moving targets ("lead" them)
+  SHOWRADAR - show on radar
+
+  radius - How far away an enemy can be for it to pick it up (default 512)
+  wait	- Time between shots (default 150 ms)
+  dmg	- How much damage each shot does (default 5)
+  health - How much damage it can take before exploding (default 100)
+  count - if CANRESPAWN spawnflag, decides how long it is before gun respawns (in ms) - defaults to 20000 (20 seconds)
+
+  paintarget - target to fire off upon being hurt
+  painwait - ms to wait between firing off pain targets
+
+  random - random error (in degrees) of projectile direction when it comes out of the muzzle (default is 2)
+
+  shotspeed - the speed of the missile it fires travels at (default is 1100 for regular turrets, 20000 for TURBOLASERS)
+
+  splashDamage - How much damage the explosion does
+  splashRadius - The radius of the explosion
+
+  targetname - Toggles it on/off
+  target - What to use when destroyed
+  target2 - What to use when it decides to start shooting at an enemy
+
+  showhealth - set to 1 to show health bar on this entity when crosshair is over it
+
+  teamowner - crosshair shows green for this team, red for opposite team
+	0 - none
+	1 - red
+	2 - blue
+
+  alliedTeam - team that this turret won't target
+	0 - none
+	1 - red
+	2 - blue
+
+  teamnodmg - team that turret does not take damage from
+	0 - none
+	1 - red
+	2 - blue
+
+  customscale - custom scaling size. 100 is normal size, 1024 is the max scaling. this will change the bounding box size, so be careful of starting in solid!
+
+"icon" - icon that represents the objective on the radar
+*/
+void SP_misc_turretG2( gentity_t *base )
+{
+	int customscaleVal;
+	char* s;
+
+	turretG2_set_models( base, qfalse );
+
+	G_SpawnInt("painwait", "0", &base->genericValue4);
+	base->genericValue8 = 0;
+
+	G_SpawnInt("customscale", "0", &customscaleVal);
+	base->s.iModelScale = customscaleVal;
+	if (base->s.iModelScale)
+	{
+		if (base->s.iModelScale > 1023)
+		{
+			base->s.iModelScale = 1023;
+		}
+		base->modelScale[0] = base->modelScale[1] = base->modelScale[2] = base->s.iModelScale/100.0f;
+	}
+
+	G_SpawnString( "icon", "", &s );
+	if (s && s[0])
+	{
+		// We have an icon, so index it now.  We are reusing the genericenemyindex
+		// variable rather than adding a new one to the entity state.
+		base->s.genericenemyindex = G_IconIndex(s);
+	}
+
+	finish_spawning_turretG2( base );
+
+	if (( base->spawnflags & 1 )) // Start_Off
+	{
+		base->s.frame = 1; // black
+	}
+	else
+	{
+		base->s.frame = 0; // glow
+	}
+	if ( !(base->spawnflags&SPF_TURRETG2_TURBO) )
+	{
+		base->s.eFlags |= EF_SHADER_ANIM;
+	}
+
+	if (base->spawnflags & SPF_SHOWONRADAR)
+	{
+		base->s.eFlags |= EF_RADAROBJECT;
+	}
+#undef name
+#undef name2
+#undef name3
+}
+

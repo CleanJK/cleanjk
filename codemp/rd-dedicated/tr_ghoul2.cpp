@@ -103,10 +103,6 @@ void G2Time_ReportTimers(void)
 
 bool HackadelicOnClient=false; // means this is a render traversal
 
-qboolean G2_SetupModelPointers(CGhoul2Info *ghlInfo);
-qboolean G2_SetupModelPointers(CGhoul2Info_v &ghoul2);
-
-
 const static mdxaBone_t		identityMatrix =
 {
 	{
@@ -179,8 +175,6 @@ struct SBoneCalc
 };
 
 class CBoneCache;
-void G2_TransformBone(int index,CBoneCache &CB);
-
 class CBoneCache
 {
 	void SetRenderMatrix(CTransformBone *bone) {
@@ -1106,14 +1100,9 @@ void G2_TimingModel(boneInfo_t &bone,int currentTime,int numFramesInFile,int &cu
 	assert(lerp>=0.0f&&lerp<=1.0f);
 }
 
-#ifdef _RAG_PRINT_TEST
-void G2_RagPrintMatrix(mdxaBone_t *mat);
-#endif
 //basically construct a seperate skeleton with full hierarchy to store a matrix
 //off which will give us the desired settling position given the frame in the skeleton
 //that should be used -rww
-int G2_Add_Bone (const model_t *mod, boneInfo_v &blist, const char *boneName);
-int G2_Find_Bone(const model_t *mod, boneInfo_v &blist, const char *boneName);
 void G2_RagGetAnimMatrix(CGhoul2Info &ghoul2, const int boneNum, mdxaBone_t &matrix, const int frame)
 {
 	mdxaBone_t animMatrix;
@@ -2727,10 +2716,6 @@ static void RootMatrix(CGhoul2Info_v &ghoul2,int time,const vec3_t scale,mdxaBon
 
 void R_AddGhoulSurfaces( trRefEntity_t *ent ) {
 }
-
-#ifdef _G2_LISTEN_SERVER_OPT
-qboolean G2API_OverrideServerWithClientData(CGhoul2Info_v& ghoul2, int modelIndex);
-#endif
 
 bool G2_NeedsRecalc(CGhoul2Info *ghlInfo,int frameNum)
 {

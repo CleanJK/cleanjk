@@ -30,7 +30,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "ghoul2/G2.h"
 #include "cgame/cg_media.h"
 
-extern qboolean WP_SaberBladeUseSecondBladeStyle( saberInfo_t *saber, int bladeNum );
 extern int cg_saberFlashTime;
 extern vec3_t cg_saberFlashPos;
 extern char *showPowersName[];
@@ -95,8 +94,6 @@ const char	*CG_PlaceString( int rank ) {
 	Com_sprintf( str, sizeof( str ), "%s%s", t, s );
 	return str;
 }
-
-qboolean CG_ThereIsAMaster(void);
 
 static void CG_Obituary( entityState_t *ent ) {
 	int			mod;
@@ -659,7 +656,6 @@ void CG_PainEvent( centity_t *cent, int health ) {
 	cent->pe.painDirection	^= 1;
 }
 
-extern qboolean BG_GetRootSurfNameWithVariant( void *ghoul2, const char *rootSurfName, char *returnSurfName, int returnSize );
 void CG_ReattachLimb(centity_t *source)
 {
 	clientInfo_t *ci = NULL;
@@ -856,8 +852,6 @@ void CG_GetCTFMessageEvent(entityState_t *es)
 	CG_PrintCTFMessage(ci, teamName, es->eventParm);
 }
 
-qboolean BG_InKnockDownOnly( int anim );
-
 void DoFall(centity_t *cent, entityState_t *es, int clientNum)
 {
 	int delta = es->eventParm;
@@ -951,9 +945,6 @@ int CG_InClientBitflags(entityState_t *ent, int client)
 
 	return 0;
 }
-
-void CG_PlayDoorLoopSound( centity_t *cent );
-void CG_PlayDoorSound( centity_t *cent, int type );
 
 void CG_TryPlayCustomSound( vec3_t origin, int entityNum, int channel, const char *soundName )
 {
@@ -1140,7 +1131,6 @@ const char *CG_GetStringForVoiceSound(const char *s)
 	return "voice chat";
 }
 
-extern void CG_ChatBox_AddString(char *chatStr); //cg_draw.c
 #define	DEBUGNAME(x) if(cg_debugEvents.integer){trap->Print(x"\n");}
 
 // An entity has an event value

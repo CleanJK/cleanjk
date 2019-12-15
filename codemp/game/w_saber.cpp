@@ -26,28 +26,18 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "game/ai_main.h"
 #include "ghoul2/G2.h"
 
+#define SABERINVALID (!saberent || !saberOwner || !other || !saberent->inuse || !saberOwner->inuse || !other->inuse || !saberOwner->client || !other->client || !saberOwner->client->ps.saberEntityNum || saberOwner->client->ps.saberLockTime > (level.time-100))
 #define SABER_BOX_SIZE 16.0f
+#define MIN_SABER_SLICE_DISTANCE 50
+#define MIN_SABER_SLICE_RETURN_DISTANCE 30
+#define SABER_THROWN_HIT_DAMAGE 30
+#define SABER_THROWN_RETURN_HIT_DAMAGE 5
+
 extern bot_state_t *botstates[MAX_CLIENTS];
-extern qboolean InFront( vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHold );
-extern void G_TestLine(vec3_t start, vec3_t end, int color, int time);
+
+void thrownSaberTouch( gentity_t *saberent, gentity_t *other, trace_t *trace );
 
 int saberSpinSound = 0;
-
-//would be cleaner if these were renamed to BG_ and proto'd in a header.
-qboolean PM_SaberInTransition( int move );
-qboolean PM_SaberInDeflect( int move );
-qboolean PM_SaberInBrokenParry( int move );
-qboolean PM_SaberInBounce( int move );
-qboolean BG_SaberInReturn( int move );
-qboolean BG_InKnockDownOnGround( playerState_t *ps );
-qboolean BG_StabDownAnim( int anim );
-qboolean BG_SabersOff( playerState_t *ps );
-qboolean BG_SaberInTransitionAny( int move );
-qboolean BG_SaberInAttackPure( int move );
-qboolean WP_SaberBladeUseSecondBladeStyle( saberInfo_t *saber, int bladeNum );
-
-void WP_SaberAddG2Model( gentity_t *saberent, const char *saberModel, qhandle_t saberSkin );
-void WP_SaberRemoveG2Model( gentity_t *saberent );
 
 static qboolean WP_SaberBladeDoTransitionDamage( saberInfo_t *saber, int bladeNum ) {
 	const qboolean doTransitionDmg = !!(pm->saberTweaks & ST_TRANSITION_DAMAGE);
@@ -377,8 +367,6 @@ void SaberGotHit( gentity_t *self, gentity_t *other, trace_t *trace )
 
 	//Do something here..? Was handling projectiles here, but instead they're now handled in their own functions.
 }
-
-qboolean BG_SuperBreakLoseAnim( int anim );
 
 static QINLINE void SetSaberBoxSize(gentity_t *saberent)
 {
@@ -766,7 +754,6 @@ typedef enum
 #define LOCK_IDEAL_DIST_CIRCLE 48.0f
 
 #define SABER_HITDAMAGE 35
-void WP_SaberBlockNonRandom( gentity_t *self, vec3_t hitloc, qboolean missileBlock );
 
 int G_SaberLockAnim( int attackerSaberStyle, int defenderSaberStyle, int topOrSide, int lockOrBreakOrSuperBreak, int winOrLose )
 {
@@ -893,7 +880,6 @@ int G_SaberLockAnim( int attackerSaberStyle, int defenderSaberStyle, int topOrSi
 	return baseAnim;
 }
 
-extern qboolean BG_CheckIncrementLockAnim( int anim, int winOrLose ); //bg_saber.c
 #define LOCK_IDEAL_DIST_JKA 46.0f//all of the new saberlocks are 46.08 from each other because Richard Lico is da MAN
 
 static QINLINE qboolean WP_SabersCheckLock2( gentity_t *attacker, gentity_t *defender, sabersLockMode_t lockMode )
@@ -1578,9 +1564,6 @@ static QINLINE int G_GetParryForBlock(int block)
 	return LS_NONE;
 }
 
-int PM_SaberBounceForAttack( int move );
-int PM_SaberDeflectionForQuad( int quad );
-
 extern stringID_table_t animTable[MAX_ANIMATIONS+1];
 static QINLINE qboolean WP_GetSaberDeflectionAngle( gentity_t *attacker, gentity_t *defender, float saberHitFraction )
 {
@@ -2059,10 +2042,6 @@ static QINLINE qboolean G_SaberInBackAttack(int move)
 	return qfalse;
 }
 
-qboolean saberCheckKnockdown_Thrown(gentity_t *saberent, gentity_t *saberOwner, gentity_t *other);
-qboolean saberCheckKnockdown_Smashed(gentity_t *saberent, gentity_t *saberOwner, gentity_t *other, int damage);
-qboolean saberCheckKnockdown_BrokenParry(gentity_t *saberent, gentity_t *saberOwner, gentity_t *other);
-
 typedef struct saberFace_s
 {
 	vec3_t v1;
@@ -2448,7 +2427,6 @@ Breaks the two saber paths into 2 tris each and tests each tri for the first sab
 FIXME: subdivide the arc into a consistant increment
 FIXME: test the intersection to see if the sabers really did intersect (weren't going in the same direction and/or passed through same point at different times)?
 */
-extern qboolean tri_tri_intersect(vec3_t V0,vec3_t V1,vec3_t V2,vec3_t U0,vec3_t U1,vec3_t U2);
 #define SABER_EXTRAPOLATE_DIST 16.0f
 qboolean WP_SabersIntersect( gentity_t *ent1, int ent1SaberNum, int ent1BladeNum, gentity_t *ent2, qboolean checkDir )
 {
@@ -3270,8 +3248,6 @@ void WP_SaberDoHit( gentity_t *self, int saberNum, int bladeNum )
 	}
 }
 
-extern qboolean G_EntIsBreakable( int entityNum );
-extern void G_Knockdown( gentity_t *victim );
 void WP_SaberRadiusDamage( gentity_t *ent, vec3_t point, float radius, int damage, float knockBack )
 {
 	if ( !ent || !ent->client )
@@ -3411,6 +3387,182 @@ void WP_SaberBounceSound( gentity_t *ent, int saberNum, int bladeNum )
 	}
 }
 
+//Called upon an enemy actually slashing into a thrown saber
+static qboolean saberCheckKnockdown_Smashed(gentity_t *saberent, gentity_t *saberOwner, gentity_t *other, int damage)
+{
+	if (SABERINVALID)
+	{
+		return qfalse;
+	}
+
+	if (!saberOwner->client->ps.saberInFlight)
+	{ //can only do this if the saber is already actually in flight
+		return qfalse;
+	}
+
+	if ( other
+		&& other->inuse
+		&& other->client
+		&& BG_InExtraDefenseSaberMove( other->client->ps.saberMove ) )
+	{ //make sure the blow was strong enough
+		saberKnockDown(saberent, saberOwner, other);
+		return qtrue;
+	}
+
+	if (damage > 10)
+	{ //make sure the blow was strong enough
+		saberKnockDown(saberent, saberOwner, other);
+		return qtrue;
+	}
+
+	return qfalse;
+}
+
+//Make the saber go flying directly out of the owner's hand in the specified direction
+static qboolean saberKnockOutOfHand( gentity_t *saberent, gentity_t *saberOwner, vec3_t velocity ) {
+	if (!saberent || !saberOwner ||
+		!saberent->inuse || !saberOwner->inuse ||
+		!saberOwner->client)
+	{
+		return qfalse;
+	}
+
+	if (!saberOwner->client->ps.saberEntityNum)
+	{ //already gone
+		return qfalse;
+	}
+
+	if ((level.time - saberOwner->client->lastSaberStorageTime) > 50)
+	{ //must have a reasonably updated saber base pos
+		return qfalse;
+	}
+
+	if (saberOwner->client->ps.saberLockTime > (level.time-100))
+	{
+		return qfalse;
+	}
+
+	saberOwner->client->ps.saberInFlight = qtrue;
+	saberOwner->client->ps.saberEntityState = 1;
+
+	saberent->s.saberInFlight = qfalse;//qtrue;
+
+	saberent->s.pos.trType = TR_LINEAR;
+	saberent->s.eType = ET_GENERAL;
+	saberent->s.eFlags = 0;
+
+	WP_SaberAddG2Model( saberent, saberOwner->client->saber[0].model, saberOwner->client->saber[0].skin );
+
+	saberent->s.modelGhoul2 = 127;
+
+	saberent->parent = saberOwner;
+
+	saberent->damage = SABER_THROWN_HIT_DAMAGE;
+	saberent->methodOfDeath = MOD_SABER;
+	saberent->splashMethodOfDeath = MOD_SABER;
+	saberent->s.solid = 2;
+	saberent->r.contents = CONTENTS_LIGHTSABER;
+
+	saberent->genericValue5 = 0;
+
+	VectorSet( saberent->r.mins, -24.0f, -24.0f, -8.0f );
+	VectorSet( saberent->r.maxs, 24.0f, 24.0f, 8.0f );
+
+	saberent->s.genericenemyindex = saberOwner->s.number+1024;
+	saberent->s.weapon = WP_SABER;
+
+	saberent->genericValue5 = 0;
+
+	G_SetOrigin(saberent, saberOwner->client->lastSaberBase_Always); //use this as opposed to the right hand bolt,
+	//because I don't want to risk reconstructing the skel again to get it here. And it isn't worth storing.
+	saberKnockDown(saberent, saberOwner, saberOwner);
+	VectorCopy(velocity, saberent->s.pos.trDelta); //override the velocity on the knocked away saber.
+
+	return qtrue;
+}
+
+//Called when we want to try knocking the saber out of the owner's hand upon them going into a broken parry.
+//Also called on reflected attacks.
+static qboolean saberCheckKnockdown_BrokenParry( gentity_t *saberent, gentity_t *saberOwner, gentity_t *other ) {
+	int myAttack;
+	int otherAttack;
+	qboolean doKnock = qfalse;
+	int	disarmChance = 1;
+
+	if (SABERINVALID)
+	{
+		return qfalse;
+	}
+
+	//Neither gets an advantage based on attack state, when it comes to knocking
+	//saber out of hand.
+	myAttack = G_SaberAttackPower(saberOwner, qfalse);
+	otherAttack = G_SaberAttackPower(other, qfalse);
+
+	if (!other->client->olderIsValid || (level.time - other->client->lastSaberStorageTime) >= 200)
+	{ //if we don't know which way to throw the saber based on momentum between saber positions, just don't throw it
+		return qfalse;
+	}
+
+	//only knock the saber out of the hand if they're in a stronger stance I suppose. Makes strong more advantageous.
+	if (otherAttack > myAttack+1 && Q_irand(1, 10) <= 7)
+	{ //This would be, say, strong stance against light stance.
+		doKnock = qtrue;
+	}
+	else if (otherAttack > myAttack && Q_irand(1, 10) <= 3)
+	{ //Strong vs. medium, medium vs. light
+		doKnock = qtrue;
+	}
+
+	if (doKnock)
+	{
+		vec3_t dif;
+		float totalDistance;
+		float distScale = 6.5f;
+
+		VectorSubtract(other->client->lastSaberBase_Always, other->client->olderSaberBase, dif);
+		totalDistance = VectorNormalize(dif);
+
+		if (!totalDistance)
+		{ //fine, try our own
+			if (!saberOwner->client->olderIsValid || (level.time - saberOwner->client->lastSaberStorageTime) >= 200)
+			{ //if we don't know which way to throw the saber based on momentum between saber positions, just don't throw it
+				return qfalse;
+			}
+
+			VectorSubtract(saberOwner->client->lastSaberBase_Always, saberOwner->client->olderSaberBase, dif);
+			totalDistance = VectorNormalize(dif);
+		}
+
+		if (!totalDistance)
+		{ //...forget it then.
+			return qfalse;
+		}
+
+		if (totalDistance < 20)
+		{
+			totalDistance = 20;
+		}
+		VectorScale(dif, totalDistance*distScale, dif);
+
+		if ( other && other->client )
+		{
+			disarmChance += other->client->saber[0].disarmBonus;
+			if ( other->client->saber[1].model[0]
+				&& !other->client->ps.saberHolstered )
+			{
+				disarmChance += other->client->saber[1].disarmBonus;
+			}
+		}
+		if ( Q_irand( 0, disarmChance ) )
+		{
+			return saberKnockOutOfHand(saberent, saberOwner, dif);
+		}
+	}
+
+	return qfalse;
+}
+
 static qboolean saberHitWall = qfalse;
 static qboolean saberHitSaber = qfalse;
 static float saberHitFraction = 1.0f;
@@ -3418,7 +3570,6 @@ static float saberHitFraction = 1.0f;
 //triggering a broken parry, doing actual damage, etc. are done for the saber. It doesn't resemble the SP
 //version very much, but functionality is (hopefully) about the same.
 //This is a large function. I feel sort of bad inlining it. But it does get called tons of times per frame.
-qboolean BG_SuperBreakWinAnim( int anim );
 
 static QINLINE qboolean CheckSaberDamage(gentity_t *self, int rSaberNum, int rBladeNum, vec3_t saberStart, vec3_t saberEnd, qboolean doInterpolate, int trMask, qboolean extrapolate )
 {
@@ -4917,13 +5068,6 @@ void G_SPSaberDamageTraceLerped( gentity_t *self, int saberNum, int bladeNum, ve
 	}
 }
 
-qboolean BG_SaberInTransitionAny( int move );
-
-qboolean WP_ForcePowerUsable( gentity_t *self, forcePowers_t forcePower );
-qboolean InFOV3( vec3_t spot, vec3_t from, vec3_t fromAngles, int hFOV, int vFOV );
-qboolean Jedi_WaitingAmbush( gentity_t *self );
-void Jedi_Ambush( gentity_t *self );
-evasionType_t Jedi_SaberBlockGo( gentity_t *self, usercmd_t *cmd, vec3_t pHitloc, vec3_t phitDir, gentity_t *incoming, float dist );
 void WP_SaberStartMissileBlockCheck( gentity_t *self, usercmd_t *ucmd  )
 {
 	float		dist;
@@ -5172,17 +5316,41 @@ void WP_SaberStartMissileBlockCheck( gentity_t *self, usercmd_t *ucmd  )
 	}
 }
 
-#define MIN_SABER_SLICE_DISTANCE 50
+//Called upon blocking a thrown saber. If the throw level compared to the blocker's defense level
+//is inferior, or equal and a random factor is met, then the saber will be tossed to the ground.
+static qboolean saberCheckKnockdown_Thrown( gentity_t *saberent, gentity_t *saberOwner, gentity_t *other ) {
+	int throwLevel = 0;
+	int defenLevel = 0;
+	qboolean tossIt = qfalse;
 
-#define MIN_SABER_SLICE_RETURN_DISTANCE 30
+	if (SABERINVALID)
+	{
+		return qfalse;
+	}
 
-#define SABER_THROWN_HIT_DAMAGE 30
-#define SABER_THROWN_RETURN_HIT_DAMAGE 5
+	defenLevel = other->client->ps.fd.forcePowerLevel[FP_SABER_DEFENSE];
+	throwLevel = saberOwner->client->ps.fd.forcePowerLevel[FP_SABERTHROW];
 
-void thrownSaberTouch (gentity_t *saberent, gentity_t *other, trace_t *trace);
+	if (defenLevel > throwLevel)
+	{
+		tossIt = qtrue;
+	}
+	else if (defenLevel == throwLevel && Q_irand(1, 10) <= 4)
+	{
+		tossIt = qtrue;
+	}
+	//otherwise don't
 
-static QINLINE qboolean CheckThrownSaberDamaged(gentity_t *saberent, gentity_t *saberOwner, gentity_t *ent, int dist, int returning, qboolean noDCheck)
-{
+	if (tossIt)
+	{
+		saberKnockDown(saberent, saberOwner, other);
+		return qtrue;
+	}
+
+	return qfalse;
+}
+
+static QINLINE qboolean CheckThrownSaberDamaged( gentity_t *saberent, gentity_t *saberOwner, gentity_t *ent, int dist, int returning, qboolean noDCheck ) {
 	vec3_t vecsub;
 	float veclen;
 	gentity_t *te;
@@ -5394,7 +5562,41 @@ static QINLINE qboolean CheckThrownSaberDamaged(gentity_t *saberent, gentity_t *
 	return qtrue;
 }
 
-static QINLINE void saberCheckRadiusDamage(gentity_t *saberent, int returning)
+void thrownSaberTouch( gentity_t *saberent, gentity_t *other, trace_t *trace ) {
+	gentity_t *hitEnt = other;
+
+	if (other && other->s.number == saberent->r.ownerNum)
+	{
+		return;
+	}
+	VectorClear(saberent->s.pos.trDelta);
+	saberent->s.pos.trTime = level.time;
+
+	saberent->s.apos.trType = TR_LINEAR;
+	saberent->s.apos.trDelta[0] = 0;
+	saberent->s.apos.trDelta[1] = 800;
+	saberent->s.apos.trDelta[2] = 0;
+
+	VectorCopy(saberent->r.currentOrigin, saberent->s.pos.trBase);
+
+	saberent->think = saberBackToOwner;
+	saberent->nextthink = level.time;
+
+	if (other && other->r.ownerNum < MAX_CLIENTS &&
+		(other->r.contents & CONTENTS_LIGHTSABER) &&
+		g_entities[other->r.ownerNum].client &&
+		g_entities[other->r.ownerNum].inuse)
+	{
+		hitEnt = &g_entities[other->r.ownerNum];
+	}
+
+	//we'll skip the dist check, since we don't really care about that (we just hit it physically)
+	CheckThrownSaberDamaged(saberent, &g_entities[saberent->r.ownerNum], hitEnt, 256, 0, qtrue);
+
+	saberent->speed = 0;
+}
+
+QINLINE void saberCheckRadiusDamage(gentity_t *saberent, int returning)
 { //we're going to cheat and damage players within the saber's radius, just for the sake of doing things more "efficiently" (and because the saber entity has no server g2 instance)
 	int i = 0;
 	int dist = 0;
@@ -5432,7 +5634,7 @@ static QINLINE void saberCheckRadiusDamage(gentity_t *saberent, int returning)
 
 #define THROWN_SABER_COMP
 
-static QINLINE void saberMoveBack( gentity_t *ent, qboolean goingBack )
+QINLINE void saberMoveBack( gentity_t *ent, qboolean goingBack )
 {
 	vec3_t		origin, oldOrg;
 
@@ -5629,8 +5831,11 @@ void MakeDeadSaber(gentity_t *ent)
 
 #define MAX_LEAVE_TIME 20000
 
-void saberReactivate(gentity_t *saberent, gentity_t *saberOwner);
-void saberBackToOwner(gentity_t *saberent);
+static void WP_SaberRemoveG2Model( gentity_t *saberent ) {
+	if ( saberent->ghoul2 ) {
+		trap->G2API_RemoveGhoul2Models( &saberent->ghoul2 );
+	}
+}
 
 void DownedSaberThink(gentity_t *saberent)
 {
@@ -5896,17 +6101,6 @@ void saberKnockDown(gentity_t *saberent, gentity_t *saberOwner, gentity_t *other
 	}
 }
 
-//sort of a silly macro I guess. But if I change anything in here I'll probably want it to be everywhere.
-#define SABERINVALID (!saberent || !saberOwner || !other || !saberent->inuse || !saberOwner->inuse || !other->inuse || !saberOwner->client || !other->client || !saberOwner->client->ps.saberEntityNum || saberOwner->client->ps.saberLockTime > (level.time-100))
-
-void WP_SaberRemoveG2Model( gentity_t *saberent )
-{
-	if ( saberent->ghoul2 )
-	{
-		trap->G2API_RemoveGhoul2Models( &saberent->ghoul2 );
-	}
-}
-
 void WP_SaberAddG2Model( gentity_t *saberent, const char *saberModel, qhandle_t saberSkin )
 {
 	WP_SaberRemoveG2Model( saberent );
@@ -5920,70 +6114,6 @@ void WP_SaberAddG2Model( gentity_t *saberent, const char *saberModel, qhandle_t 
 	}
 	//FIXME: use customSkin?
 	trap->G2API_InitGhoul2Model( &saberent->ghoul2, saberModel, saberent->s.modelindex, saberSkin, 0, 0, 0 );
-}
-
-//Make the saber go flying directly out of the owner's hand in the specified direction
-qboolean saberKnockOutOfHand(gentity_t *saberent, gentity_t *saberOwner, vec3_t velocity)
-{
-	if (!saberent || !saberOwner ||
-		!saberent->inuse || !saberOwner->inuse ||
-		!saberOwner->client)
-	{
-		return qfalse;
-	}
-
-	if (!saberOwner->client->ps.saberEntityNum)
-	{ //already gone
-		return qfalse;
-	}
-
-	if ((level.time - saberOwner->client->lastSaberStorageTime) > 50)
-	{ //must have a reasonably updated saber base pos
-		return qfalse;
-	}
-
-	if (saberOwner->client->ps.saberLockTime > (level.time-100))
-	{
-		return qfalse;
-	}
-
-	saberOwner->client->ps.saberInFlight = qtrue;
-	saberOwner->client->ps.saberEntityState = 1;
-
-	saberent->s.saberInFlight = qfalse;//qtrue;
-
-	saberent->s.pos.trType = TR_LINEAR;
-	saberent->s.eType = ET_GENERAL;
-	saberent->s.eFlags = 0;
-
-	WP_SaberAddG2Model( saberent, saberOwner->client->saber[0].model, saberOwner->client->saber[0].skin );
-
-	saberent->s.modelGhoul2 = 127;
-
-	saberent->parent = saberOwner;
-
-	saberent->damage = SABER_THROWN_HIT_DAMAGE;
-	saberent->methodOfDeath = MOD_SABER;
-	saberent->splashMethodOfDeath = MOD_SABER;
-	saberent->s.solid = 2;
-	saberent->r.contents = CONTENTS_LIGHTSABER;
-
-	saberent->genericValue5 = 0;
-
-	VectorSet( saberent->r.mins, -24.0f, -24.0f, -8.0f );
-	VectorSet( saberent->r.maxs, 24.0f, 24.0f, 8.0f );
-
-	saberent->s.genericenemyindex = saberOwner->s.number+1024;
-	saberent->s.weapon = WP_SABER;
-
-	saberent->genericValue5 = 0;
-
-	G_SetOrigin(saberent, saberOwner->client->lastSaberBase_Always); //use this as opposed to the right hand bolt,
-	//because I don't want to risk reconstructing the skel again to get it here. And it isn't worth storing.
-	saberKnockDown(saberent, saberOwner, saberOwner);
-	VectorCopy(velocity, saberent->s.pos.trDelta); //override the velocity on the knocked away saber.
-
-	return qtrue;
 }
 
 //Called at the result of a circle lock duel - the loser gets his saber tossed away and is put into a reflected attack anim
@@ -6066,157 +6196,6 @@ qboolean saberCheckKnockdown_DuelLoss(gentity_t *saberent, gentity_t *saberOwner
 	{
 		return qfalse;
 	}
-}
-
-//Called when we want to try knocking the saber out of the owner's hand upon them going into a broken parry.
-//Also called on reflected attacks.
-qboolean saberCheckKnockdown_BrokenParry(gentity_t *saberent, gentity_t *saberOwner, gentity_t *other)
-{
-	int myAttack;
-	int otherAttack;
-	qboolean doKnock = qfalse;
-	int	disarmChance = 1;
-
-	if (SABERINVALID)
-	{
-		return qfalse;
-	}
-
-	//Neither gets an advantage based on attack state, when it comes to knocking
-	//saber out of hand.
-	myAttack = G_SaberAttackPower(saberOwner, qfalse);
-	otherAttack = G_SaberAttackPower(other, qfalse);
-
-	if (!other->client->olderIsValid || (level.time - other->client->lastSaberStorageTime) >= 200)
-	{ //if we don't know which way to throw the saber based on momentum between saber positions, just don't throw it
-		return qfalse;
-	}
-
-	//only knock the saber out of the hand if they're in a stronger stance I suppose. Makes strong more advantageous.
-	if (otherAttack > myAttack+1 && Q_irand(1, 10) <= 7)
-	{ //This would be, say, strong stance against light stance.
-		doKnock = qtrue;
-	}
-	else if (otherAttack > myAttack && Q_irand(1, 10) <= 3)
-	{ //Strong vs. medium, medium vs. light
-		doKnock = qtrue;
-	}
-
-	if (doKnock)
-	{
-		vec3_t dif;
-		float totalDistance;
-		float distScale = 6.5f;
-
-		VectorSubtract(other->client->lastSaberBase_Always, other->client->olderSaberBase, dif);
-		totalDistance = VectorNormalize(dif);
-
-		if (!totalDistance)
-		{ //fine, try our own
-			if (!saberOwner->client->olderIsValid || (level.time - saberOwner->client->lastSaberStorageTime) >= 200)
-			{ //if we don't know which way to throw the saber based on momentum between saber positions, just don't throw it
-				return qfalse;
-			}
-
-			VectorSubtract(saberOwner->client->lastSaberBase_Always, saberOwner->client->olderSaberBase, dif);
-			totalDistance = VectorNormalize(dif);
-		}
-
-		if (!totalDistance)
-		{ //...forget it then.
-			return qfalse;
-		}
-
-		if (totalDistance < 20)
-		{
-			totalDistance = 20;
-		}
-		VectorScale(dif, totalDistance*distScale, dif);
-
-		if ( other && other->client )
-		{
-			disarmChance += other->client->saber[0].disarmBonus;
-			if ( other->client->saber[1].model[0]
-				&& !other->client->ps.saberHolstered )
-			{
-				disarmChance += other->client->saber[1].disarmBonus;
-			}
-		}
-		if ( Q_irand( 0, disarmChance ) )
-		{
-			return saberKnockOutOfHand(saberent, saberOwner, dif);
-		}
-	}
-
-	return qfalse;
-}
-
-qboolean BG_InExtraDefenseSaberMove( int move );
-
-//Called upon an enemy actually slashing into a thrown saber
-qboolean saberCheckKnockdown_Smashed(gentity_t *saberent, gentity_t *saberOwner, gentity_t *other, int damage)
-{
-	if (SABERINVALID)
-	{
-		return qfalse;
-	}
-
-	if (!saberOwner->client->ps.saberInFlight)
-	{ //can only do this if the saber is already actually in flight
-		return qfalse;
-	}
-
-	if ( other
-		&& other->inuse
-		&& other->client
-		&& BG_InExtraDefenseSaberMove( other->client->ps.saberMove ) )
-	{ //make sure the blow was strong enough
-		saberKnockDown(saberent, saberOwner, other);
-		return qtrue;
-	}
-
-	if (damage > 10)
-	{ //make sure the blow was strong enough
-		saberKnockDown(saberent, saberOwner, other);
-		return qtrue;
-	}
-
-	return qfalse;
-}
-
-//Called upon blocking a thrown saber. If the throw level compared to the blocker's defense level
-//is inferior, or equal and a random factor is met, then the saber will be tossed to the ground.
-qboolean saberCheckKnockdown_Thrown(gentity_t *saberent, gentity_t *saberOwner, gentity_t *other)
-{
-	int throwLevel = 0;
-	int defenLevel = 0;
-	qboolean tossIt = qfalse;
-
-	if (SABERINVALID)
-	{
-		return qfalse;
-	}
-
-	defenLevel = other->client->ps.fd.forcePowerLevel[FP_SABER_DEFENSE];
-	throwLevel = saberOwner->client->ps.fd.forcePowerLevel[FP_SABERTHROW];
-
-	if (defenLevel > throwLevel)
-	{
-		tossIt = qtrue;
-	}
-	else if (defenLevel == throwLevel && Q_irand(1, 10) <= 4)
-	{
-		tossIt = qtrue;
-	}
-	//otherwise don't
-
-	if (tossIt)
-	{
-		saberKnockDown(saberent, saberOwner, other);
-		return qtrue;
-	}
-
-	return qfalse;
 }
 
 void saberBackToOwner(gentity_t *saberent)
@@ -6378,43 +6357,6 @@ void saberBackToOwner(gentity_t *saberent)
 	}
 
 	saberent->nextthink = level.time;
-}
-
-void saberFirstThrown(gentity_t *saberent);
-
-void thrownSaberTouch (gentity_t *saberent, gentity_t *other, trace_t *trace)
-{
-	gentity_t *hitEnt = other;
-
-	if (other && other->s.number == saberent->r.ownerNum)
-	{
-		return;
-	}
-	VectorClear(saberent->s.pos.trDelta);
-	saberent->s.pos.trTime = level.time;
-
-	saberent->s.apos.trType = TR_LINEAR;
-	saberent->s.apos.trDelta[0] = 0;
-	saberent->s.apos.trDelta[1] = 800;
-	saberent->s.apos.trDelta[2] = 0;
-
-	VectorCopy(saberent->r.currentOrigin, saberent->s.pos.trBase);
-
-	saberent->think = saberBackToOwner;
-	saberent->nextthink = level.time;
-
-	if (other && other->r.ownerNum < MAX_CLIENTS &&
-		(other->r.contents & CONTENTS_LIGHTSABER) &&
-		g_entities[other->r.ownerNum].client &&
-		g_entities[other->r.ownerNum].inuse)
-	{
-		hitEnt = &g_entities[other->r.ownerNum];
-	}
-
-	//we'll skip the dist check, since we don't really care about that (we just hit it physically)
-	CheckThrownSaberDamaged(saberent, &g_entities[saberent->r.ownerNum], hitEnt, 256, 0, qtrue);
-
-	saberent->speed = 0;
 }
 
 #define SABER_MAX_THROW_DISTANCE 700
@@ -6751,9 +6693,7 @@ void UpdateClientRenderinfo(gentity_t *self, vec3_t renderOrigin, vec3_t renderA
 }
 
 #define STAFF_KICK_RANGE 16
-extern void G_GetBoltPosition( gentity_t *self, int boltIndex, vec3_t pos, int modelIndex ); //NPC_utils.c
 
-extern qboolean BG_InKnockDown( int anim );
 static qboolean G_KickDownable(gentity_t *ent)
 {
 	if (!d_saberKickTweak.integer)

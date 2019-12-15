@@ -287,8 +287,6 @@ void RE_AddAdditiveLightToScene( const vec3_t org, float intensity, float r, flo
 	RE_AddDynamicLightToScene( org, intensity, r, g, b, qtrue );
 }
 
-void RE_RenderWorldEffects(void);
-void RE_RenderAutoMap(void);
 // Draw a 3D view into a part of the window, then return to 2D drawing.
 // Rendering a scene may require multiple views to be rendered to handle mirrors,
 void RE_RenderScene( const refdef_t *fd ) {

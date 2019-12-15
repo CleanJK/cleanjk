@@ -877,7 +877,6 @@ qboolean G2_Get_Bone_Anim_Range(CGhoul2Info *ghlInfo, boneInfo_v &blist, const c
 
 // given a model, bonelist and bonename, return the current frame, startframe and endframe of the current animation
 // NOTE if we aren't running an animation, then qfalse is returned
-void G2_TimingModel(boneInfo_t &bone,int currentTime,int numFramesInFile,int &currentFrame,int &newFrame,float &lerp);
 
 qboolean G2_Get_Bone_Anim_Index( boneInfo_v &blist, const int index, const int currentTime,
 						  float *currentFrame, int *startFrame, int *endFrame, int *flags, float *retAnimSpeed, qhandle_t *modelList, int numFrames)
@@ -1160,12 +1159,6 @@ static void G2_RagDollSolve(CGhoul2Info_v &ghoul2V,int g2Index,float decay,int f
 static void G2_RagDollCurrentPosition(CGhoul2Info_v &ghoul2V,int g2Index,int frameNum,const vec3_t angles,const vec3_t position,const vec3_t scale);
 static bool G2_RagDollSettlePositionNumeroTrois(CGhoul2Info_v &ghoul2V,const vec3_t currentOrg,CRagDollUpdateParams *params, int curTime);
 static bool G2_RagDollSetup(CGhoul2Info &ghoul2,int frameNum,bool resetOrigin,const vec3_t origin,bool anyRendered);
-
-void G2_GetBoneBasepose(CGhoul2Info &ghoul2,int boneNum,mdxaBone_t *&retBasepose,mdxaBone_t *&retBaseposeInv);
-int G2_GetBoneDependents(CGhoul2Info &ghoul2,int boneNum,int *tempDependents,int maxDep);
-void G2_GetBoneMatrixLow(CGhoul2Info &ghoul2,int boneNum,const vec3_t scale,mdxaBone_t &retMatrix,mdxaBone_t *&retBasepose,mdxaBone_t *&retBaseposeInv);
-int G2_GetParentBoneMatrixLow(CGhoul2Info &ghoul2,int boneNum,const vec3_t scale,mdxaBone_t &retMatrix,mdxaBone_t *&retBasepose,mdxaBone_t *&retBaseposeInv);
-bool G2_WasBoneRendered(CGhoul2Info &ghoul2,int boneNum);
 
 #define MAX_BONES_RAG (256)
 
@@ -1464,7 +1457,6 @@ static int G2_Set_Bone_Angles_Rag(
 }
 
 class CRagDollParams;
-const mdxaHeader_t *G2_GetModA(CGhoul2Info &ghoul2);
 
 static void G2_RagDollMatchPosition()
 {
@@ -2340,8 +2332,6 @@ static inline char *G2_Get_Bone_Name(CGhoul2Info *ghlInfo, boneInfo_v &blist, in
 	return "BONE_NOT_FOUND";
 }
 
-char *G2_GetBoneNameFromSkel(CGhoul2Info &ghoul2, int boneNum);
-
 static void G2_RagDollCurrentPosition(CGhoul2Info_v &ghoul2V,int g2Index,int frameNum,const vec3_t angles,const vec3_t position,const vec3_t scale)
 {
 	CGhoul2Info &ghoul2=ghoul2V[g2Index];
@@ -3017,9 +3007,6 @@ void G2_RagPrintMatrix(mdxaBone_t *mat)
 }
 #endif
 
-void G2_RagGetBoneBasePoseMatrixLow(CGhoul2Info &ghoul2, int boneNum, mdxaBone_t &boneMatrix, mdxaBone_t &retMatrix, vec3_t scale);
-void G2_RagGetAnimMatrix(CGhoul2Info &ghoul2, const int boneNum, mdxaBone_t &matrix, const int frame);
-
 static inline void G2_RagGetWorldAnimMatrix(CGhoul2Info &ghoul2, boneInfo_t &bone, CRagDollUpdateParams *params, mdxaBone_t &retMatrix)
 {
 	static mdxaBone_t trueBaseMatrix, baseBoneMatrix;
@@ -3040,8 +3027,6 @@ static inline void G2_RagGetWorldAnimMatrix(CGhoul2Info &ghoul2, boneInfo_t &bon
 
 //get the current pelvis Z direction and the base anim matrix Z direction
 //so they can be compared and used to offset -rww
-void G2_GetRagBoneMatrixLow(CGhoul2Info &ghoul2, int boneNum, mdxaBone_t &retMatrix);
-void G2_GetBoltMatrixLow(CGhoul2Info &ghoul2,int boltNum,const vec3_t scale,mdxaBone_t &retMatrix);
 static inline void G2_RagGetPelvisLumbarOffsets(CGhoul2Info &ghoul2, CRagDollUpdateParams *params, vec3_t pos, vec3_t dir, vec3_t animPos, vec3_t animDir)
 {
 	static mdxaBone_t final;

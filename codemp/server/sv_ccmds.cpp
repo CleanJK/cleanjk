@@ -1096,7 +1096,6 @@ static void SV_Status_f( void )
 	Com_Printf ("\n");
 }
 
-char	*SV_ExpandNewlines( char *in );
 #define SVSAY_PREFIX "Server^7\x19: "
 
 static void SV_ConSay_f(void) {
@@ -1440,9 +1439,6 @@ void SV_DemoFilename( char *buf, int bufSize ) {
 
 	Com_sprintf( buf, bufSize, "demo%s", timeStr );
 }
-
-// defined in sv_client.cpp
-extern void SV_CreateClientGameStateMessage( client_t *client, msg_t* msg );
 
 void SV_RecordDemo( client_t *cl, char *demoName ) {
 	char		name[MAX_OSPATH];

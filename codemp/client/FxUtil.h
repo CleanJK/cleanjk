@@ -128,3 +128,4 @@ CBezier *FX_AddBezier( vec3_t start, vec3_t end,
 								float alpha1, float alpha2, float alphaParm,
 								vec3_t sRGB, vec3_t eRGB, float rgbParm,
 								int killTime, qhandle_t shader, int flags = 0 );
+void FX_AddPrimitive( CEffect **pEffect, int killTime );

@@ -35,7 +35,6 @@ const static char *psTagStrings[TAG_COUNT+1]=	// +1 because TAG_COUNT will itsel
 };
 
 static void Z_Details_f(void);
-void CIN_CloseAllVideos();
 
 // This handles zone memory allocation.
 // It is a wrapper around malloc with a tag id and a magic number at the start
@@ -675,15 +674,6 @@ qboolean Hunk_CheckMark( void ) {
 	}
 	return qfalse;
 }
-
-void CL_ShutdownCGame( void );
-void CL_ShutdownUI( void );
-void SV_ShutdownGameProgs( void );
-
-void R_HunkClearCrap(void);
-#ifdef _FULL_G2_LEAK_CHECKING
-void G2_DEBUG_ReportLeaks(void);
-#endif
 
 // The server calls this before shutting down or loading a new map
 void Hunk_Clear( void ) {

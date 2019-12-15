@@ -26,6 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "qcommon/com_cvars.h"
 #include "client/client.h"
 #include "sys/sys_local.h"
+#include "sdl/sdl_sound.h"
 
 static cvar_t *in_keyboardDebug     = NULL;
 
@@ -789,7 +790,6 @@ uint8_t ConvertUTF32ToExpectedCharset( uint32_t utf32 )
 IN_ProcessEvents
 ===============
 */
-void SNDDMA_Activate( qboolean activate );
 static void IN_ProcessEvents( void )
 {
 	SDL_Event e;

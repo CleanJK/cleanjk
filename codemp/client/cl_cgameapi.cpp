@@ -177,10 +177,7 @@ void CGVM_CameraShake( void ) {
 // cgame syscalls
 //	only used by legacy mods!
 
-extern int CL_GetValueForHidden( const char *s ); //cl_parse.cpp
 extern qboolean cl_bUseFighterPitch; //cl_input.cpp
-int CM_LoadSubBSP( const char *name, qboolean clientload ); //cm_load.cpp
-void FX_FeedTrail( effectTrailArgStruct_t *a ); //FxPrimitives.cpp
 
 // wrappers and such
 

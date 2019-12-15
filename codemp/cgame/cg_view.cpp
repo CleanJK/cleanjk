@@ -342,7 +342,6 @@ static void CG_UpdateThirdPersonTargetDamp(void)
 }
 
 // This can be called every interval, at the user's discretion.
-extern void CG_CalcEntityLerpPositions( centity_t *cent ); //cg_ents.c
 static void CG_UpdateThirdPersonCameraDamp(void)
 {
 	trace_t trace;
@@ -967,7 +966,33 @@ static qboolean CG_ThirdPersonActionCam(void)
 	return qtrue;
 }
 
-void CG_EmplacedView(vec3_t angles);
+// Keep view reasonably constrained in relation to gun -rww
+static void CG_EmplacedView( vec3_t angles ) {
+	float yaw;
+	int override;
+
+	override = BG_EmplacedView(cg.refdef.viewangles, angles, &yaw,
+		cg_entities[cg.snap->ps.emplacedIndex].currentState.origin2[0]);
+
+	if (override)
+	{
+        cg.refdef.viewangles[YAW] = yaw;
+		AnglesToAxis(cg.refdef.viewangles, cg.refdef.viewaxis);
+
+		if (override == 2)
+		{
+			trap->SetClientForceAngle(cg.time + 5000, cg.refdef.viewangles);
+		}
+	}
+
+	//we want to constrain the predicted player state viewangles as well
+	override = BG_EmplacedView(cg.predictedPlayerState.viewangles, angles, &yaw,
+		cg_entities[cg.snap->ps.emplacedIndex].currentState.origin2[0]);
+	if (override)
+	{
+        cg.predictedPlayerState.viewangles[YAW] = yaw;
+	}
+}
 
 // Sets cg.refdef view values
 static int CG_CalcViewValues( void ) {
@@ -1440,36 +1465,6 @@ void CGCam_SetMusicMult( float multiplier, int duration )
 
 // Screen Effect stuff ends here
 
-int BG_EmplacedView(vec3_t baseAngles, vec3_t angles, float *newYaw, float constraint);
-// Keep view reasonably constrained in relation to gun -rww
-void CG_EmplacedView(vec3_t angles)
-{
-	float yaw;
-	int override;
-
-	override = BG_EmplacedView(cg.refdef.viewangles, angles, &yaw,
-		cg_entities[cg.snap->ps.emplacedIndex].currentState.origin2[0]);
-
-	if (override)
-	{
-        cg.refdef.viewangles[YAW] = yaw;
-		AnglesToAxis(cg.refdef.viewangles, cg.refdef.viewaxis);
-
-		if (override == 2)
-		{
-			trap->SetClientForceAngle(cg.time + 5000, cg.refdef.viewangles);
-		}
-	}
-
-	//we want to constrain the predicted player state viewangles as well
-	override = BG_EmplacedView(cg.predictedPlayerState.viewangles, angles, &yaw,
-		cg_entities[cg.snap->ps.emplacedIndex].currentState.origin2[0]);
-	if (override)
-	{
-        cg.predictedPlayerState.viewangles[YAW] = yaw;
-	}
-}
-
 //specially add cent's for automap
 static void CG_AddRefentForAutoMap(centity_t *cent)
 {
@@ -1744,10 +1739,7 @@ qboolean CG_CullPointAndRadius( const vec3_t pt, float radius ) {
 static qboolean cg_rangedFogging = qfalse; //so we know if we should go back to normal fog
 float cg_linearFogOverride = 0.0f; //designer-specified override for linear fogging style
 
-extern qboolean PM_InKnockDown( playerState_t *ps );
-
 extern qboolean cgQueueLoad;
-extern void CG_ActualLoadDeferredPlayers( void );
 
 void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demoPlayback ) {
 	int		inwater;

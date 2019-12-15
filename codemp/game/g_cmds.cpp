@@ -26,12 +26,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "game/bg_saga.h"
 #include "game/g_team.h"
 
-//rww - for getting bot commands...
-int AcceptBotCommand(char *cmd, gentity_t *pl);
-//end rww
-
-void WP_SetSaber( int entNum, saberInfo_t *sabers, int saberNum, const char *saberName );
-
 void DeathmatchScoreboardMessage( gentity_t *ent ) {
 	char		entry[1024];
 	char		string[1400];
@@ -941,8 +935,6 @@ argCheck:
 	}
 }
 
-extern qboolean WP_SaberStyleValidForSaber( saberInfo_t *saber1, saberInfo_t *saber2, int saberHolstered, int saberAnimLevel );
-extern qboolean WP_UseFirstValidSaberStyle( saberInfo_t *saber1, saberInfo_t *saber2, int saberHolstered, int *saberAnimLevel );
 qboolean G_SetSaber(gentity_t *ent, int saberNum, char *saberName)
 {
 	char truncSaberName[MAX_QPATH] = {0};
@@ -1463,8 +1455,6 @@ qboolean G_VoteKick( gentity_t *ent, int numArgs, const char *arg1, const char *
 	Q_strncpyz( level.voteStringClean, level.voteString, sizeof( level.voteStringClean ) );
 	return qtrue;
 }
-
-const char *G_GetArenaInfoByMap( const char *map );
 
 void Cmd_MapList_f( gentity_t *ent ) {
 	int i, toggle=0;
@@ -2117,8 +2107,6 @@ int G_ItemUsable(playerState_t *ps, int forcedUse)
 	}
 }
 
-void saberKnockDown(gentity_t *saberent, gentity_t *saberOwner, gentity_t *other);
-
 void Cmd_ToggleSaber_f(gentity_t *ent)
 {
 	if (ent->client->ps.fd.forceGripCripple)
@@ -2634,14 +2622,6 @@ void StandardSetBodyAnim(gentity_t *self, int anim, int flags)
 {
 	G_SetAnim(self, NULL, SETANIM_BOTH, anim, flags, 0);
 }
-
-void DismembermentTest(gentity_t *self);
-
-void Bot_SetForcedMovement(int bot, int forward, int right, int up);
-
-#ifndef FINAL_BUILD
-extern void DismembermentByNum(gentity_t *self, int num);
-#endif
 
 qboolean TryGrapple(gentity_t *ent)
 {

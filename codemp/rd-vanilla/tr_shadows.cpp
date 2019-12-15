@@ -130,15 +130,6 @@ void R_RenderShadowEdges( void ) {
 
 //#define _DEBUG_STENCIL_SHADOWS
 
-// triangleFromEdge[ v1 ][ v2 ]
-// set triangle from edge( v1, v2, tri )
-//	if ( facing[ triangleFromEdge[ v1 ][ v2 ] ] && !facing[ triangleFromEdge[ v2 ][ v1 ] )
-void RB_DoShadowTessEnd( vec3_t lightPos );
-void RB_ShadowTessEnd( void )
-{
-	RB_DoShadowTessEnd(NULL);
-}
-
 void RB_DoShadowTessEnd( vec3_t lightPos )
 {
 	int		i;
@@ -305,6 +296,14 @@ void RB_DoShadowTessEnd( vec3_t lightPos )
 #ifdef _DEBUG_STENCIL_SHADOWS
 	qglPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 #endif
+}
+
+// triangleFromEdge[ v1 ][ v2 ]
+// set triangle from edge( v1, v2, tri )
+//	if ( facing[ triangleFromEdge[ v1 ][ v2 ] ] && !facing[ triangleFromEdge[ v2 ][ v1 ] )
+void RB_ShadowTessEnd( void )
+{
+	RB_DoShadowTessEnd(NULL);
 }
 
 // Darken everything that is is a shadow volume.

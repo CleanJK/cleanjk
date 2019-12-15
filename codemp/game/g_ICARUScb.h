@@ -37,3 +37,5 @@ void Q3_Play( int taskID, int entID, const char *type, const char *name );
 int Q3_GetFloat( int entID, int type, const char *name, float *value );
 int Q3_GetVector( int entID, int type, const char *name, vec3_t value );
 int Q3_GetString( int entID, int type, const char *name, char **value );
+void G_DebugPrint( int printLevel, const char *format, ... );
+void Q3_SetParm (int entID, int parmNum, const char *parmValue);

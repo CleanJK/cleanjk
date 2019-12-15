@@ -36,11 +36,7 @@ int uiMaxPoints = 20;
 int	uiForceUsed = 0;
 int uiForceAvailable=0;
 
-extern const char *UI_TeamName(int team);
-
 qboolean gTouchedForce = qfalse;
-
-void Menu_ShowItemByName(menuDef_t *menu, const char *p, qboolean bShow);
 
 qboolean uiForcePowersDisabled[NUM_FORCE_POWERS] = {
 	qfalse,//FP_HEAL,//instant
@@ -297,8 +293,7 @@ void UI_SaveForceTemplate()
 	}
 }
 
-extern qboolean UI_TrueJediEnabled( void );
-void UpdateForceUsed()
+void UpdateForceUsed( void )
 {
 	int curpower, currank;
 	menuDef_t *menu;
@@ -364,7 +359,7 @@ void UpdateForceUsed()
 			if ( update )
 			{
 				int myTeam;
-				myTeam = (int)(trap->Cvar_VariableValue("ui_myteam"));
+				myTeam = ui_myteam.integer;
 				if ( myTeam != TEAM_SPECTATOR )
 				{
 					UI_UpdateClientForcePowers(UI_TeamName(myTeam));//will cause him to respawn, if it's been 5 seconds since last one
@@ -508,7 +503,7 @@ void UI_ReadLegalForce(void)
 
 	if (atoi( Info_ValueForKey( info, "g_forceBasedTeams" ) ))
 	{
-		switch((int)(trap->Cvar_VariableValue("ui_myteam")))
+		switch((int)(ui_myteam.value))
 		{
 		case TEAM_RED:
 			forceTeam = FORCE_DARKSIDE;
@@ -815,7 +810,7 @@ qboolean UI_ForceSide_HandleKey(int flags, float *special, int key, int num, int
 
 	if (atoi( Info_ValueForKey( info, "g_forceBasedTeams" ) ))
 	{
-		switch((int)(trap->Cvar_VariableValue("ui_myteam")))
+		switch((int)(ui_myteam.value))
 		{
 		case TEAM_RED:
 			return qfalse;
@@ -916,7 +911,7 @@ qboolean UI_JediNonJedi_HandleKey(int flags, float *special, int key, int num, i
 		// Resetting power ranks based on if light or dark side is chosen
 		if ( !num )
 		{//not a jedi?
-			int myTeam = (int)(trap->Cvar_VariableValue("ui_myteam"));
+			int myTeam = (int)(ui_myteam.value);
 			while ( x < NUM_FORCE_POWERS )
 			{//clear all force powers
 				uiForcePowersRank[x] = 0;
@@ -1199,7 +1194,7 @@ void UI_ForceConfigHandle( int oldindex, int newindex )
 
 	if (atoi( Info_ValueForKey( info, "g_forceBasedTeams" ) ))
 	{
-		switch((int)(trap->Cvar_VariableValue("ui_myteam")))
+		switch((int)(ui_myteam.value))
 		{
 		case TEAM_RED:
 			forceTeam = FORCE_DARKSIDE;

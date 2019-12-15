@@ -242,23 +242,20 @@ const	int	Q3_TIME_SCALE	= 1;	//MILLISECONDS
 
 extern char	cinematicSkipScript[1024];
 
-//General
-extern	void		Q3_TaskIDClear( int *taskID );
-extern	qboolean	Q3_TaskIDPending( sharedEntity_t *ent, taskID_t taskType );
-extern	void		Q3_TaskIDComplete( sharedEntity_t *ent, taskID_t taskType );
-extern	void		Q3_DPrintf( const char *, ... );
+void     Q3_CameraDistance ( float distance, float initLerp );
+void     Q3_CameraFollow   ( const char *name, float speed, float initLerp );
+void     Q3_CameraRoll     ( float angle, float duration );
+void     Q3_CameraTrack    ( const char *name, float speed, float initLerp );
+void     Q3_DeclareVariable( int type, const char *name );
+void     Q3_DebugPrint     ( int level, const char *format, ... );
+void     Q3_DPrintf        ( const char *, ... );
+void     Q3_FreeVariable   ( const char *name );
+void     Q3_SetAnimBoth    ( int entID, const char *anim_name );
+void     Q3_SetVar         ( int taskID, int entID, const char *type_name, const char *data );
+void     Q3_SetVelocity    ( int entID, vec3_t angles );
+void     Q3_TaskIDClear    ( int *taskID );
+void     Q3_TaskIDComplete ( sharedEntity_t *ent, taskID_t taskType );
+qboolean Q3_TaskIDPending  ( sharedEntity_t *ent, taskID_t taskType );
+void     Q3_TaskIDSet      ( sharedEntity_t *ent, taskID_t taskType, int taskID );
 
-extern	void		Q3_CameraRoll( float angle, float duration );
-extern  void		Q3_CameraFollow( const char *name, float speed, float initLerp );
-extern  void		Q3_CameraTrack( const char *name, float speed, float initLerp );
-extern  void		Q3_CameraDistance( float distance, float initLerp );
-
-//Not referenced directly as script function - all are called through Q3_Set
-extern	void		Q3_SetAnimBoth( int entID, const char *anim_name );
-extern	void		Q3_SetVelocity( int entID, vec3_t angles );
-
-extern	void		Q3_DeclareVariable ( int type, const char *name );
-extern	void		Q3_FreeVariable( const char *name );
-
-extern	void		Q3_DebugPrint( int level, const char *format, ... );
 #endif

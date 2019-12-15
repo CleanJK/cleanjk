@@ -347,6 +347,7 @@ void	Cmd_ExecuteString( const char *text );
 // Parses a single line of text into arguments and tries to execute it
 // as if it was typed at the console
 
+char *Cmd_DescriptionString( const char *cmd_name );
 
 // FILESYSTEM
 // No stdio calls should be used by any part of the game, because we need to deal with all sorts of directory and seperator char issues.
@@ -501,6 +502,9 @@ void FS_Rename( const char *from, const char *to );
 
 qboolean FS_WriteToTemporaryFile( const void *data, size_t dataLength, char **tempFileName );
 
+void FS_UpdateGamedir(void);
+
+
 // Edit fields and command line history/completion
 
 #define CONSOLE_PROMPT_CHAR ']'
@@ -651,6 +655,7 @@ void Hunk_FreeTempMemory( void *buf );
 int	Hunk_MemoryRemaining( void );
 void Hunk_Log( void);
 void Hunk_Trash( void );
+qboolean Com_TheHunkMarkHasBeenMade(void);
 
 void Com_TouchMemory( void );
 
@@ -728,6 +733,7 @@ void SV_Frame( int msec );
 void SV_PacketEvent( netadr_t from, msg_t *msg );
 int SV_FrameMsec( void );
 qboolean SV_GameCommand( void );
+void SV_ShutdownGameProgs( void );
 
 // UI interface
 qboolean UI_GameCommand( void );
@@ -779,6 +785,8 @@ void	Huff_offsetTransmit (huff_t *huff, int ch, byte *fout, int *offset);
 void	Huff_putBit( int bit, byte *fout, int *offset);
 int		Huff_getBit( byte *fout, int *offset);
 
+void MSG_shutdownHuffman();
+
 extern huffman_t clientHuffTables;
 
 #define	SV_ENCODE_START		4
@@ -796,5 +804,6 @@ bool PD_Store ( const char *name, const void *data, size_t size );
 const void *PD_Load ( const char *name, size_t *size );
 
 uint32_t ConvertUTF8ToUTF32( char *utf8CurrentChar, char **utf8NextChar );
+void BotDrawDebugPolygons(void (*drawPoly)(int color, int numPoints, float *points), int value);
 
 #include "sys/sys_public.h"

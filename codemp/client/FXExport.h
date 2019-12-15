@@ -37,3 +37,4 @@ int			FX_InitSystem( refdef_t* refdef );	// called in CG_Init to purge the fx sy
 void		FX_SetRefDefFromCGame( refdef_t* refdef );
 qboolean	FX_FreeSystem( void );	// ditches all active effects;
 void		FX_AdjustTime( int time );
+void FX_FeedTrail(effectTrailArgStruct_t *a);

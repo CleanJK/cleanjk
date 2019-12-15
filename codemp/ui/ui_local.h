@@ -46,7 +46,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define MAX_MOVIES				2048 // 256
 #define MAX_PINGREQUESTS		32
 #define MAX_Q3PLAYERMODELS		1024 //256
-#define MAX_SABER_HILTS			256 //64
 #define MAX_SCROLLTEXT_LINES	64
 #define MAX_SCROLLTEXT_SIZE		4096
 #define MAX_SERVERSTATUS_LINES	128
@@ -249,8 +248,6 @@ struct uiInfo_t {
 	teamInfo_t				teamList[MAX_TEAMS];
 	int						numGameTypes;
 	gameTypeInfo_t			gameTypes[MAX_GAMETYPES];
-	int						numJoinGameTypes;
-	gameTypeInfo_t			joinGameTypes[MAX_GAMETYPES];
 	int						redBlue;
 	int						playerCount;
 	int						myTeamCount;
@@ -318,25 +315,28 @@ struct uiInfo_t {
 
 
 
-qboolean	UI_ConsoleCommand( int realTime );
-char		*UI_Cvar_VariableString( const char *var_name );
-void		UI_DrawHandlePic( float x, float y, float w, float h, qhandle_t hShader );
-qboolean	UI_FeederSelection( float feederID, int index, itemDef_t *item );
-void		UI_FillRect( float x, float y, float width, float height, const float *color );
-char		*UI_GetBotNameByNumber( int num );
-int			UI_GetNumBots( void );
-void		UI_Load( void );
-void		UI_LoadArenas( void );
-void		UI_LoadBots( void );
-void		UI_LoadForceConfig_List( void );
-void		UI_LoadMenus( const char *menuFile, qboolean reset );
-void		UI_RegisterCvars( void );
-void		UI_Report( void );
-qboolean	UI_SaberModelForSaber( const char *saberName, char *saberModel );
-qboolean	UI_SaberTypeForSaber( const char *saberName, char *saberType );
-void		UI_UpdateCvars( void );
-
-
+qboolean    UI_ConsoleCommand         ( int realTime );
+char       *UI_Cvar_VariableString    ( const char *var_name );
+void        UI_DrawHandlePic          ( float x, float y, float w, float h, qhandle_t hShader );
+qboolean    UI_FeederSelection        ( float feederID, int index, itemDef_t *item );
+void        UI_FillRect               ( float x, float y, float width, float height, const float *color );
+char       *UI_GetBotNameByNumber     ( int num );
+int         UI_GetNumBots             ( void );
+const char *UI_GetStringEdString      ( const char *refSection, const char *refName );
+void        UI_Load                   ( void );
+void        UI_LoadArenas             ( void );
+void        UI_LoadBots               ( void );
+void        UI_LoadForceConfig_List   ( void );
+void        UI_LoadMenus              ( const char *menuFile, qboolean reset );
+void        UI_RegisterCvars          ( void );
+void        UI_Report                 ( void );
+qboolean    UI_SaberModelForSaber     ( const char *saberName, char *saberModel );
+qboolean    UI_SaberProperNameForSaber( const char *saberName, char *saberProperName );
+qboolean    UI_SaberTypeForSaber      ( const char *saberName, char *saberType );
+const char *UI_TeamName               ( int team );
+qboolean    UI_TrueJediEnabled        ( void );
+void        UI_UpdateCvars            ( void );
+void        UpdateForceUsed           ( void );
 
 // ui_cvar.c
 #define XCVAR_PROTO

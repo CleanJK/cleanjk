@@ -837,7 +837,6 @@ void SV_WriteDownloadToClient(client_t *cl, msg_t *msg)
 	}
 }
 
-const char *SV_GetStringEdString(char *refSection, char *refName);
 // The client is going to disconnect, so remove the connection immediately  FIXME: move to game?
 static void SV_Disconnect_f( client_t *cl ) {
 //	SV_DropClient( cl, "disconnected" );

@@ -22,6 +22,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "game/g_local.h"
+#include "game/g_ICARUScb.h"
 
 qboolean	G_SpawnString( const char *key, const char *defaultString, char **out ) {
 	int		i;
@@ -206,135 +207,6 @@ typedef struct spawn_s {
 	void		(*spawn)(gentity_t *ent);
 } spawn_t;
 
-void SP_info_player_start (gentity_t *ent);
-void SP_info_player_duel( gentity_t *ent );
-void SP_info_player_duel1( gentity_t *ent );
-void SP_info_player_duel2( gentity_t *ent );
-void SP_info_player_deathmatch (gentity_t *ent);
-void SP_info_player_intermission (gentity_t *ent);
-void SP_info_player_intermission_red (gentity_t *ent);
-void SP_info_player_intermission_blue (gentity_t *ent);
-void SP_info_jedimaster_start (gentity_t *ent);
-void SP_info_player_start_red (gentity_t *ent);
-void SP_info_player_start_blue (gentity_t *ent);
-void SP_info_firstplace(gentity_t *ent);
-void SP_info_secondplace(gentity_t *ent);
-void SP_info_thirdplace(gentity_t *ent);
-void SP_info_podium(gentity_t *ent);
-
-void SP_func_plat (gentity_t *ent);
-void SP_func_static (gentity_t *ent);
-void SP_func_rotating (gentity_t *ent);
-void SP_func_bobbing (gentity_t *ent);
-void SP_func_pendulum( gentity_t *ent );
-void SP_func_button (gentity_t *ent);
-void SP_func_door (gentity_t *ent);
-void SP_func_train (gentity_t *ent);
-void SP_func_timer (gentity_t *self);
-void SP_func_breakable (gentity_t *ent);
-void SP_func_glass (gentity_t *ent);
-void SP_func_usable( gentity_t *ent);
-void SP_func_wall( gentity_t *ent );
-
-void SP_trigger_lightningstrike( gentity_t *ent );
-
-void SP_trigger_always (gentity_t *ent);
-void SP_trigger_multiple (gentity_t *ent);
-void SP_trigger_once( gentity_t *ent );
-void SP_trigger_push (gentity_t *ent);
-void SP_trigger_teleport (gentity_t *ent);
-void SP_trigger_hurt (gentity_t *ent);
-void SP_trigger_space(gentity_t *self);
-void SP_trigger_asteroid_field(gentity_t *self);
-
-void SP_target_remove_powerups( gentity_t *ent );
-void SP_target_give (gentity_t *ent);
-void SP_target_delay (gentity_t *ent);
-void SP_target_speaker (gentity_t *ent);
-void SP_target_print (gentity_t *ent);
-void SP_target_laser (gentity_t *self);
-void SP_target_character (gentity_t *ent);
-void SP_target_score( gentity_t *ent );
-void SP_target_teleporter( gentity_t *ent );
-void SP_target_relay (gentity_t *ent);
-void SP_target_kill (gentity_t *ent);
-void SP_target_position (gentity_t *ent);
-void SP_target_location (gentity_t *ent);
-void SP_target_counter (gentity_t *self);
-void SP_target_random (gentity_t *self);
-void SP_target_scriptrunner( gentity_t *self );
-void SP_target_activate (gentity_t *self);
-void SP_target_deactivate (gentity_t *self);
-void SP_target_level_change( gentity_t *self );
-void SP_target_play_music( gentity_t *self );
-void SP_target_push (gentity_t *ent);
-
-void SP_light (gentity_t *self);
-void SP_info_null (gentity_t *self);
-void SP_info_notnull (gentity_t *self);
-void SP_info_camp (gentity_t *self);
-void SP_path_corner (gentity_t *self);
-
-void SP_misc_teleporter_dest (gentity_t *self);
-void SP_misc_model(gentity_t *ent);
-void SP_misc_model_static(gentity_t *ent);
-void SP_misc_model_breakable( gentity_t *ent ) ;
-void SP_misc_G2model(gentity_t *ent);
-void SP_misc_portal_camera(gentity_t *ent);
-void SP_misc_portal_surface(gentity_t *ent);
-void SP_misc_weather_zone( gentity_t *ent );
-
-void SP_misc_bsp (gentity_t *ent);
-void SP_terrain (gentity_t *ent);
-void SP_misc_skyportal_orient (gentity_t *ent);
-void SP_misc_skyportal (gentity_t *ent);
-
-void SP_misc_ammo_floor_unit(gentity_t *ent);
-void SP_misc_shield_floor_unit( gentity_t *ent );
-void SP_misc_model_shield_power_converter( gentity_t *ent );
-void SP_misc_model_ammo_power_converter( gentity_t *ent );
-void SP_misc_model_health_power_converter( gentity_t *ent );
-
-void SP_fx_runner( gentity_t *ent );
-
-void SP_target_screenshake(gentity_t *ent);
-
-void SP_misc_maglock ( gentity_t *self );
-
-void SP_misc_faller(gentity_t *ent);
-
-void SP_misc_holocron(gentity_t *ent);
-
-void SP_reference_tag ( gentity_t *ent );
-
-void SP_misc_weapon_shooter( gentity_t *self );
-
-void SP_misc_cubemap( gentity_t *ent );
-
-void SP_waypoint (gentity_t *ent);
-void SP_waypoint_small (gentity_t *ent);
-void SP_waypoint_navgoal (gentity_t *ent);
-void SP_waypoint_navgoal_8 (gentity_t *ent);
-void SP_waypoint_navgoal_4 (gentity_t *ent);
-void SP_waypoint_navgoal_2 (gentity_t *ent);
-void SP_waypoint_navgoal_1 (gentity_t *ent);
-
-void SP_CreateWind( gentity_t *ent );
-void SP_CreateSpaceDust( gentity_t *ent );
-void SP_CreateSnow( gentity_t *ent );
-void SP_CreateRain( gentity_t *ent );
-
-void SP_shooter_blaster( gentity_t *ent );
-
-void SP_team_CTF_redplayer( gentity_t *ent );
-void SP_team_CTF_blueplayer( gentity_t *ent );
-
-void SP_team_CTF_redspawn( gentity_t *ent );
-void SP_team_CTF_bluespawn( gentity_t *ent );
-
-void SP_misc_turret( gentity_t *ent );
-void SP_misc_turretG2( gentity_t *base );
-
 void SP_item_botroam( gentity_t *ent ) { }
 
 void SP_gametype_item ( gentity_t* ent )
@@ -397,8 +269,6 @@ void SP_gametype_item ( gentity_t* ent )
 		}
 	}
 }
-
-void SP_emplaced_gun( gentity_t *ent );
 
 const spawn_t	spawns[] = {
 	{ "emplaced_gun",                      SP_emplaced_gun },
@@ -609,7 +479,6 @@ static int fieldcmp( const void *a, const void *b ) {
 	return Q_stricmp( (const char *)a, ((field_t*)b)->name );
 }
 
-void Q3_SetParm ( int entID, int parmNum, const char *parmValue );
 // Takes a key/value pair and sets the binary values in a gentity
 void G_ParseField( const char *key, const char *value, gentity_t *ent )
 {
@@ -1129,7 +998,6 @@ static	char *defaultStyles[32][3] =
 };
 
 void *precachedKyle = 0;
-void scriptrunner_run (gentity_t *self);
 
 /*QUAKED worldspawn (0 0 0) ?
 
@@ -1151,7 +1019,6 @@ BSP Options
 "fogstart"		override fog start distance and force linear
 "radarrange" for Siege/Vehicle radar - default range is 2500
 */
-extern void EWebPrecache(void); //g_items.c
 float g_cullDistance;
 void SP_worldspawn( void )
 {

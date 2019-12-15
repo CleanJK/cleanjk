@@ -150,10 +150,6 @@ void G2_DEBUG_RemovePtrFromTracker(CGhoul2Info_v *g2)
 }
 #endif
 
-qboolean G2_SetupModelPointers(CGhoul2Info *ghlInfo);
-qboolean G2_SetupModelPointers(CGhoul2Info_v &ghoul2);
-qboolean G2_TestModelPointers(CGhoul2Info *ghlInfo);
-
 //rww - RAGDOLL_BEGIN
 #define NUM_G2T_TIME (2)
 static int G2TimeBases[NUM_G2T_TIME];
@@ -229,10 +225,6 @@ void G2API_CleanEntAttachments(void)
 	}
 #endif
 }
-
-#ifdef _G2_LISTEN_SERVER_OPT
-void CopyBoneCache(CBoneCache *to, CBoneCache *from);
-#endif
 
 qboolean G2API_OverrideServerWithClientData(CGhoul2Info_v& ghoul2, int modelIndex)
 {
@@ -608,7 +600,6 @@ qboolean G2API_SetLodBias(CGhoul2Info *ghlInfo, int lodBias)
 	return qfalse;
 }
 
-void G2_SetSurfaceOnOffFromSkin (CGhoul2Info *ghlInfo, qhandle_t renderSkin);
 qboolean G2API_SetSkin(CGhoul2Info_v& ghoul2, int modelIndex, qhandle_t customSkin, qhandle_t renderSkin)
 {
 	CGhoul2Info *ghlInfo = &ghoul2[modelIndex];
@@ -1337,13 +1328,11 @@ void G2API_AbsurdSmoothing(CGhoul2Info_v &ghoul2, qboolean status)
 
 //rww - RAGDOLL_BEGIN
 class CRagDollParams;
-void G2_SetRagDoll(CGhoul2Info_v &ghoul2V,CRagDollParams *parms);
 void G2API_SetRagDoll(CGhoul2Info_v &ghoul2,CRagDollParams *parms)
 {
 	G2_SetRagDoll(ghoul2,parms);
 }
 
-void G2_ResetRagDoll(CGhoul2Info_v &ghoul2V);
 void G2API_ResetRagDoll(CGhoul2Info_v &ghoul2)
 {
 	G2_ResetRagDoll(ghoul2);
@@ -1404,7 +1393,6 @@ void G2API_AnimateG2ModelsRag(CGhoul2Info_v &ghoul2, int AcurrentTime,CRagDollUp
 }
 //rww - RAGDOLL_END
 
-int G2_Find_Bone_Rag(CGhoul2Info *ghlInfo, boneInfo_v &blist, const char *boneName);
 #define RAG_PCJ						(0x00001)
 #define RAG_EFFECTOR				(0x00100)
 
@@ -1548,13 +1536,11 @@ qboolean G2API_RagForceSolve(CGhoul2Info_v &ghoul2, qboolean force)
 	return qtrue;
 }
 
-qboolean G2_SetBoneIKState(CGhoul2Info_v &ghoul2, int time, const char *boneName, int ikState, sharedSetBoneIKStateParams_t *params);
 qboolean G2API_SetBoneIKState(CGhoul2Info_v &ghoul2, int time, const char *boneName, int ikState, sharedSetBoneIKStateParams_t *params)
 {
 	return G2_SetBoneIKState(ghoul2, time, boneName, ikState, params);
 }
 
-qboolean G2_IKMove(CGhoul2Info_v &ghoul2, int time, sharedIKMoveParams_t *params);
 qboolean G2API_IKMove(CGhoul2Info_v &ghoul2, int time, sharedIKMoveParams_t *params)
 {
 	return G2_IKMove(ghoul2, time, params);
@@ -1721,9 +1707,6 @@ qboolean G2API_GetBoltMatrix_SPMethod(CGhoul2Info_v &ghoul2, const int modelInde
 #define G2WARNING(exp,m)     ((void)0)
 #define G2NOTE(exp,m)     ((void)0)
 #define G2ANIM(ghlInfo,m) ((void)0)
-bool G2_NeedsRecalc(CGhoul2Info *ghlInfo,int frameNum);
-void G2_GetBoltMatrixLow(CGhoul2Info &ghoul2,int boltNum,const vec3_t scale,mdxaBone_t &retMatrix);
-void G2_GetBoneMatrixLow(CGhoul2Info &ghoul2,int boneNum,const vec3_t scale,mdxaBone_t &retMatrix,mdxaBone_t *&retBasepose,mdxaBone_t *&retBaseposeInv);
 
 //qboolean G2API_GetBoltMatrix(CGhoul2Info_v &ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix, const vec3_t angles,
 //							 const vec3_t position, const int AframeNum, qhandle_t *modelList, const vec3_t scale )
@@ -2392,7 +2375,6 @@ qboolean G2API_SkinlessModel(CGhoul2Info_v& ghoul2, int modelIndex)
 
 //#ifdef _SOF2
 #ifdef _G2_GORE
-void ResetGoreTag(); // put here to reduce coupling
 
 //way of seeing how many marks are on a model currently -rww
 int G2API_GetNumGoreMarks(CGhoul2Info_v& ghoul2, int modelIndex)
@@ -2431,7 +2413,6 @@ int G2API_Ghoul2Size ( CGhoul2Info_v &ghoul2 )
 	return ghoul2.size();
 }
 
-extern int		G2_DecideTraceLod(CGhoul2Info &ghoul2, int useLod);
 void G2API_AddSkinGore(CGhoul2Info_v &ghoul2,SSkinGoreData &gore)
 {
 	if (VectorLength(gore.rayDirection)<.1f)

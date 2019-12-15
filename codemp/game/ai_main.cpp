@@ -276,14 +276,9 @@ int BotMindTricked(int botClient, int enemyClient)
 	return 0;
 }
 
-int BotGetWeaponRange(bot_state_t *bs);
-int PassLovedOneCheck(bot_state_t *bs, gentity_t *ent);
-
-void ExitLevel( void );
-
-void QDECL BotAI_Print(int type, char *fmt, ...) { return; }
-
-qboolean WP_ForcePowerUsable( gentity_t *self, forcePowers_t forcePower );
+void QDECL BotAI_Print(int type, char *fmt, ...) {
+	//FIXME: replace with trap->Print
+}
 
 int IsTeamplay(void)
 {
@@ -1961,8 +1956,6 @@ int PassLovedOneCheck(bot_state_t *bs, gentity_t *ent)
 
 	return 1;
 }
-
-qboolean G_ThereIsAMaster(void);
 
 //standard check to find a new enemy.
 int ScanForEnemies(bot_state_t *bs)
@@ -5260,9 +5253,6 @@ int BotWeaponBlockable(int weapon)
 		return 1;
 	}
 }
-
-void Cmd_EngageDuel_f(gentity_t *ent);
-void Cmd_ToggleSaber_f(gentity_t *ent);
 
 //movement overrides
 void Bot_SetForcedMovement(int bot, int forward, int right, int up)

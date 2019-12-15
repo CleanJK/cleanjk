@@ -253,7 +253,6 @@ const char *CG_GetGameStatusText(void) {
 
 #define PIC_WIDTH 12
 
-extern const char *CG_GetLocationString(const char *loc); //cg_main.c
 void CG_DrawNewTeamInfo(rectDef_t *rect, float text_x, float text_y, float scale, vec4_t color, qhandle_t shader) {
 	int xx;
 	float y;

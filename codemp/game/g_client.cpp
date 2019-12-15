@@ -32,11 +32,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 static vec3_t	playerMins = {-15, -15, DEFAULT_MINS_2};
 static vec3_t	playerMaxs = {15, 15, DEFAULT_MAXS_2};
 
-void WP_SaberAddG2Model( gentity_t *saberent, const char *saberModel, qhandle_t saberSkin );
-void WP_SaberRemoveG2Model( gentity_t *saberent );
-extern qboolean WP_SaberStyleValidForSaber( saberInfo_t *saber1, saberInfo_t *saber2, int saberHolstered, int saberAnimLevel );
-extern qboolean WP_UseFirstValidSaberStyle( saberInfo_t *saber1, saberInfo_t *saber2, int saberHolstered, int *saberAnimLevel );
-
 forcedata_t Client_Force[MAX_CLIENTS];
 
 /*QUAKED info_player_duel (1 0 1) (-16 -16 -24) (16 16 32) initial
@@ -1241,8 +1236,6 @@ qboolean G_SaberModelSetup(gentity_t *ent)
 	return fallbackForSaber;
 }
 
-qboolean BG_ValidateSkinForTeam( const char *modelName, char *skinName, int team, float *colors );
-
 void *g2SaberInstance = NULL;
 
 // There are two ghoul2 model instances per player (actually three).
@@ -1529,8 +1522,6 @@ void SetupGameGhoul2Model(gentity_t *ent, char *modelname, char *skinName)
 		}
 	}
 }
-
-qboolean G_SetSaber(gentity_t *ent, int saberNum, char *saberName);
 
 typedef struct userinfoValidate_s {
 	const char		*field, *fieldClean;
@@ -2040,8 +2031,6 @@ char *ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
 }
 
 extern qboolean g_dontPenalizeTeam; //g_cmds.c
-void G_WriteClientSessionData( gclient_t *client );
-void WP_SetSaber( int entNum, saberInfo_t *sabers, int saberNum, const char *saberName );
 
 // called when a client has finished connecting, and is ready to be placed into the level.
 // This will happen every level load, and on transition between teams, but doesn't happen on respawns
@@ -2262,8 +2251,6 @@ void G_BreakArm(gentity_t *ent, int arm)
 }
 
 //Update the ghoul2 instance anims based on the playerstate values
-qboolean BG_SaberStanceAnim( int anim );
-qboolean PM_RunningAnim( int anim );
 void G_UpdateClientAnims(gentity_t *self, float animSpeedScale)
 {
 	static int f;
@@ -2382,8 +2369,6 @@ tryTorso:
 		trap->G2API_SetBoneAnim(self->ghoul2, 0, "Motion", firstFrame, lastFrame, aFlags, lAnimSpeedScale, level.time, -1, 150);
 	}
 }
-
-extern qboolean WP_HasForcePowers( const playerState_t *ps );
 
 // Called every time a client is placed fresh in the world: after the first ClientBegin, and after each respawn
 // Initializes all non-persistant parts of playerState

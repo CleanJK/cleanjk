@@ -51,6 +51,8 @@ void ICARUS_InitEnt( sharedEntity_t *ent );
 void ICARUS_FreeEnt( sharedEntity_t *ent );
 void ICARUS_AssociateEnt( sharedEntity_t *ent );
 void ICARUS_Shutdown( void );
+int ICARUS_GetScript( const char *name, char **buf );
+int ICARUS_LinkEntity( int entID, class CSequencer *sequencer, class CTaskManager *taskManager );
 void Svcmd_ICARUS_f( void );
 
 extern int		ICARUS_entFilter;

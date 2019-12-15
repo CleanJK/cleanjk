@@ -23,6 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "game/g_local.h"
 #include "game/bg_saga.h"
+#include "game/g_ICARUScb.h"
 
 int gTrigFallSound;
 
@@ -45,11 +46,20 @@ void multi_wait( gentity_t *ent ) {
 	ent->nextthink = 0;
 }
 
-void trigger_cleared_fire (gentity_t *self);
-
 // the trigger was just activated
 // ent->activator should be set to the activator so it can be held through a delay
 // so wait for the delay time before firing
+static void trigger_cleared_fire (gentity_t *self)
+{
+	G_UseTargets2( self, self->activator, self->target2 );
+	self->think = 0;
+	// should start the wait timer now, because the trigger's just been cleared, so we must "wait" from this point
+	if ( self->wait > 0 )
+	{
+		self->nextthink = level.time + ( self->wait + self->random * Q_flrand(-1.0f, 1.0f) ) * 1000;
+	}
+}
+
 void multi_trigger_run( gentity_t *ent )
 {
 	ent->think = 0;
@@ -217,8 +227,6 @@ void Use_Multi( gentity_t *ent, gentity_t *other, gentity_t *activator )
 	multi_trigger( ent, activator );
 }
 
-qboolean G_PointInBounds( vec3_t point, vec3_t mins, vec3_t maxs );
-
 void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 {
 	if( !other->client )
@@ -376,17 +384,6 @@ void Touch_Multi( gentity_t *self, gentity_t *other, trace_t *trace )
 	}
 
 	multi_trigger( self, other );
-}
-
-void trigger_cleared_fire (gentity_t *self)
-{
-	G_UseTargets2( self, self->activator, self->target2 );
-	self->think = 0;
-	// should start the wait timer now, because the trigger's just been cleared, so we must "wait" from this point
-	if ( self->wait > 0 )
-	{
-		self->nextthink = level.time + ( self->wait + self->random * Q_flrand(-1.0f, 1.0f) ) * 1000;
-	}
 }
 
 /*QUAKED trigger_multiple (.1 .5 .1) ? CLIENTONLY FACING USE_BUTTON FIRE_BUTTON NPCONLY x x INACTIVE MULTIPLE
@@ -1336,8 +1333,6 @@ int asteroid_count_num_asteroids( gentity_t *self )
 	return count;
 }
 
-extern void SP_func_rotating (gentity_t *ent);
-extern void Q3_Lerp2Origin( int taskID, int entID, vec3_t origin, float duration );
 void asteroid_field_think(gentity_t *self)
 {
 	int numAsteroids = asteroid_count_num_asteroids( self );

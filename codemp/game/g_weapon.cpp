@@ -158,19 +158,12 @@ static vec3_t muzzle;
 #define ATST_SIDE_ALT_ROCKET_SIZE			5
 #define ATST_SIDE_ALT_ROCKET_SPLASH_SCALE	0.5f	// scales splash for NPC's
 
-extern qboolean G_BoxInBounds( vec3_t point, vec3_t mins, vec3_t maxs, vec3_t boundsMins, vec3_t boundsMaxs );
-
 static void WP_FireEmplaced( gentity_t *ent, qboolean altFire );
-
-void laserTrapStick( gentity_t *ent, vec3_t endpos, vec3_t normal );
 
 void touch_NULL( gentity_t *ent, gentity_t *other, trace_t *trace )
 {
 
 }
-
-void laserTrapExplode( gentity_t *self );
-void RocketDie(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod);
 
 //We should really organize weapon data into tables or parse from the ext data so we have accurate info for this,
 float WP_SpeedOfMissileForWeapon( int wp, qboolean alt_fire )
@@ -473,8 +466,6 @@ static void WP_FireBlaster( gentity_t *ent, qboolean altFire )
 	// FIXME: if temp_org does not have clear trace to inside the bbox, don't shoot!
 	WP_FireBlasterMissile( ent, muzzle, dir, altFire );
 }
-
-int G_GetHitLocation(gentity_t *target, vec3_t ppoint);
 
 // DISRUPTOR
 
@@ -1372,6 +1363,44 @@ static void WP_FlechetteMainFire( gentity_t *ent )
 	}
 }
 
+static void laserTrapExplode( gentity_t *self )
+{
+	vec3_t v;
+	self->takedamage = qfalse;
+
+	if (self->activator)
+	{
+		G_RadiusDamage( self->r.currentOrigin, self->activator, self->splashDamage, self->splashRadius, self, self, MOD_TRIP_MINE_SPLASH/*MOD_LT_SPLASH*/ );
+	}
+
+	if (self->s.weapon != WP_FLECHETTE)
+	{
+		G_AddEvent( self, EV_MISSILE_MISS, 0);
+	}
+
+	VectorCopy(self->s.pos.trDelta, v);
+	//Explode outward from the surface
+
+	if (self->s.time == -2)
+	{
+		v[0] = 0;
+		v[1] = 0;
+		v[2] = 0;
+	}
+
+	if (self->s.weapon == WP_FLECHETTE)
+	{
+		G_PlayEffect(EFFECT_EXPLOSION_FLECHETTE, self->r.currentOrigin, v);
+	}
+	else
+	{
+		G_PlayEffect(EFFECT_EXPLOSION_TRIPMINE, self->r.currentOrigin, v);
+	}
+
+	self->think = G_FreeEntity;
+	self->nextthink = level.time;
+}
+
 void prox_mine_think( gentity_t *ent )
 {
 	int			count, i;
@@ -1533,6 +1562,17 @@ static void WP_FireFlechette( gentity_t *ent, qboolean altFire )
 
 // ROCKET LAUNCHER
 
+void RocketDie(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod)
+{
+	self->die = 0;
+	self->r.contents = 0;
+
+	G_ExplodeMissile( self );
+
+	self->think = G_FreeEntity;
+	self->nextthink = level.time;
+}
+
 void rocketThink( gentity_t *ent )
 {
 	vec3_t newdir, targetdir,
@@ -1682,18 +1722,6 @@ void rocketThink( gentity_t *ent )
 	return;
 }
 
-extern void G_ExplodeMissile( gentity_t *ent );
-void RocketDie(gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod)
-{
-	self->die = 0;
-	self->r.contents = 0;
-
-	G_ExplodeMissile( self );
-
-	self->think = G_FreeEntity;
-	self->nextthink = level.time;
-}
-
 static void WP_FireRocket( gentity_t *ent, qboolean altFire )
 {
 	int	damage	= ROCKET_DAMAGE;
@@ -1791,9 +1819,9 @@ static void WP_FireRocket( gentity_t *ent, qboolean altFire )
 #define TD_ALT_MIN_CHARGE	0.15f
 #define TD_ALT_TIME			3000
 
-void thermalThinkStandard(gentity_t *ent);
+void thermalThinkStandard( gentity_t *ent );
 
-void thermalDetonatorExplode( gentity_t *ent )
+static void thermalDetonatorExplode( gentity_t *ent )
 {
 	if ( !ent->count )
 	{
@@ -2089,44 +2117,6 @@ qboolean WP_LobFire( gentity_t *self, vec3_t start, vec3_t target, vec3_t mins, 
 #define LT_ALT_TIME			2000
 #define	LT_ACTIVATION_DELAY	1000
 #define	LT_DELAY_TIME		50
-
-void laserTrapExplode( gentity_t *self )
-{
-	vec3_t v;
-	self->takedamage = qfalse;
-
-	if (self->activator)
-	{
-		G_RadiusDamage( self->r.currentOrigin, self->activator, self->splashDamage, self->splashRadius, self, self, MOD_TRIP_MINE_SPLASH/*MOD_LT_SPLASH*/ );
-	}
-
-	if (self->s.weapon != WP_FLECHETTE)
-	{
-		G_AddEvent( self, EV_MISSILE_MISS, 0);
-	}
-
-	VectorCopy(self->s.pos.trDelta, v);
-	//Explode outward from the surface
-
-	if (self->s.time == -2)
-	{
-		v[0] = 0;
-		v[1] = 0;
-		v[2] = 0;
-	}
-
-	if (self->s.weapon == WP_FLECHETTE)
-	{
-		G_PlayEffect(EFFECT_EXPLOSION_FLECHETTE, self->r.currentOrigin, v);
-	}
-	else
-	{
-		G_PlayEffect(EFFECT_EXPLOSION_TRIPMINE, self->r.currentOrigin, v);
-	}
-
-	self->think = G_FreeEntity;
-	self->nextthink = level.time;
-}
 
 void laserTrapDelayedExplode( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath )
 {
@@ -2481,7 +2471,33 @@ void VectorNPos(vec3_t in, vec3_t out)
 	if (in[2] < 0) { out[2] = -in[2]; } else { out[2] = in[2]; }
 }
 
-void DetPackBlow(gentity_t *self);
+void DetPackBlow(gentity_t *self)
+{
+	vec3_t v;
+
+	self->pain = 0;
+	self->die = 0;
+	self->takedamage = qfalse;
+
+	if ( self->target_ent )
+	{//we were attached to something, do *direct* damage to it!
+		G_Damage( self->target_ent, self, &g_entities[self->r.ownerNum], v, self->r.currentOrigin, self->damage, 0, MOD_DET_PACK_SPLASH );
+	}
+	G_RadiusDamage( self->r.currentOrigin, self->parent, self->splashDamage, self->splashRadius, self, self, MOD_DET_PACK_SPLASH );
+	v[0] = 0;
+	v[1] = 0;
+	v[2] = 1;
+
+	if (self->count == -1)
+	{
+		VectorCopy(self->pos2, v);
+	}
+
+	G_PlayEffect(EFFECT_EXPLOSION_DETPACK, self->r.currentOrigin, v);
+
+	self->think = G_FreeEntity;
+	self->nextthink = level.time;
+}
 
 void charge_stick (gentity_t *self, gentity_t *other, trace_t *trace)
 {
@@ -2588,34 +2604,6 @@ void charge_stick (gentity_t *self, gentity_t *other, trace_t *trace)
 
 	//so that the owner can blow it up with projectiles
 	self->r.svFlags |= SVF_OWNERNOTSHARED;
-}
-
-void DetPackBlow(gentity_t *self)
-{
-	vec3_t v;
-
-	self->pain = 0;
-	self->die = 0;
-	self->takedamage = qfalse;
-
-	if ( self->target_ent )
-	{//we were attached to something, do *direct* damage to it!
-		G_Damage( self->target_ent, self, &g_entities[self->r.ownerNum], v, self->r.currentOrigin, self->damage, 0, MOD_DET_PACK_SPLASH );
-	}
-	G_RadiusDamage( self->r.currentOrigin, self->parent, self->splashDamage, self->splashRadius, self, self, MOD_DET_PACK_SPLASH );
-	v[0] = 0;
-	v[1] = 0;
-	v[2] = 1;
-
-	if (self->count == -1)
-	{
-		VectorCopy(self->pos2, v);
-	}
-
-	G_PlayEffect(EFFECT_EXPLOSION_DETPACK, self->r.currentOrigin, v);
-
-	self->think = G_FreeEntity;
-	self->nextthink = level.time;
 }
 
 void DetPackPain(gentity_t *self, gentity_t *attacker, int damage)
@@ -3339,8 +3327,6 @@ void CalcMuzzlePoint ( gentity_t *ent, const vec3_t inForward, const vec3_t inRi
 	SnapVector( muzzlePoint );
 }
 
-extern void G_MissileImpact( gentity_t *ent, trace_t *trace );
-
 void G_EstimateCamPos( vec3_t viewAngles, vec3_t cameraFocusLoc, float viewheight, float thirdPersonRange,
 					  float thirdPersonHorzOffset, float vertOffset, float pitchOffset,
 					  int ignoreEntNum, vec3_t camPos )
@@ -3418,8 +3404,6 @@ void G_EstimateCamPos( vec3_t viewAngles, vec3_t cameraFocusLoc, float viewheigh
 
 	VectorCopy(cameraCurLoc, camPos);
 }
-
-int BG_EmplacedView(vec3_t baseAngles, vec3_t angles, float *newYaw, float constraint);
 
 void FireWeapon( gentity_t *ent, qboolean altFire ) {
 	// track shots taken for accuracy tracking. melee weapons are not tracked.

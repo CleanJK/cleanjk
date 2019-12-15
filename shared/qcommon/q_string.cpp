@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "q_color.h"
+#include "qcommon/q_color.h"
 
 int Q_isprint( int c )
 {

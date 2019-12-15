@@ -40,10 +40,6 @@ extern IHeapAllocator *G2VertSpaceClient;
 
 extern	botlib_export_t	*botlib_export;
 
-extern qboolean loadCamera(const char *name);
-extern void startCamera(int time);
-extern qboolean getCameraInfo(int time, vec3_t *origin, vec3_t *angles);
-
 qboolean CL_GetUserCmd( int cmdNumber, usercmd_t *ucmd ) {
 	// cmds[cmdNumber] is the last properly generated command
 

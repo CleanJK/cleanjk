@@ -29,9 +29,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 Loads and prepares a map file for scene rendering.
 
-A single entry point:
-
-void RE_LoadWorldMap( const char *name );
+A single entry point: RE_LoadWorldMap
 
 */
 

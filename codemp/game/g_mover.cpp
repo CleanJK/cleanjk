@@ -26,8 +26,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // PUSHMOVE
 
-void MatchTeam( gentity_t *teamLeader, int moverState, int time );
-
 typedef struct pushed_s {
 	gentity_t	*ent;
 	vec3_t	origin;
@@ -230,8 +228,6 @@ qboolean	G_TryPushingEntity( gentity_t *check, gentity_t *pusher, vec3_t move, v
 	// blocked
 	return qfalse;
 }
-
-void G_ExplodeMissile( gentity_t *ent );
 
 // Objects need to be moved back on a failed push, otherwise riders would continue to slide.
 // If qfalse is returned, *obstacle will be the blocking entity
@@ -1710,7 +1706,17 @@ void SP_func_train (gentity_t *self) {
 
 // STATIC
 
-void func_static_use ( gentity_t *self, gentity_t *other, gentity_t *activator );
+void func_static_use ( gentity_t *self, gentity_t *other, gentity_t *activator )
+{
+	G_ActivateBehavior( self, BSET_USE );
+
+	if ( self->spawnflags & 4/*SWITCH_SHADER*/ )
+	{
+		self->s.frame = self->s.frame ? 0 : 1;//toggle frame
+	}
+	G_UseTargets( self, activator );
+}
+
 /*QUAKED func_static (0 .5 .8) ? F_PUSH F_PULL SWITCH_SHADER CRUSHER IMPACT x PLAYER_USE INACTIVE BROADCAST
 F_PUSH		Will be used when you Force-Push it
 F_PULL		Will be used when you Force-Pull it
@@ -1784,17 +1790,6 @@ void SP_func_static( gentity_t *ent )
 	{	// this means that this guy will never be updated, moved, changed, etc.
 		ent->s.eFlags = EF_PERMANENT;
 	}
-}
-
-void func_static_use ( gentity_t *self, gentity_t *other, gentity_t *activator )
-{
-	G_ActivateBehavior( self, BSET_USE );
-
-	if ( self->spawnflags & 4/*SWITCH_SHADER*/ )
-	{
-		self->s.frame = self->s.frame ? 0 : 1;//toggle frame
-	}
-	G_UseTargets( self, activator );
 }
 
 // ROTATING
@@ -1890,7 +1885,6 @@ Applicable only during Siege gametype:
 teamnodmg - if 1, team 1 can't damage this. If 2, team 2 can't damage this.
 
 */
-void SP_func_breakable( gentity_t *self );
 void SP_func_rotating (gentity_t *ent) {
 	vec3_t spinangles;
 	if ( ent->health )
@@ -2712,9 +2706,7 @@ void SP_func_glass( gentity_t *ent ) {
 }
 
 void func_usable_use (gentity_t *self, gentity_t *other, gentity_t *activator);
-
-extern gentity_t	*G_TestEntityPosition( gentity_t *ent );
-void func_wait_return_solid( gentity_t *self )
+static void func_wait_return_solid( gentity_t *self )
 {
 	//once a frame, see if it's clear.
 	self->clipmask = CONTENTS_BODY;
@@ -2746,7 +2738,7 @@ void func_wait_return_solid( gentity_t *self )
 	}
 }
 
-void func_usable_think( gentity_t *self )
+static void func_usable_think( gentity_t *self )
 {
 	if ( self->spawnflags & 8 )
 	{
@@ -2754,19 +2746,6 @@ void func_usable_think( gentity_t *self )
 		self->use = func_usable_use;
 		self->think = 0;
 	}
-}
-
-qboolean G_EntIsRemovableUsable( int entNum )
-{
-	gentity_t *ent = &g_entities[entNum];
-	if ( ent->classname && !Q_stricmp( "func_usable", ent->classname ) )
-	{
-		if ( !(ent->s.eFlags&EF_SHADER_ANIM) && !(ent->spawnflags&8) && ent->targetname )
-		{//not just a shader-animator and not ALWAYS_ON, so it must be removable somehow
-			return qtrue;
-		}
-	}
-	return qfalse;
 }
 
 void func_usable_use (gentity_t *self, gentity_t *other, gentity_t *activator)
@@ -2825,6 +2804,19 @@ void func_usable_use (gentity_t *self, gentity_t *other, gentity_t *activator)
 		self->think = 0;
 		self->nextthink = -1;
 	}
+}
+
+qboolean G_EntIsRemovableUsable( int entNum )
+{
+	gentity_t *ent = &g_entities[entNum];
+	if ( ent->classname && !Q_stricmp( "func_usable", ent->classname ) )
+	{
+		if ( !(ent->s.eFlags&EF_SHADER_ANIM) && !(ent->spawnflags&8) && ent->targetname )
+		{//not just a shader-animator and not ALWAYS_ON, so it must be removable somehow
+			return qtrue;
+		}
+	}
+	return qfalse;
 }
 
 void func_usable_pain(gentity_t *self, gentity_t *attacker, int damage)

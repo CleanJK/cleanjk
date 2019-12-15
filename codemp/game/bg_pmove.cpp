@@ -44,11 +44,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 	extern qboolean TryGrapple(gentity_t *ent); //g_cmds.c
 #endif // _GAME
 
-extern qboolean BG_FullBodyTauntAnim( int anim );
-extern float PM_WalkableGroundDistance(void);
-extern qboolean PM_GroundSlideOkay( float zNormal );
-extern saberInfo_t *BG_MySaber( int clientNum, int saberNum );
-
 pmove_t		*pm;
 pml_t		pml;
 
@@ -2484,7 +2479,6 @@ static int PM_FootstepForSurface( void )
 	return ( pml.groundTrace.surfaceFlags & MATERIAL_MASK );
 }
 
-extern qboolean PM_CanRollFromSoulCal( playerState_t *ps );
 static int PM_TryRoll( void )
 {
 	trace_t	trace;
@@ -4930,9 +4924,6 @@ int PM_ItemUsable(playerState_t *ps, int forcedUse)
 }
 
 //perform player anim overrides while on vehicle.
-extern int PM_irand_timesync(int val1, int val2);
-
-extern int PM_KickMoveForConditions(void);
 // Generates weapon events and modifes the weapon counter
 static void PM_Weapon( void )
 {
@@ -6318,8 +6309,6 @@ void BG_CmdForRoll( playerState_t *ps, int anim, usercmd_t *pCmd )
 	pCmd->upmove = 0;
 }
 
-qboolean PM_SaberInTransition( int move );
-
 void BG_AdjustClientSpeed(playerState_t *ps, usercmd_t *cmd, int svTime)
 {
 	saberInfo_t	*saber;
@@ -7007,7 +6996,6 @@ qboolean BG_InRoll2( entityState_t *es )
 	return qfalse;
 }
 
-extern qboolean BG_SaberLockBreakAnim( int anim ); //bg_panimate.c
 void BG_G2PlayerAngles(void *ghoul2, int motionBolt, entityState_t *cent, int time, vec3_t cent_lerpOrigin,
 					   vec3_t cent_lerpAngles, matrix3_t legs, vec3_t legsAngles, qboolean *tYawing,
 					   qboolean *tPitching, qboolean *lYawing, float *tYawAngle, float *tPitchAngle,
@@ -7541,8 +7529,6 @@ static QINLINE void PM_CmdForSaberMoves(usercmd_t *ucmd)
 		PM_SetPMViewAngle(pm->ps, pm->ps->viewangles, ucmd);
 	}
 }
-
-extern int BG_EmplacedView(vec3_t baseAngles, vec3_t angles, float *newYaw, float constraint);
 
 #define JETPACK_HOVER_HEIGHT	64
 

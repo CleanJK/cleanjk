@@ -346,8 +346,6 @@ void SV_SendMapChange(void)
 	}
 }
 
-extern void SV_SendClientGameState( client_t *client );
-
 // Change the server to a new map, taking all connected clients along with it.
 // This is NOT called for map_restart
 void SV_SpawnServer( char *server, qboolean killBots, ForceReload_e eForceReload ) {
@@ -645,9 +643,6 @@ void SV_SpawnServer( char *server, qboolean killBots, ForceReload_e eForceReload
 	SV_BeginAutoRecordDemos();
 }
 
-// Only called at main exe startup, not for each game
-void SV_BotInitBotLib(void);
-
 #ifdef DEDICATED
 
 #define G2_VERT_SPACE_SERVER_SIZE 256
@@ -672,8 +667,6 @@ void QDECL SV_RefPrintf( int print_level, const char *fmt, ...) {
 	}
 }
 
-qboolean Com_TheHunkMarkHasBeenMade(void);
-
 //qcommon/vm.cpp
 extern vm_t *currentVM;
 
@@ -686,10 +679,6 @@ static vm_t *GetCurrentVM( void ) { return currentVM; }
 static void *CM_GetCachedMapDiskImage( void ) { return gpvCachedMapDiskImage; }
 static void CM_SetCachedMapDiskImage( void *ptr ) { gpvCachedMapDiskImage = ptr; }
 static void CM_SetUsingCache( qboolean usingCache ) { gbUsingCachedMapDataRightNow = usingCache; }
-
-//server stuff D:
-extern void SV_GetConfigstring( int index, char *buffer, int bufferSize );
-extern void SV_SetConfigstring( int index, const char *val );
 
 static IHeapAllocator *GetG2VertSpaceServer( void ) {
 	return G2VertSpaceServer;

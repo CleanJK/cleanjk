@@ -27,9 +27,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #define	MISSILE_PRESTEP_TIME	50
 
-extern void laserTrapStick( gentity_t *ent, vec3_t endpos, vec3_t normal );
-
-float RandFloat(float min, float max);
 // Reflect the missile roughly back at it's owner
 void G_ReflectMissile( gentity_t *ent, gentity_t *missile, vec3_t forward )
 {
@@ -319,8 +316,6 @@ void G_MissileBounceEffect( gentity_t *ent, vec3_t org, vec3_t dir )
 	}
 }
 
-void WP_SaberBlockNonRandom( gentity_t *self, vec3_t hitloc, qboolean missileBlock );
-void WP_flechette_alt_blow( gentity_t *ent );
 void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 	gentity_t		*other;
 	qboolean		hitClient = qfalse;

@@ -48,8 +48,6 @@ public:
 	boneList(initboneList) { }
 };
 
-extern void G2_ConstructUsedBoneList(CConstructBoneList &CBL);
-
 // Surface List handling routines - so entities can determine what surfaces attached to a model are operational or not.
 
 // find a particular surface in the surface override list
@@ -503,7 +501,6 @@ qboolean G2_SetRootSurface(CGhoul2Info_v &ghoul2, const int modelIndex, const ch
 	return qfalse;
 }
 
-extern int G2_DecideTraceLod(CGhoul2Info &ghoul2, int useLod);
 int G2_AddSurface(CGhoul2Info *ghoul2, int surfaceNumber, int polyNumber, float BarycentricI, float BarycentricJ, int lod )
 {
 

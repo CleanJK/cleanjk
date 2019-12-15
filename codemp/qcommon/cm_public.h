@@ -79,3 +79,8 @@ void CM_DrawDebugSurface( void (*drawPoly)(int color, int numPoints, float *poin
 
 // cm_trace.cpp
 bool CM_CullWorldBox (const cplane_t *frustum, const vec3pair_t bounds);
+
+int CM_ModelContents(  clipHandle_t model, int subBSPIndex );
+int CM_FindSubBSP(int modelIndex);
+char *CM_SubBSPEntityString( int index );
+int CM_LoadSubBSP(const char *name, qboolean clientload);

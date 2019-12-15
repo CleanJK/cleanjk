@@ -22,9 +22,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "game/g_public.h"
 #include "icarus/icarus.h"
+#include "icarus/Q3_Interface.h"
 #include "icarus/Q3_Registers.h"
-
-extern	void	Q3_DebugPrint( int level, const char *format, ... );
 
 varString_m		varStrings;
 varFloat_m		varFloats;

@@ -33,8 +33,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //static int			loadingPlayerIconCount;
 //static qhandle_t	loadingPlayerIcons[MAX_LOADING_PLAYER_ICONS];
 
-void CG_LoadBar(void);
-
 void CG_LoadingString( const char *s ) {
 	Q_strncpyz( cg.infoScreenText, s, sizeof( cg.infoScreenText ) );
 
@@ -63,6 +61,20 @@ void CG_LoadingClient( int clientNum ) {
 	Q_strncpyz( personality, Info_ValueForKey( info, "n" ), sizeof(personality) );
 
 	CG_LoadingString( personality );
+}
+
+static void CG_LoadBar( void ) {
+	const float barWidth = SCREEN_HEIGHT, barHeight = 12.0f;
+	const float barX = (SCREEN_WIDTH - barWidth) / 2.0f, barY = SCREEN_HEIGHT - 8.0f - barHeight;
+	const float capWidth = 8.0f;
+
+	trap->R_SetColor( colorWhite );
+
+	// background, left cap, bar, right cap
+	CG_DrawPic( barX, barY, barWidth, barHeight, media.gfx.interface.loading.background );
+	CG_DrawPic( barX + capWidth, barY, -capWidth, barHeight, media.gfx.interface.loading.cap );
+	CG_DrawPic( barX + capWidth, barY, ((barWidth - (capWidth*2.0f))*cg.loadFrac), barHeight, media.gfx.interface.loading.tick );
+	CG_DrawPic( barX + ((barWidth - (capWidth*2.0f))*cg.loadFrac) + capWidth, barY, capWidth, barHeight, media.gfx.interface.loading.cap );
 }
 
 // Draw all the status / pacifier stuff during level loading
@@ -292,19 +304,3 @@ void CG_DrawInformation( void ) {
 		break;
 	}
 }
-
-void CG_LoadBar(void)
-{
-	const float barWidth = SCREEN_HEIGHT, barHeight = 12.0f;
-	const float barX = (SCREEN_WIDTH - barWidth) / 2.0f, barY = SCREEN_HEIGHT - 8.0f - barHeight;
-	const float capWidth = 8.0f;
-
-	trap->R_SetColor( colorWhite );
-
-	// background, left cap, bar, right cap
-	CG_DrawPic( barX, barY, barWidth, barHeight, media.gfx.interface.loading.background );
-	CG_DrawPic( barX + capWidth, barY, -capWidth, barHeight, media.gfx.interface.loading.cap );
-	CG_DrawPic( barX + capWidth, barY, ((barWidth - (capWidth*2.0f))*cg.loadFrac), barHeight, media.gfx.interface.loading.tick );
-	CG_DrawPic( barX + ((barWidth - (capWidth*2.0f))*cg.loadFrac) + capWidth, barY, capWidth, barHeight, media.gfx.interface.loading.cap );
-}
-

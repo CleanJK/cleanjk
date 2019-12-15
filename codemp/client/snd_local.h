@@ -198,4 +198,6 @@ qboolean SND_RegisterAudio_LevelLoadEnd(qboolean bDeleteEverythingNotUsedThisLev
 void S_DisplayFreeMemory(void);
 void S_memoryLoad(sfx_t *sfx);
 
+qboolean S_FileExists( const char *psFilename );
+
 #include "client/snd_mp3.h"

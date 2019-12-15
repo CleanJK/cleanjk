@@ -122,7 +122,6 @@ fopen_failed:
 	return status;
 }
 
-void user_read_data( png_structp png_ptr, png_bytep data, png_size_t length );
 void png_print_error ( png_structp png_ptr, png_const_charp err )
 {
 	ri.Printf (PRINT_ERROR, "%s\n", err);
@@ -134,6 +133,8 @@ void png_print_warning ( png_structp png_ptr, png_const_charp warning )
 }
 
 bool IsPowerOfTwo ( int i ) { return (i & (i - 1)) == 0; }
+
+void user_read_data( png_structp png_ptr, png_bytep data, png_size_t length );
 
 struct PNGFileReader
 {

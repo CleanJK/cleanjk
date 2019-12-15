@@ -312,7 +312,6 @@ playerState_t *SV_GameClientNum( int num );
 svEntity_t	*SV_SvEntityForGentity( sharedEntity_t *gEnt );
 sharedEntity_t *SV_GEntityForSvEntity( svEntity_t *svEnt );
 void		SV_InitGameProgs ( void );
-void		SV_ShutdownGameProgs ( void );
 qboolean	SV_inPVS (const vec3_t p1, const vec3_t p2);
 
 // sv_bot.c
@@ -379,3 +378,11 @@ void SV_ClipToEntity( trace_t *trace, const vec3_t start, const vec3_t mins, con
 void SV_Netchan_Transmit( client_t *client, msg_t *msg);	//int length, const byte *data );
 void SV_Netchan_TransmitNextFragment( netchan_t *chan );
 qboolean SV_Netchan_Process( client_t *client, msg_t *msg );
+char	*SV_ExpandNewlines( char *in );
+void SV_CreateClientGameStateMessage( client_t *client, msg_t *msg );
+const char *SV_GetStringEdString(char *refSection, char *refName);
+void SV_SendClientGameState( client_t *client );
+void SV_BotInitBotLib(void);
+void SV_WriteDemoMessage( client_t *cl, msg_t *msg, int headerBytes );
+void SV_BotWaypointReception(int wpnum, wpobject_t **wps);
+void SV_BotCalculatePaths( int /*rmg*/ );

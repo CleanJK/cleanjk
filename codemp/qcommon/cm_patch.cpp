@@ -30,11 +30,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 This file does not reference any globals, and has these entry points:
 
-void CM_ClearLevelPatches( void );
 struct patchCollide_s	*CM_GeneratePatchCollide( int width, int height, const vec3_t *points );
-void CM_TraceThroughPatchCollide( traceWork_t *tw, const struct patchCollide_s *pc );
-qboolean CM_PositionTestInPatchCollide( traceWork_t *tw, const struct patchCollide_s *pc );
-void CM_DrawDebugSurface( void (*drawPoly)(int color, int numPoints, flaot *points) );
 
 Issues for collision against curved surfaces:
 
@@ -1433,8 +1429,6 @@ qboolean CM_PositionTestInPatchCollide( traceWork_t *tw, const struct patchColli
 // DEBUGGING
 
 // Called from the renderer
-void BotDrawDebugPolygons(void (*drawPoly)(int color, int numPoints, float *points), int value);
-
 void CM_DrawDebugSurface( void (*drawPoly)(int color, int numPoints, float *points) ) {
 	const patchCollide_t	*pc;
 	facet_t			*facet;

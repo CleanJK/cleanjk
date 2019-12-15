@@ -1,6 +1,6 @@
 #pragma once
 
-#include "q_platform.h"
+#include "qcommon/q_platform.h"
 
 #if defined(__cplusplus)
 extern "C" {

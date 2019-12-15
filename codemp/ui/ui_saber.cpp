@@ -25,13 +25,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "ui/ui_local.h"
 #include "ui/ui_shared.h"
 
-void WP_SaberLoadParms( void );
-qboolean WP_SaberParseParm( const char *saberName, const char *parmname, char *saberData );
-saber_colors_t TranslateSaberColor( const char *name );
-const char *SaberColorToString( saber_colors_t color );
-saber_styles_t TranslateSaberStyle( const char *name );
-saberType_t TranslateSaberType( const char *name );
-
 qboolean	ui_saber_parms_parsed = qfalse;
 
 static qhandle_t redSaberGlowShader;

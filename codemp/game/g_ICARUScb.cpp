@@ -28,7 +28,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "icarus/Q3_Interface.h"
 #include "icarus/Q3_Registers.h"
 
-qboolean BG_SabersOff( playerState_t *ps );
 extern stringID_table_t WPTable[];
 extern stringID_table_t BSTable[];
 
@@ -511,9 +510,6 @@ void anglerCallback( gentity_t *ent )
 	trap->LinkEntity( (sharedEntity_t *)ent );
 }
 
-void MatchTeam( gentity_t *teamLeader, int moverState, int time );
-void Blocked_Mover( gentity_t *ent, gentity_t *other );
-
 void moverCallback( gentity_t *ent )
 {	//complete the task
 	trap->ICARUS_TaskIDComplete( (sharedEntity_t *)ent, TID_MOVE_NAV );
@@ -662,8 +658,6 @@ void Q3_Lerp2End( int entID, int taskID, float duration )
 
 	trap->LinkEntity( (sharedEntity_t *)ent );
 }
-
-void InitMoverTrData( gentity_t *ent );
 
 // Lerps the origin and angles of an entity to the destination values
 void Q3_Lerp2Pos( int taskID, int entID, vec3_t origin, vec3_t angles, float duration )
@@ -1493,7 +1487,6 @@ int Q3_GetString( int entID, int type, const char *name, char **value )
 	return 1;
 }
 
-qboolean SpotWouldTelefrag2( gentity_t *mover, vec3_t dest );
 void MoveOwner( gentity_t *self )
 {
 	gentity_t *owner = &g_entities[self->r.ownerNum];
@@ -2975,9 +2968,6 @@ static void Q3_LCARSText ( const char *id)
 
 	return;
 }
-
-void UnLockDoors(gentity_t *const ent);
-void LockDoors(gentity_t *const ent);
 
 //returns qtrue if it got to the end, otherwise qfalse.
 qboolean Q3_Set( int taskID, int entID, const char *type_name, const char *data )

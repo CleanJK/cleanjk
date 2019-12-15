@@ -45,13 +45,8 @@ static void S_Music_f(void);
 static void S_StopMusic_f(void);
 static void S_SetDynamicMusic_f(void);
 
-void S_Update_();
-void S_StopAllSounds(void);
 static void S_UpdateBackgroundTrack( void );
-sfx_t *S_FindName( const char *name );
 static int SND_FreeSFXMem(sfx_t *sfx);
-
-extern qboolean Sys_LowPhysicalMemory();
 
 // vars for bgrnd music track...
 const int iMP3MusicStream_DiskBytesToRead = 10000;//4096;
@@ -197,13 +192,6 @@ ALfloat		listener_ori[6];		// Listener Orientation
 
 short		s_rawdata[MAX_RAW_SAMPLES*2];	// Used for Raw Samples (Music etc...)
 
-channel_t *S_OpenALPickChannel(int entnum, int entchannel);
-int  S_MP3PreProcessLipSync(channel_t *ch, short *data);
-void UpdateSingleShotSounds();
-void UpdateLoopingSounds();
-void AL_UpdateRawSamples();
-void S_SetLipSyncs();
-
 // EAX Related
 
 typedef struct ENVTABLE_s {
@@ -244,15 +232,6 @@ long					s_lLastEnvUpdate;		// Time of last EAX update
 long					s_lNumEnvironments;		// Number of environment zones
 long					s_NumFXSlots;			// Number of EAX 4.0 FX Slots
 FXSLOTINFO				s_FXSlotInfo[EAX_MAX_FXSLOTS];	// Stores information about the EAX 4.0 FX Slots
-
-void InitEAXManager();
-void ReleaseEAXManager();
-bool LoadEALFile(char *szEALFilename);
-void UnloadEALFile();
-void UpdateEAXListener();
-void UpdateEAXBuffer(channel_t *ch);
-void EALFileInit(const char *level);
-float CalcDistance(EMPOINT A, EMPOINT B);
 
 void Normalize(EAXVECTOR *v)
 {
@@ -2451,6 +2430,7 @@ void S_DoLipSynchs( const unsigned s_oldpaintedtime )
 }
 
 // Called once each time through the main loop
+void S_Update_( void );
 void S_Update( void ) {
 	int			i;
 	int			total;

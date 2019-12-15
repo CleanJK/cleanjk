@@ -41,7 +41,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "ghoul2/G2.h"
 
 extern stringID_table_t animTable [MAX_ANIMATIONS+1];
-extern void UI_UpdateCharacterSkin( void );
 
 const char *HolocronIcons[NUM_FORCE_POWERS] = {
 	"gfx/mp/f_icon_lt_heal",		//FP_HEAL,
@@ -90,8 +89,6 @@ typedef struct scrollInfo_s {
 	extern void UI_CacheSaberGlowGraphics( void );
 #endif //
 
-qboolean Item_SetFocus(itemDef_t *item, float x, float y);
-
 static scrollInfo_t scrollInfo;
 
 static void (*captureFunc) (void *p) = NULL;
@@ -117,18 +114,8 @@ static qboolean debugMode = qfalse;
 #define DOUBLE_CLICK_DELAY 300
 static int lastListBoxClickTime = 0;
 
-void Item_RunScript(itemDef_t *item, const char *s);
-void Item_SetupKeywordHash(void);
-void Menu_SetupKeywordHash(void);
-int BindingIDFromName(const char *name);
-qboolean Item_Bind_HandleKey(itemDef_t *item, int key, qboolean down);
-itemDef_t *Menu_SetPrevCursorItem(menuDef_t *menu);
-itemDef_t *Menu_SetNextCursorItem(menuDef_t *menu);
 static qboolean Menu_OverActiveItem(menuDef_t *menu, float x, float y);
 static void Item_TextScroll_BuildLines ( itemDef_t* item );
-void Menu_SetItemText(const menuDef_t *menu,const char *itemName, const char *text);
-extern qboolean ItemParse_asset_model_go( itemDef_t *item, const char *name,int *runTimeLength );
-extern qboolean ItemParse_model_g2anim_go( itemDef_t *item, const char *animName );
 
 #ifdef _CGAME
 #define MEM_POOL_SIZE  (128 * 1024)
@@ -283,23 +270,6 @@ void String_Report() {
 	f /= MEM_POOL_SIZE;
 	f *= 100;
 	Com_Printf("Memory Pool is %.1f%% full, %i bytes out of %i used.\n", f, allocPoint, MEM_POOL_SIZE);
-}
-
-void String_Init() {
-	int i;
-	for (i = 0; i < HASH_TABLE_SIZE; i++) {
-		strHandle[i] = 0;
-	}
-	strHandleCount = 0;
-	strPoolIndex = 0;
-	menuCount = 0;
-	openMenuCount = 0;
-	UI_InitMemory();
-	Item_SetupKeywordHash();
-	Menu_SetupKeywordHash();
-	if (DC && DC->getBindingBuf) {
-		Controls_GetConfig();
-	}
 }
 
 #if 0
@@ -1312,7 +1282,7 @@ void Menus_ShowByName(const char *p) {
 menuDef_t *Menus_OpenByName( const char *p ) {
 	menuDef_t *result = Menus_ActivateByName( p );
 	if ( !result ) {
-		if ( DC->getCVarValue( "developer" ) ) {
+		if ( developer.integer ) {
 			DC->Print( va( "%s couldn't find menu \"%s\"\n", __FUNCTION__, p ) );
 		}
 	}
@@ -3313,9 +3283,68 @@ void Leaving_EditField(itemDef_t *item)
 	}
 }
 
+itemDef_t *Menu_SetNextCursorItem(menuDef_t *menu) {
+
+  qboolean wrapped = qfalse;
+	int oldCursor = menu->cursorItem;
+
+  if (menu->cursorItem == -1) {
+    menu->cursorItem = 0;
+    wrapped = qtrue;
+  }
+
+  while (menu->cursorItem < menu->itemCount) {
+
+    menu->cursorItem++;
+    if (menu->cursorItem >= menu->itemCount && !wrapped) {
+      wrapped = qtrue;
+      menu->cursorItem = 0;
+    }
+		if (Item_SetFocus(menu->items[menu->cursorItem], DC->cursorx, DC->cursory)) {
+			Menu_HandleMouseMove(menu, menu->items[menu->cursorItem]->window.rect.x + 1, menu->items[menu->cursorItem]->window.rect.y + 1);
+      return menu->items[menu->cursorItem];
+    }
+
+  }
+
+	menu->cursorItem = oldCursor;
+	return NULL;
+}
+
+itemDef_t *Menu_SetPrevCursorItem(menuDef_t *menu) {
+	qboolean wrapped = qfalse;
+	int oldCursor = menu->cursorItem;
+
+	if (menu->cursorItem < 0) {
+		menu->cursorItem = menu->itemCount-1;
+		wrapped = qtrue;
+	}
+
+	while (menu->cursorItem > -1)
+	{
+		menu->cursorItem--;
+		if (menu->cursorItem < 0) {
+			if (wrapped)
+			{
+				break;
+			}
+			wrapped = qtrue;
+			menu->cursorItem = menu->itemCount -1;
+		}
+
+		if (Item_SetFocus(menu->items[menu->cursorItem], DC->cursorx, DC->cursory)) {
+			Menu_HandleMouseMove(menu, menu->items[menu->cursorItem]->window.rect.x + 1, menu->items[menu->cursorItem]->window.rect.y + 1);
+			return menu->items[menu->cursorItem];
+		}
+	}
+	menu->cursorItem = oldCursor;
+	return NULL;
+
+}
+
 #ifdef UI_BUILD
 qboolean Item_TextField_HandleKey( itemDef_t *item, int key );
-void Item_TextField_Paste( itemDef_t *item ) {
+static void Item_TextField_Paste( itemDef_t *item ) {
 	int		pasteLen, i;
 	char	buff[2048] = { 0 };
 
@@ -3816,6 +3845,198 @@ qboolean Item_Slider_HandleKey(itemDef_t *item, int key, qboolean down) {
 	return qfalse;
 }
 
+static const char *g_bindCommands[] = {
+	"+altattack",
+	"+attack",
+	"+back",
+	"+button2",
+	"+force_drain",
+	"+force_grip",
+	"+force_lightning",
+	"+forward",
+	"+left",
+	"+lookdown",
+	"+lookup",
+	"+mlook",
+	"+movedown",
+	"+moveleft",
+	"+moveright",
+	"+moveup",
+	"+right",
+	"+scores",
+	"+speed",
+	"+strafe",
+	"+use",
+	"+useforce",
+	"automap_button",
+	"automap_toggle",
+	"bow",
+	"centerview",
+	"cg_thirdperson !",
+	"engage_duel",
+	"flourish",
+	"force_absorb",
+	"force_distract",
+	"force_forcepowerother",
+	"force_heal",
+	"force_healother",
+	"force_protect",
+	"force_pull",
+	"force_rage",
+	"force_seeing",
+	"force_speed",
+	"force_throw",
+	"forcenext",
+	"forceprev",
+	"gloat",
+	"invnext",
+	"invprev",
+	"meditate",
+	"messagemode",
+	"messagemode2",
+	"messagemode3",
+	"messagemode4",
+	"saberAttackCycle",
+	"taunt",
+	"use_bacta",
+	"use_electrobinoculars",
+	"use_field",
+	"use_seeker",
+	"use_sentry",
+	"voicechat",
+	"weapnext",
+	"weapon 1",
+	"weapon 10",
+	"weapon 11",
+	"weapon 12",
+	"weapon 13",
+	"weapon 2",
+	"weapon 3",
+	"weapon 4",
+	"weapon 5",
+	"weapon 6",
+	"weapon 7",
+	"weapon 8",
+	"weapon 9",
+	"weapprev",
+	"zoom"
+};
+
+#define g_bindCount ARRAY_LEN(g_bindCommands)
+
+static int g_bindKeys[g_bindCount][2];
+
+int BindingIDFromName( const char *name ) {
+	size_t i;
+
+	// iterate each command, set its default binding
+	for ( i=0; i < g_bindCount; i++ ) {
+		if ( !Q_stricmp( name, g_bindCommands[i] ) )
+			return i;
+	}
+	return -1;
+}
+
+qboolean Item_Bind_HandleKey(itemDef_t *item, int key, qboolean down) {
+	int id;
+
+	if ( key == A_MOUSE1 && Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && !g_waitingForKey ) {
+		if (down) {
+			g_waitingForKey = qtrue;
+			g_bindItem = item;
+		}
+		return qtrue;
+	}
+	else if ( key == A_ENTER && !g_waitingForKey ) {
+		if ( down ) {
+			g_waitingForKey = qtrue;
+			g_bindItem = item;
+		}
+		return qtrue;
+	}
+	else {
+		if ( !g_waitingForKey || g_bindItem == NULL ) {
+			return qfalse;
+		}
+
+		if ( key & K_CHAR_FLAG ) {
+			return qtrue;
+		}
+
+		switch ( key ) {
+			case A_ESCAPE:
+				g_waitingForKey = qfalse;
+				return qtrue;
+
+			case A_BACKSPACE:
+				id = BindingIDFromName(item->cvar);
+				if (id != -1)
+				{
+					if ( g_bindKeys[id][0] != -1 )
+						DC->setBinding(g_bindKeys[id][0], "");
+
+					if ( g_bindKeys[id][1] != -1 )
+						DC->setBinding(g_bindKeys[id][1], "");
+
+					g_bindKeys[id][0] = -1;
+					g_bindKeys[id][1] = -1;
+				}
+				Controls_SetConfig();
+				g_waitingForKey = qfalse;
+				g_bindItem = NULL;
+				return qtrue;
+
+			case '`':
+				return qtrue;
+		}
+	}
+
+	if ( key != -1 ) {
+		size_t	i;
+
+		for ( i=0; i<g_bindCount; i++ )
+		{
+			if ( g_bindKeys[i][1] == key )
+				g_bindKeys[i][1] = -1;
+
+			if ( g_bindKeys[i][0] == key ) {
+				g_bindKeys[i][0] = g_bindKeys[i][1];
+				g_bindKeys[i][1] = -1;
+			}
+		}
+	}
+
+	id = BindingIDFromName( item->cvar );
+
+	if ( id != -1 ) {
+		if ( key == -1 ) {
+			if( g_bindKeys[id][0] != -1 ) {
+				DC->setBinding( g_bindKeys[id][0], "" );
+				g_bindKeys[id][0] = -1;
+			}
+			if( g_bindKeys[id][1] != -1 ) {
+				DC->setBinding( g_bindKeys[id][1], "" );
+				g_bindKeys[id][1] = -1;
+			}
+		}
+		else if ( g_bindKeys[id][0] == -1 )
+			g_bindKeys[id][0] = key;
+		else if ( g_bindKeys[id][0] != key && g_bindKeys[id][1] == -1 )
+			g_bindKeys[id][1] = key;
+		else {
+			DC->setBinding( g_bindKeys[id][0], "" );
+			DC->setBinding( g_bindKeys[id][1], "" );
+			g_bindKeys[id][0] = key;
+			g_bindKeys[id][1] = -1;
+		}
+	}
+
+	Controls_SetConfig();
+	g_waitingForKey = qfalse;
+
+	return qtrue;
+}
+
 qboolean Item_HandleKey(itemDef_t *item, int key, qboolean down) {
 	if (itemCapture) {
 		Item_StopCapture(itemCapture);
@@ -3906,65 +4127,6 @@ void Item_Action(itemDef_t *item) {
   if (item) {
     Item_RunScript(item, item->action);
   }
-}
-
-itemDef_t *Menu_SetPrevCursorItem(menuDef_t *menu) {
-	qboolean wrapped = qfalse;
-	int oldCursor = menu->cursorItem;
-
-	if (menu->cursorItem < 0) {
-		menu->cursorItem = menu->itemCount-1;
-		wrapped = qtrue;
-	}
-
-	while (menu->cursorItem > -1)
-	{
-		menu->cursorItem--;
-		if (menu->cursorItem < 0) {
-			if (wrapped)
-			{
-				break;
-			}
-			wrapped = qtrue;
-			menu->cursorItem = menu->itemCount -1;
-		}
-
-		if (Item_SetFocus(menu->items[menu->cursorItem], DC->cursorx, DC->cursory)) {
-			Menu_HandleMouseMove(menu, menu->items[menu->cursorItem]->window.rect.x + 1, menu->items[menu->cursorItem]->window.rect.y + 1);
-			return menu->items[menu->cursorItem];
-		}
-	}
-	menu->cursorItem = oldCursor;
-	return NULL;
-
-}
-
-itemDef_t *Menu_SetNextCursorItem(menuDef_t *menu) {
-
-  qboolean wrapped = qfalse;
-	int oldCursor = menu->cursorItem;
-
-  if (menu->cursorItem == -1) {
-    menu->cursorItem = 0;
-    wrapped = qtrue;
-  }
-
-  while (menu->cursorItem < menu->itemCount) {
-
-    menu->cursorItem++;
-    if (menu->cursorItem >= menu->itemCount && !wrapped) {
-      wrapped = qtrue;
-      menu->cursorItem = 0;
-    }
-		if (Item_SetFocus(menu->items[menu->cursorItem], DC->cursorx, DC->cursory)) {
-			Menu_HandleMouseMove(menu, menu->items[menu->cursorItem]->window.rect.x + 1, menu->items[menu->cursorItem]->window.rect.y + 1);
-      return menu->items[menu->cursorItem];
-    }
-
-  }
-
-	menu->cursorItem = oldCursor;
-	return NULL;
 }
 
 static void Window_CloseCinematic(windowDef_t *window) {
@@ -4124,13 +4286,13 @@ void Menu_HandleKey(menuDef_t *menu, int key, qboolean down) {
 	switch ( key ) {
 
 		case A_F11: {
-			if ( DC->getCVarValue( "developer" ) ) {
+			if ( developer.integer ) {
 				debugMode ^= 1;
 			}
 		} break;
 
 		case A_F12: {
-			if ( DC->getCVarValue( "developer" ) ) {
+			if ( developer.integer ) {
 				switch ( DC->screenshotFormat ) {
 					case SSF_JPEG:
 						DC->executeText( EXEC_APPEND, "screenshot\n" );
@@ -4647,87 +4809,6 @@ void Item_Multi_Paint(itemDef_t *item) {
 	}
 }
 
-static const char *g_bindCommands[] = {
-	"+altattack",
-	"+attack",
-	"+back",
-	"+button2",
-	"+force_drain",
-	"+force_grip",
-	"+force_lightning",
-	"+forward",
-	"+left",
-	"+lookdown",
-	"+lookup",
-	"+mlook",
-	"+movedown",
-	"+moveleft",
-	"+moveright",
-	"+moveup",
-	"+right",
-	"+scores",
-	"+speed",
-	"+strafe",
-	"+use",
-	"+useforce",
-	"automap_button",
-	"automap_toggle",
-	"bow",
-	"centerview",
-	"cg_thirdperson !",
-	"engage_duel",
-	"flourish",
-	"force_absorb",
-	"force_distract",
-	"force_forcepowerother",
-	"force_heal",
-	"force_healother",
-	"force_protect",
-	"force_pull",
-	"force_rage",
-	"force_seeing",
-	"force_speed",
-	"force_throw",
-	"forcenext",
-	"forceprev",
-	"gloat",
-	"invnext",
-	"invprev",
-	"meditate",
-	"messagemode",
-	"messagemode2",
-	"messagemode3",
-	"messagemode4",
-	"saberAttackCycle",
-	"taunt",
-	"use_bacta",
-	"use_electrobinoculars",
-	"use_field",
-	"use_seeker",
-	"use_sentry",
-	"voicechat",
-	"weapnext",
-	"weapon 1",
-	"weapon 10",
-	"weapon 11",
-	"weapon 12",
-	"weapon 13",
-	"weapon 2",
-	"weapon 3",
-	"weapon 4",
-	"weapon 5",
-	"weapon 6",
-	"weapon 7",
-	"weapon 8",
-	"weapon 9",
-	"weapprev",
-	"zoom"
-};
-
-#define g_bindCount ARRAY_LEN(g_bindCommands)
-
-static int g_bindKeys[g_bindCount][2];
-
 static void Controls_GetKeyAssignment( const char *command, int *twokeys )
 {
 	int		count;
@@ -4780,17 +4861,6 @@ void Controls_SetDefaults( void )
 		g_bindKeys[i][0] = -1;
 		g_bindKeys[i][1] = -1;
 	}
-}
-
-int BindingIDFromName( const char *name ) {
-	size_t i;
-
-	// iterate each command, set its default binding
-	for ( i=0; i < g_bindCount; i++ ) {
-		if ( !Q_stricmp( name, g_bindCommands[i] ) )
-			return i;
-	}
-	return -1;
 }
 
 char g_nameBind[96];
@@ -4936,106 +5006,6 @@ qboolean Display_KeyBindPending( void ) {
 	return g_waitingForKey;
 }
 
-qboolean Item_Bind_HandleKey(itemDef_t *item, int key, qboolean down) {
-	int id;
-
-	if ( key == A_MOUSE1 && Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && !g_waitingForKey ) {
-		if (down) {
-			g_waitingForKey = qtrue;
-			g_bindItem = item;
-		}
-		return qtrue;
-	}
-	else if ( key == A_ENTER && !g_waitingForKey ) {
-		if ( down ) {
-			g_waitingForKey = qtrue;
-			g_bindItem = item;
-		}
-		return qtrue;
-	}
-	else {
-		if ( !g_waitingForKey || g_bindItem == NULL ) {
-			return qfalse;
-		}
-
-		if ( key & K_CHAR_FLAG ) {
-			return qtrue;
-		}
-
-		switch ( key ) {
-			case A_ESCAPE:
-				g_waitingForKey = qfalse;
-				return qtrue;
-
-			case A_BACKSPACE:
-				id = BindingIDFromName(item->cvar);
-				if (id != -1)
-				{
-					if ( g_bindKeys[id][0] != -1 )
-						DC->setBinding(g_bindKeys[id][0], "");
-
-					if ( g_bindKeys[id][1] != -1 )
-						DC->setBinding(g_bindKeys[id][1], "");
-
-					g_bindKeys[id][0] = -1;
-					g_bindKeys[id][1] = -1;
-				}
-				Controls_SetConfig();
-				g_waitingForKey = qfalse;
-				g_bindItem = NULL;
-				return qtrue;
-
-			case '`':
-				return qtrue;
-		}
-	}
-
-	if ( key != -1 ) {
-		size_t	i;
-
-		for ( i=0; i<g_bindCount; i++ )
-		{
-			if ( g_bindKeys[i][1] == key )
-				g_bindKeys[i][1] = -1;
-
-			if ( g_bindKeys[i][0] == key ) {
-				g_bindKeys[i][0] = g_bindKeys[i][1];
-				g_bindKeys[i][1] = -1;
-			}
-		}
-	}
-
-	id = BindingIDFromName( item->cvar );
-
-	if ( id != -1 ) {
-		if ( key == -1 ) {
-			if( g_bindKeys[id][0] != -1 ) {
-				DC->setBinding( g_bindKeys[id][0], "" );
-				g_bindKeys[id][0] = -1;
-			}
-			if( g_bindKeys[id][1] != -1 ) {
-				DC->setBinding( g_bindKeys[id][1], "" );
-				g_bindKeys[id][1] = -1;
-			}
-		}
-		else if ( g_bindKeys[id][0] == -1 )
-			g_bindKeys[id][0] = key;
-		else if ( g_bindKeys[id][0] != key && g_bindKeys[id][1] == -1 )
-			g_bindKeys[id][1] = key;
-		else {
-			DC->setBinding( g_bindKeys[id][0], "" );
-			DC->setBinding( g_bindKeys[id][1], "" );
-			g_bindKeys[id][0] = key;
-			g_bindKeys[id][1] = -1;
-		}
-	}
-
-	Controls_SetConfig();
-	g_waitingForKey = qfalse;
-
-	return qtrue;
-}
-
 // scale the model should we need to
 void UI_ScaleModelAxis( refEntity_t *ent )
 {
@@ -5052,10 +5022,6 @@ void UI_ScaleModelAxis( refEntity_t *ent )
 		ent->nonNormalizedAxes = qtrue;
 	}
 }
-
-#ifndef _CGAME
-extern void UI_SaberAttachToChar( itemDef_t *item );
-#endif
 
 void Item_Model_Paint(itemDef_t *item)
 {
@@ -6661,7 +6627,7 @@ typedef struct keywordHash_s
 } keywordHash_t;
 
 static int KeywordHash_Key(char *keyword) {
-	int register hash, i;
+	int hash, i;
 
 	hash = 0;
 	for (i = 0; keyword[i] != '\0'; i++) {
@@ -6852,9 +6818,6 @@ void UI_CleanupGhoul2(void)
 		next = next->next;
 	}
 }
-
-// asset_model <string>
-int UI_ParseAnimationFile(const char *filename, animation_t *animset, qboolean isHumanoid);
 
 // asset_model <string>
 qboolean ItemParse_asset_model_go( itemDef_t *item, const char *name,int *runTimeLength )
@@ -8166,7 +8129,7 @@ keywordHash_t itemParseKeywords[] = {
 
 keywordHash_t *itemParseKeywordHash[KEYWORDHASH_SIZE];
 
-void Item_SetupKeywordHash(void) {
+static void Item_SetupKeywordHash( void ) {
 	int i;
 
 	memset(itemParseKeywordHash, 0, sizeof(itemParseKeywordHash));
@@ -9166,4 +9129,21 @@ static qboolean Menu_OverActiveItem(menuDef_t *menu, float x, float y) {
 		}
 	}
 	return qfalse;
+}
+
+void String_Init() {
+	int i;
+	for (i = 0; i < HASH_TABLE_SIZE; i++) {
+		strHandle[i] = 0;
+	}
+	strHandleCount = 0;
+	strPoolIndex = 0;
+	menuCount = 0;
+	openMenuCount = 0;
+	UI_InitMemory();
+	Item_SetupKeywordHash();
+	Menu_SetupKeywordHash();
+	if (DC && DC->getBindingBuf) {
+		Controls_GetConfig();
+	}
 }

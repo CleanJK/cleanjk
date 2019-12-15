@@ -30,8 +30,6 @@ trGlobals_t		tr;
 
 refimport_t	ri;
 
-void R_AddTerrainSurfaces(void);
-
 int R_CullLocalPointAndRadius( const vec3_t pt, float radius )
 {
 	vec3_t transformed;

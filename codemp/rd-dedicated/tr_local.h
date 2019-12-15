@@ -1527,3 +1527,8 @@ typedef struct decalPoly_s
 } decalPoly_t;
 
 qboolean ShaderHashTableExists(void);
+void G2_TransformBone (int child,CBoneCache &BC);
+qhandle_t RE_RegisterServerSkin( const char *name );
+void KillTheShaderHashTable(void);
+shader_t *R_FindServerShader( const char *name, const int *lightmapIndex, const byte *styles, qboolean mipRawImage );
+void R_SVModelInit();

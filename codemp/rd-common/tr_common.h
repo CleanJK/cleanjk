@@ -85,5 +85,4 @@ void RE_SaveJPG( const char * filename, int quality, int image_width, int image_
 
 // Save raw image data as PNG image file.
 int RE_SavePNG( const char *filename, byte *buf, size_t width, size_t height, int byteDepth );
-
 #endif

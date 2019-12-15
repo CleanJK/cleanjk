@@ -45,9 +45,6 @@ cmodel_t	box_model;
 cplane_t	*box_planes;
 cbrush_t	*box_brush;
 
-void	CM_InitBoxHull (void);
-void	CM_FloodAreaConnections (clipMap_t &cm);
-
 //rwwRMG - added:
 clipMap_t	SubBSP[MAX_SUB_BSP];
 int			NumSubBSP, TotalSubModels;
