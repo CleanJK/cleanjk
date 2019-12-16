@@ -13,6 +13,6 @@ if not defined FOUND (
 )
 if not exist build\nul (mkdir build)
 pushd build
-cmake -G "Visual Studio 15" -A x64 -T host=x64 -D MSVC_RUNTIME=static ..
+cmake -G "Visual Studio 15" -A x64 -T host=x64 ..
 popd
 pause
