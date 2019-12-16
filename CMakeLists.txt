@@ -42,13 +42,13 @@ option(BuildMPDed "Whether to create projects for the MP dedicated server (openj
 option(BuildMPGame "Whether to create projects for the MP server-side gamecode (jampgamex86.dll)" ON)
 option(BuildMPCGame "Whether to create projects for the MP clientside gamecode (cgamex86.dll)" ON)
 option(BuildMPUI "Whether to create projects for the MP UI code (uix86.dll)" ON)
-option(BuildSPEngine "Whether to create projects for the SP engine (openjk_sp.exe)" ON)
-option(BuildSPGame "Whether to create projects for the SP gamecode (jagamex86.dll)" ON)
-option(BuildSPRdVanilla "Whether to create projects for the SP default renderer (rdsp-vanilla_x86.dll)" ON)
+#option(BuildSPEngine "Whether to create projects for the SP engine (openjk_sp.exe)" ON)
+#option(BuildSPGame "Whether to create projects for the SP gamecode (jagamex86.dll)" ON)
+#option(BuildSPRdVanilla "Whether to create projects for the SP default renderer (rdsp-vanilla_x86.dll)" ON)
 
-option(BuildJK2SPEngine "Whether to create projects for the jk2 SP engine (openjo_sp.exe)" OFF)
-option(BuildJK2SPGame "Whether to create projects for the jk2 sp gamecode mod (jk2gamex86.dll)" OFF)
-option(BuildJK2SPRdVanilla "Whether to create projects for the jk2 sp renderer (rdjosp-vanilla_x86.dll)" OFF)
+#option(BuildJK2SPEngine "Whether to create projects for the jk2 SP engine (openjo_sp.exe)" OFF)
+#option(BuildJK2SPGame "Whether to create projects for the jk2 sp gamecode mod (jk2gamex86.dll)" OFF)
+#option(BuildJK2SPRdVanilla "Whether to create projects for the jk2 sp renderer (rdjosp-vanilla_x86.dll)" OFF)
 
 option(BuildTests "Whether to build automatic unit tests (requires Boost)" OFF)
 
