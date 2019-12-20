@@ -1318,15 +1318,6 @@ void Com_Shutdown (void)
 	}
 
 	MSG_shutdownHuffman();
-/*
-	// Only used for testing changes to huffman frequency table when tuning.
-	{
-		extern float Huff_GetCR(void);
-		char mess[256];
-		sprintf(mess,"Eff. CR = %f\n",Huff_GetCR());
-		OutputDebugString(mess);
-	}
-*/
 }
 
 void Field_Clear( field_t *edit ) {

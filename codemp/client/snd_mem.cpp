@@ -323,7 +323,6 @@ void R_CheckMP3s( const char *psDir )
 				//	I have to ask for it legally, so I'll keep re-using one, and restoring it's name after use.
 				//	(slightly dodgy, but works ok if no-one else changes stuff)
 				//sfx_t SFX = {0};
-				extern sfx_t *S_FindName( const char *name );
 				static sfx_t *pSFX = NULL;
 				const char sReservedSFXEntrynameForMP3[] = "reserved_for_mp3";	// ( strlen() < MAX_QPATH )
 
@@ -459,6 +458,7 @@ void R_CheckMP3s( const char *psDir )
 
 // this console-function is for development purposes, and makes sure that sound/*.mp3 /s have tags in them
 //	specifying stuff like their max volume (and uncompressed size) etc...
+// scan all MP3s in the sound dir and add maxvol info if necessary.
 void S_MP3_CalcVols_f( void )
 {
 	char sStartDir[MAX_QPATH] = {"sound"};

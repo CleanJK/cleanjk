@@ -703,6 +703,10 @@ struct bot_settings_t {
 	char  team[MAX_FILEPATH];
 };
 
+qboolean G_CanBeEnemy(gentity_t* self, gentity_t* enemy); //w_saber.cpp
+qboolean TryGrapple(gentity_t *ent); //g_cmds.cpp
+void G_CheapWeaponFire(int entNum, int ev); //g_active.cpp
+
 int              AcceptBotCommand                    ( char *cmd, gentity_t *pl );
 void             Add_Ammo                            ( gentity_t *ent, int weapon, int count );
 void             AddRemap                            ( const char *oldShader, const char *newShader, float timeOffset );

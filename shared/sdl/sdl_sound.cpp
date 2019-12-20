@@ -29,9 +29,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "qcommon/com_cvar.h"
 #include "qcommon/com_cvars.h"
 #include "client/client.h"
-#include "client/snd_local.h"
+#include "client/snd_public.h"
 
-extern dma_t		dma;
 SDL_AudioDeviceID	dev;
 qboolean snd_inited = qfalse;
 

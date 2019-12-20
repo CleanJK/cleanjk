@@ -36,7 +36,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "client/cl_cgameapi.h"
 #include "client/cl_uiapi.h"
 #include "client/cl_lan.h"
-#include "client/snd_local.h"
+#include "client/snd_public.h"
 #include "sys/sys_loadlib.h"
 
 vec3_t cl_windVec;
@@ -994,20 +994,15 @@ void CL_Vid_Restart_f( void ) {
 
 // Restart the sound subsystem
 // The cgame and game must also be forced to restart because handles will be invalid
-// extern void S_UnCacheDynamicMusic( void );
 void CL_Snd_Restart_f( void ) {
 	S_Shutdown();
 	S_Init();
-
-//	S_FreeAllSFXMem();			// These two removed by BTO (VV)
-//	S_UnCacheDynamicMusic();	// S_Shutdown() already does this!
 
 //	CL_Vid_Restart_f();
 
 	extern qboolean	s_soundMuted;
 	s_soundMuted = qfalse;		// we can play again
 
-	extern void S_RestartMusic( void );
 	S_RestartMusic();
 }
 

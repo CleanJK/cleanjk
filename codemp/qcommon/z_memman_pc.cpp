@@ -24,6 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "client/client.h" // hi i'm bad
 #include "qcommon/com_cvars.h"
+#include "qcommon/cm_public.h"
 
 #ifdef TAGDEF	// itu?
 #undef TAGDEF
@@ -192,8 +193,6 @@ void *Z_Malloc(int iSize, memtag_t eTag, qboolean bZeroit /* = qfalse */, int iU
 			// new bit, if we fail to malloc memory, try dumping some of the cached stuff that's non-vital and try again...
 
 			// ditch the BSP cache...
-
-			extern qboolean CM_DeleteCachedMap(qboolean bGuaranteedOkToDelete);
 			if (CM_DeleteCachedMap(qfalse))
 			{
 				gbMemFreeupOccured = qtrue;
@@ -201,8 +200,6 @@ void *Z_Malloc(int iSize, memtag_t eTag, qboolean bZeroit /* = qfalse */, int iU
 			}
 
 			// ditch any sounds not used on this level...
-
-			extern qboolean SND_RegisterAudio_LevelLoadEnd(qboolean bDeleteEverythingNotUsedThisLevel);
 			if (SND_RegisterAudio_LevelLoadEnd(qtrue))
 			{
 				gbMemFreeupOccured = qtrue;

@@ -79,16 +79,6 @@ typedef struct scrollInfo_s {
 	qboolean scrollDir;
 } scrollInfo_t;
 
-#ifdef UI_BUILD // Defined in ui_main.c, not in the namespace
-	// Some extern functions hoisted from the middle of this file to get all the non-cgame,
-	// non-namespace stuff together
-	extern void UI_SaberDrawBlades( itemDef_t *item, vec3_t origin, vec3_t angles );
-
-	extern void UI_SaberLoadParms( void );
-	extern qboolean ui_saber_parms_parsed;
-	extern void UI_CacheSaberGlowGraphics( void );
-#endif //
-
 static scrollInfo_t scrollInfo;
 
 static void (*captureFunc) (void *p) = NULL;
