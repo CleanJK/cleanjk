@@ -199,5 +199,28 @@ void S_DisplayFreeMemory(void);
 void S_memoryLoad(sfx_t *sfx);
 
 qboolean S_FileExists( const char *psFilename );
+sfx_t* S_FindName(const char* name);
+void S_Update_(void);
+
+
+#ifdef USE_OPENAL
+// Open AL
+float CalcDistance(EMPOINT A, EMPOINT B);
+void InitEAXManager();
+void EALFileInit(const char* level);
+bool LoadEALFile(char* szEALFilename);
+void ReleaseEAXManager();
+void S_PreProcessLipSync(sfx_t* sfx);
+void UnloadEALFile();
+void UpdateEAXListener();
+void UpdateEAXBuffer(channel_t* ch);
+
+channel_t* S_OpenALPickChannel(int entnum, int entchannel);
+int  S_MP3PreProcessLipSync(channel_t* ch, short* data);
+void UpdateSingleShotSounds();
+void UpdateLoopingSounds();
+void AL_UpdateRawSamples();
+void S_SetLipSyncs();
+#endif
 
 #include "client/snd_mp3.h"

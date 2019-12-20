@@ -23,13 +23,15 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // main control for any streaming sound output device
 
-#include "sdl/sdl_sound.h"
+
 #include "client/snd_local.h"
 #include "client/snd_mp3.h"
 #include "client/snd_music.h"
 #include "client/client.h"
 #include "qcommon/com_cvar.h"
 #include "qcommon/com_cvars.h"
+#include "sdl/sdl_sound.h"
+
 #define __STDC_FORMAT_MACROS
 #include <inttypes.h>
 
@@ -2430,7 +2432,6 @@ void S_DoLipSynchs( const unsigned s_oldpaintedtime )
 }
 
 // Called once each time through the main loop
-void S_Update_( void );
 void S_Update( void ) {
 	int			i;
 	int			total;
@@ -3261,7 +3262,6 @@ void AL_UpdateRawSamples()
 		Com_OPrintf("OAL Error : UpdateRawSamples\n");
 #endif
 }
-#endif
 
 int S_MP3PreProcessLipSync(channel_t *ch, short *data)
 {
@@ -3369,6 +3369,7 @@ void S_SetLipSyncs()
 		}
 	}
 }
+#endif
 
 // console functions
 

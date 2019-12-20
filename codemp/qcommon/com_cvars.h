@@ -211,7 +211,6 @@ extern cvar_t *s_threshold1;
 extern cvar_t *s_threshold2;
 extern cvar_t *s_threshold3;
 extern cvar_t *s_threshold4;
-extern cvar_t *s_UseOpenAL;
 extern cvar_t *s_volume;
 extern cvar_t *s_volumeVoice;
 extern cvar_t *saber1;

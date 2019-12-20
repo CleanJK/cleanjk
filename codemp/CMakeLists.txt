@@ -169,8 +169,6 @@ if(BuildMPEngine OR BuildMPDed)
 	set(MPEngineAndDedFiles ${MPEngineAndDedFiles} ${MPEngineAndDedGameFiles})
 
 	set(MPEngineAndDedCommonFiles
-		"${MPDir}/qcommon/q_shared.h"
-		"${SharedDir}/qcommon/q_platform.h"
 		"${MPDir}/qcommon/cm_load.cpp"
 		"${MPDir}/qcommon/cm_local.h"
 		"${MPDir}/qcommon/cm_patch.cpp"
@@ -181,6 +179,10 @@ if(BuildMPEngine OR BuildMPDed)
 		"${MPDir}/qcommon/cm_test.cpp"
 		"${MPDir}/qcommon/cm_trace.cpp"
 		"${MPDir}/qcommon/cmd.cpp"
+		"${MPDir}/qcommon/com_cvar.h"
+		# hack until we clean up renderer/engine cvars
+		"${MPDir}/qcommon/com_cvars.cpp"
+		"${MPDir}/qcommon/com_cvars.h"
 		"${MPDir}/qcommon/common.cpp"
 		"${MPDir}/qcommon/cvar.cpp"
 		"${MPDir}/qcommon/disablewarnings.h"
@@ -200,6 +202,7 @@ if(BuildMPEngine OR BuildMPDed)
 		"${MPDir}/qcommon/net_ip.cpp"
 		"${MPDir}/qcommon/persistence.cpp"
 		"${MPDir}/qcommon/q_shared.cpp"
+		"${MPDir}/qcommon/q_shared.h"
 		"${MPDir}/qcommon/qcommon.h"
 		"${MPDir}/qcommon/qfiles.h"
 		"${MPDir}/qcommon/RoffSystem.cpp"
@@ -371,8 +374,6 @@ if(BuildMPEngine)
 	#    Source Files
 
 	set(MPEngineClientFiles
-		# hack until we clean up renderer/engine cvars
-		"${MPDir}/qcommon/com_cvars.cpp"
 		"${MPDir}/client/cl_avi.cpp"
 		"${MPDir}/client/cl_cgame.cpp"
 		"${MPDir}/client/cl_cgameapi.cpp"
