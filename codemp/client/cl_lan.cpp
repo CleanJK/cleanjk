@@ -21,7 +21,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "client/client.h"
+#include "client/cl_local.h"
+#include "ui/ui_public.h"
 
 // This is for compatibility of old servercache only
 // Remove when 64-bit

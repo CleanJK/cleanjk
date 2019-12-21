@@ -1,10 +1,10 @@
-#include "qcommon/q_shared.h"
-#include "qcommon/qcommon.h"
-#include "qcommon/game_version.h"
-#include "qcommon/q_platform.h"
+#include "game/bg_public.h"
 #include "qcommon/com_cvar.h"
 #include "qcommon/com_cvars.h"
-#include "game/bg_public.h"
+#include "qcommon/game_version.h"
+#include "qcommon/q_platform.h"
+#include "qcommon/q_shared.h"
+#include "qcommon/qcommon.h"
 
 #ifdef _DEBUG
 cvar_t *fx_freeze;

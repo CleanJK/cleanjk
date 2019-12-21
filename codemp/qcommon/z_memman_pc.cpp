@@ -22,7 +22,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // Created 3/13/03 by Brian Osman (VV) - Split Zone/Hunk from common
 
-#include "client/client.h" // hi i'm bad
+#include "client/cl_public.h"
 #include "qcommon/com_cvars.h"
 
 #ifdef TAGDEF	// itu?

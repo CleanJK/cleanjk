@@ -20,7 +20,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "client/client.h"	//FIXME!! EVIL - just include the definitions needed
+#include "client/cl_public.h"
 #include "rd-dedicated/tr_local.h"
 #include "qcommon/matcomp.h"
 #include "qcommon/qcommon.h"

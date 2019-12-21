@@ -700,9 +700,6 @@ void	CL_ForwardCommandToServer( const char *string );
 // things like godmode, noclip, etc, are commands directed to the server,
 // so when they are typed in at the console, they will need to be forwarded.
 
-void CL_ShutdownAll( qboolean shutdownRef );
-// shutdown all the client stuff
-
 void CL_FlushMemory( void );
 // dump all memory on an error
 
@@ -720,8 +717,6 @@ void Key_WriteBindings( fileHandle_t f );
 
 void S_ClearSoundBuffer( void );
 // call before filesystem access
-
-void SCR_DebugGraph (float value, int color);	// FIXME: move logging to common?
 
 // AVI files have the start of pixel lines 4 byte-aligned
 #define AVI_LINE_PADDING 4

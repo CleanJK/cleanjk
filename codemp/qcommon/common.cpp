@@ -24,13 +24,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // common.c -- misc functions used in client and server
 
-#include "qcommon/stringed_ingame.h"
 #include "qcommon/cm_public.h"
-#include "qcommon/game_version.h"
-#include "qcommon/com_cvars.h"
 #include "qcommon/com_cvar.h"
+#include "qcommon/com_cvars.h"
+#include "qcommon/game_version.h"
+#include "qcommon/stringed_ingame.h"
+#include "sys/sys_local.h"
 
-#include "../shared/sys/sys_local.h"
 #if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>

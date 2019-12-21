@@ -26,7 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "qcommon/q_shared.h"
 #include "rd-common/tr_types.h"
 #include "ui/ui_public.h"
-#include "ui/keycodes.h"
+#include "client/cl_keycodes.h"
 #include "game/bg_public.h"
 #include "ui/ui_shared.h"
 

@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // cl_parse.c  -- parse a message received from the server
 
-#include "client/client.h"
+#include "client/cl_local.h"
 #include "client/cl_cgameapi.h"
 #include "qcommon/stringed_ingame.h"
 #include "qcommon/com_cvar.h"

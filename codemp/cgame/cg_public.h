@@ -23,6 +23,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
+#include "qcommon/q_shared.h"
+#include "rd-common/tr_types.h"
+
 #define	CGAME_API_VERSION		2
 
 #define	CMD_BACKUP			64

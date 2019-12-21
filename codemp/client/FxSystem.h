@@ -22,7 +22,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
+#include "cgame/cg_public.h"
 #include "client/cl_cgameapi.h"
+#include "client/cl_public.h"
+#include "client/snd_public.h"
 #include "ghoul2/G2.h"
 
 class SFxHelper

@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "client/snd_local.h"
 #include "client/snd_mp3.h"
 #include "client/snd_music.h"
-#include "client/client.h"
+#include "client/cl_public.h"
 #include "qcommon/com_cvar.h"
 #include "qcommon/com_cvars.h"
 #define __STDC_FORMAT_MACROS

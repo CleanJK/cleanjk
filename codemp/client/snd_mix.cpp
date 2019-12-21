@@ -23,7 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // snd_mix.c -- portable code to mix sounds for snd_dma.c
 
-#include "client/client.h"
+#include "client/cl_public.h"
 #include "client/snd_local.h"
 #include "qcommon/com_cvars.h"
 

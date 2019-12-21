@@ -22,12 +22,14 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "client/client.h"
 #include "client/cl_cgameapi.h"
+#include "client/cl_keys.h"
+#include "client/cl_local.h"
 #include "client/cl_uiapi.h"
-#include "qcommon/stringed_ingame.h"
+#include "client/snd_public.h"
 #include "qcommon/com_cvar.h"
 #include "qcommon/com_cvars.h"
+#include "qcommon/stringed_ingame.h"
 
 /*
 
@@ -883,7 +885,8 @@ const char *Key_KeynumToAscii( int keynum ) {
 
 // Returns a string (either a single ascii char, a K_* name, or a 0x11 hex string) for the given keynum.
 // Returns a console/config file friendly name for the key
-const char *Key_KeynumToString( int keynum ) {
+// note: bTranslate is only called for menu display not configs
+const char *Key_KeynumToString( int keynum/*, qboolean bTranslate */ ) {
 	const char *name;
 
 	name = Key_KeynumValid( keynum );

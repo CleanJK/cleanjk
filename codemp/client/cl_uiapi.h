@@ -20,6 +20,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
+#include "ui/ui_public.h"
+
 void		UIVM_Init				( qboolean inGameLoad );
 void		UIVM_Shutdown			( void );
 void		UIVM_KeyEvent			( int key, qboolean down );

@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // This crosses both client and server.  It could all be crammed into bg_public, but isolation of this type of data is best.
 
-enum weapon_t : int32_t {
+enum weapon_t : int {
 	WP_NONE,
 
 	WP_STUN_BATON,

@@ -25,6 +25,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // bot AI library
 
+#include "qcommon/q_shared.h"
+
 #define	BOTLIB_API_VERSION		2
 
 struct bot_consolemessage_s;
