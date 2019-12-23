@@ -74,7 +74,6 @@ set(MPUIUIFiles
 	"${MPDir}/ui/ui_main.cpp"
 	"${MPDir}/ui/ui_saber.cpp"
 	"${MPDir}/ui/ui_shared.cpp"
-	"${MPDir}/ui/keycodes.h"
 	"${MPDir}/ui/menudef.h"
 	"${MPDir}/ui/ui_fonts.h"
 	"${MPDir}/ui/ui_force.h"
@@ -91,6 +90,12 @@ set(MPUIRendererFiles
 	)
 source_group("rd-common" FILES ${MPUIRendererFiles})
 set(MPUIFiles ${MPUIFiles} ${MPUIRendererFiles})
+
+set(MPUIClientFiles
+	"${MPDir}/client/cl_keycodes.h"
+	)
+source_group("client" FILES ${MPUIClientFiles})
+set(MPUIFiles ${MPUIFiles} ${MPUIClientFiles})
 
 add_library(${MPUI} SHARED ${MPUIFiles})
 

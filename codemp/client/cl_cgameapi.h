@@ -20,6 +20,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
+#include "qcommon/q_shared.h"
+#include "rd-common/tr_types.h"
+
 void			CGVM_Init					( int serverMessageNum, int serverCommandSequence, int clientNum );
 void			CGVM_Shutdown				( void );
 qboolean		CGVM_ConsoleCommand			( void );

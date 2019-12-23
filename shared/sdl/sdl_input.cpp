@@ -24,9 +24,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "qcommon/q_shared.h"
 #include "qcommon/com_cvar.h"
 #include "qcommon/com_cvars.h"
-#include "client/client.h"
+#include "client/cl_public.h"
 #include "sys/sys_local.h"
 #include "sdl/sdl_sound.h"
+#include "client/cl_keycodes.h"
+#include "client/cl_keys.h"
 
 static cvar_t *in_keyboardDebug     = NULL;
 

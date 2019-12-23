@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "client/client.h"
+#include "client/cl_local.h"
 
 // TTimo: unused, commenting out to make gcc happy
 
@@ -122,6 +122,7 @@ void CL_Netchan_TransmitNextFragment( netchan_t *chan ) {
 
 //byte chksum[65536];
 
+//int length, const byte *data )
 void CL_Netchan_Transmit( netchan_t *chan, msg_t* msg ) {
 //	int i;
 	MSG_WriteByte( msg, clc_EOF );

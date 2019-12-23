@@ -22,13 +22,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-// console.c
-
-#include "client/client.h"
 #include "client/cl_cgameapi.h"
-#include "qcommon/stringed_ingame.h"
-#include "qcommon/game_version.h"
+#include "client/cl_keys.h"
+#include "client/cl_local.h"
+#include "game/bg_public.h"
 #include "qcommon/com_cvars.h"
+#include "qcommon/game_version.h"
+#include "qcommon/stringed_ingame.h"
 
 int g_console_field_width = 78;
 

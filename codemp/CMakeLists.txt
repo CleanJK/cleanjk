@@ -150,8 +150,9 @@ if(BuildMPEngine OR BuildMPDed)
 	set(MPEngineAndDedFiles ${MPEngineAndDedFiles} ${MPEngineAndDedCgameFiles})
 
 	set(MPEngineAndDedClientFiles
-		"${MPDir}/client/client.h"
-		"${MPDir}/client/keys.h"
+		"${MPDir}/client/cl_keycodes.h"
+		"${MPDir}/client/cl_keys.h"
+		"${MPDir}/client/cl_public.h"
 		"${MPDir}/client/snd_public.h"
 		)
 	source_group("client" FILES ${MPEngineAndDedClientFiles})
@@ -289,7 +290,6 @@ if(BuildMPEngine OR BuildMPDed)
 	set(MPEngineAndDedFiles ${MPEngineAndDedFiles} ${MPEngineAndDedServerFiles})
 
 	set(MPEngineAndDedUiFiles
-		"${MPDir}/ui/keycodes.h"
 		"${MPDir}/ui/ui_public.h"
 		)
 	source_group("ui" FILES ${MPEngineAndDedUiFiles})
@@ -384,6 +384,7 @@ if(BuildMPEngine)
 		"${MPDir}/client/cl_keys.cpp"
 		"${MPDir}/client/cl_lan.cpp"
 		"${MPDir}/client/cl_lan.h"
+		"${MPDir}/client/cl_local.h"
 		"${MPDir}/client/cl_main.cpp"
 		"${MPDir}/client/cl_net_chan.cpp"
 		"${MPDir}/client/cl_parse.cpp"
@@ -429,6 +430,12 @@ if(BuildMPEngine)
 		)
 	source_group("ravl" FILES ${MPEngineRavlFiles})
 	set(MPEngineFiles ${MPEngineFiles} ${MPEngineRavlFiles})
+
+	set(MPEngineRendererFiles
+		"${MPDir}/rd-common/tr_types.h"
+		)
+	source_group("rd-common" FILES ${MPEngineRendererFiles})
+	set(MPEngineFiles ${MPEngineFiles} ${MPEngineRendererFiles})
 
 	set(MPEngineMp3Files
 		"${MPDir}/mp3code/cdct.c"
@@ -605,6 +612,12 @@ if(BuildMPDed)
 	source_group("renderer" FILES ${MPDedicatedRendererFiles})
 	set(MPDedFiles ${MPDedFiles} ${MPDedicatedRendererFiles})
 
+	set(MPDedRendererComFiles
+		"${MPDir}/rd-common/tr_types.h"
+		)
+	source_group("rd-common" FILES ${MPDedRendererComFiles})
+	set(MPDedFiles ${MPDedFiles} ${MPDedRendererComFiles})
+
 	set(MPDedNullFiles
 		"${MPDir}/null/null_client.cpp"
 		"${MPDir}/null/null_input.cpp"
@@ -613,6 +626,7 @@ if(BuildMPDed)
 		)
 	source_group("null" FILES ${MPDedNullFiles})
 	set(MPDedFiles ${MPDedFiles} ${MPDedNullFiles})
+	
 	if(WIN32)
 		set(MPDedWin32Files
 			"${MPDir}/win32/openjkded.rc"

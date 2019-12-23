@@ -20,7 +20,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "client/client.h"
+#include "client/cl_public.h"
 #include "client/FxScheduler.h"
 
 // Set up our minimal default values

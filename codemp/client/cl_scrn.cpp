@@ -24,9 +24,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // cl_scrn.c -- master for refresh, status bar, console, chat, notify, etc
 
-#include "client/client.h"
+#include "client/cl_local.h"
 #include "client/cl_uiapi.h"
+#include "client/snd_public.h"
 #include "qcommon/com_cvars.h"
+#include "ui/ui_public.h"
 
 extern console_t con;
 qboolean	scr_initialized;		// ready to draw
@@ -174,16 +176,13 @@ void SCR_DrawStringExt( int x, int y, float size, const char *string, float *set
 	re->SetColor( NULL );
 }
 
+// draws a string with embedded color control characters with fade
 void SCR_DrawBigString( int x, int y, const char *s, float alpha, qboolean noColorEscape ) {
 	float	color[4];
 
 	color[0] = color[1] = color[2] = 1.0;
 	color[3] = alpha;
 	SCR_DrawStringExt( x, y, BIGCHAR_WIDTH, s, color, qfalse, noColorEscape );
-}
-
-void SCR_DrawBigStringColor( int x, int y, const char *s, vec4_t color, qboolean noColorEscape ) {
-	SCR_DrawStringExt( x, y, BIGCHAR_WIDTH, s, color, qtrue, noColorEscape );
 }
 
 // Draws a multi-colored string with a drop shadow, optionally forcing to a fixed color.
@@ -233,6 +232,7 @@ static int SCR_Strlen( const char *str ) {
 	return count;
 }
 
+// returns in virtual 640x480 coordinates
 int	SCR_GetBigStringWidth( const char *str ) {
 	return SCR_Strlen( str ) * BIGCHAR_WIDTH;
 }

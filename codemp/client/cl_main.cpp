@@ -24,20 +24,21 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // cl_main.c  -- client main loop
 
-#include "client/client.h"
-
-#include <limits.h>
+#include "client/cl_cgameapi.h"
+#include "client/cl_keys.h"
+#include "client/cl_lan.h"
+#include "client/cl_local.h"
+#include "client/cl_uiapi.h"
+#include "client/snd_public.h"
 #include "ghoul2/G2.h"
 #include "qcommon/cm_public.h"
-#include "qcommon/MiniHeap.h"
-#include "qcommon/stringed_ingame.h"
 #include "qcommon/com_cvar.h"
 #include "qcommon/com_cvars.h"
-#include "client/cl_cgameapi.h"
-#include "client/cl_uiapi.h"
-#include "client/cl_lan.h"
-#include "client/snd_public.h"
+#include "qcommon/MiniHeap.h"
+#include "qcommon/stringed_ingame.h"
 #include "sys/sys_loadlib.h"
+#include "ui/ui_public.h"
+#include <limits.h>
 
 vec3_t cl_windVec;
 
@@ -431,6 +432,7 @@ void CL_NextDemo( void ) {
 	Cbuf_Execute();
 }
 
+// shutdown all the client stuff
 void CL_ShutdownAll( qboolean shutdownRef ) {
 	if(CL_VideoRecording())
 		CL_CloseAVI();

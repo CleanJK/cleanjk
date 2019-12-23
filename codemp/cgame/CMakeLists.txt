@@ -108,13 +108,18 @@ set(MPCGameFiles ${MPCGameFiles} ${MPCGameCommonSafeFiles})
 set(MPCGameUiFiles
 	"${MPDir}/ui/ui_fonts.cpp"
 	"${MPDir}/ui/ui_shared.cpp"
-	"${MPDir}/ui/keycodes.h"
 	"${MPDir}/ui/menudef.h"
 	"${MPDir}/ui/ui_fonts.h"
 	"${MPDir}/ui/ui_shared.h"
 	)
 source_group("ui" FILES ${MPCGameUiFiles})
 set(MPCGameFiles ${MPCGameFiles} ${MPCGameUiFiles})
+
+set(MPCGameClientFiles
+	"${MPDir}/client/cl_keycodes.h"
+	)
+source_group("client" FILES ${MPCGameClientFiles})
+set(MPCGameFiles ${MPCGameFiles} ${MPCGameClientFiles})
 
 set(MPCGameRendererFiles
 	"${MPDir}/rd-common/tr_types.h"
