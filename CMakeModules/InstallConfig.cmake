@@ -144,6 +144,8 @@ if(WIN32)
 	endif()
 endif()
 
+include(CPack)
+
 # CPack for installer creation
 set(CPACK_PACKAGE_VERSION_MAJOR "1")
 set(CPACK_PACKAGE_VERSION_MINOR "0")
@@ -158,5 +160,3 @@ set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/LICENSE.txt")
 set(CPACK_PACKAGE_DIRECTORY ${PACKAGE_DIR})
 set(CPACK_BINARY_ZIP ON) # always create at least a zip file
 set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY 0) # prevent additional directory in zip
-
-include(CPack)
