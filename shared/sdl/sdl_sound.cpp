@@ -25,11 +25,11 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <SDL.h>
 
-#include "qcommon/q_shared.h"
-#include "qcommon/com_cvar.h"
-#include "qcommon/com_cvars.h"
 #include "client/client.h"
 #include "client/snd_local.h"
+#include "qcommon/com_cvar.h"
+#include "qcommon/com_cvars.h"
+#include "qcommon/q_shared.h"
 
 extern dma_t		dma;
 SDL_AudioDeviceID	dev;
@@ -312,7 +312,7 @@ void SNDDMA_BeginPainting (void)
 void SNDDMA_Activate( qboolean activate )
 {
 #ifdef USE_OPENAL
-	if ( s_UseOpenAL->integer )
+	if ( s_useOpenAL->integer)
 	{
 		S_AL_MuteAllSounds( (qboolean)!activate );
 	}

@@ -323,7 +323,6 @@ void R_CheckMP3s( const char *psDir )
 				//	I have to ask for it legally, so I'll keep re-using one, and restoring it's name after use.
 				//	(slightly dodgy, but works ok if no-one else changes stuff)
 				//sfx_t SFX = {0};
-				extern sfx_t *S_FindName( const char *name );
 				static sfx_t *pSFX = NULL;
 				const char sReservedSFXEntrynameForMP3[] = "reserved_for_mp3";	// ( strlen() < MAX_QPATH )
 
