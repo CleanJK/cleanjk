@@ -97,8 +97,9 @@ void R_Splash()
 {
 	image_t *pImage;
 	pImage = R_FindImageFile( "gfx/menus/splash", qfalse, qfalse, qfalse, GL_CLAMP);
-	extern void	RB_SetGL2D (void);
+
 	RB_SetGL2D();
+
 	if (pImage )
 	{//invalid paths?
 		GL_Bind( pImage );

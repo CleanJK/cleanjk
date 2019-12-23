@@ -26,7 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "client/client.h"
 #include "client/cl_uiapi.h"
-#include "client/snd_local.h"
+#include "client/snd_public.h"
 #include "qcommon/com_cvar.h"
 #include "qcommon/com_cvars.h"
 #ifndef _WIN32

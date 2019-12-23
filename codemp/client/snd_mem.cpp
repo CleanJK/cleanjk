@@ -458,6 +458,7 @@ void R_CheckMP3s( const char *psDir )
 
 // this console-function is for development purposes, and makes sure that sound/*.mp3 /s have tags in them
 //	specifying stuff like their max volume (and uncompressed size) etc...
+// scan all MP3s in the sound dir and add maxvol info if necessary.
 void S_MP3_CalcVols_f( void )
 {
 	char sStartDir[MAX_QPATH] = {"sound"};

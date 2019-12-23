@@ -46,9 +46,6 @@ output: origin, velocity, impacts, stairup boolean
 
 //do vehicle impact stuff
 // slight rearrangement by BTO (VV) so that we only have one namespace include
-#ifdef _GAME
-	extern qboolean G_CanBeEnemy(gentity_t *self, gentity_t *enemy); //w_saber.c
-#endif
 
 extern bgEntity_t *pm_entSelf;
 extern bgEntity_t *pm_entVeh;

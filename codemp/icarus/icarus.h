@@ -25,8 +25,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // ICARUS Public Header File
 // we never want to include an icarus file before sharedentity_t is declared.
 
-extern void *ICARUS_Malloc(int iSize);
-extern void  ICARUS_Free(void *pMem);
+void *ICARUS_Malloc(int iSize);
+void  ICARUS_Free(void *pMem);
 
 #include "game/g_public.h"
 

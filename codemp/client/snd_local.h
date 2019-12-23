@@ -41,12 +41,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <AL/al.h>
 #include <AL/alc.h>*/
 #endif
-// Added for Open AL to know when to mute all sounds (e.g when app. loses focus)
-void S_AL_MuteAllSounds(qboolean bMute);
-
-//from SND_AMBIENT
-extern void AS_Init( void );
-extern void AS_Free( void );
 
 #define	PAINTBUFFER_SIZE	1024
 
@@ -85,15 +79,6 @@ typedef struct sfx_s {
 
 	struct sfx_s	*next;					// only used because of hash table when registering
 } sfx_t;
-
-typedef struct dma_s {
-	int			channels;
-	int			samples;				// mono samples in buffer
-	int			submission_chunk;		// don't mix less than this #
-	int			samplebits;
-	int			speed;
-	byte		*buffer;
-} dma_t;
 
 #define START_SAMPLE_IMMEDIATE	0x7fffffff
 
@@ -149,10 +134,6 @@ typedef struct channel_s {
 	int			lSlotID;		// ID of Slot rendering Source's environment (enables a send to this FXSlot)
 } channel_t;
 
-#define	WAV_FORMAT_PCM		1
-#define WAV_FORMAT_ADPCM	2	// not actually implemented, but is the value that you get in a header
-#define WAV_FORMAT_MP3		3	// not actually used this way, but just ensures we don't match one of the legit formats
-
 typedef struct wavinfo_s {
 	int			format;
 	int			rate;
@@ -166,42 +147,36 @@ typedef struct wavinfo_s {
 extern	channel_t   s_channels[MAX_CHANNELS];
 
 extern	int		s_paintedtime;
-extern	int		s_rawend;
 extern	vec3_t	listener_origin;
-extern	dma_t	dma;
 
 #define	MAX_RAW_SAMPLES	16384
 extern	portable_samplepair_t	s_rawsamples[MAX_RAW_SAMPLES];
-portable_samplepair_t *S_GetRawSamplePointer();	// TA added this, but it just returns the s_rawsamples[] array above. Oh well...
 
-wavinfo_t GetWavinfo (const char *name, byte *wav, int wavlength);
-
-qboolean S_LoadSound( sfx_t *sfx );
-
-void S_PaintChannels(int endtime);
-
-// picks a channel based on priorities, empty slots, number of channels
+byte *SND_malloc(int iSize, sfx_t *sfx);
 channel_t *S_PickChannel(int entnum, int entchannel);
-
-// spatializes a channel
-void S_Spatialize(channel_t *ch);
-
-// new stuff from TA codebase
-
-byte	*SND_malloc(int iSize, sfx_t *sfx);
-void	 SND_setup();
-int		 SND_FreeOldestSound(sfx_t *pButNotThisOne = NULL);
-void	 SND_TouchSFX(sfx_t *sfx);
-
-qboolean SND_RegisterAudio_LevelLoadEnd(qboolean bDeleteEverythingNotUsedThisLevel /* 99% qfalse */);
-
-void S_DisplayFreeMemory(void);
-void S_memoryLoad(sfx_t *sfx);
-
+const char* Music_GetLevelSetName(void);
+float S_GetSampleLengthInMilliSeconds(sfxHandle_t sfxHandle);
+int SND_FreeOldestSound(sfx_t *pButNotThisOne = NULL);
+portable_samplepair_t *S_GetRawSamplePointer();
 qboolean S_FileExists( const char *psFilename );
+qboolean S_LoadSound( sfx_t *sfx );
 sfx_t* S_FindName(const char* name);
+void AS_Free(void);
+void AS_Init(void);
+void S_AddAmbientLoopingSound(const vec3_t origin, unsigned char volume, sfxHandle_t sfxHandle);
+void S_DisplayFreeMemory(void);
+void S_FreeAllSFXMem(void);
+void S_memoryLoad(sfx_t *sfx);
+void S_MP3_CalcVols_f(void);
+void S_PaintChannels(int endtime);
+void S_StartAmbientSound(const vec3_t origin, int entityNum, unsigned char volume, sfxHandle_t sfxHandle);
+void S_StartLocalLoopingSound(sfxHandle_t sfx);
+void S_StopSounds(void);
+void S_UnCacheDynamicMusic(void);
 void S_Update_(void);
-
+void SND_setup();
+void SND_TouchSFX(sfx_t *sfx);
+wavinfo_t GetWavinfo (const char *name, byte *wav, int wavlength);
 
 #ifdef USE_OPENAL
 // Open AL
@@ -212,10 +187,10 @@ bool LoadEALFile(char* szEALFilename);
 void ReleaseEAXManager();
 void S_PreProcessLipSync(sfx_t* sfx);
 void UnloadEALFile();
-void UpdateEAXListener();
 void UpdateEAXBuffer(channel_t* ch);
-
+void UpdateEAXListener();
 channel_t* S_OpenALPickChannel(int entnum, int entchannel);
+
 int  S_MP3PreProcessLipSync(channel_t* ch, short* data);
 void UpdateSingleShotSounds();
 void UpdateLoopingSounds();

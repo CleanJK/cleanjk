@@ -39,11 +39,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #define MAX_WEAPON_CHARGE_TIME 5000
 
-#ifdef _GAME
-	extern void G_CheapWeaponFire(int entNum, int ev);
-	extern qboolean TryGrapple(gentity_t *ent); //g_cmds.c
-#endif // _GAME
-
 pmove_t		*pm;
 pml_t		pml;
 

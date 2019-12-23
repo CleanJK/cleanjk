@@ -849,6 +849,9 @@ void EALFileInit(const char *level)
 }
 #endif
 
+// RegisterSound will allways return a valid sample, even if it
+// has to create a placeholder.  This prevents continuous filesystem
+// checks for missing files
 // Creates a default buzz sound if the file can't be loaded
 sfxHandle_t	S_RegisterSound( const char *name)
 {
@@ -933,6 +936,7 @@ static qboolean S_CheckChannelStomp( int chan1, int chan2 )
 	return qfalse;
 }
 
+// picks a channel based on priorities, empty slots, number of channels
 channel_t *S_PickChannel(int entnum, int entchannel)
 {
     int			ch_idx;
@@ -1585,6 +1589,7 @@ void S_CIN_StopSound(sfxHandle_t sfxHandle)
 	}
 }
 
+// stop all sounds
 void S_StopSounds(void)
 {
 
@@ -1627,6 +1632,7 @@ void S_StopSounds(void)
 	S_ClearSoundBuffer ();
 }
 
+// stop all sounds and the background track
 // and music
 void S_StopAllSounds(void) {
 	if ( !s_soundStarted ) {
@@ -1639,7 +1645,7 @@ void S_StopAllSounds(void) {
 }
 
 // continuous looping sounds are added each frame
-
+// all continuous looping sounds must be added before calling S_Update
 void S_ClearLoopingSounds( void )
 {
 #ifdef USE_OPENAL
@@ -1730,6 +1736,7 @@ void S_AddLoopingSound( int entityNum, const vec3_t origin, const vec3_t velocit
 	numLoopSounds++;
 }
 
+// if origin is NULL, the sound will be dynamically sourced from the entity
 void S_AddAmbientLoopingSound( const vec3_t origin, unsigned char volume, sfxHandle_t sfxHandle )
 {
 	/*const*/ sfx_t *sfx;
@@ -1858,11 +1865,14 @@ void S_ByteSwapRawSamples( int samples, int width, int s_channels, const byte *d
 	}
 }
 
+// TA added this, but it just returns the s_rawsamples[] array above. Oh well...
 portable_samplepair_t *S_GetRawSamplePointer() {
 	return s_rawsamples;
 }
 
 // Music streaming
+// cinematics and voice-over-network will send raw samples
+// 1.0 volume will be direct output of source samples
 void S_RawSamples( int samples, int rate, int width, int channels, const byte *data, float volume, int bFirstOrOnlyUpdateThisFrame )
 {
 	int		i;
@@ -2207,6 +2217,8 @@ static int S_CheckAmplitude(channel_t	*ch, const unsigned int s_oldpaintedtime )
 }
 
 // Change the volumes of all the playing sounds for changes in their positions
+// recompute the reletive volumes for all running sounds
+// relative to the given entityNum / orientation
 void S_Respatialize( int entityNum, const vec3_t head, matrix3_t axis, int inwater )
 {
 #ifdef USE_OPENAL
@@ -4200,7 +4212,6 @@ void S_StartBackgroundTrack( const char *intro, const char *loop, qboolean bCall
 	{
 		if (Music_DynamicDataAvailable(intro))	// "intro", NOT "sName" (i.e. don't use version with ".mp3" extension)
 		{
-			extern const char *Music_GetLevelSetName(void);
 			Q_strncpyz(sInfoOnly_CurrentDynamicMusicSet, Music_GetLevelSetName(), sizeof(sInfoOnly_CurrentDynamicMusicSet));
 			for (int i = eBGRNDTRACK_DATABEGIN; i != eBGRNDTRACK_DATAEND; i++)
 			{

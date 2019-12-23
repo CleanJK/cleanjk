@@ -25,57 +25,45 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "qcommon/qcommon.h"
 
-void S_Init( void );
-void S_Shutdown( void );
+#define	WAV_FORMAT_PCM		1
+#define WAV_FORMAT_ADPCM	2	// not actually implemented, but is the value that you get in a header
+#define WAV_FORMAT_MP3		3	// not actually used this way, but just ensures we don't match one of the legit formats
 
-// if origin is NULL, the sound will be dynamically sourced from the entity
-void S_AddAmbientLoopingSound( const vec3_t origin, unsigned char volume, sfxHandle_t sfxHandle );
-void S_StartAmbientSound( const vec3_t origin, int entityNum, unsigned char volume, sfxHandle_t sfxHandle );
-void S_MuteSound(int entityNum, int entchannel);
-void S_StartSound( const vec3_t origin, int entnum, int entchannel, sfxHandle_t sfx );
-void S_StartLocalSound( sfxHandle_t sfx, int channelNum );
-void S_StartLocalLoopingSound( sfxHandle_t sfx);
+typedef struct dma_s {
+	int			channels;
+	int			samples;				// mono samples in buffer
+	int			submission_chunk;		// don't mix less than this #
+	int			samplebits;
+	int			speed;
+	byte* buffer;
+} dma_t;
 
-void S_UnCacheDynamicMusic( void );
-void S_RestartMusic( void );
-void S_StartBackgroundTrack( const char *intro, const char *loop, qboolean bCalledByCGameStart );
-void S_StopBackgroundTrack( void );
-float S_GetSampleLengthInMilliSeconds( sfxHandle_t sfxHandle);
-
-// cinematics and voice-over-network will send raw samples
-// 1.0 volume will be direct output of source samples
-void S_RawSamples( int samples, int rate, int width, int channels, const byte *data, float volume, int bFirstOrOnlyUpdateThisFrame );
-// stop all sounds
-void S_StopSounds(void);	// from snd_dma.cpp
-// stop all sounds and the background track
-void S_StopAllSounds( void );
-
-// scan all MP3s in the sound dir and add maxvol info if necessary.
-void S_MP3_CalcVols_f( void );
-
-// all continuous looping sounds must be added before calling S_Update
-void S_ClearLoopingSounds( void );
-void S_StopLoopingSound( int entityNum );
-void S_AddLoopingSound( int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx );
-
-// recompute the reletive volumes for all running sounds
-// relative to the given entityNum / orientation
-void S_Respatialize( int entityNum, const vec3_t head, matrix3_t axis, int inwater );
-
-// let the sound system know where an entity currently is
-void S_UpdateEntityPosition( int entityNum, const vec3_t origin );
-
-void S_Update( void );
-
-void S_DisableSounds( void );
-
-void S_BeginRegistration( void );
-
-// RegisterSound will allways return a valid sample, even if it
-// has to create a placeholder.  This prevents continuous filesystem
-// checks for missing files
-sfxHandle_t	S_RegisterSound( const char *sample );
-
+extern	dma_t	dma;
+extern	int		s_rawend;
 extern qboolean s_shutUp;
 
-void S_FreeAllSFXMem(void);
+qboolean SND_RegisterAudio_LevelLoadEnd(qboolean bDeleteEverythingNotUsedThisLevel /* 99% qfalse */);
+sfxHandle_t	S_RegisterSound(const char* sample);
+void S_AddLoopingSound(int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx);
+
+#ifdef USE_OPENAL
+void S_AL_MuteAllSounds(qboolean bMute);
+#endif // USE_OPENAL
+
+void S_BeginRegistration(void);
+void S_ClearLoopingSounds(void);
+void S_DisableSounds(void);
+void S_Init(void);
+void S_MuteSound(int entityNum, int entchannel);
+void S_RawSamples(int samples, int rate, int width, int channels, const byte* data, float volume, int bFirstOrOnlyUpdateThisFrame);
+void S_Respatialize(int entityNum, const vec3_t head, matrix3_t axis, int inwater);
+void S_RestartMusic(void);
+void S_Shutdown(void);
+void S_StartBackgroundTrack(const char* intro, const char* loop, qboolean bCalledByCGameStart);
+void S_StartLocalSound(sfxHandle_t sfx, int channelNum);
+void S_StartSound(const vec3_t origin, int entnum, int entchannel, sfxHandle_t sfx);
+void S_StopAllSounds(void);
+void S_StopBackgroundTrack(void);
+void S_StopLoopingSound(int entityNum);
+void S_Update(void);
+void S_UpdateEntityPosition(int entityNum, const vec3_t origin);

@@ -345,3 +345,11 @@ void        UpdateForceUsed           ( void );
 
 extern uiImport_t *trap;
 extern uiInfo_t uiInfo;
+
+// Some extern functions hoisted from the middle of this file to get all the non-cgame,
+// non-namespace stuff together
+void UI_CacheSaberGlowGraphics(void);
+void UI_SaberDrawBlades( itemDef_t *item, vec3_t origin, vec3_t angles );
+void UI_SaberLoadParms( void );
+
+extern qboolean ui_saber_parms_parsed;

@@ -1521,8 +1521,8 @@ void RE_TakeVideoFrame( int width, int height, byte *captureBuffer, byte *encode
 
 // tr_ghoul2.cpp
 void		Multiply_3x4Matrix(mdxaBone_t *out, mdxaBone_t *in2, mdxaBone_t *in);
-extern qboolean R_LoadMDXM (model_t *mod, void *buffer, const char *name, qboolean &bAlreadyCached );
-extern qboolean R_LoadMDXA (model_t *mod, void *buffer, const char *name, qboolean &bAlreadyCached );
+qboolean R_LoadMDXM (model_t *mod, void *buffer, const char *name, qboolean &bAlreadyCached );
+qboolean R_LoadMDXA (model_t *mod, void *buffer, const char *name, qboolean &bAlreadyCached );
 void		RE_InsertModelIntoHash(const char *name, model_t *mod);
 
 void R_InitDecals( void );
@@ -1550,3 +1550,6 @@ void RE_RenderWorldEffects(void);
 void RE_RenderAutoMap(void);
 shader_t *R_FindServerShader( const char *name, const int *lightmapIndex, const byte *styles, qboolean mipRawImage );
 void SetViewportAndScissor( void );
+
+// tr_backend
+void RB_SetGL2D(void);
