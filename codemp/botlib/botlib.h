@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "qcommon/q_shared.h"
 
-#define	BOTLIB_API_VERSION		2
+#define	BOTLIB_API_VERSION		3
 
 struct bot_consolemessage_s;
 struct bot_match_s;
@@ -220,6 +220,7 @@ typedef struct ea_export_s
 	void	(*EA_MoveBack)(int client);
 	void	(*EA_MoveLeft)(int client);
 	void	(*EA_MoveRight)(int client);
+	void	(*EA_Walk)(int client);
 	void	(*EA_Crouch)(int client);
 	void	(*EA_Alt_Attack)(int client);
 	void	(*EA_ForcePower)(int client);
