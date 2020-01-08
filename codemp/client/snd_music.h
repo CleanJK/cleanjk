@@ -47,8 +47,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // ======================================================================
 
 // if you change this enum, you MUST update the #defines below
-typedef enum
-{
+enum MusicState_e {
 //( eBGRNDTRACK_DATABEGIN )			// begin-label for FOR loops
 	eBGRNDTRACK_EXPLORE = 0,		// for normal walking around
 	eBGRNDTRACK_ACTION,				// for excitement
@@ -68,7 +67,7 @@ typedef enum
 	eBGRNDTRACK_FADE,				// the xfade channel
 	eBGRNDTRACK_NUMBEROF
 
-} MusicState_e;
+};
 
 // ======================================================================
 // FUNCTION

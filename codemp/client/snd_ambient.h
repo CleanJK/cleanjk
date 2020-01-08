@@ -73,8 +73,7 @@ enum setKeyword_e
 // ======================================================================
 
 //NOTENOTE: Was going to make this a class, but don't want to muck around
-typedef struct ambientSet_s
-{
+struct ambientSet_t {
 	char			name[MAX_SET_NAME_LENGTH];
 	unsigned char	loopedVolume;
 	unsigned int	time_start, time_end;
@@ -86,7 +85,7 @@ typedef struct ambientSet_s
 	int				masterVolume;					//Used for fading ambient sets (not a byte to prevent wrapping)
 	int				id;								//Used for easier referencing of sets
 	int				fadeTime;						//When the fade was started on this set
-} ambientSet_t;
+};
 
 typedef void (*parseFunc_t)(ambientSet_t &);
 

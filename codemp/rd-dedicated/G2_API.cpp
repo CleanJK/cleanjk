@@ -2374,7 +2374,6 @@ bool G2API_SkinlessModel(CGhoul2Info_v& ghoul2, int modelIndex)
 	return true;
 }
 
-//#ifdef _SOF2
 #ifdef _G2_GORE
 
 //way of seeing how many marks are on a model currently -rww

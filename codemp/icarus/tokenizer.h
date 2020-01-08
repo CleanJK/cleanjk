@@ -23,19 +23,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-// ======================================================================
-// INCLUDE
-// ======================================================================
-
 #include <string>
 #include <vector>
 #include <map>
 
 #include "qcommon/q_shared.h"
-
-// ======================================================================
-// DEFINE
-// ======================================================================
 
 #define MAX_STRING_LENGTH		256
 #define MAX_IDENTIFIER_LENGTH	128
@@ -52,10 +44,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define TKF_NOUNDERSCOREINIDENTIFIER	0x00000200
 #define TKF_NODASHINIDENTIFIER			0x00000400
 #define TKF_COMMENTTOKENS				0x00000800
-
-// ======================================================================
-// ENUM
-// ======================================================================
 
 enum
 {
@@ -93,18 +81,10 @@ enum
 	TK_USERDEF,
 };
 
-// ======================================================================
-// STRUCT
-// ======================================================================
-
-typedef struct keywordArray_s {
+struct keywordArray_t {
 	char*		m_keyword;
 	int			m_tokenvalue;
-} keywordArray_t;
-
-// ======================================================================
-// CLASS
-// ======================================================================
+};
 
 class lessstr
 {

@@ -243,7 +243,7 @@ char *Com_MD5File( const char *fn, int length, const char *prefix, int prefix_le
 	static char final[33] = {""};
 	unsigned char digest[16] = {""};
 	fileHandle_t f;
-	MD5_CTX md5;
+	MD5Context md5;
 	byte buffer[2048];
 	int i;
 	int filelen = 0;

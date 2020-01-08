@@ -1240,14 +1240,13 @@ void G_CheckMovingLoopingSounds( gentity_t *ent, usercmd_t *ucmd ) {
 	//CJKNOTE: if not moving then ent->s.loopSound = 0;
 }
 
-typedef enum tauntTypes_e
-{
+enum tauntTypes_t {
 	TAUNT_TAUNT = 0,
 	TAUNT_BOW,
 	TAUNT_MEDITATE,
 	TAUNT_FLOURISH,
 	TAUNT_GLOAT
-} tauntTypes_t;
+};
 
 void G_SetTauntAnim( gentity_t *ent, int taunt )
 {

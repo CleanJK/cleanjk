@@ -51,12 +51,12 @@ clipHandle_t SV_ClipHandleForEntity( const sharedEntity_t *ent ) {
 // Entities are kept in chains either at the final leafs, or at the first node that splits them, which prevents having
 //	to deal with multiple fragments of a single entity.
 
-typedef struct worldSector_s {
+struct worldSector_t {
 	int		axis;		// -1 = leaf node
 	float	dist;
-	struct worldSector_s	*children[2];
+	worldSector_t *children[2];
 	svEntity_t	*entities;
-} worldSector_t;
+};
 
 #define	AREA_DEPTH	4
 #define	AREA_NODES	64
@@ -331,12 +331,12 @@ void SV_LinkEntity( sharedEntity_t *gEnt ) {
 // Fills in a list of all entities who's absmin / absmax intersects the given bounds.
 // This does NOT mean that they actually touch in the case of bmodels.
 
-typedef struct areaParms_s {
+struct areaParms_t {
 	const float	*mins;
 	const float	*maxs;
 	int			*list;
 	int			count, maxcount;
-} areaParms_t;
+};
 
 void SV_AreaEntities_r( worldSector_t *node, areaParms_t *ap ) {
 	svEntity_t	*check, *next;
@@ -398,7 +398,7 @@ int SV_AreaEntities( const vec3_t mins, const vec3_t maxs, int *entityList, int 
 	return ap.count;
 }
 
-typedef struct moveclip_s {
+struct moveclip_t {
 	vec3_t		boxmins, boxmaxs;// enclose the test object along entire move
 	const float	*mins;
 	const float *maxs;	// size of the moving object
@@ -413,7 +413,7 @@ typedef struct moveclip_s {
 	int			traceFlags;
 	int			useLod;
 	trace_t		trace;			// make sure nothing goes under here for Ghoul2 collision purposes
-} moveclip_t;
+};
 
 // clip to a specific entity
 void SV_ClipToEntity( trace_t *trace, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int entityNum, int contentmask, int capsule ) {

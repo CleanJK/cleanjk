@@ -1336,7 +1336,7 @@ bool CalculateTeamRedShirt(gentity_t *ent)
 	return false;
 }
 
-typedef enum {
+enum awardType_t {
 	AWARD_EFFICIENCY,		// Accuracy
 	AWARD_SHARPSHOOTER,		// Most compression rifle frags
 	AWARD_UNTOUCHABLE,		// Perfect (no deaths)
@@ -1347,10 +1347,9 @@ typedef enum {
 	AWARD_TEAM,				// MVP/Defender/Warrior/Carrier/Interceptor/Bravery
 	AWARD_SECTION31,		// All-around god
 	AWARD_MAX
-} awardType_t;
+};
 
-typedef enum
-{
+enum teamAward_e {
 	TEAM_NONE = 0,			// ha ha! you suck!
 	TEAM_MVP,				// most overall points
 	TEAM_DEFENDER,			// killed the most baddies near your flag
@@ -1359,7 +1358,7 @@ typedef enum
 	TEAM_INTERCEPTOR,		// returned your own flag the most
 	TEAM_BRAVERY,			// Red Shirt Award (tm). you died more than anybody.
 	TEAM_MAX
-} teamAward_e;
+};
 
 int CalculateTeamAward(gentity_t *ent)
 {

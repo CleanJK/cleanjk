@@ -1904,10 +1904,10 @@ void ParseMaterial( const char **text )
 
 // this table is also present in q3map
 
-typedef struct infoParm_s {
+struct infoParm_t {
 	const char	*name;
 	uint32_t	clearSolid, surfaceFlags, contents;
-} infoParm_t;
+};
 
 const infoParm_t infoParms[] = {
 	{ "nonsolid",    ~CONTENTS_SOLID,                   SURF_NONE,       CONTENTS_NONE },        // special hack to clear solid flag
@@ -2252,12 +2252,12 @@ static bool ParseShader( const char **text )
 
 // SHADER OPTIMIZATION AND FOGGING
 
-typedef struct collapse_s {
+struct collapse_t {
 	int		blendA;
 	int		blendB;
 	int		multitextureEnv;
 	int		multitextureBlend;
-} collapse_t;
+};
 
 static const collapse_t collapse[] = {
 	{
@@ -2535,7 +2535,7 @@ static shader_t *GeneratePermanentShader( void ) {
 		return tr.defaultShader;
 	}
 
-	newShader = (struct shader_s *)ri.Hunk_Alloc( sizeof( shader_t ), h_low );
+	newShader = (shader_t *)ri.Hunk_Alloc( sizeof( shader_t ), h_low );
 
 	*newShader = shader;
 

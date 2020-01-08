@@ -23,25 +23,16 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-// ======================================================================
-// INCLUDE
-// ======================================================================
-
 #include <vector>
 #include <map>
 
-#define MDXABONEDEF	// used in the mdxformat.h file to stop redefinitions of the bone struct.
-
+#define MDXABONEDEF
 #include "rd-common/mdx_format.h"
 #include "rd-common/tr_types.h"
 #include "qcommon/matcomp.h"
 #include "ghoul2/G2_gore.h"
 
-// ======================================================================
-// DEFINE
-// ======================================================================
-
-struct model_s;
+struct model_t;
 class CBoneCache;
 class CGhoul2Info_v;
 
@@ -49,6 +40,7 @@ class CGhoul2Info_v;
 #define G2T_SV_TIME (0)
 #define G2T_CG_TIME (1)
 #define NUM_G2T_TIME (2)
+
 //rww - RAGDOLL_END
 
 #define MAX_GHOUL_COUNT_BITS 8 // bits required to send across the MAX_G2_MODELS inside of the networking - this is the only restriction on ghoul models possible per entity
@@ -66,10 +58,6 @@ class CGhoul2Info_v;
 #define G2_FRONTFACE 1
 #define	G2_BACKFACE	 0
 
-// ======================================================================
-// ENUM
-// ======================================================================
-
 // calling defines for the trace function
 enum EG2_Collision
 {
@@ -77,10 +65,6 @@ enum EG2_Collision
 	G2_COLLIDE,
 	G2_RETURNONHIT
 };
-
-// ======================================================================
-// STRUCT
-// ======================================================================
 
 //   G H O U L 2   D E F I N E S
 
@@ -228,8 +212,7 @@ struct boltInfo_t{
 };
 
 #ifdef _SOF2
-typedef enum
-{
+enum goreEnum_t {
 	PGORE_NONE,
 	PGORE_ARMOR,
 	PGORE_BULLETSMALL,
@@ -237,7 +220,7 @@ typedef enum
 	PGORE_BULLETBIG,
 	PGORE_HEGRENADE,
 	PGORE_COUNT
-} goreEnum_t;
+};
 
 struct goreEnumShader_t
 {
@@ -301,9 +284,9 @@ public:
 	// these occasionally are not valid (like after a vid_restart)
 	// call the questionably efficient G2_SetupModelPointers(this) to insure validity
 	bool				mValid; // all the below are proper and valid
-	const model_s		*currentModel;
+	const model_t		*currentModel;
 	int					currentModelSize;
-	const model_s		*animModel;
+	const model_t		*animModel;
 	int					currentAnimModelSize;
 	const mdxaHeader_t	*aHeader;
 
@@ -344,32 +327,29 @@ public:
 	}
 };
 
-// ======================================================================
-// FUNCTION
-// ======================================================================
 
-bool G2_IKMove(CGhoul2Info_v& ghoul2, int time, sharedIKMoveParams_t* params);
-bool G2_NeedsRecalc(CGhoul2Info* ghlInfo, int frameNum);
-bool G2_SetBoneIKState(CGhoul2Info_v& ghoul2, int time, const char* boneName, int ikState, sharedSetBoneIKStateParams_t* params);
-bool G2_SetupModelPointers(CGhoul2Info* ghlInfo);
-bool G2_SetupModelPointers(CGhoul2Info_v& ghoul2);
-bool G2_TestModelPointers(CGhoul2Info* ghlInfo);
-bool G2_WasBoneRendered(CGhoul2Info& ghoul2, int boneNum);
-const mdxaBone_t& EvalBoneCache(int index, CBoneCache* boneCache);
-const mdxaHeader_t* G2_GetModA(CGhoul2Info& ghoul2);
-int G2_Add_Bone(const model_t* mod, boneInfo_v& blist, const char* boneName);
-int G2_DecideTraceLod(CGhoul2Info& ghoul2, int useLod);
-int G2_Find_Bone(const model_t* mod, boneInfo_v& blist, const char* boneName);
-int G2_Find_Bone_Rag(CGhoul2Info* ghlInfo, boneInfo_v& blist, const char* boneName);
-int G2_GetBoneDependents(CGhoul2Info& ghoul2, int boneNum, int* tempDependents, int maxDep);
-void G2_ConstructUsedBoneList(class CConstructBoneList& CBL);
-void G2_GetBoltMatrixLow(CGhoul2Info& ghoul2, int boltNum, const vec3_t scale, mdxaBone_t& retMatrix);
-void G2_GetBoneBasepose(CGhoul2Info& ghoul2, int boneNum, mdxaBone_t*& retBasepose, mdxaBone_t*& retBaseposeInv);
-void G2_GetBoneMatrixLow(CGhoul2Info& ghoul2, int boneNum, const vec3_t scale, mdxaBone_t& retMatrix, mdxaBone_t*& retBasepose, mdxaBone_t*& retBaseposeInv);
-void G2_RagGetAnimMatrix(CGhoul2Info& ghoul2, const int boneNum, mdxaBone_t& matrix, const int frame);
-void G2_RagGetBoneBasePoseMatrixLow(CGhoul2Info& ghoul2, int boneNum, mdxaBone_t& boneMatrix, mdxaBone_t& retMatrix, vec3_t scale);
-void G2_ResetRagDoll(CGhoul2Info_v& ghoul2V);
-void G2_SetRagDoll(CGhoul2Info_v& ghoul2V, class CRagDollParams* parms);
-void G2_SetSurfaceOnOffFromSkin(CGhoul2Info* ghlInfo, qhandle_t renderSkin);
-void G2_TimingModel(boneInfo_t& bone, int currentTime, int numFramesInFile, int& currentFrame, int& newFrame, float& lerp);
-void ResetGoreTag(void);
+const mdxaBone_t   &EvalBoneCache                 ( int index,CBoneCache *boneCache );
+int                 G2_Add_Bone                   ( const model_t *mod, boneInfo_v &blist, const char *boneName );
+void                G2_ConstructUsedBoneList      ( class CConstructBoneList &CBL );
+int                 G2_DecideTraceLod             ( CGhoul2Info &ghoul2, int useLod );
+int                 G2_Find_Bone                  ( const model_t *mod, boneInfo_v &blist, const char *boneName );
+int                 G2_Find_Bone_Rag              ( CGhoul2Info *ghlInfo, boneInfo_v &blist, const char *boneName );
+void                G2_GetBoltMatrixLow           ( CGhoul2Info &ghoul2, int boltNum, const vec3_t scale, mdxaBone_t &retMatrix );
+void                G2_GetBoneBasepose            ( CGhoul2Info &ghoul2, int boneNum, mdxaBone_t *&retBasepose, mdxaBone_t *&retBaseposeInv );
+int                 G2_GetBoneDependents          ( CGhoul2Info &ghoul2, int boneNum, int *tempDependents, int maxDep );
+void                G2_GetBoneMatrixLow           ( CGhoul2Info &ghoul2, int boneNum, const vec3_t scale, mdxaBone_t &retMatrix, mdxaBone_t *&retBasepose, mdxaBone_t *&retBaseposeInv );
+const mdxaHeader_t *G2_GetModA                    ( CGhoul2Info &ghoul2 );
+bool                G2_IKMove                     ( CGhoul2Info_v &ghoul2, int time, sharedIKMoveParams_t *params );
+bool                G2_NeedsRecalc                ( CGhoul2Info *ghlInfo, int frameNum );
+void                G2_RagGetAnimMatrix           ( CGhoul2Info &ghoul2, const int boneNum, mdxaBone_t &matrix, const int frame );
+void                G2_RagGetBoneBasePoseMatrixLow( CGhoul2Info &ghoul2, int boneNum, mdxaBone_t &boneMatrix, mdxaBone_t &retMatrix, vec3_t scale );
+void                G2_ResetRagDoll               ( CGhoul2Info_v &ghoul2V );
+bool                G2_SetBoneIKState             ( CGhoul2Info_v &ghoul2, int time, const char *boneName, int ikState, sharedSetBoneIKStateParams_t *params );
+void                G2_SetRagDoll                 ( CGhoul2Info_v &ghoul2V, class CRagDollParams *parms );
+void                G2_SetSurfaceOnOffFromSkin    ( CGhoul2Info *ghlInfo, qhandle_t renderSkin );
+bool                G2_SetupModelPointers         ( CGhoul2Info *ghlInfo );
+bool                G2_SetupModelPointers         ( CGhoul2Info_v &ghoul2 );
+bool                G2_TestModelPointers          ( CGhoul2Info *ghlInfo );
+void                G2_TimingModel                ( boneInfo_t &bone, int currentTime, int numFramesInFile, int &currentFrame, int &newFrame, float &lerp );
+bool                G2_WasBoneRendered            ( CGhoul2Info &ghoul2, int boneNum );
+void                ResetGoreTag                  ( void );

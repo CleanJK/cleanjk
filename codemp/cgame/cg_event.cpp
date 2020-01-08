@@ -35,14 +35,13 @@ extern int cg_saberFlashTime;
 extern vec3_t cg_saberFlashPos;
 extern char *showPowersName[];
 
-typedef enum
-{
+enum tauntTypes_t {
 	TAUNT_TAUNT = 0,
 	TAUNT_BOW,
 	TAUNT_MEDITATE,
 	TAUNT_FLOURISH,
 	TAUNT_GLOAT
-} tauntTypes_t ;
+};
 
 // Also called by scoreboard drawing
 const char	*CG_PlaceString( int rank ) {
@@ -2998,12 +2997,12 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	case EV_DEBRIS:
 		DEBUGNAME("EV_DEBRIS");
 		CG_Chunks(es->owner, es->origin, es->angles, es->origin2, es->angles2, es->speed,
-			es->eventParm, (material_t)es->trickedentindex, es->modelindex, es->apos.trBase[0]);
+			es->eventParm, (chunkMaterial_t)es->trickedentindex, es->modelindex, es->apos.trBase[0]);
 		break;
 
 	case EV_MISC_MODEL_EXP:
 		DEBUGNAME("EV_MISC_MODEL_EXP");
-		CG_MiscModelExplosion(es->origin2, es->angles2, es->time, (material_t)es->eventParm);
+		CG_MiscModelExplosion(es->origin2, es->angles2, es->time, (chunkMaterial_t)es->eventParm);
 		break;
 
 	case EV_PAIN:

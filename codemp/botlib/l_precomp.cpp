@@ -51,11 +51,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define DEFINEHASHING			1
 
 //directive name with parse function
-typedef struct directive_s
-{
+struct directive_t {
 	char *name;
 	int (*func)(source_t *source);
-} directive_t;
+};
 
 #define DEFINEHASHSIZE		1024
 
@@ -111,7 +110,7 @@ void PC_Init( void ) {
 #if DEFINEHASHING
 	if ( !globaldefines )
 	{
-		globaldefines = (struct define_s **)GetClearedMemory(DEFINEHASHSIZE * sizeof(define_t *));
+		globaldefines = (define_t **)GetClearedMemory(DEFINEHASHSIZE * sizeof(define_t *));
 	}
 #endif
 }
@@ -399,7 +398,7 @@ void PC_PrintDefine(define_t *define)
 	printf("define->numparms = %d\n", define->numparms);
 //	token_t *parms;					//define parameters
 //	token_t *tokens;					//macro tokens (possibly containing parm tokens)
-//	struct define_s *next;			//next defined macro in a list
+//	define_t *next;			//next defined macro in a list
 } //end of the function PC_PrintDefine*/
 #if DEFINEHASHING
 
@@ -1139,7 +1138,7 @@ define_t *PC_DefineFromString(char *string)
 	strncpy(src.filename, "*extern", MAX_PATH);
 	src.scriptstack = script;
 #if DEFINEHASHING
-	src.definehash = (struct define_s **)GetClearedMemory(DEFINEHASHSIZE * sizeof(define_t *));
+	src.definehash = (define_t **)GetClearedMemory(DEFINEHASHSIZE * sizeof(define_t *));
 #endif //DEFINEHASHING
 	//create a define from the source
 	res = PC_Directive_define(&src);
@@ -1417,21 +1416,19 @@ int PC_Directive_endif(source_t *source)
 	return true;
 } //end of the function PC_Directive_endif
 
-typedef struct operator_s
-{
+struct operator_t {
 	int mOperator;
 	int priority;
 	int parentheses;
-	struct operator_s *prev, *next;
-} operator_t;
+	operator_t *prev, *next;
+};
 
-typedef struct value_s
-{
+struct value_t {
 	signed long int intvalue;
 	double floatvalue;
 	int parentheses;
-	struct value_s *prev, *next;
-} value_t;
+	value_t *prev, *next;
+};
 
 int PC_OperatorPriority(int op)
 {
@@ -2692,7 +2689,7 @@ source_t *LoadSourceFile(const char *filename)
 #if DEFINEHASHING
 	if ( !globaldefines )
 	{
-		globaldefines = (struct define_s **)GetClearedMemory(DEFINEHASHSIZE * sizeof(define_t *));
+		globaldefines = (define_t **)GetClearedMemory(DEFINEHASHSIZE * sizeof(define_t *));
 	}
 #endif
 
@@ -2712,7 +2709,7 @@ source_t *LoadSourceFile(const char *filename)
 	source->skip = 0;
 
 #if DEFINEHASHING
-	source->definehash = (struct define_s **)GetClearedMemory(DEFINEHASHSIZE * sizeof(define_t *));
+	source->definehash = (define_t **)GetClearedMemory(DEFINEHASHSIZE * sizeof(define_t *));
 #endif //DEFINEHASHING
 	PC_AddGlobalDefinesToSource(source);
 	return source;
@@ -2741,7 +2738,7 @@ source_t *LoadSourceMemory(char *ptr, int length, char *name)
 	source->skip = 0;
 
 #if DEFINEHASHING
-	source->definehash = (struct define_s **)GetClearedMemory(DEFINEHASHSIZE * sizeof(define_t *));
+	source->definehash = (define_t **)GetClearedMemory(DEFINEHASHSIZE * sizeof(define_t *));
 #endif //DEFINEHASHING
 	PC_AddGlobalDefinesToSource(source);
 	return source;

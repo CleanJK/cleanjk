@@ -24,7 +24,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // main control for any streaming sound output device
 
-
 #include "client/snd_local.h"
 #include "client/snd_mp3.h"
 #include "client/snd_music.h"
@@ -37,7 +36,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <cinttypes>
 
 #if defined(_WIN32)
-#include <Windows.h>
+#include <windows.h>
 #endif
 
 bool s_shutUp = false;
@@ -55,7 +54,7 @@ static int SND_FreeSFXMem(sfx_t *sfx);
 const int iMP3MusicStream_DiskBytesToRead = 10000;//4096;
 const int iMP3MusicStream_DiskBufferSize = iMP3MusicStream_DiskBytesToRead*2; //*10;
 
-typedef struct MusicInfo_s {
+struct MusicInfo_t {
 	bool	bIsMP3;
 	// MP3 specific...
 	sfx_t		sfxMP3_Bgrnd;
@@ -101,7 +100,7 @@ typedef struct MusicInfo_s {
 		MP3Stream_SeekTo( &chMP3_Bgrnd, fTime );
 		s_backgroundSamples = sfxMP3_Bgrnd.iSoundLengthInSamples;
 	}
-} MusicInfo_t;
+};
 
 static void S_SetDynamicMusicState( MusicState_e musicState );
 
@@ -148,8 +147,7 @@ int			s_numSfx;
 #define		LOOP_HASH		128
 static	sfx_t		*sfxHash[LOOP_HASH];
 
-typedef struct
-{
+struct loopSound_t {
 	unsigned char	volume;
 	vec3_t			origin;
 	vec3_t			velocity;
@@ -163,7 +161,7 @@ typedef struct
 	// For Open AL
 	bool	bProcessed;
 	bool	bRelative;
-} loopSound_t;
+};
 
 #define	MAX_LOOP_SOUNDS		32
 
@@ -197,7 +195,7 @@ short		s_rawdata[MAX_RAW_SAMPLES*2];	// Used for Raw Samples (Music etc...)
 
 // EAX Related
 
-typedef struct ENVTABLE_s {
+struct ENVTABLE_t {
 	ALuint		ulNumApertures;
 	ALint		lFXSlotID;
 	ALboolean	bUsed;
@@ -209,13 +207,13 @@ typedef struct ENVTABLE_s {
 	} Aperture[64];
 } ENVTABLE, *LPENVTABLE;
 
-typedef struct REVERBDATA_s {
+struct REVERBDATA_t {
 	long lEnvID;
 	long lApertureNum;
 	float flDist;
 } REVERBDATA, *LPREVERBDATA;
 
-typedef struct FXSLOTINFO_s {
+struct FXSLOTINFO_t {
 	GUID	FXSlotGuid;
 	ALint	lEnvID;
 } FXSLOTINFO, *LPFXSLOTINFO;
@@ -3276,6 +3274,8 @@ void AL_UpdateRawSamples()
 		Com_OPrintf("OAL Error : UpdateRawSamples\n");
 #endif
 }
+#endif
+
 
 int S_MP3PreProcessLipSync(channel_t *ch, short *data)
 {
@@ -3383,7 +3383,6 @@ void S_SetLipSyncs()
 		}
 	}
 }
-#endif
 
 // console functions
 

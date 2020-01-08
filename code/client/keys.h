@@ -23,26 +23,26 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "keycodes.h"
 
-typedef struct qkey_s {
+struct qkey_t {
 	qboolean	down;
 	int			repeats;		// if > 1, it is autorepeating
 	char		*binding;
-} qkey_t;
+};
 
-typedef struct keyGlobals_s {
+struct keyGlobals_t {
 	qboolean	anykeydown;
 	qboolean	key_overstrikeMode;
 	int			keyDownCount;
 
 	qkey_t		keys[MAX_KEYS];
-} keyGlobals_t;
+};
 
-typedef struct keyname_s {
+struct keyname_t {
 	word		upper, lower;
 	const char	*name;
 	int			keynum;
 	bool		menukey;
-} keyname_t;
+};
 
 extern keyGlobals_t	kg;
 extern keyname_t	keynames[MAX_KEYS];

@@ -30,7 +30,7 @@
 #include "qcommon/q_shared.h"
 #include "qcommon/q_common.h"
 
-typedef struct mdfour_s {
+typedef struct mdfour_t {
 	uint32_t A, B, C, D;
 	uint32_t totalN;
 } mdfour_ctx;

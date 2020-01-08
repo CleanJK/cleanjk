@@ -36,14 +36,15 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <minizip/unzip.h>
 
 #if defined(_WIN32)
-#include <Windows.h>
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
 #endif
 
 // for rmdir
 #if defined (_MSC_VER)
-#include <direct.h>
+	#include <direct.h>
 #else
-#include <unistd.h>
+	#include <unistd.h>
 #endif
 
 /*
@@ -175,14 +176,14 @@ TODO:
 #define	MAX_SEARCH_PATHS	4096
 #define MAX_FILEHASH_SIZE	1024
 
-typedef struct fileInPack_s {
+struct fileInPack_t {
 	char					*name;		// name of the file
 	unsigned long			pos;		// file info position in zip
 	unsigned long			len;		// uncompress file size
-	struct	fileInPack_s*	next;		// next file in the hash
-} fileInPack_t;
+	fileInPack_t  *next; // next file in the hash
+};
 
-typedef struct pack_s {
+struct pack_t {
 	char			pakPathname[MAX_OSPATH];	// c:\jediacademy\gamedata\base
 	char			pakFilename[MAX_OSPATH];	// c:\jediacademy\gamedata\base\assets0.pk3
 	char			pakBasename[MAX_OSPATH];	// assets0
@@ -195,20 +196,20 @@ typedef struct pack_s {
 	int				hashSize;					// hash table size (power of 2)
 	fileInPack_t*	*hashTable;					// hash table
 	fileInPack_t*	buildBuffer;				// buffer with the filenames etc.
-} pack_t;
+};
 
-typedef struct directory_s {
+struct directory_t {
 	char		path[MAX_OSPATH];		// c:\jediacademy\gamedata
 	char		fullpath[MAX_OSPATH];	// c:\jediacademy\gamedata\base
 	char		gamedir[MAX_OSPATH];	// base
-} directory_t;
+};
 
-typedef struct searchpath_s {
-	struct searchpath_s *next;
+struct searchpath_t {
+	searchpath_t *next;
 
 	pack_t		*pack;		// only one of pack / dir will be non nullptr
 	directory_t	*dir;
-} searchpath_t;
+};
 
 static char		fs_gamedir[MAX_OSPATH];	// this will be a single file name with no separators
 static searchpath_t	*fs_searchpaths;
@@ -219,17 +220,17 @@ static int			fs_packFiles = 0;		// total number of files in packs
 static int			fs_fakeChkSum;
 static int			fs_checksumFeed;
 
-typedef union qfile_gus {
+union qfile_gut {
 	FILE*		o;
 	unzFile		z;
-} qfile_gut;
+};
 
-typedef struct qfile_us {
+struct qfile_ut {
 	qfile_gut	file;
 	bool	unique;
-} qfile_ut;
+};
 
-typedef struct fileHandleData_s {
+struct fileHandleData_t {
 	qfile_ut	handleFiles;
 	bool	handleSync;
 	int			fileSize;
@@ -237,7 +238,7 @@ typedef struct fileHandleData_s {
 	int			zipFileLen;
 	bool	zipFile;
 	char		name[MAX_ZPATH];
-} fileHandleData_t;
+};
 
 static fileHandleData_t	fsh[MAX_FILE_HANDLES];
 
@@ -1829,7 +1830,7 @@ static pack_t *FS_LoadZipFile( const char *zipfile, const char *basename )
 		unzGoToNextFile(uf);
 	}
 
-	buildBuffer = (struct fileInPack_s *)Z_Malloc( (gi.number_entry * sizeof( fileInPack_t )) + len, TAG_FILESYS, true );
+	buildBuffer = (fileInPack_t *)Z_Malloc( (gi.number_entry * sizeof( fileInPack_t )) + len, TAG_FILESYS, true );
 	namePtr = ((char *) buildBuffer) + gi.number_entry * sizeof( fileInPack_t );
 	fs_headerLongs = (int *)Z_Malloc( ( gi.number_entry + 1 ) * sizeof(int), TAG_FILESYS, true );
 	fs_headerLongs[ fs_numHeaderLongs++ ] = LittleLong( fs_checksumFeed );
@@ -2611,7 +2612,7 @@ static void FS_AddGameDirectory( const char *path, const char *dir ) {
 
 	// add the directory to the search path
 
-	search = (struct searchpath_s *)Z_Malloc (sizeof(searchpath_t), TAG_FILESYS, true);
+	search = (searchpath_t *)Z_Malloc (sizeof(searchpath_t), TAG_FILESYS, true);
 	search->dir = (directory_t *)Z_Malloc( sizeof( *search->dir ), TAG_FILESYS, true );
 
 	Q_strncpyz( search->dir->path, path, sizeof( search->dir->path ) );
@@ -2645,7 +2646,7 @@ static void FS_AddGameDirectory( const char *path, const char *dir ) {
 
 		fs_packFiles += pak->numfiles;
 
-		search = (searchpath_s *)Z_Malloc (sizeof(searchpath_t), TAG_FILESYS, true);
+		search = (searchpath_t *)Z_Malloc (sizeof(searchpath_t), TAG_FILESYS, true);
 		search->pack = pak;
 
 		if (fs_dirbeforepak && fs_dirbeforepak->integer && thedir)
@@ -3105,7 +3106,7 @@ const char *FS_ReferencedPakChecksums( void ) {
 // Returns a space separated string containing the pure checksums of all referenced pk3 files.
 // Servers with sv_pure set will get this string back from clients for pure validation
 // The string has a specific order, "cgame ui @ ref1 ref2 ref3 ..."
-// 
+//
 // Returns a space separated string containing the checksums of all loaded
 // AND referenced pk3 files. Servers with sv_pure set will get this string
 // back from clients for pure validation

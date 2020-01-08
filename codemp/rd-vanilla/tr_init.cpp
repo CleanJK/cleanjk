@@ -1221,10 +1221,10 @@ void R_AtiHackToggle_f(void)
 	g_bTextureRectangleHack = !g_bTextureRectangleHack;
 }
 
-typedef struct consoleCommand_s {
+struct consoleCommand_t {
 	const char	*cmd;
 	xcommand_t	func;
-} consoleCommand_t;
+};
 
 static consoleCommand_t	commands[] = {
 	{ "imagelist",			R_ImageList_f },
@@ -1670,7 +1670,7 @@ Q_EXPORT refexport_t* QDECL GetRefAPI( int apiVersion, refimport_t *rimp ) {
 	re.G2API_GetNumGoreMarks				= G2API_GetNumGoreMarks;
 	re.G2API_AddSkinGore					= G2API_AddSkinGore;
 	re.G2API_ClearSkinGore					= G2API_ClearSkinGore;
-	#endif // _SOF2
+	#endif // _G2_GORE
 
 	// this is set in R_Init
 	//re.G2VertSpaceServer	= G2VertSpaceServer;

@@ -172,7 +172,7 @@ CGoreSet::~CGoreSet()
 		DeleteGoreRecord((*i).second.mGoreTag);
 	}
 };
-#endif // _SOF2
+#endif // _G2_GORE
 
 class CTraceSurface
 {

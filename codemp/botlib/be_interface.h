@@ -36,8 +36,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // ======================================================================
 
 //FIXME: get rid of this global structure
-typedef struct botlib_globals_s
-{
+struct botlib_globals_t {
 	int botlibsetup;						//true when the bot library has been setup
 	int maxentities;						//maximum number of entities
 	int maxclients;							//maximum number of clients
@@ -48,7 +47,7 @@ typedef struct botlib_globals_s
 	vec3_t goalorigin;
 	int runai;
 #endif
-} botlib_globals_t;
+};
 
 // ======================================================================
 // EXTERN VARIABLE

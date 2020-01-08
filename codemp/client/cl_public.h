@@ -24,10 +24,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-// ======================================================================
-// INCLUDE
-// ======================================================================
-
 #include "cgame/cg_public.h"
 #include "qcommon/q_shared.h"
 #include "qcommon/q_common.h"
@@ -35,21 +31,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "rd-common/tr_public.h"
 #include "sys/sys_public.h"
 
-// ======================================================================
-// DEFINE
-// ======================================================================
-
 // the parseEntities array must be large enough to hold PACKET_BACKUP frames of
 // entities, so that when a delta compressed message arives from the server
 // it can be un-deltad from the original
 #define	MAX_PARSE_ENTITIES	( PACKET_BACKUP * MAX_SNAPSHOT_ENTITIES )
 
-// ======================================================================
-// STRUCT
-// ======================================================================
-
 // snapshots are a view of the server at a given time
-typedef struct clSnapshot_s {
+struct clSnapshot_t {
 	bool		valid;			// cleared if delta parsing was invalid
 	int				snapFlags;		// rate delayed and dropped commands
 
@@ -69,16 +57,17 @@ typedef struct clSnapshot_s {
 
 	int				serverCommandNum;		// execute all commands up to this before
 											// making the snapshot current
-} clSnapshot_t;
+};
 
 // the clientActive_t structure is wiped completely at every new gamestate_t, potentially several times during an established connection
-typedef struct outPacket_s {
+
+struct outPacket_t {
 	int		p_cmdNumber;		// cl.cmdNumber when packet was sent
 	int		p_serverTime;		// usercmd->serverTime when packet was sent
 	int		p_realtime;			// cls.realtime when packet was sent
-} outPacket_t;
+};
 
-typedef struct clientActive_s {
+struct clientActive_t {
 	int			timeoutcount;		// it requres several frames in a timeout condition
 									// to disconnect, preventing debugging breaks from
 									// causing immediate disconnects on continue
@@ -139,13 +128,14 @@ typedef struct clientActive_s {
 
 	entityState_t	parseEntities[MAX_PARSE_ENTITIES];
 
-	char* mSharedMemory;
-} clientActive_t;
+	char			*mSharedMemory;
+};
 
-// the clientConnection_t structure is wiped when disconnecting from a server, either to go to a full screen console,
-// play a demo, or connect to a different server
+// the clientConnection_t structure is wiped when disconnecting from a server, either to go to a full screen console, play a demo, or connect to a different
+//	server
 // A connection can be to either a server through the network layer or a demo through a file.
-typedef struct clientConnection_s {
+
+struct clientConnection_t {
 
 	int			clientNum;
 	int			lastPacketSentTime;			// for retransmits during connection
@@ -206,9 +196,9 @@ typedef struct clientConnection_s {
 
 	// big stuff at end of structure so most offsets are 15 bits or less
 	netchan_t	netchan;
-} clientConnection_t;
+};
 
-typedef struct serverInfo_s {
+struct serverInfo_t {
 	netadr_t	adr;
 	char	  	hostName[MAX_NAME_LENGTH];
 	char	  	mapName[MAX_NAME_LENGTH];
@@ -226,10 +216,9 @@ typedef struct serverInfo_s {
 	int			weaponDisable;
 	int			forceDisable;
 	int			humans, bots;
-} serverInfo_t;
+};
 
-// the clientStatic_t structure is never wiped, and is used even when no client connection is active at all
-typedef struct clientStatic_s {
+struct clientStatic_t {
 	connstate_t	state;				// connection status
 
 	char		servername[MAX_OSPATH];		// name of server from original connect (used by reconnect)
@@ -273,26 +262,18 @@ typedef struct clientStatic_s {
 	qhandle_t	charSetShader;
 	qhandle_t	whiteShader;
 	qhandle_t	consoleShader;
-} clientStatic_t;
+};
 
-// ======================================================================
-// EXTERN VARIABLE
-// ======================================================================
-
-extern clientActive_t cl;
-extern clientConnection_t clc;
-extern clientStatic_t cls;
-extern refexport_t* re;		
-
-// ======================================================================
-// FUNCTION
-// ======================================================================
+extern	clientActive_t		cl;
+extern	clientConnection_t	clc;
+extern	clientStatic_t		cls;
+extern	refexport_t		*re;
 
 const char* Key_KeynumToString(int keynum/*, bool bTranslate */);
 int Key_GetCatcher(void);
 bool CL_VideoRecording(void);
 void CIN_CloseAllVideos(void);
 void CL_ShutdownAll(bool shutdownRef);
-void CL_ShutdownCGame(void);
-void CL_ShutdownUI(void);
-void CL_WriteAVIAudioFrame(const byte* pcmBuffer, int size);
+void CL_ShutdownCGame( void );
+void CL_ShutdownUI( void );
+void CL_WriteAVIAudioFrame( const byte *pcmBuffer, int size );

@@ -545,7 +545,7 @@ static void ParseFlare( dsurface_t *ds, mapVert_t *verts, msurface_t *surf, int 
 		surf->shader = tr.defaultShader;
 	}
 
-	flare = (struct srfFlare_s *)Hunk_Alloc( sizeof( *flare ), h_low );
+	flare = (srfFlare_t *)Hunk_Alloc( sizeof( *flare ), h_low );
 	flare->surfaceType = SF_FLARE;
 
 	surf->data = (surfaceType_t *)flare;
@@ -1203,7 +1203,7 @@ void R_MovePatchSurfacesToHunk(world_t &worldData) {
 			continue;
 
 		size = (grid->width * grid->height - 1) * sizeof( drawVert_t ) + sizeof( *grid );
-		hunkgrid = (struct srfGridMesh_s *)Hunk_Alloc( size, h_low );
+		hunkgrid = (srfGridMesh_t *)Hunk_Alloc( size, h_low );
 		memcpy(hunkgrid, grid, size);
 
 		hunkgrid->widthLodError = (float *)Hunk_Alloc( grid->width * 4, h_low );
@@ -1245,7 +1245,7 @@ static	void R_LoadSurfaces( lump_t *surfs, lump_t *verts, lump_t *indexLump, wor
 	if ( indexLump->filelen % sizeof(*indexes))
 		Com_Error (ERR_DROP, "LoadMap: funny lump size in %s",worldData.name);
 
-	out = (struct msurface_s *)Hunk_Alloc ( count * sizeof(*out), h_low );
+	out = (msurface_t *)Hunk_Alloc ( count * sizeof(*out), h_low );
 
 	worldData.surfaces = out;
 	worldData.numsurfaces = count;
@@ -1355,7 +1355,7 @@ static	void R_LoadNodesAndLeafs (lump_t *nodeLump, lump_t *leafLump, world_t &wo
 	numNodes = nodeLump->filelen / sizeof(dnode_t);
 	numLeafs = leafLump->filelen / sizeof(dleaf_t);
 
-	out = (struct mnode_s *)Hunk_Alloc ( (numNodes + numLeafs) * sizeof(*out), h_low);
+	out = (mnode_t *)Hunk_Alloc ( (numNodes + numLeafs) * sizeof(*out), h_low);
 
 	worldData.nodes = out;
 	worldData.numnodes = numNodes + numLeafs;
@@ -1442,7 +1442,7 @@ static	void R_LoadMarksurfaces (lump_t *l, world_t &worldData)
 	if (l->filelen % sizeof(*in))
 		Com_Error (ERR_DROP, "LoadMap: funny lump size in %s",worldData.name);
 	count = l->filelen / sizeof(*in);
-	out = (struct msurface_s **)Hunk_Alloc ( count*sizeof(*out), h_low);
+	out = (msurface_t **)Hunk_Alloc ( count*sizeof(*out), h_low);
 
 	worldData.marksurfaces = out;
 	worldData.nummarksurfaces = count;
@@ -1465,7 +1465,7 @@ static	void R_LoadPlanes( lump_t *l, world_t &worldData ) {
 	if (l->filelen % sizeof(*in))
 		Com_Error (ERR_DROP, "LoadMap: funny lump size in %s",worldData.name);
 	count = l->filelen / sizeof(*in);
-	out = (struct cplane_s *)Hunk_Alloc ( count*2*sizeof(*out), h_low);
+	out = (cplane_t *)Hunk_Alloc ( count*2*sizeof(*out), h_low);
 
 	worldData.planes = out;
 	worldData.numplanes = count;

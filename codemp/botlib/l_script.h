@@ -140,16 +140,14 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // ======================================================================
 
 //punctuation
-typedef struct punctuation_s
-{
+struct punctuation_t {
 	const char *p;					//punctuation character(s)
 	int n;							//punctuation indication
-	struct punctuation_s *next;		//next punctuation
-} punctuation_t;
+	punctuation_t *next;		//next punctuation
+};
 
 //token
-typedef struct token_s
-{
+struct token_t {
 	char string[MAX_TOKEN];			//available token
 	int type;						//last read token type
 	int subtype;					//last read token sub type
@@ -161,12 +159,11 @@ typedef struct token_s
 	char *endwhitespace_p;			//start of white space before token
 	int line;						//line the token was on
 	int linescrossed;				//lines crossed in white space
-	struct token_s *next;			//next token in chain
-} token_t;
+	token_t *next;			//next token in chain
+};
 
 //script file
-typedef struct script_s
-{
+struct script_t {
 	char filename[1024];			//file name of the script
 	char *buffer;					//buffer containing the script
 	char *script_p;					//current pointer in the script
@@ -182,8 +179,8 @@ typedef struct script_s
 	punctuation_t *punctuations;	//the punctuations used in the script
 	punctuation_t **punctuationtable;
 	token_t token;					//available token
-	struct script_s *next;			//next script in a chain
-} script_t;
+	script_t *next;			//next script in a chain
+};
 
 // ======================================================================
 // FUNCTION

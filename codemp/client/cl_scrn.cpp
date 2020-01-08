@@ -259,10 +259,10 @@ void SCR_DrawDemoRecording( void ) {
 
 // DEBUG GRAPH
 
-typedef struct graphsamp_s {
+struct graphsamp_t {
 	float	value;
 	int		color;
-} graphsamp_t;
+};
 
 static	int			current;
 static	graphsamp_t	values[1024];

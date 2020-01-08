@@ -22,35 +22,21 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-// ======================================================================
-// INCLUDE
-// ======================================================================
-
 #include "qcommon/q_shared.h"
 
-// ======================================================================
-// DEFINE
-// ======================================================================
+#define MAXPRINTMSG	4096
 
-#define MAXPRINTMSG 4096
 
-typedef struct glconfig_s glconfig_t;
 
-// ======================================================================
-// ENUM
-// ======================================================================
-
-typedef enum netadrtype_s
-{
-	NA_BAD = 0,					// an address lookup failed
+enum netadrtype_t {
+	NA_BAD = 0, // an address lookup failed
 	NA_BOT,
 	NA_LOOPBACK,
 	NA_BROADCAST,
 	NA_IP
-} netadrtype_t;
+};
 
-typedef enum
-{
+enum joystickAxis_t {
 	AXIS_SIDE,
 	AXIS_FORWARD,
 	AXIS_UP,
@@ -58,141 +44,130 @@ typedef enum
 	AXIS_YAW,
 	AXIS_PITCH,
 	MAX_JOYSTICK_AXIS
-} joystickAxis_t;
+};
 
-typedef enum
-{
-	// bk001129 - make sure SE_NONE is zero
-	SE_NONE = 0,	// evTime is still valid
-	SE_KEY,		// evValue is a key code, evValue2 is the down flag
-	SE_CHAR,	// evValue is an ascii char
-	SE_MOUSE,	// evValue and evValue2 are reletive signed x / y moves
-	SE_JOYSTICK_AXIS,	// evValue is an axis number and evValue2 is the current state (-127 to 127)
-	SE_CONSOLE,	// evPtr is a char*
+enum sysEventType_t {
+  // bk001129 - make sure SE_NONE is zero
+	SE_NONE = 0, // evTime is still valid
+	SE_KEY, // evValue is a key code, evValue2 is the down flag
+	SE_CHAR, // evValue is an ascii char
+	SE_MOUSE, // evValue and evValue2 are reletive signed x / y moves
+	SE_JOYSTICK_AXIS, // evValue is an axis number and evValue2 is the current state (-127 to 127)
+	SE_CONSOLE, // evPtr is a char*
 	SE_MAX
-} sysEventType_t;
+};
 
-typedef enum graphicsApi_e
-{
+enum graphicsApi_t {
 	GRAPHICS_API_GENERIC,
 
 	// Only OpenGL needs special treatment..
 	GRAPHICS_API_OPENGL,
-} graphicsApi_t;
+};
 
-typedef enum glProfile_e
-{
+enum glProfile_t {
 	GLPROFILE_COMPATIBILITY,
 	GLPROFILE_CORE,
 	GLPROFILE_ES,
-} glProfile_t;
+};
 
-typedef enum glContextFlag_e
-{
+enum glContextFlag_t : uint32_t {
 	GLCONTEXT_DEBUG = (1 << 1),
-} glContextFlag_t;
+};
 
-// ======================================================================
-// STRUCT
-// ======================================================================
 
-typedef struct netadr_s
-{
-	netadrtype_t	type;
 
-	byte		ip[4];
-	uint16_t	port;
-} netadr_t;
+struct netadr_t {
+	netadrtype_t type;
+	byte         ip[4];
+	uint16_t     port;
+};
 
-typedef struct sysEvent_s {
-	int				evTime;
-	sysEventType_t	evType;
-	int				evValue, evValue2;
-	int				evPtrLength;	// bytes of data pointed to by evPtr, for journaling
-	void			*evPtr;			// this must be manually freed if not nullptr
-} sysEvent_t;
+struct sysEvent_t {
+	int             evTime;
+	sysEventType_t  evType;
+	int             evValue, evValue2;
+	int             evPtrLength;	// bytes of data pointed to by evPtr, for journaling
+	void           *evPtr;			// this must be manually freed if not nullptr
+};
 
 // Graphics API
-typedef struct window_s
-{
-	void* handle; // OS-dependent window handle
-	graphicsApi_t api;
-} window_t;
+struct window_t {
+	void          *handle; // OS-dependent window handle
+	graphicsApi_t  api;
+};
 
-typedef struct windowDesc_s
-{
+struct windowDesc_t {
 	graphicsApi_t api;
-
 	// Only used if api == GRAPHICS_API_OPENGL
-	struct gl_
-	{
-		int majorVersion;
-		int minorVersion;
+	struct gl_ {
+		int         majorVersion;
+		int         minorVersion;
 		glProfile_t profile;
-		uint32_t contextFlags;
+		uint32_t    contextFlags;
 	} gl;
-} windowDesc_t;
+};
 
-// ======================================================================
-// EXTERN VARIABLE
-// ======================================================================
 
-extern cvar_t *com_minimized;
-extern cvar_t *com_unfocused;
+
+typedef void *         GetGameAPIProc  ( void * );
+typedef intptr_t QDECL VMMainProc      ( int, intptr_t, intptr_t, intptr_t, intptr_t, intptr_t, intptr_t, intptr_t, intptr_t, intptr_t, intptr_t, intptr_t, intptr_t );
+typedef intptr_t QDECL SystemCallProc  ( intptr_t, ... );
+typedef void * QDECL   GetModuleAPIProc( int, ... );
+
+
+
 extern cvar_t *com_maxfps;
 extern cvar_t *com_maxfpsMinimized;
 extern cvar_t *com_maxfpsUnfocused;
+extern cvar_t *com_minimized;
+extern cvar_t *com_unfocused;
 
-// ======================================================================
-// FUNCTION
-// ======================================================================
 
-bool Sys_IsLANAddress(netadr_t adr);
-bool Sys_LowPhysicalMemory();
-bool Sys_Mkdir(const char* path);
-bool Sys_PathCmp(const char* path1, const char* path2);
-bool Sys_RandomBytes(byte* string, int len);
-bool Sys_StringToAdr(const char* s, netadr_t* a);
-bool WIN_GL_ExtensionSupported(const char* extension);
-char* Sys_Cwd(void);
-char* Sys_DefaultHomePath(void);
-char* Sys_DefaultInstallPath(void);
-char* Sys_GetClipboardData(void);
-char* Sys_GetCurrentUser(void);
-char** Sys_ListFiles(const char* directory, const char* extension, char* filter, int* numfiles, bool wantsubs);
-const char* Sys_Basename(char* path);
-const char* Sys_Dirname(char* path);
-extern "C" void	Sys_SnapVector(float* v);
-int Sys_Milliseconds(bool baseTime = false);
-int Sys_Milliseconds2(void);
-sysEvent_t Sys_GetEvent(void);
-time_t Sys_FileTime(const char* path);
-typedef intptr_t QDECL SystemCallProc(intptr_t, ...);
-typedef intptr_t QDECL VMMainProc(int, intptr_t, intptr_t, intptr_t, intptr_t, intptr_t, intptr_t, intptr_t, intptr_t, intptr_t, intptr_t, intptr_t, intptr_t);
-typedef void* GetGameAPIProc(void*);
-typedef void* QDECL GetModuleAPIProc(int, ...);
-uint8_t ConvertUTF32ToExpectedCharset(uint32_t utf32);
-void NORETURN QDECL Sys_Error(const char* error, ...);
-void NORETURN Sys_Quit(void);
-void Sys_FreeFileList(char** fileList);
-void Sys_Init(void);
-void Sys_Print(const char* msg);
-void Sys_SendPacket(int length, const void* data, netadr_t to);
-void Sys_SetDefaultInstallPath(const char* path);
-void Sys_SetErrorText(const char* text);
-void Sys_SetProcessorAffinity(void);
-void Sys_ShowIP(void);
-void Sys_Sleep(int msec);
-void Sys_UnloadDll(void* dllHandle);
-void WIN_Present(window_t* window);
-void WIN_SetGamma(glconfig_t* glConfig, byte red[256], byte green[256], byte blue[256]);
-void WIN_Shutdown(void);
-void* QDECL Sys_LoadDll(const char* name, bool useSystemLib);
-void* QDECL Sys_LoadGameDll(const char* name, GetModuleAPIProc** moduleAPI);
-void* Sys_LoadSPGameDll(const char* name, GetGameAPIProc** GetGameAPI);
-void* WIN_GL_GetProcAddress(const char* proc);
-window_t WIN_Init(const windowDesc_t* desc, glconfig_t* glConfig);
 
+extern "C" {
+	void Sys_SnapVector( float *v );
+}
+
+uint8_t               ConvertUTF32ToExpectedCharset( uint32_t utf32 );
+const char           *Sys_Basename                 ( char *path );
+char                 *Sys_Cwd                      ( void );
 #ifdef MACOS_X
-char* Sys_DefaultAppPath(void);
+char                 *Sys_DefaultAppPath           ( void );
 #endif
+char                 *Sys_DefaultHomePath          ( void );
+char                 *Sys_DefaultInstallPath       ( void );
+const char           *Sys_Dirname                  ( char *path );
+void NORETURN QDECL   Sys_Error                    ( const char *error, ... );
+time_t                Sys_FileTime                 ( const char *path );
+void                  Sys_FreeFileList             ( char **fileList );
+char                 *Sys_GetClipboardData         ( void ); // note that this isn't journaled...
+char                 *Sys_GetCurrentUser           ( void );
+sysEvent_t            Sys_GetEvent                 ( void );
+void                  Sys_Init                     ( void );
+bool                  Sys_IsLANAddress             ( netadr_t adr );
+char                **Sys_ListFiles                ( const char *directory, const char *extension, char *filter, int *numfiles, bool wantsubs );
+void * QDECL          Sys_LoadDll                  ( const char *name, bool useSystemLib );
+void * QDECL          Sys_LoadGameDll              ( const char *name, GetModuleAPIProc **moduleAPI );
+void                 *Sys_LoadSPGameDll            ( const char *name, GetGameAPIProc **GetGameAPI );
+bool                  Sys_LowPhysicalMemory        ( void );
+int                   Sys_Milliseconds             ( bool baseTime = false );
+int                   Sys_Milliseconds2            ( void );
+bool                  Sys_Mkdir                    ( const char *path );
+bool                  Sys_PathCmp                  ( const char *path1, const char *path2 );
+void                  Sys_Print                    ( const char *msg );
+void NORETURN         Sys_Quit                     ( void );
+bool                  Sys_RandomBytes              ( byte *string, int len );
+void                  Sys_SendPacket               ( int length, const void *data, netadr_t to );
+void                  Sys_SetDefaultInstallPath    ( const char *path );
+void                  Sys_SetErrorText             ( const char *text );
+void                  Sys_SetProcessorAffinity     ( void );
+void                  Sys_ShowIP                   ( void );
+void                  Sys_Sleep                    ( int msec );
+bool                  Sys_StringToAdr              ( const char *s, netadr_t *a );
+void                  Sys_UnloadDll                ( void *dllHandle );
+bool                  WIN_GL_ExtensionSupported    ( const char *extension );
+void                 *WIN_GL_GetProcAddress        ( const char *proc );
+window_t              WIN_Init                     ( const windowDesc_t *desc, struct glconfig_t *glConfig );
+void                  WIN_Present                  ( window_t *window );
+void                  WIN_SetGamma                 ( struct glconfig_t *glConfig, byte red[256], byte green[256], byte blue[256] );
+void                  WIN_Shutdown                 ( void );

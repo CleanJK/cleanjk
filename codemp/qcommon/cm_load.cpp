@@ -34,8 +34,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define	BOX_LEAFS		2
 #define	BOX_PLANES		12
 
-#define	LL(x) x=LittleLong(x)
-
 clipMap_t	cmg; //rwwRMG - changed from cm
 int			c_pointcontents;
 int			c_traces, c_brush_traces, c_patch_traces;
@@ -92,7 +90,7 @@ static void CMod_LoadSubmodels( const lump_t *l, clipMap_t &cm ) {
 
 	if (count < 1)
 		Com_Error (ERR_DROP, "Map with no models");
-	cm.cmodels = (struct cmodel_s *)Hunk_Alloc( count * sizeof( *cm.cmodels ), h_high );
+	cm.cmodels = (cmodel_t *)Hunk_Alloc( count * sizeof( *cm.cmodels ), h_high );
 	cm.numSubModels = count;
 
 	if ( count > MAX_SUBMODELS ) {
@@ -263,7 +261,7 @@ static void CMod_LoadPlanes (const lump_t *l, clipMap_t &cm)
 
 	if (count < 1)
 		Com_Error (ERR_DROP, "Map with no planes");
-	cm.planes = (struct cplane_s *)Hunk_Alloc( ( BOX_PLANES + count ) * sizeof( *cm.planes ), h_high );
+	cm.planes = (cplane_t *)Hunk_Alloc( ( BOX_PLANES + count ) * sizeof( *cm.planes ), h_high );
 	cm.numPlanes = count;
 
 	out = cm.planes;
@@ -530,7 +528,7 @@ static void CM_LoadMap_Actual( const char *name, bool clientload, int *checksum,
 		cm.numLeafs = 1;
 		cm.numClusters = 1;
 		cm.numAreas = 1;
-		cm.cmodels = (struct cmodel_s *)Hunk_Alloc( sizeof( *cm.cmodels ), h_high );
+		cm.cmodels = (cmodel_t *)Hunk_Alloc( sizeof( *cm.cmodels ), h_high );
 		if ( checksum )
 			*checksum = 0;
 		return;

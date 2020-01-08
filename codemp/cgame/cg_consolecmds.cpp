@@ -184,10 +184,10 @@ static void CG_LoadHud_f( void ) {
 	CG_LoadMenus( hudSet );
 }
 
-typedef struct consoleCommand_s {
+struct consoleCommand_t {
 	const char	*cmd;
 	void		(*func)(void);
-} consoleCommand_t;
+};
 
 int cmdcmp( const void *a, const void *b ) {
 	return Q_stricmp( (const char *)a, ((consoleCommand_t*)b)->cmd );

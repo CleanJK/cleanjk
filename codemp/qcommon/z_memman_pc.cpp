@@ -44,20 +44,17 @@ static void Z_Details_f(void);
 
 #define ZONE_MAGIC			0x21436587
 
-typedef struct zoneHeader_s
-{
-		int					iMagic;
-		memtag_t			eTag;
-		int					iSize;
-struct	zoneHeader_s		*pNext;
-struct	zoneHeader_s		*pPrev;
-} zoneHeader_t;
+struct zoneHeader_t {
+	int           iMagic;
+	memtag_t      eTag;
+	int           iSize;
+	zoneHeader_t *pNext;
+	zoneHeader_t *pPrev;
+};
 
-typedef struct
-{
+struct zoneTail_t {
 	int iMagic;
-
-} zoneTail_t;
+};
 
 static inline zoneTail_t *ZoneTailFromHeader(zoneHeader_t *pHeader)
 {
@@ -68,8 +65,7 @@ static inline zoneTail_t *ZoneTailFromHeader(zoneHeader_t *pHeader)
 map <void*,int> mapAllocatedZones;
 #endif
 
-typedef struct zoneStats_s
-{
+struct zoneStats_t {
 	int		iCount;
 	int		iCurrent;
 	int		iPeak;
@@ -80,13 +76,12 @@ typedef struct zoneStats_s
 	int		iSizesPerTag [TAG_COUNT];
 	int		iCountsPerTag[TAG_COUNT];
 
-} zoneStats_t;
+};
 
-typedef struct zone_s
-{
+struct zone_t {
 	zoneStats_t				Stats;
 	zoneHeader_t			Header;
-} zone_t;
+};
 
 zone_t	TheZone = {};
 
@@ -130,17 +125,17 @@ void Z_Validate(void)
 // static mem blocks to reduce a lot of small zone overhead
 #pragma pack(push)
 #pragma pack(1)
-typedef struct StaticZeroMem_s {
+struct StaticZeroMem_t {
 	zoneHeader_t	Header;
 //	byte mem[0];
 	zoneTail_t		Tail;
-} StaticZeroMem_t;
+};
 
-typedef struct StaticMem_s {
+struct StaticMem_t {
 	zoneHeader_t	Header;
 	byte mem[2];
 	zoneTail_t		Tail;
-} StaticMem_t;
+};
 #pragma pack(pop)
 
 StaticZeroMem_t gZeroMalloc  =

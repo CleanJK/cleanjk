@@ -24,60 +24,25 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-// ======================================================================
-// INCLUDE
-// ======================================================================
-
 #include "qcommon/q_shared.h"
 #include "rd-common/tr_types.h"
-
-// ======================================================================
-// DEFINE
-// ======================================================================
 
 #define	CGAME_API_VERSION		2
 
 #define	CMD_BACKUP			64
 #define	CMD_MASK			(CMD_BACKUP - 1)
-
 // allow a lot of command backups for very fast systems
 // multiple commands may be combined into a single packet, so this
 // needs to be larger than PACKET_BACKUP
+
 #define	MAX_ENTITIES_IN_SNAPSHOT	256
 
-//ragdoll callback structs -rww
-#define RAG_CALLBACK_NONE				0
-#define RAG_CALLBACK_DEBUGBOX			1
-
-#define RAG_CALLBACK_DEBUGLINE			2
-#define RAG_CALLBACK_BONESNAP			3
-#define RAG_CALLBACK_BONEIMPACT			4
-#define RAG_CALLBACK_BONEINSOLID		5
-#define RAG_CALLBACK_TRACELINE			6
-
-#define	MAX_CG_SHARED_BUFFER_SIZE		2048
-
-// ======================================================================
-// ENUM
-// ======================================================================
-
-typedef enum cgameEvent_e
-{
-	CGAME_EVENT_NONE = 0,
-	CGAME_EVENT_TEAMMENU,
-	CGAME_EVENT_SCOREBOARD,
-	CGAME_EVENT_EDITHUD
-} cgameEvent_t;
-
-// ======================================================================
-// STRUCT
-// ======================================================================
-
 // snapshots are a view of the server at a given time
+
 // Snapshots are generated at regular time intervals by the server,
 // but they may not be sent if a client's rate level is exceeded, or
 // they may be dropped by the network.
-typedef struct snapshot_s {
+struct snapshot_t {
 	int				snapFlags;			// SNAPFLAG_RATE_DELAYED, etc
 	int				ping;
 
@@ -93,32 +58,39 @@ typedef struct snapshot_s {
 
 	int				numServerCommands;		// text based server commands to execute when this
 	int				serverCommandSequence;	// snapshot becomes current
-} snapshot_t;
+};
 
-typedef struct autoMapInput_s {
+enum cgameEvent_t {
+	CGAME_EVENT_NONE=0,
+	CGAME_EVENT_TEAMMENU,
+	CGAME_EVENT_SCOREBOARD,
+	CGAME_EVENT_EDITHUD
+};
+
+struct autoMapInput_t {
 	float		up;
 	float		down;
 	float		yaw;
 	float		pitch;
-	bool	goToDefaults;
-} autoMapInput_t;
+	bool		goToDefaults;
+};
 
 // CG_POINT_CONTENTS
-typedef struct TCGPointContents_s {
+struct TCGPointContents {
 	vec3_t		mPoint;			// input
 	int			mPassEntityNum;	// input
-} TCGPointContents;
+};
 
 // CG_GET_BOLT_POS
-typedef struct TCGGetBoltData_s {
+struct TCGGetBoltData {
 	vec3_t		mOrigin;		// output
 	vec3_t		mAngles;		// output
 	vec3_t		mScale;			// output
 	int			mEntityNum;		// input
-} TCGGetBoltData;
+};
 
 // CG_IMPACT_MARK
-typedef struct TCGImpactMark_s {
+struct TCGImpactMark {
 	int		mHandle;
 	vec3_t	mPoint;
 	vec3_t	mAngle;
@@ -128,50 +100,50 @@ typedef struct TCGImpactMark_s {
 	float	mBlue;
 	float	mAlphaStart;
 	float	mSizeStart;
-} TCGImpactMark;
+};
 
 // CG_GET_LERP_ORIGIN
 // CG_GET_LERP_ANGLES
 // CG_GET_MODEL_SCALE
-typedef struct TCGVectorData_s {
+struct TCGVectorData {
 	int			mEntityNum;		// input
 	vec3_t		mPoint;			// output
-} TCGVectorData;
+};
 
 // CG_TRACE/CG_G2TRACE
-typedef struct TCGTrace_s {
+struct TCGTrace {
 	trace_t mResult;					// output
 	vec3_t	mStart, mMins, mMaxs, mEnd;	// input
 	int		mSkipNumber, mMask;			// input
-} TCGTrace;
+};
 
 // CG_G2MARK
-typedef struct TCGG2Mark_s {
+struct TCGG2Mark {
 	int			shader;
 	float		size;
 	vec3_t		start, dir;
-} TCGG2Mark;
+};
 
 // CG_INCOMING_CONSOLE_COMMAND
-typedef struct TCGIncomingConsoleCommand_s {
+struct TCGIncomingConsoleCommand {
 	char conCommand[1024];
-} TCGIncomingConsoleCommand;
+};
 
 // CG_FX_CAMERASHAKE
-typedef struct TCGCameraShake_s {
+struct TCGCameraShake {
 	vec3_t	mOrigin;					// input
 	float	mIntensity;					// input
 	int		mRadius;					// input
 	int		mTime;						// input
-} TCGCameraShake;
+};
 
 // CG_MISC_ENT
-typedef struct TCGMiscEnt_s {
+struct TCGMiscEnt {
 	char	mModel[MAX_QPATH];			// input
 	vec3_t	mOrigin, mAngles, mScale;	// input
-} TCGMiscEnt;
+};
 
-typedef struct TCGPositionOnBolt_s {
+struct TCGPositionOnBolt {
 	refEntity_t		ent;				// output
 	void			*ghoul2;			// input
 	int				modelIndex;			// input
@@ -179,44 +151,47 @@ typedef struct TCGPositionOnBolt_s {
 	vec3_t			origin;				// input
 	vec3_t			angles;				// input
 	vec3_t			modelScale;			// input
-} TCGPositionOnBolt;
+};
 
-typedef struct ragCallbackDebugBox_s {
+//ragdoll callback structs -rww
+#define RAG_CALLBACK_NONE				0
+#define RAG_CALLBACK_DEBUGBOX			1
+struct ragCallbackDebugBox_t {
 	vec3_t			mins;
 	vec3_t			maxs;
 	int				duration;
-} ragCallbackDebugBox_t;
+};
 
-
-typedef struct ragCallbackDebugLine_s {
+#define RAG_CALLBACK_DEBUGLINE			2
+struct ragCallbackDebugLine_t {
 	vec3_t			start;
 	vec3_t			end;
 	int				time;
 	int				color;
 	int				radius;
-} ragCallbackDebugLine_t;
+};
 
-
-typedef struct ragCallbackBoneSnap_s {
+#define RAG_CALLBACK_BONESNAP			3
+struct ragCallbackBoneSnap_t {
 	char			boneName[128]; //name of the bone in question
 	int				entNum; //index of entity who owns the bone in question
-} ragCallbackBoneSnap_t;
+};
 
-
-typedef struct ragCallbackBoneImpact_s {
+#define RAG_CALLBACK_BONEIMPACT			4
+struct ragCallbackBoneImpact_t {
 	char			boneName[128]; //name of the bone in question
 	int				entNum; //index of entity who owns the bone in question
-} ragCallbackBoneImpact_t;
+};
 
-
-typedef struct ragCallbackBoneInSolid_s {
+#define RAG_CALLBACK_BONEINSOLID		5
+struct ragCallbackBoneInSolid_t {
 	vec3_t			bonePos; //world coordinate position of the bone
 	int				entNum; //index of entity who owns the bone in question
 	int				solidCount; //higher the count, the longer we've been in solid (the worse off we are)
-} ragCallbackBoneInSolid_t;
+};
 
-
-typedef struct ragCallbackTraceLine_s {
+#define RAG_CALLBACK_TRACELINE			6
+struct ragCallbackTraceLine_t {
 	trace_t			tr;
 	vec3_t			start;
 	vec3_t			end;
@@ -224,9 +199,11 @@ typedef struct ragCallbackTraceLine_s {
 	vec3_t			maxs;
 	int				ignore;
 	int				mask;
-} ragCallbackTraceLine_t;
+};
 
-typedef struct cgameImport_s {
+#define	MAX_CG_SHARED_BUFFER_SIZE		2048
+
+struct cgameImport_t {
 	// common
 	void			(*Print)								( const char *msg, ... );
 	NORETURN_PTR void (*Error)( int level, const char *fmt, ... );
@@ -320,13 +297,13 @@ typedef struct cgameImport_s {
 	int				(*R_Font_StrLenPixels)					( const char *text, const int iFontIndex, const float scale );
 	void			(*R_GetBModelVerts)						( int bmodelIndex, vec3_t *vec, vec3_t normal );
 	float			(*R_GetDistanceCull)					( void );
-	bool		(*R_GetEntityToken)						( char *buffer, int size );
+	bool			(*R_GetEntityToken)						( char *buffer, int size );
 	void			(*R_GetLightStyle)						( int style, color4ub_t color );
 	void			(*R_GetRealRes)							( int *w, int *h );
-	bool		(*R_InitializeWireframeAutomap)			( void );
-	bool		(*R_InPVS)								( const vec3_t p1, const vec3_t p2, byte *mask );
-	bool		(*R_Language_IsAsian)					( void );
-	bool		(*R_Language_UsesSpaces)				( void );
+	bool			(*R_InitializeWireframeAutomap)			( void );
+	bool			(*R_InPVS)								( const vec3_t p1, const vec3_t p2, byte *mask );
+	bool			(*R_Language_IsAsian)					( void );
+	bool			(*R_Language_UsesSpaces)				( void );
 	int				(*R_LerpTag)							( orientation_t *tag,  qhandle_t model, int startFrame, int endFrame, float frac, const char *tagName );
 	int				(*R_LightForPoint)						( vec3_t point, vec3_t ambientLight, vec3_t directedLight, vec3_t lightDir );
 	void			(*R_LoadWorld)							( const char *name );
@@ -350,12 +327,12 @@ typedef struct cgameImport_s {
 	// client
 	void			(*GetCurrentSnapshotNumber)				( int *snapshotNumber, int *serverTime );
 	int				(*GetCurrentCmdNumber)					( void );
-	bool		(*GetDefaultState)						( int index, entityState_t *state );
+	bool			(*GetDefaultState)						( int index, entityState_t *state );
 	void			(*GetGameState)							( gameState_t *gs );
 	void			(*GetGlconfig)							( glconfig_t *glconfig );
-	bool		(*GetServerCommand)						( int serverCommandNumber );
-	bool		(*GetSnapshot)							( int snapshotNumber, snapshot_t *snapshot );
-	bool		(*GetUserCmd)							( int cmdNumber, usercmd_t *ucmd );
+	bool			(*GetServerCommand)						( int serverCommandNumber );
+	bool			(*GetSnapshot)							( int snapshotNumber, snapshot_t *snapshot );
+	bool			(*GetUserCmd)							( int cmdNumber, usercmd_t *ucmd );
 	void			(*OpenUIMenu)							( int menu );
 	void			(*SetClientForceAngle)					( int time, vec3_t angle );
 	void			(*SetUserCmdValue)						( int stateValue, float sensitivityScale, float mPitchOverride, float mYawOverride, float mSensitivityOverride, int fpSel, int invenSel, bool fighterControls );
@@ -363,7 +340,7 @@ typedef struct cgameImport_s {
 	// keys
 	int				(*Key_GetCatcher)						( void );
 	int				(*Key_GetKey)							( const char *binding );
-	bool		(*Key_IsDown)							( int keynum );
+	bool			(*Key_IsDown)							( int keynum );
 	void			(*Key_SetCatcher)						( int catcher );
 
 	// preprocessor (botlib_export->PC_***)
@@ -389,11 +366,11 @@ typedef struct cgameImport_s {
 	void			(*FX_PlayEffect)						( const char *file, vec3_t org, vec3_t fwd, int vol, int rad );
 	void			(*FX_PlayEffectID)						( int id, vec3_t org, vec3_t fwd, int vol, int rad, bool isPortal );
 	void			(*FX_PlayEntityEffectID)				( int id, vec3_t org, matrix3_t axis, const int boltInfo, const int entNum, int vol, int rad );
-	bool		(*FX_PlayBoltedEffectID)				( int id, vec3_t org, void *pGhoul2, const int boltNum, const int entNum, const int modelNum, int iLooptime, bool isRelative );
+	bool			(*FX_PlayBoltedEffectID)				( int id, vec3_t org, void *pGhoul2, const int boltNum, const int entNum, const int modelNum, int iLooptime, bool isRelative );
 	void			(*FX_AddScheduledEffects)				( bool portal );
 	int				(*FX_InitSystem)						( refdef_t *refdef );
 	void			(*FX_SetRefDef)							( refdef_t *refdef );
-	bool		(*FX_FreeSystem)						( void );
+	bool			(*FX_FreeSystem)						( void );
 	void			(*FX_AdjustTime)						( int time );
 	void			(*FX_Draw2DEffects)						( float screenXScale, float screenYScale );
 	void			(*FX_AddPoly)							( addpolyArgStruct_t *p );
@@ -403,80 +380,80 @@ typedef struct cgameImport_s {
 	void			(*FX_AddElectricity)					( addElectricityArgStruct_t *p );
 
 	// stringed
-	bool		(*SE_GetStringTextString)				( const char *text, char *buffer, int bufferLength );
+	bool			(*SE_GetStringTextString)				( const char *text, char *buffer, int bufferLength );
 
 	// roff
-	bool		(*ROFF_Clean)							( void );
+	bool			(*ROFF_Clean)							( void );
 	void			(*ROFF_UpdateEntities)					( void );
 	int				(*ROFF_Cache)							( char *file );
-	bool		(*ROFF_Play)							( int entID, int roffID, bool doTranslation );
-	bool		(*ROFF_Purge_Ent)						( int entID );
+	bool			(*ROFF_Play)							( int entID, int roffID, bool doTranslation );
+	bool			(*ROFF_Purge_Ent)						( int entID );
 
 	// ghoul2
 	void			(*G2_ListModelSurfaces)					( void *ghlInfo );
 	void			(*G2_ListModelBones)					( void *ghlInfo, int frame );
 	void			(*G2_SetGhoul2ModelIndexes)				( void *ghoul2, qhandle_t *modelList, qhandle_t *skinList );
-	bool		(*G2_HaveWeGhoul2Models)				( void *ghoul2 );
-	bool		(*G2API_GetBoltMatrix)					( void *ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix, const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, vec3_t scale );
-	bool		(*G2API_GetBoltMatrix_NoReconstruct)	( void *ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix, const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, vec3_t scale );
-	bool		(*G2API_GetBoltMatrix_NoRecNoRot)		( void *ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix, const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, vec3_t scale );
+	bool			(*G2_HaveWeGhoul2Models)				( void *ghoul2 );
+	bool			(*G2API_GetBoltMatrix)					( void *ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix, const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, vec3_t scale );
+	bool			(*G2API_GetBoltMatrix_NoReconstruct)	( void *ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix, const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, vec3_t scale );
+	bool			(*G2API_GetBoltMatrix_NoRecNoRot)		( void *ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix, const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, vec3_t scale );
 	int				(*G2API_InitGhoul2Model)				( void **ghoul2Ptr, const char *fileName, int modelIndex, qhandle_t customSkin, qhandle_t customShader, int modelFlags, int lodBias );
-	bool		(*G2API_SetSkin)						( void *ghoul2, int modelIndex, qhandle_t customSkin, qhandle_t renderSkin );
+	bool			(*G2API_SetSkin)						( void *ghoul2, int modelIndex, qhandle_t customSkin, qhandle_t renderSkin );
 	void			(*G2API_CollisionDetect)				( CollisionRecord_t *collRecMap, void* ghoul2, const vec3_t angles, const vec3_t position, int frameNumber, int entNum, vec3_t rayStart, vec3_t rayEnd, vec3_t scale, int traceFlags, int useLod, float fRadius );
 	void			(*G2API_CollisionDetectCache)			( CollisionRecord_t *collRecMap, void* ghoul2, const vec3_t angles, const vec3_t position,int frameNumber, int entNum, vec3_t rayStart, vec3_t rayEnd, vec3_t scale, int traceFlags, int useLod, float fRadius );
 	void			(*G2API_CleanGhoul2Models)				( void **ghoul2Ptr );
-	bool		(*G2API_SetBoneAngles)					( void *ghoul2, int modelIndex, const char *boneName, const vec3_t angles, const int flags, const int up, const int right, const int forward, qhandle_t *modelList, int blendTime , int currentTime );
-	bool		(*G2API_SetBoneAnim)					( void *ghoul2, const int modelIndex, const char *boneName, const int startFrame, const int endFrame, const int flags, const float animSpeed, const int currentTime, const float setFrame, const int blendTime );
-	bool		(*G2API_GetBoneAnim)					( void *ghoul2, const char *boneName, const int currentTime, float *currentFrame, int *startFrame, int *endFrame, int *flags, float *animSpeed, int *modelList, const int modelIndex );
-	bool		(*G2API_GetBoneFrame)					( void *ghoul2, const char *boneName, const int currentTime, float *currentFrame, int *modelList, const int modelIndex );
+	bool			(*G2API_SetBoneAngles)					( void *ghoul2, int modelIndex, const char *boneName, const vec3_t angles, const int flags, const int up, const int right, const int forward, qhandle_t *modelList, int blendTime , int currentTime );
+	bool			(*G2API_SetBoneAnim)					( void *ghoul2, const int modelIndex, const char *boneName, const int startFrame, const int endFrame, const int flags, const float animSpeed, const int currentTime, const float setFrame, const int blendTime );
+	bool			(*G2API_GetBoneAnim)					( void *ghoul2, const char *boneName, const int currentTime, float *currentFrame, int *startFrame, int *endFrame, int *flags, float *animSpeed, int *modelList, const int modelIndex );
+	bool			(*G2API_GetBoneFrame)					( void *ghoul2, const char *boneName, const int currentTime, float *currentFrame, int *modelList, const int modelIndex );
 	void			(*G2API_GetGLAName)						( void *ghoul2, int modelIndex, char *fillBuf );
 	int				(*G2API_CopyGhoul2Instance)				( void *g2From, void *g2To, int modelIndex );
 	void			(*G2API_CopySpecificGhoul2Model)		( void *g2From, int modelFrom, void *g2To, int modelTo );
 	void			(*G2API_DuplicateGhoul2Instance)		( void *g2From, void **g2To );
-	bool		(*G2API_HasGhoul2ModelOnIndex)			( void *ghlInfo, int modelIndex );
-	bool		(*G2API_RemoveGhoul2Model)				( void *ghlInfo, int modelIndex );
-	bool		(*G2API_SkinlessModel)					( void *ghlInfo, int modelIndex );
+	bool			(*G2API_HasGhoul2ModelOnIndex)			( void *ghlInfo, int modelIndex );
+	bool			(*G2API_RemoveGhoul2Model)				( void *ghlInfo, int modelIndex );
+	bool			(*G2API_SkinlessModel)					( void *ghlInfo, int modelIndex );
 	int				(*G2API_GetNumGoreMarks)				( void *ghlInfo, int modelIndex );
 	void			(*G2API_AddSkinGore)					( void *ghlInfo, SSkinGoreData *gore );
 	void			(*G2API_ClearSkinGore)					( void *ghlInfo );
 	int				(*G2API_Ghoul2Size)						( void *ghlInfo );
 	int				(*G2API_AddBolt)						( void *ghoul2, int modelIndex, const char *boneName );
-	bool		(*G2API_AttachEnt)						( int *boltInfo, void *ghlInfoTo, int toBoltIndex, int entNum, int toModelNum );
+	bool			(*G2API_AttachEnt)						( int *boltInfo, void *ghlInfoTo, int toBoltIndex, int entNum, int toModelNum );
 	void			(*G2API_SetBoltInfo)					( void *ghoul2, int modelIndex, int boltInfo );
-	bool		(*G2API_SetRootSurface)					( void *ghoul2, const int modelIndex, const char *surfaceName );
-	bool		(*G2API_SetSurfaceOnOff)				( void *ghoul2, const char *surfaceName, const int flags );
-	bool		(*G2API_SetNewOrigin)					( void *ghoul2, const int boltIndex );
-	bool		(*G2API_DoesBoneExist)					( void *ghoul2, int modelIndex, const char *boneName );
+	bool			(*G2API_SetRootSurface)					( void *ghoul2, const int modelIndex, const char *surfaceName );
+	bool			(*G2API_SetSurfaceOnOff)				( void *ghoul2, const char *surfaceName, const int flags );
+	bool			(*G2API_SetNewOrigin)					( void *ghoul2, const int boltIndex );
+	bool			(*G2API_DoesBoneExist)					( void *ghoul2, int modelIndex, const char *boneName );
 	int				(*G2API_GetSurfaceRenderStatus)			( void *ghoul2, const int modelIndex, const char *surfaceName );
 	int				(*G2API_GetTime)						( void );
 	void			(*G2API_SetTime)						( int time, int clock );
 	void			(*G2API_AbsurdSmoothing)				( void *ghoul2, bool status );
 	void			(*G2API_SetRagDoll)						( void *ghoul2, sharedRagDollParams_t *params );
 	void			(*G2API_AnimateG2Models)				( void *ghoul2, int time, sharedRagDollUpdateParams_t *params );
-	bool		(*G2API_RagPCJConstraint)				( void *ghoul2, const char *boneName, vec3_t min, vec3_t max );
-	bool		(*G2API_RagPCJGradientSpeed)			( void *ghoul2, const char *boneName, const float speed );
-	bool		(*G2API_RagEffectorGoal)				( void *ghoul2, const char *boneName, vec3_t pos );
-	bool		(*G2API_GetRagBonePos)					( void *ghoul2, const char *boneName, vec3_t pos, vec3_t entAngles, vec3_t entPos, vec3_t entScale );
-	bool		(*G2API_RagEffectorKick)				( void *ghoul2, const char *boneName, vec3_t velocity );
-	bool		(*G2API_RagForceSolve)					( void *ghoul2, bool force );
-	bool		(*G2API_SetBoneIKState)					( void *ghoul2, int time, const char *boneName, int ikState, sharedSetBoneIKStateParams_t *params );
-	bool		(*G2API_IKMove)							( void *ghoul2, int time, sharedIKMoveParams_t *params );
-	bool		(*G2API_RemoveBone)						( void *ghoul2, const char *boneName, int modelIndex );
+	bool			(*G2API_RagPCJConstraint)				( void *ghoul2, const char *boneName, vec3_t min, vec3_t max );
+	bool			(*G2API_RagPCJGradientSpeed)			( void *ghoul2, const char *boneName, const float speed );
+	bool			(*G2API_RagEffectorGoal)				( void *ghoul2, const char *boneName, vec3_t pos );
+	bool			(*G2API_GetRagBonePos)					( void *ghoul2, const char *boneName, vec3_t pos, vec3_t entAngles, vec3_t entPos, vec3_t entScale );
+	bool			(*G2API_RagEffectorKick)				( void *ghoul2, const char *boneName, vec3_t velocity );
+	bool			(*G2API_RagForceSolve)					( void *ghoul2, bool force );
+	bool			(*G2API_SetBoneIKState)					( void *ghoul2, int time, const char *boneName, int ikState, sharedSetBoneIKStateParams_t *params );
+	bool			(*G2API_IKMove)							( void *ghoul2, int time, sharedIKMoveParams_t *params );
+	bool			(*G2API_RemoveBone)						( void *ghoul2, const char *boneName, int modelIndex );
 	void			(*G2API_AttachInstanceToEntNum)			( void *ghoul2, int entityNum, bool server );
 	void			(*G2API_ClearAttachedInstance)			( int entityNum );
 	void			(*G2API_CleanEntAttachments)			( void );
-	bool		(*G2API_OverrideServer)					( void *serverInstance );
+	bool			(*G2API_OverrideServer)					( void *serverInstance );
 	void			(*G2API_GetSurfaceName)					( void *ghoul2, int surfNumber, int modelIndex, char *fillBuf );
 
 	struct {
 		float			(*R_Font_StrLenPixels)					( const char *text, const int iFontIndex, const float scale );
 	} ext;
-} cgameImport_t;
+};
 
-typedef struct cgameExport_s {
+struct cgameExport_t {
 	void			(*Init)						( int serverMessageNum, int serverCommandSequence, int clientNum );
 	void			(*Shutdown)					( void );
-	bool		(*ConsoleCommand)			( void );
+	bool			(*ConsoleCommand)			( void );
 	void			(*DrawActiveFrame)			( int serverTime, stereoFrame_t stereoView, bool demoPlayback );
 	int				(*CrosshairPlayer)			( void );
 	int				(*LastAttacker)				( void );
@@ -490,8 +467,8 @@ typedef struct cgameExport_s {
 	void			(*G2Trace)					( void );
 	void			(*G2Mark)					( void );
 	int				(*RagCallback)				( int callType );
-	bool		(*IncomingConsoleCommand)	( void );
-	bool		(*NoUseableForce)			( void );
+	bool			(*IncomingConsoleCommand)	( void );
+	bool			(*NoUseableForce)			( void );
 	void			(*GetOrigin)				( int entID, vec3_t out );
 	void			(*GetAngles)				( int entID, vec3_t out );
 	trajectory_t *	(*GetOriginTrajectory)		( int entID );
@@ -501,7 +478,7 @@ typedef struct cgameExport_s {
 	void			(*AutomapInput)				( void );
 	void			(*MiscEnt)					( void );
 	void			(*CameraShake)				( void );
-} cgameExport_t;
+};
 
 //linking of cgame library
 typedef cgameExport_t* (QDECL *GetCGameAPI_t)( int apiVersion, cgameImport_t *import );

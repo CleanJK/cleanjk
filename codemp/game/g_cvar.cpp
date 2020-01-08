@@ -34,14 +34,14 @@ static void CVU_Derpity( void ) {
 
 // Cvar table
 
-typedef struct cvarTable_s {
+struct cvarTable_t {
 	vmCvar_t	*vmCvar;
 	char		*cvarName;
 	char		*defaultString;
 	void		(*update)( void );
 	uint32_t	cvarFlags;
-	bool	trackChange; // announce if value changes
-} cvarTable_t;
+	bool		trackChange; // announce if value changes
+};
 
 #define XCVAR_DECL
 	#include "game/g_xcvar.h"

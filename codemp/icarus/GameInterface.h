@@ -23,53 +23,36 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-// ======================================================================
-// INCLUDE
-// ======================================================================
-
 #include <map>
 #include <string>
 
-// ======================================================================
-// DEFINE
-// ======================================================================
-
-using entlist_t = std::map <std::string, int>;
-
-// ======================================================================
-// STRUCT
-// ======================================================================
-
-typedef struct pscript_s
-{
+struct pscript_t {
 	char	*buffer;
 	long	length;
-} pscript_t;
+};
 
+using entlist_t = std::map <std::string, int>;
 using bufferlist_t = std::map <std::string, pscript_t*>;
 
-// ======================================================================
-// EXTERN VARIABLE
-// ======================================================================
+//ICARUS includes
+#include "interface.h"
 
-extern struct interface_export_s interface_export;
-extern int ICARUS_entFilter;
-extern class ICARUS_Instance* iICARUS;
-extern bufferlist_t	ICARUS_BufferList;
-extern entlist_t ICARUS_EntList;
+extern interface_export_t	interface_export;
+extern int		ICARUS_entFilter;
+extern class ICARUS_Instance	*iICARUS;
+extern bufferlist_t		ICARUS_BufferList;
+extern entlist_t		ICARUS_EntList;
 
-// ======================================================================
-// FUNCTION
-// ======================================================================
+int  ICARUS_RunScript( sharedEntity_t *ent, const char *name );
+bool ICARUS_RegisterScript( const char *name, bool bCalledDuringInterrogate = false);
+void ICARUS_Init( void );
+bool ICARUS_ValidEnt( sharedEntity_t *ent );
+void ICARUS_InitEnt( sharedEntity_t *ent );
+void ICARUS_FreeEnt( sharedEntity_t *ent );
+void ICARUS_AssociateEnt( sharedEntity_t *ent );
+void ICARUS_Shutdown( void );
+int ICARUS_GetScript( const char *name, char **buf );
+int ICARUS_LinkEntity( int entID, class CSequencer *sequencer, class CTaskManager *taskManager );
+void Interface_Init( interface_export_t *pe );
+void Svcmd_ICARUS_f( void );
 
-bool ICARUS_RegisterScript(const char* name, bool bCalledDuringInterrogate = false);
-bool ICARUS_ValidEnt(sharedEntity_t* ent);
-int ICARUS_GetScript(const char* name, char** buf);
-int ICARUS_LinkEntity(int entID, class CSequencer* sequencer, class CTaskManager* taskManager);
-int ICARUS_RunScript(sharedEntity_t* ent, const char* name);
-void ICARUS_AssociateEnt(sharedEntity_t* ent);
-void ICARUS_FreeEnt(sharedEntity_t* ent);
-void ICARUS_Init(void);
-void ICARUS_InitEnt(sharedEntity_t* ent);
-void ICARUS_Shutdown(void);
-void Interface_Init(struct interface_export_s* pe);

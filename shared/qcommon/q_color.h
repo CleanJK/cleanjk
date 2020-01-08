@@ -23,15 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-// ======================================================================
-// INCLUDE
-// ======================================================================
-
 #include "qcommon/q_math.h"
-
-// ======================================================================
-// DEFINE
-// ======================================================================
 
 #define	MAKERGB( v, r, g, b ) v[0]=r;v[1]=g;v[2]=b
 #define	MAKERGBA( v, r, g, b, a ) v[0]=r;v[1]=g;v[2]=b;v[3]=a
@@ -66,12 +58,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define S_COLOR_ORANGE	"^8"
 #define S_COLOR_GREY	"^9"
 
-// ======================================================================
-// ENUM
-// ======================================================================
-
-typedef enum ct_table_e
-{
+enum ct_table_t {
 	CT_NONE,
 	CT_BLACK,
 	CT_RED,
@@ -156,20 +143,27 @@ typedef enum ct_table_e
 	CT_TITLE,
 
 	CT_MAX
-} ct_table_t;
+};
 
-// ======================================================================
-// EXTERN VARIABLE
-// ======================================================================
-
+extern vec4_t colorBlack;
+extern vec4_t colorRed;
+extern vec4_t colorGreen;
+extern vec4_t colorBlue;
+extern vec4_t colorYellow;
+extern vec4_t colorOrange;
+extern vec4_t colorMagenta;
+extern vec4_t colorCyan;
 extern vec4_t colorWhite;
-extern vec4_t colorTable[CT_MAX];
+extern vec4_t colorLtGrey;
+extern vec4_t colorMdGrey;
+extern vec4_t colorDkGrey;
+extern vec4_t colorLtBlue;
+extern vec4_t colorDkBlue;
+
 extern vec4_t g_color_table[Q_COLOR_BITS+1];
+extern vec4_t colorTable[CT_MAX];
 
-// ======================================================================
-// FUNCTION
-// ======================================================================
-
-float NormalizeColor( const vec3_t in, vec3_t out );
 unsigned ColorBytes3 (float r, float g, float b);
 unsigned ColorBytes4 (float r, float g, float b, float a);
+float NormalizeColor( const vec3_t in, vec3_t out );
+

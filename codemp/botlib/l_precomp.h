@@ -67,33 +67,30 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // ======================================================================
 
 //macro definitions
-typedef struct define_s
-{
-	char *name;							//define name
-	int flags;							//define flags
-	int builtin;						// > 0 if builtin define
-	int numparms;						//number of define parameters
-	token_t *parms;						//define parameters
-	token_t *tokens;					//macro tokens (possibly containing parm tokens)
-	struct define_s *next;				//next defined macro in a list
-	struct define_s *hashnext;			//next define in the hash chain
-	struct define_s *globalnext;		//used to link up the globald defines
-} define_t;
+struct define_t {
+	char     *name;       // define name
+	int       flags;      // define flags
+	int       builtin;    //  > 0 if builtin define
+	int       numparms;   // number of define parameters
+	token_t  *parms;      // define parameters
+	token_t  *tokens;     // macro tokens (possibly containing parm tokens)
+	define_t *next;       // next defined macro in a list
+	define_t *hashnext;   // next define in the hash chain
+	define_t *globalnext; // used to link up the globald defines
+};
 
 //indents
 //used for conditional compilation directives:
 //#if, #else, #elif, #ifdef, #ifndef
-typedef struct indent_s
-{
+struct indent_t {
 	int type;								//indent type
 	int skip;								//true if skipping current indent
 	script_t *script;						//script the indent was in
-	struct indent_s *next;					//next indent on the indent stack
-} indent_t;
+	indent_t *next;					//next indent on the indent stack
+};
 
 //source file
-typedef struct source_s
-{
+struct source_t {
 	char filename[1024];					//file name of the script
 	char includepath[1024];					//path to include files
 	punctuation_t *punctuations;			//punctuations to use
@@ -104,7 +101,7 @@ typedef struct source_s
 	indent_t *indentstack;					//stack with indents
 	int skip;								// > 0 if skipping conditional code
 	token_t token;							//last read token
-} source_t;
+};
 
 // ======================================================================
 // STRUCT

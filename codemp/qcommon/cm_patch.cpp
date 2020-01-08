@@ -31,7 +31,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 This file does not reference any globals, and has these entry points:
 
-struct patchCollide_s	*CM_GeneratePatchCollide( int width, int height, const vec3_t *points );
+patchCollide_t *CM_GeneratePatchCollide( int width, int height, const vec3_t *points );
 
 Issues for collision against curved surfaces:
 
@@ -836,12 +836,12 @@ static inline void CM_AddFacetBevels( facet_t *facet ) {
 	facet->numBorders++;
 }
 
-typedef enum {
+enum edgeName_t {
 	EN_TOP,
 	EN_RIGHT,
 	EN_BOTTOM,
 	EN_LEFT
-} edgeName_t;
+};
 
 static inline void CM_PatchCollideFromGrid( cGrid_t *grid, patchCollide_t *pf ) {
 	int				i, j;
@@ -1014,7 +1014,7 @@ static inline void CM_PatchCollideFromGrid( cGrid_t *grid, patchCollide_t *pf ) 
 
 // Creates an internal structure that will be used to perform collision detection with a patch mesh.
 // Points is packed as concatenated rows.
-struct patchCollide_s	*CM_GeneratePatchCollide( int width, int height, vec3_t *points ) {
+patchCollide_t	*CM_GeneratePatchCollide( int width, int height, vec3_t *points ) {
 	patchCollide_t	*pf;
 	cGrid_t			grid;
 	int				i, j;
@@ -1057,7 +1057,7 @@ struct patchCollide_s	*CM_GeneratePatchCollide( int width, int height, vec3_t *p
 	// we now have a grid of points exactly on the curve
 	// the approximate surface defined by these points will be
 	// collided against
-	pf = (struct patchCollide_s *)Hunk_Alloc( sizeof( *pf ), h_high );
+	pf = (patchCollide_t *)Hunk_Alloc( sizeof( *pf ), h_high );
 	ClearBounds( pf->bounds[0], pf->bounds[1] );
 	for ( i = 0 ; i < grid.width ; i++ ) {
 		for ( j = 0 ; j < grid.height ; j++ ) {
@@ -1085,8 +1085,8 @@ struct patchCollide_s	*CM_GeneratePatchCollide( int width, int height, vec3_t *p
 // TRACE TESTING
 
 // special case for point traces because the patch collide "brushes" have no volume
-static inline void CM_TracePointThroughPatchCollide( traceWork_t *tw, trace_t &trace, const struct patchCollide_s *pc ) {
-	bool	frontFacing[MAX_PATCH_PLANES] = { 0 };
+static inline void CM_TracePointThroughPatchCollide( traceWork_t *tw, trace_t &trace, const patchCollide_t *pc ) {
+	bool	frontFacing[MAX_PATCH_PLANES];
 	float		intersection[MAX_PATCH_PLANES];
 	float		intersect;
 	const patchPlane_t	*planes;
@@ -1210,7 +1210,7 @@ static inline int CM_CheckFacetPlane(float *plane, vec3_t start, vec3_t end, flo
 	return true;
 }
 
-void CM_TraceThroughPatchCollide( traceWork_t *tw, trace_t &trace, const struct patchCollide_s *pc )
+void CM_TraceThroughPatchCollide( traceWork_t *tw, trace_t &trace, const patchCollide_t *pc )
 {
 	int i, j, hit, hitnum;
 	float offset, enterFrac, leaveFrac, t;
@@ -1342,7 +1342,7 @@ void CM_TraceThroughPatchCollide( traceWork_t *tw, trace_t &trace, const struct 
 // POSITION DETECTION
 
 // Modifies tr->tr if any of the facets effect the trace
-bool CM_PositionTestInPatchCollide( traceWork_t *tw, const struct patchCollide_s *pc ) {
+bool CM_PositionTestInPatchCollide( traceWork_t *tw, const patchCollide_t *pc ) {
 	int i, j;
 	float offset, t;
 	patchPlane_t *planes;

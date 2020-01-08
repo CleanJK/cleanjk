@@ -330,7 +330,7 @@ static void MakeSkyVec( float s, float t, int axis, float outSt[2], vec3_t outXY
 static vec3_t	s_skyPoints[SKY_SUBDIVISIONS+1][SKY_SUBDIVISIONS+1];
 static float	s_skyTexCoords[SKY_SUBDIVISIONS+1][SKY_SUBDIVISIONS+1][2];
 
-static void DrawSkySide( struct image_s *image, const int mins[2], const int maxs[2] )
+static void DrawSkySide( image_t *image, const int mins[2], const int maxs[2] )
 {
 	int s, t;
 

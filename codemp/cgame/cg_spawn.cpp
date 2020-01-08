@@ -206,10 +206,10 @@ void SP_misc_weather_zone( void ) {
 
 	trap->WE_AddWeatherZone( mins, maxs );
 }
-typedef struct spawn_s {
+struct spawn_t {
 	const char	*name;
 	void		(*spawn)( void );
-} spawn_t;
+};
 
 const spawn_t spawns [] = {
 	{ "misc_model_static",     SP_misc_model_static },

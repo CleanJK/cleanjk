@@ -23,10 +23,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-// ======================================================================
-// DEFINE
-// ======================================================================
-
 #define ARMOR_EFFECT_TIME	500
 
 //saberEventFlags
@@ -58,18 +54,16 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define FORCE_LIGHTNING_RADIUS 300
 #define MAX_DRAIN_DISTANCE 512
 
-#define SABERMINS_X -3.0f //-24.0f
-#define SABERMINS_Y -3.0f //-24.0f
-#define SABERMINS_Z -3.0f //-8.0f
-#define SABERMAXS_X 3.0f //24.0f
-#define SABERMAXS_Y 3.0f //24.0f
-#define SABERMAXS_Z 3.0f //8.0f
+#define SABERMINS_X -3.0f//-24.0f
+#define SABERMINS_Y -3.0f//-24.0f
+#define SABERMINS_Z -3.0f//-8.0f
+#define SABERMAXS_X 3.0f//24.0f
+#define SABERMAXS_Y 3.0f//24.0f
+#define SABERMAXS_Z 3.0f//8.0f
 #define	SABER_MIN_THROW_DIST	80.0f
-
-// ======================================================================
-// EXTERN VARIABLE
-// ======================================================================
 
 extern int forcePowerNeeded[NUM_FORCE_POWER_LEVELS][NUM_FORCE_POWERS];
 extern float forceJumpHeight[NUM_FORCE_POWER_LEVELS];
 extern float forceJumpStrength[NUM_FORCE_POWER_LEVELS];
+extern float forcePushPullRadius[NUM_FORCE_POWER_LEVELS];
+

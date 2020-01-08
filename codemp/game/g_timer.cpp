@@ -30,12 +30,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #define MAX_GTIMERS	16384
 
-typedef struct gtimer_s
-{
+struct gtimer_t {
 	const char *name;
 	int time;
-	struct gtimer_s *next;	// In either free list or current list
-} gtimer_t;
+	gtimer_t *next;	// In either free list or current list
+};
 
 gtimer_t g_timerPool[ MAX_GTIMERS ];
 gtimer_t *g_timers[ MAX_GENTITIES ];

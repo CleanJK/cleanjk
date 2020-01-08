@@ -43,8 +43,7 @@ int numblocks;
 
 #ifdef MEMORYMANEGER
 
-typedef struct memoryblock_s
-{
+struct memoryblock_t {
 	unsigned long int id;
 	void *ptr;
 	int size;
@@ -53,8 +52,8 @@ typedef struct memoryblock_s
 	char *file;
 	int line;
 #endif //MEMDEBUG
-	struct memoryblock_s *prev, *next;
-} memoryblock_t;
+	memoryblock_t *prev, *next;
+};
 
 memoryblock_t *memory;
 

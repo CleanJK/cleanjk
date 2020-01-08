@@ -334,9 +334,6 @@ public:
 	CPrimitiveTemplate &operator=(const CPrimitiveTemplate &that);
 };
 
-// forward declaration
-struct SEffectTemplate;
-
 // Effects are built of one or more primitives
 struct SEffectTemplate
 {

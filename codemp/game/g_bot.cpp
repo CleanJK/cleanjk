@@ -32,7 +32,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #define BOT_SPAWN_QUEUE_DEPTH	16
 
-static struct botSpawnQueue_s {
+static struct botSpawnQueue_t {
 	int		clientNum;
 	int		spawnTime;
 } botSpawnQueue[BOT_SPAWN_QUEUE_DEPTH];

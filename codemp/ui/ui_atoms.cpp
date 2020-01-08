@@ -64,10 +64,10 @@ static void UI_OpenMenu_f( void ) {
 		trap->Key_SetCatcher( KEYCATCH_UI );
 }
 
-typedef struct consoleCommand_s {
+struct consoleCommand_t {
 	const char	*cmd;
 	void		(*func)(void);
-} consoleCommand_t;
+};
 
 int cmdcmp( const void *a, const void *b ) {
 	return Q_stricmp( (const char *)a, ((consoleCommand_t*)b)->cmd );

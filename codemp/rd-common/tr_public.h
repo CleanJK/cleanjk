@@ -45,7 +45,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // ======================================================================
 
 // these are the functions exported by the refresh module
-typedef struct refexport_s {
+struct refexport_t {
 	// called before the library is unloaded
 	// if the system is just reconfiguring, pass destroyWindow = false,
 	// which will keep the screen from flashing to the desktop.
@@ -246,10 +246,10 @@ typedef struct refexport_s {
 		float				(*Font_StrLenPixels)					( const char *text, const int iFontIndex, const float scale );
 	} ext;
 
-} refexport_t;
+};
 
 // these are the functions imported by the refresh module
-typedef struct refimport_s {
+struct refimport_t {
 	void			(QDECL *Printf)						( int printLevel, const char *fmt, ...) __attribute__ ((format (printf, 2, 3)));
 	void			(QDECL *Error)						( int errorLevel, const char *fmt, ...) NORETURN_PTR __attribute__ ((format (printf, 2, 3)));
 	void			(QDECL *OPrintf)					( const char *fmt, ...) __attribute__ ((format (printf, 1, 2)));
@@ -345,7 +345,7 @@ typedef struct refimport_s {
 	// Persistent data store
 	bool			(*PD_Store)							( const char *name, const void *data, size_t size );
 	const void *	(*PD_Load)							( const char *name, size_t *size );
-} refimport_t;
+};
 
 // this is the only function actually exported at the linker level
 // If the module can't init to a valid rendering state, nullptr will be

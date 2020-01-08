@@ -1109,10 +1109,10 @@ static void SV_UpdateUserinfo_f( client_t *cl ) {
 	GVM_ClientUserinfoChanged( cl - svs.clients );
 }
 
-typedef struct ucmd_s {
+struct ucmd_t {
 	const char	*name;
 	void	(*func)( client_t *cl );
-} ucmd_t;
+};
 
 static const ucmd_t ucmds[] = {
 	{ "userinfo",   SV_UpdateUserinfo_f },

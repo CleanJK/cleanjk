@@ -23,11 +23,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "cgame/cg_local.h"
 
-typedef struct clightstyle_s {
+struct clightstyle_t {
 	int				length;
 	color4ub_t		value;
 	color4ub_t		map[MAX_QPATH];
-} clightstyle_t;
+};
 
 static	clightstyle_t	cl_lightstyle[MAX_LIGHT_STYLES];
 static	int				lastofs;

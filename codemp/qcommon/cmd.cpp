@@ -35,11 +35,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define	MAX_CMD_BUFFER	128*1024
 #define	MAX_CMD_LINE	1024
 
-typedef struct cmd_s {
+struct cmd_t {
 	byte	*data;
 	int		maxsize;
 	int		cursize;
-} cmd_t;
+};
 
 int			cmd_wait;
 cmd_t		cmd_text;
@@ -270,14 +270,13 @@ static void Cmd_Echo_f (void)
 
 // COMMAND EXECUTION
 
-typedef struct cmd_function_s
-{
-	struct cmd_function_s	*next;
+struct cmd_function_t {
+	cmd_function_t *next;
 	char					*name;
 	char					*description;
 	xcommand_t				function;
 	completionFunc_t		complete;
-} cmd_function_t;
+};
 
 static	int			cmd_argc;
 static	char		*cmd_argv[MAX_STRING_TOKENS];		// points into cmd_tokenized
@@ -528,7 +527,7 @@ void	Cmd_AddCommand( const char *cmd_name, xcommand_t function, const char *cmd_
 	}
 
 	// use a small malloc to avoid zone fragmentation
-	cmd = (struct cmd_function_s *)S_Malloc (sizeof(cmd_function_t));
+	cmd = (cmd_function_t *)S_Malloc (sizeof(cmd_function_t));
 	cmd->name = CopyString( cmd_name );
 	if ( VALIDSTRING( cmd_desc ) )
 		cmd->description = CopyString( cmd_desc );

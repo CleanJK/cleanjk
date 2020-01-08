@@ -357,6 +357,10 @@ static QINLINE float FloatSwap(float f)
 	#error "Endianness not defined"
 #endif
 
+#define LL( x ) x = LittleLong( x )
+#define LS( x ) x = LittleShort( x )
+#define LF( x ) x = LittleFloat( x )
+
 // platform string
 #if defined(NDEBUG)
 	#define PLATFORM_STRING OS_STRING "-" ARCH_STRING
@@ -366,7 +370,7 @@ static QINLINE float FloatSwap(float f)
 
 // to support https://reproducible-builds.org/specs/source-date-epoch/
 #ifndef SOURCE_DATE
-#define SOURCE_DATE __DATE__
+	#define SOURCE_DATE __DATE__
 #endif
 
 #if defined(_MSC_VER) && !defined(WIN64)

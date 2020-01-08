@@ -31,7 +31,7 @@ static const vec3_t WHITE =		{ 1.00f,	1.0f,	1.0f };
 static const vec3_t BRIGHT =	{ 0.75f,	0.5f,	1.0f };
 static const vec3_t	YELLER =	{ 0.80f,	0.7f,	0.0f };
 
-void FX_BlasterProjectileThink( centity_t *cent, const struct weaponInfo_s *weapon ) {
+void FX_BlasterProjectileThink( centity_t *cent, const weaponInfo_t *weapon ) {
 	vec3_t forward;
 
 	if ( VectorNormalize2( cent->currentState.pos.trDelta, forward ) == 0.0f ) {
@@ -41,7 +41,7 @@ void FX_BlasterProjectileThink( centity_t *cent, const struct weaponInfo_s *weap
 	trap->FX_PlayEffectID( media.efx.null, cent->lerpOrigin, forward, -1, -1, false );
 }
 
-void FX_BlasterAltFireThink( centity_t *cent, const struct weaponInfo_s *weapon ) {
+void FX_BlasterAltFireThink( centity_t *cent, const weaponInfo_t *weapon ) {
 	vec3_t forward;
 
 	if ( VectorNormalize2( cent->currentState.pos.trDelta, forward ) == 0.0f ) {
@@ -59,7 +59,7 @@ void FX_BlasterWeaponHitPlayer( vec3_t origin, vec3_t normal, bool humanoid ) {
 	trap->FX_PlayEffectID( humanoid ? media.efx.null : media.efx.null, origin, normal, -1, -1, false );
 }
 
-void FX_BowcasterProjectileThink( centity_t *cent, const struct weaponInfo_s *weapon ) {
+void FX_BowcasterProjectileThink( centity_t *cent, const weaponInfo_t *weapon ) {
 	vec3_t forward;
 
 	if ( VectorNormalize2( cent->currentState.pos.trDelta, forward ) == 0.0f ) {
@@ -77,7 +77,7 @@ void FX_BowcasterHitPlayer( vec3_t origin, vec3_t normal, bool humanoid ) {
 	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, false );
 }
 
-void FX_BowcasterAltProjectileThink( centity_t *cent, const struct weaponInfo_s *weapon ) {
+void FX_BowcasterAltProjectileThink( centity_t *cent, const weaponInfo_t *weapon ) {
 	vec3_t forward;
 
 	if ( VectorNormalize2( cent->currentState.pos.trDelta, forward ) == 0.0f ) {
@@ -87,7 +87,7 @@ void FX_BowcasterAltProjectileThink( centity_t *cent, const struct weaponInfo_s 
 	trap->FX_PlayEffectID( media.efx.null, cent->lerpOrigin, forward, -1, -1, false );
 }
 
-void FX_BryarProjectileThink( centity_t *cent, const struct weaponInfo_s *weapon ) {
+void FX_BryarProjectileThink( centity_t *cent, const weaponInfo_t *weapon ) {
 	vec3_t forward;
 
 	if ( VectorNormalize2( cent->currentState.pos.trDelta, forward ) == 0.0f ) {
@@ -105,7 +105,7 @@ void FX_BryarHitPlayer( vec3_t origin, vec3_t normal, bool humanoid ) {
 	trap->FX_PlayEffectID( humanoid ? media.efx.null : media.efx.null, origin, normal, -1, -1, false );
 }
 
-void FX_BryarAltProjectileThink(  centity_t *cent, const struct weaponInfo_s *weapon ) {
+void FX_BryarAltProjectileThink(  centity_t *cent, const weaponInfo_t *weapon ) {
 	vec3_t forward;
 	int t;
 
@@ -146,7 +146,7 @@ void FX_BryarAltHitPlayer( vec3_t origin, vec3_t normal, bool humanoid ) {
 	trap->FX_PlayEffectID( humanoid ? media.efx.null : media.efx.null, origin, normal, -1, -1, false );
 }
 
-void FX_TurretProjectileThink(  centity_t *cent, const struct weaponInfo_s *weapon ) {
+void FX_TurretProjectileThink(  centity_t *cent, const weaponInfo_t *weapon ) {
 	vec3_t forward;
 
 	if ( VectorNormalize2( cent->currentState.pos.trDelta, forward ) == 0.0f ) {
@@ -172,7 +172,7 @@ void FX_ConcussionHitPlayer( vec3_t origin, vec3_t normal, bool humanoid ) {
 	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, false );
 }
 
-void FX_ConcussionProjectileThink(  centity_t *cent, const struct weaponInfo_s *weapon ) {
+void FX_ConcussionProjectileThink(  centity_t *cent, const weaponInfo_t *weapon ) {
 	vec3_t forward;
 
 	if ( VectorNormalize2( cent->currentState.pos.trDelta, forward ) == 0.0f ) {
@@ -194,7 +194,7 @@ void FX_ConcAltShot( vec3_t start, vec3_t end ) {
 	trap->FX_AddLine( start, end, 0.1f, 7.0f, 0.0f, 1.0f, 0.0f, 0.0f, BRIGHT, BRIGHT, 0.0f, 150, whiteLineShader, FX_SIZE_LINEAR | FX_ALPHA_LINEAR );
 }
 
-void FX_DEMP2_ProjectileThink( centity_t *cent, const struct weaponInfo_s *weapon ) {
+void FX_DEMP2_ProjectileThink( centity_t *cent, const weaponInfo_t *weapon ) {
 	vec3_t forward;
 
 	if ( VectorNormalize2( cent->currentState.pos.trDelta, forward ) == 0.0f ) {
@@ -316,7 +316,7 @@ void FX_DisruptorHitPlayer( vec3_t origin, vec3_t normal, bool humanoid ) {
 	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, false );
 }
 
-void FX_FlechetteProjectileThink( centity_t *cent, const struct weaponInfo_s *weapon ) {
+void FX_FlechetteProjectileThink( centity_t *cent, const weaponInfo_t *weapon ) {
 	vec3_t forward;
 
 	if ( VectorNormalize2( cent->currentState.pos.trDelta, forward ) == 0.0f ) {
@@ -334,7 +334,7 @@ void FX_FlechetteWeaponHitPlayer( vec3_t origin, vec3_t normal, bool humanoid ) 
 	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, false );
 }
 
-void FX_FlechetteAltProjectileThink( centity_t *cent, const struct weaponInfo_s *weapon ) {
+void FX_FlechetteAltProjectileThink( centity_t *cent, const weaponInfo_t *weapon ) {
 	vec3_t forward;
 
 	if ( VectorNormalize2( cent->currentState.pos.trDelta, forward ) == 0.0f ) {
@@ -350,7 +350,7 @@ void FX_ForceDrained( vec3_t origin, vec3_t dir ) {
 	trap->FX_PlayEffectID( media.efx.null, origin, dir, -1, -1, false );
 }
 
-void FX_RepeaterProjectileThink( centity_t *cent, const struct weaponInfo_s *weapon ) {
+void FX_RepeaterProjectileThink( centity_t *cent, const weaponInfo_t *weapon ) {
 	vec3_t forward;
 
 	if ( VectorNormalize2( cent->currentState.pos.trDelta, forward ) == 0.0f ) {
@@ -425,7 +425,7 @@ static void CG_DistortionOrb( centity_t *cent ) {
 	trap->R_AddRefEntityToScene( &ent );
 }
 
-void FX_RepeaterAltProjectileThink( centity_t *cent, const struct weaponInfo_s *weapon ) {
+void FX_RepeaterAltProjectileThink( centity_t *cent, const weaponInfo_t *weapon ) {
 	vec3_t forward;
 
 	if ( VectorNormalize2( cent->currentState.pos.trDelta, forward ) == 0.0f ) {
@@ -446,7 +446,7 @@ void FX_RepeaterAltHitPlayer( vec3_t origin, vec3_t normal, bool humanoid ) {
 	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, false );
 }
 
-void FX_RocketProjectileThink( centity_t *cent, const struct weaponInfo_s *weapon ) {
+void FX_RocketProjectileThink( centity_t *cent, const weaponInfo_t *weapon ) {
 	vec3_t forward;
 
 	if ( VectorNormalize2( cent->currentState.pos.trDelta, forward ) == 0.0f ) {
@@ -464,7 +464,7 @@ void FX_RocketHitPlayer( vec3_t origin, vec3_t normal, bool humanoid ) {
 	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, false );
 }
 
-void FX_RocketAltProjectileThink( centity_t *cent, const struct weaponInfo_s *weapon ) {
+void FX_RocketAltProjectileThink( centity_t *cent, const weaponInfo_t *weapon ) {
 	vec3_t forward;
 
 	if ( VectorNormalize2( cent->currentState.pos.trDelta, forward ) == 0.0f ) {

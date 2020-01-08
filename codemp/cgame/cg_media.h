@@ -1,57 +1,23 @@
-/*
-===========================================================================
-Copyright (C) 2019 - 2020, CleanJoKe contributors
-
-This file is part of the OpenJK source code.
-
-OpenJK is free software; you can redistribute it and/or modify it
-under the terms of the GNU General Public License version 2 as
-published by the Free Software Foundation.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, see <http://www.gnu.org/licenses/>.
-===========================================================================
-*/
-
 #pragma once
-
-// ======================================================================
-// DEFINE
-// ======================================================================
 
 using SoundID = sfxHandle_t;
 using ImageID = qhandle_t;
 using ModelID = qhandle_t;
 using EffectID = fxHandle_t;
 
-// ======================================================================
-// STRUCT
-// ======================================================================
-
-typedef struct cgMedia_s
-{
-	struct efx_s
-	{
+struct cgMedia_t {
+	struct efx_t {
 		EffectID	null;
 	} efx;
 
-	struct gfx_s
-	{
+	struct gfx_t {
 		ImageID		null;
 
-		struct hud_s
-		{
+		struct hud_t {
 			ImageID		crosshairs[NUM_CROSSHAIRS];
 
-			struct flag_s
-			{
-				struct flagSet_s
-				{
+			struct flag_t {
+				struct flagSet_t {
 					ImageID		normal;
 					ImageID		taken;
 					ImageID		ysal;
@@ -59,45 +25,32 @@ typedef struct cgMedia_s
 			} flag;
 		} hud;
 
-		struct interface_s
-		{
+		struct interface_t {
 			ImageID		charset;
 			ImageID		cursor;
 
-			struct loading_s
-			{
+			struct loading_t {
 				ImageID		tick;
 				ImageID		cap;
 				ImageID		background;
 			} loading;
 		} interface;
 
-		struct misc_s
-		{
+		struct misc_t {
 			ImageID		white;
 		} misc;
 	} gfx;
 
-	struct models_s
-	{
+	struct models_t {
 		ModelID		null;
 	} models;
 
-	struct sounds_s
-	{
+	struct sounds_t {
 		SoundID		null;
 	} sounds;
-} cgMedia_t;
-
-// ======================================================================
-// EXTERN VARIABLE
-// ======================================================================
-
+};
 extern cgMedia_t media;
 
-// ======================================================================
-// FUNCTION
-// ======================================================================
+void CG_LoadMedia( void );
+void CG_PreloadMedia( void );
 
-void CG_LoadMedia(void);
-void CG_PreloadMedia(void);

@@ -47,10 +47,10 @@ void R_GammaCorrect( byte *buffer, int bufSize ) {
 	}
 }
 
-typedef struct textureMode_s {
+struct textureMode_t {
 	const char *name;
 	int	minimize, maximize;
-} textureMode_t;
+};
 
 textureMode_t modes[] = {
 	{"GL_NEAREST", GL_NEAREST, GL_NEAREST},

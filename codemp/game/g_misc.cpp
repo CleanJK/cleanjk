@@ -2622,12 +2622,11 @@ void SP_misc_faller(gentity_t *ent)
 //Maybe I should use my trap->TrueMalloc/trap->TrueFree stuff with this.
 //But I am not yet confident that it can be used without exploding at some point.
 
-typedef struct tagOwner_s
-{
+struct tagOwner_t {
 	char			name[MAX_REFNAME];
 	reference_tag_t	tags[MAX_TAGS];
 	bool		inuse;
-} tagOwner_t;
+};
 
 tagOwner_t refTagOwnerMap[MAX_TAG_OWNERS];
 
@@ -3027,11 +3026,10 @@ TOGGLE - keep firing until used again (fires at intervals of "wait")
 */
 //kind of hacky, but we have to do this with no dynamic allocation
 #define MAX_SHOOTERS		16
-typedef struct shooterClient_s
-{
+struct shooterClient_t {
 	gclient_t		cl;
 	bool		inuse;
-} shooterClient_t;
+};
 static shooterClient_t g_shooterClients[MAX_SHOOTERS];
 static bool g_shooterClientInit = false;
 

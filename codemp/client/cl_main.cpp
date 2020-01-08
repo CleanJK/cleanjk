@@ -57,15 +57,14 @@ static void	*rendererLib = nullptr;
 
 ping_t	cl_pinglist[MAX_PINGREQUESTS];
 
-typedef struct serverStatus_s
-{
+struct serverStatus_t {
 	char string[BIG_INFO_STRING];
 	netadr_t address;
 	int time, startTime;
 	bool pending;
 	bool print;
 	bool retrieved;
-} serverStatus_t;
+};
 
 serverStatus_t cl_serverStatusList[MAX_SERVERSTATUSREQUESTS];
 int serverStatusCount;

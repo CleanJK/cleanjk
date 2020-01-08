@@ -6,22 +6,21 @@ extern displayContextDef_t cgDC;
 
 cgMedia_t media;
 
-typedef struct progress_s {
+static struct progress_t {
 	size_t		numLoadedResources;
-	bool	loadedMap;
-} progress_t;
-static progress_t progress;
+	bool		loadedMap;
+} progress;
 
 // resource flags
 #define RFL_NONE		(0x00000000u)
 #define RFL_NOMIP		(0x00000001u)
 
-typedef struct resource_s {
+struct resource_t {
 	void		*handle;
 	const char	*location;
 	uint32_t	 flags;
 	uint32_t	 gametypes;
-} resource_t;
+};
 
 static const resource_t efx[] = {
 	{ &media.efx.null, "", RFL_NONE, GTB_ALL }

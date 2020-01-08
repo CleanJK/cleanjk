@@ -36,12 +36,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #define MAX_LOGFILENAMESIZE		1024
 
-typedef struct logfile_s
-{
+struct logfile_t {
 	char filename[MAX_LOGFILENAMESIZE];
 	FILE *fp;
 	int numwrites;
-} logfile_t;
+};
 
 static logfile_t logfile;
 

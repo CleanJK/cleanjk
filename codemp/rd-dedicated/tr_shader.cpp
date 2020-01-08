@@ -1857,10 +1857,10 @@ void ParseMaterial( const char **text )
 
 // this table is also present in q3map
 
-typedef struct infoParm_s {
+struct infoParm_t {
 	const char	*name;
 	uint32_t	clearSolid, surfaceFlags, contents;
-} infoParm_t;
+};
 
 infoParm_t	infoParms[] = {
 	// Game content Flags
@@ -2178,13 +2178,13 @@ static bool ParseShader( const char **text )
 
 // SHADER OPTIMIZATION AND FOGGING
 
-typedef struct collapse_s {
+struct collapse_t {
 	int		blendA;
 	int		blendB;
 
 	int		multitextureEnv;
 	int		multitextureBlend;
-} collapse_t;
+};
 
 //  Attempt to combine two stages into a single multitexture stage
 //FIXME: I think modulated add + modulated add collapses incorrectly
@@ -2237,7 +2237,7 @@ static shader_t *GeneratePermanentShader( void ) {
 		return tr.defaultShader;
 	}
 
-	newShader = (struct shader_s *)ri.Hunk_Alloc( sizeof( shader_t ), h_low );
+	newShader = (shader_t *)ri.Hunk_Alloc( sizeof( shader_t ), h_low );
 
 	*newShader = shader;
 

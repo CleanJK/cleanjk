@@ -107,13 +107,12 @@ const char *datapadMoveTitleBaseAnims[MD_MOVE_TITLE_MAX] =
 
 #define MAX_MOVES 16
 
-typedef struct datpadmovedata_s
-{
+struct datpadmovedata_t {
 	const char	*title;
 	const char	*desc;
 	const char	*anim;
 	short	sound;
-} datpadmovedata_t;
+};
 
 static datpadmovedata_t datapadMoveData[MD_MOVE_TITLE_MAX][MAX_MOVES] = {
 	{// Acrobatics
@@ -4064,14 +4063,13 @@ static void UI_LoadMovies() {
 }
 
 #define MAX_DEMO_FOLDER_DEPTH (8)
-typedef struct loadDemoContext_s
-{
+struct loadDemoContext_t {
 	int depth;
 	bool warned;
 	char demoList[MAX_DEMOLIST];
 	char directoryList[MAX_DEMOLIST];
 	char *dirListHead;
-} loadDemoContext_t;
+};
 
 static void UI_LoadDemosInDirectory( loadDemoContext_t *ctx, const char *directory )
 {
@@ -6147,9 +6145,9 @@ static void UI_BuildServerDisplayList(int force) {
 //	}
 }
 
-typedef struct serverStatusCvar_s {
+struct serverStatusCvar_t {
 	char *name, *altName;
-} serverStatusCvar_t;
+};
 
 const serverStatusCvar_t serverStatusCvars[] = {
 	{ "sv_hostname", "Name" },

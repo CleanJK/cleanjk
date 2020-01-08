@@ -34,10 +34,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "qcommon/disablewarnings.h"
 
-#define	LL(x) x=LittleLong(x)
-#define	LS(x) x=LittleShort(x)
-#define	LF(x) x=LittleFloat(x)
-
 #ifdef G2_PERFORMANCE_ANALYSIS
 #include "qcommon/timing.h"
 
@@ -2712,7 +2708,7 @@ static void G2_Sort_Models(CGhoul2Info_v &ghoul2, int * const modelList, int * c
 	}
 }
 
-void *G2_FindSurface_BC(const model_s *mod, int index, int lod)
+void *G2_FindSurface_BC(const model_t *mod, int index, int lod)
 {
 	assert(mod);
 	assert(mod->mdxm);

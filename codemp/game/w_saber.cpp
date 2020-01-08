@@ -738,8 +738,7 @@ static QINLINE bool SaberAttacking( gentity_t *self )
 	return false;
 }
 
-typedef enum
-{
+enum sabersLockMode_t {
 	LOCK_FIRST = 0,
 	LOCK_TOP = LOCK_FIRST,
 	LOCK_DIAG_TR,
@@ -749,7 +748,7 @@ typedef enum
 	LOCK_R,
 	LOCK_L,
 	LOCK_RANDOM
-} sabersLockMode_t;
+};
 
 #define LOCK_IDEAL_DIST_TOP 32.0f
 #define LOCK_IDEAL_DIST_CIRCLE 48.0f
@@ -2043,12 +2042,11 @@ static QINLINE bool G_SaberInBackAttack(int move)
 	return false;
 }
 
-typedef struct saberFace_s
-{
+struct saberFace_t {
 	vec3_t v1;
 	vec3_t v2;
 	vec3_t v3;
-} saberFace_t;
+};
 
 //build faces around blade for collision checking -rww
 static QINLINE void G_BuildSaberFaces(vec3_t base, vec3_t tip, float radius, vec3_t fwd,

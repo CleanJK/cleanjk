@@ -2726,7 +2726,7 @@ static void CG_DrawReward( void ) {
 
 #define	LAG_SAMPLES		128
 
-struct lagometer_s {
+struct lagometer_t {
 	int		frameSamples[LAG_SAMPLES];
 	int		frameCount;
 	int		snapshotFlags[LAG_SAMPLES];
@@ -2913,15 +2913,15 @@ void CG_CenterPrint( const char *str, int y, int charWidth ) {
 	int		i = 0;
 	//[/BugFix19]
 
-	Q_strncpyz( cg.centerPrint, str, sizeof(cg.centerPrint) );
+	Q_strncpyz( cg.centerprint.string, str, sizeof(cg.centerprint.string) );
 
-	cg.centerPrintTime = cg.time;
-	cg.centerPrintY = y;
-	cg.centerPrintCharWidth = charWidth;
+	cg.centerprint.time = cg.time;
+	cg.centerprint.y = y;
+	cg.centerprint.charWidth = charWidth;
 
 	// count the number of lines for centering
-	cg.centerPrintLines = 1;
-	s = cg.centerPrint;
+	cg.centerprint.lines = 1;
+	s = cg.centerprint.string;
 	while( *s )
 	{
 		//[BugFix19]
@@ -2929,12 +2929,12 @@ void CG_CenterPrint( const char *str, int y, int charWidth ) {
 		if(i >= 50)
 		{//maxed out a line of text, this will make the line spill over onto another line.
 			i = 0;
-			cg.centerPrintLines++;
+			cg.centerprint.lines++;
 		}
 		else if (*s == '\n')
 		//if (*s == '\n')
 		//[/BugFix19]
-			cg.centerPrintLines++;
+			cg.centerprint.lines++;
 		s++;
 	}
 }
@@ -2954,20 +2954,20 @@ static void CG_DrawCenterString( void ) {
 	float	*color;
 	const float scale = 1.0; //0.5
 
-	if ( !cg.centerPrintTime ) {
+	if ( !cg.centerprint.time ) {
 		return;
 	}
 
-	color = CG_FadeColor( cg.centerPrintTime, 1000 * cg_centerTime.value );
+	color = CG_FadeColor( cg.centerprint.time, 1000 * cg_centerTime.value );
 	if ( !color ) {
 		return;
 	}
 
 	trap->R_SetColor( color );
 
-	start = cg.centerPrint;
+	start = cg.centerprint.string;
 
-	y = cg.centerPrintY - cg.centerPrintLines * BIGCHAR_HEIGHT / 2;
+	y = cg.centerprint.y - cg.centerprint.lines * BIGCHAR_HEIGHT / 2;
 
 	while ( 1 ) {
 		char linebuffer[1024];
@@ -4282,48 +4282,48 @@ static void CG_DrawVote(void) {
 	int sec;
 	char sYes[20] = {0}, sNo[20] = {0}, sVote[20] = {0}, sCmd[100] = {0};
 
-	if ( !cgs.voteTime )
+	if ( !cgs.vote.time )
 		return;
 
 	// play a talk beep whenever it is modified
-	if ( cgs.voteModified ) {
-		cgs.voteModified = false;
+	if ( cgs.vote.modified ) {
+		cgs.vote.modified = false;
 		trap->S_StartLocalSound( media.sounds.null, CHAN_LOCAL_SOUND );
 	}
 
-	sec = ( VOTE_TIME - ( cg.time - cgs.voteTime ) ) / 1000;
+	sec = ( VOTE_TIME - ( cg.time - cgs.vote.time ) ) / 1000;
 	if ( sec < 0 ) {
 		sec = 0;
 	}
 
-	if ( !Q_strncmp( cgs.voteString, "map_restart", 11 ) )
+	if ( !Q_strncmp( cgs.vote.string, "map_restart", 11 ) )
 		trap->SE_GetStringTextString( "MENUS_RESTART_MAP", sCmd, sizeof( sCmd ) );
-	else if ( !Q_strncmp( cgs.voteString, "vstr nextmap", 12 ) )
+	else if ( !Q_strncmp( cgs.vote.string, "vstr nextmap", 12 ) )
 		trap->SE_GetStringTextString( "MENUS_NEXT_MAP", sCmd, sizeof( sCmd ) );
-	else if ( !Q_strncmp( cgs.voteString, "g_doWarmup", 10 ) )
+	else if ( !Q_strncmp( cgs.vote.string, "g_doWarmup", 10 ) )
 		trap->SE_GetStringTextString( "MENUS_WARMUP", sCmd, sizeof( sCmd ) );
-	else if ( !Q_strncmp( cgs.voteString, "g_gametype", 10 ) ) {
+	else if ( !Q_strncmp( cgs.vote.string, "g_gametype", 10 ) ) {
 		trap->SE_GetStringTextString( "MENUS_GAME_TYPE", sCmd, sizeof( sCmd ) );
 
-			 if ( !Q_stricmp( "Free For All", cgs.voteString+11 ) )				sParm = CG_GetStringEdString( "MENUS", "FREE_FOR_ALL" );
-		else if ( !Q_stricmp( "Duel", cgs.voteString+11 ) )						sParm = CG_GetStringEdString( "MENUS", "DUEL" );
-		else if ( !Q_stricmp( "Holocron FFA", cgs.voteString+11 ) )				sParm = CG_GetStringEdString( "MENUS", "HOLOCRON_FFA" );
-		else if ( !Q_stricmp( "Power Duel", cgs.voteString+11 ) )				sParm = CG_GetStringEdString( "MENUS", "POWERDUEL" );
-		else if ( !Q_stricmp( "Team FFA", cgs.voteString+11 ) ) 				sParm = CG_GetStringEdString( "MENUS", "TEAM_FFA" );
-		else if ( !Q_stricmp( "Capture the Flag", cgs.voteString+11 )  )		sParm = CG_GetStringEdString( "MENUS", "CAPTURE_THE_FLAG" );
-		else if ( !Q_stricmp( "Capture the Ysalamiri", cgs.voteString+11 ) )	sParm = CG_GetStringEdString( "MENUS", "CAPTURE_THE_YSALIMARI" );
+			 if ( !Q_stricmp( "Free For All", cgs.vote.string+11 ) )				sParm = CG_GetStringEdString( "MENUS", "FREE_FOR_ALL" );
+		else if ( !Q_stricmp( "Duel", cgs.vote.string+11 ) )						sParm = CG_GetStringEdString( "MENUS", "DUEL" );
+		else if ( !Q_stricmp( "Holocron FFA", cgs.vote.string+11 ) )				sParm = CG_GetStringEdString( "MENUS", "HOLOCRON_FFA" );
+		else if ( !Q_stricmp( "Power Duel", cgs.vote.string+11 ) )				sParm = CG_GetStringEdString( "MENUS", "POWERDUEL" );
+		else if ( !Q_stricmp( "Team FFA", cgs.vote.string+11 ) ) 				sParm = CG_GetStringEdString( "MENUS", "TEAM_FFA" );
+		else if ( !Q_stricmp( "Capture the Flag", cgs.vote.string+11 )  )		sParm = CG_GetStringEdString( "MENUS", "CAPTURE_THE_FLAG" );
+		else if ( !Q_stricmp( "Capture the Ysalamiri", cgs.vote.string+11 ) )	sParm = CG_GetStringEdString( "MENUS", "CAPTURE_THE_YSALIMARI" );
 	}
-	else if ( !Q_strncmp( cgs.voteString, "map", 3 ) ) {
+	else if ( !Q_strncmp( cgs.vote.string, "map", 3 ) ) {
 		trap->SE_GetStringTextString( "MENUS_NEW_MAP", sCmd, sizeof( sCmd ) );
-		sParm = cgs.voteString+4;
+		sParm = cgs.vote.string+4;
 	}
-	else if ( !Q_strncmp( cgs.voteString, "kick", 4 ) ) {
+	else if ( !Q_strncmp( cgs.vote.string, "kick", 4 ) ) {
 		trap->SE_GetStringTextString( "MENUS_KICK_PLAYER", sCmd, sizeof( sCmd ) );
-		sParm = cgs.voteString+5;
+		sParm = cgs.vote.string+5;
 	}
 	else
 	{// custom votes like ampoll, cointoss, etc
-		sParm = cgs.voteString;
+		sParm = cgs.vote.string;
 	}
 
 	trap->SE_GetStringTextString( "MENUS_VOTE", sVote, sizeof( sVote ) );
@@ -4331,9 +4331,9 @@ static void CG_DrawVote(void) {
 	trap->SE_GetStringTextString( "MENUS_NO", sNo, sizeof( sNo ) );
 
 	if (sParm && sParm[0])
-		s = va( "%s(%i):<%s %s> %s:%i %s:%i", sVote, sec, sCmd, sParm, sYes, cgs.voteYes, sNo, cgs.voteNo);
+		s = va( "%s(%i):<%s %s> %s:%i %s:%i", sVote, sec, sCmd, sParm, sYes, cgs.vote.yes, sNo, cgs.vote.no);
 	else
-		s = va( "%s(%i):<%s> %s:%i %s:%i",    sVote, sec, sCmd,        sYes, cgs.voteYes, sNo, cgs.voteNo);
+		s = va( "%s(%i):<%s> %s:%i %s:%i",    sVote, sec, sCmd,        sYes, cgs.vote.yes, sNo, cgs.vote.no);
 	CG_DrawSmallString( 4, 58, s, 1.0F );
 	if ( cgs.clientinfo[cg.clientNum].team != TEAM_SPECTATOR ) {
 		s = CG_GetStringEdString( "MP_INGAME", "OR_PRESS_ESC_THEN_CLICK_VOTE" );	//	s = "or press ESC then click Vote";
@@ -4352,39 +4352,39 @@ static void CG_DrawTeamVote(void) {
 	else
 		return;
 
-	if ( !cgs.teamVoteTime[cs_offset] ) {
+	if ( !cgs.teamVote.time[cs_offset] ) {
 		return;
 	}
 
 	// play a talk beep whenever it is modified
-	if ( cgs.teamVoteModified[cs_offset] ) {
-		cgs.teamVoteModified[cs_offset] = false;
+	if ( cgs.teamVote.modified[cs_offset] ) {
+		cgs.teamVote.modified[cs_offset] = false;
 //		trap->S_StartLocalSound( media.sounds.null, CHAN_LOCAL_SOUND );
 	}
 
-	sec = ( VOTE_TIME - ( cg.time - cgs.teamVoteTime[cs_offset] ) ) / 1000;
+	sec = ( VOTE_TIME - ( cg.time - cgs.teamVote.time[cs_offset] ) ) / 1000;
 	if ( sec < 0 ) {
 		sec = 0;
 	}
-	if (strstr(cgs.teamVoteString[cs_offset], "leader"))
+	if (strstr(cgs.teamVote.string[cs_offset], "leader"))
 	{
 		int i = 0;
 
-		while (cgs.teamVoteString[cs_offset][i] && cgs.teamVoteString[cs_offset][i] != ' ')
+		while (cgs.teamVote.string[cs_offset][i] && cgs.teamVote.string[cs_offset][i] != ' ')
 		{
 			i++;
 		}
 
-		if (cgs.teamVoteString[cs_offset][i] == ' ')
+		if (cgs.teamVote.string[cs_offset][i] == ' ')
 		{
 			int voteIndex = 0;
 			char voteIndexStr[256];
 
 			i++;
 
-			while (cgs.teamVoteString[cs_offset][i])
+			while (cgs.teamVote.string[cs_offset][i])
 			{
-				voteIndexStr[voteIndex] = cgs.teamVoteString[cs_offset][i];
+				voteIndexStr[voteIndex] = cgs.teamVote.string[cs_offset][i];
 				voteIndex++;
 				i++;
 			}
@@ -4393,18 +4393,18 @@ static void CG_DrawTeamVote(void) {
 			voteIndex = atoi(voteIndexStr);
 
 			s = va("TEAMVOTE(%i):(Make %s the new team leader) yes:%i no:%i", sec, cgs.clientinfo[voteIndex].name,
-									cgs.teamVoteYes[cs_offset], cgs.teamVoteNo[cs_offset] );
+									cgs.teamVote.yes[cs_offset], cgs.teamVote.no[cs_offset] );
 		}
 		else
 		{
-			s = va("TEAMVOTE(%i):%s yes:%i no:%i", sec, cgs.teamVoteString[cs_offset],
-									cgs.teamVoteYes[cs_offset], cgs.teamVoteNo[cs_offset] );
+			s = va("TEAMVOTE(%i):%s yes:%i no:%i", sec, cgs.teamVote.string[cs_offset],
+									cgs.teamVote.yes[cs_offset], cgs.teamVote.no[cs_offset] );
 		}
 	}
 	else
 	{
-		s = va("TEAMVOTE(%i):%s yes:%i no:%i", sec, cgs.teamVoteString[cs_offset],
-								cgs.teamVoteYes[cs_offset], cgs.teamVoteNo[cs_offset] );
+		s = va("TEAMVOTE(%i):%s yes:%i no:%i", sec, cgs.teamVote.string[cs_offset],
+								cgs.teamVote.yes[cs_offset], cgs.teamVote.no[cs_offset] );
 	}
 	CG_DrawSmallString( 4, 90, s, 1.0F );
 }

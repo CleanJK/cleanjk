@@ -23,8 +23,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "sys/sys_local.h"
 #include <direct.h>
 #include <io.h>
-#include <ShlObj.h>
-#include <Windows.h>
+#include <shlobj.h>
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
 
 #include "qcommon/com_cvar.h"
 #include "qcommon/com_cvars.h"

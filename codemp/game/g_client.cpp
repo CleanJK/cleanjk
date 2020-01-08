@@ -1523,10 +1523,10 @@ void SetupGameGhoul2Model(gentity_t *ent, char *modelname, char *skinName)
 	}
 }
 
-typedef struct userinfoValidate_s {
+struct userinfoValidate_t {
 	const char		*field, *fieldClean;
 	unsigned int	minCount, maxCount;
-} userinfoValidate_t;
+};
 
 #define UIF( x, _min, _max ) { STRING(\\) #x STRING(\\), STRING( x ), _min, _max }
 static userinfoValidate_t userinfoFields[] = {

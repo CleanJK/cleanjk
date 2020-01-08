@@ -212,8 +212,7 @@ protected:
 
 public:
 
-	typedef struct
-	{
+	struct TVert {
 		vec3_t	origin;
 
 		// very specifc case, we can modulate the color and the alpha
@@ -231,7 +230,7 @@ public:
 		float	destST[2];
 		float	curST[2];
 
-	} TVert;
+	};
 
 	TVert		mVerts[4];
 	qhandle_t	mShader;

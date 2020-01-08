@@ -25,12 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 //NOTENOTE: The enums and tables in this file will obviously bitch if they are included multiple times, don't do that
 
-// ======================================================================
-// ENUM
-// ======================================================================
-
-typedef enum //# setType_e
-{
+enum setType_t {
 	//# #sep Parm strings
 	SET_PARM1 = 0,//## %s="" # Set entity parm1
 	SET_PARM2,//## %s="" # Set entity parm2
@@ -50,7 +45,7 @@ typedef enum //# setType_e
 	SET_PARM16,//## %s="" # Set entity parm16
 
 	// NOTE!!! If you add any other SET_xxxxxxSCRIPT types, make sure you update the 'case' statements in
-	// ICARUS_InterrogateScript() (game/g_ICARUS.cpp), or the script-precacher won't find them.
+	//	ICARUS_InterrogateScript() (game/g_ICARUS.cpp), or the script-precacher won't find them.
 
 	//# #sep Scripts and other file paths
 	SET_SPAWNSCRIPT,//## %s="NULL" !!"W:\game\base\scripts\!!#*.txt" # Script to run when spawned //0 - do not change these, these are equal to BSET_SPAWN, etc
@@ -227,55 +222,39 @@ typedef enum //# setType_e
 
 	//# #eol
 	SET_
-} setType_t;
+};
 
 #if !defined( _GAME ) && !defined( _CGAME ) && !defined( UI_BUILD )
 
-// ======================================================================
-// DEFINE
-// ======================================================================
-
 constexpr int Q3_TIME_SCALE = 1;	//MILLISECONDS
 
-// ======================================================================
-// ENUM
-// ======================================================================
-
 // this enum isn't used directly by the game, it's mainly for BehavEd to scan for...
-typedef enum //# playType_e
-{
+
+enum playType_t {
 	//# #sep Types of file to play
 	PLAY_ROFF = 0,//## %s="filename" !!"W:\game\base\scripts\!!#*.rof" # Play a ROFF file
 
 	//# #eol
 	PLAY_NUMBEROF
 
-} playType_t;
-
-// ======================================================================
-// EXTERN VARIABLE
-// ======================================================================
+};
 
 extern char	cinematicSkipScript[1024];
 
-// ======================================================================
-// FUNCTION
-// ======================================================================
+void     Q3_CameraDistance ( float distance, float initLerp );
+void     Q3_CameraFollow   ( const char *name, float speed, float initLerp );
+void     Q3_CameraRoll     ( float angle, float duration );
+void     Q3_CameraTrack    ( const char *name, float speed, float initLerp );
+void     Q3_DeclareVariable( int type, const char *name );
+void     Q3_DebugPrint     ( int level, const char *format, ... );
+void     Q3_DPrintf        ( const char *, ... );
+void     Q3_FreeVariable   ( const char *name );
+void     Q3_SetAnimBoth    ( int entID, const char *anim_name );
+void     Q3_SetVar         ( int taskID, int entID, const char *type_name, const char *data );
+void     Q3_SetVelocity    ( int entID, vec3_t angles );
+void     Q3_TaskIDClear    ( int *taskID );
+void     Q3_TaskIDComplete ( sharedEntity_t *ent, taskID_t taskType );
+bool     Q3_TaskIDPending  ( sharedEntity_t *ent, taskID_t taskType );
+void     Q3_TaskIDSet      ( sharedEntity_t *ent, taskID_t taskType, int taskID );
 
-bool Q3_TaskIDPending(sharedEntity_t* ent, taskID_t taskType);
-void Q3_CameraDistance(float distance, float initLerp);
-void Q3_CameraFollow(const char* name, float speed, float initLerp);
-void Q3_CameraRoll(float angle, float duration);
-void Q3_CameraTrack(const char* name, float speed, float initLerp);
-void Q3_DebugPrint(int level, const char* format, ...);
-void Q3_DeclareVariable(int type, const char* name);
-void Q3_DPrintf(const char*, ...);
-void Q3_FreeVariable(const char* name);
-void Q3_SetAnimBoth(int entID, const char* anim_name);
-void Q3_SetVar(int taskID, int entID, const char* type_name, const char* data);
-void Q3_SetVelocity(int entID, vec3_t angles);
-void Q3_TaskIDClear(int* taskID);
-void Q3_TaskIDComplete(sharedEntity_t* ent, taskID_t taskType);
-void Q3_TaskIDSet(sharedEntity_t* ent, taskID_t taskType, int taskID);
-
-#endif // !defined( _GAME ) && !defined( _CGAME ) && !defined( UI_BUILD )
+#endif

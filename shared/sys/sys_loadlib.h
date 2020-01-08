@@ -28,7 +28,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #ifdef DEDICATED
 #	ifdef _WIN32
-#		include <Windows.h>
+#		define WIN32_LEAN_AND_MEAN
+#		include <windows.h>
 #		define Sys_LoadLibrary(f) (void*)LoadLibrary(f)
 #		define Sys_UnloadLibrary(h) FreeLibrary((HMODULE)h)
 #		define Sys_LoadFunction(h,fn) (void*)GetProcAddress((HMODULE)h,fn)

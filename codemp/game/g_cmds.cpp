@@ -1572,15 +1572,15 @@ bool G_VoteWarmup( gentity_t *ent, int numArgs, const char *arg1, const char *ar
 	return true;
 }
 
-typedef struct voteString_s {
+struct voteString_t {
 	const char	*string;
 	const char	*aliases;	// space delimited list of aliases, will always show the real vote string
-	bool	(*func)(gentity_t *ent, int numArgs, const char *arg1, const char *arg2);
+	bool		(*func)(gentity_t *ent, int numArgs, const char *arg1, const char *arg2);
 	int			numArgs;	// number of REQUIRED arguments, not total/optional arguments
 	uint32_t	validGT;	// bit-flag of valid gametypes
-	bool	voteDelay;	// if true, will delay executing the vote string after it's accepted by g_voteDelay
+	bool		voteDelay;	// if true, will delay executing the vote string after it's accepted by g_voteDelay
 	const char	*shortHelp;	// nullptr if no arguments needed
-} voteString_t;
+};
 
 static voteString_t validVoteStrings[] = {
 	//	vote string				aliases										# args	valid gametypes							exec delay		short help
@@ -2697,11 +2697,11 @@ void Cmd_AddBot_f( gentity_t *ent ) {
 #define CMD_CHEAT				(1<<1)
 #define CMD_ALIVE				(1<<2)
 
-typedef struct command_s {
+struct command_t {
 	const char	*name;
 	void		(*func)(gentity_t *ent);
 	int			flags;
-} command_t;
+};
 
 int cmdcmp( const void *a, const void *b ) {
 	return Q_stricmp( (const char *)a, ((command_t*)b)->name );

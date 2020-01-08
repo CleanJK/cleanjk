@@ -22,34 +22,27 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
+// botlib vars
+
 #pragma once
 
-// ======================================================================
-// STRUCT
-// ======================================================================
-
 //library variable
-typedef struct libvar_s
-{
-	char* name;
-	char* string;
-	int		flags;
-	bool	modified;	// set each time the cvar is changed
-	float		value;
-	struct	libvar_s* next;
-} libvar_t;
+struct libvar_t {
+	char     *name;
+	char     *string;
+	int       flags;
+	bool      modified;	// set each time the cvar is changed
+	float     value;
+	libvar_t *next;
+};
 
-// ======================================================================
-// FUNCTION
-// ======================================================================
-
-bool LibVarChanged(char* var_name);
-char* LibVarGetString(char* var_name);
-char* LibVarString(char* var_name, char* value);
-float LibVarGetValue(char* var_name);
-float LibVarValue(char* var_name, char* value);
-libvar_t* LibVar(char* var_name, char* value);
-libvar_t* LibVarGet(char* var_name);
-void LibVarDeAllocAll(void);
-void LibVarSet(char* var_name, char* value);
-void LibVarSetNotModified(char* var_name);
+void      LibVarDeAllocAll    ( void );
+libvar_t *LibVarGet           ( char *var_name );
+char     *LibVarGetString     ( char *var_name );
+float     LibVarGetValue      ( char *var_name );
+libvar_t *LibVar              ( char *var_name, char *value );
+float     LibVarValue         ( char *var_name, char *value );
+char     *LibVarString        ( char *var_name, char *value );
+void      LibVarSet           ( char *var_name, char *value );
+bool      LibVarChanged       ( char *var_name );
+void      LibVarSetNotModified( char *var_name );

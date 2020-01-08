@@ -41,26 +41,25 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // STRUCT
 // ======================================================================
 
-typedef struct qkey_s {
-	bool	down;
-	int			repeats; // if > 1, it is autorepeating
-	char		*binding;
-} qkey_t;
+struct qkey_t {
+	bool  down;
+	int   repeats; // if > 1, it is autorepeating
+	char *binding;
+};
 
-typedef struct keyGlobals_s {
-	bool	anykeydown;
-	bool	key_overstrikeMode;
-	int			keyDownCount;
+struct keyGlobals_t {
+	bool   anykeydown;
+	bool   key_overstrikeMode;
+	int    keyDownCount;
+	qkey_t keys[MAX_KEYS];
+};
 
-	qkey_t		keys[MAX_KEYS];
-} keyGlobals_t;
-
-typedef struct keyname_s {
-	word		upper, lower;
-	const char	*name;
-	int			keynum;
-	bool		menukey;
-} keyname_t;
+struct keyname_t {
+	word        upper, lower;
+	const char *name;
+	int         keynum;
+	bool        menukey;
+};
 
 // ======================================================================
 // EXTERN VARIABLE

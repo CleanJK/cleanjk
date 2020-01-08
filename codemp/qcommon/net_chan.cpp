@@ -426,15 +426,15 @@ bool	NET_IsLocalAddress( netadr_t adr ) {
 // there needs to be enough loopback messages to hold a complete gamestate of maximum size
 #define	MAX_LOOPBACK	16
 
-typedef struct loopmsg_s {
+struct loopmsg_t {
 	byte	data[MAX_PACKETLEN];
 	int		datalen;
-} loopmsg_t;
+};
 
-typedef struct loopback_s {
+struct loopback_t {
 	loopmsg_t	msgs[MAX_LOOPBACK];
 	int			get, send;
-} loopback_t;
+};
 
 loopback_t	loopbacks[2];
 

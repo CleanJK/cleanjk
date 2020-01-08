@@ -93,8 +93,7 @@ TODO: If the SDL_Scancode situation improves, use it instead of
 */
 static bool IN_IsConsoleKey( fakeAscii_t key, int character )
 {
-	typedef struct consoleKey_s
-	{
+	struct consoleKey_t {
 		enum
 		{
 			QUAKE_KEY,
@@ -106,7 +105,7 @@ static bool IN_IsConsoleKey( fakeAscii_t key, int character )
 			fakeAscii_t key;
 			int character;
 		} u;
-	} consoleKey_t;
+	};
 
 	static consoleKey_t consoleKeys[ MAX_CONSOLE_KEYS ];
 	static int numConsoleKeys = 0;
@@ -181,7 +180,7 @@ static bool IN_IsConsoleKey( fakeAscii_t key, int character )
 
 #if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
+#include <windows.h>
 #endif
 
 static bool IN_NumLockEnabled( void )

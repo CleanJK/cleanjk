@@ -25,7 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "game/g_local.h"
 #include "game/g_team.h"
 
-typedef struct teamgame_s {
+struct teamgame_t {
 	float			last_flag_capture;
 	int				last_capture_team;
 	flagStatus_t	redStatus;	// CTF
@@ -33,7 +33,7 @@ typedef struct teamgame_s {
 	flagStatus_t	flagStatus;	// One Flag CTF
 	int				redTakenTime;
 	int				blueTakenTime;
-} teamgame_t;
+};
 
 teamgame_t teamgame;
 

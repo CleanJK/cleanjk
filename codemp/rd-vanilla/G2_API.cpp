@@ -663,7 +663,9 @@ void RestoreGhoul2InfoArray()
 			singleton->Deserialize ((const char *)data, size);
 		Z_Free ((void *)data);
 
+#ifdef _DEBUG
 		assert (read == size);
+#endif
 	}
 }
 
@@ -2602,7 +2604,6 @@ bool G2API_SkinlessModel(CGhoul2Info_v& ghoul2, int modelIndex)
 	return true;
 }
 
-//#ifdef _SOF2
 #ifdef _G2_GORE
 
 //way of seeing how many marks are on a model currently -rww

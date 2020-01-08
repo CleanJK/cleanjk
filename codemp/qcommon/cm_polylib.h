@@ -24,15 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-// ======================================================================
-// INCLUDE
-// ======================================================================
-
 #include "qcommon/q_shared.h"
-
-// ======================================================================
-// DEFINE
-// ======================================================================
 
 #define	MAX_POINTS_ON_WINDING	64
 
@@ -50,26 +42,22 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define	ON_EPSILON	0.1f
 #endif
 
-// ======================================================================
-// STRUCT
-// ======================================================================
+
 
 // this is only used for visualization tools in cm_ debug functions
-typedef struct winding_s {
+struct winding_t {
 	int		numpoints;
 	vec3_t	p[4];		// variable sized
-} winding_t;
+};
 
-// ======================================================================
-// EXTERN VARIABLE
-// ======================================================================
 
-// frees the original if clipped
-void pw(winding_t *w);
-void AddWindingToConvexHull( winding_t *w, winding_t **hull, vec3_t normal );
-void ChopWindingInPlace (winding_t **w, vec3_t normal, float dist, float epsilon);
-void FreeWinding (winding_t *w);
-void WindingBounds (winding_t *w, vec3_t mins, vec3_t maxs);
-winding_t *AllocWinding (int points);
-winding_t *BaseWindingForPlane (vec3_t normal, float dist);
-winding_t *CopyWinding (winding_t *w);
+
+winding_t	*AllocWinding (int points);
+void		 AddWindingToConvexHull( winding_t *w, winding_t **hull, vec3_t normal );
+winding_t	*BaseWindingForPlane (vec3_t normal, float dist);
+void		 ChopWindingInPlace (winding_t **w, vec3_t normal, float dist, float epsilon);
+winding_t	*CopyWinding (winding_t *w);
+void		 FreeWinding (winding_t *w);
+void		 WindingBounds (winding_t *w, vec3_t mins, vec3_t maxs);
+void		 pw(winding_t *w);
+

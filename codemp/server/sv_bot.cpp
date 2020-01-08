@@ -29,13 +29,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "server/sv_gameapi.h"
 #include "qcommon/com_cvars.h"
 
-typedef struct bot_debugpoly_s
-{
+struct bot_debugpoly_t {
 	int inuse;
 	int color;
 	int numPoints;
 	vec3_t points[128];
-} bot_debugpoly_t;
+};
 
 static bot_debugpoly_t *debugpolygons;
 int bot_maxdebugpolys_latch;
@@ -516,7 +515,7 @@ void SV_BotInitBotLib(void) {
 
 	if (debugpolygons) Z_Free(debugpolygons);
 	bot_maxdebugpolys_latch = bot_maxdebugpolys->integer;
-	debugpolygons = (struct bot_debugpoly_s *)Z_Malloc(sizeof(bot_debugpoly_t) * bot_maxdebugpolys_latch, TAG_BOTLIB, true);
+	debugpolygons = (bot_debugpoly_t *)Z_Malloc(sizeof(bot_debugpoly_t) * bot_maxdebugpolys_latch, TAG_BOTLIB, true);
 
 	botlib_import.Print = BotImport_Print;
 	botlib_import.Trace = BotImport_Trace;

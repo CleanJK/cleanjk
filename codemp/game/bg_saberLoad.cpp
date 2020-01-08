@@ -1382,12 +1382,12 @@ static void Saber_ParseBladeEffect2( saberInfo_t *saber, const char **p ) {
 
 #define KEYWORDHASH_SIZE (512)
 
-typedef struct keywordHash_s {
+struct keywordHash_t {
 	char	*keyword;
 	void	(*func)(saberInfo_t *saber, const char **p);
 
-	struct keywordHash_s *next;
-} keywordHash_t;
+	keywordHash_t *next;
+};
 
 static int KeywordHash_Key( const char *keyword ) {
 	int register hash, i;

@@ -66,11 +66,10 @@ cvar_t  *r_ext_multisample;
 /*
 ** R_GetModeInfo
 */
-typedef struct vidmode_s
-{
+struct vidmode_t {
     const char *description;
     int         width, height;
-} vidmode_t;
+};
 
 const vidmode_t r_vidModes[] = {
     { "Mode  0: 320x240",		320,	240 },

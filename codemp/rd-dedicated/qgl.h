@@ -12,7 +12,8 @@
 #pragma warning (disable: 4032)
 #pragma warning (disable: 4201)
 #pragma warning (disable: 4214)
-#include <Windows.h>
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
 #include <gl/gl.h>
 
 #elif defined(MACOS_X)

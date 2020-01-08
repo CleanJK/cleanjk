@@ -1664,10 +1664,10 @@ void CG_DrawAutoMap(void)
 // Frustum code
 
 // some culling bits
-typedef struct plane_s {
+struct plane_t {
 	vec3_t normal;
 	float dist;
-} plane_t;
+};
 
 static plane_t frustum[4];
 

@@ -26,15 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-// ======================================================================
-// INCLUDE
-// ======================================================================
-
 #include "qcommon/q_shared.h"
-
-// ======================================================================
-// DEFINE
-// ======================================================================
 
 #define Q3_INFINITE			16777216
 
@@ -82,12 +74,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #define MAX_FAILED_NODES 8
 
-// ======================================================================
-// ENUM
-// ======================================================================
-
-typedef enum //# bState_e
-{//These take over only if script allows them to be autonomous
+enum bState_t {//These take over only if script allows them to be autonomous
 	BS_DEFAULT = 0,//# default behavior for that NPC
 	BS_ADVANCE_FIGHT,//# Advance to captureGoal and shoot enemies if you can
 	BS_SLEEP,//# Play awake script when startled by sound
@@ -108,10 +95,24 @@ typedef enum //# bState_e
 	BS_HUNT_AND_KILL,
 	BS_FLEE,//# Run away!
 	NUM_BSTATES
-} bState_t;
+};
 
-typedef enum //# taskID_e
-{
+enum {
+	EDGE_NORMAL,
+	EDGE_PATH,
+	EDGE_BLOCKED,
+	EDGE_FAILED,
+	EDGE_MOVEDIR
+};
+
+enum {
+	NODE_NORMAL,
+	NODE_START,
+	NODE_GOAL,
+	NODE_NAVGOAL,
+};
+
+enum taskID_t {
 	TID_CHAN_VOICE = 0,	// Waiting for a voice sound to complete
 	TID_ANIM_UPPER,		// Waiting to finish a lower anim holdtime
 	TID_ANIM_LOWER,		// Waiting to finish a lower anim holdtime
@@ -124,10 +125,9 @@ typedef enum //# taskID_e
 	TID_RESIZE,			// Waiting for clear bbox to inflate size
 	TID_SHOOT,			// Waiting for fire event
 	NUM_TIDS,			// for def of taskID array
-} taskID_t;
+};
 
-typedef enum //# bSet_e
-{//This should check to matching a behavior state name first, then look for a script
+enum bSet_t {//This should check to matching a behavior state name first, then look for a script
 	BSET_INVALID = -1,
 	BSET_FIRST = 0,
 	BSET_SPAWN = 0,//# script to use when first spawned
@@ -149,13 +149,17 @@ typedef enum //# bSet_e
 	BSET_MINDTRICK,//# script to run when player does a mind trick on this NPC
 
 	NUM_BSETS
-} bSet_t;
+};
 
-// ======================================================================
-// STRUCT
-// ======================================================================
+//this structure is shared by gameside and in-engine NPC nav routines.
+struct failedEdge_t {
+	int	startID;
+	int	endID;
+	int checkTime;
+	int	entID;
+};
 
-typedef struct entityShared_s {
+struct entityShared_t {
 	bool	linked;				// false if not in any good cluster
 	int			linkcount;
 
@@ -189,15 +193,15 @@ typedef struct entityShared_s {
 	// the first 32 clients are represented by the first array index and the latter 32 clients are represented by the
 	//	second array index.
 	uint32_t	broadcastClients[2];
-} entityShared_t;
+};
 
-typedef struct parms_s {
+struct parms_t {
 	char	parm[MAX_PARMS][MAX_PARM_STRING_LENGTH];
-} parms_t;
+};
 
 // the server looks at a sharedEntity, which is the start of the game's gentity_t structure
-// mod authors should not touch this struct
-typedef struct sharedEntity_s {
+//mod authors should not touch this struct
+struct sharedEntity_t {
 	//CJKFIXME: bgentity_t substruct
 	entityState_t	s;				// communicated by server to clients
 	playerState_t	*playerState;	//needs to be in the gentity for bg entity access
@@ -233,115 +237,116 @@ typedef struct sharedEntity_s {
 	int				failedWaypointCheckTime;
 
 	int				next_roff_time; //rww - npc's need to know when they're getting roff'd
-} sharedEntity_t;
+};
 
-typedef struct T_G_ICARUS_PLAYSOUND_s {
+struct T_G_ICARUS_PLAYSOUND {
 	int taskID;
 	int entID;
 	char name[2048];
 	char channel[2048];
-} T_G_ICARUS_PLAYSOUND;
+};
 
-typedef struct T_G_ICARUS_SET_s {
+struct T_G_ICARUS_SET {
 	int taskID;
 	int entID;
 	char type_name[2048];
 	char data[2048];
-} T_G_ICARUS_SET;
+};
 
-typedef struct T_G_ICARUS_LERP2POS_s {
+struct T_G_ICARUS_LERP2POS {
 	int taskID;
 	int entID;
 	vec3_t origin;
 	vec3_t angles;
 	float duration;
 	bool nullAngles; //special case
-} T_G_ICARUS_LERP2POS;
+};
 
-typedef struct T_G_ICARUS_LERP2ORIGIN_s {
+struct T_G_ICARUS_LERP2ORIGIN {
 	int taskID;
 	int entID;
 	vec3_t origin;
 	float duration;
-} T_G_ICARUS_LERP2ORIGIN;
+};
 
-typedef struct T_G_ICARUS_LERP2ANGLES_s {
+struct T_G_ICARUS_LERP2ANGLES {
 	int taskID;
 	int entID;
 	vec3_t angles;
 	float duration;
-} T_G_ICARUS_LERP2ANGLES;
+};
 
-typedef struct T_G_ICARUS_GETTAG_s {
+struct T_G_ICARUS_GETTAG {
 	int entID;
 	char name[2048];
 	int lookup;
 	vec3_t info;
-} T_G_ICARUS_GETTAG;
+};
 
-typedef struct T_G_ICARUS_LERP2START_s {
+struct T_G_ICARUS_LERP2START {
 	int entID;
 	int taskID;
 	float duration;
-} T_G_ICARUS_LERP2START;
+};
 
-typedef struct T_G_ICARUS_LERP2END_s {
+struct T_G_ICARUS_LERP2END {
 	int entID;
 	int taskID;
 	float duration;
-} T_G_ICARUS_LERP2END;
+};
 
-typedef struct T_G_ICARUS_USE_s {
+struct T_G_ICARUS_USE {
 	int entID;
 	char target[2048];
-} T_G_ICARUS_USE;
+};
 
-typedef struct T_G_ICARUS_KILL_s {
+struct T_G_ICARUS_KILL {
 	int entID;
 	char name[2048];
-} T_G_ICARUS_KILL;
+};
 
-typedef struct T_G_ICARUS_REMOVE_s {
+struct T_G_ICARUS_REMOVE {
 	int entID;
 	char name[2048];
-} T_G_ICARUS_REMOVE;
+};
 
-typedef struct T_G_ICARUS_PLAY_s {
+struct T_G_ICARUS_PLAY {
 	int taskID;
 	int entID;
 	char type[2048];
 	char name[2048];
-} T_G_ICARUS_PLAY;
+};
 
-typedef struct T_G_ICARUS_GETFLOAT_s {
+struct T_G_ICARUS_GETFLOAT {
 	int entID;
 	int type;
 	char name[2048];
 	float value;
-} T_G_ICARUS_GETFLOAT;
+};
 
-typedef struct T_G_ICARUS_GETVECTOR_s {
+struct T_G_ICARUS_GETVECTOR {
 	int entID;
 	int type;
 	char name[2048];
 	vec3_t value;
-} T_G_ICARUS_GETVECTOR;
+};
 
-typedef struct T_G_ICARUS_GETSTRING_s {
+struct T_G_ICARUS_GETSTRING {
 	int entID;
 	int type;
 	char name[2048];
 	char value[2048];
-} T_G_ICARUS_GETSTRING;
+};
 
-typedef struct T_G_ICARUS_SOUNDINDEX_s {
+struct T_G_ICARUS_SOUNDINDEX {
 	char filename[2048];
-} T_G_ICARUS_SOUNDINDEX;
-typedef struct T_G_ICARUS_GETSETIDFORSTRING_s {
-	char string[2048];
-} T_G_ICARUS_GETSETIDFORSTRING;
+};
 
-typedef struct gameImport_s {
+struct T_G_ICARUS_GETSETIDFORSTRING {
+	char string[2048];
+};
+
+struct gameImport_t {
 	// misc
 	void		(*Print)								( const char *msg, ... );
 	NORETURN_PTR void (*Error)( int level, const char *fmt, ... );
@@ -374,19 +379,19 @@ typedef struct gameImport_s {
 
 	// server
 	void		(*AdjustAreaPortalState)				( sharedEntity_t *ent, bool open );
-	bool	(*AreasConnected)						( int area1, int area2 );
+	bool		(*AreasConnected)						( int area1, int area2 );
 	int			(*DebugPolygonCreate)					( int color, int numPoints, vec3_t *points );
 	void		(*DebugPolygonDelete)					( int id );
 	void		(*DropClient)							( int clientNum, const char *reason );
 	int			(*EntitiesInBox)						( const vec3_t mins, const vec3_t maxs, int *list, int maxcount );
-	bool	(*EntityContact)						( const vec3_t mins, const vec3_t maxs, const sharedEntity_t *ent, int capsule );
+	bool		(*EntityContact)						( const vec3_t mins, const vec3_t maxs, const sharedEntity_t *ent, int capsule );
 	void		(*GetConfigstring)						( int num, char *buffer, int bufferSize );
-	bool	(*GetEntityToken)						( char *buffer, int bufferSize );
+	bool		(*GetEntityToken)						( char *buffer, int bufferSize );
 	void		(*GetServerinfo)						( char *buffer, int bufferSize );
 	void		(*GetUsercmd)							( int clientNum, usercmd_t *cmd );
 	void		(*GetUserinfo)							( int num, char *buffer, int bufferSize );
-	bool	(*InPVS)								( const vec3_t p1, const vec3_t p2 );
-	bool	(*InPVSIgnorePortals)					( const vec3_t p1, const vec3_t p2 );
+	bool		(*InPVS)								( const vec3_t p1, const vec3_t p2 );
+	bool		(*InPVSIgnorePortals)					( const vec3_t p1, const vec3_t p2 );
 	void		(*LinkEntity)							( sharedEntity_t *ent );
 	void		(*LocateGameData)						( sharedEntity_t *gEnts, int numGEntities, int sizeofGEntity_t, playerState_t *clients, int sizeofGClient );
 	int			(*PointContents)						( const vec3_t point, int passEntityNum );
@@ -401,21 +406,21 @@ typedef struct gameImport_s {
 	void		(*UnlinkEntity)							( sharedEntity_t *ent );
 
 	// ROFF
-	bool	(*ROFF_Clean)							( void );
+	bool		(*ROFF_Clean)							( void );
 	void		(*ROFF_UpdateEntities)					( void );
 	int			(*ROFF_Cache)							( char *file );
-	bool	(*ROFF_Play)							( int entID, int roffID, bool doTranslation );
-	bool	(*ROFF_Purge_Ent)						( int entID );
+	bool		(*ROFF_Play)							( int entID, int roffID, bool doTranslation );
+	bool		(*ROFF_Purge_Ent)						( int entID );
 
 	// ICARUS
 	int			(*ICARUS_RunScript)						( sharedEntity_t *ent, const char *name );
-	bool	(*ICARUS_RegisterScript)				( const char *name, bool bCalledDuringInterrogate );
+	bool		(*ICARUS_RegisterScript)				( const char *name, bool bCalledDuringInterrogate );
 	void		(*ICARUS_Init)							( void );
-	bool	(*ICARUS_ValidEnt)						( sharedEntity_t *ent );
-	bool	(*ICARUS_IsInitialized)					( int entID );
-	bool	(*ICARUS_MaintainTaskManager)			( int entID );
-	bool	(*ICARUS_IsRunning)						( int entID );
-	bool	(*ICARUS_TaskIDPending)					( sharedEntity_t *ent, int taskID );
+	bool		(*ICARUS_ValidEnt)						( sharedEntity_t *ent );
+	bool		(*ICARUS_IsInitialized)					( int entID );
+	bool		(*ICARUS_MaintainTaskManager)			( int entID );
+	bool		(*ICARUS_IsRunning)						( int entID );
+	bool		(*ICARUS_TaskIDPending)					( sharedEntity_t *ent, int taskID );
 	void		(*ICARUS_InitEnt)						( sharedEntity_t *ent );
 	void		(*ICARUS_FreeEnt)						( sharedEntity_t *ent );
 	void		(*ICARUS_AssociateEnt)					( sharedEntity_t *ent );
@@ -488,69 +493,69 @@ typedef struct gameImport_s {
 
 	void		(*G2API_ListModelBones)					( void *ghlInfo, int frame );
 	void		(*G2API_ListModelSurfaces)				( void *ghlInfo );
-	bool	(*G2API_HaveWeGhoul2Models)				( void *ghoul2 );
+	bool		(*G2API_HaveWeGhoul2Models)				( void *ghoul2 );
 	void		(*G2API_SetGhoul2ModelIndexes)			( void *ghoul2, qhandle_t *modelList, qhandle_t *skinList );
-	bool	(*G2API_GetBoltMatrix)					( void *ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix, const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, vec3_t scale );
-	bool	(*G2API_GetBoltMatrix_NoReconstruct)	( void *ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix, const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, vec3_t scale );
-	bool	(*G2API_GetBoltMatrix_NoRecNoRot)		( void *ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix, const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, vec3_t scale );
+	bool		(*G2API_GetBoltMatrix)					( void *ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix, const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, vec3_t scale );
+	bool		(*G2API_GetBoltMatrix_NoReconstruct)	( void *ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix, const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, vec3_t scale );
+	bool		(*G2API_GetBoltMatrix_NoRecNoRot)		( void *ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix, const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, vec3_t scale );
 	int			(*G2API_InitGhoul2Model)				( void **ghoul2Ptr, const char *fileName, int modelIndex, qhandle_t customSkin, qhandle_t customShader, int modelFlags, int lodBias );
-	bool	(*G2API_SetSkin)						( void *ghoul2, int modelIndex, qhandle_t customSkin, qhandle_t renderSkin );
+	bool		(*G2API_SetSkin)						( void *ghoul2, int modelIndex, qhandle_t customSkin, qhandle_t renderSkin );
 	int			(*G2API_Ghoul2Size)						( void *ghlInfo );
 	int			(*G2API_AddBolt)						( void *ghoul2, int modelIndex, const char *boneName );
 	void		(*G2API_SetBoltInfo)					( void *ghoul2, int modelIndex, int boltInfo );
-	bool	(*G2API_SetBoneAngles)					( void *ghoul2, int modelIndex, const char *boneName, const vec3_t angles, const int flags, const int up, const int right, const int forward, qhandle_t *modelList, int blendTime , int currentTime );
-	bool	(*G2API_SetBoneAnim)					( void *ghoul2, const int modelIndex, const char *boneName, const int startFrame, const int endFrame, const int flags, const float animSpeed, const int currentTime, const float setFrame, const int blendTime );
-	bool	(*G2API_GetBoneAnim)					( void *ghoul2, const char *boneName, const int currentTime, float *currentFrame, int *startFrame, int *endFrame, int *flags, float *animSpeed, int *modelList, const int modelIndex );
+	bool		(*G2API_SetBoneAngles)					( void *ghoul2, int modelIndex, const char *boneName, const vec3_t angles, const int flags, const int up, const int right, const int forward, qhandle_t *modelList, int blendTime , int currentTime );
+	bool		(*G2API_SetBoneAnim)					( void *ghoul2, const int modelIndex, const char *boneName, const int startFrame, const int endFrame, const int flags, const float animSpeed, const int currentTime, const float setFrame, const int blendTime );
+	bool		(*G2API_GetBoneAnim)					( void *ghoul2, const char *boneName, const int currentTime, float *currentFrame, int *startFrame, int *endFrame, int *flags, float *animSpeed, int *modelList, const int modelIndex );
 	void		(*G2API_GetGLAName)						( void *ghoul2, int modelIndex, char *fillBuf );
 	int			(*G2API_CopyGhoul2Instance)				( void *g2From, void *g2To, int modelIndex );
 	void		(*G2API_CopySpecificGhoul2Model)		( void *g2From, int modelFrom, void *g2To, int modelTo );
 	void		(*G2API_DuplicateGhoul2Instance)		( void *g2From, void **g2To );
-	bool	(*G2API_HasGhoul2ModelOnIndex)			( void *ghlInfo, int modelIndex );
-	bool	(*G2API_RemoveGhoul2Model)				( void *ghlInfo, int modelIndex );
-	bool	(*G2API_RemoveGhoul2Models)				( void *ghlInfo );
+	bool		(*G2API_HasGhoul2ModelOnIndex)			( void *ghlInfo, int modelIndex );
+	bool		(*G2API_RemoveGhoul2Model)				( void *ghlInfo, int modelIndex );
+	bool		(*G2API_RemoveGhoul2Models)				( void *ghlInfo );
 	void		(*G2API_CleanGhoul2Models)				( void **ghoul2Ptr );
 	void		(*G2API_CollisionDetect)				( CollisionRecord_t *collRecMap, void *ghoul2, const vec3_t angles, const vec3_t position, int frameNumber, int entNum, vec3_t rayStart, vec3_t rayEnd, vec3_t scale, int traceFlags, int useLod, float fRadius );
 	void		(*G2API_CollisionDetectCache)			( CollisionRecord_t *collRecMap, void* ghoul2, const vec3_t angles, const vec3_t position, int frameNumber, int entNum, vec3_t rayStart, vec3_t rayEnd, vec3_t scale, int traceFlags, int useLod, float fRadius );
-	bool	(*G2API_SetRootSurface)					( void *ghoul2, const int modelIndex, const char *surfaceName );
-	bool	(*G2API_SetSurfaceOnOff)				( void *ghoul2, const char *surfaceName, const int flags );
-	bool	(*G2API_SetNewOrigin)					( void *ghoul2, const int boltIndex );
-	bool	(*G2API_DoesBoneExist)					( void *ghoul2, int modelIndex, const char *boneName );
+	bool		(*G2API_SetRootSurface)					( void *ghoul2, const int modelIndex, const char *surfaceName );
+	bool		(*G2API_SetSurfaceOnOff)				( void *ghoul2, const char *surfaceName, const int flags );
+	bool		(*G2API_SetNewOrigin)					( void *ghoul2, const int boltIndex );
+	bool		(*G2API_DoesBoneExist)					( void *ghoul2, int modelIndex, const char *boneName );
 	int			(*G2API_GetSurfaceRenderStatus)			( void *ghoul2, const int modelIndex, const char *surfaceName );
 	void		(*G2API_AbsurdSmoothing)				( void *ghoul2, bool status );
 	void		(*G2API_SetRagDoll)						( void *ghoul2, sharedRagDollParams_t *params );
 	void		(*G2API_AnimateG2Models)				( void *ghoul2, int time, sharedRagDollUpdateParams_t *params );
-	bool	(*G2API_RagPCJConstraint)				( void *ghoul2, const char *boneName, vec3_t min, vec3_t max );
-	bool	(*G2API_RagPCJGradientSpeed)			( void *ghoul2, const char *boneName, const float speed );
-	bool	(*G2API_RagEffectorGoal)				( void *ghoul2, const char *boneName, vec3_t pos );
-	bool	(*G2API_GetRagBonePos)					( void *ghoul2, const char *boneName, vec3_t pos, vec3_t entAngles, vec3_t entPos, vec3_t entScale );
-	bool	(*G2API_RagEffectorKick)				( void *ghoul2, const char *boneName, vec3_t velocity );
-	bool	(*G2API_RagForceSolve)					( void *ghoul2, bool force );
-	bool	(*G2API_SetBoneIKState)					( void *ghoul2, int time, const char *boneName, int ikState, sharedSetBoneIKStateParams_t *params );
-	bool	(*G2API_IKMove)							( void *ghoul2, int time, sharedIKMoveParams_t *params );
-	bool	(*G2API_RemoveBone)						( void *ghoul2, const char *boneName, int modelIndex );
+	bool		(*G2API_RagPCJConstraint)				( void *ghoul2, const char *boneName, vec3_t min, vec3_t max );
+	bool		(*G2API_RagPCJGradientSpeed)			( void *ghoul2, const char *boneName, const float speed );
+	bool		(*G2API_RagEffectorGoal)				( void *ghoul2, const char *boneName, vec3_t pos );
+	bool		(*G2API_GetRagBonePos)					( void *ghoul2, const char *boneName, vec3_t pos, vec3_t entAngles, vec3_t entPos, vec3_t entScale );
+	bool		(*G2API_RagEffectorKick)				( void *ghoul2, const char *boneName, vec3_t velocity );
+	bool		(*G2API_RagForceSolve)					( void *ghoul2, bool force );
+	bool		(*G2API_SetBoneIKState)					( void *ghoul2, int time, const char *boneName, int ikState, sharedSetBoneIKStateParams_t *params );
+	bool		(*G2API_IKMove)							( void *ghoul2, int time, sharedIKMoveParams_t *params );
+	bool		(*G2API_RemoveBone)						( void *ghoul2, const char *boneName, int modelIndex );
 	void		(*G2API_AttachInstanceToEntNum)			( void *ghoul2, int entityNum, bool server );
 	void		(*G2API_ClearAttachedInstance)			( int entityNum );
 	void		(*G2API_CleanEntAttachments)			( void );
-	bool	(*G2API_OverrideServer)					( void *serverInstance );
+	bool		(*G2API_OverrideServer)					( void *serverInstance );
 	void		(*G2API_GetSurfaceName)					( void *ghoul2, int surfNumber, int modelIndex, char *fillBuf );
-} gameImport_t;
+};
 
-typedef struct gameExport_s {
+struct gameExport_t {
 	void		(*InitGame)							( int levelTime, int randomSeed, int restart );
 	void		(*ShutdownGame)						( int restart );
 	char *		(*ClientConnect)					( int clientNum, bool firstTime, bool isBot );
 	void		(*ClientBegin)						( int clientNum, bool allowTeamReset );
-	bool	(*ClientUserinfoChanged)			( int clientNum );
+	bool		(*ClientUserinfoChanged)			( int clientNum );
 	void		(*ClientDisconnect)					( int clientNum );
 	void		(*ClientCommand)					( int clientNum );
 	void		(*ClientThink)						( int clientNum, usercmd_t *ucmd );
 	void		(*RunFrame)							( int levelTime );
-	bool	(*ConsoleCommand)					( void );
+	bool		(*ConsoleCommand)					( void );
 	int			(*BotAIStartFrame)					( int time );
 	void		(*ROFF_NotetrackCallback)			( int entID, const char *notetrack );
 	void		(*SpawnRMGEntity)					( void );
 	int			(*ICARUS_PlaySound)					( void );
-	bool	(*ICARUS_Set)						( void );
+	bool		(*ICARUS_Set)						( void );
 	void		(*ICARUS_Lerp2Pos)					( void );
 	void		(*ICARUS_Lerp2Origin)				( void );
 	void		(*ICARUS_Lerp2Angles)				( void );
@@ -567,7 +572,7 @@ typedef struct gameExport_s {
 	void		(*ICARUS_SoundIndex)				( void );
 	int			(*ICARUS_GetSetIDForString)			( void );
 	int			(*BG_GetItemIndexByTag)				( int tag, int type );
-} gameExport_t;
+};
 
 //linking of game library
 typedef gameExport_t* (QDECL *GetGameAPI_t)( int apiVersion, gameImport_t *import );

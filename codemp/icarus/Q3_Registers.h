@@ -69,4 +69,4 @@ void Q3_DeclareVariable(int type, const char* name);
 void Q3_FreeVariable(const char* name);
 void Q3_InitVariables(void);
 
-#endif !defined( _GAME ) && !defined( _CGAME ) && !defined( UI_BUILD )
+#endif // !defined( _GAME ) && !defined( _CGAME ) && !defined( UI_BUILD )

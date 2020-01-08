@@ -357,7 +357,7 @@ int CFxScheduler::RegisterEffect( const char *file, bool bHasCorrectPath /*= fal
 // Then we call the appropriate function to parse the specified effect group.
 //	name	base group, essentially the whole files contents
 // Returns handle of the effect
-const struct primitiveType_s {
+const struct primitiveType_t {
 	const char *name;
 	EPrimType type;
 } primitiveTypes[] = {

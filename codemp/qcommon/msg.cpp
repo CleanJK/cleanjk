@@ -1269,14 +1269,14 @@ void MSG_ReadDeltaUsercmdKey( msg_t *msg, int key, usercmd_t *from, usercmd_t *t
 
 // entityState_t communication
 
-typedef struct netField_s {
+struct netField_t {
 	const char	*name;
 	size_t	offset;
 	int		bits;		// 0 = float
 #ifndef FINAL_BUILD
 	unsigned	mCount;
 #endif
-} netField_t;
+};
 
 // using the stringizing operator to save typing...
 #define	NETF(x) #x,offsetof(entityState_t, x)
@@ -1477,7 +1477,7 @@ netField_t	entityStateFields[] =
 // Can delta from either a baseline or a previous packet_entity
 // If to is nullptr, a remove entity update will be sent
 // If force is not set, then nothing at all will be generated if the entity is identical, under the assumption that the in-order delta code will catch it.
-void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entityState_s *to,
+void MSG_WriteDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
 						   bool force ) {
 	int			i, lc;
 	int			numFields;
@@ -1884,9 +1884,9 @@ netField_t	playerStateFields[] =
 #define STAT_WEAPONS 4
 
 #ifdef _ONEBIT_COMBO
-void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct playerState_s *to, int *bitComboDelta, int *bitNumDelta ) {
+void MSG_WriteDeltaPlayerstate( msg_t *msg, playerState_t *from, playerState_t *to, int *bitComboDelta, int *bitNumDelta ) {
 #else
-void MSG_WriteDeltaPlayerstate( msg_t *msg, struct playerState_s *from, struct playerState_s *to ) {
+void MSG_WriteDeltaPlayerstate( msg_t *msg, playerState_t *from, playerState_t *to ) {
 #endif
 	int				i;
 	playerState_t	dummy;
