@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -82,8 +83,8 @@ static const consoleCommand_t commands[] = {
 static const size_t numCommands = ARRAY_LEN( commands );
 
 // The string has been tokenized and can be retrieved with Cmd_Argc() / Cmd_Argv()
-qboolean UI_ConsoleCommand( int realTime ) {
-	consoleCommand_t *command = NULL;
+bool UI_ConsoleCommand( int realTime ) {
+	consoleCommand_t *command = nullptr;
 
 	uiInfo.uiDC.frameTime = realTime - uiInfo.uiDC.realTime;
 	uiInfo.uiDC.realTime = realTime;
@@ -91,10 +92,10 @@ qboolean UI_ConsoleCommand( int realTime ) {
 	command = (consoleCommand_t *)Q_LinearSearch( UI_Argv( 0 ), commands, numCommands, sizeof( commands[0] ), cmdcmp );
 
 	if ( !command )
-		return qfalse;
+		return false;
 
 	command->func();
-	return qtrue;
+	return true;
 }
 
 void UI_DrawHandlePic( float x, float y, float w, float h, qhandle_t hShader ) {
@@ -130,7 +131,7 @@ void UI_DrawHandlePic( float x, float y, float w, float h, qhandle_t hShader ) {
 void UI_FillRect( float x, float y, float width, float height, const float *color ) {
 	trap->R_SetColor( color );
 	trap->R_DrawStretchPic( x, y, width, height, 0, 0, 0, 0, uiInfo.uiDC.whiteShader );
-	trap->R_SetColor( NULL );
+	trap->R_SetColor( nullptr );
 }
 
 void UI_DrawSides(float x, float y, float w, float h) {
@@ -150,5 +151,5 @@ void UI_DrawRect( float x, float y, float width, float height, const float *colo
 	UI_DrawTopBottom(x, y, width, height);
 	UI_DrawSides(x, y, width, height);
 
-	trap->R_SetColor( NULL );
+	trap->R_SetColor( nullptr );
 }

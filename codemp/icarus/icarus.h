@@ -2,7 +2,8 @@
 ===========================================================================
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -23,18 +24,32 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 // ICARUS Public Header File
+// TODO: refactor this?
+
+// ======================================================================
+// FUNCTION
+// ======================================================================
+
+void ICARUS_Free(void* pMem);
+void* ICARUS_Malloc(int iSize);
+
+// ======================================================================
+// INCLUDE
+// ======================================================================
+
 // we never want to include an icarus file before sharedentity_t is declared.
-
-void *ICARUS_Malloc(int iSize);
-void  ICARUS_Free(void *pMem);
-
 #include "game/g_public.h"
 
-extern class CSequencer	*gSequencers[MAX_GENTITIES];
-extern class CTaskManager	*gTaskManagers[MAX_GENTITIES];
+// ======================================================================
+// EXTERN VARIABLE
+// ======================================================================
 
-#define STL_ITERATE( a, b )		for ( a = b.begin(); a != b.end(); ++a )
-#define STL_INSERT( a, b )		a.insert( a.end(), b );
+extern class CSequencer* gSequencers[MAX_GENTITIES];
+extern class CTaskManager* gTaskManagers[MAX_GENTITIES];
+
+// ======================================================================
+// INCLUDE
+// ======================================================================
 
 #include "icarus/tokenizer.h"
 #include "icarus/blockstream.h"
@@ -42,3 +57,10 @@ extern class CTaskManager	*gTaskManagers[MAX_GENTITIES];
 #include "icarus/sequencer.h"
 #include "icarus/taskmanager.h"
 #include "icarus/instance.h"
+
+// ======================================================================
+// DEFINE
+// ======================================================================
+
+#define STL_ITERATE( a, b )		for ( a = b.begin(); a != b.end(); ++a )
+#define STL_INSERT( a, b )		a.insert( a.end(), b );

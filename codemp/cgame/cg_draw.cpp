@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -27,9 +28,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <algorithm>
 
 #include "cgame/cg_local.h"
-
-#include "game/bg_saga.h"
-
 #include "ui/ui_shared.h"
 #include "ui/ui_public.h"
 #include "ui/ui_fonts.h"
@@ -103,12 +101,12 @@ char *showPowersName[] =
 	"SABER_OFFENSE2",//FP_SABER_OFFENSE
 	"SABER_DEFENSE2",//FP_SABER_DEFENSE
 	"SABER_THROW2",//FP_SABERTHROW
-	NULL
+	nullptr
 };
 
 //Called from UI shared code. For now we'll just redirect to the normal anim load function.
 
-int UI_ParseAnimationFile(const char *filename, animation_t *animset, qboolean isHumanoid)
+int UI_ParseAnimationFile(const char *filename, animation_t *animset, bool isHumanoid)
 {
 	return BG_ParseAnimationFile(filename, animset, isHumanoid);
 }
@@ -117,7 +115,7 @@ static void CG_DrawZoomMask( void )
 {
 	vec4_t		color1;
 	float		level;
-	static qboolean	flip = qtrue;
+	static bool	flip = true;
 
 //	int ammo = cg_entities[0].gent->client->ps.ammo[weaponData[cent->currentState.weapon].ammoIndex];
 	float cx, cy;
@@ -180,7 +178,7 @@ static void CG_DrawZoomMask( void )
 			if (( off > 3.0f && i == -10 ) || i > -10 )
 			{
 				// draw the value, but add 200 just to bump the range up...arbitrary, so change it if you like
-				CG_DrawNumField( 155 + i * 10 + off * 10, 374, 3, val + 200, 24, 14, NUM_FONT_CHUNKY, qtrue );
+				CG_DrawNumField( 155 + i * 10 + off * 10, 374, 3, val + 200, 24, 14, NUM_FONT_CHUNKY, true );
 				CG_DrawPic( 245 + (i-1) * 10 + off * 10, 376, 6, 6, media.gfx.misc.white );
 			}
 		}
@@ -386,7 +384,7 @@ void CG_DrawHead( float x, float y, float w, float h, int clientNum, vec3_t head
 }
 
 // Used for both the status bar and the scoreboard
-void CG_DrawFlagModel( float x, float y, float w, float h, int team, qboolean force2D ) {
+void CG_DrawFlagModel( float x, float y, float w, float h, int team, bool force2D ) {
 	qhandle_t		cm;
 	float			len;
 	vec3_t			origin, angles;
@@ -425,7 +423,7 @@ void CG_DrawFlagModel( float x, float y, float w, float h, int team, qboolean fo
 		} else {
 			return;
 		}
-		CG_Draw3DModel( x, y, w, h, handle, NULL, 0, 0, origin, angles );
+		CG_Draw3DModel( x, y, w, h, handle, nullptr, 0, 0, origin, angles );
 	} else if ( cg_drawIcons.integer ) {
 		gitem_t *item;
 
@@ -521,7 +519,7 @@ void CG_DrawHealth( menuDef_t *menuHUD )
 			focusItem->window.rect.w,
 			focusItem->window.rect.h,
 			NUM_FONT_SMALL,
-			qfalse);
+			false);
 	}
 
 }
@@ -615,7 +613,7 @@ void CG_DrawArmor( menuDef_t *menuHUD )
 			focusItem->window.rect.w,
 			focusItem->window.rect.h,
 			NUM_FONT_SMALL,
-			qfalse);
+			false);
 	}
 
 	// If armor is low, flash a graphic to warn the player
@@ -631,22 +629,22 @@ void CG_DrawArmor( menuDef_t *menuHUD )
 				cg.HUDTickFlashTime = cg.time + 400;
 				if (cg.HUDArmorFlag)
 				{
-					cg.HUDArmorFlag = qfalse;
+					cg.HUDArmorFlag = false;
 				}
 				else
 				{
-					cg.HUDArmorFlag = qtrue;
+					cg.HUDArmorFlag = true;
 				}
 			}
 		}
 		else
 		{
-			cg.HUDArmorFlag=qtrue;
+			cg.HUDArmorFlag=true;
 		}
 	}
 	else						// No armor? Don't show it.
 	{
-		cg.HUDArmorFlag=qfalse;
+		cg.HUDArmorFlag=false;
 	}
 
 }
@@ -835,7 +833,7 @@ static void CG_DrawAmmo( centity_t	*cent,menuDef_t *menuHUD)
 				focusItem->window.rect.w,
 				focusItem->window.rect.h,
 				NUM_FONT_SMALL,
-				qfalse);
+				false);
 		}
 	}
 
@@ -885,7 +883,7 @@ void CG_DrawForcePower( menuDef_t *menuHUD )
 	float			value,inc,percent;
 	itemDef_t		*focusItem;
 	const int		maxForcePower = 100;
-	qboolean	flash=qfalse;
+	bool	flash=false;
 
 	// Can we find the menu?
 	if (!menuHUD)
@@ -896,19 +894,19 @@ void CG_DrawForcePower( menuDef_t *menuHUD )
 	// Make the hud flash by setting forceHUDTotalFlashTime above cg.time
 	if (cg.forceHUDTotalFlashTime > cg.time )
 	{
-		flash = qtrue;
+		flash = true;
 		if (cg.forceHUDNextFlashTime < cg.time)
 		{
 			cg.forceHUDNextFlashTime = cg.time + 400;
-			trap->S_StartSound (NULL, 0, CHAN_LOCAL, media.sounds.null );
+			trap->S_StartSound (nullptr, 0, CHAN_LOCAL, media.sounds.null );
 
 			if (cg.forceHUDActive)
 			{
-				cg.forceHUDActive = qfalse;
+				cg.forceHUDActive = false;
 			}
 			else
 			{
-				cg.forceHUDActive = qtrue;
+				cg.forceHUDActive = true;
 			}
 
 		}
@@ -916,7 +914,7 @@ void CG_DrawForcePower( menuDef_t *menuHUD )
 	else	// turn HUD back on if it had just finished flashing time.
 	{
 		cg.forceHUDNextFlashTime = 0;
-		cg.forceHUDActive = qtrue;
+		cg.forceHUDActive = true;
 	}
 
 //	if (!cg.forceHUDActive)
@@ -1003,7 +1001,7 @@ void CG_DrawForcePower( menuDef_t *menuHUD )
 			focusItem->window.rect.w,
 			focusItem->window.rect.h,
 			NUM_FONT_SMALL,
-			qfalse);
+			false);
 	}
 }
 
@@ -1120,7 +1118,7 @@ static void CG_DrawSimpleForcePower( const centity_t *cent )
 {
 	uint32_t	calcColor;
 	char		num[16] = { 0 };
-	qboolean	flash = qfalse;
+	bool	flash = false;
 
 	if ( !cg.snap->ps.fd.forcePowersKnown )
 	{
@@ -1130,18 +1128,18 @@ static void CG_DrawSimpleForcePower( const centity_t *cent )
 	// Make the hud flash by setting forceHUDTotalFlashTime above cg.time
 	if ( cg.forceHUDTotalFlashTime > cg.time )
 	{
-		flash = qtrue;
+		flash = true;
 		if ( cg.forceHUDNextFlashTime < cg.time )
 		{
 			cg.forceHUDNextFlashTime = cg.time + 400;
-			trap->S_StartSound( NULL, 0, CHAN_LOCAL, media.sounds.null );
+			trap->S_StartSound( nullptr, 0, CHAN_LOCAL, media.sounds.null );
 			if ( cg.forceHUDActive )
 			{
-				cg.forceHUDActive = qfalse;
+				cg.forceHUDActive = false;
 			}
 			else
 			{
-				cg.forceHUDActive = qtrue;
+				cg.forceHUDActive = true;
 			}
 
 		}
@@ -1149,7 +1147,7 @@ static void CG_DrawSimpleForcePower( const centity_t *cent )
 	else	// turn HUD back on if it had just finished flashing time.
 	{
 		cg.forceHUDNextFlashTime = 0;
-		cg.forceHUDActive = qtrue;
+		cg.forceHUDActive = true;
 	}
 
 	// Determine the color of the numeric field
@@ -1162,9 +1160,9 @@ static void CG_DrawSimpleForcePower( const centity_t *cent )
 
 void CG_DrawHUD(centity_t	*cent)
 {
-	menuDef_t	*menuHUD = NULL;
-	itemDef_t	*focusItem = NULL;
-	const char *scoreStr = NULL;
+	menuDef_t	*menuHUD = nullptr;
+	itemDef_t	*focusItem = nullptr;
+	const char *scoreStr = nullptr;
 	int	scoreBias;
 	char scoreBiasStr[16];
 
@@ -1196,7 +1194,7 @@ void CG_DrawHUD(centity_t	*cent)
 	{
 		// Draw the left HUD
 		menuHUD = Menus_FindByName("lefthud");
-		Menu_Paint( menuHUD, qtrue );
+		Menu_Paint( menuHUD, true );
 
 		if (menuHUD)
 		{
@@ -1278,7 +1276,7 @@ void CG_DrawHUD(centity_t	*cent)
 		}
 
 		menuHUD = Menus_FindByName("righthud");
-		Menu_Paint( menuHUD, qtrue );
+		Menu_Paint( menuHUD, true );
 
 		if (menuHUD)
 		{
@@ -1345,22 +1343,22 @@ void CG_DrawHUD(centity_t	*cent)
 
 #define MAX_SHOWPOWERS NUM_FORCE_POWERS
 
-qboolean ForcePower_Valid(int i)
+bool ForcePower_Valid(int i)
 {
 	if (i == FP_LEVITATION ||
 		i == FP_SABER_OFFENSE ||
 		i == FP_SABER_DEFENSE ||
 		i == FP_SABERTHROW)
 	{
-		return qfalse;
+		return false;
 	}
 
 	if (cg.snap->ps.fd.forcePowersKnown & (1 << i))
 	{
-		return qtrue;
+		return true;
 	}
 
-	return qfalse;
+	return false;
 }
 
 void CG_DrawForceSelect( void )
@@ -1439,7 +1437,7 @@ void CG_DrawForceSelect( void )
 		i = MAX_SHOWPOWERS - 1;
 	}
 
-	trap->R_SetColor(NULL);
+	trap->R_SetColor(nullptr);
 	// Work backwards from current icon
 	holdX = x - ((bigIconSize/2) + pad + smallIconSize);
 	for (iconCnt=1;iconCnt<(sideLeftIconCnt+1);i--)
@@ -1617,12 +1615,12 @@ void CG_DrawInvenSelect( void )
 
 		if (media.gfx.null/*[i]*/)
 		{
-			trap->R_SetColor(NULL);
+			trap->R_SetColor(nullptr);
 			CG_DrawPic( holdX, y+10, smallIconSize, smallIconSize, media.gfx.null/*[i]*/ );
 
 			trap->R_SetColor(colorTable[CT_ICON_BLUE]);
 			/*CG_DrawNumField (holdX + addX, y + smallIconSize, 2, cg.snap->ps.inventory[i], 6, 12,
-				NUM_FONT_SMALL,qfalse);
+				NUM_FONT_SMALL,false);
 				*/
 
 			holdX -= (smallIconSize+pad);
@@ -1633,12 +1631,12 @@ void CG_DrawInvenSelect( void )
 	if (media.gfx.null/* [cg.itemSelect] */ && BG_IsItemSelectable(&cg.predictedPlayerState, cg.itemSelect))
 	{
 		int itemNdex;
-		trap->R_SetColor(NULL);
+		trap->R_SetColor(nullptr);
 		CG_DrawPic( x-(bigIconSize/2), (y-((bigIconSize-smallIconSize)/2))+10, bigIconSize, bigIconSize, media.gfx.null/* [cg.itemSelect] */ );
 	//	addX = (float) bigIconSize * .75;
 		trap->R_SetColor(colorTable[CT_ICON_BLUE]);
 		/*CG_DrawNumField ((x-(bigIconSize/2)) + addX, y, 2, cg.snap->ps.inventory[cg.inventorySelect], 6, 12,
-			NUM_FONT_SMALL,qfalse);*/
+			NUM_FONT_SMALL,false);*/
 
 		itemNdex = BG_GetItemIndexByTag(cg.itemSelect, IT_HOLDABLE);
 		if (bg_itemlist[itemNdex].classname)
@@ -1691,12 +1689,12 @@ void CG_DrawInvenSelect( void )
 
 		if (media.gfx.null/* [i] */)
 		{
-			trap->R_SetColor(NULL);
+			trap->R_SetColor(nullptr);
 			CG_DrawPic( holdX, y+10, smallIconSize, smallIconSize, media.gfx.null/* [i] */ );
 
 			trap->R_SetColor(colorTable[CT_ICON_BLUE]);
 			/*CG_DrawNumField (holdX + addX, y + smallIconSize, 2, cg.snap->ps.inventory[i], 6, 12,
-				NUM_FONT_SMALL,qfalse);*/
+				NUM_FONT_SMALL,false);*/
 
 			holdX += (smallIconSize+pad);
 		}
@@ -1721,7 +1719,7 @@ static void CG_DrawPickupItem( void ) {
 			CG_RegisterItemVisuals( value );
 			trap->R_SetColor( fadeColor );
 			CG_DrawPic( 573, 320, ICON_SIZE, ICON_SIZE, cg_items[ value ].icon );
-			trap->R_SetColor( NULL );
+			trap->R_SetColor( nullptr );
 		}
 	}
 }
@@ -1746,7 +1744,7 @@ void CG_DrawTeamBackground( int x, int y, int w, int h, float alpha, int team )
 
 	CG_FillRect ( x, y, w, h, hcolor );
 //	CG_DrawPic( x, y, w, h, media.gfx.null );
-	trap->R_SetColor( NULL );
+	trap->R_SetColor( nullptr );
 }
 
 static float CG_DrawMiniScoreboard ( float y )
@@ -2159,7 +2157,7 @@ float CG_DrawRadar ( float y )
 		distance  = distance / cg_radarRange;
 		distance *= RADAR_RADIUS;
 
-		AngleVectors ( cg.predictedPlayerState.viewangles, dirLook, NULL, NULL );
+		AngleVectors ( cg.predictedPlayerState.viewangles, dirLook, nullptr, nullptr );
 
 		dirLook[2] = 0;
 		anglePlayer = atan2(dirPlayer[0],dirPlayer[1]);
@@ -2397,7 +2395,7 @@ static float CG_DrawTimer( float y ) {
 	return y + BIGCHAR_HEIGHT + 4;
 }
 
-static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
+static float CG_DrawTeamOverlay( float y, bool right, bool upper ) {
 	int x, w, h, xx;
 	int i, j, len;
 	const char *p;
@@ -2485,7 +2483,7 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 	}
 	trap->R_SetColor( hcolor );
 	CG_DrawPic( x + xOffset, y, w, h, media.gfx.null );
-	trap->R_SetColor( NULL );
+	trap->R_SetColor( nullptr );
 
 	for (i = 0; i < count; i++) {
 		ci = cgs.clientinfo + sortedTeamPlayers[i];
@@ -2496,7 +2494,7 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 			xx = x + TINYCHAR_WIDTH;
 
 			CG_DrawStringExt( xx + xOffset, y,
-				ci->name, hcolor, qfalse, qfalse,
+				ci->name, hcolor, false, false,
 				TINYCHAR_WIDTH, TINYCHAR_HEIGHT, TEAM_OVERLAY_MAXNAME_WIDTH);
 
 			if (lwidth) {
@@ -2511,7 +2509,7 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 //					((lwidth/2 - len/2) * TINYCHAR_WIDTH);
 				xx = x + TINYCHAR_WIDTH * 2 + TINYCHAR_WIDTH * pwidth;
 				CG_DrawStringExt( xx + xOffset, y,
-					p, hcolor, qfalse, qfalse, TINYCHAR_WIDTH, TINYCHAR_HEIGHT,
+					p, hcolor, false, false, TINYCHAR_WIDTH, TINYCHAR_HEIGHT,
 					TEAM_OVERLAY_MAXLOCATION_WIDTH);
 			}
 
@@ -2523,7 +2521,7 @@ static float CG_DrawTeamOverlay( float y, qboolean right, qboolean upper ) {
 				TINYCHAR_WIDTH * pwidth + TINYCHAR_WIDTH * lwidth;
 
 			CG_DrawStringExt( xx + xOffset, y,
-				st, hcolor, qfalse, qfalse,
+				st, hcolor, false, false,
 				TINYCHAR_WIDTH, TINYCHAR_HEIGHT, 0 );
 
 			// draw weapon icon
@@ -2576,7 +2574,7 @@ static void CG_DrawPowerupIcons(int y)
 	int xOffset = 0;
 	gitem_t	*item;
 
-	trap->R_SetColor( NULL );
+	trap->R_SetColor( nullptr );
 
 	if (!cg.snap)
 	{
@@ -2633,7 +2631,7 @@ static void CG_DrawUpperRight( void ) {
 	trap->R_SetColor( colorTable[CT_WHITE] );
 
 	if ( cgs.gametype >= GT_TEAM && cg_drawTeamOverlay.integer == 1 ) {
-		y = CG_DrawTeamOverlay( y, qtrue, qtrue );
+		y = CG_DrawTeamOverlay( y, true, true );
 	}
 	if ( cg_drawSnapshot.integer ) {
 		y = CG_DrawSnapshot( y );
@@ -2708,7 +2706,7 @@ static void CG_DrawReward( void ) {
 		CG_DrawPic( x, y, ICON_SIZE-4, ICON_SIZE-4, cg.rewardShader[0] );
 		Com_sprintf(buf, sizeof(buf), "%d", cg.rewardCount[0]);
 		x = ( SCREEN_WIDTH - SMALLCHAR_WIDTH * CG_DrawStrlen( buf ) ) / 2;
-		CG_DrawStringExt( x, y+ICON_SIZE, buf, color, qfalse, qtrue,
+		CG_DrawStringExt( x, y+ICON_SIZE, buf, color, false, true,
 								SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0 );
 	}
 	else {
@@ -2722,7 +2720,7 @@ static void CG_DrawReward( void ) {
 			x += ICON_SIZE;
 		}
 	}
-	trap->R_SetColor( NULL );
+	trap->R_SetColor( nullptr );
 }
 #endif
 
@@ -2746,7 +2744,7 @@ void CG_AddLagometerFrameInfo( void ) {
 }
 
 // Each time a snapshot is received, log its ping time and the number of snapshots that were dropped before it.
-// Pass NULL for a dropped packet.
+// Pass nullptr for a dropped packet.
 void CG_AddLagometerSnapshotInfo( snapshot_t *snap ) {
 	// dropped packet
 	if ( !snap ) {
@@ -2825,7 +2823,7 @@ static void CG_DrawLagometer( void ) {
 	x = 640 - 48;
 	y = 480 - 144;
 
-	trap->R_SetColor( NULL );
+	trap->R_SetColor( nullptr );
 	CG_DrawPic( x, y, 48, 48, media.gfx.null );
 
 	ax = x;
@@ -2899,7 +2897,7 @@ static void CG_DrawLagometer( void ) {
 		}
 	}
 
-	trap->R_SetColor( NULL );
+	trap->R_SetColor( nullptr );
 
 	if ( cg_noPredict.integer || g_synchronousClients.integer ) {
 		CG_DrawBigString( ax, ay, "snc", 1.0 );
@@ -2941,12 +2939,12 @@ void CG_CenterPrint( const char *str, int y, int charWidth ) {
 	}
 }
 
-qboolean BG_IsWhiteSpace( char c )
+bool BG_IsWhiteSpace( char c )
 {//this function simply checks to see if the given character is whitespace.
 	if ( c == ' ' || c == '\n' || c == '\0' )
-		return qtrue;
+		return true;
 
-	return qfalse;
+	return false;
 }
 static void CG_DrawCenterString( void ) {
 	char	*start;
@@ -3029,7 +3027,7 @@ static void CG_DrawCenterString( void ) {
 		//[/BugFix19]
 	}
 
-	trap->R_SetColor( NULL );
+	trap->R_SetColor( nullptr );
 }
 
 #define HEALTH_WIDTH		50.0f
@@ -3220,7 +3218,7 @@ void CG_LerpCrosshairPos( float *x, float *y )
 	cg_crosshairPrevPosY = *y;
 }
 
-static qboolean CG_WorldCoordToScreenCoordFloat(vec3_t worldCoord, float *x, float *y) {
+static bool CG_WorldCoordToScreenCoordFloat(vec3_t worldCoord, float *x, float *y) {
     vec3_t trans;
     float xc, yc;
     float px, py;
@@ -3237,12 +3235,12 @@ static qboolean CG_WorldCoordToScreenCoordFloat(vec3_t worldCoord, float *x, flo
 	// z = how far is the object in our forward direction
     z = DotProduct(trans, cg.refdef.viewaxis[0]);
     if (z <= 0.001)
-        return qfalse;
+        return false;
 
     *x = xc - DotProduct(trans, cg.refdef.viewaxis[1])*xc/(z*px);
     *y = yc - DotProduct(trans, cg.refdef.viewaxis[2])*yc/(z*py);
 
-    return qtrue;
+    return true;
 }
 
 vec3_t cg_crosshairPos={0,0,0};
@@ -3250,10 +3248,10 @@ static void CG_DrawCrosshair( vec3_t worldPoint, int chEntValid ) {
 	float		x, y, w, h, f, chX, chY;
 	vec4_t		ecolor = {0,0,0,0};
 	qhandle_t	hShader = 0;
-	qboolean	corona = qfalse;
-	centity_t			*chEnt = chEntValid ? &cg_entities[cg.crosshairClientNum] : NULL;
-	const entityState_t	*chES = chEntValid ? &cg_entities[cg.crosshairClientNum].currentState : NULL;
-	const clientInfo_t	*chCI = chEntValid ? &cgs.clientinfo[chES->number] : NULL;
+	bool	corona = false;
+	centity_t			*chEnt = chEntValid ? &cg_entities[cg.crosshairClientNum] : nullptr;
+	const entityState_t	*chES = chEntValid ? &cg_entities[cg.crosshairClientNum].currentState : nullptr;
+	const clientInfo_t	*chCI = chEntValid ? &cgs.clientinfo[chES->number] : nullptr;
 	const clientInfo_t	*myCI = &cgs.clientinfo[cg.snap->ps.clientNum];
 	const team_t		 myTeam = (team_t)cg.predictedPlayerState.persistant[PERS_TEAM]; // ci->team;
 
@@ -3282,7 +3280,7 @@ static void CG_DrawCrosshair( vec3_t worldPoint, int chEntValid ) {
 	else {
 		// set color based on what kind of ent is under crosshair
 		if ( cg.crosshairClientNum >= ENTITYNUM_WORLD ) {
-			trap->R_SetColor( NULL );
+			trap->R_SetColor( nullptr );
 		}
 		else if ( chEntValid
 			&& (
@@ -3393,7 +3391,7 @@ static void CG_DrawCrosshair( vec3_t worldPoint, int chEntValid ) {
 				ecolor[1] = 0.5f;
 				ecolor[2] = 1.0f;
 
-				corona = qtrue;
+				corona = true;
 			}
 			else if ( chES->eType == ET_MOVER && chES->teamowner ) {
 				// a team owns this - if it's my team green, if not red, if not teamplay then yellow
@@ -3510,19 +3508,19 @@ static void CG_DrawCrosshair( vec3_t worldPoint, int chEntValid ) {
 		);
 	}
 
-	trap->R_SetColor( NULL );
+	trap->R_SetColor( nullptr );
 }
 
-qboolean CG_WorldCoordToScreenCoord( vec3_t worldCoord, int *x, int *y ) {
+bool CG_WorldCoordToScreenCoord( vec3_t worldCoord, int *x, int *y ) {
 	float xF, yF;
 
 	if ( CG_WorldCoordToScreenCoordFloat( worldCoord, &xF, &yF ) ) {
 		*x = (int)xF;
 		*y = (int)yF;
-		return qtrue;
+		return true;
 	}
 
-	return qfalse;
+	return false;
 }
 
 int cg_saberFlashTime = 0;
@@ -3551,7 +3549,7 @@ void CG_SaberClashFlare( void )
 		return;
 	}
 
-	CG_Trace( &tr, cg.refdef.vieworg, NULL, NULL, cg_saberFlashPos, -1, CONTENTS_SOLID );
+	CG_Trace( &tr, cg.refdef.vieworg, nullptr, nullptr, cg_saberFlashPos, -1, CONTENTS_SOLID );
 
 	if ( tr.fraction < 1.0f )
 	{
@@ -3632,7 +3630,7 @@ void CG_BracketEntity( centity_t *cent, float radius )
 			return;
 		}
 
-		CG_Trace( &tr, cg.refdef.vieworg, NULL, NULL, cent->lerpOrigin, -1, CONTENTS_OPAQUE );
+		CG_Trace( &tr, cg.refdef.vieworg, nullptr, nullptr, cent->lerpOrigin, -1, CONTENTS_OPAQUE );
 
 		//don't bracket if can't see them
 		if ( tr.fraction < 1.0f )
@@ -3665,7 +3663,7 @@ void CG_BracketEntity( centity_t *cent, float radius )
 	}
 	else
 	{//FIXME: if we want to ever bracket anything besides vehicles (like siege objectives we want to blow up), we should handle the coloring here
-		trap->R_SetColor ( NULL );
+		trap->R_SetColor ( nullptr );
 	}
 
 	if ( len <= 1.0f )
@@ -3769,7 +3767,7 @@ static void CG_DrawHolocronIcons(void)
 	}
 }
 
-static qboolean CG_IsDurationPower(int power)
+static bool CG_IsDurationPower(int power)
 {
 	if (power == FP_HEAL ||
 		power == FP_SPEED ||
@@ -3779,10 +3777,10 @@ static qboolean CG_IsDurationPower(int power)
 		power == FP_ABSORB ||
 		power == FP_SEE)
 	{
-		return qtrue;
+		return true;
 	}
 
-	return qfalse;
+	return false;
 }
 
 static void CG_DrawActivePowers(void)
@@ -3805,7 +3803,7 @@ static void CG_DrawActivePowers(void)
 		return;
 	}
 
-	trap->R_SetColor( NULL );
+	trap->R_SetColor( nullptr );
 
 	while (i < NUM_FORCE_POWERS)
 	{
@@ -3858,7 +3856,7 @@ static void CG_DrawRocketLocking( int lockEntNum, int lockTime )
 	if (cg.snap->ps.rocketLockIndex >= 0 &&
 		cg.snap->ps.rocketLockIndex < ENTITYNUM_NONE)
 	{
-		clientInfo_t *ci = (cg.snap->ps.rocketLockIndex < MAX_CLIENTS) ? &cgs.clientinfo[cg.snap->ps.rocketLockIndex] : NULL;
+		clientInfo_t *ci = (cg.snap->ps.rocketLockIndex < MAX_CLIENTS) ? &cgs.clientinfo[cg.snap->ps.rocketLockIndex] : nullptr;
 		if ( ci && ci->team == cgs.clientinfo[cg.snap->ps.clientNum].team ) {
 			if ( cgs.gametype >= GT_TEAM ) {
 				return;
@@ -3958,7 +3956,7 @@ void CG_CalcEWebMuzzlePoint(centity_t *cent, vec3_t start, vec3_t d_f, vec3_t d_
 	{
 		mdxaBone_t boltMatrix;
 
-		trap->G2API_GetBoltMatrix_NoRecNoRot(cent->ghoul2, 0, bolt, &boltMatrix, cent->lerpAngles, cent->lerpOrigin, cg.time, NULL, cent->modelScale);
+		trap->G2API_GetBoltMatrix_NoRecNoRot(cent->ghoul2, 0, bolt, &boltMatrix, cent->lerpAngles, cent->lerpOrigin, cg.time, nullptr, cent->modelScale);
 		BG_GiveMeVectorFromMatrix(&boltMatrix, ORIGIN, start);
 		BG_GiveMeVectorFromMatrix(&boltMatrix, NEGATIVE_X, d_f);
 
@@ -4062,7 +4060,7 @@ static void CG_ScanForCrosshairEntity( void ) {
 
 	if ( trace.entityNum < MAX_CLIENTS ) {
 		const entityState_t *chES = &cg_entities[trace.entityNum].currentState;
-		const qboolean isMindTricked = CG_IsMindTricked(
+		const bool isMindTricked = CG_IsMindTricked(
 			chES->trickedentindex, chES->trickedentindex2, chES->trickedentindex3, chES->trickedentindex4,
 			cg.snap->ps.clientNum
 		);
@@ -4110,7 +4108,7 @@ static void CG_DrawCrosshairNames( void ) {
 	vec4_t		tcolor;
 	char		*name;
 	int			baseColor;
-	qboolean	isVeh = qfalse;
+	bool	isVeh = false;
 
 	if ( !cg_drawCrosshair.integer ) {
 		return;
@@ -4137,7 +4135,7 @@ static void CG_DrawCrosshairNames( void ) {
 	// draw the name of the player being looked at
 	color = CG_FadeColor( cg.crosshairClientTime, 1000 );
 	if ( !color ) {
-		trap->R_SetColor( NULL );
+		trap->R_SetColor( nullptr );
 		return;
 	}
 
@@ -4198,7 +4196,7 @@ static void CG_DrawCrosshairNames( void ) {
 		Text_Paint_Proportional(320, 170, name, UI_CENTER, tcolor);
 	}
 
-	trap->R_SetColor( NULL );
+	trap->R_SetColor( nullptr );
 }
 
 static void CG_DrawSpectator(void)
@@ -4280,7 +4278,7 @@ static void CG_DrawSpectator(void)
 }
 
 static void CG_DrawVote(void) {
-	const char *s = NULL, *sParm = NULL;
+	const char *s = nullptr, *sParm = nullptr;
 	int sec;
 	char sYes[20] = {0}, sNo[20] = {0}, sVote[20] = {0}, sCmd[100] = {0};
 
@@ -4289,7 +4287,7 @@ static void CG_DrawVote(void) {
 
 	// play a talk beep whenever it is modified
 	if ( cgs.voteModified ) {
-		cgs.voteModified = qfalse;
+		cgs.voteModified = false;
 		trap->S_StartLocalSound( media.sounds.null, CHAN_LOCAL_SOUND );
 	}
 
@@ -4360,7 +4358,7 @@ static void CG_DrawTeamVote(void) {
 
 	// play a talk beep whenever it is modified
 	if ( cgs.teamVoteModified[cs_offset] ) {
-		cgs.teamVoteModified[cs_offset] = qfalse;
+		cgs.teamVoteModified[cs_offset] = false;
 //		trap->S_StartLocalSound( media.sounds.null, CHAN_LOCAL_SOUND );
 	}
 
@@ -4411,7 +4409,7 @@ static void CG_DrawTeamVote(void) {
 	CG_DrawSmallString( 4, 90, s, 1.0F );
 }
 
-static qboolean CG_DrawScoreboard() {
+static bool CG_DrawScoreboard() {
 	return CG_DrawOldScoreboard();
 }
 
@@ -4420,13 +4418,13 @@ static void CG_DrawIntermission( void ) {
 	cg.scoreBoardShowing = CG_DrawScoreboard();
 }
 
-static qboolean CG_DrawFollow( void )
+static bool CG_DrawFollow( void )
 {
 	const char	*s;
 
 	if ( !(cg.snap->ps.pm_flags & PMF_FOLLOW) )
 	{
-		return qfalse;
+		return false;
 	}
 
 //	s = "following";
@@ -4459,7 +4457,7 @@ static qboolean CG_DrawFollow( void )
 	font.scale = 2.0f;
 	font.Paint ( 320 - font.Width ( s ) / 2, 80, s, colorWhite, 0 );
 
-	return qtrue;
+	return true;
 }
 
 static void CG_DrawWarmup( void ) {
@@ -4486,9 +4484,9 @@ static void CG_DrawWarmup( void ) {
 		// find the two active players
 		clientInfo_t	*ci1, *ci2, *ci3;
 
-		ci1 = NULL;
-		ci2 = NULL;
-		ci3 = NULL;
+		ci1 = nullptr;
+		ci2 = nullptr;
+		ci3 = nullptr;
 
 		if (cgs.gametype == GT_POWERDUEL)
 		{
@@ -4609,7 +4607,7 @@ void CG_DrawFlagStatus()
 	int ico_size = 32;
 
 	//Raz: was missing this
-	trap->R_SetColor( NULL );
+	trap->R_SetColor( nullptr );
 
 	if (!cg.snap)
 	{
@@ -4835,7 +4833,7 @@ int cgYsalTime = 0;
 int cgYsalFadeTime = 0;
 float cgYsalFadeVal = 0;
 
-qboolean gCGHasFallVector = qfalse;
+bool gCGHasFallVector = false;
 vec3_t gCGFallVector;
 
 // chatbox functionality -rww
@@ -5463,7 +5461,7 @@ static void CG_Draw2D( void ) {
 	}
 
 	if ( !cg_draw2D.integer ) {
-		gCGHasFallVector = qfalse;
+		gCGHasFallVector = false;
 		VectorClear( gCGFallVector );
 		return;
 	}
@@ -5518,7 +5516,7 @@ static void CG_Draw2D( void ) {
 */
 	if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR ) {
 		CG_DrawSpectator();
-		CG_DrawCrosshair(NULL, 0);
+		CG_DrawCrosshair(nullptr, 0);
 		CG_DrawCrosshairNames();
 		CG_SaberClashFlare();
 	} else {
@@ -5620,14 +5618,14 @@ static void CG_Draw2D( void ) {
 		if (!gCGHasFallVector)
 		{
 			VectorCopy(cg.snap->ps.origin, gCGFallVector);
-			gCGHasFallVector = qtrue;
+			gCGHasFallVector = true;
 		}
 	}
 	else
 	{
 		if (gCGHasFallVector)
 		{
-			gCGHasFallVector = qfalse;
+			gCGHasFallVector = false;
 			VectorClear(gCGFallVector);
 		}
 	}
@@ -5666,7 +5664,7 @@ void CG_DrawMiscStaticModels( void ) {
 
 	ent.reType = RT_MODEL;
 	ent.frame = 0;
-	ent.nonNormalizedAxes = qtrue;
+	ent.nonNormalizedAxes = true;
 
 	// static models don't project shadows
 	ent.renderfx = RF_NOSHADOW;

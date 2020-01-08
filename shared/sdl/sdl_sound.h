@@ -22,7 +22,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "qcommon/q_shared.h"
 
 // initializes cycling through a DMA buffer and returns information on it
-qboolean SNDDMA_Init(int sampleFrequencyInKHz);
+bool SNDDMA_Init(int sampleFrequencyInKHz);
 
 // gets the current DMA position
 int		SNDDMA_GetDMAPos(void);
@@ -34,4 +34,4 @@ void	SNDDMA_BeginPainting (void);
 
 void	SNDDMA_Submit(void);
 
-void SNDDMA_Activate( qboolean activate );
+void SNDDMA_Activate( bool activate );

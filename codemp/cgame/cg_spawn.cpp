@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -25,7 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "cgame/cg_local.h"
 
-qboolean CG_SpawnString( const char *key, const char *defaultString, char **out ) {
+bool CG_SpawnString( const char *key, const char *defaultString, char **out ) {
 	int i;
 
 	if( !cg.spawning ) {
@@ -36,55 +37,55 @@ qboolean CG_SpawnString( const char *key, const char *defaultString, char **out 
 	for( i = 0; i < cg.numSpawnVars; i++ ) {
 		if( !Q_stricmp( key, cg.spawnVars[i][0] ) ) {
 			*out = cg.spawnVars[i][1];
-			return qtrue;
+			return true;
 		}
 	}
 
 	*out = (char*)defaultString;
-	return qfalse;
+	return false;
 }
-qboolean CG_SpawnFloat( const char *key, const char *defaultString, float *out ) {
+bool CG_SpawnFloat( const char *key, const char *defaultString, float *out ) {
 	char *s;
-	qboolean present;
+	bool present;
 
 	present = CG_SpawnString( key, defaultString, &s );
 	*out	= atof( s );
 	return present;
 }
-qboolean CG_SpawnInt( const char *key, const char *defaultString, int *out ) {
+bool CG_SpawnInt( const char *key, const char *defaultString, int *out ) {
 	char *s;
-	qboolean present;
+	bool present;
 
 	present = CG_SpawnString( key, defaultString, &s );
 	*out	= atoi( s );
 	return present;
 }
-qboolean CG_SpawnBoolean( const char *key, const char *defaultString, qboolean *out ) {
+bool CG_SpawnBoolean( const char *key, const char *defaultString, bool *out ) {
 	char *s;
-	qboolean present;
+	bool present;
 
 	present = CG_SpawnString( key, defaultString, &s );
-	if( !Q_stricmp( s, "qfalse" ) || !Q_stricmp( s, "false" ) || !Q_stricmp( s, "no" ) || !Q_stricmp( s, "0" ) ) {
-		*out = qfalse;
+	if( !Q_stricmp( s, "false" ) || !Q_stricmp( s, "false" ) || !Q_stricmp( s, "no" ) || !Q_stricmp( s, "0" ) ) {
+		*out = false;
 	}
-	else if( !Q_stricmp( s, "qtrue" ) || !Q_stricmp( s, "true" ) || !Q_stricmp( s, "yes" ) || !Q_stricmp( s, "1" ) ) {
-		*out = qtrue;
+	else if( !Q_stricmp( s, "true" ) || !Q_stricmp( s, "true" ) || !Q_stricmp( s, "yes" ) || !Q_stricmp( s, "1" ) ) {
+		*out = true;
 	}
 	else {
-		*out = qfalse;
+		*out = false;
 	}
 
 	return present;
 }
-qboolean CG_SpawnVector( const char *key, const char *defaultString, float *out ) {
+bool CG_SpawnVector( const char *key, const char *defaultString, float *out ) {
 	char *s;
-	qboolean present;
+	bool present;
 
 	present = CG_SpawnString( key, defaultString, &s );
 	if ( sscanf( s, "%f %f %f", &out[0], &out[1], &out[2] ) != 3 ) {
 		trap->Print( "CG_SpawnVector: Failed sscanf on %s (default: %s)\n", key, defaultString );
 		VectorClear( out );
-		return qfalse;
+		return false;
 	}
 	return present;
 }
@@ -170,23 +171,23 @@ void SP_misc_model_static( void ) {
 		staticmodel->radius = 0;
 	}
 }
-qboolean cg_noFogOutsidePortal = qfalse;
+bool cg_noFogOutsidePortal = false;
 void SP_misc_skyportal( void ) {
-	qboolean onlyfoghere;
+	bool onlyfoghere;
 
 	CG_SpawnBoolean( "onlyfoghere", "0", &onlyfoghere );
 
 	if( onlyfoghere )
-		cg_noFogOutsidePortal = qtrue;
+		cg_noFogOutsidePortal = true;
 }
-qboolean cg_skyOri = qfalse;
+bool cg_skyOri = false;
 vec3_t cg_skyOriPos;
 float cg_skyOriScale = 0.0f;
 void SP_misc_skyportal_orient( void ) {
 	if( cg_skyOri )
 		trap->Print( S_COLOR_YELLOW "WARNING: multiple misc_skyportal_orients found.\n" );
 
-	cg_skyOri = qtrue;
+	cg_skyOri = true;
 	CG_SpawnVector( "origin", "0 0 0", cg_skyOriPos );
 	CG_SpawnFloat( "modelscale", "0", &cg_skyOriScale );
 }
@@ -243,7 +244,7 @@ void CG_ParseEntityFromSpawnVars( void ) {
 		}
 	}
 
-	if( CG_SpawnString( "gametype", NULL, &value ) ) {
+	if( CG_SpawnString( "gametype", nullptr, &value ) ) {
 		if( cgs.gametype >= GT_FFA && cgs.gametype < GT_MAX_GAME_TYPE ) {
 			gametypeName = gametypeNames[cgs.gametype];
 
@@ -279,7 +280,7 @@ char *CG_AddSpawnVarToken( const char *string ) {
 
 // Parses a brace bounded set of key / value pairs out of the level's entity strings into cg.spawnVars[]
 // This does not actually spawn an entity.
-qboolean CG_ParseSpawnVars( void ) {
+bool CG_ParseSpawnVars( void ) {
 	char keyname[MAX_TOKEN_CHARS];
 	char com_token[MAX_TOKEN_CHARS];
 
@@ -289,7 +290,7 @@ qboolean CG_ParseSpawnVars( void ) {
 	// parse the opening brace
 	if( !trap->R_GetEntityToken( com_token, sizeof( com_token ) ) ) {
 		// end of spawn string
-		return qfalse;
+		return false;
 	}
 
 	if( com_token[0] != '{' ) {
@@ -325,7 +326,7 @@ qboolean CG_ParseSpawnVars( void ) {
 		cg.numSpawnVars++;
 	}
 
-	return qtrue;
+	return true;
 }
 extern float cg_linearFogOverride;      // cg_view.c
 extern float cg_radarRange;             // cg_draw.c
@@ -344,10 +345,10 @@ void SP_worldspawn( void ) {
 // Parses textual entity definitions out of an entstring
 void CG_ParseEntitiesFromString( void ) {
 	// make sure it is reset
-	trap->R_GetEntityToken( NULL, -1 );
+	trap->R_GetEntityToken( nullptr, -1 );
 
 	// allow calls to CG_Spawn*()
-	cg.spawning	= qtrue;
+	cg.spawning	= true;
 	cg.numSpawnVars = 0;
 
 	// the worldspawn is not an actual entity, but it still
@@ -364,5 +365,5 @@ void CG_ParseEntitiesFromString( void ) {
 		CG_ParseEntityFromSpawnVars();
 	}
 
-	cg.spawning = qfalse; // any future calls to CG_Spawn*() will be errors
+	cg.spawning = false; // any future calls to CG_Spawn*() will be errors
 }

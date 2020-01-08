@@ -32,6 +32,7 @@ endif(WIN32)
 set(MPGameDefines ${MPSharedDefines} "_GAME" )
 set(MPGameGameFiles
 	"${MPDir}/game/ai_botlib.cpp"
+	"${MPDir}/game/ai_chars.h"
 	"${MPDir}/game/ai_main.cpp"
 	"${MPDir}/game/ai_util.cpp"
 	"${MPDir}/game/ai_wpnav.cpp"
@@ -84,17 +85,12 @@ set(MPGameGameFiles
 	"${MPDir}/game/b_public.h"
 	"${MPDir}/game/bg_local.h"
 	"${MPDir}/game/bg_public.h"
-	"${MPDir}/game/bg_saga.h"
 	"${MPDir}/game/bg_weapons.h"
-	"${MPDir}/game/chars.h"
 	"${MPDir}/game/g_ICARUScb.h"
+	"${MPDir}/game/g_inventory.h"
 	"${MPDir}/game/g_local.h"
 	"${MPDir}/game/g_public.h"
 	"${MPDir}/game/g_xcvar.h"
-	"${MPDir}/game/inv.h"
-	"${MPDir}/game/match.h"
-	"${MPDir}/game/say.h"
-	"${MPDir}/game/surfaceflags.h"
 	"${MPDir}/game/w_saber.h"
 	)
 source_group("game" FILES ${MPGameGameFiles})

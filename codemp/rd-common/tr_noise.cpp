@@ -4,7 +4,8 @@ Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
 Copyright (C) 2005 - 2015, ioquake3 contributors
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -43,6 +44,7 @@ static float GetNoiseValue( int x, int y, int z, int t )
 	return s_noise_table[index];
 }
 
+// Get the noise time.
 float GetNoiseTime( int t )
 {
 	int index = VAL( t );
@@ -50,6 +52,7 @@ float GetNoiseTime( int t )
 	return (1 + s_noise_table[index]);
 }
 
+// Initialize the noise generator.
 void R_NoiseInit( void )
 {
 	int i;
@@ -63,6 +66,7 @@ void R_NoiseInit( void )
 	}
 }
 
+// Get random 4-component vector.
 float R_NoiseGet4f( float x, float y, float z, float t )
 {
 	int i;

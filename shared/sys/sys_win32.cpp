@@ -1,7 +1,8 @@
 /*
 ===========================================================================
 Copyright (C) 2005 - 2015, ioquake3 contributors
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -22,8 +23,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "sys/sys_local.h"
 #include <direct.h>
 #include <io.h>
-#include <shlobj.h>
-#include <windows.h>
+#include <ShlObj.h>
+#include <Windows.h>
 
 #include "qcommon/com_cvar.h"
 #include "qcommon/com_cvars.h"
@@ -86,11 +87,8 @@ const char *Sys_Dirname( char *path )
 	return dir;
 }
 
-/*
-================
-Sys_Milliseconds
-================
-*/
+// Sys_Milliseconds should only be used for profiling purposes,
+// any game related timing information should come from event timestamps
 int Sys_Milliseconds (bool baseTime)
 {
 	static int sys_timeBase = timeGetTime();
@@ -119,7 +117,7 @@ bool Sys_RandomBytes( byte *string, int len )
 {
 	HCRYPTPROV  prov;
 
-	if( !CryptAcquireContext( &prov, NULL, NULL,
+	if( !CryptAcquireContext( &prov, nullptr, nullptr,
 		PROV_RSA_FULL, CRYPT_VERIFYCONTEXT ) )  {
 
 		return false;
@@ -161,16 +159,16 @@ char *Sys_DefaultHomePath( void )
 {
 #if defined(_PORTABLE_VERSION)
 	Com_Printf( "Portable install requested, skipping homepath support\n" );
-	return NULL;
+	return nullptr;
 #else
 	if ( !homePath[0] )
 	{
 		TCHAR homeDirectory[MAX_PATH];
 
-		if( !SUCCEEDED( SHGetFolderPath( NULL, CSIDL_PERSONAL, NULL, 0, homeDirectory ) ) )
+		if( !SUCCEEDED( SHGetFolderPath( nullptr, CSIDL_PERSONAL, nullptr, 0, homeDirectory ) ) )
 		{
 			Com_Printf( "Unable to determine your home directory.\n" );
-			return NULL;
+			return nullptr;
 		}
 
 		Com_sprintf( homePath, sizeof( homePath ), "%s%cMy Games%c", homeDirectory, PATH_SEP, PATH_SEP );
@@ -192,7 +190,7 @@ static const char *GetErrorString( DWORD error ) {
 	if ( error ) {
 		LPVOID lpMsgBuf;
 		DWORD bufLen = FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-			NULL, error, MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ), (LPTSTR)&lpMsgBuf, 0, NULL );
+			nullptr, error, MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ), (LPTSTR)&lpMsgBuf, 0, nullptr );
 		if ( bufLen ) {
 			LPCSTR lpMsgStr = (LPCSTR)lpMsgBuf;
 			Q_strncpyz( buf, lpMsgStr, Q_min( (size_t)(lpMsgStr + bufLen), sizeof(buf) ) );
@@ -228,23 +226,23 @@ Sys_LowPhysicalMemory()
 ==================
 */
 
-qboolean Sys_LowPhysicalMemory(void) {
+bool Sys_LowPhysicalMemory(void) {
 	static MEMORYSTATUSEX stat;
-	static qboolean bAsked = qfalse;
+	static bool bAsked = false;
 	static cvar_t* sys_lowmem = Cvar_Get( "sys_lowmem", "0", 0 );
 
 	if (!bAsked)	// just in case it takes a little time for GlobalMemoryStatusEx() to gather stats on
 	{				//	stuff we don't care about such as virtual mem etc.
-		bAsked = qtrue;
+		bAsked = true;
 
 		stat.dwLength = sizeof (stat);
 		GlobalMemoryStatusEx (&stat);
 	}
 	if (sys_lowmem->integer)
 	{
-		return qtrue;
+		return true;
 	}
-	return (stat.ullTotalPhys <= MEM_THRESHOLD) ? qtrue : qfalse;
+	return (stat.ullTotalPhys <= MEM_THRESHOLD) ? true : false;
 }
 
 /*
@@ -252,13 +250,13 @@ qboolean Sys_LowPhysicalMemory(void) {
 Sys_Mkdir
 ==============
 */
-qboolean Sys_Mkdir( const char *path ) {
-	if( !CreateDirectory( path, NULL ) )
+bool Sys_Mkdir( const char *path ) {
+	if( !CreateDirectory( path, nullptr ) )
 	{
 		if( GetLastError( ) != ERROR_ALREADY_EXISTS )
-			return qfalse;
+			return false;
 	}
-	return qtrue;
+	return true;
 }
 
 /*
@@ -281,8 +279,8 @@ char *Sys_Cwd( void ) {
 bool Sys_PathCmp( const char *path1, const char *path2 ) {
 	char *r1, *r2;
 
-	r1 = _fullpath(NULL, path1, MAX_OSPATH);
-	r2 = _fullpath(NULL, path2, MAX_OSPATH);
+	r1 = _fullpath(nullptr, path1, MAX_OSPATH);
+	r2 = _fullpath(nullptr, path2, MAX_OSPATH);
 
 	if(r1 && r2 && !Q_stricmp(r1, r2))
 	{
@@ -344,7 +342,7 @@ void Sys_ListFilteredFiles( const char *basedir, char *subdirs, char *filter, ch
 			break;
 		}
 		Com_sprintf( filename, sizeof(filename), "%s\\%s", subdirs, findinfo.name );
-		if (!Com_FilterPath( filter, filename, qfalse ))
+		if (!Com_FilterPath( filter, filename, false ))
 			continue;
 		psList[ *numfiles ] = CopyString( filename );
 		(*numfiles)++;
@@ -353,7 +351,7 @@ void Sys_ListFilteredFiles( const char *basedir, char *subdirs, char *filter, ch
 	_findclose (findhandle);
 }
 
-static qboolean strgtr(const char *s0, const char *s1) {
+static bool strgtr(const char *s0, const char *s1) {
 	int l0, l1, i;
 
 	l0 = strlen(s0);
@@ -365,16 +363,16 @@ static qboolean strgtr(const char *s0, const char *s1) {
 
 	for(i=0;i<l0;i++) {
 		if (s1[i] > s0[i]) {
-			return qtrue;
+			return true;
 		}
 		if (s1[i] < s0[i]) {
-			return qfalse;
+			return false;
 		}
 	}
-	return qfalse;
+	return false;
 }
 
-char **Sys_ListFiles( const char *directory, const char *extension, char *filter, int *numfiles, qboolean wantsubs ) {
+char **Sys_ListFiles( const char *directory, const char *extension, char *filter, int *numfiles, bool wantsubs ) {
 	char		search[MAX_OSPATH];
 	int			nfiles;
 	char		**listCopy;
@@ -394,13 +392,13 @@ char **Sys_ListFiles( const char *directory, const char *extension, char *filter
 		*numfiles = nfiles;
 
 		if (!nfiles)
-			return NULL;
+			return nullptr;
 
 		listCopy = (char **)Z_Malloc( ( nfiles + 1 ) * sizeof( *listCopy ), TAG_LISTFILES );
 		for ( i = 0 ; i < nfiles ; i++ ) {
 			listCopy[i] = list[i];
 		}
-		listCopy[i] = NULL;
+		listCopy[i] = nullptr;
 
 		return listCopy;
 	}
@@ -427,7 +425,7 @@ char **Sys_ListFiles( const char *directory, const char *extension, char *filter
 	findhandle = _findfirst (search, &findinfo);
 	if (findhandle == -1) {
 		*numfiles = 0;
-		return NULL;
+		return nullptr;
 	}
 
 	do {
@@ -456,14 +454,14 @@ char **Sys_ListFiles( const char *directory, const char *extension, char *filter
 	*numfiles = nfiles;
 
 	if ( !nfiles ) {
-		return NULL;
+		return nullptr;
 	}
 
 	listCopy = (char **)Z_Malloc( ( nfiles + 1 ) * sizeof( *listCopy ), TAG_LISTFILES );
 	for ( i = 0 ; i < nfiles ; i++ ) {
 		listCopy[i] = list[i];
 	}
-	listCopy[i] = NULL;
+	listCopy[i] = nullptr;
 
 	do {
 		flag = 0;
@@ -480,6 +478,7 @@ char **Sys_ListFiles( const char *directory, const char *extension, char *filter
 	return listCopy;
 }
 
+//rwwRMG - changed to fileList to not conflict with list type
 void	Sys_FreeFileList( char **psList ) {
 	int		i;
 
@@ -513,7 +512,7 @@ UnpackDLLResult Sys_UnpackDLL(const char *name)
 
 	if (len >= 1)
 	{
-		if (FS_FileIsInPAK(name, NULL) == 1)
+		if (FS_FileIsInPAK(name, nullptr) == 1)
 		{
 			char *tempFileName;
 			if ( FS_WriteToTemporaryFile(data, len, &tempFileName) )

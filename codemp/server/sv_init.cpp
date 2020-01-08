@@ -4,7 +4,8 @@ Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
 Copyright (C) 2005 - 2015, ioquake3 contributors
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -89,7 +90,7 @@ void SV_UpdateConfigstrings(client_t *client)
 			continue;
 		}
 		SV_SendConfigstring(client, index);
-		client->csUpdated[index] = qfalse;
+		client->csUpdated[index] = false;
 	}
 }
 
@@ -122,7 +123,7 @@ void SV_SetConfigstring (int index, const char *val) {
 		for (i = 0, client = svs.clients; i < sv_maxclients->integer ; i++, client++) {
 			if ( client->state < CS_ACTIVE ) {
 				if ( client->state == CS_PRIMED )
-					client->csUpdated[ index ] = qtrue;
+					client->csUpdated[ index ] = true;
 				continue;
 			}
 			// do not always send server info to all clients
@@ -208,7 +209,7 @@ void SV_Startup( void ) {
 	}
 	SV_BoundMaxClients( 1 );
 
-	svs.clients = (struct client_s *)Z_Malloc (sizeof(client_t) * sv_maxclients->integer, TAG_CLIENTS, qtrue );
+	svs.clients = (struct client_s *)Z_Malloc (sizeof(client_t) * sv_maxclients->integer, TAG_CLIENTS, true );
 	if ( dedicated->integer ) {
 		svs.numSnapshotEntities = sv_maxclients->integer * PACKET_BACKUP * MAX_SNAPSHOT_ENTITIES;
 		Cvar_Set( "r_Ghoul2AnimSmooth", "0");
@@ -219,7 +220,7 @@ void SV_Startup( void ) {
 		svs.numSnapshotEntities = sv_maxclients->integer * 4 * MAX_SNAPSHOT_ENTITIES;
 	}
 	SV_ChallengeInit();
-	svs.initialized = qtrue;
+	svs.initialized = true;
 
 	// Don't respect sv_killserver unless a server is actually running
 	if ( sv_killserver->integer ) {
@@ -275,7 +276,7 @@ void SV_ChangeMaxClients( void ) {
 	Z_Free( svs.clients );
 
 	// allocate new clients
-	svs.clients = (struct client_s *)Z_Malloc ( sv_maxclients->integer * sizeof(client_t), TAG_CLIENTS, qtrue );
+	svs.clients = (struct client_s *)Z_Malloc ( sv_maxclients->integer * sizeof(client_t), TAG_CLIENTS, true );
 	Com_Memset( svs.clients, 0, sv_maxclients->integer * sizeof(client_t) );
 
 	// copy the clients over
@@ -321,7 +322,7 @@ void SV_TouchCGame(void) {
 
 	Com_sprintf( filename, sizeof(filename), "cgamex86.dll" );
 
-	FS_FOpenFileRead( filename, &f, qfalse );
+	FS_FOpenFileRead( filename, &f, false );
 	if ( f ) {
 		FS_FCloseFile( f );
 	}
@@ -349,10 +350,10 @@ void SV_SendMapChange(void)
 
 // Change the server to a new map, taking all connected clients along with it.
 // This is NOT called for map_restart
-void SV_SpawnServer( char *server, qboolean killBots, ForceReload_e eForceReload ) {
+void SV_SpawnServer( char *server, bool killBots, ForceReload_e eForceReload ) {
 	int			i;
 	int			checksum;
-	qboolean	isBot;
+	bool	isBot;
 	char		systemInfo[16384];
 	const char	*p;
 
@@ -364,7 +365,7 @@ void SV_SpawnServer( char *server, qboolean killBots, ForceReload_e eForceReload
 
 	// shut down the existing game if it is running
 	SV_ShutdownGameProgs();
-	svs.gameStarted = qfalse;
+	svs.gameStarted = false;
 
 	Com_Printf ("------ Server Initialization ------\n");
 	Com_Printf ("Server: %s\n",server);
@@ -373,7 +374,7 @@ void SV_SpawnServer( char *server, qboolean killBots, ForceReload_e eForceReload
 	if (svs.snapshotEntities)
 	{
 		delete[] svs.snapshotEntities;
-		svs.snapshotEntities = NULL;
+		svs.snapshotEntities = nullptr;
 	}
 
 	SV_SendMapChange();
@@ -384,7 +385,7 @@ void SV_SpawnServer( char *server, qboolean killBots, ForceReload_e eForceReload
 
 #ifndef DEDICATED
 	// make sure all the client stuff is unloaded
-	CL_ShutdownAll( qfalse );
+	CL_ShutdownAll( false );
 #endif
 
 	CM_ClearMap();
@@ -393,7 +394,7 @@ void SV_SpawnServer( char *server, qboolean killBots, ForceReload_e eForceReload
 	Hunk_Clear();
 
 	re->InitSkins();
-	re->InitShaders(qtrue);
+	re->InitShaders(true);
 
 	// init client structures and svs.numSnapshotEntities
 	if ( !sv_running->integer ) {
@@ -475,7 +476,7 @@ void SV_SpawnServer( char *server, qboolean killBots, ForceReload_e eForceReload
 	sv.checksumFeed = ( ((int) rand() << 16) ^ rand() ) ^ Com_Milliseconds();
 	FS_Restart( sv.checksumFeed );
 
-	CM_LoadMap( va("maps/%s.bsp", server), qfalse, &checksum );
+	CM_LoadMap( va("maps/%s.bsp", server), false, &checksum );
 
 	SV_SendMapChange();
 
@@ -490,7 +491,7 @@ void SV_SpawnServer( char *server, qboolean killBots, ForceReload_e eForceReload
 	Cvar_Set( "sv_serverid", va("%i", sv.serverId ) );
 
 	time( &sv.realMapTimeStarted );
-	sv.demosPruned = qfalse;
+	sv.demosPruned = false;
 
 	// clear physics interaction links
 	SV_ClearWorld ();
@@ -504,7 +505,7 @@ void SV_SpawnServer( char *server, qboolean killBots, ForceReload_e eForceReload
 	SV_InitGameProgs();
 
 	// don't allow a map_restart if game is modified
-	g_gametype->modified = qfalse;
+	g_gametype->modified = false;
 
 	// run a few frames to allow everything to settle
 	for ( i = 0 ;i < 3 ; i++ ) {
@@ -533,14 +534,14 @@ void SV_SpawnServer( char *server, qboolean killBots, ForceReload_e eForceReload
 					SV_DropClient( &svs.clients[i], "" );
 					continue;
 				}
-				isBot = qtrue;
+				isBot = true;
 			}
 			else {
-				isBot = qfalse;
+				isBot = false;
 			}
 
 			// connect the client again
-			denied = GVM_ClientConnect( i, qfalse, isBot );	// firstTime = qfalse
+			denied = GVM_ClientConnect( i, false, isBot );	// firstTime = false
 			if ( denied ) {
 				// this generally shouldn't happen, because the client
 				// was connected before the level change
@@ -647,7 +648,7 @@ void SV_SpawnServer( char *server, qboolean killBots, ForceReload_e eForceReload
 #ifdef DEDICATED
 
 #define G2_VERT_SPACE_SERVER_SIZE 256
-IHeapAllocator *G2VertSpaceServer = NULL;
+IHeapAllocator *G2VertSpaceServer = nullptr;
 CMiniHeap IHeapAllocator_singleton(G2_VERT_SPACE_SERVER_SIZE * 1024);
 
 // DLL glue
@@ -673,19 +674,19 @@ extern vm_t *currentVM;
 
 //qcommon/cm_load.cpp
 extern void *gpvCachedMapDiskImage;
-extern qboolean gbUsingCachedMapDataRightNow;
+extern bool gbUsingCachedMapDataRightNow;
 
 static char *GetSharedMemory( void ) { return sv.mSharedMemory; }
 static vm_t *GetCurrentVM( void ) { return currentVM; }
 static void *CM_GetCachedMapDiskImage( void ) { return gpvCachedMapDiskImage; }
 static void CM_SetCachedMapDiskImage( void *ptr ) { gpvCachedMapDiskImage = ptr; }
-static void CM_SetUsingCache( qboolean usingCache ) { gbUsingCachedMapDataRightNow = usingCache; }
+static void CM_SetUsingCache( bool usingCache ) { gbUsingCachedMapDataRightNow = usingCache; }
 
 static IHeapAllocator *GetG2VertSpaceServer( void ) {
 	return G2VertSpaceServer;
 }
 
-refexport_t	*re = NULL;
+refexport_t	*re = nullptr;
 
 static void SV_InitRef( void ) {
 	static refimport_t ri;
@@ -847,12 +848,12 @@ void SV_Shutdown( char *finalmsg )
 	SV_MasterShutdown();
 	SV_ChallengeShutdown();
 	SV_ShutdownGameProgs();
-	svs.gameStarted = qfalse;
+	svs.gameStarted = false;
  	// de allocate the snapshot entities
 	if (svs.snapshotEntities)
 	{
 		delete[] svs.snapshotEntities;
-		svs.snapshotEntities = NULL;
+		svs.snapshotEntities = nullptr;
 	}
 
 	// free current level
@@ -871,5 +872,5 @@ void SV_Shutdown( char *finalmsg )
 
 	// disconnect any local clients
 	if( sv_killserver->integer != 2 )
-		CL_Disconnect( qfalse );
+		CL_Disconnect( false );
 }

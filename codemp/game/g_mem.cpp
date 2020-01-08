@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -51,7 +52,7 @@ void *G_Alloc( int size ) {
 
 	if ( size <= 0 ) {
 		trap->Error( ERR_DROP, "G_Alloc: zero-size allocation\n", size );
-		return NULL;
+		return nullptr;
 	}
 
 	if ( g_debugAlloc.integer ) {
@@ -60,7 +61,7 @@ void *G_Alloc( int size ) {
 
 	if ( allocPoint + size > POOLSIZE ) {
 		trap->Error( ERR_DROP, "G_Alloc: failed on allocation of %i bytes\n", size ); // bk010103 - was %u, but is signed
-		return NULL;
+		return nullptr;
 	}
 
 	p = &memoryPool[allocPoint];

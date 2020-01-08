@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -138,7 +139,7 @@ decalPoly_t* RE_AllocDecal( int type ) {
 // temporary marks will not be stored or randomly oriented, but immediately passed to the renderer.
 //	origin	should be a point within a unit of the plane
 //	dir		should be the plane normal
-void RE_AddDecalToScene( qhandle_t decalShader, const vec3_t origin, const vec3_t dir, float orientation, float red, float green, float blue, float alpha, qboolean alphaFade, float radius, qboolean temporary )
+void RE_AddDecalToScene( qhandle_t decalShader, const vec3_t origin, const vec3_t dir, float orientation, float red, float green, float blue, float alpha, bool alphaFade, float radius, bool temporary )
 {
 	matrix3_t		axis;
 	float			texCoordScale;

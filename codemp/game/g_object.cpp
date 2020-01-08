@@ -2,7 +2,8 @@
 ===========================================================================
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -90,7 +91,7 @@ void G_RunObject( gentity_t *ent )
 {
 	vec3_t		origin, oldOrg;
 	trace_t		tr;
-	gentity_t	*traceEnt = NULL;
+	gentity_t	*traceEnt = nullptr;
 
 	//FIXME: floaters need to stop floating up after a while, even if gravity stays negative?
 	if ( ent->s.pos.trType == TR_STATIONARY )//g_gravity.value <= 0 &&
@@ -118,7 +119,7 @@ void G_RunObject( gentity_t *ent )
 	}
 	// trace a line from the previous position to the current position,
 	// ignoring interactions with the missile owner
-	trap->Trace( &tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, origin, ent->parent ? ent->parent->s.number : ent->s.number, ent->clipmask, qfalse, 0, 0 );
+	trap->Trace( &tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, origin, ent->parent ? ent->parent->s.number : ent->s.number, ent->clipmask, false, 0, 0 );
 
 	if ( !tr.startsolid && !tr.allsolid && tr.fraction )
 	{
@@ -195,7 +196,7 @@ void G_RunObject( gentity_t *ent )
 
 		if (ent->s.weapon != WP_SABER)
 		{
-			DoImpact( ent, traceEnt, qtrue );
+			DoImpact( ent, traceEnt, true );
 		}
 	}
 
@@ -277,7 +278,7 @@ void G_StartObjectMoving( gentity_t *object, vec3_t dir, float speed, trType_t t
 	*/
 
 	//FIXME: make these objects go through G_RunObject automatically, like missiles do
-	if ( object->think == NULL )
+	if ( object->think == nullptr )
 	{
 		object->nextthink = level.time + FRAMETIME;
 		object->think = G_RunObject;

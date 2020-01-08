@@ -2,7 +2,8 @@
 ===========================================================================
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -22,8 +23,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-// playerAnimations
+// ======================================================================
+// ENUM
+// ======================================================================
 
+// playerAnimations
 typedef enum //# animNumber_e
 {
 	//HEAD ANIMS
@@ -1798,5 +1802,9 @@ typedef enum //# animNumber_e
 	MAX_ANIMATIONS,
 	MAX_TOTALANIMATIONS,
 } animNumber_t;
+
+// ======================================================================
+// DEFINE
+// ======================================================================
 
 #define SABER_ANIM_GROUP_SIZE (BOTH_A2_T__B_ - BOTH_A1_T__B_)

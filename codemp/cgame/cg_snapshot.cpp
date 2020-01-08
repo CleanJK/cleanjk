@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -52,7 +53,7 @@ static void CG_ResetEntity( centity_t *cent ) {
 // cent->nextState is moved to cent->currentState and events are fired
 static void CG_TransitionEntity( centity_t *cent ) {
 	cent->currentState = cent->nextState;
-	cent->currentValid = qtrue;
+	cent->currentValid = true;
 
 	// reset if the entity wasn't in the last frame or was teleported
 	if ( !cent->interpolate ) {
@@ -60,7 +61,7 @@ static void CG_TransitionEntity( centity_t *cent ) {
 	}
 
 	// clear the next state.  if will be set by the next CG_SetNextSnap
-	cent->interpolate = qfalse;
+	cent->interpolate = false;
 
 	// check for events
 	CG_CheckEvents( cent );
@@ -76,17 +77,17 @@ void CG_SetInitialSnapshot( snapshot_t *snap ) {
 
 	cg.snap = snap;
 
-	if ((cg_entities[snap->ps.clientNum].ghoul2 == NULL) && trap->G2_HaveWeGhoul2Models(cgs.clientinfo[snap->ps.clientNum].ghoul2Model))
+	if ((cg_entities[snap->ps.clientNum].ghoul2 == nullptr) && trap->G2_HaveWeGhoul2Models(cgs.clientinfo[snap->ps.clientNum].ghoul2Model))
 	{
 		trap->G2API_DuplicateGhoul2Instance(cgs.clientinfo[snap->ps.clientNum].ghoul2Model, &cg_entities[snap->ps.clientNum].ghoul2);
 		CG_CopyG2WeaponInstance(&cg_entities[snap->ps.clientNum], FIRST_WEAPON, cg_entities[snap->ps.clientNum].ghoul2);
 
 		if (trap->G2API_AddBolt(cg_entities[snap->ps.clientNum].ghoul2, 0, "face") == -1)
 		{ //check now to see if we have this bone for setting anims and such
-			cg_entities[snap->ps.clientNum].noFace = qtrue;
+			cg_entities[snap->ps.clientNum].noFace = true;
 		}
 	}
-	BG_PlayerStateToEntityState( &snap->ps, &cg_entities[ snap->ps.clientNum ].currentState, qfalse );
+	BG_PlayerStateToEntityState( &snap->ps, &cg_entities[ snap->ps.clientNum ].currentState, false );
 
 	// sort out solid entities
 	CG_BuildSolidList();
@@ -103,8 +104,8 @@ void CG_SetInitialSnapshot( snapshot_t *snap ) {
 
 		memcpy(&cent->currentState, state, sizeof(entityState_t));
 		//cent->currentState = *state;
-		cent->interpolate = qfalse;
-		cent->currentValid = qtrue;
+		cent->interpolate = false;
+		cent->currentValid = true;
 
 		CG_ResetEntity( cent );
 
@@ -120,10 +121,10 @@ static void CG_TransitionSnapshot( void ) {
 	int					i;
 
 	if ( !cg.snap ) {
-		trap->Error( ERR_DROP, "CG_TransitionSnapshot: NULL cg.snap" );
+		trap->Error( ERR_DROP, "CG_TransitionSnapshot: nullptr cg.snap" );
 	}
 	if ( !cg.nextSnap ) {
-		trap->Error( ERR_DROP, "CG_TransitionSnapshot: NULL cg.nextSnap" );
+		trap->Error( ERR_DROP, "CG_TransitionSnapshot: nullptr cg.nextSnap" );
 	}
 
 	// execute any server string commands before transitioning entities
@@ -136,7 +137,7 @@ static void CG_TransitionSnapshot( void ) {
 	// clear the currentValid flag for all entities in the existing snapshot
 	for ( i = 0 ; i < cg.snap->numEntities ; i++ ) {
 		cent = &cg_entities[ cg.snap->entities[ i ].number ];
-		cent->currentValid = qfalse;
+		cent->currentValid = false;
 	}
 
 	// move nextSnap to snap and do the transitions
@@ -145,8 +146,8 @@ static void CG_TransitionSnapshot( void ) {
 
 	//CG_CheckPlayerG2Weapons(&cg.snap->ps, &cg_entities[cg.snap->ps.clientNum]);
 	//CG_CheckPlayerG2Weapons(&cg.snap->ps, &cg.predictedPlayerEntity);
-	BG_PlayerStateToEntityState( &cg.snap->ps, &cg_entities[ cg.snap->ps.clientNum ].currentState, qfalse );
-	cg_entities[ cg.snap->ps.clientNum ].interpolate = qfalse;
+	BG_PlayerStateToEntityState( &cg.snap->ps, &cg_entities[ cg.snap->ps.clientNum ].currentState, false );
+	cg_entities[ cg.snap->ps.clientNum ].interpolate = false;
 
 	for ( i = 0 ; i < cg.snap->numEntities ; i++ ) {
 		cent = &cg_entities[ cg.snap->entities[ i ].number ];
@@ -156,7 +157,7 @@ static void CG_TransitionSnapshot( void ) {
 		cent->snapShotTime = cg.snap->serverTime;
 	}
 
-	cg.nextSnap = NULL;
+	cg.nextSnap = nullptr;
 
 	// check for playerstate transition events
 	if ( oldFrame ) {
@@ -166,7 +167,7 @@ static void CG_TransitionSnapshot( void ) {
 		ps = &cg.snap->ps;
 		// teleporting checks are irrespective of prediction
 		if ( ( ps->eFlags ^ ops->eFlags ) & EF_TELEPORT_BIT ) {
-			cg.thisFrameTeleport = qtrue;	// will be cleared by prediction code
+			cg.thisFrameTeleport = true;	// will be cleared by prediction code
 		}
 
 		// if we are not doing client side movement prediction for any
@@ -189,8 +190,8 @@ static void CG_SetNextSnap( snapshot_t *snap ) {
 
 	//CG_CheckPlayerG2Weapons(&cg.snap->ps, &cg_entities[cg.snap->ps.clientNum]);
 	//CG_CheckPlayerG2Weapons(&cg.snap->ps, &cg.predictedPlayerEntity);
-	BG_PlayerStateToEntityState( &snap->ps, &cg_entities[ snap->ps.clientNum ].nextState, qfalse );
-	//cg_entities[ cg.snap->ps.clientNum ].interpolate = qtrue;
+	BG_PlayerStateToEntityState( &snap->ps, &cg_entities[ snap->ps.clientNum ].nextState, false );
+	//cg_entities[ cg.snap->ps.clientNum ].interpolate = true;
 	//No longer want to do this, as the cg_entities[clnum] and cg.predictedPlayerEntity are one in the same.
 
 	// check for extrapolation errors
@@ -205,28 +206,28 @@ static void CG_SetNextSnap( snapshot_t *snap ) {
 		// if this frame is a teleport, or the entity wasn't in the
 		// previous frame, don't interpolate
 		if ( !cent->currentValid || ( ( cent->currentState.eFlags ^ es->eFlags ) & EF_TELEPORT_BIT )  ) {
-			cent->interpolate = qfalse;
+			cent->interpolate = false;
 		} else {
-			cent->interpolate = qtrue;
+			cent->interpolate = true;
 		}
 	}
 
 	// if the next frame is a teleport for the playerstate, we
 	// can't interpolate during demos
 	if ( cg.snap && ( ( snap->ps.eFlags ^ cg.snap->ps.eFlags ) & EF_TELEPORT_BIT ) ) {
-		cg.nextFrameTeleport = qtrue;
+		cg.nextFrameTeleport = true;
 	} else {
-		cg.nextFrameTeleport = qfalse;
+		cg.nextFrameTeleport = false;
 	}
 
 	// if changing follow mode, don't interpolate
 	if ( cg.nextSnap->ps.clientNum != cg.snap->ps.clientNum ) {
-		cg.nextFrameTeleport = qtrue;
+		cg.nextFrameTeleport = true;
 	}
 
 	// if changing server restarts, don't interpolate
 	if ( ( cg.nextSnap->snapFlags ^ cg.snap->snapFlags ) & SNAPFLAG_SERVERCOUNT ) {
-		cg.nextFrameTeleport = qtrue;
+		cg.nextFrameTeleport = true;
 	}
 
 	// sort out solid entities
@@ -236,7 +237,7 @@ static void CG_SetNextSnap( snapshot_t *snap ) {
 // This is the only place new snapshots are requested
 // This may increment cgs.processedSnapshotNum multiple times if the client system fails to return a valid snapshot.
 static snapshot_t *CG_ReadNextSnapshot( void ) {
-	qboolean	r;
+	bool	r;
 	snapshot_t	*dest;
 
 	if ( cg.latestSnapshotNum > cgs.processedSnapshotNum + 1000 ) {
@@ -280,14 +281,14 @@ static snapshot_t *CG_ReadNextSnapshot( void ) {
 		// buffer in the client system.
 
 		// record as a dropped packet
-		CG_AddLagometerSnapshotInfo( NULL );
+		CG_AddLagometerSnapshotInfo( nullptr );
 
 		// If there are additional snapshots, continue trying to
 		// read them.
 	}
 
 	// nothing left to read
-	return NULL;
+	return nullptr;
 }
 
 // We are trying to set up a renderable view, so determine what the simulated time is, and try to get snapshots both
@@ -358,14 +359,14 @@ void CG_ProcessSnapshots( void ) {
 	} while ( 1 );
 
 	// assert our valid conditions upon exiting
-	if ( cg.snap == NULL ) {
-		trap->Error( ERR_DROP, "CG_ProcessSnapshots: cg.snap == NULL" );
+	if ( cg.snap == nullptr ) {
+		trap->Error( ERR_DROP, "CG_ProcessSnapshots: cg.snap == nullptr" );
 	}
 	if ( cg.time < cg.snap->serverTime ) {
 		// this can happen right after a vid_restart
 		cg.time = cg.snap->serverTime;
 	}
-	if ( cg.nextSnap != NULL && cg.nextSnap->serverTime <= cg.time ) {
+	if ( cg.nextSnap != nullptr && cg.nextSnap->serverTime <= cg.time ) {
 		trap->Error( ERR_DROP, "CG_ProcessSnapshots: cg.nextSnap->serverTime <= cg.time" );
 	}
 

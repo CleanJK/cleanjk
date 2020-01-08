@@ -8,7 +8,7 @@ cgMedia_t media;
 
 typedef struct progress_s {
 	size_t		numLoadedResources;
-	qboolean	loadedMap;
+	bool	loadedMap;
 } progress_t;
 static progress_t progress;
 
@@ -160,9 +160,9 @@ static void CG_RegisterItemSounds( int itemNum ) {
 }
 
 static void CG_RegisterSounds( void ) {
-	const resource_t *resource = NULL;
+	const resource_t *resource = nullptr;
 	size_t i;
-	const char *soundName = NULL;
+	const char *soundName = nullptr;
 
 	for ( i = 0, resource = sounds; i < numSounds; i++, resource++ ) {
 		CG_LoadResource( resource, trap->S_RegisterSound );
@@ -205,9 +205,9 @@ static void CG_RegisterSounds( void ) {
 }
 
 static void CG_RegisterEffects( void ) {
-	const resource_t *resource = NULL;
+	const resource_t *resource = nullptr;
 	size_t i;
-	const char *effectName = NULL;
+	const char *effectName = nullptr;
 
 	for ( i = 0, resource = efx; i < numEffects; i++, resource++ ) {
 		CG_LoadResource( resource, trap->FX_RegisterEffect );
@@ -234,7 +234,7 @@ static void CG_RegisterEffects( void ) {
 }
 
 static void CG_RegisterGraphics( void ) {
-	const resource_t *resource = NULL;
+	const resource_t *resource = nullptr;
 	size_t i;
 
 	for ( i = 0, resource = gfx; i < numGraphics; i++, resource++ ) {
@@ -258,9 +258,9 @@ static void CG_RegisterGraphics( void ) {
 }
 
 static void CG_RegisterModels( void ) {
-	const resource_t *resource = NULL;
+	const resource_t *resource = nullptr;
 	size_t i;
-	const char *terrainInfo = NULL;
+	const char *terrainInfo = nullptr;
 	int breakPoint;
 
 	for ( i = 0, resource = models; i < numModels; i++, resource++ ) {
@@ -330,7 +330,7 @@ static void CG_RegisterModels( void ) {
 		);
 		CG_LoadingString( loadingStr );
 
-		trap->CM_LoadMap( bspName, qtrue );
+		trap->CM_LoadMap( bspName, true );
 		cgs.inlineDrawModel[breakPoint] = trap->R_RegisterModel( bspName );
 		vec3_t mins, maxs;
 		trap->R_ModelBounds( cgs.inlineDrawModel[breakPoint], mins, maxs );
@@ -400,10 +400,10 @@ void CG_LoadMedia( void ) {
 	memset( &cg.refdef, 0, sizeof(cg.refdef) );
 	trap->R_ClearScene();
 	CG_LoadingString( va( "Collision map (%s)", cgs.mapname ) );
-	trap->CM_LoadMap( cgs.mapname, qfalse );
+	trap->CM_LoadMap( cgs.mapname, false );
 	CG_LoadingString( va( "Map (%s)", cgs.mapname ) );
 	trap->R_LoadWorld( cgs.mapname );
-	progress.loadedMap = qtrue;
+	progress.loadedMap = true;
 	CG_LoadingString( "Automap" );
 	trap->R_InitializeWireframeAutomap();
 

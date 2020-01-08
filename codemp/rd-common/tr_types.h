@@ -4,7 +4,8 @@ Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
 Copyright (C) 2005 - 2015, ioquake3 contributors
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -24,7 +25,20 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
+// ======================================================================
+// INCLUDE
+// ======================================================================
+
 #include "qcommon/q_shared.h"
+
+#define MDXABONEDEF
+#include "rd-common/mdx_format.h"
+
+// ======================================================================
+// DEFINE
+// ======================================================================
+
+using stereoFrame_t = int;
 
 #define	MAX_DLIGHTS		32			// can't be increased, because bit flags are used on surfaces
 #define	REFENTITYNUM_BITS	11		// can't be increased without changing drawsurf bit packing
@@ -86,24 +100,18 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define	RDF_NOFOG			64		//no global fog in this scene (but still brush fog) -rww
 #define RDF_ForceSightOn	128		//using force sight
 
-extern int	skyboxportal;
-extern int	drawskyboxportal;
+// limits
+#define MD3_MAX_LODS		3
 
-typedef byte color4ub_t[4];
+#define	MAX_RENDER_STRINGS			8
+#define	MAX_RENDER_STRING_LENGTH	32
 
-typedef struct polyVert_s {
-	vec3_t		xyz;
-	float		st[2];
-	byte		modulate[4];
-} polyVert_t;
+// ======================================================================
+// ENUM
+// ======================================================================
 
-typedef struct poly_s {
-	qhandle_t			hShader;
-	int					numVerts;
-	polyVert_t			*verts;
-} poly_t;
-
-typedef enum {
+typedef enum
+{
 	RT_MODEL,
 	RT_POLY,
 	RT_SPRITE,
@@ -120,6 +128,47 @@ typedef enum {
 	RT_MAX_REF_ENTITY_TYPE
 } refEntityType_t;
 
+typedef enum
+{
+	MOD_BAD,
+	MOD_BRUSH,
+	MOD_MESH,
+	MOD_MDXM,
+	MOD_MDXA
+} modtype_t;
+
+enum
+{
+	STEREO_CENTER,
+	STEREO_LEFT,
+	STEREO_RIGHT
+};
+
+// Contains variables specific to the OpenGL configuration being run right now.
+// These are constant once the OpenGL subsystem is initialized.
+typedef enum
+{ // r_ext_preferred_tc_method
+	TC_NONE,
+	TC_S3TC,
+	TC_S3TC_DXT
+} textureCompression_t;
+
+// ======================================================================
+// STRUCT
+// ======================================================================
+
+typedef struct polyVert_s {
+	vec3_t		xyz;
+	float		st[2];
+	byte		modulate[4];
+} polyVert_t;
+
+typedef struct poly_s {
+	qhandle_t			hShader;
+	int					numVerts;
+	polyVert_t			*verts;
+} poly_t;
+
 typedef struct miniRefEntity_s
 {
 	refEntityType_t		reType;
@@ -129,7 +178,7 @@ typedef struct miniRefEntity_s
 
 	// most recent data
 	matrix3_t			axis;			// rotation vectors
-	qboolean			nonNormalizedAxes;	// axis are not normalized, i.e. they have scale
+	bool			nonNormalizedAxes;	// axis are not normalized, i.e. they have scale
 	vec3_t				origin;				// also used as MODEL_BEAM's "from"
 
 	// previous data for frame interpolation
@@ -162,7 +211,7 @@ typedef struct refEntity_s {
 
 	// most recent data
 	matrix3_t			axis;			// rotation vectors
-	qboolean			nonNormalizedAxes;	// axis are not normalized, i.e. they have scale
+	bool			nonNormalizedAxes;	// axis are not normalized, i.e. they have scale
 	vec3_t				origin;				// also used as MODEL_BEAM's "from"
 
 	// previous data for frame interpolation
@@ -197,7 +246,7 @@ typedef struct refEntity_s {
 
 	// texturing
 	int			skinNum;			// inline skin index
-	qhandle_t	customSkin;			// NULL for default skin
+	qhandle_t	customSkin;			// nullptr for default skin
 
 	// texturing
 	union
@@ -238,15 +287,15 @@ typedef struct refEntity_s {
 			float stscale;
 			float height;
 			float bias;
-			qboolean wrap;
+			bool wrap;
 		} cylinder;
 		struct
 		{
 			float width;
 			float deviation;
 			float stscale;
-			qboolean wrap;
-			qboolean taper;
+			bool wrap;
+			bool taper;
 		} electricity;
 	} data;
 
@@ -259,10 +308,6 @@ typedef struct refEntity_s {
 //	CGhoul2Info_v	*ghoul2;  		// has to be at the end of the ref-ent in order for it to be created properly
 	void		*ghoul2;  		// has to be at the end of the ref-ent in order for it to be created properly
 } refEntity_t;
-
-#define MDXABONEDEF
-#include "rd-common/mdx_format.h"
-#include "qcommon/qfiles.h"
 
 // skins allow models to be retextured without modifying the model file
 //this is a mock copy, renderers may have their own implementation.
@@ -278,13 +323,27 @@ typedef struct skin_s {
 	_skinSurface_t	*surfaces[128];
 } skin_t;
 
-typedef enum {
-	MOD_BAD,
-	MOD_BRUSH,
-	MOD_MESH,
-   	MOD_MDXM,
-	MOD_MDXA
-} modtype_t;
+typedef struct md3Header_s
+{
+	int			ident;
+	int			version;
+
+	char		name[MAX_QPATH];	// model name
+
+	int			flags;
+
+	int			numFrames;
+	int			numTags;
+	int			numSurfaces;
+
+	int			numSkins;
+
+	int			ofsFrames;			// offset for first frame
+	int			ofsTags;			// numFrames * numTags
+	int			ofsSurfaces;		// first surface, others follow
+
+	int			ofsEnd;				// end of file
+} md3Header_t;
 
 typedef struct model_s {
 	char		name[MAX_QPATH];
@@ -297,11 +356,8 @@ typedef struct model_s {
 	mdxmHeader_t *mdxm;				// only if type == MOD_GL2M which is a GHOUL II Mesh file NOT a GHOUL II animation file
 	mdxaHeader_t *mdxa;				// only if type == MOD_GL2A which is a GHOUL II Animation file
 	int			 numLods;
-	qboolean	bspInstance;
+	bool	bspInstance;
 } model_t;
-
-#define	MAX_RENDER_STRINGS			8
-#define	MAX_RENDER_STRING_LENGTH	32
 
 typedef struct refdef_s {
 	int			x, y, width, height;
@@ -323,21 +379,6 @@ typedef struct refdef_s {
 	char		text[MAX_RENDER_STRINGS][MAX_RENDER_STRING_LENGTH];
 } refdef_t;
 
-enum {
-	STEREO_CENTER,
-	STEREO_LEFT,
-	STEREO_RIGHT
-};
-typedef int stereoFrame_t;
-
-// Contains variables specific to the OpenGL configuration being run right now.
-// These are constant once the OpenGL subsystem is initialized.
-typedef enum { // r_ext_preferred_tc_method
-	TC_NONE,
-	TC_S3TC,
-	TC_S3TC_DXT
-} textureCompression_t;
-
 typedef struct glconfig_s {
 	const char				*renderer_string;
 	const char				*vendor_string;
@@ -350,10 +391,10 @@ typedef struct glconfig_s {
 
 	int						colorBits, depthBits, stencilBits;
 
-	qboolean				deviceSupportsGamma;
+	bool				deviceSupportsGamma;
 	textureCompression_t	textureCompression;
-	qboolean				textureEnvAddAvailable;
-	qboolean				clampToEdgeAvailable;
+	bool				textureEnvAddAvailable;
+	bool				clampToEdgeAvailable;
 
 	int						vidWidth, vidHeight;
 
@@ -362,6 +403,13 @@ typedef struct glconfig_s {
 	// synonymous with "does rendering consume the entire screen?", therefore
 	// a Voodoo or Voodoo2 will have this set to TRUE, as will a Win32 ICD that
 	// used CDS.
-	qboolean				isFullscreen;
-	qboolean				stereoEnabled;
+	bool				isFullscreen;
+	bool				stereoEnabled;
 } glconfig_t;
+
+// ======================================================================
+// EXTERN VARIABLE
+// ======================================================================
+
+extern int	skyboxportal;
+extern int	drawskyboxportal;

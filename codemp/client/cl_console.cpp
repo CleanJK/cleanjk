@@ -4,7 +4,8 @@ Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
 Copyright (C) 2005 - 2015, ioquake3 contributors
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -48,13 +49,13 @@ void Con_ToggleConsole_f (void) {
 }
 
 void Con_ToggleMenu_f( void ) {
-	CL_KeyEvent( A_ESCAPE, qtrue, Sys_Milliseconds() );
-	CL_KeyEvent( A_ESCAPE, qfalse, Sys_Milliseconds() );
+	CL_KeyEvent( A_ESCAPE, true, Sys_Milliseconds() );
+	CL_KeyEvent( A_ESCAPE, false, Sys_Milliseconds() );
 }
 
 void Con_MessageMode_f (void) {	//yell
 	chat_playerNum = -1;
-	chat_team = qfalse;
+	chat_team = false;
 	Field_Clear( &chatField );
 	chatField.widthInChars = 30;
 
@@ -63,7 +64,7 @@ void Con_MessageMode_f (void) {	//yell
 
 void Con_MessageMode2_f (void) {	//team chat
 	chat_playerNum = -1;
-	chat_team = qtrue;
+	chat_team = true;
 	Field_Clear( &chatField );
 	chatField.widthInChars = 25;
 	Key_SetCatcher( Key_GetCatcher( ) ^ KEYCATCH_MESSAGE );
@@ -82,7 +83,7 @@ void Con_MessageMode3_f (void)
 		chat_playerNum = -1;
 		return;
 	}
-	chat_team = qfalse;
+	chat_team = false;
 	Field_Clear( &chatField );
 	chatField.widthInChars = 30;
 	Key_SetCatcher( Key_GetCatcher( ) ^ KEYCATCH_MESSAGE );
@@ -101,7 +102,7 @@ void Con_MessageMode4_f (void)
 		chat_playerNum = -1;
 		return;
 	}
-	chat_team = qfalse;
+	chat_team = false;
 	Field_Clear( &chatField );
 	chatField.widthInChars = 30;
 	Key_SetCatcher( Key_GetCatcher( ) ^ KEYCATCH_MESSAGE );
@@ -272,7 +273,7 @@ void Con_CheckResize (void)
 
 void Cmd_CompleteTxtName( char *args, int argNum ) {
 	if ( argNum == 2 )
-		Field_CompleteFilename( "", "txt", qfalse, qtrue );
+		Field_CompleteFilename( "", "txt", false, true );
 }
 
 void Con_Init (void) {
@@ -308,7 +309,7 @@ void Con_Shutdown(void)
 	Cmd_RemoveCommand("condump");
 }
 
-static void Con_Linefeed (qboolean skipnotify)
+static void Con_Linefeed (bool skipnotify)
 {
 	int		i;
 
@@ -336,17 +337,17 @@ void CL_ConsolePrint( const char *txt) {
 	int		y;
 	int		c, l;
 	int		color;
-	qboolean skipnotify = qfalse;		// NERVE - SMF
+	bool skipnotify = false;		// NERVE - SMF
 	int prev;							// NERVE - SMF
 
 	// TTimo - prefix for text that shows up in console but not in notify
 	// backported from RTCW
 	if ( !Q_strncmp( txt, "[skipnotify]", 12 ) ) {
-		skipnotify = qtrue;
+		skipnotify = true;
 		txt += 12;
 	}
 	if ( txt[0] == '*' ) {
-		skipnotify = qtrue;
+		skipnotify = true;
 		txt += 1;
 	}
 
@@ -362,7 +363,7 @@ void CL_ConsolePrint( const char *txt) {
 		con.color[3] = 1.0f;
 		con.linewidth = -1;
 		Con_CheckResize ();
-		con.initialized = qtrue;
+		con.initialized = true;
 	}
 
 	color = ColorIndex(COLOR_WHITE);
@@ -442,7 +443,7 @@ void Con_DrawInput (void) {
 	SCR_DrawSmallChar( (int)(con.xadjust + 1 * SMALLCHAR_WIDTH), y, CONSOLE_PROMPT_CHAR );
 
 	Field_Draw( &g_consoleField, (int)(con.xadjust + 2 * SMALLCHAR_WIDTH), y,
-				SCREEN_WIDTH - 3 * SMALLCHAR_WIDTH, qtrue, qtrue );
+				SCREEN_WIDTH - 3 * SMALLCHAR_WIDTH, true, true );
 }
 
 // Draws the last few lines of output transparently over the game top
@@ -516,7 +517,7 @@ void Con_DrawNotify (void)
 		}
 	}
 
-	re->SetColor( NULL );
+	re->SetColor( nullptr );
 
 	if (Key_GetCatcher( ) & (KEYCATCH_UI | KEYCATCH_CGAME) ) {
 		return;
@@ -528,18 +529,18 @@ void Con_DrawNotify (void)
 		if (chat_team)
 		{
 			chattext = SE_GetString("MP_SVGAME", "SAY_TEAM");
-			SCR_DrawBigString (8, v, chattext, 1.0f, qfalse );
+			SCR_DrawBigString (8, v, chattext, 1.0f, false );
 			skip = strlen(chattext)+1;
 		}
 		else
 		{
 			chattext = SE_GetString("MP_SVGAME", "SAY");
-			SCR_DrawBigString (8, v, chattext, 1.0f, qfalse );
+			SCR_DrawBigString (8, v, chattext, 1.0f, false );
 			skip = strlen(chattext)+1;
 		}
 
 		Field_BigDraw( &chatField, skip * BIGCHAR_WIDTH, v,
-			SCREEN_WIDTH - ( skip + 1 ) * BIGCHAR_WIDTH, qtrue, qtrue );
+			SCREEN_WIDTH - ( skip + 1 ) * BIGCHAR_WIDTH, true, true );
 
 		v += BIGCHAR_HEIGHT;
 	}
@@ -578,7 +579,7 @@ void Con_DrawSolidConsole( float frac ) {
 		}
 		else
 		{
-			re->SetColor(NULL);
+			re->SetColor(nullptr);
 		}
 		SCR_DrawPic( 0, 0, SCREEN_WIDTH, (float) y, cls.consoleShader );
 	}
@@ -680,7 +681,7 @@ void Con_DrawSolidConsole( float frac ) {
 	// draw the input prompt, user text, and cursor if desired
 	Con_DrawInput ();
 
-	re->SetColor( NULL );
+	re->SetColor( nullptr );
 }
 
 void Con_DrawConsole( void ) {

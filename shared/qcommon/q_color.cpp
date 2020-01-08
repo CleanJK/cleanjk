@@ -1,3 +1,4 @@
+#include "qcommon/q_math.h"
 #include "qcommon/q_shared.h"
 #include "qcommon/q_color.h"
 

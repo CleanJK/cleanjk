@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -303,7 +304,7 @@ void RB_DoShadowTessEnd( vec3_t lightPos )
 //	if ( facing[ triangleFromEdge[ v1 ][ v2 ] ] && !facing[ triangleFromEdge[ v2 ][ v1 ] )
 void RB_ShadowTessEnd( void )
 {
-	RB_DoShadowTessEnd(NULL);
+	RB_DoShadowTessEnd(nullptr);
 }
 
 // Darken everything that is is a shadow volume.
@@ -419,10 +420,10 @@ void RB_CaptureScreenImage(void)
 	//using this method, we could pixel-filter the texture and all sorts of crazy stuff.
 	//but, it is slow as hell.
 	/*
-	static byte *tmp = NULL;
+	static byte *tmp = nullptr;
 	if (!tmp)
 	{
-		tmp = (byte *)Z_Malloc((sizeof(byte)*4)*(glConfig.vidWidth*glConfig.vidHeight), TAG_ICARUS, qtrue);
+		tmp = (byte *)Z_Malloc((sizeof(byte)*4)*(glConfig.vidWidth*glConfig.vidHeight), TAG_ICARUS, true);
 	}
 	qglReadPixels(0, 0, glConfig.vidWidth, glConfig.vidHeight, GL_RGBA, GL_UNSIGNED_BYTE, tmp);
 	qglTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 512, 512, 0, GL_RGBA, GL_UNSIGNED_BYTE, tmp);
@@ -473,8 +474,8 @@ void RB_CaptureScreenImage(void)
 //yeah.. not really shadow-related.. but it's stencil-related. -rww
 float tr_distortionAlpha = 1.0f; //opaque
 float tr_distortionStretch = 0.0f; //no stretch override
-qboolean tr_distortionPrePost = qfalse; //capture before postrender phase?
-qboolean tr_distortionNegate = qfalse; //negative blend mode
+bool tr_distortionPrePost = false; //capture before postrender phase?
+bool tr_distortionNegate = false; //negative blend mode
 void RB_DistortionFill(void)
 {
 	float alpha = tr_distortionAlpha;

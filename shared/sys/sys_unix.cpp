@@ -1,7 +1,8 @@
 /*
 ===========================================================================
 Copyright (C) 2005 - 2015, ioquake3 contributors
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -33,12 +34,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <sched.h>
 #include <signal.h>
 
-#include "qcommon/qcommon.h"
+#include "qcommon/q_common.h"
 #include "qcommon/q_shared.h"
 #include "qcommon/com_cvars.h"
 #include "sys/sys_local.h"
 
-qboolean stdinIsATTY = qfalse;
+bool stdinIsATTY = false;
 
 // Used to determine where to store user-specific files
 static char homePath[ MAX_OSPATH ] = { 0 };
@@ -54,9 +55,9 @@ void Sys_PlatformInit( void )
 	signal( SIGBUS, Sys_SigHandler );
 
 	if (isatty( STDIN_FILENO ) && !( term && ( !strcmp( term, "raw" ) || !strcmp( term, "dumb" ) ) ))
-		stdinIsATTY = qtrue;
+		stdinIsATTY = true;
 	else
-		stdinIsATTY = qfalse;
+		stdinIsATTY = false;
 }
 
 void Sys_PlatformExit( void )
@@ -82,7 +83,7 @@ int Sys_Milliseconds (bool baseTime)
 {
 	struct timeval tp;
 
-	gettimeofday(&tp, NULL);
+	gettimeofday(&tp, nullptr);
 
 	if (!sys_timeBase)
 	{
@@ -119,7 +120,7 @@ bool Sys_RandomBytes( byte *string, int len )
 	if( !fp )
 		return false;
 
-	setvbuf( fp, NULL, _IONBF, 0 ); // don't buffer reads from /dev/urandom
+	setvbuf( fp, nullptr, _IONBF, 0 ); // don't buffer reads from /dev/urandom
 
 	if( !fread( string, sizeof( byte ), len, fp ) )
 	{
@@ -140,7 +141,7 @@ char *Sys_GetCurrentUser( void )
 {
 	struct passwd *p;
 
-	if ( (p = getpwuid( getuid() )) == NULL ) {
+	if ( (p = getpwuid( getuid() )) == nullptr ) {
 		return "player";
 	}
 	return p->pw_name;
@@ -155,9 +156,9 @@ Sys_LowPhysicalMemory
 TODO
 ==================
 */
-qboolean Sys_LowPhysicalMemory( void )
+bool Sys_LowPhysicalMemory( void )
 {
-	return qfalse;
+	return false;
 }
 
 /*
@@ -213,11 +214,11 @@ void Sys_ListFilteredFiles( const char *basedir, char *subdirs, char *filter, ch
 		Com_sprintf( search, sizeof(search), "%s", basedir );
 	}
 
-	if ((fdir = opendir(search)) == NULL) {
+	if ((fdir = opendir(search)) == nullptr) {
 		return;
 	}
 
-	while ((d = readdir(fdir)) != NULL) {
+	while ((d = readdir(fdir)) != nullptr) {
 		Com_sprintf(filename, sizeof(filename), "%s/%s", search, d->d_name);
 		if (stat(filename, &st) == -1)
 			continue;
@@ -237,7 +238,7 @@ void Sys_ListFilteredFiles( const char *basedir, char *subdirs, char *filter, ch
 			break;
 		}
 		Com_sprintf( filename, sizeof(filename), "%s/%s", subdirs, d->d_name );
-		if (!Com_FilterPath( filter, filename, qfalse ))
+		if (!Com_FilterPath( filter, filename, false ))
 			continue;
 		list[ *numfiles ] = CopyString( filename );
 		(*numfiles)++;
@@ -246,11 +247,11 @@ void Sys_ListFilteredFiles( const char *basedir, char *subdirs, char *filter, ch
 	closedir(fdir);
 }
 
-char **Sys_ListFiles( const char *directory, const char *extension, char *filter, int *numfiles, qboolean wantsubs )
+char **Sys_ListFiles( const char *directory, const char *extension, char *filter, int *numfiles, bool wantsubs )
 {
 	struct dirent *d;
 	DIR		*fdir;
-	qboolean dironly = wantsubs;
+	bool dironly = wantsubs;
 	char		search[MAX_OSPATH];
 	int			nfiles;
 	char		**listCopy;
@@ -267,13 +268,13 @@ char **Sys_ListFiles( const char *directory, const char *extension, char *filter
 		*numfiles = nfiles;
 
 		if (!nfiles)
-			return NULL;
+			return nullptr;
 
-		listCopy = (char **)Z_Malloc( ( nfiles + 1 ) * sizeof( *listCopy ), TAG_LISTFILES, qfalse );
+		listCopy = (char **)Z_Malloc( ( nfiles + 1 ) * sizeof( *listCopy ), TAG_LISTFILES, false );
 		for ( i = 0 ; i < nfiles ; i++ ) {
 			listCopy[i] = list[i];
 		}
-		listCopy[i] = NULL;
+		listCopy[i] = nullptr;
 
 		return listCopy;
 	}
@@ -283,7 +284,7 @@ char **Sys_ListFiles( const char *directory, const char *extension, char *filter
 
 	if ( extension[0] == '/' && extension[1] == 0 ) {
 		extension = "";
-		dironly = qtrue;
+		dironly = true;
 	}
 
 	size_t extLen = strlen( extension );
@@ -291,12 +292,12 @@ char **Sys_ListFiles( const char *directory, const char *extension, char *filter
 	// search
 	nfiles = 0;
 
-	if ((fdir = opendir(directory)) == NULL) {
+	if ((fdir = opendir(directory)) == nullptr) {
 		*numfiles = 0;
-		return NULL;
+		return nullptr;
 	}
 
-	while ((d = readdir(fdir)) != NULL) {
+	while ((d = readdir(fdir)) != nullptr) {
 		Com_sprintf(search, sizeof(search), "%s/%s", directory, d->d_name);
 		if (stat(search, &st) == -1)
 			continue;
@@ -327,14 +328,14 @@ char **Sys_ListFiles( const char *directory, const char *extension, char *filter
 	*numfiles = nfiles;
 
 	if ( !nfiles ) {
-		return NULL;
+		return nullptr;
 	}
 
-	listCopy = (char **)Z_Malloc( ( nfiles + 1 ) * sizeof( *listCopy ), TAG_LISTFILES, qfalse );
+	listCopy = (char **)Z_Malloc( ( nfiles + 1 ) * sizeof( *listCopy ), TAG_LISTFILES, false );
 	for ( i = 0 ; i < nfiles ; i++ ) {
 		listCopy[i] = list[i];
 	}
-	listCopy[i] = NULL;
+	listCopy[i] = nullptr;
 
 	return listCopy;
 }
@@ -373,7 +374,7 @@ void Sys_Sleep( int msec )
 		FD_SET(STDIN_FILENO, &fdset);
 		if( msec < 0 )
 		{
-			select(STDIN_FILENO + 1, &fdset, NULL, NULL, NULL);
+			select(STDIN_FILENO + 1, &fdset, nullptr, nullptr, nullptr);
 		}
 		else
 		{
@@ -381,7 +382,7 @@ void Sys_Sleep( int msec )
 
 			timeout.tv_sec = msec/1000;
 			timeout.tv_usec = (msec%1000)*1000;
-			select(STDIN_FILENO + 1, &fdset, NULL, NULL, &timeout);
+			select(STDIN_FILENO + 1, &fdset, nullptr, nullptr, &timeout);
 		}
 	}
 	else
@@ -399,21 +400,21 @@ void Sys_Sleep( int msec )
 Sys_Mkdir
 ==================
 */
-qboolean Sys_Mkdir( const char *path )
+bool Sys_Mkdir( const char *path )
 {
 	int result = mkdir( path, 0750 );
 
 	if( result != 0 )
-		return (qboolean)(errno == EEXIST);
+		return (bool)(errno == EEXIST);
 
-	return qtrue;
+	return true;
 }
 
 char *Sys_Cwd( void )
 {
 	static char cwd[MAX_OSPATH];
 
-	if ( getcwd( cwd, sizeof( cwd ) - 1 ) == NULL )
+	if ( getcwd( cwd, sizeof( cwd ) - 1 ) == nullptr )
 		cwd[0] = '\0';
 	else
 		cwd[MAX_OSPATH-1] = '\0';
@@ -428,8 +429,8 @@ bool Sys_PathCmp( const char *path1, const char *path2 )
 {
 	char *r1, *r2;
 
-	r1 = realpath(path1, NULL);
-	r2 = realpath(path2, NULL);
+	r1 = realpath(path1, nullptr);
+	r2 = realpath(path2, nullptr);
 
 	if(r1 && r2 && !Q_stricmp(r1, r2))
 	{
@@ -455,7 +456,7 @@ char *Sys_DefaultHomePath(void)
 
 	if ( !homePath[0] )
 	{
-		if ( (p = getenv( "HOME" )) != NULL )
+		if ( (p = getenv( "HOME" )) != nullptr )
 		{
 			Com_sprintf( homePath, sizeof( homePath ), "%s%c", p, PATH_SEP );
 			Q_strcat( homePath, sizeof( homePath ), "Library/Application Support/" );
@@ -476,7 +477,7 @@ char *Sys_DefaultHomePath(void)
 
 	if ( !homePath[0] )
 	{
-		if ( (p = getenv( "XDG_DATA_HOME" )) != NULL )
+		if ( (p = getenv( "XDG_DATA_HOME" )) != nullptr )
 		{
 			Com_sprintf( homePath, sizeof( homePath ), "%s%c", p, PATH_SEP );
 			if ( fs_homepath && fs_homepath->string[0] )
@@ -487,7 +488,7 @@ char *Sys_DefaultHomePath(void)
 			return homePath;
 		}
 
-		if ( (p = getenv( "HOME" )) != NULL )
+		if ( (p = getenv( "HOME" )) != nullptr )
 		{
 			Com_sprintf( homePath, sizeof( homePath ), "%s%c.local%cshare%c", p, PATH_SEP, PATH_SEP, PATH_SEP );
 			if ( fs_homepath && fs_homepath->string[0] )

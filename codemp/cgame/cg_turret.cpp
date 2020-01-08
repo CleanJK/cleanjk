@@ -2,7 +2,8 @@
 ===========================================================================
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -160,9 +161,9 @@ void TurretClientRun(centity_t *ent)
 
 		ent->torsoBolt = trap->G2API_AddBolt( ent->ghoul2, 0, "*flash02" );
 
-		trap->G2API_SetBoneAngles( ent->ghoul2, 0, "bone_hinge", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_Y, POSITIVE_Z, POSITIVE_X, NULL, 100, cg.time );
-		trap->G2API_SetBoneAngles( ent->ghoul2, 0, "bone_gback", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_Y, POSITIVE_Z, POSITIVE_X, NULL, 100, cg.time );
-		trap->G2API_SetBoneAngles( ent->ghoul2, 0, "bone_barrel", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_Y, POSITIVE_Z, POSITIVE_X, NULL, 100, cg.time );
+		trap->G2API_SetBoneAngles( ent->ghoul2, 0, "bone_hinge", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_Y, POSITIVE_Z, POSITIVE_X, nullptr, 100, cg.time );
+		trap->G2API_SetBoneAngles( ent->ghoul2, 0, "bone_gback", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_Y, POSITIVE_Z, POSITIVE_X, nullptr, 100, cg.time );
+		trap->G2API_SetBoneAngles( ent->ghoul2, 0, "bone_barrel", vec3_origin, BONE_ANGLES_POSTMULT, POSITIVE_Y, POSITIVE_Z, POSITIVE_X, nullptr, 100, cg.time );
 
 		trap->G2API_SetBoneAnim( ent->ghoul2, 0, "model_root", 0, 11, BONE_ANIM_OVERRIDE_FREEZE, 0.8f, cg.time, 0, 0 );
 
@@ -180,7 +181,7 @@ void TurretClientRun(centity_t *ent)
 
 	if (ent->currentState.fireflag == 2)
 	{ //I'm about to blow
-		trap->G2API_SetBoneAngles( ent->ghoul2, 0, "bone_hinge", ent->turAngles, BONE_ANGLES_REPLACE, NEGATIVE_Y, NEGATIVE_Z, NEGATIVE_X, NULL, 100, cg.time );
+		trap->G2API_SetBoneAngles( ent->ghoul2, 0, "bone_hinge", ent->turAngles, BONE_ANGLES_REPLACE, NEGATIVE_Y, NEGATIVE_Z, NEGATIVE_X, nullptr, 100, cg.time );
 		return;
 	}
 	else if (ent->currentState.fireflag && ent->bolt4 != ent->currentState.fireflag)
@@ -192,7 +193,7 @@ void TurretClientRun(centity_t *ent)
 		BG_GiveMeVectorFromMatrix(&boltMatrix, ORIGIN, muzzleOrg);
 		BG_GiveMeVectorFromMatrix(&boltMatrix, NEGATIVE_X, muzzleDir);
 
-		trap->FX_PlayEffectID(media.efx.null, muzzleOrg, muzzleDir, -1, -1, qfalse);
+		trap->FX_PlayEffectID(media.efx.null, muzzleOrg, muzzleDir, -1, -1, false);
 
 		ent->bolt4 = ent->currentState.fireflag;
 	}
@@ -258,5 +259,5 @@ void TurretClientRun(centity_t *ent)
 	}
 
 	ent->frame_minus1_refreshed = cg.time;
-	trap->G2API_SetBoneAngles( ent->ghoul2, 0, "bone_hinge", ent->turAngles, BONE_ANGLES_REPLACE, NEGATIVE_Y, NEGATIVE_Z, NEGATIVE_X, NULL, 100, cg.time );
+	trap->G2API_SetBoneAngles( ent->ghoul2, 0, "bone_hinge", ent->turAngles, BONE_ANGLES_REPLACE, NEGATIVE_Y, NEGATIVE_Z, NEGATIVE_X, nullptr, 100, cg.time );
 }

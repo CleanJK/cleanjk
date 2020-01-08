@@ -2,7 +2,8 @@
 ===========================================================================
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -25,7 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "ui/ui_local.h"
 #include "ui/ui_shared.h"
 
-qboolean	ui_saber_parms_parsed = qfalse;
+bool	ui_saber_parms_parsed = false;
 
 static qhandle_t redSaberGlowShader;
 static qhandle_t redSaberCoreShader;
@@ -56,17 +57,17 @@ void UI_CacheSaberGlowGraphics( void )
 	purpleSaberCoreShader		= trap->R_RegisterShaderNoMip( "gfx/effects/sabers/purple_line" );
 }
 
-qboolean UI_SaberModelForSaber( const char *saberName, char *saberModel )
+bool UI_SaberModelForSaber( const char *saberName, char *saberModel )
 {
 	return WP_SaberParseParm( saberName, "saberModel", saberModel );
 }
 
-qboolean UI_SaberSkinForSaber( const char *saberName, char *saberSkin )
+bool UI_SaberSkinForSaber( const char *saberName, char *saberSkin )
 {
 	return WP_SaberParseParm( saberName, "customSkin", saberSkin );
 }
 
-qboolean UI_SaberTypeForSaber( const char *saberName, char *saberType )
+bool UI_SaberTypeForSaber( const char *saberName, char *saberType )
 {
 	return WP_SaberParseParm( saberName, "saberType", saberType );
 }
@@ -88,7 +89,7 @@ int UI_SaberNumBladesForSaber( const char *saberName )
 	return numBlades;
 }
 
-qboolean UI_SaberShouldDrawBlade( const char *saberName, int bladeNum )
+bool UI_SaberShouldDrawBlade( const char *saberName, int bladeNum )
 {
 	int bladeStyle2Start = 0, noBlade = 0;
 	char	bladeStyle2StartString[8]={0};
@@ -115,20 +116,20 @@ qboolean UI_SaberShouldDrawBlade( const char *saberName, int bladeNum )
 			noBlade = atoi( noBladeString );
 		}
 	}
-	return ((qboolean)(noBlade==0));
+	return ((bool)(noBlade==0));
 }
 
-qboolean UI_IsSaberTwoHanded( const char *saberName )
+bool UI_IsSaberTwoHanded( const char *saberName )
 {
 	int twoHanded;
 	char	twoHandedString[8]={0};
 	WP_SaberParseParm( saberName, "twoHanded", twoHandedString );
 	if ( !twoHandedString[0] )
 	{//not defined defaults to "no"
-		return qfalse;
+		return false;
 	}
 	twoHanded = atoi( twoHandedString );
-	return ((qboolean)(twoHanded!=0));
+	return ((bool)(twoHanded!=0));
 }
 
 float UI_SaberBladeLengthForSaber( const char *saberName, int bladeNum )
@@ -185,10 +186,10 @@ float UI_SaberBladeRadiusForSaber( const char *saberName, int bladeNum )
 	return radius;
 }
 
-qboolean UI_SaberProperNameForSaber( const char *saberName, char *saberProperName )
+bool UI_SaberProperNameForSaber( const char *saberName, char *saberProperName )
 {
 	char	stringedSaberName[1024];
-	qboolean ret = WP_SaberParseParm( saberName, "name", stringedSaberName );
+	bool ret = WP_SaberParseParm( saberName, "name", stringedSaberName );
 	// if it's a stringed reference translate it
 	if( ret && stringedSaberName[0] == '@')
 	{
@@ -203,26 +204,26 @@ qboolean UI_SaberProperNameForSaber( const char *saberName, char *saberProperNam
 	return ret;
 }
 
-qboolean UI_SaberValidForPlayerInMP( const char *saberName )
+bool UI_SaberValidForPlayerInMP( const char *saberName )
 {
 	char allowed [8]={0};
 	if ( !WP_SaberParseParm( saberName, "notInMP", allowed ) )
 	{//not defined, default is yes
-		return qtrue;
+		return true;
 	}
 	if ( !allowed[0] )
 	{//not defined, default is yes
-		return qtrue;
+		return true;
 	}
 	else
 	{//return value
-		return ((qboolean)(atoi(allowed)==0));
+		return ((bool)(atoi(allowed)==0));
 	}
 }
 
 void UI_SaberLoadParms( void )
 {
-	ui_saber_parms_parsed = qtrue;
+	ui_saber_parms_parsed = true;
 	UI_CacheSaberGlowGraphics();
 
 	WP_SaberLoadParms();
@@ -335,7 +336,7 @@ void UI_SaberDrawBlade( itemDef_t *item, char *saberName, int saberModel, saberT
 	matrix3_t	axis;
 //	vec3_t	angles={0};
 	mdxaBone_t	boltMatrix;
-	qboolean tagHack = qfalse;
+	bool tagHack = false;
 	char *tagName;
 	int bolt;
 	float scale;
@@ -366,7 +367,7 @@ void UI_SaberDrawBlade( itemDef_t *item, char *saberName, int saberModel, saberT
 
 	if ( bolt == -1 )
 	{
-		tagHack = qtrue;
+		tagHack = true;
 		//hmm, just fall back to the most basic tag (this will also make it work with pre-JKA saber models
 		bolt = trap->G2API_AddBolt( item->ghoul2,saberModel, "*flash" );
 		if ( bolt == -1 )
@@ -378,7 +379,7 @@ void UI_SaberDrawBlade( itemDef_t *item, char *saberName, int saberModel, saberT
 //	angles[PITCH] = curYaw;
 //	angles[ROLL] = 0;
 
-	trap->G2API_GetBoltMatrix( item->ghoul2, saberModel, bolt, &boltMatrix, angles, origin, uiInfo.uiDC.realTime, NULL, vec3_origin );//NULL was cgs.model_draw
+	trap->G2API_GetBoltMatrix( item->ghoul2, saberModel, bolt, &boltMatrix, angles, origin, uiInfo.uiDC.realTime, nullptr, vec3_origin );//nullptr was cgs.model_draw
 
 	// work the matrix axis stuff into the original axis and origins used.
 	BG_GiveMeVectorFromMatrix(&boltMatrix, ORIGIN, bladeOrigin);

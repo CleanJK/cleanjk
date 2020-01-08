@@ -1,4 +1,32 @@
+/*
+===========================================================================
+Copyright (C) 1999 - 2005, Id Software, Inc.
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
+
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
+
 #pragma once
+
+// ======================================================================
+// INCLUDE
+// ======================================================================
 
 #include <cstddef>
 #include <cctype>
@@ -11,19 +39,23 @@
 
 #include "gsl.h"
 
+// ======================================================================
+// DEFINE
+// ======================================================================
+
 namespace Q
 {
 	namespace detail
 	{
-		inline std::size_t sscanf_impl( const gsl::cstring_view& input, const std::size_t accumulator )
+		inline std::size_t sscanf_impl(const gsl::cstring_view& input, const std::size_t accumulator)
 		{
 			// Scan successful, all format arguments satisfied
 			return accumulator;
 		}
 
-		inline gsl::cstring_view::const_iterator skipWhitespace( gsl::cstring_view::const_iterator begin, gsl::cstring_view::const_iterator end )
+		inline gsl::cstring_view::const_iterator skipWhitespace(gsl::cstring_view::const_iterator begin, gsl::cstring_view::const_iterator end)
 		{
-			return std::find_if_not< gsl::cstring_view::const_iterator, int( *)( int ) >(
+			return std::find_if_not< gsl::cstring_view::const_iterator, int(*)(int) >(
 				begin, end,
 				std::isspace
 				);
@@ -32,32 +64,32 @@ namespace Q
 		//    Verbatim string
 		// Try to consume the given string; whitespace means consume all available consecutive whitespace. (So format `"    "_v` also accepts input `""_v` and vice-versa.)
 		template< typename... Tail >
-		std::size_t sscanf_impl( const gsl::cstring_view& input, const std::size_t accumulator, const gsl::cstring_view& expected, Tail&&... tail )
+		std::size_t sscanf_impl(const gsl::cstring_view& input, const std::size_t accumulator, const gsl::cstring_view& expected, Tail&&... tail)
 		{
 			auto inputIt = input.begin();
 			auto expectedIt = expected.begin();
-			while( true )
+			while (true)
 			{
-				if( expectedIt == expected.end() )
+				if (expectedIt == expected.end())
 				{
 					// success
-					return sscanf_impl( { inputIt, input.end() }, accumulator, std::forward< Tail >( tail )... );
+					return sscanf_impl({ inputIt, input.end() }, accumulator, std::forward< Tail >(tail)...);
 				}
-				else if( std::isspace( *expectedIt ) )
+				else if (std::isspace(*expectedIt))
 				{
 					// whitespace -> skip all input whitespace
 					// this check is done before the end-of-input check because that's valid here.
-					inputIt = skipWhitespace( inputIt, input.end() );
+					inputIt = skipWhitespace(inputIt, input.end());
 					// might as well skip expected whitespace; we already consumed all input whitespace.
 					++expectedIt;
-					expectedIt = skipWhitespace( expectedIt, expected.end() );
+					expectedIt = skipWhitespace(expectedIt, expected.end());
 				}
-				else if( inputIt == input.end() )
+				else if (inputIt == input.end())
 				{
 					// input ended too early
 					return accumulator;
 				}
-				else if( *inputIt != *expectedIt )
+				else if (*inputIt != *expectedIt)
 				{
 					// no match
 					return accumulator;
@@ -72,22 +104,22 @@ namespace Q
 
 		//    Whitespace-terminated string
 		template< typename... Tail >
-		std::size_t sscanf_impl( const gsl::cstring_view& input, const std::size_t accumulator, gsl::cstring_view& string, Tail&&... tail )
+		std::size_t sscanf_impl(const gsl::cstring_view& input, const std::size_t accumulator, gsl::cstring_view& string, Tail&&... tail)
 		{
 			// skip leading whitespace
-			auto begin = skipWhitespace( input.begin(), input.end() );
+			auto begin = skipWhitespace(input.begin(), input.end());
 			// string is whitespace-terminated
-			auto end = std::find_if< gsl::cstring_view::const_iterator, int( *)( int ) >(
+			auto end = std::find_if< gsl::cstring_view::const_iterator, int(*)(int) >(
 				begin, input.end(),
 				std::isspace
 				);
-			if( begin == end )
+			if (begin == end)
 			{
 				// empty string is not accepted
 				return accumulator;
 			}
 			string = { begin, end };
-			return sscanf_impl( { end, input.end() }, accumulator + 1, std::forward< Tail >( tail )... );
+			return sscanf_impl({ end, input.end() }, accumulator + 1, std::forward< Tail >(tail)...);
 		}
 
 		/**
@@ -97,11 +129,11 @@ namespace Q
 		class ArrayViewStreambuf : public std::basic_streambuf< CharT >
 		{
 		public:
-			ArrayViewStreambuf( const gsl::array_view< const CharT >& view )
+			ArrayViewStreambuf(const gsl::array_view< const CharT >& view)
 			{
 				// it is not written to, but the basic_streambuf interface still wants a non-const CharT.
-				char* data = const_cast< CharT* >( view.data() );
-				this->setg( data, data, data + view.size() );
+				char* data = const_cast<CharT*>(view.data());
+				this->setg(data, data, data + view.size());
 			}
 
 		protected:
@@ -110,21 +142,21 @@ namespace Q
 				typename std::basic_streambuf< CharT >::off_type off,
 				std::ios_base::seekdir dir,
 				std::ios_base::openmode which
-				) override
+			) override
 			{
 				const typename std::basic_streambuf< CharT >::pos_type errVal{ -1 };
-				if( which != std::ios_base::in )
+				if (which != std::ios_base::in)
 				{
 					// only input pointer can be moved
 					return errVal;
 				}
-				char* newPos = ( dir == std::ios_base::beg ) ? this->eback()
-					: ( dir == std::ios_base::cur ) ? this->gptr()
+				char* newPos = (dir == std::ios_base::beg) ? this->eback()
+					: (dir == std::ios_base::cur) ? this->gptr()
 					: this->egptr();
-				newPos += static_cast< int >( off );
-				if( this->eback() <= newPos && newPos <= this->egptr() )
+				newPos += static_cast<int>(off);
+				if (this->eback() <= newPos && newPos <= this->egptr())
 				{
-					this->setg( this->eback(), newPos, this->egptr() );
+					this->setg(this->eback(), newPos, this->egptr());
 					return newPos - this->eback();
 				}
 				else
@@ -138,46 +170,46 @@ namespace Q
 		Forward declaration.
 		*/
 		template< bool skipws = true, typename T, typename... Tail >
-		std::size_t sscanf_impl_stream( const gsl::cstring_view& input, const std::size_t accumulator, T& value, Tail&&... tail );
+		std::size_t sscanf_impl_stream(const gsl::cstring_view& input, const std::size_t accumulator, T& value, Tail&&... tail);
 
 		//    Float
 		template< typename... Tail >
-		std::size_t sscanf_impl( const gsl::cstring_view& input, const std::size_t accumulator, float& f, Tail&&... tail )
+		std::size_t sscanf_impl(const gsl::cstring_view& input, const std::size_t accumulator, float& f, Tail&&... tail)
 		{
-			return sscanf_impl_stream( input, accumulator, f, std::forward< Tail >( tail )... );
+			return sscanf_impl_stream(input, accumulator, f, std::forward< Tail >(tail)...);
 		}
 
 		//    Int
 		template< typename... Tail >
-		std::size_t sscanf_impl( const gsl::cstring_view& input, const std::size_t accumulator, int& i, Tail&&... tail )
+		std::size_t sscanf_impl(const gsl::cstring_view& input, const std::size_t accumulator, int& i, Tail&&... tail)
 		{
-			return sscanf_impl_stream( input, accumulator, i, std::forward< Tail >( tail )... );
+			return sscanf_impl_stream(input, accumulator, i, std::forward< Tail >(tail)...);
 		}
 
 		/**
 		Conversion using std::istream's operator>>
 		*/
 		template< bool skipws, typename T, typename... Tail >
-		std::size_t sscanf_impl_stream( const gsl::cstring_view& input, const std::size_t accumulator, T& value, Tail&&... tail )
+		std::size_t sscanf_impl_stream(const gsl::cstring_view& input, const std::size_t accumulator, T& value, Tail&&... tail)
 		{
 			ArrayViewStreambuf< char > buf{ input };
-			std::istream stream( &buf );
-			if( !skipws )
+			std::istream stream(&buf);
+			if (!skipws)
 			{
 				stream >> std::noskipws;
 			}
 			stream >> value;
-			if( !stream.fail() )
+			if (!stream.fail())
 			{
 				auto pos = stream.tellg();
 				// tellg() fails on eof, returning -1
-				if( pos == std::istream::pos_type{ -1 } )
+				if (pos == std::istream::pos_type{ -1 })
 				{
-					assert( stream.eof() );
+					assert(stream.eof());
 					pos = input.size();
 				}
-				gsl::cstring_view::const_iterator end = input.begin() + static_cast< int >( pos );
-				return sscanf_impl( { end, input.end() }, accumulator + 1, std::forward< Tail >( tail )... );
+				gsl::cstring_view::const_iterator end = input.begin() + static_cast<int>(pos);
+				return sscanf_impl({ end, input.end() }, accumulator + 1, std::forward< Tail >(tail)...);
 			}
 			else
 			{
@@ -196,8 +228,8 @@ namespace Q
 	Returns the number of successful assignments made.
 	*/
 	template< typename... Format >
-	std::size_t sscanf( const gsl::cstring_view& input, Format&&... format )
+	std::size_t sscanf(const gsl::cstring_view& input, Format&&... format)
 	{
-		return detail::sscanf_impl( input, 0, std::forward< Format >( format )... );
+		return detail::sscanf_impl(input, 0, std::forward< Format >(format)...);
 	}
 }

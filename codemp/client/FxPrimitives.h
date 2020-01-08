@@ -2,7 +2,8 @@
 ===========================================================================
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -22,7 +23,15 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
+// ======================================================================
+// INCLUDE
+// ======================================================================
+
 #include "client/FxSystem.h"
+
+// ======================================================================
+// DEFINE
+// ======================================================================
 
 #define MAX_EFFECTS			1800
 
@@ -113,12 +122,23 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define FX_BRANCH			0x02000000		// enables lightning branching
 #define FX_GROW				0x04000000		// lightning grows from start point to end point over the course of its life
 
+// We're getting pretty low level here, not the kind of thing to abuse considering how much overhead this adds to a SINGLE triangle or quad....
+#define MAX_CPOLY_VERTS	5
+
+// ======================================================================
+// ENUM
+// ======================================================================
+
 // stuff that can occur when an effect is flagged with "materialImpact" and it hits something
 enum EMatImpactEffect
 {
 	MATIMPACTFX_NONE = 0,
 	MATIMPACTFX_SHELLSOUND
 };
+
+// ======================================================================
+// CLASS
+// ======================================================================
 
 class CEffect
 {
@@ -497,7 +517,7 @@ protected:
 	float		mSize2Start;
 	float		mSize2End;
 	float		mSize2Parm;
-	qboolean	mTraceEnd;
+	bool	mTraceEnd;
 
 	void	UpdateSize2();
 
@@ -514,7 +534,7 @@ public:
 	inline void SetSize2Start( float sz )	{ mSize2Start = sz;			}
 	inline void SetSize2End( float sz )		{ mSize2End = sz;			}
 	inline void SetSize2Parm( float parm )	{ mSize2Parm = parm;		}
-	inline void SetTraceEnd(qboolean traceEnd) { mTraceEnd = traceEnd; }
+	inline void SetTraceEnd(bool traceEnd) { mTraceEnd = traceEnd; }
 
 	inline void SetNormal( vec3_t norm )	{ VectorCopy( norm, mRefEnt.axis[0] ); }
 };
@@ -559,9 +579,6 @@ public:
 	inline void SetLastOrg( vec3_t org )	{ if(org){VectorCopy(org,mLastOrigin);}else{VectorClear(mLastOrigin);}		}
 	inline void SetLastVel( vec3_t vel )	{ if(vel){VectorCopy(vel,mOldVelocity);}else{VectorClear(mOldVelocity);}	}
 };
-
-// We're getting pretty low level here, not the kind of thing to abuse considering how much overhead this adds to a SINGLE triangle or quad....
-#define MAX_CPOLY_VERTS	5
 
 class CPoly : public CParticle
 {

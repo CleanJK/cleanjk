@@ -2,7 +2,8 @@
 ===========================================================================
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -29,17 +30,17 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // stuff common to all qcommon files...
 #include "server/server.h"
 #include "qcommon/q_shared.h"
-#include "qcommon/qcommon.h"
+#include "qcommon/q_common.h"
 #include "qcommon/stringed_interface.h"
 #include "qcommon/stringed_ingame.h"
 
 #include <string>
 
 // this just gets the binary of the file into memory, so I can parse it. Called by main SGE loader
-//  returns either char * of loaded file, else NULL for failed-to-open...
+//  returns either char * of loaded file, else nullptr for failed-to-open...
 unsigned char *SE_LoadFileData( const char *psFileName, int *piLoadedLength /* = 0 */)
 {
-	unsigned char *psReturn = NULL;
+	unsigned char *psReturn = nullptr;
 	if ( piLoadedLength )
 	{
 		*piLoadedLength = 0;
@@ -111,7 +112,7 @@ static void SE_R_ListFiles( const char *psExtension, const char *psDir, std::str
 
 		// read it in...
 
-/*		byte *pbData = NULL;
+/*		byte *pbData = nullptr;
 		int iSize = FS_ReadFile( sFilename, (void **)&pbData);
 
 		if (pbData)

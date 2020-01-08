@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -27,7 +28,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "ui/ui_shared.h"
 #include "ui/ui_fonts.h"
 #include "ui/menudef.h"
-#include "game/bg_saga.h"
 
 #define	SCOREBOARD_X		(0)
 
@@ -69,9 +69,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //  bot head bot head score ping time name
 //  wins/losses are drawn on bot icon now
 
-static qboolean localClient; // true if local client has been displayed
+static bool localClient; // true if local client has been displayed
 
-static void CG_DrawClientScore( int y, score_t *score, float *color, float fade, qboolean largeFormat )
+static void CG_DrawClientScore( int y, score_t *score, float *color, float fade, bool largeFormat )
 {
 	//vec3_t	headAngles;
 	clientInfo_t	*ci;
@@ -90,16 +90,16 @@ static void CG_DrawClientScore( int y, score_t *score, float *color, float fade,
 	if ( ci->powerups & (1<<PW_NEUTRALFLAG) )
 	{
 		if ( largeFormat )
-			CG_DrawFlagModel( iconx, y - (32 - BIGCHAR_HEIGHT) / 2, iconSize, iconSize, TEAM_FREE, qfalse );
+			CG_DrawFlagModel( iconx, y - (32 - BIGCHAR_HEIGHT) / 2, iconSize, iconSize, TEAM_FREE, false );
 		else
-			CG_DrawFlagModel( iconx, y, iconSize, iconSize, TEAM_FREE, qfalse );
+			CG_DrawFlagModel( iconx, y, iconSize, iconSize, TEAM_FREE, false );
 	}
 
 	else if ( ci->powerups & ( 1 << PW_REDFLAG ) )
-		CG_DrawFlagModel( iconx, y, iconSize, iconSize, TEAM_RED, qfalse );
+		CG_DrawFlagModel( iconx, y, iconSize, iconSize, TEAM_RED, false );
 
 	else if ( ci->powerups & ( 1 << PW_BLUEFLAG ) )
-		CG_DrawFlagModel( iconx, y, iconSize, iconSize, TEAM_BLUE, qfalse );
+		CG_DrawFlagModel( iconx, y, iconSize, iconSize, TEAM_BLUE, false );
 
 	else if ( cgs.gametype == GT_POWERDUEL && (ci->duelTeam == DUELTEAM_LONE || ci->duelTeam == DUELTEAM_DOUBLE) )
 	{
@@ -113,7 +113,7 @@ static void CG_DrawClientScore( int y, score_t *score, float *color, float fade,
 		float	hcolor[4];
 		int		rank;
 
-		localClient = qtrue;
+		localClient = true;
 
 		if ( cg.snap->ps.persistant[PERS_TEAM] == TEAM_SPECTATOR
 			|| cgs.gametype >= GT_TEAM ) {
@@ -180,7 +180,7 @@ static void CG_DrawClientScore( int y, score_t *score, float *color, float fade,
 	}
 }
 
-static int CG_TeamScoreboard( int y, team_t team, float fade, int maxClients, int lineHeight, qboolean countOnly )
+static int CG_TeamScoreboard( int y, team_t team, float fade, int maxClients, int lineHeight, bool countOnly )
 {
 	int		i;
 	score_t	*score;
@@ -256,7 +256,7 @@ int CG_GetTeamCount(team_t team, int maxClients)
 }
 
 // Draw the normal in-game scoreboard
-qboolean CG_DrawOldScoreboard( void ) {
+bool CG_DrawOldScoreboard( void ) {
 	int		x, y, i, n1, n2;
 	float	fade;
 	float	*fadeColor;
@@ -268,12 +268,12 @@ qboolean CG_DrawOldScoreboard( void ) {
 	// don't draw amuthing if the menu or console is up
 	if ( cl_paused.integer ) {
 		cg.deferredPlayerLoading = 0;
-		return qfalse;
+		return false;
 	}
 
 	// don't draw scoreboard during death while warmup up
 	if ( cg.warmup && !cg.showScores ) {
-		return qfalse;
+		return false;
 	}
 
 	if ( cg.showScores || cg.predictedPlayerState.pm_type == PM_DEAD ||
@@ -287,7 +287,7 @@ qboolean CG_DrawOldScoreboard( void ) {
 			// next time scoreboard comes up, don't print killer
 			cg.deferredPlayerLoading = 0;
 			cg.killerName[0] = 0;
-			return qfalse;
+			return false;
 		}
 		fade = *fadeColor;
 	}
@@ -422,7 +422,7 @@ qboolean CG_DrawOldScoreboard( void ) {
 	}
 	realMaxClients = maxClients;
 
-	localClient = qfalse;
+	localClient = false;
 
 	//I guess this should end up being able to display 19 clients at once.
 	//In a team game, if there are 9 or more clients on the team not in the lead,
@@ -455,16 +455,16 @@ qboolean CG_DrawOldScoreboard( void ) {
 
 			team2MaxCl = (maxClients-team1MaxCl); //team2 can display however many is left over after team1's display
 
-			n1 = CG_TeamScoreboard( y, TEAM_RED, fade, team1MaxCl, lineHeight, qtrue );
+			n1 = CG_TeamScoreboard( y, TEAM_RED, fade, team1MaxCl, lineHeight, true );
 			CG_DrawTeamBackground( SB_SCORELINE_X - 5, y - topBorderSize, 640 - SB_SCORELINE_X * 2 + 10, n1 * lineHeight + bottomBorderSize, 0.33f, TEAM_RED );
-			CG_TeamScoreboard( y, TEAM_RED, fade, team1MaxCl, lineHeight, qfalse );
+			CG_TeamScoreboard( y, TEAM_RED, fade, team1MaxCl, lineHeight, false );
 			y += (n1 * lineHeight) + BIGCHAR_HEIGHT;
 
 			//maxClients -= n1;
 
-			n2 = CG_TeamScoreboard( y, TEAM_BLUE, fade, team2MaxCl, lineHeight, qtrue );
+			n2 = CG_TeamScoreboard( y, TEAM_BLUE, fade, team2MaxCl, lineHeight, true );
 			CG_DrawTeamBackground( SB_SCORELINE_X - 5, y - topBorderSize, 640 - SB_SCORELINE_X * 2 + 10, n2 * lineHeight + bottomBorderSize, 0.33f, TEAM_BLUE );
-			CG_TeamScoreboard( y, TEAM_BLUE, fade, team2MaxCl, lineHeight, qfalse );
+			CG_TeamScoreboard( y, TEAM_BLUE, fade, team2MaxCl, lineHeight, false );
 			y += (n2 * lineHeight) + BIGCHAR_HEIGHT;
 
 			//maxClients -= n2;
@@ -488,16 +488,16 @@ qboolean CG_DrawOldScoreboard( void ) {
 
 			team2MaxCl = (maxClients-team1MaxCl); //team2 can display however many is left over after team1's display
 
-			n1 = CG_TeamScoreboard( y, TEAM_BLUE, fade, team1MaxCl, lineHeight, qtrue );
+			n1 = CG_TeamScoreboard( y, TEAM_BLUE, fade, team1MaxCl, lineHeight, true );
 			CG_DrawTeamBackground( SB_SCORELINE_X - 5, y - topBorderSize, 640 - SB_SCORELINE_X * 2 + 10, n1 * lineHeight + bottomBorderSize, 0.33f, TEAM_BLUE );
-			CG_TeamScoreboard( y, TEAM_BLUE, fade, team1MaxCl, lineHeight, qfalse );
+			CG_TeamScoreboard( y, TEAM_BLUE, fade, team1MaxCl, lineHeight, false );
 			y += (n1 * lineHeight) + BIGCHAR_HEIGHT;
 
 			//maxClients -= n1;
 
-			n2 = CG_TeamScoreboard( y, TEAM_RED, fade, team2MaxCl, lineHeight, qtrue );
+			n2 = CG_TeamScoreboard( y, TEAM_RED, fade, team2MaxCl, lineHeight, true );
 			CG_DrawTeamBackground( SB_SCORELINE_X - 5, y - topBorderSize, 640 - SB_SCORELINE_X * 2 + 10, n2 * lineHeight + bottomBorderSize, 0.33f, TEAM_RED );
-			CG_TeamScoreboard( y, TEAM_RED, fade, team2MaxCl, lineHeight, qfalse );
+			CG_TeamScoreboard( y, TEAM_RED, fade, team2MaxCl, lineHeight, false );
 			y += (n2 * lineHeight) + BIGCHAR_HEIGHT;
 
 			//maxClients -= n2;
@@ -505,16 +505,16 @@ qboolean CG_DrawOldScoreboard( void ) {
 			maxClients -= (team1MaxCl+team2MaxCl);
 		}
 		maxClients = realMaxClients;
-		n1 = CG_TeamScoreboard( y, TEAM_SPECTATOR, fade, maxClients, lineHeight, qfalse );
+		n1 = CG_TeamScoreboard( y, TEAM_SPECTATOR, fade, maxClients, lineHeight, false );
 		y += (n1 * lineHeight) + BIGCHAR_HEIGHT;
 
 	} else {
 
 		// free for all scoreboard
 
-		n1 = CG_TeamScoreboard( y, TEAM_FREE, fade, maxClients, lineHeight, qfalse );
+		n1 = CG_TeamScoreboard( y, TEAM_FREE, fade, maxClients, lineHeight, false );
 		y += (n1 * lineHeight) + BIGCHAR_HEIGHT;
-		n2 = CG_TeamScoreboard( y, TEAM_SPECTATOR, fade, maxClients - n1, lineHeight, qfalse );
+		n2 = CG_TeamScoreboard( y, TEAM_SPECTATOR, fade, maxClients - n1, lineHeight, false );
 		y += (n2 * lineHeight) + BIGCHAR_HEIGHT;
 	}
 
@@ -533,5 +533,5 @@ qboolean CG_DrawOldScoreboard( void ) {
 		CG_LoadDeferredPlayers();
 	}
 
-	return qtrue;
+	return true;
 }

@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -31,25 +32,25 @@ inline void Q_CastShort2Float(float *f, const short *s)
 
 // Returns true if the grid is completely culled away.
 // Also sets the clipped hint bit in tess
-static qboolean	R_CullTriSurf( srfTriangles_t *cv ) {
+static bool	R_CullTriSurf( srfTriangles_t *cv ) {
 	int 	boxCull;
 
 	boxCull = R_CullLocalBox( cv->bounds );
 
 	if ( boxCull == CULL_OUT ) {
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
 // Returns true if the grid is completely culled away.
 // Also sets the clipped hint bit in tess
-static qboolean	R_CullGrid( srfGridMesh_t *cv ) {
+static bool	R_CullGrid( srfGridMesh_t *cv ) {
 	int 	boxCull;
 	int 	sphereCull;
 
 	if ( r_nocurves->integer ) {
-		return qtrue;
+		return true;
 	}
 
 	if ( tr.currentEntityNum != REFENTITYNUM_WORLD ) {
@@ -63,7 +64,7 @@ static qboolean	R_CullGrid( srfGridMesh_t *cv ) {
 	if ( sphereCull == CULL_OUT )
 	{
 		tr.pc.c_sphere_cull_patch_out++;
-		return qtrue;
+		return true;
 	}
 	// check bounding box if necessary
 	else if ( sphereCull == CULL_CLIP )
@@ -75,7 +76,7 @@ static qboolean	R_CullGrid( srfGridMesh_t *cv ) {
 		if ( boxCull == CULL_OUT )
 		{
 			tr.pc.c_box_cull_patch_out++;
-			return qtrue;
+			return true;
 		}
 		else if ( boxCull == CULL_IN )
 		{
@@ -91,17 +92,17 @@ static qboolean	R_CullGrid( srfGridMesh_t *cv ) {
 		tr.pc.c_sphere_cull_patch_in++;
 	}
 
-	return qfalse;
+	return false;
 }
 
 // Tries to back face cull surfaces before they are lighted or added to the sorting list.
 // This will also allow mirrors on both sides of a model without recursion.
-static qboolean	R_CullSurface( surfaceType_t *surface, shader_t *shader ) {
+static bool	R_CullSurface( surfaceType_t *surface, shader_t *shader ) {
 	srfSurfaceFace_t *sface;
 	float			d;
 
 	if ( r_nocull->integer ) {
-		return qfalse;
+		return false;
 	}
 
 	if ( *surface == SF_GRID ) {
@@ -113,16 +114,16 @@ static qboolean	R_CullSurface( surfaceType_t *surface, shader_t *shader ) {
 	}
 
 	if ( *surface != SF_FACE ) {
-		return qfalse;
+		return false;
 	}
 
 	if ( shader->cullType == CT_TWO_SIDED ) {
-		return qfalse;
+		return false;
 	}
 
 	// face culling
 	if ( !r_facePlaneCull->integer ) {
-		return qfalse;
+		return false;
 	}
 
 	sface = ( srfSurfaceFace_t * ) surface;
@@ -153,7 +154,7 @@ static qboolean	R_CullSurface( surfaceType_t *surface, shader_t *shader ) {
 			VectorSet(nNormal, 0.0f, 0.0f, 1.0f);
 			VectorMA(basePoint, 8192.0f, nNormal, endPoint);
 
-			ri.CM_BoxTrace(&tr, basePoint, endPoint, NULL, NULL, 0, (CONTENTS_SOLID|CONTENTS_TERRAIN), qfalse);
+			ri.CM_BoxTrace(&tr, basePoint, endPoint, nullptr, nullptr, 0, (CONTENTS_SOLID|CONTENTS_TERRAIN), false);
 
 			if (!tr.startsolid &&
 				!tr.allsolid &&
@@ -171,7 +172,7 @@ static qboolean	R_CullSurface( surfaceType_t *surface, shader_t *shader ) {
 					while (i < 4096)
 					{
 						VectorMA(basePoint, i, nNormal, endPoint);
-						ri.CM_BoxTrace(&tr, endPoint, endPoint, NULL, NULL, 0, (CONTENTS_SOLID|CONTENTS_TERRAIN), qfalse);
+						ri.CM_BoxTrace(&tr, endPoint, endPoint, nullptr, nullptr, 0, (CONTENTS_SOLID|CONTENTS_TERRAIN), false);
 						if (!tr.startsolid &&
 							!tr.allsolid &&
 							tr.fraction == 1.0f)
@@ -193,7 +194,7 @@ static qboolean	R_CullSurface( surfaceType_t *surface, shader_t *shader ) {
 						//If we hit something within a set amount of units, we will assume it's a bridge type object
 						//and leave it to be drawn. Otherwise we will assume it is a roof or other obstruction and
 						//cull it out.
-						ri.CM_BoxTrace(&tr, basePoint, endPoint, NULL, NULL, 0, (CONTENTS_SOLID|CONTENTS_TERRAIN), qfalse);
+						ri.CM_BoxTrace(&tr, basePoint, endPoint, nullptr, nullptr, 0, (CONTENTS_SOLID|CONTENTS_TERRAIN), false);
 
 						if (!tr.startsolid &&
 							!tr.allsolid &&
@@ -202,7 +203,7 @@ static qboolean	R_CullSurface( surfaceType_t *surface, shader_t *shader ) {
 							VectorSubtract(basePoint, tr.endpos, endPoint);
 							if (VectorLength(endPoint) > r_roofCullCeilDist->value)
 							{ //128 (by default) is our maximum tolerance, above that will be removed
-								return qtrue;
+								return true;
 							}
 						}
 					}
@@ -218,15 +219,15 @@ static qboolean	R_CullSurface( surfaceType_t *surface, shader_t *shader ) {
 	// epsilon isn't allowed here
 	if ( shader->cullType == CT_FRONT_SIDED ) {
 		if ( d < sface->plane.dist - 8 ) {
-			return qtrue;
+			return true;
 		}
 	} else {
 		if ( d > sface->plane.dist + 8 ) {
-			return qtrue;
+			return true;
 		}
 	}
 
-	return qfalse;
+	return false;
 }
 
 static int R_DlightFace( srfSurfaceFace_t *face, int dlightBits ) {
@@ -313,7 +314,7 @@ static bool tr_drawingAutoMap = false;
 #endif
 static float g_playerHeight = 0.0f;
 
-static void R_AddWorldSurface( msurface_t *surf, int dlightBits, qboolean noViewCount = qfalse )
+static void R_AddWorldSurface( msurface_t *surf, int dlightBits, bool noViewCount = false )
 {
 	if (!noViewCount)
 	{
@@ -482,7 +483,7 @@ void R_AddBrushModelSurfaces ( trRefEntity_t *ent ) {
 	R_DlightBmodel( bmodel, false );
 
 	for ( i = 0 ; i < bmodel->numSurfaces ; i++ ) {
-		R_AddWorldSurface( bmodel->firstSurface + i, tr.currentEntity->dlightBits, qtrue );
+		R_AddWorldSurface( bmodel->firstSurface + i, tr.currentEntity->dlightBits, true );
 	}
 }
 
@@ -610,7 +611,7 @@ typedef struct wireframeMap_s
 } wireframeMap_t;
 
 static wireframeMap_t g_autoMapFrame;
-static wireframeMapSurf_t **g_autoMapNextFree = NULL;
+static wireframeMapSurf_t **g_autoMapNextFree = nullptr;
 static bool g_autoMapValid = false; //set to true of g_autoMapFrame is valid.
 
 //get the next available wireframe automap surface. -rww
@@ -629,7 +630,7 @@ static inline wireframeMapSurf_t *R_GetNewWireframeMapSurf(void)
 	}
 
 	//allocate memory for it and pass it back
-	(*next) = (wireframeMapSurf_t *)Z_Malloc(sizeof(wireframeMapSurf_t), TAG_ALL, qtrue);
+	(*next) = (wireframeMapSurf_t *)Z_Malloc(sizeof(wireframeMapSurf_t), TAG_ALL, true);
 	g_autoMapNextFree = &(*next)->next;
 	return (*next);
 }
@@ -652,7 +653,7 @@ static inline void R_EvaluateWireframeSurf(msurface_t *surf)
 			wireframeMapSurf_t *nextSurf = R_GetNewWireframeMapSurf();
 
 			//now go through the indices and add a point for each
-			nextSurf->points = (wireframeSurfPoint_t *)Z_Malloc(sizeof(wireframeSurfPoint_t)*face->numIndices, TAG_ALL, qtrue);
+			nextSurf->points = (wireframeSurfPoint_t *)Z_Malloc(sizeof(wireframeSurfPoint_t)*face->numIndices, TAG_ALL, true);
 			nextSurf->numPoints = face->numIndices;
 			while (i < face->numIndices)
 			{
@@ -773,11 +774,11 @@ void R_DestroyWireframeMap(void)
 	//invalidate everything
 	memset(&g_autoMapFrame, 0, sizeof(g_autoMapFrame));
 	g_autoMapValid = false;
-	g_autoMapNextFree = NULL;
+	g_autoMapNextFree = nullptr;
 }
 
 //save 3d automap data to file -rww
-qboolean R_WriteWireframeMapToFile(void)
+bool R_WriteWireframeMapToFile(void)
 {
 	fileHandle_t f;
 	int requiredSize = 0;
@@ -799,17 +800,17 @@ qboolean R_WriteWireframeMapToFile(void)
 
 	if (requiredSize <= 0)
 	{ //nothing to do..?
-		return qfalse;
+		return false;
 	}
 
-	f = ri.FS_FOpenFileWrite("blahblah.bla", qtrue);
+	f = ri.FS_FOpenFileWrite("blahblah.bla", true);
 	if (!f)
 	{ //can't create?
-		return qfalse;
+		return false;
 	}
 
 	//allocate the memory we will need
-    out = (byte *)Z_Malloc(requiredSize, TAG_ALL, qtrue);
+    out = (byte *)Z_Malloc(requiredSize, TAG_ALL, true);
 	rOut = out;
 
 	//now go through and put the data into the memory
@@ -832,11 +833,11 @@ qboolean R_WriteWireframeMapToFile(void)
 	Z_Free(rOut);
 	ri.FS_FCloseFile(f);
 
-	return qtrue;
+	return true;
 }
 
 //load 3d automap data from file -rww
-qboolean R_GetWireframeMapFromFile(void)
+bool R_GetWireframeMapFromFile(void)
 {
 	wireframeMapSurf_t *surfs, *rSurfs;
 	wireframeMapSurf_t *newSurf;
@@ -845,20 +846,20 @@ qboolean R_GetWireframeMapFromFile(void)
 	int len;
 	int stepBytes;
 
-	len = ri.FS_FOpenFileRead("blahblah.bla", &f, qfalse);
+	len = ri.FS_FOpenFileRead("blahblah.bla", &f, false);
 	if (!f || len <= 0)
 	{ //it doesn't exist
-		return qfalse;
+		return false;
 	}
 
-	surfs = (wireframeMapSurf_t *)Z_Malloc(len, TAG_ALL, qtrue);
+	surfs = (wireframeMapSurf_t *)Z_Malloc(len, TAG_ALL, true);
 	rSurfs = surfs;
 	ri.FS_Read(surfs, len, f);
 
 	while (i < len)
 	{
 		newSurf = R_GetNewWireframeMapSurf();
-		newSurf->points = (wireframeSurfPoint_t *)Z_Malloc(sizeof(wireframeSurfPoint_t)*surfs->numPoints, TAG_ALL, qtrue);
+		newSurf->points = (wireframeSurfPoint_t *)Z_Malloc(sizeof(wireframeSurfPoint_t)*surfs->numPoints, TAG_ALL, true);
 
 		//copy the surf data into the new surf
 		//note - the surfs->points pointer is NOT pointing to valid memory, a pointer to that
@@ -879,15 +880,15 @@ qboolean R_GetWireframeMapFromFile(void)
 
 	ri.FS_FCloseFile(f);
 	Z_Free(rSurfs);
-	return qtrue;
+	return true;
 }
 
 //create everything, after destroying any existing data -rww
-qboolean R_InitializeWireframeAutomap(void)
+bool R_InitializeWireframeAutomap(void)
 {
 	if (r_autoMapDisable && r_autoMapDisable->integer)
 	{
-		return qfalse;
+		return false;
 	}
 
 	if (tr.world &&
@@ -898,7 +899,7 @@ qboolean R_InitializeWireframeAutomap(void)
 		g_autoMapValid = true;
 	}
 
-	return (qboolean)g_autoMapValid;
+	return (bool)g_autoMapValid;
 }
 #endif //0
 
@@ -910,9 +911,9 @@ void R_AutomapElevationAdjustment(float newHeight)
 
 #ifdef _ALT_AUTOMAP_METHOD
 //adjust the player height for gradient elevation colors -rww
-qboolean R_InitializeWireframeAutomap(void)
+bool R_InitializeWireframeAutomap(void)
 { //yoink
-	return qtrue;
+	return true;
 }
 #endif
 
@@ -1315,7 +1316,7 @@ static const byte *R_ClusterPVS (int cluster) {
 	return tr.world->vis + cluster * tr.world->clusterBytes;
 }
 
-qboolean R_inPVS( const vec3_t p1, const vec3_t p2, byte *mask ) {
+bool R_inPVS( const vec3_t p1, const vec3_t p2, byte *mask ) {
 	int		leafnum;
 	int		cluster;
 
@@ -1328,9 +1329,9 @@ qboolean R_inPVS( const vec3_t p1, const vec3_t p2, byte *mask ) {
 	leafnum = ri.CM_PointLeafnum (p2);
 	cluster = ri.CM_LeafCluster (leafnum);
 	if ( mask && (!(mask[cluster>>3] & (1<<(cluster&7)) ) ) )
-		return qfalse;
+		return false;
 
-	return qtrue;
+	return true;
 }
 
 // Mark the leaves and nodes that are in the PVS for the current cluster
@@ -1360,7 +1361,7 @@ static void R_MarkLeaves (void) {
 	}
 
 	if ( r_showcluster->modified || r_showcluster->integer ) {
-		r_showcluster->modified = qfalse;
+		r_showcluster->modified = false;
 		if ( r_showcluster->integer ) {
 			ri.Printf( PRINT_ALL, "cluster:%i  area:%i\n", cluster, leaf->area );
 		}

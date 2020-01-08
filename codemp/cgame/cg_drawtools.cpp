@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -35,7 +36,7 @@ void CG_DrawRect( float x, float y, float width, float height, float size, const
 	CG_DrawTopBottom(x, y, width, height, size);
 	CG_DrawSides(x, y, width, height, size);
 
-	trap->R_SetColor( NULL );
+	trap->R_SetColor( nullptr );
 }
 
 void CG_GetColorForHealth( int health, int armor, vec4_t hcolor ) {
@@ -93,14 +94,14 @@ void CG_DrawTopBottom(float x, float y, float w, float h, float size) {
 void CG_FillRect2( float x, float y, float width, float height, const float *color ) {
 	trap->R_SetColor( color );
 	trap->R_DrawStretchPic( x, y, width, height, 0, 0, 0, 0, media.gfx.misc.white);
-	trap->R_SetColor( NULL );
+	trap->R_SetColor( nullptr );
 }
 
 // Coordinates are 640*480 virtual values
 void CG_FillRect( float x, float y, float width, float height, const float *color ) {
 	trap->R_SetColor( color );
 	trap->R_DrawStretchPic( x, y, width, height, 0, 0, 0, 0, media.gfx.misc.white);
-	trap->R_SetColor( NULL );
+	trap->R_SetColor( nullptr );
 }
 
 // Coordinates are 640*480 virtual values
@@ -156,7 +157,7 @@ void CG_DrawChar( int x, int y, int width, int height, int ch ) {
 
 // Draws a multi-colored string with a drop shadow, optionally forcing to a fixed color.
 // Coordinates are at 640 by 480 virtual resolution
-void CG_DrawStringExt( int x, int y, const char *string, const float *setColor, qboolean forceColor, qboolean shadow, int charWidth, int charHeight, int maxChars )
+void CG_DrawStringExt( int x, int y, const char *string, const float *setColor, bool forceColor, bool shadow, int charWidth, int charHeight, int maxChars )
 {
 	if (trap->R_Language_IsAsian())
 	{
@@ -209,7 +210,7 @@ void CG_DrawStringExt( int x, int y, const char *string, const float *setColor, 
 			xx += charWidth;
 			s++;
 		}
-		trap->R_SetColor( NULL );
+		trap->R_SetColor( nullptr );
 	}
 }
 
@@ -218,11 +219,11 @@ void CG_DrawBigString( int x, int y, const char *s, float alpha ) {
 
 	color[0] = color[1] = color[2] = 1.0;
 	color[3] = alpha;
-	CG_DrawStringExt( x, y, s, color, qfalse, qtrue, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0 );
+	CG_DrawStringExt( x, y, s, color, false, true, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0 );
 }
 
 void CG_DrawBigStringColor( int x, int y, const char *s, vec4_t color ) {
-	CG_DrawStringExt( x, y, s, color, qtrue, qtrue, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0 );
+	CG_DrawStringExt( x, y, s, color, true, true, BIGCHAR_WIDTH, BIGCHAR_HEIGHT, 0 );
 }
 
 void CG_DrawSmallString( int x, int y, const char *s, float alpha ) {
@@ -230,11 +231,11 @@ void CG_DrawSmallString( int x, int y, const char *s, float alpha ) {
 
 	color[0] = color[1] = color[2] = 1.0;
 	color[3] = alpha;
-	CG_DrawStringExt( x, y, s, color, qfalse, qfalse, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0 );
+	CG_DrawStringExt( x, y, s, color, false, false, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0 );
 }
 
 void CG_DrawSmallStringColor( int x, int y, const char *s, vec4_t color ) {
-	CG_DrawStringExt( x, y, s, color, qtrue, qfalse, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0 );
+	CG_DrawStringExt( x, y, s, color, true, false, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0 );
 }
 
 // Returns character count, skiping color escape codes
@@ -301,18 +302,18 @@ float *CG_FadeColor( int startMsec, int totalMsec ) {
 	int			t;
 
 	if ( startMsec == 0 ) {
-		return NULL;
+		return nullptr;
 	}
 
 	t = cg.time - startMsec;
 
 	if ( t >= totalMsec ) {
-		return NULL;
+		return nullptr;
 	}
 
 	// this color shouldn't be visible yet
 	if (t < 0){
-		return NULL;
+		return nullptr;
 	}
 
 	// fade out
@@ -387,7 +388,7 @@ void CG_ColorForHealth( vec4_t hcolor )
 }
 
 // Take x,y positions as if 640 x 480 and scales them to the proper resolution
-void CG_DrawNumField (int x, int y, int width, int value,int charWidth,int charHeight,int style,qboolean zeroFill)
+void CG_DrawNumField (int x, int y, int width, int value,int charWidth,int charHeight,int style,bool zeroFill)
 {
 	char	num[16], *ptr;
 	int		l;

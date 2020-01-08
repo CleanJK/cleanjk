@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -23,9 +24,21 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-// these are the key numbers that should be passed to KeyEvent
+// ======================================================================
+// DEFINE
+// ======================================================================
 
-typedef enum
+// The menu code needs to get both key and char events, but
+// to avoid duplicating the paths, the char events are just
+// distinguished by or'ing in K_CHAR_FLAG (ugly)
+#define	K_CHAR_FLAG		1024
+
+// ======================================================================
+// ENUM
+// ======================================================================
+
+// these are the key numbers that should be passed to KeyEvent
+typedef enum fakeAscii_s
 {
 	A_NULL = 0,
 	A_SHIFT,
@@ -359,8 +372,3 @@ typedef enum
 
 	MAX_KEYS
 } fakeAscii_t;
-
-// The menu code needs to get both key and char events, but
-// to avoid duplicating the paths, the char events are just
-// distinguished by or'ing in K_CHAR_FLAG (ugly)
-#define	K_CHAR_FLAG		1024

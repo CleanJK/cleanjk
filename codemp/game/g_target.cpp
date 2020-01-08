@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -41,8 +42,8 @@ void Use_Target_Give( gentity_t *ent, gentity_t *other, gentity_t *activator ) {
 	}
 
 	memset( &trace, 0, sizeof( trace ) );
-	t = NULL;
-	while ( (t = G_Find (t, FOFS(targetname), ent->target)) != NULL ) {
+	t = nullptr;
+	while ( (t = G_Find (t, FOFS(targetname), ent->target)) != nullptr ) {
 		if ( !t->item ) {
 			continue;
 		}
@@ -270,13 +271,13 @@ void Use_Target_Speaker (gentity_t *ent, gentity_t *other, gentity_t *activator)
 		if (ent->s.loopSound)
 		{
 			ent->s.loopSound = 0;	// turn it off
-			ent->s.loopIsSoundset = qfalse;
+			ent->s.loopIsSoundset = false;
 			ent->s.trickedentindex = 1;
 		}
 		else
 		{
 			ent->s.loopSound = ent->noise_index;	// start it
-			ent->s.loopIsSoundset = qfalse;
+			ent->s.loopIsSoundset = false;
 			ent->s.trickedentindex = 0;
 		}
 	}else {	// normal sound
@@ -329,7 +330,7 @@ void SP_target_speaker( gentity_t *ent ) {
 	// check for prestarted looping sound
 	if ( ent->spawnflags & 1 ) {
 		ent->s.loopSound = ent->noise_index;
-		ent->s.loopIsSoundset = qfalse;
+		ent->s.loopIsSoundset = false;
 	}
 
 	ent->use = Use_Target_Speaker;
@@ -364,7 +365,7 @@ void target_laser_think (gentity_t *self) {
 	// fire forward and see what we hit
 	VectorMA (self->s.origin, 2048, self->movedir, end);
 
-	trap->Trace( &tr, self->s.origin, NULL, NULL, end, self->s.number, CONTENTS_SOLID|CONTENTS_BODY|CONTENTS_CORPSE, qfalse, 0, 0);
+	trap->Trace( &tr, self->s.origin, nullptr, nullptr, end, self->s.number, CONTENTS_SOLID|CONTENTS_BODY|CONTENTS_CORPSE, false, 0, 0);
 
 	if ( tr.entityNum ) {
 		// hurt it if we can
@@ -407,7 +408,7 @@ void target_laser_start (gentity_t *self)
 	self->s.eType = ET_BEAM;
 
 	if (self->target) {
-		ent = G_Find (NULL, FOFS(targetname), self->target);
+		ent = G_Find (nullptr, FOFS(targetname), self->target);
 		if (!ent) {
 			trap->Print ("%s at %s: %s is a bad target\n", self->classname, vtos(self->s.origin), self->target);
 		}
@@ -473,7 +474,7 @@ if RANDOM is checked, only one of the targets will be fired, not all of them
 wait - set to -1 to use it only once
 */
 void target_relay_use (gentity_t *self, gentity_t *other, gentity_t *activator) {
-	qboolean ranscript = qfalse;
+	bool ranscript = false;
 	if ( ( self->spawnflags & 1 ) && activator->client
 		&& activator->client->sess.sessionTeam != TEAM_RED ) {
 		return;
@@ -493,7 +494,7 @@ void target_relay_use (gentity_t *self, gentity_t *other, gentity_t *activator) 
 	{//never use again
 		if ( ranscript )
 		{//crap, can't remove!
-			self->use = NULL;
+			self->use = nullptr;
 		}
 		else
 		{//remove
@@ -526,7 +527,7 @@ Kills the activator.
 */
 void target_kill_use( gentity_t *self, gentity_t *other, gentity_t *activator ) {
 	G_ActivateBehavior(self,BSET_USE);
-	G_Damage ( activator, NULL, NULL, NULL, NULL, 100000, DAMAGE_NO_PROTECTION, MOD_TELEFRAG);
+	G_Damage ( activator, nullptr, nullptr, nullptr, nullptr, 100000, DAMAGE_NO_PROTECTION, MOD_TELEFRAG);
 }
 
 void SP_target_kill( gentity_t *self ) {
@@ -558,7 +559,7 @@ void SP_target_location( gentity_t *self ) {
 		return;
 	}
 	else {
-		static qboolean didwarn = qfalse;
+		static bool didwarn = false;
 		if ( !self->message ) {
 			trap->Print( "target_location with no message at %s\n", vtos( self->s.origin ) );
 			G_FreeEntity( self );
@@ -568,7 +569,7 @@ void SP_target_location( gentity_t *self ) {
 		if ( level.locations.num >= MAX_LOCATIONS ) {
 			if ( !didwarn ) {
 				trap->Print( "Maximum target_locations hit (%d)! Remaining locations will be removed.\n", MAX_LOCATIONS );
-				didwarn = qtrue;
+				didwarn = true;
 			}
 			G_FreeEntity( self );
 			return;
@@ -668,7 +669,7 @@ USEONCE	set to never fire again
 void target_random_use(gentity_t *self, gentity_t *other, gentity_t *activator)
 {
 	int			t_count = 0, pick;
-	gentity_t	*t = NULL;
+	gentity_t	*t = nullptr;
 
 	//trap->Printf("target_random %s used by %s (entnum %d)\n", self->targetname, activator->targetname, activator->s.number );
 	G_ActivateBehavior(self,BSET_USE);
@@ -678,7 +679,7 @@ void target_random_use(gentity_t *self, gentity_t *other, gentity_t *activator)
 		self->use = 0;
 	}
 
-	while ( (t = G_Find (t, FOFS(targetname), self->target)) != NULL )
+	while ( (t = G_Find (t, FOFS(targetname), self->target)) != nullptr )
 	{
 		if (t != self)
 		{
@@ -700,7 +701,7 @@ void target_random_use(gentity_t *self, gentity_t *other, gentity_t *activator)
 	//FIXME: need a seed
 	pick = Q_irand(1, t_count);
 	t_count = 0;
-	while ( (t = G_Find (t, FOFS(targetname), self->target)) != NULL )
+	while ( (t = G_Find (t, FOFS(targetname), self->target)) != nullptr )
 	{
 		if (t != self)
 		{
@@ -717,7 +718,7 @@ void target_random_use(gentity_t *self, gentity_t *other, gentity_t *activator)
 		}
 		else if(t_count == pick)
 		{
-			if (t->use != NULL)	// check can be omitted
+			if (t->use != nullptr)	// check can be omitted
 			{
 				GlobalUse(t, self, activator);
 				return;
@@ -756,7 +757,7 @@ void scriptrunner_run (gentity_t *self)
 		if ( self->count <= 0 )
 		{
 			self->use = 0;
-			self->behaviorSet[BSET_USE] = NULL;
+			self->behaviorSet[BSET_USE] = nullptr;
 			return;
 		}
 		else
@@ -884,17 +885,17 @@ void SP_target_scriptrunner( gentity_t *self )
 	self->use = target_scriptrunner_use;
 }
 
-void G_SetActiveState(char *targetstring, qboolean actState)
+void G_SetActiveState(char *targetstring, bool actState)
 {
-	gentity_t	*target = NULL;
-	while( NULL != (target = G_Find(target, FOFS(targetname), targetstring)) )
+	gentity_t	*target = nullptr;
+	while( nullptr != (target = G_Find(target, FOFS(targetname), targetstring)) )
 	{
 		target->flags = actState ? (target->flags&~FL_INACTIVE) : (target->flags|FL_INACTIVE);
 	}
 }
 
-#define ACT_ACTIVE		qtrue
-#define ACT_INACTIVE	qfalse
+#define ACT_ACTIVE		true
+#define ACT_INACTIVE	false
 
 void target_activate_use(gentity_t *self, gentity_t *other, gentity_t *activator)
 {

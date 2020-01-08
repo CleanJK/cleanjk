@@ -39,9 +39,7 @@ set(MPUIGameFiles
 	"${MPDir}/game/anims.h"
 	"${MPDir}/game/bg_local.h"
 	"${MPDir}/game/bg_public.h"
-	"${MPDir}/game/bg_saga.h"
 	"${MPDir}/game/bg_weapons.h"
-	"${MPDir}/game/surfaceflags.h"
 	)
 source_group("game" FILES ${MPUIGameFiles})
 set(MPUIFiles ${MPUIFiles} ${MPUIGameFiles})
@@ -51,7 +49,7 @@ set(MPUICommonFiles
 	"${MPDir}/qcommon/disablewarnings.h"
 	"${MPDir}/qcommon/game_version.h"
 	"${MPDir}/qcommon/q_shared.h"
-	"${MPDir}/qcommon/qfiles.h"
+	"${MPDir}/qcommon/q_files.h"
 	"${MPDir}/qcommon/tags.h"
 
 	${SharedCommonFiles}

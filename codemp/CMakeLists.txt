@@ -80,18 +80,13 @@ if(BuildMPEngine OR BuildMPDed)
 	source_group("botlib" FILES ${MPBotlibBotlibFiles})
 	set(MPBotlibFiles ${MPBotlibFiles} ${MPBotlibBotlibFiles})
 
-	set(MPBotlibGameFiles
-		"${MPDir}/game/surfaceflags.h"
-		)
-	source_group("game" FILES ${MPBotlibGameFiles})
-	set(MPBotlibFiles ${MPBotlibFiles} ${MPBotlibGameFiles})
-
 	set(MPBotlibCommonFiles
 		"${MPDir}/qcommon/cm_public.h"
 		"${MPDir}/qcommon/disablewarnings.h"
 		"${MPDir}/qcommon/q_shared.h"
-		"${MPDir}/qcommon/qcommon.h"
-		"${MPDir}/qcommon/qfiles.h"
+		"${MPDir}/qcommon/q_common.h"
+		"${MPDir}/qcommon/q_files.h"
+		"${MPDir}/qcommon/q_type.h"
 		"${MPDir}/qcommon/tags.h"
 
 		${SharedCommonFiles}
@@ -164,7 +159,6 @@ if(BuildMPEngine OR BuildMPDed)
 		"${MPDir}/game/bg_weapons.h"
 		"${MPDir}/botlib/botlib.h"
 		"${MPDir}/game/g_public.h"
-		"${MPDir}/game/surfaceflags.h"
 		)
 	source_group("game" FILES ${MPEngineAndDedGameFiles})
 	set(MPEngineAndDedFiles ${MPEngineAndDedFiles} ${MPEngineAndDedGameFiles})
@@ -184,14 +178,13 @@ if(BuildMPEngine OR BuildMPDed)
 		# hack until we clean up renderer/engine cvars
 		"${MPDir}/qcommon/com_cvars.cpp"
 		"${MPDir}/qcommon/com_cvars.h"
-		"${MPDir}/qcommon/common.cpp"
 		"${MPDir}/qcommon/cvar.cpp"
 		"${MPDir}/qcommon/disablewarnings.h"
-		"${MPDir}/qcommon/files.cpp"
 		"${MPDir}/qcommon/game_version.h"
 		"${MPDir}/qcommon/GenericParser2.cpp"
 		"${MPDir}/qcommon/GenericParser2.h"
 		"${MPDir}/qcommon/huffman.cpp"
+		"${MPDir}/qcommon/huffman.h"
 		"${MPDir}/qcommon/md4.cpp"
 		"${MPDir}/qcommon/md5.cpp"
 		"${MPDir}/qcommon/md5.h"
@@ -204,8 +197,11 @@ if(BuildMPEngine OR BuildMPDed)
 		"${MPDir}/qcommon/persistence.cpp"
 		"${MPDir}/qcommon/q_shared.cpp"
 		"${MPDir}/qcommon/q_shared.h"
-		"${MPDir}/qcommon/qcommon.h"
-		"${MPDir}/qcommon/qfiles.h"
+		"${MPDir}/qcommon/q_common.cpp"
+		"${MPDir}/qcommon/q_common.h"
+		"${MPDir}/qcommon/q_files.cpp"
+		"${MPDir}/qcommon/q_files.h"
+		"${MPDir}/qcommon/q_type.h"
 		"${MPDir}/qcommon/RoffSystem.cpp"
 		"${MPDir}/qcommon/RoffSystem.h"
 		"${MPDir}/qcommon/sstring.h"

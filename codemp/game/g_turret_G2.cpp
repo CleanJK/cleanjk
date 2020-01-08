@@ -2,7 +2,8 @@
 ===========================================================================
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -40,12 +41,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 void G2Tur_SetBoneAngles(gentity_t *ent, char *bone, vec3_t angles)
 {
 	int *thebone = &ent->s.boneIndex1;
-	int *firstFree = NULL;
+	int *firstFree = nullptr;
 	int i = 0;
 	int boneIndex = G_BoneIndex(bone);
 	int flags, up, right, forward;
 	vec3_t *boneVector = &ent->s.boneAngles1;
-	vec3_t *freeBoneVec = NULL;
+	vec3_t *freeBoneVec = nullptr;
 
 	while (thebone)
 	{
@@ -77,8 +78,8 @@ void G2Tur_SetBoneAngles(gentity_t *ent, char *bone, vec3_t angles)
 			boneVector = &ent->s.boneAngles4;
 			break;
 		default:
-			thebone = NULL;
-			boneVector = NULL;
+			thebone = nullptr;
+			boneVector = nullptr;
 			break;
 		}
 
@@ -128,12 +129,12 @@ void G2Tur_SetBoneAngles(gentity_t *ent, char *bone, vec3_t angles)
 					up,
 					right,
 					forward,
-					NULL,
+					nullptr,
 					100,
 					level.time );
 }
 
-void turretG2_set_models( gentity_t *self, qboolean dying )
+void turretG2_set_models( gentity_t *self, bool dying )
 {
 	if ( dying )
 	{
@@ -243,16 +244,16 @@ void turretG2_die ( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, 
 	vec3_t	forward = { 0,0,-1 }, pos;
 
 	// Turn off the thinking of the base & use it's targets
-	//self->think = NULL;
-	self->use = NULL;
+	//self->think = nullptr;
+	self->use = nullptr;
 
 	// clear my data
-	self->die  = NULL;
-	self->pain = NULL;
-	self->takedamage = qfalse;
+	self->die  = nullptr;
+	self->pain = nullptr;
+	self->takedamage = false;
 	self->s.health = self->health = 0;
 	self->s.loopSound = 0;
-	self->s.shouldtarget = qfalse;
+	self->s.shouldtarget = false;
 	//self->s.owner = MAX_CLIENTS; //not owned by any client
 
 	// hack the effect angle so that explode death can orient the effect properly
@@ -273,7 +274,7 @@ void turretG2_die ( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, 
 						self->splashDamage,
 						self->splashRadius,
 						attacker,
-						NULL,
+						nullptr,
 						MOD_UNKNOWN );
 	}
 
@@ -287,7 +288,7 @@ void turretG2_die ( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, 
 	if ( self->s.modelindex2 )
 	{
 		// switch to damage model if we should
-		turretG2_set_models( self, qtrue );
+		turretG2_set_models( self, true );
 
 		VectorCopy( self->r.currentAngles, self->s.apos.trBase );
 		VectorClear( self->s.apos.trDelta );
@@ -352,7 +353,7 @@ static void turretG2_fire ( gentity_t *ent, vec3_t start, vec3_t dir )
 		vectoangles( dir, ang );
 		ang[PITCH] += flrand( -ent->random, ent->random );
 		ang[YAW] += flrand( -ent->random, ent->random );
-		AngleVectors( ang, dir, NULL, NULL );
+		AngleVectors( ang, dir, nullptr, nullptr );
 	}
 
 	vectoangles(dir, ang);
@@ -391,7 +392,7 @@ static void turretG2_fire ( gentity_t *ent, vec3_t start, vec3_t dir )
 		bolt->methodOfDeath = MOD_TARGET_LASER;//MOD_ENERGY;
 		bolt->splashMethodOfDeath = MOD_TARGET_LASER;//MOD_ENERGY;
 		bolt->clipmask = MASK_SHOT | CONTENTS_LIGHTSABER;
-		//bolt->trigger_formation = qfalse;		// don't draw tail on first frame
+		//bolt->trigger_formation = false;		// don't draw tail on first frame
 
 		VectorSet( bolt->r.maxs, 1.5, 1.5, 1.5 );
 		VectorScale( bolt->r.maxs, -1, bolt->r.mins );
@@ -424,8 +425,8 @@ void turretG2_respawn( gentity_t *self )
 	self->use = turretG2_base_use;
 	self->pain = TurretG2Pain;
 	self->die  = turretG2_die;
-	self->takedamage = qtrue;
-	self->s.shouldtarget = qtrue;
+	self->takedamage = true;
+	self->s.shouldtarget = true;
 	//self->s.owner = MAX_CLIENTS; //not owned by any client
 	if ( self->s.eFlags & EF_SHADER_ANIM )
 	{
@@ -433,7 +434,7 @@ void turretG2_respawn( gentity_t *self )
 	}
 	self->s.weapon = WP_TURRET; // crosshair code uses this to mark crosshair red
 
-	turretG2_set_models( self, qfalse );
+	turretG2_set_models( self, false );
 	self->s.health = self->health = self->genericValue6;
 	if (self->maxHealth) {
 		G_ScaleNetHealth(self);
@@ -462,7 +463,7 @@ void turretG2_head_think( gentity_t *self )
 					self->r.currentAngles,
 					self->r.currentOrigin,
 					level.time,
-					NULL,
+					nullptr,
 					self->modelScale );
 		if ( (self->spawnflags&SPF_TURRETG2_TURBO) )
 		{
@@ -547,7 +548,7 @@ static void turretG2_aim( gentity_t *self )
 					self->r.currentAngles,
 					self->s.origin,
 					level.time,
-					NULL,
+					nullptr,
 					self->modelScale );
 
 		BG_GiveMeVectorFromMatrix( &boltMatrix, ORIGIN, org2 );
@@ -628,7 +629,7 @@ static void turretG2_aim( gentity_t *self )
 						POSITIVE_Y,
 						POSITIVE_Z,
 						POSITIVE_X,
-						NULL,
+						nullptr,
 						100,
 						level.time );
 						*/
@@ -653,7 +654,7 @@ static void turretG2_aim( gentity_t *self )
 
 static void turretG2_turnoff( gentity_t *self )
 {
-	if ( self->enemy == NULL )
+	if ( self->enemy == nullptr )
 	{
 		// we don't need to turnoff
 		return;
@@ -672,17 +673,17 @@ static void turretG2_turnoff( gentity_t *self )
 	self->aimDebounceTime = level.time + 5000;
 
 	// Clear enemy
-	self->enemy = NULL;
+	self->enemy = nullptr;
 }
 
-static qboolean turretG2_find_enemies( gentity_t *self )
+static bool turretG2_find_enemies( gentity_t *self )
 {
-	qboolean	found = qfalse;
+	bool	found = false;
 	int			i, count;
 	float		bestDist = self->radius * self->radius;
 	float		enemyDist;
 	vec3_t		enemyDir, org, org2;
-	qboolean	foundClient = qfalse;
+	bool	foundClient = false;
 	gentity_t	*entity_list[MAX_GENTITIES], *target;
 
 	if ( self->aimDebounceTime > level.time ) // time since we've been shut off
@@ -708,7 +709,7 @@ static qboolean turretG2_find_enemies( gentity_t *self )
 		org2[2] -= 20;
 	}
 
-	count = G_RadiusList( org2, self->radius, self, qtrue, entity_list );
+	count = G_RadiusList( org2, self->radius, self, true, entity_list );
 
 	for ( i = 0; i < count; i++ )
 	{
@@ -776,7 +777,7 @@ static qboolean turretG2_find_enemies( gentity_t *self )
 			org[2] += 5;
 		}
 
-		trap->Trace( &tr, org2, NULL, NULL, org, self->s.number, MASK_SHOT, qfalse, 0, 0 );
+		trap->Trace( &tr, org2, nullptr, nullptr, org, self->s.number, MASK_SHOT, false, 0, 0 );
 
 		if ( !tr.allsolid && !tr.startsolid && ( tr.fraction == 1.0 || tr.entityNum == target->s.number ))
 		{
@@ -799,10 +800,10 @@ static qboolean turretG2_find_enemies( gentity_t *self )
 				}
 
 				bestDist = enemyDist;
-				found = qtrue;
+				found = true;
 				if ( target->client )
 				{//prefer clients over non-clients
-					foundClient = qtrue;
+					foundClient = true;
 				}
 			}
 		}
@@ -821,7 +822,7 @@ static qboolean turretG2_find_enemies( gentity_t *self )
 
 void turretG2_base_think( gentity_t *self )
 {
-	qboolean	turnOff = qtrue;
+	bool	turnOff = true;
 	float		enemyDist;
 	vec3_t		enemyDir, org, org2;
 
@@ -858,7 +859,7 @@ void turretG2_base_think( gentity_t *self )
 		if ( self->enemy->health < 0
 			|| !self->enemy->inuse )
 		{
-			self->enemy = NULL;
+			self->enemy = nullptr;
 		}
 	}
 
@@ -866,7 +867,7 @@ void turretG2_base_think( gentity_t *self )
 	{//MISNOMER: used a enemy recalcing debouncer
 		if ( turretG2_find_enemies( self ) )
 		{//found one
-			turnOff = qfalse;
+			turnOff = false;
 			if ( self->enemy && self->enemy->client )
 			{//hold on to clients for a min of 3 seconds
 				self->last_move_time = level.time + 3000;
@@ -878,15 +879,15 @@ void turretG2_base_think( gentity_t *self )
 		}
 	}
 
-	if ( self->enemy != NULL )
+	if ( self->enemy != nullptr )
 	{
 		if ( self->enemy->client && self->enemy->client->sess.sessionTeam == TEAM_SPECTATOR )
 		{//don't keep going after spectators
-			self->enemy = NULL;
+			self->enemy = nullptr;
 		}
 		else if ( self->enemy->client && self->enemy->client->tempSpectate >= level.time )
 		{//don't keep going after spectators
-			self->enemy = NULL;
+			self->enemy = nullptr;
 		}
 		else
 		{//FIXME: remain single-minded or look for a new enemy every now and then?
@@ -919,11 +920,11 @@ void turretG2_base_think( gentity_t *self )
 					{
 						org2[2] -= 10;
 					}
-					trap->Trace( &tr, org2, NULL, NULL, org, self->s.number, MASK_SHOT, qfalse, 0, 0 );
+					trap->Trace( &tr, org2, nullptr, nullptr, org, self->s.number, MASK_SHOT, false, 0, 0 );
 
 					if ( !tr.allsolid && !tr.startsolid && tr.entityNum == self->enemy->s.number )
 					{
-						turnOff = qfalse;	// Can see our enemy
+						turnOff = false;	// Can see our enemy
 					}
 				}
 			}
@@ -963,7 +964,7 @@ static void finish_spawning_turretG2( gentity_t *base )
 	}
 
 	G_SetAngles( base, base->s.angles );
-	AngleVectors( base->r.currentAngles, fwd, NULL, NULL );
+	AngleVectors( base->r.currentAngles, fwd, nullptr, nullptr );
 
 	G_SetOrigin(base, base->s.origin);
 
@@ -973,7 +974,7 @@ static void finish_spawning_turretG2( gentity_t *base )
 	{
 		base->teamnodmg = atoi(base->team);
 	}
-	base->team = NULL;
+	base->team = nullptr;
 
 	// Set up our explosion effect for the ExplodeDeath code....
 	G_EffectIndex( "turret/explode" );
@@ -1114,7 +1115,7 @@ static void finish_spawning_turretG2( gentity_t *base )
 	{ //a non-0 maxhealth value will mean we want to show the health on the hud
 		base->maxHealth = base->health;
 		G_ScaleNetHealth(base);
-		base->s.shouldtarget = qtrue;
+		base->s.shouldtarget = true;
 		//base->s.owner = MAX_CLIENTS; //not owned by any client
 	}
 
@@ -1145,7 +1146,7 @@ static void finish_spawning_turretG2( gentity_t *base )
 	base->r.contents = CONTENTS_BODY|CONTENTS_PLAYERCLIP|CONTENTS_MONSTERCLIP|CONTENTS_SHOTCLIP;
 
 	//base->max_health = base->health;
-	base->takedamage = qtrue;
+	base->takedamage = true;
 	base->die  = turretG2_die;
 
 	base->material = MAT_METAL;
@@ -1217,7 +1218,7 @@ void SP_misc_turretG2( gentity_t *base )
 	int customscaleVal;
 	char* s;
 
-	turretG2_set_models( base, qfalse );
+	turretG2_set_models( base, false );
 
 	G_SpawnInt("painwait", "0", &base->genericValue4);
 	base->genericValue8 = 0;

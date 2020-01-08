@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -32,6 +33,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "qcommon/com_cvars.h"
 #include "qcommon/RoffSystem.h"
 #include "qcommon/stringed_ingame.h"
+#include "qcommon/q_math.h"
 
 extern IHeapAllocator *G2VertSpaceClient;
 
@@ -40,7 +42,7 @@ extern IHeapAllocator *G2VertSpaceClient;
 
 extern	botlib_export_t	*botlib_export;
 
-qboolean CL_GetUserCmd( int cmdNumber, usercmd_t *ucmd ) {
+bool CL_GetUserCmd( int cmdNumber, usercmd_t *ucmd ) {
 	// cmds[cmdNumber] is the last properly generated command
 
 	// can't return anything that we haven't created yet
@@ -51,15 +53,15 @@ qboolean CL_GetUserCmd( int cmdNumber, usercmd_t *ucmd ) {
 	// the usercmd has been overwritten in the wrapping
 	// buffer because it is too far out of date
 	if ( cmdNumber <= cl.cmdNumber - CMD_BACKUP ) {
-		return qfalse;
+		return false;
 	}
 
 	*ucmd = cl.cmds[ cmdNumber & CMD_MASK ];
 
-	return qtrue;
+	return true;
 }
 
-qboolean	CL_GetParseEntityState( int parseEntityNumber, entityState_t *state ) {
+bool	CL_GetParseEntityState( int parseEntityNumber, entityState_t *state ) {
 	// can't return anything that hasn't been parsed yet
 	if ( parseEntityNumber >= cl.parseEntitiesNum ) {
 		Com_Error( ERR_DROP, "CL_GetParseEntityState: %i >= %i",
@@ -68,14 +70,14 @@ qboolean	CL_GetParseEntityState( int parseEntityNumber, entityState_t *state ) {
 
 	// can't return anything that has been overwritten in the circular buffer
 	if ( parseEntityNumber <= cl.parseEntitiesNum - MAX_PARSE_ENTITIES ) {
-		return qfalse;
+		return false;
 	}
 
 	*state = cl.parseEntities[ parseEntityNumber & ( MAX_PARSE_ENTITIES - 1 ) ];
-	return qtrue;
+	return true;
 }
 
-qboolean CL_GetSnapshot( int snapshotNumber, snapshot_t *snapshot ) {
+bool CL_GetSnapshot( int snapshotNumber, snapshot_t *snapshot ) {
 	clSnapshot_t	*clSnap;
 	int				i, count;
 
@@ -85,19 +87,19 @@ qboolean CL_GetSnapshot( int snapshotNumber, snapshot_t *snapshot ) {
 
 	// if the frame has fallen out of the circular buffer, we can't return it
 	if ( cl.snap.messageNum - snapshotNumber >= PACKET_BACKUP ) {
-		return qfalse;
+		return false;
 	}
 
 	// if the frame is not valid, we can't return it
 	clSnap = &cl.snapshots[snapshotNumber & PACKET_MASK];
 	if ( !clSnap->valid ) {
-		return qfalse;
+		return false;
 	}
 
 	// if the entities in the frame have fallen out of their
 	// circular buffer, we can't return it
 	if ( cl.parseEntitiesNum - clSnap->parseEntitiesNum >= MAX_PARSE_ENTITIES ) {
-		return qfalse;
+		return false;
 	}
 
 	// write the snapshot
@@ -125,24 +127,24 @@ qboolean CL_GetSnapshot( int snapshotNumber, snapshot_t *snapshot ) {
 
 	// FIXME: configstring changes and server commands!!!
 
-	return qtrue;
+	return true;
 }
 
-qboolean CL_GetDefaultState(int index, entityState_t *state)
+bool CL_GetDefaultState(int index, entityState_t *state)
 {
 	if (index < 0 || index >= MAX_GENTITIES)
 	{
-		return qfalse;
+		return false;
 	}
 
 	if (!(cl.entityBaselines[index].eFlags & EF_PERMANENT))
 	{
-		return qfalse;
+		return false;
 	}
 
 	*state = cl.entityBaselines[index];
 
-	return qtrue;
+	return true;
 }
 
 extern float cl_mPitchOverride;
@@ -267,7 +269,7 @@ void CL_CheckSVStringEdRef(char *buf, const char *str)
 	int i = 0;
 	int b = 0;
 	int strLen = 0;
-	qboolean gotStrip = qfalse;
+	bool gotStrip = false;
 
 	if (!str || !str[0])
 	{
@@ -289,7 +291,7 @@ void CL_CheckSVStringEdRef(char *buf, const char *str)
 
 	while (i < strLen && str[i])
 	{
-		gotStrip = qfalse;
+		gotStrip = false;
 
 		if (str[i] == '@' && (i+1) < strLen)
 		{
@@ -332,7 +334,7 @@ void CL_CheckSVStringEdRef(char *buf, const char *str)
 }
 
 // Set up argc/argv for the given command
-qboolean CL_GetServerCommand( int serverCommandNumber ) {
+bool CL_GetServerCommand( int serverCommandNumber ) {
 	char	*s;
 	char	*cmd;
 	static char bigConfigString[BIG_INFO_STRING];
@@ -345,7 +347,7 @@ qboolean CL_GetServerCommand( int serverCommandNumber ) {
 		// when a demo record was started after the client got a whole bunch of
 		// reliable commands then the client never got those first reliable commands
 		if ( clc.demoplaying )
-			return qfalse;
+			return false;
 
 		while (i < MAX_RELIABLE_COMMANDS)
 		{ //spew out the reliable command buffer
@@ -356,12 +358,12 @@ qboolean CL_GetServerCommand( int serverCommandNumber ) {
 			i++;
 		}
 		Com_Error( ERR_DROP, "CL_GetServerCommand: a reliable command was cycled out" );
-		return qfalse;
+		return false;
 	}
 
 	if ( serverCommandNumber > clc.serverCommandSequence ) {
 		Com_Error( ERR_DROP, "CL_GetServerCommand: requested a command not received" );
-		return qfalse;
+		return false;
 	}
 
 	s = clc.serverCommands[ serverCommandNumber & ( MAX_RELIABLE_COMMANDS - 1 ) ];
@@ -381,7 +383,7 @@ rescan:
 
 	if ( !strcmp( cmd, "bcs0" ) ) {
 		Com_sprintf( bigConfigString, BIG_INFO_STRING, "cs %s \"%s", Cmd_Argv(1), Cmd_Argv(2) );
-		return qfalse;
+		return false;
 	}
 
 	if ( !strcmp( cmd, "bcs1" ) ) {
@@ -390,7 +392,7 @@ rescan:
 			Com_Error( ERR_DROP, "bcs exceeded BIG_INFO_STRING" );
 		}
 		strcat( bigConfigString, s );
-		return qfalse;
+		return false;
 	}
 
 	if ( !strcmp( cmd, "bcs2" ) ) {
@@ -408,7 +410,7 @@ rescan:
 		CL_ConfigstringModified();
 		// reparse the string, because CL_ConfigstringModified may have done another Cmd_TokenizeString()
 		Cmd_TokenizeString( s );
-		return qtrue;
+		return true;
 	}
 
 	if ( !strcmp( cmd, "map_restart" ) ) {
@@ -418,7 +420,7 @@ rescan:
 		// reparse the string, because Con_ClearNotify() may have done another Cmd_TokenizeString()
 		Cmd_TokenizeString( s );
 		Com_Memset( cl.cmds, 0, sizeof( cl.cmds ) );
-		return qtrue;
+		return true;
 	}
 
 	// the clientLevelShot command is used during development
@@ -431,19 +433,19 @@ rescan:
 		// otherwise malicious remote servers could overwrite
 		// the existing thumbnails
 		if ( !sv_running->integer ) {
-			return qfalse;
+			return false;
 		}
 		// close the console
 		Con_Close();
 		// take a special screenshot next frame
 		Cbuf_AddText( "wait ; wait ; wait ; wait ; screenshot levelshot\n" );
-		return qtrue;
+		return true;
 	}
 
 	// we may want to put a "connect to other server" command here
 
 	// cgame can now act on the command
-	return qtrue;
+	return true;
 }
 
 void CL_ShutdownCGame( void ) {
@@ -452,7 +454,7 @@ void CL_ShutdownCGame( void ) {
 	if ( !cls.cgameStarted )
 		return;
 
-	cls.cgameStarted = qfalse;
+	cls.cgameStarted = false;
 
 	CL_UnbindCGame();
 }
@@ -510,9 +512,9 @@ void CL_InitCGame( void ) {
 }
 
 // See if the current console command is claimed by the cgame
-qboolean CL_GameCommand( void ) {
+bool CL_GameCommand( void ) {
 	if ( !cls.cgameStarted )
-		return qfalse;
+		return false;
 
 	return CGVM_ConsoleCommand();
 }
@@ -542,7 +544,7 @@ void CL_AdjustTimeDelta( void ) {
 	int		newDelta;
 	int		deltaDelta;
 
-	cl.newSnapshots = qfalse;
+	cl.newSnapshots = false;
 
 	// the delta never drifts when replaying a demo
 	if ( clc.demoplaying ) {
@@ -573,7 +575,7 @@ void CL_AdjustTimeDelta( void ) {
 		// the granularity of +1 / -2 is too high for timescale modified frametimes
 		if ( timescale->value == 0 || timescale->value == 1 ) {
 			if ( cl.extrapolatedSnapshot ) {
-				cl.extrapolatedSnapshot = qfalse;
+				cl.extrapolatedSnapshot = false;
 				cl.serverTimeDelta -= 2;
 			} else {
 				// otherwise, move our sense of time forward to minimize total latency
@@ -623,13 +625,13 @@ void CL_SetCGameTime( void ) {
 			// we shouldn't get the first snapshot on the same frame
 			// as the gamestate, because it causes a bad time skip
 			if ( !clc.firstDemoFrameSkipped ) {
-				clc.firstDemoFrameSkipped = qtrue;
+				clc.firstDemoFrameSkipped = true;
 				return;
 			}
 			CL_ReadDemoMessage();
 		}
 		if ( cl.newSnapshots ) {
-			cl.newSnapshots = qfalse;
+			cl.newSnapshots = false;
 			CL_FirstSnapshot();
 		}
 		if ( cls.state != CA_ACTIVE ) {
@@ -691,7 +693,7 @@ void CL_SetCGameTime( void ) {
 		// note if we are almost past the latest frame (without timeNudge),
 		// so we will try and adjust back a bit when the next snapshot arrives
 		if ( cls.realtime + cl.serverTimeDelta >= cl.snap.serverTime - 5 ) {
-			cl.extrapolatedSnapshot = qtrue;
+			cl.extrapolatedSnapshot = true;
 		}
 	}
 

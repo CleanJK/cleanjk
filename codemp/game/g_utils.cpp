@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -24,7 +25,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // g_utils.c -- misc utility functions for game module
 
 #include "game/g_local.h"
-#include "game/bg_saga.h"
 #include "qcommon/q_shared.h"
 
 typedef struct shaderRemap_s {
@@ -72,7 +72,7 @@ const char *BuildShaderStateConfig(void) {
 
 // model / sound configstring indexes
 
-static int G_FindConfigstringIndex( const char *name, int start, int max, qboolean create ) {
+static int G_FindConfigstringIndex( const char *name, int start, int max, bool create ) {
 	int		i;
 	char	s[MAX_STRING_CHARS];
 
@@ -104,7 +104,7 @@ static int G_FindConfigstringIndex( const char *name, int start, int max, qboole
 }
 
 int G_BoneIndex( const char *name ) {
-	return G_FindConfigstringIndex (name, CS_G2BONES, MAX_G2BONES, qtrue);
+	return G_FindConfigstringIndex (name, CS_G2BONES, MAX_G2BONES, true);
 }
 
 int G_ModelIndex( const char *name ) {
@@ -128,33 +128,33 @@ int G_ModelIndex( const char *name ) {
 		trap->FS_Close(fh);
 	}
 #endif
-	return G_FindConfigstringIndex (name, CS_MODELS, MAX_MODELS, qtrue);
+	return G_FindConfigstringIndex (name, CS_MODELS, MAX_MODELS, true);
 }
 
 int	G_IconIndex( const char* name )
 {
 	assert(name && name[0]);
-	return G_FindConfigstringIndex (name, CS_ICONS, MAX_ICONS, qtrue);
+	return G_FindConfigstringIndex (name, CS_ICONS, MAX_ICONS, true);
 }
 
 int G_SoundIndex( const char *name ) {
 	assert(name && name[0]);
-	return G_FindConfigstringIndex (name, CS_SOUNDS, MAX_SOUNDS, qtrue);
+	return G_FindConfigstringIndex (name, CS_SOUNDS, MAX_SOUNDS, true);
 }
 
 int G_SoundSetIndex(const char *name)
 {
-	return G_FindConfigstringIndex (name, CS_AMBIENT_SET, MAX_AMBIENT_SETS, qtrue);
+	return G_FindConfigstringIndex (name, CS_AMBIENT_SET, MAX_AMBIENT_SETS, true);
 }
 
 int G_EffectIndex( const char *name )
 {
-	return G_FindConfigstringIndex (name, CS_EFFECTS, MAX_FX, qtrue);
+	return G_FindConfigstringIndex (name, CS_EFFECTS, MAX_FX, true);
 }
 
 int G_BSPIndex( const char *name )
 {
-	return G_FindConfigstringIndex (name, CS_BSP_MODELS, MAX_SUB_BSP, qtrue);
+	return G_FindConfigstringIndex (name, CS_BSP_MODELS, MAX_SUB_BSP, true);
 }
 
 // Broadcasts a command to only a specific team
@@ -172,8 +172,8 @@ void G_TeamCommand( team_t team, char *cmd ) {
 
 // Searches all active entities for the next one that holds the matching string at fieldofs (use the FOFS() macro) in
 //	the structure.
-// Searches beginning at the entity after from, or the beginning if NULL
-// NULL will be returned if the end of the list is reached.
+// Searches beginning at the entity after from, or the beginning if nullptr
+// nullptr will be returned if the end of the list is reached.
 gentity_t *G_Find (gentity_t *from, int fieldofs, const char *match)
 {
 	char	*s;
@@ -194,11 +194,11 @@ gentity_t *G_Find (gentity_t *from, int fieldofs, const char *match)
 			return from;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 // given an origin and a radius, return all entities that are in use that are within the list
-int G_RadiusList ( vec3_t origin, float radius,	gentity_t *ignore, qboolean takeDamage, gentity_t *ent_list[MAX_GENTITIES])
+int G_RadiusList ( vec3_t origin, float radius,	gentity_t *ignore, bool takeDamage, gentity_t *ent_list[MAX_GENTITIES])
 {
 	float		dist;
 	gentity_t	*ent;
@@ -327,14 +327,14 @@ void G_SetAnim(gentity_t *ent, usercmd_t *ucmd, int setAnimParts, int anim, int 
 // Selects a random entity from among the targets
 gentity_t *G_PickTarget (char *targetname)
 {
-	gentity_t	*ent = NULL;
+	gentity_t	*ent = nullptr;
 	int		num_choices = 0;
 	gentity_t	*choice[MAXCHOICES];
 
 	if (!targetname)
 	{
-		trap->Print("G_PickTarget called with NULL targetname\n");
-		return NULL;
+		trap->Print("G_PickTarget called with nullptr targetname\n");
+		return nullptr;
 	}
 
 	while(1)
@@ -350,7 +350,7 @@ gentity_t *G_PickTarget (char *targetname)
 	if (!num_choices)
 	{
 		trap->Print("G_PickTarget: target %s not found\n", targetname);
-		return NULL;
+		return nullptr;
 	}
 
 	return choice[rand() % num_choices];
@@ -387,8 +387,8 @@ void G_UseTargets2( gentity_t *ent, gentity_t *activator, const char *string ) {
 		return;
 	}
 
-	t = NULL;
-	while ( (t = G_Find (t, FOFS(targetname), string)) != NULL ) {
+	t = nullptr;
+	while ( (t = G_Find (t, FOFS(targetname), string)) != nullptr ) {
 		if ( t == ent ) {
 			trap->Print ("WARNING: Entity used itself.\n");
 		} else {
@@ -461,13 +461,13 @@ void G_SetMovedir( vec3_t angles, vec3_t movedir ) {
 	} else if ( VectorCompare (angles, VEC_DOWN) ) {
 		VectorCopy (MOVEDIR_DOWN, movedir);
 	} else {
-		AngleVectors (angles, movedir, NULL, NULL);
+		AngleVectors (angles, movedir, nullptr, nullptr);
 	}
 	VectorClear( angles );
 }
 
 void G_InitGentity( gentity_t *e ) {
-	e->inuse = qtrue;
+	e->inuse = true;
 	e->classname = "noclass";
 	e->s.number = e - g_entities;
 	e->r.ownerNum = ENTITYNUM_NONE;
@@ -559,7 +559,7 @@ gentity_t *G_Spawn( void ) {
 	int			i, force;
 	gentity_t	*e;
 
-	e = NULL;	// shut up warning
+	e = nullptr;	// shut up warning
 	i = 0;		// shut up warning
 	for ( force = 0 ; force < 2 ; force++ ) {
 		// if we go through all entities and can't find one to free,
@@ -606,7 +606,7 @@ gentity_t *G_Spawn( void ) {
 	return e;
 }
 
-qboolean G_EntitiesFree( void ) {
+bool G_EntitiesFree( void ) {
 	int			i;
 	gentity_t	*e;
 
@@ -616,9 +616,9 @@ qboolean G_EntitiesFree( void ) {
 			continue;
 		}
 		// slot available
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
 #define MAX_G2_KILL_QUEUE 256
@@ -746,7 +746,7 @@ void G_FreeEntity( gentity_t *ed ) {
 	memset (ed, 0, sizeof(*ed));
 	ed->classname = "freed";
 	ed->freetime = level.time;
-	ed->inuse = qfalse;
+	ed->inuse = false;
 }
 
 // Spawns an event entity that will be auto-removed
@@ -761,7 +761,7 @@ gentity_t *G_TempEntity( vec3_t origin, int event ) {
 
 	e->classname = "tempEntity";
 	e->eventTime = level.time;
-	e->freeAfterEvent = qtrue;
+	e->freeAfterEvent = true;
 
 	VectorCopy( origin, snapped );
 	SnapVector( snapped );		// save network bandwidth
@@ -785,11 +785,11 @@ gentity_t *G_SoundTempEntity( vec3_t origin, int event, int channel ) {
 	e = G_Spawn();
 
 	e->s.eType = ET_EVENTS + event;
-	e->inuse = qtrue;
+	e->inuse = true;
 
 	e->classname = "tempEntity";
 	e->eventTime = level.time;
-	e->freeAfterEvent = qtrue;
+	e->freeAfterEvent = true;
 
 	VectorCopy( origin, snapped );
 	SnapVector( snapped );		// save network bandwidth
@@ -863,7 +863,7 @@ void G_KillBox (gentity_t *ent) {
 		}
 
 		// nail it
-		G_Damage ( hit, ent, ent, NULL, NULL,
+		G_Damage ( hit, ent, ent, nullptr, nullptr,
 			100000, DAMAGE_NO_PROTECTION, MOD_TELEFRAG);
 	}
 
@@ -934,7 +934,7 @@ gentity_t *G_PlayEffectID(const int fxID, vec3_t org, vec3_t ang)
 	return te;
 }
 
-gentity_t *G_ScreenShake(vec3_t org, gentity_t *target, float intensity, int duration, qboolean global)
+gentity_t *G_ScreenShake(vec3_t org, gentity_t *target, float intensity, int duration, bool global)
 {
 	gentity_t	*te;
 
@@ -1006,7 +1006,7 @@ void G_Sound( gentity_t *ent, int channel, int soundIndex ) {
 		// fix: let other players know about this
 		// for case that they will meet this one
 		te->r.svFlags |= SVF_BROADCAST;
-		//te->freeAfterEvent = qfalse;
+		//te->freeAfterEvent = false;
 	}
 }
 
@@ -1040,24 +1040,24 @@ void G_SoundOnEnt( gentity_t *ent, int channel, const char *soundPath )
 }
 
 // Returns whether or not the targeted entity is useable
-qboolean ValidUseTarget( gentity_t *ent )
+bool ValidUseTarget( gentity_t *ent )
 {
 	if ( !ent->use )
 	{
-		return qfalse;
+		return false;
 	}
 
 	if ( ent->flags & FL_INACTIVE )
 	{//set by target_deactivate
-		return qfalse;
+		return false;
 	}
 
 	if ( !(ent->r.svFlags & SVF_PLAYER_USABLE) )
 	{//Check for flag that denotes BUTTON_USE useability
-		return qfalse;
+		return false;
 	}
 
-	return qtrue;
+	return true;
 }
 
 //use an ammo/health dispenser on another client
@@ -1190,12 +1190,12 @@ void TryUse( gentity_t *ent )
 	viewspot[2] += ent->client->ps.viewheight;
 
 	VectorCopy( viewspot, src );
-	AngleVectors( ent->client->ps.viewangles, vf, NULL, NULL );
+	AngleVectors( ent->client->ps.viewangles, vf, nullptr, nullptr );
 
 	VectorMA( src, USE_DISTANCE, vf, dest );
 
 	//Trace ahead to find a valid target
-	trap->Trace( &trace, src, vec3_origin, vec3_origin, dest, ent->s.number, MASK_OPAQUE|CONTENTS_SOLID|CONTENTS_BODY|CONTENTS_ITEM|CONTENTS_CORPSE, qfalse, 0, 0 );
+	trap->Trace( &trace, src, vec3_origin, vec3_origin, dest, ent->s.number, MASK_OPAQUE|CONTENTS_SOLID|CONTENTS_BODY|CONTENTS_ITEM|CONTENTS_CORPSE, false, 0, 0 );
 
 	if ( trace.fraction == 1.0f || trace.entityNum == ENTITYNUM_NONE )
 	{
@@ -1224,7 +1224,7 @@ void TryUse( gentity_t *ent )
 		}
 		else
 		{
-			G_SetAnim( ent, NULL, SETANIM_TORSO, BOTH_BUTTON_HOLD, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0 );
+			G_SetAnim( ent, nullptr, SETANIM_TORSO, BOTH_BUTTON_HOLD, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0 );
 		}
 		ent->client->ps.weaponTime = ent->client->ps.torsoTimer;
 		return;
@@ -1239,7 +1239,7 @@ void TryUse( gentity_t *ent )
 		}
 		else
 		{
-			G_SetAnim( ent, NULL, SETANIM_TORSO, BOTH_BUTTON_HOLD, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0 );
+			G_SetAnim( ent, nullptr, SETANIM_TORSO, BOTH_BUTTON_HOLD, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0 );
 		}
 		ent->client->ps.weaponTime = ent->client->ps.torsoTimer;
 		/*
@@ -1251,7 +1251,7 @@ void TryUse( gentity_t *ent )
 		*/
 		if ( target->touch == Touch_Button )
 		{//pretend we touched it
-			target->touch(target, ent, NULL);
+			target->touch(target, ent, nullptr);
 		}
 		else
 		{
@@ -1282,7 +1282,7 @@ tryJetPack:
 		AngleVectors(fAng, fwd, 0, 0);
 
         VectorMA(ent->client->ps.origin, 64.0f, fwd, fwd);
-		trap->Trace(&trToss, ent->client->ps.origin, playerMins, playerMaxs, fwd, ent->s.number, ent->clipmask, qfalse, 0, 0);
+		trap->Trace(&trToss, ent->client->ps.origin, playerMins, playerMaxs, fwd, ent->s.number, ent->clipmask, false, 0, 0);
 		if (trToss.fraction == 1.0f && !trToss.allsolid && !trToss.startsolid)
 		{
 			ItemUse_UseDisp(ent, HI_AMMODISP);
@@ -1292,7 +1292,7 @@ tryJetPack:
 	}
 }
 
-qboolean G_PointInBounds( vec3_t point, vec3_t mins, vec3_t maxs )
+bool G_PointInBounds( vec3_t point, vec3_t mins, vec3_t maxs )
 {
 	int i;
 
@@ -1300,18 +1300,18 @@ qboolean G_PointInBounds( vec3_t point, vec3_t mins, vec3_t maxs )
 	{
 		if ( point[i] < mins[i] )
 		{
-			return qfalse;
+			return false;
 		}
 		if ( point[i] > maxs[i] )
 		{
-			return qfalse;
+			return false;
 		}
 	}
 
-	return qtrue;
+	return true;
 }
 
-qboolean G_BoxInBounds( vec3_t point, vec3_t mins, vec3_t maxs, vec3_t boundsMins, vec3_t boundsMaxs )
+bool G_BoxInBounds( vec3_t point, vec3_t mins, vec3_t maxs, vec3_t boundsMins, vec3_t boundsMaxs )
 {
 	vec3_t boxMins;
 	vec3_t boxMaxs;
@@ -1320,25 +1320,25 @@ qboolean G_BoxInBounds( vec3_t point, vec3_t mins, vec3_t maxs, vec3_t boundsMin
 	VectorAdd( point, maxs, boxMaxs );
 
 	if(boxMaxs[0]>boundsMaxs[0])
-		return qfalse;
+		return false;
 
 	if(boxMaxs[1]>boundsMaxs[1])
-		return qfalse;
+		return false;
 
 	if(boxMaxs[2]>boundsMaxs[2])
-		return qfalse;
+		return false;
 
 	if(boxMins[0]<boundsMins[0])
-		return qfalse;
+		return false;
 
 	if(boxMins[1]<boundsMins[1])
-		return qfalse;
+		return false;
 
 	if(boxMins[2]<boundsMins[2])
-		return qfalse;
+		return false;
 
 	//box is completely contained within bounds
-	return qtrue;
+	return true;
 }
 
 void G_SetAngles( gentity_t *ent, vec3_t angles )
@@ -1348,18 +1348,18 @@ void G_SetAngles( gentity_t *ent, vec3_t angles )
 	VectorCopy( angles, ent->s.apos.trBase );
 }
 
-qboolean G_ClearTrace( vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int ignore, int clipmask )
+bool G_ClearTrace( vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int ignore, int clipmask )
 {
 	static	trace_t	tr;
 
-	trap->Trace( &tr, start, mins, maxs, end, ignore, clipmask, qfalse, 0, 0 );
+	trap->Trace( &tr, start, mins, maxs, end, ignore, clipmask, false, 0, 0 );
 
 	if ( tr.allsolid || tr.startsolid || tr.fraction < 1.0 )
 	{
-		return qfalse;
+		return false;
 	}
 
-	return qtrue;
+	return true;
 }
 
 // Sets the pos trajectory for a fixed position
@@ -1373,7 +1373,7 @@ void G_SetOrigin( gentity_t *ent, vec3_t origin ) {
 	VectorCopy( origin, ent->r.currentOrigin );
 }
 
-qboolean G_CheckInSolid (gentity_t *self, qboolean fix)
+bool G_CheckInSolid (gentity_t *self, bool fix)
 {
 	trace_t	trace;
 	vec3_t	end, mins;
@@ -1383,10 +1383,10 @@ qboolean G_CheckInSolid (gentity_t *self, qboolean fix)
 	VectorCopy(self->r.mins, mins);
 	mins[2] = 0;
 
-	trap->Trace(&trace, self->r.currentOrigin, mins, self->r.maxs, end, self->s.number, self->clipmask, qfalse, 0, 0);
+	trap->Trace(&trace, self->r.currentOrigin, mins, self->r.maxs, end, self->s.number, self->clipmask, false, 0, 0);
 	if(trace.allsolid || trace.startsolid)
 	{
-		return qtrue;
+		return true;
 	}
 
 	if(trace.fraction < 1.0)
@@ -1400,15 +1400,15 @@ qboolean G_CheckInSolid (gentity_t *self, qboolean fix)
 			G_SetOrigin(self, neworg);
 			trap->LinkEntity((sharedEntity_t *)self);
 
-			return G_CheckInSolid(self, qfalse);
+			return G_CheckInSolid(self, false);
 		}
 		else
 		{
-			return qtrue;
+			return true;
 		}
 	}
 
-	return qfalse;
+	return false;
 }
 
 // debug polygons only work when running a local game with r_debugSurface set to 2
@@ -1478,7 +1478,7 @@ void G_ROFF_NotetrackCallback( gentity_t *cent, const char *notetrack)
 			VectorCopy(cent->s.angles2, cent->r.currentAngles);
 		}
 
-		trap->ROFF_Play(cent->s.number, cent->roffid, qfalse);
+		trap->ROFF_Play(cent->s.number, cent->roffid, false);
 	}
 }
 
@@ -1487,7 +1487,7 @@ void G_SpeechEvent( gentity_t *self, int event )
 	G_AddEvent(self, event, 0);
 }
 
-qboolean G_ExpandPointToBBox( vec3_t point, const vec3_t mins, const vec3_t maxs, int ignore, int clipmask )
+bool G_ExpandPointToBBox( vec3_t point, const vec3_t mins, const vec3_t maxs, int ignore, int clipmask )
 {
 	trace_t	tr;
 	vec3_t	start, end;
@@ -1499,35 +1499,35 @@ qboolean G_ExpandPointToBBox( vec3_t point, const vec3_t mins, const vec3_t maxs
 	{
 		VectorCopy( start, end );
 		end[i] += mins[i];
-		trap->Trace( &tr, start, vec3_origin, vec3_origin, end, ignore, clipmask, qfalse, 0, 0 );
+		trap->Trace( &tr, start, vec3_origin, vec3_origin, end, ignore, clipmask, false, 0, 0 );
 		if ( tr.allsolid || tr.startsolid )
 		{
-			return qfalse;
+			return false;
 		}
 		if ( tr.fraction < 1.0 )
 		{
 			VectorCopy( start, end );
 			end[i] += maxs[i]-(mins[i]*tr.fraction);
-			trap->Trace( &tr, start, vec3_origin, vec3_origin, end, ignore, clipmask, qfalse, 0, 0 );
+			trap->Trace( &tr, start, vec3_origin, vec3_origin, end, ignore, clipmask, false, 0, 0 );
 			if ( tr.allsolid || tr.startsolid )
 			{
-				return qfalse;
+				return false;
 			}
 			if ( tr.fraction < 1.0 )
 			{
-				return qfalse;
+				return false;
 			}
 			VectorCopy( end, start );
 		}
 	}
 	//expanded it, now see if it's all clear
-	trap->Trace( &tr, start, mins, maxs, start, ignore, clipmask, qfalse, 0, 0 );
+	trap->Trace( &tr, start, mins, maxs, start, ignore, clipmask, false, 0, 0 );
 	if ( tr.allsolid || tr.startsolid )
 	{
-		return qfalse;
+		return false;
 	}
 	VectorCopy( start, point );
-	return qtrue;
+	return true;
 }
 
 float ShortestLineSegBewteen2LineSegs( vec3_t start1, vec3_t end1, vec3_t start2, vec3_t end2, vec3_t close_pnt1, vec3_t close_pnt2 )
@@ -1566,29 +1566,29 @@ float ShortestLineSegBewteen2LineSegs( vec3_t start1, vec3_t end1, vec3_t start2
 	{
 		float s = -( (v2v2*DotProduct( v1, start_dif )) - (v1v2*DotProduct( v2, start_dif )) ) / denom;
 		float t = ( (v1v1*DotProduct( v2, start_dif )) - (v1v2*DotProduct( v1, start_dif )) ) / denom;
-		qboolean done = qtrue;
+		bool done = true;
 
 		if ( s < 0 )
 		{
-			done = qfalse;
+			done = false;
 			s = 0;// and see note below
 		}
 
 		if ( s > 1 )
 		{
-			done = qfalse;
+			done = false;
 			s = 1;// and see note below
 		}
 
 		if ( t < 0 )
 		{
-			done = qfalse;
+			done = false;
 			t = 0;// and see note below
 		}
 
 		if ( t > 1 )
 		{
-			done = qfalse;
+			done = false;
 			t = 1;// and see note below
 		}
 
@@ -1754,7 +1754,7 @@ void G_GetBoltPosition( gentity_t *self, int boltIndex, vec3_t pos, int modelInd
 		return;
 	}
 
-	trap->G2API_GetBoltMatrix( self->ghoul2, modelIndex, boltIndex, &boltMatrix, angles, self->r.currentOrigin, level.time, NULL, self->modelScale );
+	trap->G2API_GetBoltMatrix( self->ghoul2, modelIndex, boltIndex, &boltMatrix, angles, self->r.currentOrigin, level.time, nullptr, self->modelScale );
 	if ( pos ) {
 		BG_GiveMeVectorFromMatrix( &boltMatrix, ORIGIN, result );
 		VectorCopy( result, pos );
@@ -1763,25 +1763,25 @@ void G_GetBoltPosition( gentity_t *self, int boltIndex, vec3_t pos, int modelInd
 
 extern stringID_table_t BSTable[];
 extern stringID_table_t BSETTable[];
-qboolean G_ActivateBehavior( gentity_t *self, int bset ) {
-	char *bs_name = NULL;
+bool G_ActivateBehavior( gentity_t *self, int bset ) {
+	char *bs_name = nullptr;
 
 	if ( !self ) {
-		return qfalse;
+		return false;
 	}
 
 	bs_name = self->behaviorSet[bset];
 
 	if ( !VALIDSTRING( bs_name ) ) {
-		return qfalse;
+		return false;
 	}
 
 	trap->ICARUS_RunScript( (sharedEntity_t *)self, va( "%s/%s", Q3_SCRIPT_DIR, bs_name ) );
 
-	return qtrue;
+	return true;
 }
 
-qboolean InFront( vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHold )
+bool InFront( vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHold )
 {
 	vec3_t	dir, forward, angles;
 	float	dot;
@@ -1792,7 +1792,7 @@ qboolean InFront( vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHold 
 
 	VectorCopy( fromAngles, angles );
 	angles[0] = 0;
-	AngleVectors( angles, forward, NULL, NULL );
+	AngleVectors( angles, forward, nullptr, nullptr );
 
 	dot = DotProduct( dir, forward );
 
@@ -1800,7 +1800,7 @@ qboolean InFront( vec3_t spot, vec3_t from, vec3_t fromAngles, float threshHold 
 }
 
 // IDEA: further off to side of FOV range, higher chance of failing even if technically in FOV, keep core of 50% to sides as always succeeding
-qboolean InFOV3( vec3_t spot, vec3_t from, vec3_t fromAngles, int hFOV, int vFOV ) {
+bool InFOV3( vec3_t spot, vec3_t from, vec3_t fromAngles, int hFOV, int vFOV ) {
 	vec3_t deltaVector, angles, deltaAngles;
 
 	VectorSubtract( spot, from, deltaVector );
@@ -1810,8 +1810,8 @@ qboolean InFOV3( vec3_t spot, vec3_t from, vec3_t fromAngles, int hFOV, int vFOV
 	deltaAngles[YAW]	= AngleDelta ( fromAngles[YAW], angles[YAW] );
 
 	if ( fabs( deltaAngles[PITCH] ) <= vFOV && fabs( deltaAngles[YAW] ) <= hFOV ) {
-		return qtrue;
+		return true;
 	}
 
-	return qfalse;
+	return false;
 }

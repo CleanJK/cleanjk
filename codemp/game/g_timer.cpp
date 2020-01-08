@@ -2,7 +2,8 @@
 ===========================================================================
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -45,14 +46,14 @@ void TIMER_Clear( void )
 	int i;
 	for (i = 0; i < MAX_GENTITIES; i++)
 	{
-		g_timers[i] = NULL;
+		g_timers[i] = nullptr;
 	}
 
 	for (i = 0; i < MAX_GTIMERS - 1; i++)
 	{
 		g_timerPool[i].next = &g_timerPool[i+1];
 	}
-	g_timerPool[MAX_GTIMERS-1].next = NULL;
+	g_timerPool[MAX_GTIMERS-1].next = nullptr;
 	g_timerFreeList = &g_timerPool[0];
 }
 
@@ -78,7 +79,7 @@ void TIMER_Clear2( gentity_t *ent )
 		// Splice the lists
 		p->next = g_timerFreeList;
 		g_timerFreeList = g_timers[ent->s.number];
-		g_timers[ent->s.number] = NULL;
+		g_timers[ent->s.number] = nullptr;
 		return;
 	}
 }
@@ -102,7 +103,7 @@ gtimer_t *TIMER_GetNew(int num, const char *identifier)
 
 	// No existing timer with this name was found, so grab one from the free list
 	if (!g_timerFreeList)
-		return NULL;
+		return nullptr;
 
 	p = g_timerFreeList;
 	g_timerFreeList = g_timerFreeList->next;
@@ -126,7 +127,7 @@ gtimer_t *TIMER_GetExisting(int num, const char *identifier)
 		p = p->next;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 void TIMER_Set( gentity_t *ent, const char *identifier, int duration )
@@ -153,13 +154,13 @@ int	TIMER_Get( gentity_t *ent, const char *identifier )
 	return timer->time;
 }
 
-qboolean TIMER_Done( gentity_t *ent, const char *identifier )
+bool TIMER_Done( gentity_t *ent, const char *identifier )
 {
 	gtimer_t *timer = TIMER_GetExisting(ent->s.number, identifier);
 
 	if (!timer)
 	{
-		return qtrue;
+		return true;
 	}
 
 	return (timer->time < level.time);
@@ -194,14 +195,14 @@ void TIMER_RemoveHelper( int num, gtimer_t *timer )
 }
 
 // Returns false if timer has been started but is not done...or if timer was never started
-qboolean TIMER_Done2( gentity_t *ent, const char *identifier, qboolean remove )
+bool TIMER_Done2( gentity_t *ent, const char *identifier, bool remove )
 {
 	gtimer_t *timer = TIMER_GetExisting(ent->s.number, identifier);
-	qboolean res;
+	bool res;
 
 	if (!timer)
 	{
-		return qfalse;
+		return false;
 	}
 
 	res = (timer->time < level.time);
@@ -215,16 +216,16 @@ qboolean TIMER_Done2( gentity_t *ent, const char *identifier, qboolean remove )
 	return res;
 }
 
-qboolean TIMER_Exists( gentity_t *ent, const char *identifier )
+bool TIMER_Exists( gentity_t *ent, const char *identifier )
 {
 	gtimer_t *timer = TIMER_GetExisting(ent->s.number, identifier);
 
 	if (!timer)
 	{
-		return qfalse;
+		return false;
 	}
 
-	return qtrue;
+	return true;
 }
 
 // Utility to get rid of any timer
@@ -241,12 +242,12 @@ void TIMER_Remove( gentity_t *ent, const char *identifier )
 	TIMER_RemoveHelper(ent->s.number, timer);
 }
 
-qboolean TIMER_Start( gentity_t *self, const char *identifier, int duration )
+bool TIMER_Start( gentity_t *self, const char *identifier, int duration )
 {
 	if ( TIMER_Done( self, identifier ) )
 	{
 		TIMER_Set( self, identifier, duration );
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }

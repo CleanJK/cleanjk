@@ -2,7 +2,8 @@
 ===========================================================================
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -22,21 +23,30 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-// BlockStream.h
-#include "qcommon/qcommon.h"
-#include <stdio.h>
+// ======================================================================
+// INCLUDE
+// ======================================================================
+
+#include "qcommon/q_common.h"
+#include <cstdio>
 
 #include <list>
 #include <vector>
+
+// ======================================================================
+// DEFINE
+// ======================================================================
 
 #define	IBI_EXT			".IBI"	//(I)nterpreted (B)lock (I)nstructions
 #define IBI_HEADER_ID	"IBI"
 #define IBI_HEADER_ID_LENGTH 4 // Length of IBI_HEADER_ID + 1 for the null terminating byte.
 
-const	float	IBI_VERSION			= 1.57f;
-const	int		MAX_FILENAME_LENGTH = 1024;
+constexpr float	IBI_VERSION = 1.57F;
+constexpr int MAX_FILENAME_LENGTH = 1024;
 
-typedef	float	vector_t[3];
+// ======================================================================
+// ENUM
+// ======================================================================
 
 enum
 {
@@ -46,9 +56,9 @@ enum
 	PUSH_BACK
 };
 
-// Templates
-
-// CBlockMember
+// ======================================================================
+// CLASS
+// ======================================================================
 
 class CBlockMember
 {
@@ -69,7 +79,7 @@ public:
 
 	//SetData overloads
 	void SetData( const char * );
-	void SetData( vector_t );
+	void SetData( vec3_t );
 	void SetData( void *data, int size );
 
 	int	GetID( void )		const	{	return m_id;	}	//Get ID member variables
@@ -78,7 +88,7 @@ public:
 
 	inline void *operator new( size_t size )
 	{	// Allocate the memory.
-		return Z_Malloc( size, TAG_ICARUS4, qtrue );
+		return Z_Malloc( size, TAG_ICARUS4, true );
 	}
 	// Overloaded delete operator.
 	inline void operator delete( void *pRawData )
@@ -119,8 +129,6 @@ protected:
 	void	*m_data;	//Data for this member
 };
 
-//CBlock
-
 class CBlock
 {
 	typedef std::vector< CBlockMember * >	blockMember_v;
@@ -137,7 +145,7 @@ public:
 
 	//Write Overloads
 
-	int Write( int, vector_t );
+	int Write( int, vec3_t );
 	int Write( int, float );
 	int Write( int, const char * );
 	int Write( int, int );
@@ -167,8 +175,6 @@ protected:
 	int							m_id;				//ID of the block
 	unsigned char				m_flags;
 };
-
-// CBlockStream
 
 class CBlockStream
 {

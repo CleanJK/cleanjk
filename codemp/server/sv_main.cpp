@@ -4,7 +4,8 @@ Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
 Copyright (C) 2005 - 2015, ioquake3 contributors
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -28,6 +29,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "server/sv_gameapi.h"
 #include "qcommon/com_cvar.h"
 #include "qcommon/com_cvars.h"
+#include "sys/sys_public.h"
+#include "qcommon/huffman.h"
 
 serverStatic_t	svs;				// persistant server info
 server_t		sv;					// local server
@@ -85,7 +88,7 @@ void SV_AddServerCommand( client_t *client, const char *cmd ) {
 }
 
 // Sends a reliable command string to be interpreted by the client game module: "cp", "print", "chat", etc
-// A NULL client will broadcast to all clients
+// A nullptr client will broadcast to all clients
 void QDECL SV_SendServerCommand(client_t *cl, const char *fmt, ...) {
 	va_list		argptr;
 	byte		message[MAX_MSGLEN];
@@ -104,7 +107,7 @@ void QDECL SV_SendServerCommand(client_t *cl, const char *fmt, ...) {
 		return;
 	}
 
-	if ( cl != NULL ) {
+	if ( cl != nullptr ) {
 		SV_AddServerCommand( cl, (char *)message );
 		return;
 	}
@@ -171,7 +174,7 @@ void SV_MasterHeartbeat( void ) {
 
 	// see if we haven't already resolved the name
 	if ( sv_master->modified || SV_MasterNeedsResolving(time) ) {
-		sv_master->modified = qfalse;
+		sv_master->modified = false;
 
 		g_lastResolveTime = time;
 
@@ -181,7 +184,7 @@ void SV_MasterHeartbeat( void ) {
 			// so we don't take repeated dns hits
 			Com_Printf( "Couldn't resolve address: %s\n", sv_master->string );
 			Cvar_Set( sv_master->name, "" );
-			sv_master->modified = qfalse;
+			sv_master->modified = false;
 			return;
 		}
 		if ( !strstr( ":", sv_master->string ) ) {
@@ -220,7 +223,7 @@ static leakyBucket_t *bucketHashes[ MAX_HASHES ];
 leakyBucket_t outboundLeakyBucket;
 
 static long SVC_HashForAddress( netadr_t address ) {
-	byte 		*ip = NULL;
+	byte 		*ip = nullptr;
 	size_t	size = 0;
 	long		hash = 0;
 
@@ -241,7 +244,7 @@ static long SVC_HashForAddress( netadr_t address ) {
 
 // Find or allocate a bucket for an address
 static leakyBucket_t *SVC_BucketForAddress( netadr_t address, int burst, int period ) {
-	leakyBucket_t	*bucket = NULL;
+	leakyBucket_t	*bucket = nullptr;
 	int						i;
 	long					hash = SVC_HashForAddress( address );
 	int						now = Sys_Milliseconds();
@@ -268,13 +271,13 @@ static leakyBucket_t *SVC_BucketForAddress( netadr_t address, int burst, int per
 		// Reclaim expired buckets
 		if ( bucket->lastTime > 0 && ( interval > ( burst * period ) ||
 					interval < 0 ) ) {
-			if ( bucket->prev != NULL ) {
+			if ( bucket->prev != nullptr ) {
 				bucket->prev->next = bucket->next;
 			} else {
 				bucketHashes[ bucket->hash ] = bucket->next;
 			}
 
-			if ( bucket->next != NULL ) {
+			if ( bucket->next != nullptr ) {
 				bucket->next->prev = bucket->prev;
 			}
 
@@ -294,11 +297,11 @@ static leakyBucket_t *SVC_BucketForAddress( netadr_t address, int burst, int per
 
 			// Add to the head of the relevant hash chain
 			bucket->next = bucketHashes[ hash ];
-			if ( bucketHashes[ hash ] != NULL ) {
+			if ( bucketHashes[ hash ] != nullptr ) {
 				bucketHashes[ hash ]->prev = bucket;
 			}
 
-			bucket->prev = NULL;
+			bucket->prev = nullptr;
 			bucketHashes[ hash ] = bucket;
 
 			return bucket;
@@ -306,11 +309,11 @@ static leakyBucket_t *SVC_BucketForAddress( netadr_t address, int burst, int per
 	}
 
 	// Couldn't allocate a bucket for this address
-	return NULL;
+	return nullptr;
 }
 
-qboolean SVC_RateLimit( leakyBucket_t *bucket, int burst, int period ) {
-	if ( bucket != NULL ) {
+bool SVC_RateLimit( leakyBucket_t *bucket, int burst, int period ) {
+	if ( bucket != nullptr ) {
 		int now = Sys_Milliseconds();
 		int interval = now - bucket->lastTime;
 		int expired = interval / period;
@@ -327,15 +330,15 @@ qboolean SVC_RateLimit( leakyBucket_t *bucket, int burst, int period ) {
 		if ( bucket->burst < burst ) {
 			bucket->burst++;
 
-			return qfalse;
+			return false;
 		}
 	}
 
-	return qtrue;
+	return true;
 }
 
 // Rate limit for a particular address
-qboolean SVC_RateLimitAddress( netadr_t from, int burst, int period ) {
+bool SVC_RateLimitAddress( netadr_t from, int burst, int period ) {
 	leakyBucket_t *bucket = SVC_BucketForAddress( from, burst, period );
 
 	return SVC_RateLimit( bucket, burst, period );
@@ -490,7 +493,7 @@ void SV_FlushRedirect( char *outputbuf ) {
 // Shift down the remaining args
 // Redirect all printfs
 void SVC_RemoteCommand( netadr_t from, msg_t *msg ) {
-	qboolean	valid;
+	bool	valid;
 	char		remaining[1024];
 	// TTimo - scaled down to accumulate, but not overflow anything network wise, print wise etc.
 	// (OOB messages are the bottleneck here)
@@ -517,10 +520,10 @@ void SVC_RemoteCommand( netadr_t from, msg_t *msg ) {
 			return;
 		}
 
-		valid = qfalse;
+		valid = false;
 		Com_Printf ("Bad rcon from %s: %s\n", NET_AdrToString (from), Cmd_ArgsFrom(2) );
 	} else {
-		valid = qtrue;
+		valid = true;
 		Com_Printf ("Rcon from %s: %s\n", NET_AdrToString (from), Cmd_ArgsFrom(2) );
 	}
 
@@ -744,13 +747,13 @@ void SV_CheckTimeouts( void ) {
 	}
 }
 
-qboolean SV_CheckPaused( void ) {
+bool SV_CheckPaused( void ) {
 	int		count;
 	client_t	*cl;
 	int		i;
 
 	if ( !cl_paused->integer ) {
-		return qfalse;
+		return false;
 	}
 
 	// only pause if there is just a single client connected
@@ -765,19 +768,19 @@ qboolean SV_CheckPaused( void ) {
 		// don't pause
 		if (sv_paused->integer)
 			Cvar_Set("sv_paused", "0");
-		return qfalse;
+		return false;
 	}
 
 	if (!sv_paused->integer)
 		Cvar_Set("sv_paused", "1");
-	return qtrue;
+	return true;
 }
 
 void SV_CheckCvars( void ) {
 	static int lastModHostname = -1, lastModFramerate = -1, lastModSnapsMin = -1, lastModSnapsMax = -1;
 	static int lastModSnapsPolicy = -1, lastModRatePolicy = -1, lastModClientRate = -1;
 	static int lastModMaxRate = -1, lastModMinRate = -1;
-	qboolean changed = qfalse;
+	bool changed = false;
 
 	if ( sv_hostname->modificationCount != lastModHostname ) {
 		char hostname[MAX_INFO_STRING];
@@ -790,7 +793,7 @@ void SV_CheckCvars( void ) {
 			if ( (*c == '\\') || (*c == ';') || (*c == '"'))
 			{
 				*c = '.';
-				changed = qtrue;
+				changed = true;
 			}
 			c++;
 		}
@@ -814,7 +817,7 @@ void SV_CheckCvars( void ) {
 		if (sv_ratePolicy->integer == 1)
 		{
 			// NOTE: what if server sets some dumb sv_clientRate value?
-			client_t *cl = NULL;
+			client_t *cl = nullptr;
 			int i = 0;
 
 			for (i = 0, cl = svs.clients; i < sv_maxclients->integer; i++, cl++) {
@@ -834,7 +837,7 @@ void SV_CheckCvars( void ) {
 		else if (sv_ratePolicy->integer == 2)
 		{
 			// NOTE: what if server sets some dumb sv_clientRate value?
-			client_t *cl = NULL;
+			client_t *cl = nullptr;
 			int i = 0;
 
 			for (i = 0, cl = svs.clients; i < sv_maxclients->integer; i++, cl++) {
@@ -871,7 +874,7 @@ void SV_CheckCvars( void ) {
 
 		if (sv_snapsPolicy->integer == 1)
 		{
-			client_t *cl = NULL;
+			client_t *cl = nullptr;
 			int i = 0;
 
 			for (i = 0, cl = svs.clients; i < sv_maxclients->integer; i++, cl++) {
@@ -885,7 +888,7 @@ void SV_CheckCvars( void ) {
 		}
 		else if (sv_snapsPolicy->integer == 2)
 		{
-			client_t *cl = NULL;
+			client_t *cl = nullptr;
 			int i = 0;
 			int minSnaps = Com_Clampi(1, sv_snapsMax->integer, sv_snapsMin->integer); // between 1 and sv_snapsMax ( 1 <-> 40 )
 			int maxSnaps = Q_min(sv_fps->integer, sv_snapsMax->integer); // can't produce more than sv_fps snapshots/sec, but can send less than sv_fps snapshots/sec

@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -52,7 +53,7 @@ static const char *UI_GetScreenshotFormatString( int format )
 
 static void UI_UpdateScreenshot( void )
 {
-	qboolean changed = qfalse;
+	bool changed = false;
 	// check some things
 	if ( ui_screenshotType.string[0] && isalpha( ui_screenshotType.string[0] ) )
 	{
@@ -61,7 +62,7 @@ static void UI_UpdateScreenshot( void )
 		{
 			trap->Print( "UI Screenshot Format Type '%s' unrecognised, defaulting to JPEG\n", ui_screenshotType.string );
 			uiInfo.uiDC.screenshotFormat = SSF_JPEG;
-			changed = qtrue;
+			changed = true;
 		}
 		else
 			uiInfo.uiDC.screenshotFormat = ssf;
@@ -70,11 +71,11 @@ static void UI_UpdateScreenshot( void )
 	{
 		trap->Print( "ui_screenshotType %i is out of range, defaulting to 0 (JPEG)\n", ui_screenshotType.integer );
 		uiInfo.uiDC.screenshotFormat = SSF_JPEG;
-		changed = qtrue;
+		changed = true;
 	}
 	else {
 		uiInfo.uiDC.screenshotFormat = atoi( ui_screenshotType.string );
-		changed = qtrue;
+		changed = true;
 	}
 
 	if ( changed ) {
@@ -106,7 +107,7 @@ static const size_t uiCvarTableSize = ARRAY_LEN( uiCvarTable );
 
 void UI_RegisterCvars( void ) {
 	size_t i = 0;
-	const cvarTable_t *cv = NULL;
+	const cvarTable_t *cv = nullptr;
 
 	for ( i=0, cv=uiCvarTable; i<uiCvarTableSize; i++, cv++ ) {
 		trap->Cvar_Register( cv->vmCvar, cv->cvarName, cv->defaultString, cv->cvarFlags );
@@ -117,7 +118,7 @@ void UI_RegisterCvars( void ) {
 
 void UI_UpdateCvars( void ) {
 	size_t i = 0;
-	const cvarTable_t *cv = NULL;
+	const cvarTable_t *cv = nullptr;
 
 	for ( i=0, cv=uiCvarTable; i<uiCvarTableSize; i++, cv++ ) {
 		if ( cv->vmCvar ) {

@@ -2,7 +2,8 @@
 ===========================================================================
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -44,7 +45,7 @@ void CG_RegisterWeapon( int weaponNum) {
 	}
 
 	memset( weaponInfo, 0, sizeof( *weaponInfo ) );
-	weaponInfo->registered = qtrue;
+	weaponInfo->registered = true;
 
 	for ( item = bg_itemlist + 1 ; item->classname ; item++ ) {
 		if ( item->giType == IT_WEAPON && item->giTag == weaponNum ) {

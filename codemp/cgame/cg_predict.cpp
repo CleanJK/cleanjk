@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -36,23 +37,23 @@ static	int			cg_numTriggerEntities;
 static	centity_t	*cg_triggerEntities[MAX_ENTITIES_IN_SNAPSHOT];
 
 //is this client piloting this veh?
-static QINLINE qboolean CG_Piloting(int vehNum)
+static QINLINE bool CG_Piloting(int vehNum)
 {
 	centity_t *veh;
 
 	if (!vehNum)
 	{
-		return qfalse;
+		return false;
 	}
 
 	veh = &cg_entities[vehNum];
 
 	if (veh->currentState.owner != cg.predictedPlayerState.clientNum)
 	{ //the owner should be the current pilot
-		return qfalse;
+		return false;
 	}
 
-	return qtrue;
+	return true;
 }
 
 // When a new cg.snap has been set, this function builds a sublist of the entities that are actually solid, to make for
@@ -140,7 +141,7 @@ void CG_BuildSolidList( void ) {
 		if (cent->currentState.eType == ET_TERRAIN ||
 			((difference[0]*difference[0]) + (difference[1]*difference[1]) + (difference[2]*difference[2])) <= dsquared)
 		{
-			cent->currentValid = qtrue;
+			cent->currentValid = true;
 			if ( cent->nextState.solid )
 			{
 				cg_solidEntities[cg_numSolidEntities] = cent;
@@ -149,13 +150,13 @@ void CG_BuildSolidList( void ) {
 		}
 		else
 		{
-			cent->currentValid = qfalse;
+			cent->currentValid = false;
 		}
 	}
 }
 
 static void CG_ClipMoveToEntities ( const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end,
-							int skipNumber, int mask, trace_t *tr, qboolean g2Check ) {
+							int skipNumber, int mask, trace_t *tr, bool g2Check ) {
 	int			i, x, zd, zu;
 	trace_t		trace, oldTrace;
 	entityState_t	*ent;
@@ -212,7 +213,7 @@ static void CG_ClipMoveToEntities ( const vec3_t start, const vec3_t mins, const
 			trace.entityNum = ent->number;
 			*tr = trace;
 		} else if (trace.startsolid) {
-			tr->startsolid = qtrue;
+			tr->startsolid = true;
 
 			//rww 12-02-02
 			tr->entityNum = trace.entityNum = ent->number;
@@ -245,7 +246,7 @@ void	CG_Trace( trace_t *result, const vec3_t start, const vec3_t mins, const vec
 	trap->CM_Trace ( &t, start, end, mins, maxs, 0, mask, 0);
 	t.entityNum = t.fraction != 1.0 ? ENTITYNUM_WORLD : ENTITYNUM_NONE;
 	// check all other solid models
-	CG_ClipMoveToEntities (start, mins, maxs, end, skipNumber, mask, &t, qfalse);
+	CG_ClipMoveToEntities (start, mins, maxs, end, skipNumber, mask, &t, false);
 
 	*result = t;
 }
@@ -257,7 +258,7 @@ void	CG_G2Trace( trace_t *result, const vec3_t start, const vec3_t mins, const v
 	trap->CM_Trace ( &t, start, end, mins, maxs, 0, mask, 0);
 	t.entityNum = t.fraction != 1.0 ? ENTITYNUM_WORLD : ENTITYNUM_NONE;
 	// check all other solid models
-	CG_ClipMoveToEntities (start, mins, maxs, end, skipNumber, mask, &t, qtrue);
+	CG_ClipMoveToEntities (start, mins, maxs, end, skipNumber, mask, &t, true);
 
 	*result = t;
 }
@@ -296,7 +297,7 @@ int		CG_PointContents( const vec3_t point, int passEntityNum ) {
 }
 
 // Generates cg.predictedPlayerState by interpolating between cg.snap->ps and cg.nextFrame->ps
-static void CG_InterpolatePlayerState( qboolean grabAngles ) {
+static void CG_InterpolatePlayerState( bool grabAngles ) {
 	float			f;
 	int				i;
 	playerState_t	*out;
@@ -473,7 +474,7 @@ static void CG_TouchTriggerPrediction( void ) {
 	entityState_t	*ent;
 	clipHandle_t cmodel;
 	centity_t	*cent;
-	qboolean	spectator;
+	bool	spectator;
 
 	// dead clients don't activate triggers
 	if ( cg.predictedPlayerState.stats[STAT_HEALTH] <= 0 ) {
@@ -511,7 +512,7 @@ static void CG_TouchTriggerPrediction( void ) {
 		}
 
 		if ( ent->eType == ET_TELEPORT_TRIGGER ) {
-			cg.hyperspace = qtrue;
+			cg.hyperspace = true;
 		} else if ( ent->eType == ET_PUSH_TRIGGER ) {
 			BG_TouchJumpPad( &cg.predictedPlayerState, ent );
 		}
@@ -554,19 +555,19 @@ void CG_PmoveClientPointerUpdate()
 	cg_pmove.baseEnt = (bgEntity_t *)cg_entities;
 	cg_pmove.entSize = sizeof(centity_t);
 
-	cg_pmove.ghoul2 = NULL;
+	cg_pmove.ghoul2 = nullptr;
 }
 
 //check if local client is on an eweb
-qboolean CG_UsingEWeb(void)
+bool CG_UsingEWeb(void)
 {
 	if (cg.predictedPlayerState.weapon == WP_EMPLACED_GUN && cg.predictedPlayerState.emplacedIndex &&
 		cg_entities[cg.predictedPlayerState.emplacedIndex].currentState.weapon == WP_NONE)
 	{
-		return qtrue;
+		return true;
 	}
 
-	return qfalse;
+	return false;
 }
 
 // Generates cg.predictedPlayerState for the current cg.time
@@ -583,31 +584,31 @@ qboolean CG_UsingEWeb(void)
 void CG_PredictPlayerState( void ) {
 	int			cmdNum, current, i;
 	playerState_t	oldPlayerState;
-	qboolean	moved;
+	bool	moved;
 	usercmd_t	oldestCmd;
 	usercmd_t	latestCmd;
 	centity_t *pEnt;
 	clientInfo_t *ci;
 
-	cg.hyperspace = qfalse;	// will be set if touching a trigger_teleport
+	cg.hyperspace = false;	// will be set if touching a trigger_teleport
 
 	// if this is the first frame we must guarantee
 	// predictedPlayerState is valid even if there is some
 	// other error condition
 	if ( !cg.validPPS ) {
-		cg.validPPS = qtrue;
+		cg.validPPS = true;
 		cg.predictedPlayerState = cg.snap->ps;
 	}
 
 	// demo playback just copies the moves
 	if ( cg.demoPlayback || (cg.snap->ps.pm_flags & PMF_FOLLOW) ) {
-		CG_InterpolatePlayerState( qfalse );
+		CG_InterpolatePlayerState( false );
 		return;
 	}
 
 	// non-predicting local movement will grab the latest angles
 	if ( cg_noPredict.integer || g_synchronousClients.integer || CG_UsingEWeb() ) {
-		CG_InterpolatePlayerState( qtrue );
+		CG_InterpolatePlayerState( true );
 		return;
 	}
 
@@ -631,7 +632,7 @@ void CG_PredictPlayerState( void ) {
 		}
 		else
 		{
-			cg_pmove.ghoul2 = NULL;
+			cg_pmove.ghoul2 = nullptr;
 		}
 	}
 
@@ -720,7 +721,7 @@ void CG_PredictPlayerState( void ) {
 	}
 
 	// run cmds
-	moved = qfalse;
+	moved = false;
 	for ( cmdNum = current - CMD_BACKUP + 1 ; cmdNum <= current ; cmdNum++ ) {
 		// get the command
 		trap->GetUserCmd( cmdNum, &cg_pmove.cmd );
@@ -755,7 +756,7 @@ void CG_PredictPlayerState( void ) {
 				if ( cg_showMiss.integer ) {
 					trap->Print( "PredictionTeleport\n" );
 				}
-				cg.thisFrameTeleport = qfalse;
+				cg.thisFrameTeleport = false;
 			} else {
 				vec3_t	adjusted;
 				CG_AdjustPositionForMover( cg.predictedPlayerState.origin, cg.predictedPlayerState.groundEntityNum, cg.physicsTime, cg.oldTime, adjusted );
@@ -840,7 +841,7 @@ void CG_PredictPlayerState( void ) {
 
 		Pmove (&cg_pmove);
 
-		moved = qtrue;
+		moved = true;
 
 		// add push trigger movement effects
 		CG_TouchTriggerPrediction();

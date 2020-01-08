@@ -2,7 +2,8 @@
 ===========================================================================
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -37,7 +38,7 @@ void FX_BlasterProjectileThink( centity_t *cent, const struct weaponInfo_s *weap
 		forward[2] = 1.0f;
 	}
 
-	trap->FX_PlayEffectID( media.efx.null, cent->lerpOrigin, forward, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, cent->lerpOrigin, forward, -1, -1, false );
 }
 
 void FX_BlasterAltFireThink( centity_t *cent, const struct weaponInfo_s *weapon ) {
@@ -47,15 +48,15 @@ void FX_BlasterAltFireThink( centity_t *cent, const struct weaponInfo_s *weapon 
 		forward[2] = 1.0f;
 	}
 
-	trap->FX_PlayEffectID( media.efx.null, cent->lerpOrigin, forward, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, cent->lerpOrigin, forward, -1, -1, false );
 }
 
 void FX_BlasterWeaponHitWall( vec3_t origin, vec3_t normal ) {
-	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, false );
 }
 
-void FX_BlasterWeaponHitPlayer( vec3_t origin, vec3_t normal, qboolean humanoid ) {
-	trap->FX_PlayEffectID( humanoid ? media.efx.null : media.efx.null, origin, normal, -1, -1, qfalse );
+void FX_BlasterWeaponHitPlayer( vec3_t origin, vec3_t normal, bool humanoid ) {
+	trap->FX_PlayEffectID( humanoid ? media.efx.null : media.efx.null, origin, normal, -1, -1, false );
 }
 
 void FX_BowcasterProjectileThink( centity_t *cent, const struct weaponInfo_s *weapon ) {
@@ -65,15 +66,15 @@ void FX_BowcasterProjectileThink( centity_t *cent, const struct weaponInfo_s *we
 		forward[2] = 1.0f;
 	}
 
-	trap->FX_PlayEffectID( media.efx.null, cent->lerpOrigin, forward, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, cent->lerpOrigin, forward, -1, -1, false );
 }
 
 void FX_BowcasterHitWall( vec3_t origin, vec3_t normal ) {
-	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, false );
 }
 
-void FX_BowcasterHitPlayer( vec3_t origin, vec3_t normal, qboolean humanoid ) {
-	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, qfalse );
+void FX_BowcasterHitPlayer( vec3_t origin, vec3_t normal, bool humanoid ) {
+	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, false );
 }
 
 void FX_BowcasterAltProjectileThink( centity_t *cent, const struct weaponInfo_s *weapon ) {
@@ -83,7 +84,7 @@ void FX_BowcasterAltProjectileThink( centity_t *cent, const struct weaponInfo_s 
 		forward[2] = 1.0f;
 	}
 
-	trap->FX_PlayEffectID( media.efx.null, cent->lerpOrigin, forward, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, cent->lerpOrigin, forward, -1, -1, false );
 }
 
 void FX_BryarProjectileThink( centity_t *cent, const struct weaponInfo_s *weapon ) {
@@ -93,15 +94,15 @@ void FX_BryarProjectileThink( centity_t *cent, const struct weaponInfo_s *weapon
 		forward[2] = 1.0f;
 	}
 
-	trap->FX_PlayEffectID( media.efx.null, cent->lerpOrigin, forward, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, cent->lerpOrigin, forward, -1, -1, false );
 }
 
 void FX_BryarHitWall( vec3_t origin, vec3_t normal ) {
-	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, false );
 }
 
-void FX_BryarHitPlayer( vec3_t origin, vec3_t normal, qboolean humanoid ) {
-	trap->FX_PlayEffectID( humanoid ? media.efx.null : media.efx.null, origin, normal, -1, -1, qfalse );
+void FX_BryarHitPlayer( vec3_t origin, vec3_t normal, bool humanoid ) {
+	trap->FX_PlayEffectID( humanoid ? media.efx.null : media.efx.null, origin, normal, -1, -1, false );
 }
 
 void FX_BryarAltProjectileThink(  centity_t *cent, const struct weaponInfo_s *weapon ) {
@@ -115,10 +116,10 @@ void FX_BryarAltProjectileThink(  centity_t *cent, const struct weaponInfo_s *we
 	// see if we have some sort of extra charge going on
 	for ( t=1; t<cent->currentState.generic1; t++ ) {
 		// just add ourselves over, and over, and over when we are charged
-		trap->FX_PlayEffectID( media.efx.null, cent->lerpOrigin, forward, -1, -1, qfalse );
+		trap->FX_PlayEffectID( media.efx.null, cent->lerpOrigin, forward, -1, -1, false );
 	}
 
-	trap->FX_PlayEffectID( media.efx.null, cent->lerpOrigin, forward, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, cent->lerpOrigin, forward, -1, -1, false );
 }
 
 void FX_BryarAltHitWall( vec3_t origin, vec3_t normal, int power ) {
@@ -126,23 +127,23 @@ void FX_BryarAltHitWall( vec3_t origin, vec3_t normal, int power ) {
 
 	case 4:
 	case 5: {
-		trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, qfalse );
+		trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, false );
 	} break;
 
 	case 2:
 	case 3: {
-		trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, qfalse );
+		trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, false );
 	} break;
 
 	default: {
-		trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, qfalse );
+		trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, false );
 	} break;
 
 	}
 }
 
-void FX_BryarAltHitPlayer( vec3_t origin, vec3_t normal, qboolean humanoid ) {
-	trap->FX_PlayEffectID( humanoid ? media.efx.null : media.efx.null, origin, normal, -1, -1, qfalse );
+void FX_BryarAltHitPlayer( vec3_t origin, vec3_t normal, bool humanoid ) {
+	trap->FX_PlayEffectID( humanoid ? media.efx.null : media.efx.null, origin, normal, -1, -1, false );
 }
 
 void FX_TurretProjectileThink(  centity_t *cent, const struct weaponInfo_s *weapon ) {
@@ -152,23 +153,23 @@ void FX_TurretProjectileThink(  centity_t *cent, const struct weaponInfo_s *weap
 		forward[2] = 1.0f;
 	}
 
-	trap->FX_PlayEffectID( media.efx.null, cent->lerpOrigin, forward, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, cent->lerpOrigin, forward, -1, -1, false );
 }
 
 void FX_TurretHitWall( vec3_t origin, vec3_t normal ) {
-	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, false );
 }
 
-void FX_TurretHitPlayer( vec3_t origin, vec3_t normal, qboolean humanoid ) {
-	trap->FX_PlayEffectID( humanoid ? media.efx.null : media.efx.null, origin, normal, -1, -1, qfalse );
+void FX_TurretHitPlayer( vec3_t origin, vec3_t normal, bool humanoid ) {
+	trap->FX_PlayEffectID( humanoid ? media.efx.null : media.efx.null, origin, normal, -1, -1, false );
 }
 
 void FX_ConcussionHitWall( vec3_t origin, vec3_t normal ) {
-	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, false );
 }
 
-void FX_ConcussionHitPlayer( vec3_t origin, vec3_t normal, qboolean humanoid ) {
-	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, qfalse );
+void FX_ConcussionHitPlayer( vec3_t origin, vec3_t normal, bool humanoid ) {
+	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, false );
 }
 
 void FX_ConcussionProjectileThink(  centity_t *cent, const struct weaponInfo_s *weapon ) {
@@ -178,7 +179,7 @@ void FX_ConcussionProjectileThink(  centity_t *cent, const struct weaponInfo_s *
 		forward[2] = 1.0f;
 	}
 
-	trap->FX_PlayEffectID( media.efx.null, cent->lerpOrigin, forward, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, cent->lerpOrigin, forward, -1, -1, false );
 }
 
 void FX_ConcAltShot( vec3_t start, vec3_t end ) {
@@ -200,18 +201,18 @@ void FX_DEMP2_ProjectileThink( centity_t *cent, const struct weaponInfo_s *weapo
 		forward[2] = 1.0f;
 	}
 
-	trap->FX_PlayEffectID( media.efx.null, cent->lerpOrigin, forward, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, cent->lerpOrigin, forward, -1, -1, false );
 }
 
 void FX_DEMP2_HitWall( vec3_t origin, vec3_t normal ) {
-	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, false );
 }
 
-void FX_DEMP2_HitPlayer( vec3_t origin, vec3_t normal, qboolean humanoid ) {
-	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, qfalse );
+void FX_DEMP2_HitPlayer( vec3_t origin, vec3_t normal, bool humanoid ) {
+	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, false );
 }
 
-void FX_DEMP2_AltBeam( vec3_t start, vec3_t end, vec3_t normal, /*qboolean spark,*/ vec3_t targ1, vec3_t targ2 ) {
+void FX_DEMP2_AltBeam( vec3_t start, vec3_t end, vec3_t normal, /*bool spark,*/ vec3_t targ1, vec3_t targ2 ) {
 	// ...
 }
 
@@ -250,7 +251,7 @@ void FX_DisruptorMainShot( vec3_t start, vec3_t end ) {
 	//trap->FX_AddCylinder( start, dir, 5.0f, 5.0f, 0.0f, 5.0f, 5.0f, 0.0f, len, len, 0.0f, 1.0f, 1.0f, 0.0f, WHITE, WHITE, 0.0f, 400, spiralShader, 0 );
 }
 
-void FX_DisruptorAltShot( vec3_t start, vec3_t end, qboolean fullCharge ) {
+void FX_DisruptorAltShot( vec3_t start, vec3_t end, bool fullCharge ) {
 	//CJKFIXME: don't register at runtime
 	const qhandle_t redLineShader = media.gfx.null /*"gfx/effects/redLine"*/;
 	const qhandle_t whiteLineShader = media.gfx.null /*"gfx/misc/whiteline2"*/;
@@ -300,19 +301,19 @@ void FX_DisruptorAltMiss( vec3_t origin, vec3_t normal ) {
 
 	trap->FX_AddBezier( &b );
 
-	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, false );
 }
 
 void FX_DisruptorAltHit( vec3_t origin, vec3_t normal ) {
-	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, false );
 }
 
 void FX_DisruptorHitWall( vec3_t origin, vec3_t normal ) {
-	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, false );
 }
 
-void FX_DisruptorHitPlayer( vec3_t origin, vec3_t normal, qboolean humanoid ) {
-	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, qfalse );
+void FX_DisruptorHitPlayer( vec3_t origin, vec3_t normal, bool humanoid ) {
+	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, false );
 }
 
 void FX_FlechetteProjectileThink( centity_t *cent, const struct weaponInfo_s *weapon ) {
@@ -322,15 +323,15 @@ void FX_FlechetteProjectileThink( centity_t *cent, const struct weaponInfo_s *we
 		forward[2] = 1.0f;
 	}
 
-	trap->FX_PlayEffectID( media.efx.null, cent->lerpOrigin, forward, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, cent->lerpOrigin, forward, -1, -1, false );
 }
 
 void FX_FlechetteWeaponHitWall( vec3_t origin, vec3_t normal ) {
-	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, false );
 }
 
-void FX_FlechetteWeaponHitPlayer( vec3_t origin, vec3_t normal, qboolean humanoid ) {
-	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, qfalse );
+void FX_FlechetteWeaponHitPlayer( vec3_t origin, vec3_t normal, bool humanoid ) {
+	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, false );
 }
 
 void FX_FlechetteAltProjectileThink( centity_t *cent, const struct weaponInfo_s *weapon ) {
@@ -340,13 +341,13 @@ void FX_FlechetteAltProjectileThink( centity_t *cent, const struct weaponInfo_s 
 		forward[2] = 1.0f;
 	}
 
-	trap->FX_PlayEffectID( media.efx.null, cent->lerpOrigin, forward, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, cent->lerpOrigin, forward, -1, -1, false );
 }
 
 // This effect is not generic because of possible enhancements
 void FX_ForceDrained( vec3_t origin, vec3_t dir ) {
 	VectorScale( dir, -1.0, dir );
-	trap->FX_PlayEffectID( media.efx.null, origin, dir, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, origin, dir, -1, -1, false );
 }
 
 void FX_RepeaterProjectileThink( centity_t *cent, const struct weaponInfo_s *weapon ) {
@@ -356,15 +357,15 @@ void FX_RepeaterProjectileThink( centity_t *cent, const struct weaponInfo_s *wea
 		forward[2] = 1.0f;
 	}
 
-	trap->FX_PlayEffectID( media.efx.null, cent->lerpOrigin, forward, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, cent->lerpOrigin, forward, -1, -1, false );
 }
 
 void FX_RepeaterHitWall( vec3_t origin, vec3_t normal ) {
-	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, false );
 }
 
-void FX_RepeaterHitPlayer( vec3_t origin, vec3_t normal, qboolean humanoid ) {
-	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, qfalse );
+void FX_RepeaterHitPlayer( vec3_t origin, vec3_t normal, bool humanoid ) {
+	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, false );
 }
 
 static void CG_DistortionOrb( centity_t *cent ) {
@@ -434,15 +435,15 @@ void FX_RepeaterAltProjectileThink( centity_t *cent, const struct weaponInfo_s *
 	if ( cg_repeaterOrb.integer ) {
 		CG_DistortionOrb( cent );
 	}
-	trap->FX_PlayEffectID( media.efx.null, cent->lerpOrigin, forward, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, cent->lerpOrigin, forward, -1, -1, false );
 }
 
 void FX_RepeaterAltHitWall( vec3_t origin, vec3_t normal ) {
-	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, false );
 }
 
-void FX_RepeaterAltHitPlayer( vec3_t origin, vec3_t normal, qboolean humanoid ) {
-	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, qfalse );
+void FX_RepeaterAltHitPlayer( vec3_t origin, vec3_t normal, bool humanoid ) {
+	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, false );
 }
 
 void FX_RocketProjectileThink( centity_t *cent, const struct weaponInfo_s *weapon ) {
@@ -452,15 +453,15 @@ void FX_RocketProjectileThink( centity_t *cent, const struct weaponInfo_s *weapo
 		forward[2] = 1.0f;
 	}
 
-	trap->FX_PlayEffectID( media.efx.null, cent->lerpOrigin, forward, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, cent->lerpOrigin, forward, -1, -1, false );
 }
 
 void FX_RocketHitWall( vec3_t origin, vec3_t normal ) {
-	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, false );
 }
 
-void FX_RocketHitPlayer( vec3_t origin, vec3_t normal, qboolean humanoid ) {
-	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, qfalse );
+void FX_RocketHitPlayer( vec3_t origin, vec3_t normal, bool humanoid ) {
+	trap->FX_PlayEffectID( media.efx.null, origin, normal, -1, -1, false );
 }
 
 void FX_RocketAltProjectileThink( centity_t *cent, const struct weaponInfo_s *weapon ) {
@@ -470,5 +471,5 @@ void FX_RocketAltProjectileThink( centity_t *cent, const struct weaponInfo_s *we
 		forward[2] = 1.0f;
 	}
 
-	trap->FX_PlayEffectID( media.efx.null, cent->lerpOrigin, forward, -1, -1, qfalse );
+	trap->FX_PlayEffectID( media.efx.null, cent->lerpOrigin, forward, -1, -1, false );
 }

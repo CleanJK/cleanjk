@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -37,11 +38,11 @@ clipHandle_t SV_ClipHandleForEntity( const sharedEntity_t *ent ) {
 	}
 	if ( ent->r.svFlags & SVF_CAPSULE ) {
 		// create a temp capsule from bounding box sizes
-		return CM_TempBoxModel( ent->r.mins, ent->r.maxs, qtrue );
+		return CM_TempBoxModel( ent->r.mins, ent->r.maxs, true );
 	}
 
 	// create a temp tree from bounding box sizes
-	return CM_TempBoxModel( ent->r.mins, ent->r.maxs, qfalse );
+	return CM_TempBoxModel( ent->r.mins, ent->r.maxs, false );
 }
 
 // ENTITY CHECKING
@@ -90,7 +91,7 @@ worldSector_t *SV_CreateworldSector( int depth, vec3_t mins, vec3_t maxs ) {
 
 	if (depth == AREA_DEPTH) {
 		anode->axis = -1;
-		anode->children[0] = anode->children[1] = NULL;
+		anode->children[0] = anode->children[1] = nullptr;
 		return anode;
 	}
 
@@ -115,6 +116,7 @@ worldSector_t *SV_CreateworldSector( int depth, vec3_t mins, vec3_t maxs ) {
 	return anode;
 }
 
+// called after the world model has been loaded, before linking any entities
 void SV_ClearWorld( void ) {
 	clipHandle_t	h;
 	vec3_t			mins, maxs;
@@ -128,6 +130,8 @@ void SV_ClearWorld( void ) {
 	SV_CreateworldSector( 0, mins, maxs );
 }
 
+// call before removing an entity, and before trying to move one,
+// so it doesn't clip against itself
 void SV_UnlinkEntity( sharedEntity_t *gEnt ) {
 	svEntity_t		*ent;
 	svEntity_t		*scan;
@@ -135,13 +139,13 @@ void SV_UnlinkEntity( sharedEntity_t *gEnt ) {
 
 	ent = SV_SvEntityForGentity( gEnt );
 
-	gEnt->r.linked = qfalse;
+	gEnt->r.linked = false;
 
 	ws = ent->worldSector;
 	if ( !ws ) {
 		return;		// not linked in anywhere
 	}
-	ent->worldSector = NULL;
+	ent->worldSector = nullptr;
 
 	if ( ws->entities == ent ) {
 		ws->entities = ent->nextEntityInWorldSector;
@@ -158,6 +162,11 @@ void SV_UnlinkEntity( sharedEntity_t *gEnt ) {
 	Com_Printf( "WARNING: SV_UnlinkEntity: not found in worldSector\n" );
 }
 
+// Needs to be called any time an entity changes origin, mins, maxs,
+// or solid.  Automatically unlinks if needed.
+// sets ent->v.absmin and ent->v.absmax
+// sets ent->leafnums[] for pvs determination even if the entity
+// is not solid
 #define MAX_TOTAL_ENT_LEAFS		128
 void SV_LinkEntity( sharedEntity_t *gEnt ) {
 	worldSector_t	*node;
@@ -315,7 +324,7 @@ void SV_LinkEntity( sharedEntity_t *gEnt ) {
 	ent->nextEntityInWorldSector = node->entities;
 	node->entities = ent;
 
-	gEnt->r.linked = qtrue;
+	gEnt->r.linked = true;
 }
 
 // AREA QUERY
@@ -369,6 +378,12 @@ void SV_AreaEntities_r( worldSector_t *node, areaParms_t *ap ) {
 	}
 }
 
+// fills in a table of entity numbers with entities that have bounding boxes
+// that intersect the given area.  It is possible for a non-axial bmodel
+// to be returned that doesn't actually intersect the area on an exact
+// test.
+// returns the number of pointers filled in
+// The world entity is never returned in this list.
 int SV_AreaEntities( const vec3_t mins, const vec3_t maxs, int *entityList, int maxcount ) {
 	areaParms_t		ap;
 
@@ -400,6 +415,7 @@ typedef struct moveclip_s {
 	trace_t		trace;			// make sure nothing goes under here for Ghoul2 collision purposes
 } moveclip_t;
 
+// clip to a specific entity
 void SV_ClipToEntity( trace_t *trace, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int entityNum, int contentmask, int capsule ) {
 	sharedEntity_t	*touch;
 	clipHandle_t	clipHandle;
@@ -541,10 +557,10 @@ static void SV_ClipMoveToEntities( moveclip_t *clip ) {
 		}
 
 		if ( trace.allsolid ) {
-			clip->trace.allsolid = qtrue;
+			clip->trace.allsolid = true;
 			trace.entityNum = touch->s.number;
 		} else if ( trace.startsolid ) {
-			clip->trace.startsolid = qtrue;
+			clip->trace.startsolid = true;
 			trace.entityNum = touch->s.number;
 
 			//rww - added this because we want to get the number of an ent even if our trace starts inside it.
@@ -559,7 +575,7 @@ static void SV_ClipMoveToEntities( moveclip_t *clip ) {
 
 			trace.entityNum = touch->s.number;
 			clip->trace = trace;
-			clip->trace.startsolid = (qboolean)((unsigned)clip->trace.startsolid | (unsigned)oldStart);
+			clip->trace.startsolid = (bool)((unsigned)clip->trace.startsolid | (unsigned)oldStart);
 		}
 
 		//rww - since this is multiplayer and we don't have the luxury of violating networking rules in horrible ways,
@@ -652,6 +668,13 @@ static void SV_ClipMoveToEntities( moveclip_t *clip ) {
 
 // Moves the given mins/maxs volume through the world from start to end.
 // passEntityNum and entities owned by passEntityNum are explicitly not checked.
+// mins and maxs are relative
+//
+// if the entire move stays in a solid volume, trace.allsolid will be set,
+// trace.startsolid will be set, and trace.fraction will be 0
+// if the starting point is in a solid, it will be allowed to move out
+// to an open area
+// passEntityNum is explicitly excluded from clipping checks (normally ENTITYNUM_NONE)
 void SV_Trace( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int passEntityNum, int contentmask, int capsule, int traceFlags, int useLod ) {
 	moveclip_t	clip;
 	int			i;
@@ -704,6 +727,7 @@ void SV_Trace( trace_t *results, const vec3_t start, const vec3_t mins, const ve
 	*results = clip.trace;
 }
 
+// returns the CONTENTS_* value from the world and all entities at the given point.
 int SV_PointContents( const vec3_t p, int passEntityNum ) {
 	int			touch[MAX_GENTITIES];
 	sharedEntity_t *hit;

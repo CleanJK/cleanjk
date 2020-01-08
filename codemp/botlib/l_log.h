@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -21,21 +22,16 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-// log file
-
 #pragma once
 
-//open a log file
-void Log_Open(char *filename);
-//close the current log file
+// ======================================================================
+// FUNCTION
+// ======================================================================
+
+FILE* Log_FilePointer(void);
 void Log_Close(void);
-//close log file if present
-void Log_Shutdown(void);
-//write to the current opened log file
-void QDECL Log_Write(char *fmt, ...);
-//write to the current opened log file with a time stamp
-void QDECL Log_WriteTimeStamped(char *fmt, ...);
-//returns a pointer to the log file
-FILE *Log_FilePointer(void);
-//flush log file
 void Log_Flush(void);
+void Log_Open(char* filename);
+void Log_Shutdown(void);
+void QDECL Log_Write(char* fmt, ...);
+void QDECL Log_WriteTimeStamped(char* fmt, ...);

@@ -2,7 +2,8 @@
 ===========================================================================
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -22,6 +23,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
+// ======================================================================
+// ENUM
+// ======================================================================
+
 enum
 {
 	VTYPE_NONE = 0,
@@ -32,24 +37,36 @@ enum
 
 #if !defined( _GAME ) && !defined( _CGAME ) && !defined( UI_BUILD )
 
+// ======================================================================
+// DEFINE
+// ======================================================================
+
 #define	MAX_VARIABLES	32
 
-typedef std::map < std::string, std::string >		varString_m;
-typedef std::map < std::string, float >		varFloat_m;
+using varString_m = std::map<std::string, std::string>;
+using varFloat_m = std::map<std::string, float>;
 
-extern	varString_m	varStrings;
-extern	varFloat_m	varFloats;
-extern	varString_m	varVectors;
+// ======================================================================
+// EXTERN VARIABLE
+// ======================================================================
 
-void Q3_InitVariables    ( void );
-void Q3_DeclareVariable  ( int type, const char *name );
-void Q3_FreeVariable     ( const char *name );
-int  Q3_GetStringVariable( const char *name, const char **value );
-int  Q3_GetFloatVariable ( const char *name, float *value );
-int  Q3_GetVectorVariable( const char *name, vec3_t value );
-int  Q3_VariableDeclared ( const char *name );
-int  Q3_SetFloatVariable ( const char *name, float value );
-int  Q3_SetStringVariable( const char *name, const char *value );
-int  Q3_SetVectorVariable( const char *name, const char *value );
+extern varFloat_m varFloats;
+extern varString_m varStrings;
+extern varString_m varVectors;
 
-#endif //__cplusplus
+// ======================================================================
+// FUNCTION
+// ======================================================================
+
+int Q3_GetFloatVariable(const char* name, float* value);
+int Q3_GetStringVariable(const char* name, const char** value);
+int Q3_GetVectorVariable(const char* name, vec3_t value);
+int Q3_SetFloatVariable(const char* name, float value);
+int Q3_SetStringVariable(const char* name, const char* value);
+int Q3_SetVectorVariable(const char* name, const char* value);
+int Q3_VariableDeclared(const char* name);
+void Q3_DeclareVariable(int type, const char* name);
+void Q3_FreeVariable(const char* name);
+void Q3_InitVariables(void);
+
+#endif !defined( _GAME ) && !defined( _CGAME ) && !defined( UI_BUILD )

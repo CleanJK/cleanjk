@@ -2,7 +2,8 @@
 ===========================================================================
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -62,7 +63,7 @@ surfaceInfo_t *G2_FindOverrideSurface(int surfaceNum, surfaceInfo_v &surfaceList
 		}
 	}
 	// didn't find it.
-	return NULL;
+	return nullptr;
 }
 
 // given a surface name, lets see if it's legal in the model
@@ -93,7 +94,7 @@ int G2_IsSurfaceLegal(void *mod, const char *surfaceName, int *flags)
 //	surfIndex	out: index of requested surface (-1 if not found)
 // returns pointer to surface if successful, false otherwise
 mdxmSurface_t *G2_FindSurface(CGhoul2Info *ghlInfo, surfaceInfo_v &slist, const char *surfaceName,
-							 int *surfIndex/*NULL*/)
+							 int *surfIndex/*nullptr*/)
 {
 	int						i = 0;
 	// find the model we want
@@ -142,7 +143,7 @@ mdxmSurface_t *G2_FindSurface(CGhoul2Info *ghlInfo, surfaceInfo_v &slist, const 
 }
 
 // set a named surface offFlags - if it doesn't find a surface with this name in the list then it will add one.
-qboolean G2_SetSurfaceOnOff (CGhoul2Info *ghlInfo, surfaceInfo_v &slist, const char *surfaceName, const int offFlags)
+bool G2_SetSurfaceOnOff (CGhoul2Info *ghlInfo, surfaceInfo_v &slist, const char *surfaceName, const int offFlags)
 {
 	int					surfIndex = -1;
 	surfaceInfo_t		temp_slist_entry;
@@ -154,7 +155,7 @@ qboolean G2_SetSurfaceOnOff (CGhoul2Info *ghlInfo, surfaceInfo_v &slist, const c
 	if (!mod->mdxm)
 	{
 		assert(0);
-		return qfalse;
+		return false;
 	}
 
  	// first find if we already have this surface in the list
@@ -168,7 +169,7 @@ qboolean G2_SetSurfaceOnOff (CGhoul2Info *ghlInfo, surfaceInfo_v &slist, const c
 		// the only bit we really care about in the incoming flags is the off bit
 		slist[surfIndex].offFlags &= ~(G2SURFACEFLAG_OFF | G2SURFACEFLAG_NODESCENDANTS);
 		slist[surfIndex].offFlags |= offFlags & (G2SURFACEFLAG_OFF | G2SURFACEFLAG_NODESCENDANTS);
-		return qtrue;
+		return true;
 	}
 	else
 	{
@@ -189,10 +190,10 @@ qboolean G2_SetSurfaceOnOff (CGhoul2Info *ghlInfo, surfaceInfo_v &slist, const c
 
 				slist.push_back(temp_slist_entry);
 			}
-			return qtrue;
+			return true;
 		}
 	}
-	return qfalse;
+	return false;
 }
 
 void G2_SetSurfaceOnOffFromSkin (CGhoul2Info *ghlInfo, qhandle_t renderSkin)
@@ -329,7 +330,7 @@ void G2_RemoveRedundantGeneratedSurfaces(surfaceInfo_v &slist, int *activeSurfac
 	}
 }
 
-qboolean G2_SetRootSurface(CGhoul2Info_v &ghoul2, const int modelIndex, const char *surfaceName)
+bool G2_SetRootSurface(CGhoul2Info_v &ghoul2, const int modelIndex, const char *surfaceName)
 {
 	int					surf;
 	int					flags;
@@ -343,7 +344,7 @@ qboolean G2_SetRootSurface(CGhoul2Info_v &ghoul2, const int modelIndex, const ch
 	// did we find a ghoul 2 model or not?
 	if (!mod_m->mdxm)
 	{
-		return qfalse;
+		return false;
 	}
 
 	// first find if we already have this surface in the list
@@ -353,7 +354,7 @@ qboolean G2_SetRootSurface(CGhoul2Info_v &ghoul2, const int modelIndex, const ch
 		// first see if this ghoul2 model already has this as a root surface
 		if (ghoul2[modelIndex].mSurfaceRoot == surf)
 		{
-			return qtrue;
+			return true;
 		}
 
 		// set the root surface
@@ -363,9 +364,9 @@ qboolean G2_SetRootSurface(CGhoul2Info_v &ghoul2, const int modelIndex, const ch
 		// firstly, generate a list of active / on surfaces below the root point
 
 		// gimme some space to put this list into
-		activeSurfaces = (int *)Z_Malloc(mod_m->mdxm->numSurfaces * 4, TAG_GHOUL2, qtrue);
+		activeSurfaces = (int *)Z_Malloc(mod_m->mdxm->numSurfaces * 4, TAG_GHOUL2, true);
 		memset(activeSurfaces, 0, (mod_m->mdxm->numSurfaces * 4));
-		activeBones = (int *)Z_Malloc(mod_a->mdxa->numBones * 4, TAG_GHOUL2, qtrue);
+		activeBones = (int *)Z_Malloc(mod_a->mdxa->numBones * 4, TAG_GHOUL2, true);
 		memset(activeBones, 0, (mod_a->mdxa->numBones * 4));
 
 		G2_FindRecursiveSurface(mod_m, surf, ghoul2[modelIndex].mSlist, activeSurfaces);
@@ -412,7 +413,7 @@ qboolean G2_SetRootSurface(CGhoul2Info_v &ghoul2, const int modelIndex, const ch
 		Z_Free(activeSurfaces);
 		Z_Free(activeBones);
 
-		return (qtrue);
+		return (true);
 	}
 /*
 //g2r	if (entstate->ghoul2)
@@ -427,7 +428,7 @@ qboolean G2_SetRootSurface(CGhoul2Info_v &ghoul2, const int modelIndex, const ch
 		// did we find a ghoul 2 model or not?
 		if (!mod_m->mdxm)
 		{
-			return qfalse;
+			return false;
 		}
 
  		// first find if we already have this surface in the list
@@ -437,7 +438,7 @@ qboolean G2_SetRootSurface(CGhoul2Info_v &ghoul2, const int modelIndex, const ch
 			// first see if this ghoul2 model already has this as a root surface
 			if (ghoul2[modelIndex].mSurfaceRoot == surf)
 			{
-				return qtrue;
+				return true;
 			}
 
 			// set the root surface
@@ -447,9 +448,9 @@ qboolean G2_SetRootSurface(CGhoul2Info_v &ghoul2, const int modelIndex, const ch
 			// firstly, generate a list of active / on surfaces below the root point
 
 			// gimme some space to put this list into
-			activeSurfaces = (int *)Z_Malloc(mod_m->mdxm->numSurfaces * 4, TAG_GHOUL2, qtrue);
+			activeSurfaces = (int *)Z_Malloc(mod_m->mdxm->numSurfaces * 4, TAG_GHOUL2, true);
 			memset(activeSurfaces, 0, (mod_m->mdxm->numSurfaces * 4));
-			activeBones = (int *)Z_Malloc(mod_a->mdxa->numBones * 4, TAG_GHOUL2, qtrue);
+			activeBones = (int *)Z_Malloc(mod_a->mdxa->numBones * 4, TAG_GHOUL2, true);
 			memset(activeBones, 0, (mod_a->mdxa->numBones * 4));
 
 			G2_FindRecursiveSurface(mod_m, surf, ghoul2[modelIndex].mSlist, activeSurfaces);
@@ -494,11 +495,11 @@ qboolean G2_SetRootSurface(CGhoul2Info_v &ghoul2, const int modelIndex, const ch
 			Z_Free(activeSurfaces);
 			Z_Free(activeBones);
 
-			return (qtrue);
+			return (true);
 		}
 	}
 	assert(0);*/
-	return qfalse;
+	return false;
 }
 
 int G2_AddSurface(CGhoul2Info *ghoul2, int surfaceNumber, int polyNumber, float BarycentricI, float BarycentricJ, int lod )
@@ -539,7 +540,7 @@ int G2_AddSurface(CGhoul2Info *ghoul2, int surfaceNumber, int polyNumber, float 
 	return (ghoul2->mSlist.size() -1 );
 }
 
-qboolean G2_RemoveSurface(surfaceInfo_v &slist, const int index)
+bool G2_RemoveSurface(surfaceInfo_v &slist, const int index)
 {
 		// did we find it?
 	if (index != -1)
@@ -568,13 +569,13 @@ qboolean G2_RemoveSurface(surfaceInfo_v &slist, const int index)
 			slist.resize(newSize);
 		}
 
-		return qtrue;
+		return true;
 	}
 
 	assert(0);
 
 	// no
-	return qfalse;
+	return false;
 }
 
 int G2_GetParentSurface(CGhoul2Info *ghlInfo, const int index)

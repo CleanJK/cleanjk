@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -33,7 +34,7 @@ void R_PerformanceCounters( void ) {
 	}
 
 	if (r_speeds->integer == 1) {
-		const float texSize = R_SumOfUsedImages( qfalse )/(8*1048576.0f)*(r_texturebits->integer?r_texturebits->integer:glConfig.colorBits);
+		const float texSize = R_SumOfUsedImages( false )/(8*1048576.0f)*(r_texturebits->integer?r_texturebits->integer:glConfig.colorBits);
 		ri.Printf( PRINT_ALL,  "%i/%i shdrs/srfs %i leafs %i vrts %i/%i tris %.2fMB tex %.2f dc\n",
 			backEnd.pc.c_shaders, backEnd.pc.c_surfaces, tr.pc.c_leafs, backEnd.pc.c_vertexes,
 			backEnd.pc.c_indexes/3, backEnd.pc.c_totalIndexes/3,
@@ -64,7 +65,7 @@ void R_PerformanceCounters( void ) {
 			backEnd.pc.c_flareAdds, backEnd.pc.c_flareTests, backEnd.pc.c_flareRenders );
 	}
 	else if (r_speeds->integer == 7) {
-		const float texSize = R_SumOfUsedImages(qtrue) / (1048576.0f);
+		const float texSize = R_SumOfUsedImages(true) / (1048576.0f);
 		const float backBuff= glConfig.vidWidth * glConfig.vidHeight * glConfig.colorBits / (8.0f * 1024*1024);
 		const float depthBuff= glConfig.vidWidth * glConfig.vidHeight * glConfig.depthBits / (8.0f * 1024*1024);
 		const float stencilBuff= glConfig.vidWidth * glConfig.vidHeight * glConfig.stencilBits / (8.0f * 1024*1024);
@@ -76,7 +77,7 @@ void R_PerformanceCounters( void ) {
 	memset( &backEnd.pc, 0, sizeof( backEnd.pc ) );
 }
 
-void R_IssueRenderCommands( qboolean runPerformanceCounters ) {
+void R_IssueRenderCommands( bool runPerformanceCounters ) {
 	renderCommandList_t	*cmdList;
 
 	cmdList = &backEndData->commands;
@@ -106,7 +107,7 @@ void R_IssuePendingRenderCommands( void ) {
 	if ( !tr.registered ) {
 		return;
 	}
-	R_IssueRenderCommands( qfalse );
+	R_IssueRenderCommands( false );
 }
 
 // make sure there is enough command space
@@ -124,7 +125,7 @@ void *R_GetCommandBuffer( int bytes ) {
 			Com_Error( ERR_FATAL, "R_GetCommandBuffer: bad size %i", bytes );
 		}
 		// if we run out of room, just start dropping commands
-		return NULL;
+		return nullptr;
 	}
 
 	cmdList->used += bytes;
@@ -148,7 +149,7 @@ void	R_AddDrawSurfCmd( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	cmd->viewParms = tr.viewParms;
 }
 
-// Passing NULL will set the color to white
+// Passing nullptr will set the color to white
 void	RE_SetColor( const float *rgba ) {
 	setColorCommand_t	*cmd;
 
@@ -264,7 +265,7 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 	if ( !tr.registered ) {
 		return;
 	}
-	glState.finishCalled = qfalse;
+	glState.finishCalled = false;
 
 	tr.frameCount++;
 	tr.frameSceneNum = 0;
@@ -277,13 +278,13 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 		{
 			ri.Printf( PRINT_ALL, "Warning: not enough stencil bits to measure overdraw: %d\n", glConfig.stencilBits );
 			ri.Cvar_Set( "r_measureOverdraw", "0" );
-			r_measureOverdraw->modified = qfalse;
+			r_measureOverdraw->modified = false;
 		}
 		else if ( cg_shadows->integer == 2 )
 		{
 			ri.Printf( PRINT_ALL, "Warning: stencil shadows and overdraw measurement are mutually exclusive\n" );
 			ri.Cvar_Set( "r_measureOverdraw", "0" );
-			r_measureOverdraw->modified = qfalse;
+			r_measureOverdraw->modified = false;
 		}
 		else
 		{
@@ -294,7 +295,7 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 			qglStencilFunc( GL_ALWAYS, 0U, ~0U );
 			qglStencilOp( GL_KEEP, GL_INCR, GL_INCR );
 		}
-		r_measureOverdraw->modified = qfalse;
+		r_measureOverdraw->modified = false;
 	}
 	else
 	{
@@ -303,7 +304,7 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 			R_IssuePendingRenderCommands();
 			qglDisable( GL_STENCIL_TEST );
 		}
-		r_measureOverdraw->modified = qfalse;
+		r_measureOverdraw->modified = false;
 	}
 
 	// texturemode stuff
@@ -311,14 +312,14 @@ void RE_BeginFrame( stereoFrame_t stereoFrame ) {
 	if ( r_textureMode->modified || r_ext_texture_filter_anisotropic->modified) {
 		R_IssuePendingRenderCommands();
 		GL_TextureMode( r_textureMode->string );
-		r_textureMode->modified = qfalse;
-		r_ext_texture_filter_anisotropic->modified = qfalse;
+		r_textureMode->modified = false;
+		r_ext_texture_filter_anisotropic->modified = false;
 	}
 
 	// gamma stuff
 
 	if ( r_gamma->modified ) {
-		r_gamma->modified = qfalse;
+		r_gamma->modified = false;
 
 		R_IssuePendingRenderCommands();
 		R_SetColorMappings();
@@ -377,7 +378,7 @@ void RE_EndFrame( int *frontEndMsec, int *backEndMsec ) {
 	}
 	cmd->commandId = RC_SWAP_BUFFERS;
 
-	R_IssueRenderCommands( qtrue );
+	R_IssueRenderCommands( true );
 
 	// use the other buffers next frame, because another CPU
 	// may still be rendering into the current ones
@@ -393,7 +394,7 @@ void RE_EndFrame( int *frontEndMsec, int *backEndMsec ) {
 	backEnd.pc.msec = 0;
 }
 
-void RE_TakeVideoFrame( int width, int height, byte *captureBuffer, byte *encodeBuffer, qboolean motionJpeg )
+void RE_TakeVideoFrame( int width, int height, byte *captureBuffer, byte *encodeBuffer, bool motionJpeg )
 {
 	videoFrameCommand_t *cmd;
 

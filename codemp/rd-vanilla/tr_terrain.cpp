@@ -491,7 +491,7 @@ void CTRLandScape::LoadTerrainDef(const char *td)
 	Com_sprintf(terrainDef, MAX_QPATH, "ext_data/RMG/%s.terrain", td);
 	ri.Printf( PRINT_ALL, "R_Terrain: Loading and parsing terrainDef %s.....\n", td);
 
-	mWaterShader = NULL;
+	mWaterShader = nullptr;
 	mFlatShader  = NULL_HANDLE;
 
 	if(!Com_ParseTextFile(terrainDef, parse))
@@ -829,7 +829,7 @@ CTRLandScape::~CTRLandScape(void)
 	if(mTRPatches)
 	{
 		Z_Free(mTRPatches);
-		mTRPatches = NULL;
+		mTRPatches = nullptr;
 	}
 	if (mSortedPatches)
 	{
@@ -839,7 +839,7 @@ CTRLandScape::~CTRLandScape(void)
 	if(mRenderMap)
 	{
 		Z_Free(mRenderMap);
-		mRenderMap = NULL;
+		mRenderMap = nullptr;
 	}
 }
 
@@ -969,7 +969,7 @@ void R_AddTerrainSurfaces(void)
 	landscape = tr.landScape.landscape;
 	if(landscape)
 	{
-		R_AddDrawSurf( (surfaceType_t *)(&tr.landScape), landscape->GetShader(), 0, qfalse );
+		R_AddDrawSurf( (surfaceType_t *)(&tr.landScape), landscape->GetShader(), 0, false );
 		R_CalcTerrainVisBounds(landscape);
 	}
 }
@@ -980,7 +980,7 @@ void RE_InitRendererTerrain( const char *info )
 
 	if ( !info || !info[0] )
 	{
-		ri.Printf( PRINT_ALL, "RE_RegisterTerrain: NULL name\n" );
+		ri.Printf( PRINT_ALL, "RE_RegisterTerrain: nullptr name\n" );
 		return;
 	}
 
@@ -993,7 +993,7 @@ void RE_InitRendererTerrain( const char *info )
 void R_TerrainInit(void)
 {
 	tr.landScape.surfaceType = SF_TERRAIN;
-	tr.landScape.landscape = NULL;
+	tr.landScape.landscape = nullptr;
 
 	tr.distanceCull = 6000;
 	tr.distanceCullSquared = tr.distanceCull * tr.distanceCull;
@@ -1009,7 +1009,7 @@ void R_TerrainShutdown(void)
 	{
 		ri.CM_ShutdownTerrain(0);
 		delete ls;
-		tr.landScape.landscape = NULL;
+		tr.landScape.landscape = nullptr;
 	}
 }
 

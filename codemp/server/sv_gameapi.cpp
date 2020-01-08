@@ -1,6 +1,7 @@
 /*
 ===========================================================================
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -52,17 +53,17 @@ void GVM_ShutdownGame( int restart ) {
 	ge->ShutdownGame( restart );
 }
 
-char *GVM_ClientConnect( int clientNum, qboolean firstTime, qboolean isBot ) {
+char *GVM_ClientConnect( int clientNum, bool firstTime, bool isBot ) {
 	VMSwap v( gvm );
 	return ge->ClientConnect( clientNum, firstTime, isBot );
 }
 
 void GVM_ClientBegin( int clientNum ) {
 	VMSwap v( gvm );
-	ge->ClientBegin( clientNum, qtrue );
+	ge->ClientBegin( clientNum, true );
 }
 
-qboolean GVM_ClientUserinfoChanged( int clientNum ) {
+bool GVM_ClientUserinfoChanged( int clientNum ) {
 	VMSwap v( gvm );
 	return ge->ClientUserinfoChanged( clientNum );
 }
@@ -87,7 +88,7 @@ void GVM_RunFrame( int levelTime ) {
 	ge->RunFrame( levelTime );
 }
 
-qboolean GVM_ConsoleCommand( void ) {
+bool GVM_ConsoleCommand( void ) {
 	VMSwap v( gvm );
 	return ge->ConsoleCommand();
 }
@@ -112,7 +113,7 @@ int GVM_ICARUS_PlaySound( void ) {
 	return ge->ICARUS_PlaySound();
 }
 
-qboolean GVM_ICARUS_Set( void ) {
+bool GVM_ICARUS_Set( void ) {
 	VMSwap v( gvm );
 	return ge->ICARUS_Set();
 }
@@ -221,7 +222,7 @@ static void SV_GameDropClient( int clientNum, const char *reason ) {
 
 static void SV_GameSendServerCommand( int clientNum, const char *text ) {
 	if ( clientNum == -1 ) {
-		SV_SendServerCommand( NULL, "%s", text );
+		SV_SendServerCommand( nullptr, "%s", text );
 	} else {
 		if ( clientNum < 0 || clientNum >= sv_maxclients->integer ) {
 			return;
@@ -230,7 +231,7 @@ static void SV_GameSendServerCommand( int clientNum, const char *text ) {
 	}
 }
 
-static qboolean SV_EntityContact( const vec3_t mins, const vec3_t maxs, const sharedEntity_t *gEnt, int capsule ) {
+static bool SV_EntityContact( const vec3_t mins, const vec3_t maxs, const sharedEntity_t *gEnt, int capsule ) {
 	const float	*origin, *angles;
 	clipHandle_t	ch;
 	trace_t			trace;
@@ -243,7 +244,7 @@ static qboolean SV_EntityContact( const vec3_t mins, const vec3_t maxs, const sh
 	CM_TransformedBoxTrace ( &trace, vec3_origin, vec3_origin, mins, maxs,
 		ch, -1, origin, angles, capsule );
 
-	return (qboolean)trace.startsolid;
+	return (bool)trace.startsolid;
 }
 
 static void SV_SetBrushModel( sharedEntity_t *ent, const char *name ) {
@@ -252,7 +253,7 @@ static void SV_SetBrushModel( sharedEntity_t *ent, const char *name ) {
 
 	if (!name)
 	{
-		Com_Error( ERR_DROP, "SV_SetBrushModel: NULL" );
+		Com_Error( ERR_DROP, "SV_SetBrushModel: nullptr" );
 	}
 
 	if (name[0] == '*')
@@ -270,17 +271,17 @@ static void SV_SetBrushModel( sharedEntity_t *ent, const char *name ) {
 
 		VectorCopy (mins, ent->r.mins);
 		VectorCopy (maxs, ent->r.maxs);
-		ent->r.bmodel = qtrue;
+		ent->r.bmodel = true;
 		ent->r.contents = CM_ModelContents( h, -1 );
 	}
 	else if (name[0] == '#')
 	{
-		ent->s.modelindex = CM_LoadSubBSP(va("maps/%s.bsp", name + 1), qfalse);
+		ent->s.modelindex = CM_LoadSubBSP(va("maps/%s.bsp", name + 1), false);
 		CM_ModelBounds( ent->s.modelindex, mins, maxs );
 
 		VectorCopy (mins, ent->r.mins);
 		VectorCopy (maxs, ent->r.maxs);
-		ent->r.bmodel = qtrue;
+		ent->r.bmodel = true;
 
 		//rwwNOTE: We don't ever want to set contents -1, it includes CONTENTS_LIGHTSABER.
 		//Lots of stuff will explode if there's a brush with CONTENTS_LIGHTSABER that isn't attached to a client owner.
@@ -294,7 +295,7 @@ static void SV_SetBrushModel( sharedEntity_t *ent, const char *name ) {
 	}
 }
 
-static qboolean SV_inPVSIgnorePortals( const vec3_t p1, const vec3_t p2 ) {
+static bool SV_inPVSIgnorePortals( const vec3_t p1, const vec3_t p2 ) {
 	int		leafnum, cluster;
 //	int		area1, area2;
 	byte	*mask;
@@ -309,9 +310,9 @@ static qboolean SV_inPVSIgnorePortals( const vec3_t p1, const vec3_t p2 ) {
 //	area2 = CM_LeafArea( leafnum );
 
 	if ( mask && (!(mask[cluster>>3] & (1<<(cluster&7)) ) ) )
-		return qfalse;
+		return false;
 
-	return qtrue;
+	return true;
 }
 
 static void SV_GetServerinfo( char *buffer, int bufferSize ) {
@@ -322,7 +323,7 @@ static void SV_GetServerinfo( char *buffer, int bufferSize ) {
 	Q_strncpyz( buffer, Cvar_InfoString( CVAR_SERVERINFO ), bufferSize );
 }
 
-static void SV_AdjustAreaPortalState( sharedEntity_t *ent, qboolean open ) {
+static void SV_AdjustAreaPortalState( sharedEntity_t *ent, bool open ) {
 	svEntity_t	*svEnt;
 
 	svEnt = SV_SvEntityForGentity( ent );
@@ -349,27 +350,27 @@ static const char *SV_SetActiveSubBSP( int index ) {
 	}
 
 	sv.mLocalSubBSPIndex = -1;
-	return NULL;
+	return nullptr;
 }
 
-static qboolean SV_GetEntityToken( char *buffer, int bufferSize ) {
+static bool SV_GetEntityToken( char *buffer, int bufferSize ) {
 	char *s;
 
 	if ( sv.mLocalSubBSPIndex == -1 ) {
 		s = COM_Parse( (const char **)&sv.entityParsePoint );
 		Q_strncpyz( buffer, s, bufferSize );
 		if ( !sv.entityParsePoint && !s[0] )
-			return qfalse;
+			return false;
 		else
-			return qtrue;
+			return true;
 	}
 	else {
 		s = COM_Parse( (const char **)&sv.mLocalSubBSPEntityParsePoint);
 		Q_strncpyz( buffer, s, bufferSize );
 		if ( !sv.mLocalSubBSPEntityParsePoint && !s[0] )
-			return qfalse;
+			return false;
 		else
-			return qtrue;
+			return true;
 	}
 }
 
@@ -395,56 +396,56 @@ static void SV_SetServerCull( float cullDistance ) {
 	g_svCullDist = cullDistance;
 }
 
-qboolean SV_ROFF_Clean( void ) {
-	return theROFFSystem.Clean( qfalse );
+bool SV_ROFF_Clean( void ) {
+	return theROFFSystem.Clean( false );
 }
 
 void SV_ROFF_UpdateEntities( void ) {
-	theROFFSystem.UpdateEntities( qfalse );
+	theROFFSystem.UpdateEntities( false );
 }
 
 int SV_ROFF_Cache( char *file ) {
-	return theROFFSystem.Cache( file, qfalse );
+	return theROFFSystem.Cache( file, false );
 }
 
-qboolean SV_ROFF_Play( int entID, int roffID, qboolean doTranslation ) {
-	return theROFFSystem.Play( entID, roffID, doTranslation, qfalse );
+bool SV_ROFF_Play( int entID, int roffID, bool doTranslation ) {
+	return theROFFSystem.Play( entID, roffID, doTranslation, false );
 }
 
-qboolean SV_ROFF_Purge_Ent( int entID ) {
-	return theROFFSystem.PurgeEnt( entID, qfalse );
+bool SV_ROFF_Purge_Ent( int entID ) {
+	return theROFFSystem.PurgeEnt( entID, false );
 }
 
-static qboolean SV_ICARUS_RegisterScript( const char *name, qboolean bCalledDuringInterrogate ) {
-	return (qboolean)ICARUS_RegisterScript( name, bCalledDuringInterrogate );
+static bool SV_ICARUS_RegisterScript( const char *name, bool bCalledDuringInterrogate ) {
+	return (bool)ICARUS_RegisterScript( name, bCalledDuringInterrogate );
 }
 
-static qboolean SV_ICARUS_ValidEnt( sharedEntity_t *ent ) {
-	return (qboolean)ICARUS_ValidEnt( ent );
+static bool SV_ICARUS_ValidEnt( sharedEntity_t *ent ) {
+	return (bool)ICARUS_ValidEnt( ent );
 }
 
-static qboolean ICARUS_IsInitialized( int entID ) {
+static bool ICARUS_IsInitialized( int entID ) {
 	if ( !gSequencers[entID] || !gTaskManagers[entID] )
-		return qfalse;
+		return false;
 
-	return qtrue;
+	return true;
 }
 
-static qboolean ICARUS_MaintainTaskManager( int entID ) {
+static bool ICARUS_MaintainTaskManager( int entID ) {
 	if ( gTaskManagers[entID] ) {
 		gTaskManagers[entID]->Update();
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
-static qboolean ICARUS_IsRunning( int entID ) {
+static bool ICARUS_IsRunning( int entID ) {
 	if ( !gTaskManagers[entID] || !gTaskManagers[entID]->IsRunning() )
-		return qfalse;
-	return qtrue;
+		return false;
+	return true;
 }
 
-static qboolean ICARUS_TaskIDPending( sharedEntity_t *ent, int taskID ) {
+static bool ICARUS_TaskIDPending( sharedEntity_t *ent, int taskID ) {
 	return Q3_TaskIDPending( ent, (taskID_t)taskID );
 }
 
@@ -651,26 +652,26 @@ static void SV_G2API_SetGhoul2ModelIndexes( void *ghoul2, qhandle_t *modelList, 
 	re->G2API_SetGhoul2ModelIndexes( *((CGhoul2Info_v *)ghoul2), modelList, skinList );
 }
 
-static qboolean SV_G2API_HaveWeGhoul2Models( void *ghoul2) {
-	if ( !ghoul2 ) return qfalse;
+static bool SV_G2API_HaveWeGhoul2Models( void *ghoul2) {
+	if ( !ghoul2 ) return false;
 	return re->G2API_HaveWeGhoul2Models( *((CGhoul2Info_v *)ghoul2) );
 }
 
-static qboolean SV_G2API_GetBoltMatrix( void *ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix, const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, vec3_t scale ) {
-	if ( !ghoul2 ) return qfalse;
+static bool SV_G2API_GetBoltMatrix( void *ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix, const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, vec3_t scale ) {
+	if ( !ghoul2 ) return false;
 	return re->G2API_GetBoltMatrix( *((CGhoul2Info_v *)ghoul2), modelIndex, boltIndex, matrix, angles, position, frameNum, modelList, scale );
 }
 
-static qboolean SV_G2API_GetBoltMatrix_NoReconstruct( void *ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix, const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, vec3_t scale ) {
-	if ( !ghoul2 ) return qfalse;
-	re->G2API_BoltMatrixReconstruction( qfalse );
+static bool SV_G2API_GetBoltMatrix_NoReconstruct( void *ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix, const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, vec3_t scale ) {
+	if ( !ghoul2 ) return false;
+	re->G2API_BoltMatrixReconstruction( false );
 	return re->G2API_GetBoltMatrix( *((CGhoul2Info_v *)ghoul2), modelIndex, boltIndex, matrix, angles, position, frameNum, modelList, scale );
 }
 
-static qboolean SV_G2API_GetBoltMatrix_NoRecNoRot( void *ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix, const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, vec3_t scale ) {
-	if ( !ghoul2 ) return qfalse;
-	re->G2API_BoltMatrixReconstruction( qfalse );
-	re->G2API_BoltMatrixSPMethod( qtrue );
+static bool SV_G2API_GetBoltMatrix_NoRecNoRot( void *ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix, const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, vec3_t scale ) {
+	if ( !ghoul2 ) return false;
+	re->G2API_BoltMatrixReconstruction( false );
+	re->G2API_BoltMatrixSPMethod( true );
 	return re->G2API_GetBoltMatrix( *((CGhoul2Info_v *)ghoul2), modelIndex, boltIndex, matrix, angles, position, frameNum, modelList, scale );
 }
 
@@ -681,8 +682,8 @@ static int SV_G2API_InitGhoul2Model( void **ghoul2Ptr, const char *fileName, int
 	return re->G2API_InitGhoul2Model( (CGhoul2Info_v **)ghoul2Ptr, fileName, modelIndex, customSkin, customShader, modelFlags, lodBias );
 }
 
-static qboolean SV_G2API_SetSkin( void *ghoul2, int modelIndex, qhandle_t customSkin, qhandle_t renderSkin ) {
-	if ( !ghoul2 ) return qfalse;
+static bool SV_G2API_SetSkin( void *ghoul2, int modelIndex, qhandle_t customSkin, qhandle_t renderSkin ) {
+	if ( !ghoul2 ) return false;
 	CGhoul2Info_v &g2 = *((CGhoul2Info_v *)ghoul2);
 	return re->G2API_SetSkin( g2, modelIndex, customSkin, renderSkin );
 }
@@ -704,18 +705,18 @@ static void SV_G2API_CleanGhoul2Models( void **ghoul2Ptr ) {
 	re->G2API_CleanGhoul2Models( (CGhoul2Info_v **)ghoul2Ptr );
 }
 
-static qboolean SV_G2API_SetBoneAngles( void *ghoul2, int modelIndex, const char *boneName, const vec3_t angles, const int flags, const int up, const int right, const int forward, qhandle_t *modelList, int blendTime , int currentTime ) {
-	if ( !ghoul2 ) return qfalse;
+static bool SV_G2API_SetBoneAngles( void *ghoul2, int modelIndex, const char *boneName, const vec3_t angles, const int flags, const int up, const int right, const int forward, qhandle_t *modelList, int blendTime , int currentTime ) {
+	if ( !ghoul2 ) return false;
 	return re->G2API_SetBoneAngles( *((CGhoul2Info_v *)ghoul2), modelIndex, boneName, angles, flags, (const Eorientations)up, (const Eorientations)right, (const Eorientations)forward, modelList, blendTime , currentTime );
 }
 
-static qboolean SV_G2API_SetBoneAnim( void *ghoul2, const int modelIndex, const char *boneName, const int startFrame, const int endFrame, const int flags, const float animSpeed, const int currentTime, const float setFrame, const int blendTime ) {
-	if ( !ghoul2 ) return qfalse;
+static bool SV_G2API_SetBoneAnim( void *ghoul2, const int modelIndex, const char *boneName, const int startFrame, const int endFrame, const int flags, const float animSpeed, const int currentTime, const float setFrame, const int blendTime ) {
+	if ( !ghoul2 ) return false;
 	return re->G2API_SetBoneAnim( *((CGhoul2Info_v *)ghoul2), modelIndex, boneName, startFrame, endFrame, flags, animSpeed, currentTime, setFrame, blendTime );
 }
 
-static qboolean SV_G2API_GetBoneAnim( void *ghoul2, const char *boneName, const int currentTime, float *currentFrame, int *startFrame, int *endFrame, int *flags, float *animSpeed, int *modelList, const int modelIndex ) {
-	if ( !ghoul2 ) return qfalse;
+static bool SV_G2API_GetBoneAnim( void *ghoul2, const char *boneName, const int currentTime, float *currentFrame, int *startFrame, int *endFrame, int *flags, float *animSpeed, int *modelList, const int modelIndex ) {
+	if ( !ghoul2 ) return false;
 	CGhoul2Info_v &g2 = *((CGhoul2Info_v *)ghoul2);
 	return re->G2API_GetBoneAnim( g2, modelIndex, boneName, currentTime, currentFrame, startFrame, endFrame, flags, animSpeed, modelList );
 }
@@ -752,18 +753,18 @@ static void SV_G2API_DuplicateGhoul2Instance( void *g2From, void **g2To ) {
 	re->G2API_DuplicateGhoul2Instance( *((CGhoul2Info_v *)g2From), (CGhoul2Info_v **)g2To );
 }
 
-static qboolean SV_G2API_HasGhoul2ModelOnIndex( void *ghlInfo, int modelIndex ) {
+static bool SV_G2API_HasGhoul2ModelOnIndex( void *ghlInfo, int modelIndex ) {
 	return re->G2API_HasGhoul2ModelOnIndex( (CGhoul2Info_v **)ghlInfo, modelIndex );
 }
 
-static qboolean SV_G2API_RemoveGhoul2Model( void *ghlInfo, int modelIndex ) {
+static bool SV_G2API_RemoveGhoul2Model( void *ghlInfo, int modelIndex ) {
 #ifdef _FULL_G2_LEAK_CHECKING
 		g_G2AllocServer = 1;
 #endif
 	return re->G2API_RemoveGhoul2Model( (CGhoul2Info_v **)ghlInfo, modelIndex );
 }
 
-static qboolean SV_G2API_RemoveGhoul2Models( void *ghlInfo ) {
+static bool SV_G2API_RemoveGhoul2Models( void *ghlInfo ) {
 #ifdef _FULL_G2_LEAK_CHECKING
 	g_G2AllocServer = 1;
 #endif
@@ -785,23 +786,23 @@ static void SV_G2API_SetBoltInfo( void *ghoul2, int modelIndex, int boltInfo ) {
 	re->G2API_SetBoltInfo( *((CGhoul2Info_v *)ghoul2), modelIndex, boltInfo );
 }
 
-static qboolean SV_G2API_SetRootSurface( void *ghoul2, const int modelIndex, const char *surfaceName ) {
-	if ( !ghoul2 ) return qfalse;
+static bool SV_G2API_SetRootSurface( void *ghoul2, const int modelIndex, const char *surfaceName ) {
+	if ( !ghoul2 ) return false;
 	return re->G2API_SetRootSurface( *((CGhoul2Info_v *)ghoul2), modelIndex, surfaceName );
 }
 
-static qboolean SV_G2API_SetSurfaceOnOff( void *ghoul2, const char *surfaceName, const int flags ) {
-	if ( !ghoul2 ) return qfalse;
+static bool SV_G2API_SetSurfaceOnOff( void *ghoul2, const char *surfaceName, const int flags ) {
+	if ( !ghoul2 ) return false;
 	return re->G2API_SetSurfaceOnOff( *((CGhoul2Info_v *)ghoul2), surfaceName, flags );
 }
 
-static qboolean SV_G2API_SetNewOrigin( void *ghoul2, const int boltIndex ) {
-	if ( !ghoul2 ) return qfalse;
+static bool SV_G2API_SetNewOrigin( void *ghoul2, const int boltIndex ) {
+	if ( !ghoul2 ) return false;
 	return re->G2API_SetNewOrigin( *((CGhoul2Info_v *)ghoul2), boltIndex );
 }
 
-static qboolean SV_G2API_DoesBoneExist( void *ghoul2, int modelIndex, const char *boneName ) {
-	if ( !ghoul2 ) return qfalse;
+static bool SV_G2API_DoesBoneExist( void *ghoul2, int modelIndex, const char *boneName ) {
+	if ( !ghoul2 ) return false;
 	CGhoul2Info_v &g2 = *((CGhoul2Info_v *)ghoul2);
 	return re->G2API_DoesBoneExist( g2, modelIndex, boneName );
 }
@@ -812,7 +813,7 @@ static int SV_G2API_GetSurfaceRenderStatus( void *ghoul2, const int modelIndex, 
 	return re->G2API_GetSurfaceRenderStatus( g2, modelIndex, surfaceName );
 }
 
-static void SV_G2API_AbsurdSmoothing( void *ghoul2, qboolean status ) {
+static void SV_G2API_AbsurdSmoothing( void *ghoul2, bool status ) {
 	if ( !ghoul2 ) return;
 	CGhoul2Info_v &g2 = *((CGhoul2Info_v *)ghoul2);
 	re->G2API_AbsurdSmoothing( g2, status );
@@ -867,44 +868,44 @@ static void SV_G2API_AnimateG2Models( void *ghoul2, int time, sharedRagDollUpdat
 	re->G2API_AnimateG2ModelsRag( *((CGhoul2Info_v *)ghoul2), time, &rduParams );
 }
 
-static qboolean SV_G2API_RagPCJConstraint( void *ghoul2, const char *boneName, vec3_t min, vec3_t max ) {
+static bool SV_G2API_RagPCJConstraint( void *ghoul2, const char *boneName, vec3_t min, vec3_t max ) {
 	return re->G2API_RagPCJConstraint( *((CGhoul2Info_v *)ghoul2), boneName, min, max );
 }
 
-static qboolean SV_G2API_RagPCJGradientSpeed( void *ghoul2, const char *boneName, const float speed ) {
+static bool SV_G2API_RagPCJGradientSpeed( void *ghoul2, const char *boneName, const float speed ) {
 	return re->G2API_RagPCJGradientSpeed( *((CGhoul2Info_v *)ghoul2), boneName, speed );
 }
 
-static qboolean SV_G2API_RagEffectorGoal( void *ghoul2, const char *boneName, vec3_t pos ) {
+static bool SV_G2API_RagEffectorGoal( void *ghoul2, const char *boneName, vec3_t pos ) {
 	return re->G2API_RagEffectorGoal( *((CGhoul2Info_v *)ghoul2), boneName, pos );
 }
 
-static qboolean SV_G2API_GetRagBonePos( void *ghoul2, const char *boneName, vec3_t pos, vec3_t entAngles, vec3_t entPos, vec3_t entScale ) {
+static bool SV_G2API_GetRagBonePos( void *ghoul2, const char *boneName, vec3_t pos, vec3_t entAngles, vec3_t entPos, vec3_t entScale ) {
 	return re->G2API_GetRagBonePos( *((CGhoul2Info_v *)ghoul2), boneName, pos, entAngles, entPos, entScale );
 }
 
-static qboolean SV_G2API_RagEffectorKick( void *ghoul2, const char *boneName, vec3_t velocity ) {
+static bool SV_G2API_RagEffectorKick( void *ghoul2, const char *boneName, vec3_t velocity ) {
 	return re->G2API_RagEffectorKick( *((CGhoul2Info_v *)ghoul2), boneName, velocity );
 }
 
-static qboolean SV_G2API_RagForceSolve( void *ghoul2, qboolean force ) {
+static bool SV_G2API_RagForceSolve( void *ghoul2, bool force ) {
 	return re->G2API_RagForceSolve( *((CGhoul2Info_v *)ghoul2), force );
 }
 
-static qboolean SV_G2API_SetBoneIKState( void *ghoul2, int time, const char *boneName, int ikState, sharedSetBoneIKStateParams_t *params ) {
+static bool SV_G2API_SetBoneIKState( void *ghoul2, int time, const char *boneName, int ikState, sharedSetBoneIKStateParams_t *params ) {
 	return re->G2API_SetBoneIKState( *((CGhoul2Info_v *)ghoul2), time, boneName, ikState, params );
 }
 
-static qboolean SV_G2API_IKMove( void *ghoul2, int time, sharedIKMoveParams_t *params ) {
+static bool SV_G2API_IKMove( void *ghoul2, int time, sharedIKMoveParams_t *params ) {
 	return re->G2API_IKMove( *((CGhoul2Info_v *)ghoul2), time, params );
 }
 
-static qboolean SV_G2API_RemoveBone( void *ghoul2, const char *boneName, int modelIndex ) {
+static bool SV_G2API_RemoveBone( void *ghoul2, const char *boneName, int modelIndex ) {
 	CGhoul2Info_v &g2 = *((CGhoul2Info_v *)ghoul2);
 	return re->G2API_RemoveBone( g2, modelIndex, boneName );
 }
 
-static void SV_G2API_AttachInstanceToEntNum( void *ghoul2, int entityNum, qboolean server ) {
+static void SV_G2API_AttachInstanceToEntNum( void *ghoul2, int entityNum, bool server ) {
 	re->G2API_AttachInstanceToEntNum( *((CGhoul2Info_v *)ghoul2), entityNum, server );
 }
 
@@ -916,7 +917,7 @@ static void SV_G2API_CleanEntAttachments( void ) {
 	re->G2API_CleanEntAttachments();
 }
 
-static qboolean SV_G2API_OverrideServer( void *serverInstance ) {
+static bool SV_G2API_OverrideServer( void *serverInstance ) {
 	CGhoul2Info_v &g2 = *((CGhoul2Info_v *)serverInstance);
 	return re->G2API_OverrideServerWithClientData( g2, 0 );
 }
@@ -931,14 +932,14 @@ static void GVM_Cvar_Set( const char *var_name, const char *value ) {
 	Cvar_VM_Set( var_name, value, VM_GAME );
 }
 
-void SV_InitGame( qboolean restart ) {
+void SV_InitGame( bool restart ) {
 	int i=0;
-	client_t *cl = NULL;
+	client_t *cl = nullptr;
 
 	// clear level pointers
 	sv.entityParsePoint = CM_EntityString();
 	for ( i=0, cl=svs.clients; i<sv_maxclients->integer; i++, cl++ )
-		cl->gentity = NULL;
+		cl->gentity = nullptr;
 
 	GVM_InitGame( sv.time, Com_Milliseconds(), restart );
 }
@@ -953,7 +954,7 @@ void SV_BindGame( void ) {
 
 	gvm = VM_Create( VM_GAME );
 	if ( !gvm ) {
-		svs.gameStarted = qfalse;
+		svs.gameStarted = false;
 		Com_Error( ERR_DROP, "VM_Create on game failed" );
 		return;
 	}
@@ -1134,7 +1135,7 @@ void SV_BindGame( void ) {
 	ret = GetGameAPI( GAME_API_VERSION, &gi );
 	if ( !ret ) {
 		//free VM?
-		svs.gameStarted = qfalse;
+		svs.gameStarted = false;
 		Com_Error( ERR_FATAL, "GetGameAPI failed on %s", dllName );
 		return;
 	}
@@ -1142,21 +1143,21 @@ void SV_BindGame( void ) {
 }
 
 void SV_UnbindGame( void ) {
-	GVM_ShutdownGame( qfalse );
+	GVM_ShutdownGame( false );
 	VM_Free( gvm );
-	gvm = NULL;
+	gvm = nullptr;
 }
 
 void SV_RestartGame( void ) {
-	GVM_ShutdownGame( qtrue );
+	GVM_ShutdownGame( true );
 
 	gvm = VM_Restart( gvm );
 	SV_BindGame();
 	if ( !gvm ) {
-		svs.gameStarted = qfalse;
+		svs.gameStarted = false;
 		Com_Error( ERR_DROP, "VM_Restart on game failed" );
 		return;
 	}
 
-	SV_InitGame( qtrue );
+	SV_InitGame( true );
 }

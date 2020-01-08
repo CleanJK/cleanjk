@@ -4,7 +4,8 @@ Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
 Copyright (C) 2005 - 2015, ioquake3 contributors
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -24,7 +25,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "game/g_local.h"
 #include "game/g_ICARUScb.h"
-#include "game/bg_saga.h"
 #include "game/b_local.h"
 #include "game/g_team.h"
 
@@ -41,7 +41,7 @@ int killPlayerTimer = 0;
 gentity_t		g_entities[MAX_GENTITIES];
 gclient_t		g_clients[MAX_CLIENTS];
 
-qboolean gDuelExit = qfalse;
+bool gDuelExit = false;
 
 extern stringID_table_t setTable[];
 
@@ -87,7 +87,7 @@ void G_FindTeams( void ) {
 				// make sure that targets only point at the master
 				if ( e2->targetname ) {
 					e->targetname = e2->targetname;
-					e2->targetname = NULL;
+					e2->targetname = nullptr;
 				}
 			}
 		}
@@ -259,7 +259,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	G_CacheMapname( mapname.string );
 
 	// parse the key/value pairs and spawn gentities
-	G_SpawnEntitiesFromString(qfalse);
+	G_SpawnEntitiesFromString(false);
 
 	// general initialization
 	G_FindTeams();
@@ -303,7 +303,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 	}
 
 	if ( level.gametype == GT_JEDIMASTER ) {
-		gentity_t *ent = NULL;
+		gentity_t *ent = nullptr;
 		int i=0;
 		for ( i=0, ent=g_entities; i<level.num_entities; i++, ent++ ) {
 			if ( ent->isSaberEntity )
@@ -312,7 +312,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart ) {
 
 		if ( i == level.num_entities ) {
 			// no JM saber found. drop one at one of the player spawnpoints
-			gentity_t *spawnpoint = SelectRandomDeathmatchSpawnPoint( qfalse );
+			gentity_t *spawnpoint = SelectRandomDeathmatchSpawnPoint( false );
 
 			if( !spawnpoint ) {
 				trap->Error( ERR_DROP, "Couldn't find an FFA spawnpoint to drop the jedimaster saber at!\n" );
@@ -342,7 +342,7 @@ void G_ShutdownGame( int restart ) {
 		if (ent->ghoul2 && trap->G2API_HaveWeGhoul2Models(ent->ghoul2))
 		{
 			trap->G2API_CleanGhoul2Models(&ent->ghoul2);
-			ent->ghoul2 = NULL;
+			ent->ghoul2 = nullptr;
 		}
 		if (ent->client)
 		{
@@ -362,12 +362,12 @@ void G_ShutdownGame( int restart ) {
 	if (g2SaberInstance && trap->G2API_HaveWeGhoul2Models(g2SaberInstance))
 	{
 		trap->G2API_CleanGhoul2Models(&g2SaberInstance);
-		g2SaberInstance = NULL;
+		g2SaberInstance = nullptr;
 	}
 	if (precachedKyle && trap->G2API_HaveWeGhoul2Models(precachedKyle))
 	{
 		trap->G2API_CleanGhoul2Models(&precachedKyle);
-		precachedKyle = NULL;
+		precachedKyle = nullptr;
 	}
 
 //	Com_Printf ("... ICARUS_Shutdown\n");
@@ -420,7 +420,7 @@ void AddTournamentPlayer( void ) {
 //		return;
 //	}
 
-	nextInLine = NULL;
+	nextInLine = nullptr;
 
 	for ( i = 0 ; i < level.maxclients ; i++ ) {
 		client = &level.clients[i];
@@ -492,7 +492,7 @@ void RemoveTournamentLoser( void ) {
 	SetTeam( &g_entities[ clientNum ], "s" );
 }
 
-void G_PowerDuelCount(int *loners, int *doubles, qboolean countSpec)
+void G_PowerDuelCount(int *loners, int *doubles, bool countSpec)
 {
 	int i = 0;
 	gclient_t *cl;
@@ -516,7 +516,7 @@ void G_PowerDuelCount(int *loners, int *doubles, qboolean countSpec)
 	}
 }
 
-qboolean g_duelAssigning = qfalse;
+bool g_duelAssigning = false;
 void AddPowerDuelPlayers( void )
 {
 	int			i;
@@ -532,16 +532,16 @@ void AddPowerDuelPlayers( void )
 		return;
 	}
 
-	nextInLine = NULL;
+	nextInLine = nullptr;
 
-	G_PowerDuelCount(&nonspecLoners, &nonspecDoubles, qfalse);
+	G_PowerDuelCount(&nonspecLoners, &nonspecDoubles, false);
 	if (nonspecLoners >= 1 && nonspecDoubles >= 2)
 	{ //we have enough people, stop
 		return;
 	}
 
 	//Could be written faster, but it's not enough to care I suppose.
-	G_PowerDuelCount(&loners, &doubles, qtrue);
+	G_PowerDuelCount(&loners, &doubles, true);
 
 	if (loners < 1 || doubles < 2)
 	{ //don't bother trying to spawn anyone yet if the balance is not even set up between spectators
@@ -551,7 +551,7 @@ void AddPowerDuelPlayers( void )
 	//Count again, with only in-game clients in mind.
 	loners = nonspecLoners;
 	doubles = nonspecDoubles;
-//	G_PowerDuelCount(&loners, &doubles, qfalse);
+//	G_PowerDuelCount(&loners, &doubles, false);
 
 	for ( i = 0 ; i < level.maxclients ; i++ ) {
 		client = &level.clients[i];
@@ -597,7 +597,7 @@ void AddPowerDuelPlayers( void )
 	AddPowerDuelPlayers();
 }
 
-qboolean g_dontFrickinCheck = qfalse;
+bool g_dontFrickinCheck = false;
 
 void RemovePowerDuelLosers(void)
 {
@@ -637,7 +637,7 @@ void RemovePowerDuelLosers(void)
 		i++;
 	}
 
-	g_dontFrickinCheck = qfalse;
+	g_dontFrickinCheck = false;
 
 	//recalculate stuff now that we have reset teams.
 	CalculateRanks();
@@ -844,11 +844,11 @@ int QDECL SortRanks( const void *a, const void *b ) {
 	return 0;
 }
 
-qboolean gQueueScoreMessage = qfalse;
+bool gQueueScoreMessage = false;
 int gQueueScoreMessageTime = 0;
 
 //A new duel started so respawn everyone and make sure their stats are reset
-qboolean G_CanResetDuelists(void)
+bool G_CanResetDuelists(void)
 {
 	int i;
 	gentity_t *ent;
@@ -862,28 +862,28 @@ qboolean G_CanResetDuelists(void)
 			ent->client->sess.sessionTeam == TEAM_SPECTATOR ||
 			ent->client->sess.duelTeam <= DUELTEAM_FREE)
 		{
-			return qfalse;
+			return false;
 		}
 		i++;
 	}
 
-	return qtrue;
+	return true;
 }
 
-qboolean g_noPDuelCheck = qfalse;
+bool g_noPDuelCheck = false;
 void G_ResetDuelists(void)
 {
 	int i;
-	gentity_t *ent = NULL;
+	gentity_t *ent = nullptr;
 
 	i = 0;
 	while (i < 3)
 	{
 		ent = &g_entities[level.sortedClients[i]];
 
-		g_noPDuelCheck = qtrue;
+		g_noPDuelCheck = true;
 		player_die(ent, ent, ent, 999, MOD_SUICIDE);
-		g_noPDuelCheck = qfalse;
+		g_noPDuelCheck = false;
 		trap->UnlinkEntity ((sharedEntity_t *)ent);
 		ClientSpawn(ent);
 		i++;
@@ -1023,7 +1023,7 @@ void CalculateRanks( void ) {
 
 	// if we are at the intermission or in multi-frag Duel game mode, send the new info to everyone
 	if ( level.intermissiontime || level.gametype == GT_DUEL || level.gametype == GT_POWERDUEL ) {
-		gQueueScoreMessage = qtrue;
+		gQueueScoreMessage = true;
 		gQueueScoreMessageTime = level.time + 500;
 		//SendScoreboardMessageToAllClients();
 		//rww - Made this operate on a "queue" system because it was causing large overflows
@@ -1071,7 +1071,7 @@ void MoveClientToIntermission( gentity_t *ent ) {
 	ent->s.eType = ET_GENERAL;
 	ent->s.modelindex = 0;
 	ent->s.loopSound = 0;
-	ent->s.loopIsSoundset = qfalse;
+	ent->s.loopIsSoundset = false;
 	ent->s.event = 0;
 	ent->r.contents = 0;
 }
@@ -1080,10 +1080,10 @@ void MoveClientToIntermission( gentity_t *ent ) {
 void FindIntermissionPoint( void ) {
 	gentity_t	*target;
 	vec3_t		dir;
-	gentity_t *ent = G_Find (NULL, FOFS(classname), "info_player_intermission");
+	gentity_t *ent = G_Find (nullptr, FOFS(classname), "info_player_intermission");
 
 	if ( !ent ) {	// the map creator forgot to put in an intermission point...
-		SelectSpawnPoint ( vec3_origin, level.intermission_origin, level.intermission_angle, TEAM_SPECTATOR, qfalse );
+		SelectSpawnPoint ( vec3_origin, level.intermission_origin, level.intermission_angle, TEAM_SPECTATOR, false );
 	} else {
 		VectorCopy (ent->s.origin, level.intermission_origin);
 		VectorCopy (ent->s.angles, level.intermission_angle);
@@ -1131,11 +1131,11 @@ void BeginIntermission( void ) {
 		}
 		if (DuelLimitHit())
 		{
-			gDuelExit = qtrue;
+			gDuelExit = true;
 		}
 		else
 		{
-			gDuelExit = qfalse;
+			gDuelExit = false;
 		}
 	}
 
@@ -1191,8 +1191,8 @@ void ExitLevel (void) {
 		{
 			if ( !level.restarted ) {
 				trap->SendConsoleCommand( EXEC_APPEND, "map_restart 0\n" );
-				level.restarted = qtrue;
-				level.changemap = NULL;
+				level.restarted = true;
+				level.changemap = nullptr;
 				level.intermissiontime = 0;
 			}
 			return;
@@ -1202,7 +1202,7 @@ void ExitLevel (void) {
 	}
 
 	trap->SendConsoleCommand( EXEC_APPEND, "vstr nextmap\n" );
-	level.changemap = NULL;
+	level.changemap = nullptr;
 	level.intermissiontime = 0;
 
 	// reset all the scores so we don't enter the intermission again
@@ -1288,7 +1288,7 @@ void QDECL G_SecurityLogPrintf( const char *fmt, ... ) {
 void LogExit( const char *string ) {
 	int				i, numSorted;
 	gclient_t		*cl;
-//	qboolean		won = qtrue;
+//	bool		won = true;
 	G_LogPrintf( "Exit: %s\n", string );
 
 	level.intermissionQueued = level.time;
@@ -1330,7 +1330,7 @@ void LogExit( const char *string ) {
 	}
 }
 
-qboolean gDidDuelStuff = qfalse; //gets reset on game reinit
+bool gDidDuelStuff = false; //gets reset on game reinit
 
 // The level will stay at the intermission for a minimum of 5 seconds
 // If all players wish to continue, the level will then exit.
@@ -1367,7 +1367,7 @@ void CheckIntermissionExit( void ) {
 	if ( (level.gametype == GT_DUEL || level.gametype == GT_POWERDUEL) && !gDidDuelStuff &&
 		(level.time > level.intermissiontime + 2000) )
 	{
-		gDidDuelStuff = qtrue;
+		gDidDuelStuff = true;
 
 		if ( g_austrian.integer && level.gametype != GT_POWERDUEL )
 		{
@@ -1549,7 +1549,7 @@ void CheckIntermissionExit( void ) {
 
 	// if nobody wants to go, clear timer
 	if ( !ready ) {
-		level.readyToExit = qfalse;
+		level.readyToExit = false;
 		return;
 	}
 
@@ -1561,7 +1561,7 @@ void CheckIntermissionExit( void ) {
 
 	// the first person to ready starts the ten second timeout
 	if ( !level.readyToExit ) {
-		level.readyToExit = qtrue;
+		level.readyToExit = true;
 		level.exitTime = level.time;
 	}
 
@@ -1574,11 +1574,11 @@ void CheckIntermissionExit( void ) {
 	ExitLevel();
 }
 
-qboolean ScoreIsTied( void ) {
+bool ScoreIsTied( void ) {
 	int		a, b;
 
 	if ( level.numPlayingClients < 2 ) {
-		return qfalse;
+		return false;
 	}
 
 	if ( level.gametype >= GT_TEAM ) {
@@ -1591,7 +1591,7 @@ qboolean ScoreIsTied( void ) {
 	return a == b;
 }
 
-qboolean g_endPDuel = qfalse;
+bool g_endPDuel = false;
 
 // There will be a delay between the time the exit is qualified for and the time everyone is moved to the intermission
 //	spot, so you can see the last frag.
@@ -1599,7 +1599,7 @@ void CheckExitRules( void ) {
  	int			i;
 	gclient_t	*cl;
 	char *sKillLimit;
-	qboolean printLimit = qtrue;
+	bool printLimit = true;
 	// if at the intermission, wait for all non-bots to
 	// signal ready, then go to next level
 	if ( level.intermissiontime ) {
@@ -1624,13 +1624,13 @@ void CheckExitRules( void ) {
 		}
 		if (gEscapeTime < level.time)
 		{
-			gEscaping = qfalse;
+			gEscaping = false;
 			LogExit( "Escape time ended." );
 			return;
 		}
 		if (!numLiveClients)
 		{
-			gEscaping = qfalse;
+			gEscaping = false;
 			LogExit( "Everyone failed to escape." );
 			return;
 		}
@@ -1691,7 +1691,7 @@ void CheckExitRules( void ) {
 	{
 		if (g_endPDuel)
 		{
-			g_endPDuel = qfalse;
+			g_endPDuel = false;
 			LogExit("Powerduel ended.");
 		}
 
@@ -1754,7 +1754,7 @@ void CheckExitRules( void ) {
 					Com_Printf("POWERDUEL WIN CONDITION: Coupled duelists won (1)\n");
 				}
 				LogExit( "Coupled duelists won." );
-				gDuelExit = qfalse;
+				gDuelExit = false;
 			}
 			else if ((!g_entities[duelists[1]].inuse ||
 				!g_entities[duelists[1]].client ||
@@ -1794,7 +1794,7 @@ void CheckExitRules( void ) {
 					Com_Printf("POWERDUEL WIN CONDITION: Lone duelist won (1)\n");
 				}
 				LogExit( "Lone duelist won." );
-				gDuelExit = qfalse;
+				gDuelExit = false;
 			}
 		}
 		*/
@@ -1814,7 +1814,7 @@ void CheckExitRules( void ) {
 		else
 		{
 			sKillLimit = "";
-			printLimit = qfalse;
+			printLimit = false;
 		}
 	}
 	else
@@ -1858,7 +1858,7 @@ void CheckExitRules( void ) {
 					Com_Printf("POWERDUEL WIN CONDITION: Duel limit hit (1)\n");
 				}
 				LogExit( "Duel limit hit." );
-				gDuelExit = qtrue;
+				gDuelExit = true;
 				trap->SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " hit the win limit.\n\"",
 					cl->pers.netname ) );
 				return;
@@ -1870,7 +1870,7 @@ void CheckExitRules( void ) {
 					Com_Printf("POWERDUEL WIN CONDITION: Kill limit (3)\n");
 				}
 				LogExit( sKillLimit );
-				gDuelExit = qfalse;
+				gDuelExit = false;
 				if (printLimit)
 				{
 					trap->SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " %s.\n\"",
@@ -1982,14 +1982,14 @@ void CheckTournament( void ) {
 	{
 		if (level.numPlayingClients < 2)
 		{ //hmm, ok, pull more in.
-			g_dontFrickinCheck = qfalse;
+			g_dontFrickinCheck = false;
 		}
 
 		if (level.numPlayingClients > 3)
 		{ //umm..yes..lets take care of that then.
 			int lone = 0, dbl = 0;
 
-			G_PowerDuelCount(&lone, &dbl, qfalse);
+			G_PowerDuelCount(&lone, &dbl, false);
 			if (lone > 1)
 			{
 				G_RemoveDuelist(DUELTEAM_LONE);
@@ -2003,14 +2003,14 @@ void CheckTournament( void ) {
 		{ //hmm, someone disconnected or something and we need em
 			int lone = 0, dbl = 0;
 
-			G_PowerDuelCount(&lone, &dbl, qfalse);
+			G_PowerDuelCount(&lone, &dbl, false);
 			if (lone < 1)
 			{
-				g_dontFrickinCheck = qfalse;
+				g_dontFrickinCheck = false;
 			}
 			else if (dbl < 1)
 			{
-				g_dontFrickinCheck = qfalse;
+				g_dontFrickinCheck = false;
 			}
 		}
 
@@ -2032,7 +2032,7 @@ void CheckTournament( void ) {
 				trap->SetConfigstring ( CS_CLIENT_DUELISTS, va("%i|%i|%i", level.sortedClients[0], level.sortedClients[1], level.sortedClients[2] ) );
 				G_ResetDuelists();
 
-				g_dontFrickinCheck = qtrue;
+				g_dontFrickinCheck = true;
 			}
 			else if (level.numPlayingClients > 0 ||
 				level.numConnectedClients > 0)
@@ -2041,7 +2041,7 @@ void CheckTournament( void ) {
 				{ //print once every 10 seconds
 					int lone = 0, dbl = 0;
 
-					G_PowerDuelCount(&lone, &dbl, qtrue);
+					G_PowerDuelCount(&lone, &dbl, true);
 					if (lone < 1)
 					{
 						trap->SendServerCommand( -1, va("cp \"%s\n\"", G_GetStringEdString("MP_SVGAME", "DUELMORESINGLE")) );
@@ -2088,7 +2088,7 @@ void CheckTournament( void ) {
 		}
 		else
 		{ //if you have proper num of players then don't try to add again
-			g_dontFrickinCheck = qtrue;
+			g_dontFrickinCheck = true;
 		}
 
 		level.warmupTime = 0;
@@ -2096,17 +2096,17 @@ void CheckTournament( void ) {
 	}
 	else if ( level.warmupTime != 0 ) {
 		int		counts[TEAM_NUM_TEAMS];
-		qboolean	notEnough = qfalse;
+		bool	notEnough = false;
 
 		if ( level.gametype > GT_TEAM ) {
 			counts[TEAM_BLUE] = TeamCount( -1, TEAM_BLUE );
 			counts[TEAM_RED] = TeamCount( -1, TEAM_RED );
 
 			if (counts[TEAM_RED] < 1 || counts[TEAM_BLUE] < 1) {
-				notEnough = qtrue;
+				notEnough = true;
 			}
 		} else if ( level.numPlayingClients < 2 ) {
-			notEnough = qtrue;
+			notEnough = true;
 		}
 
 		if ( notEnough ) {
@@ -2148,7 +2148,7 @@ void CheckTournament( void ) {
 			trap->Cvar_Set( "g_restarted", "1" );
 			trap->Cvar_Update( &g_restarted );
 			trap->SendConsoleCommand( EXEC_APPEND, "map_restart 0\n" );
-			level.restarted = qtrue;
+			level.restarted = true;
 			return;
 		}
 	}
@@ -2183,7 +2183,7 @@ void CheckVote( void ) {
 		{
 			if (level.gametype != level.votingGametypeTo)
 			{ //If we're voting to a different game type, be sure to refresh all the map stuff
-				const char *nextMap = G_RefreshNextMap(level.votingGametypeTo, qtrue);
+				const char *nextMap = G_RefreshNextMap(level.votingGametypeTo, true);
 
 				if (nextMap && nextMap[0])
 				{
@@ -2192,7 +2192,7 @@ void CheckVote( void ) {
 			}
 			else
 			{ //otherwise, just leave the map until a restart
-				G_RefreshNextMap(level.votingGametypeTo, qfalse);
+				G_RefreshNextMap(level.votingGametypeTo, false);
 			}
 
 			if (g_fraglimitVoteCorrection.integer)
@@ -2222,7 +2222,7 @@ void CheckVote( void ) {
 				}
 			}
 
-			level.votingGametype = qfalse;
+			level.votingGametype = false;
 			level.votingGametypeTo = 0;
 		}
 	}
@@ -2275,11 +2275,11 @@ void SetLeader(int team, int client) {
 		if (level.clients[i].sess.sessionTeam != team)
 			continue;
 		if (level.clients[i].sess.teamLeader) {
-			level.clients[i].sess.teamLeader = qfalse;
+			level.clients[i].sess.teamLeader = false;
 			ClientUserinfoChanged(i);
 		}
 	}
-	level.clients[client].sess.teamLeader = qtrue;
+	level.clients[client].sess.teamLeader = true;
 	ClientUserinfoChanged( client );
 	PrintTeam(team, va("print \"%s %s\n\"", level.clients[client].pers.netname, G_GetStringEdString("MP_SVGAME", "NEWTEAMLEADER")) );
 }
@@ -2298,7 +2298,7 @@ void CheckTeamLeader( int team ) {
 			if (level.clients[i].sess.sessionTeam != team)
 				continue;
 			if (!(g_entities[i].r.svFlags & SVF_BOT)) {
-				level.clients[i].sess.teamLeader = qtrue;
+				level.clients[i].sess.teamLeader = true;
 				break;
 			}
 		}
@@ -2306,7 +2306,7 @@ void CheckTeamLeader( int team ) {
 			for ( i = 0 ; i < level.maxclients ; i++ ) {
 				if ( level.clients[i].sess.sessionTeam != team )
 					continue;
-				level.clients[i].sess.teamLeader = qtrue;
+				level.clients[i].sess.teamLeader = true;
 				break;
 			}
 		}
@@ -2400,7 +2400,7 @@ void G_RunThink (gentity_t *ent) {
 
 	ent->nextthink = 0;
 	if (!ent->think) {
-		//trap->Error( ERR_DROP, "NULL ent->think");
+		//trap->Error( ERR_DROP, "nullptr ent->think");
 		goto runicarus;
 	}
 	ent->think (ent);
@@ -2491,7 +2491,7 @@ void G_RunFrame( int levelTime ) {
 				}
 			} else if ( ent->unlinkAfterEvent ) {
 				// items that will respawn will hide themselves after their pickup event
-				ent->unlinkAfterEvent = qfalse;
+				ent->unlinkAfterEvent = false;
 				trap->UnlinkEntity( (sharedEntity_t *)ent );
 			}
 		}
@@ -2539,7 +2539,7 @@ void G_RunFrame( int levelTime ) {
 					{ //suffocate!
 						if (ent->health > 0 && ent->takedamage)
 						{ //if they're still alive..
-							G_Damage(ent, spacetrigger, spacetrigger, NULL, ent->client->ps.origin, Q_irand(50, 70), DAMAGE_NO_ARMOR, MOD_SUICIDE);
+							G_Damage(ent, spacetrigger, spacetrigger, nullptr, ent->client->ps.origin, Q_irand(50, 70), DAMAGE_NO_ARMOR, MOD_SUICIDE);
 
 							if (ent->health > 0)
 							{ //did that last one kill them?
@@ -2567,7 +2567,7 @@ void G_RunFrame( int levelTime ) {
 				//keep him in the "use" anim
 				if (ent->client->ps.torsoAnim != BOTH_CONSOLE1)
 				{
-					G_SetAnim( ent, NULL, SETANIM_TORSO, BOTH_CONSOLE1, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0 );
+					G_SetAnim( ent, nullptr, SETANIM_TORSO, BOTH_CONSOLE1, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0 );
 				}
 				else
 				{
@@ -2772,8 +2772,8 @@ const char *G_GetStringEdString(char *refSection, char *refName)
 }
 
 static void G_SpawnRMGEntity( void ) {
-	if ( G_ParseSpawnVars( qfalse ) )
-		G_SpawnGEntityFromSpawnVars( qfalse );
+	if ( G_ParseSpawnVars( false ) )
+		G_SpawnGEntityFromSpawnVars( false );
 }
 
 static void _G_ROFF_NotetrackCallback( int entID, const char *notetrack ) {
@@ -2784,13 +2784,13 @@ static int G_ICARUS_PlaySound( void ) {
 	T_G_ICARUS_PLAYSOUND *sharedMem = &gSharedBuffer.playSound;
 	return Q3_PlaySound( sharedMem->taskID, sharedMem->entID, sharedMem->name, sharedMem->channel );
 }
-static qboolean G_ICARUS_Set( void ) {
+static bool G_ICARUS_Set( void ) {
 	T_G_ICARUS_SET *sharedMem = &gSharedBuffer.set;
 	return Q3_Set( sharedMem->taskID, sharedMem->entID, sharedMem->type_name, sharedMem->data );
 }
 static void G_ICARUS_Lerp2Pos( void ) {
 	T_G_ICARUS_LERP2POS *sharedMem = &gSharedBuffer.lerp2Pos;
-	Q3_Lerp2Pos( sharedMem->taskID, sharedMem->entID, sharedMem->origin, sharedMem->nullAngles ? NULL : sharedMem->angles, sharedMem->duration );
+	Q3_Lerp2Pos( sharedMem->taskID, sharedMem->entID, sharedMem->origin, sharedMem->nullAngles ? nullptr : sharedMem->angles, sharedMem->duration );
 }
 static void G_ICARUS_Lerp2Origin( void ) {
 	T_G_ICARUS_LERP2ORIGIN *sharedMem = &gSharedBuffer.lerp2Origin;
@@ -2838,7 +2838,7 @@ static int G_ICARUS_GetVector( void ) {
 }
 static int G_ICARUS_GetString( void ) {
 	T_G_ICARUS_GETSTRING *sharedMem = &gSharedBuffer.getString;
-	char *crap = NULL; //I am sorry for this -rww
+	char *crap = nullptr; //I am sorry for this -rww
 	char **morecrap = &crap; //and this
 	int r = Q3_GetString( sharedMem->entID, sharedMem->type, sharedMem->name, morecrap );
 
@@ -2856,7 +2856,7 @@ static int G_ICARUS_GetSetIDForString( void ) {
 	return GetIDForString( setTable, sharedMem->string );
 }
 
-gameImport_t *trap = NULL;
+gameImport_t *trap = nullptr;
 
 Q_CABI {
 Q_EXPORT gameExport_t* QDECL GetModuleAPI( int apiVersion, gameImport_t *import )
@@ -2872,7 +2872,7 @@ Q_EXPORT gameExport_t* QDECL GetModuleAPI( int apiVersion, gameImport_t *import 
 
 	if ( apiVersion != GAME_API_VERSION ) {
 		trap->Print( "Mismatched GAME_API_VERSION: expected %i, got %i\n", GAME_API_VERSION, apiVersion );
-		return NULL;
+		return nullptr;
 	}
 
 	ge.InitGame							= G_InitGame;

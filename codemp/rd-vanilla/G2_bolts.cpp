@@ -2,7 +2,8 @@
 ===========================================================================
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -234,7 +235,7 @@ int G2_Add_Bolt(CGhoul2Info *ghlInfo, boltInfo_v &bltlist, surfaceInfo_v &slist,
 }
 
 // Given a model handle, and a bone name, we want to remove this bone from the bone override list
-qboolean G2_Remove_Bolt (boltInfo_v &bltlist, int index)
+bool G2_Remove_Bolt (boltInfo_v &bltlist, int index)
 {
 	// did we find it?
 	if (index != -1)
@@ -268,13 +269,13 @@ qboolean G2_Remove_Bolt (boltInfo_v &bltlist, int index)
 			}
 
 		}
-		return qtrue;
+		return true;
 	}
 
 	assert(0);
 
 	// no
-	return qfalse;
+	return false;
 }
 
 // set the bolt list to all unused so the bone transformation routine ignores it.

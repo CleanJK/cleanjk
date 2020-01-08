@@ -30,7 +30,7 @@
  *
  */
 
-#include <math.h>
+#include <cmath>
 #include "qcommon/q_shared.h"
 #include "game/g_local.h"
 
@@ -160,7 +160,7 @@
   }                                         \
 }
 
-qboolean coplanar_tri_tri(vec3_t N,vec3_t V0,vec3_t V1,vec3_t V2,
+bool coplanar_tri_tri(vec3_t N,vec3_t V0,vec3_t V1,vec3_t V2,
                      vec3_t U0,vec3_t U1,vec3_t U2)
 {
    vec3_t A;
@@ -206,10 +206,10 @@ qboolean coplanar_tri_tri(vec3_t N,vec3_t V0,vec3_t V1,vec3_t V2,
     POINT_IN_TRI(V0,U0,U1,U2);
     POINT_IN_TRI(U0,V0,V1,V2);
 
-    return qfalse;
+    return false;
 }
 
-qboolean tri_tri_intersect( vec3_t V0, vec3_t V1, vec3_t V2, vec3_t U0, vec3_t U1, vec3_t U2 ) {
+bool tri_tri_intersect( vec3_t V0, vec3_t V1, vec3_t V2, vec3_t U0, vec3_t U1, vec3_t U2 ) {
   vec3_t E1,E2;
   vec3_t N1,N2;
   float	d1,d2;
@@ -299,6 +299,6 @@ qboolean tri_tri_intersect( vec3_t V0, vec3_t V1, vec3_t V2, vec3_t U0, vec3_t U
   SORT(isect1[0],isect1[1]);
   SORT(isect2[0],isect2[1]);
 
-  if(isect1[1]<isect2[0] || isect2[1]<isect1[0]) return qtrue;
-  return qfalse;
+  if(isect1[1]<isect2[0] || isect2[1]<isect1[0]) return true;
+  return false;
 }

@@ -2,7 +2,8 @@
 ===========================================================================
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -62,12 +63,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // Includes
 #if !defined(ASSERT_H_INC)
-#include <assert.h>
+#include <cassert>
 #define ASSERT_H_INC
 #endif
 
 #if !defined(STRING_H_INC)
-#include <string.h>
+#include <cstring>
 #define STRING_H_INC
 #endif
 

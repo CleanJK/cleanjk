@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -207,9 +208,9 @@ void G_ExplodeMissile( gentity_t *ent ) {
 	ent->s.eType = ET_GENERAL;
 	G_AddEvent( ent, EV_MISSILE_MISS, DirToByte( dir ) );
 
-	ent->freeAfterEvent = qtrue;
+	ent->freeAfterEvent = true;
 
-	ent->takedamage = qfalse;
+	ent->takedamage = false;
 	// splash damage
 	if ( ent->splashDamage ) {
 		if( G_RadiusDamage( ent->r.currentOrigin, ent->parent, ent->splashDamage, ent->splashRadius, ent,
@@ -240,7 +241,7 @@ void G_RunStuckMissile( gentity_t *ent )
 			if ( (!VectorCompare( vec3_origin, other->s.pos.trDelta ) && other->s.pos.trType != TR_STATIONARY) ||
 				(!VectorCompare( vec3_origin, other->s.apos.trDelta ) && other->s.apos.trType != TR_STATIONARY) )
 			{//thing I stuck to is moving or rotating now, kill me
-				G_Damage( ent, other, other, NULL, NULL, 99999, 0, MOD_CRUSH );
+				G_Damage( ent, other, other, nullptr, nullptr, 99999, 0, MOD_CRUSH );
 				return;
 			}
 		}
@@ -261,7 +262,7 @@ void G_BounceProjectile( vec3_t start, vec3_t impact, vec3_t dir, vec3_t endout 
 	VectorMA(impact, 8192, newv, endout);
 }
 
-gentity_t *CreateMissile( vec3_t org, vec3_t dir, float vel, int life, gentity_t *owner, qboolean altFire ) {
+gentity_t *CreateMissile( vec3_t org, vec3_t dir, float vel, int life, gentity_t *owner, bool altFire ) {
 	gentity_t	*missile;
 
 	missile = G_Spawn();
@@ -280,7 +281,7 @@ gentity_t *CreateMissile( vec3_t org, vec3_t dir, float vel, int life, gentity_t
 
 	missile->s.pos.trType = TR_LINEAR;
 	missile->s.pos.trTime = level.time;// - MISSILE_PRESTEP_TIME;	// NOTENOTE This is a Quake 3 addition over JK2
-	missile->target_ent = NULL;
+	missile->target_ent = nullptr;
 
 	SnapVector(org);
 	VectorCopy( org, missile->s.pos.trBase );
@@ -318,8 +319,8 @@ void G_MissileBounceEffect( gentity_t *ent, vec3_t org, vec3_t dir )
 
 void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 	gentity_t		*other;
-	qboolean		hitClient = qfalse;
-	qboolean		isKnockedSaber = qfalse;
+	bool		hitClient = false;
+	bool		isKnockedSaber = false;
 
 	other = &g_entities[trace->entityNum];
 
@@ -340,7 +341,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 			return;
 		}
 
-		isKnockedSaber = qtrue;
+		isKnockedSaber = true;
 	}
 
 	// I would glom onto the FL_BOUNCE code section above, but don't feel like risking breaking something else
@@ -411,7 +412,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 			}
 			else
 			{ //oh well
-				AngleVectors(other->r.currentAngles, fwd, NULL, NULL);
+				AngleVectors(other->r.currentAngles, fwd, nullptr, nullptr);
 			}
 
 			G_DeflectMissile(other, ent, fwd);
@@ -438,11 +439,11 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 
 		if (other->client)
 		{
-			AngleVectors(other->client->ps.viewangles, fwd, NULL, NULL);
+			AngleVectors(other->client->ps.viewangles, fwd, nullptr, nullptr);
 		}
 		else
 		{
-			AngleVectors(other->r.currentAngles, fwd, NULL, NULL);
+			AngleVectors(other->r.currentAngles, fwd, nullptr, nullptr);
 		}
 
 		G_DeflectMissile(other, ent, fwd);
@@ -462,7 +463,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		ent->methodOfDeath != MOD_CONC_ALT &&
 		other->client->ps.saberBlockTime < level.time &&
 		!isKnockedSaber &&
-		WP_SaberCanBlock(other, ent->r.currentOrigin, 0, 0, qtrue, 0))
+		WP_SaberCanBlock(other, ent->r.currentOrigin, 0, 0, true, 0))
 	{ //only block one projectile per 200ms (to prevent giant swarms of projectiles being blocked)
 		vec3_t fwd;
 		gentity_t *te;
@@ -489,7 +490,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 			}
 		}
 
-		AngleVectors(other->client->ps.viewangles, fwd, NULL, NULL);
+		AngleVectors(other->client->ps.viewangles, fwd, nullptr, nullptr);
 		if (otherDefLevel == FORCE_LEVEL_1)
 		{
 			//if def is only level 1, instead of deflecting the shot it should just die here
@@ -539,10 +540,10 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 			int otherDefLevel = otherOwner->client->ps.fd.forcePowerLevel[FP_SABER_DEFENSE];
 
 			//in this case, deflect it even if we can't actually block it because it hit our saber
-			//WP_SaberCanBlock(otherOwner, ent->r.currentOrigin, 0, 0, qtrue, 0);
+			//WP_SaberCanBlock(otherOwner, ent->r.currentOrigin, 0, 0, true, 0);
 			if (otherOwner->client && otherOwner->client->ps.weaponTime <= 0)
 			{
-				WP_SaberBlockNonRandom(otherOwner, ent->r.currentOrigin, qtrue);
+				WP_SaberBlockNonRandom(otherOwner, ent->r.currentOrigin, true);
 			}
 
 			te = G_TempEntity( ent->r.currentOrigin, EV_SABER_BLOCK );
@@ -565,7 +566,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 				}
 			}
 
-			AngleVectors(otherOwner->client->ps.viewangles, fwd, NULL, NULL);
+			AngleVectors(otherOwner->client->ps.viewangles, fwd, nullptr, nullptr);
 
 			if (otherDefLevel == FORCE_LEVEL_1)
 			{
@@ -612,7 +613,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 			vec3_t	velocity;
 			if( LogAccuracyHit( other, &g_entities[ent->r.ownerNum] ) ) {
 				g_entities[ent->r.ownerNum].client->accuracy_hits++;
-				hitClient = qtrue;
+				hitClient = true;
 			}
 			BG_EvaluateTrajectoryDelta( &ent->s.pos, level.time, velocity );
 			if ( VectorLength( velocity ) == 0 ) {
@@ -629,7 +630,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 					ent->think was set to G_FreeEntity, so the folowing think
 					did invalidate this entity, BUT it would be reused later in this
 					function for explosion event. This, then, would set ent->freeAfterEvent
-					to qtrue, so event later, when reusing this entity by using G_InitEntity(),
+					to true, so event later, when reusing this entity by using G_InitEntity(),
 					it would have this freeAfterEvent set AND this would in case of dropped
 					item erase it from game immeadiately. THIS for example caused
 					very rare flag dissappearing bug.	 */
@@ -683,7 +684,7 @@ killProj:
 
 	if (!isKnockedSaber)
 	{
-		ent->freeAfterEvent = qtrue;
+		ent->freeAfterEvent = true;
 
 		// change over to a normal entity right at the point of impact
 		ent->s.eType = ET_GENERAL;
@@ -693,7 +694,7 @@ killProj:
 
 	G_SetOrigin( ent, trace->endpos );
 
-	ent->takedamage = qfalse;
+	ent->takedamage = false;
 	// splash damage (doesn't apply to person directly hit)
 	if ( ent->splashDamage ) {
 		if( G_RadiusDamage( trace->endpos, ent->parent, ent->splashDamage, ent->splashRadius,
@@ -707,7 +708,7 @@ killProj:
 
 	if (ent->s.weapon == G2_MODEL_PART)
 	{
-		ent->freeAfterEvent = qfalse; //it will free itself
+		ent->freeAfterEvent = false; //it will free itself
 	}
 
 	trap->LinkEntity( (sharedEntity_t *)ent );
@@ -717,11 +718,11 @@ void G_RunMissile( gentity_t *ent ) {
 	vec3_t		origin, groundSpot;
 	trace_t		tr;
 	int			passent;
-	qboolean	isKnockedSaber = qfalse;
+	bool	isKnockedSaber = false;
 
 	if (ent->neverFree && ent->s.weapon == WP_SABER && (ent->flags & FL_BOUNCE_HALF))
 	{
-		isKnockedSaber = qtrue;
+		isKnockedSaber = true;
 		ent->s.pos.trType = TR_GRAVITY;
 	}
 
@@ -748,7 +749,7 @@ void G_RunMissile( gentity_t *ent ) {
 	// trace a line from the previous position to the current position
 	if (d_projectileGhoul2Collision.integer)
 	{
-		trap->Trace( &tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, origin, passent, ent->clipmask, qfalse, G2TRFLAG_DOGHOULTRACE|G2TRFLAG_GETSURFINDEX|G2TRFLAG_THICK|G2TRFLAG_HITCORPSES, g_g2TraceLod.integer );
+		trap->Trace( &tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, origin, passent, ent->clipmask, false, G2TRFLAG_DOGHOULTRACE|G2TRFLAG_GETSURFINDEX|G2TRFLAG_THICK|G2TRFLAG_HITCORPSES, g_g2TraceLod.integer );
 
 		if (tr.fraction != 1.0 && tr.entityNum < ENTITYNUM_WORLD)
 		{
@@ -768,12 +769,12 @@ void G_RunMissile( gentity_t *ent ) {
 	}
 	else
 	{
-		trap->Trace( &tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, origin, passent, ent->clipmask, qfalse, 0, 0 );
+		trap->Trace( &tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, origin, passent, ent->clipmask, false, 0, 0 );
 	}
 
 	if ( tr.startsolid || tr.allsolid ) {
 		// make sure the tr.entityNum is set to the entity we're stuck in
-		trap->Trace( &tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, ent->r.currentOrigin, passent, ent->clipmask, qfalse, 0, 0 );
+		trap->Trace( &tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, ent->r.currentOrigin, passent, ent->clipmask, false, 0, 0 );
 		tr.fraction = 0;
 	}
 	else {
@@ -796,7 +797,7 @@ void G_RunMissile( gentity_t *ent ) {
 
 		VectorCopy(ent->r.currentOrigin, lowerOrg);
 		lowerOrg[2] -= 1;
-		trap->Trace( &trG, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, lowerOrg, passent, ent->clipmask, qfalse, 0, 0 );
+		trap->Trace( &trG, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, lowerOrg, passent, ent->clipmask, false, 0, 0 );
 
 		VectorCopy(trG.endpos, groundSpot);
 
@@ -815,7 +816,7 @@ void G_RunMissile( gentity_t *ent ) {
 		if ( tr.surfaceFlags & SURF_NOIMPACT ) {
 			// If grapple, reset owner
 			if (ent->parent && ent->parent->client && ent->parent->client->hook == ent) {
-				ent->parent->client->hook = NULL;
+				ent->parent->client->hook = nullptr;
 			}
 
 			if ((ent->s.weapon == WP_SABER && ent->isSaberEntity) || isKnockedSaber)

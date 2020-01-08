@@ -19,7 +19,7 @@
  */
 
 #include "qcommon/md5.h"
-#include "qcommon/qcommon.h"
+#include "qcommon/q_common.h"
 
 #ifndef Q3_BIG_ENDIAN
 	#define byteReverse(buf, len)	/* Nothing */
@@ -233,7 +233,7 @@ void MD5Final(struct MD5Context *ctx, unsigned char *digest)
     MD5Transform(ctx->buf, (uint32_t *) ctx->in);
     byteReverse((unsigned char *) ctx->buf, 4);
 
-    if (digest!=NULL)
+    if (digest!=nullptr)
 	    memcpy(digest, ctx->buf, 16);
     memset(ctx, 0, sizeof(*ctx));	/* In case it's sensitive */
 }
@@ -292,6 +292,7 @@ char *Com_MD5File( const char *fn, int length, const char *prefix, int prefix_le
 
 // The following code implements HMAC-MD5 using the public domain MD5 implementation above.
 // This code (originally for OpenJK) is also released into the public domain.
+// Initialize a new HMAC-MD5 construct using the specified secret key.
 void HMAC_MD5_Init(hmacMD5Context_t *ctx, unsigned char const *key, unsigned int keylen)
 {
 	unsigned char shortenedKey[MD5_DIGEST_SIZE];
@@ -314,11 +315,14 @@ void HMAC_MD5_Init(hmacMD5Context_t *ctx, unsigned char const *key, unsigned int
 	MD5Update(&ctx->md5Context, ctx->iKeyPad, sizeof(ctx->iKeyPad));
 }
 
+// Update the HMAC message with len number of bytes from the given buffer.
 void HMAC_MD5_Update(hmacMD5Context_t *ctx, unsigned char const *buf, unsigned int len)
 {
 	MD5Update(&ctx->md5Context, buf, len);
 }
 
+// Finalize the HMAC calculation and fill the given buffer with the digest bytes.
+// 'digest' must point to a buffer that can hold MD5_DIGEST_SIZE bytes!
 void HMAC_MD5_Final(hmacMD5Context_t *ctx, unsigned char *digest)
 {
 	unsigned char hashSum1[MD5_DIGEST_SIZE];
@@ -330,6 +334,7 @@ void HMAC_MD5_Final(hmacMD5Context_t *ctx, unsigned char *digest)
 	MD5Final(&ctx->md5Context, digest);
 }
 
+// Reset the context to begin working on a new message, using the same secret key as previously initialised.
 void HMAC_MD5_Reset(hmacMD5Context_t *ctx)
 {
 	MD5Init(&ctx->md5Context);

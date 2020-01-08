@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -224,7 +225,7 @@ static float offX[20][20],
 #define FX_APPLY_PHYSICS	0x02000000
 #define FX_USE_ALPHA		0x08000000
 
-static void CG_DoGlassQuad( vec3_t p[4], vec2_t uv[4], qboolean stick, int time, vec3_t dmgDir )
+static void CG_DoGlassQuad( vec3_t p[4], vec2_t uv[4], bool stick, int time, vec3_t dmgDir )
 {
 	float	bounce;
 	vec3_t	rotDelta;
@@ -424,7 +425,7 @@ void CG_DoGlass( vec3_t verts[4], vec3_t normal, vec3_t dmgPt, vec3_t dmgDir, fl
 	float		dif;
 	int			time = 0;
 	int			glassShards = 0;
-	qboolean	stick = qtrue;
+	bool	stick = true;
 	vec3_t		subVerts[4];
 	vec2_t		biPoints[4];
 
@@ -586,12 +587,12 @@ void CG_DoGlass( vec3_t verts[4], vec3_t normal, vec3_t dmgPt, vec3_t dmgDir, fl
 
 			if ( dif > 1 )
 			{
-				stick = qtrue;
+				stick = true;
 				time = dif + Q_flrand(0.0f, 1.0f) * 200;
 			}
 			else
 			{
-				stick = qfalse;
+				stick = false;
 				time = 0;
 			}
 
@@ -651,7 +652,7 @@ void CG_MiscModelExplosion( vec3_t mins, vec3_t maxs, int size, material_t chunk
 	int		ct = 13;
 	float	r;
 	vec3_t	org, mid, dir;
-	char	*effect = NULL, *effect2 = NULL;
+	char	*effect = nullptr, *effect2 = nullptr;
 	int		eID1, eID2 = 0;
 	int		i;
 
@@ -743,11 +744,11 @@ void CG_MiscModelExplosion( vec3_t mins, vec3_t maxs, int size, material_t chunk
 
 		if ( effect2 && effect2[0] && ( rand() & 1 ))
 		{
-			trap->FX_PlayEffectID( eID2, org, dir, -1, -1, qfalse );
+			trap->FX_PlayEffectID( eID2, org, dir, -1, -1, false );
 		}
 		else
 		{
-			trap->FX_PlayEffectID( eID1, org, dir, -1, -1, qfalse );
+			trap->FX_PlayEffectID( eID1, org, dir, -1, -1, false );
 		}
 	}
 }
@@ -764,7 +765,7 @@ void CG_Chunks( int owner, vec3_t origin, const vec3_t normal, const vec3_t mins
 	int				chunkModel = 0;
 	leBounceSoundType_t	bounce = LEBS_NONE;
 	float			r, speedMod = 1.0f;
-	qboolean		chunk = qfalse;
+	bool		chunk = false;
 
 	if ( chunkType == MAT_NONE )
 	{
@@ -778,15 +779,15 @@ void CG_Chunks( int owner, vec3_t origin, const vec3_t normal, const vec3_t mins
 	default:
 		break;
 	case MAT_GLASS:
-		trap->S_StartSound( NULL, owner, CHAN_BODY, media.sounds.null );
+		trap->S_StartSound( nullptr, owner, CHAN_BODY, media.sounds.null );
 		return;
 		break;
 	case MAT_GRATE1:
-		trap->S_StartSound( NULL, owner, CHAN_BODY, media.sounds.null );
+		trap->S_StartSound( nullptr, owner, CHAN_BODY, media.sounds.null );
 		return;
 		break;
 	case MAT_ELECTRICAL:// (sparks)
-		trap->S_StartSound( NULL, owner, CHAN_BODY, trap->S_RegisterSound (va("sound/ambience/spark%d.wav", Q_irand(1, 6))) );
+		trap->S_StartSound( nullptr, owner, CHAN_BODY, trap->S_RegisterSound (va("sound/ambience/spark%d.wav", Q_irand(1, 6))) );
 		return;
 		break;
 	case MAT_DRK_STONE:
@@ -794,28 +795,28 @@ void CG_Chunks( int owner, vec3_t origin, const vec3_t normal, const vec3_t mins
 	case MAT_GREY_STONE:
 	case MAT_WHITE_METAL:  // not quite sure what this stuff is supposed to be...it's for Stu
 	case MAT_SNOWY_ROCK:
-		trap->S_StartSound( NULL, owner, CHAN_BODY, media.sounds.null );
+		trap->S_StartSound( nullptr, owner, CHAN_BODY, media.sounds.null );
 		bounce = LEBS_ROCK;
 		speedMod = 0.5f; // rock blows up less
 		break;
 	case MAT_GLASS_METAL:
-		trap->S_StartSound( NULL, owner, CHAN_BODY, media.sounds.null ); // FIXME: should probably have a custom sound
+		trap->S_StartSound( nullptr, owner, CHAN_BODY, media.sounds.null ); // FIXME: should probably have a custom sound
 		bounce = LEBS_METAL;
 		break;
 	case MAT_CRATE1:
 	case MAT_CRATE2:
-		trap->S_StartSound( NULL, owner, CHAN_BODY, media.sounds.null/* [Q_irand(0,1)] */ );
+		trap->S_StartSound( nullptr, owner, CHAN_BODY, media.sounds.null/* [Q_irand(0,1)] */ );
 		break;
 	case MAT_METAL:
 	case MAT_METAL2:
 	case MAT_METAL3:
 	case MAT_ELEC_METAL:// FIXME: maybe have its own sound?
-		trap->S_StartSound( NULL, owner, CHAN_BODY, media.sounds.null );
+		trap->S_StartSound( nullptr, owner, CHAN_BODY, media.sounds.null );
 		bounce = LEBS_METAL;
 		speedMod = 0.8f; // metal blows up a bit more
 		break;
 	case MAT_ROPE:
-//		trap->S_StartSound( NULL, owner, CHAN_BODY, cgi_S_RegisterSound( "" ));  FIXME:  needs a sound
+//		trap->S_StartSound( nullptr, owner, CHAN_BODY, cgi_S_RegisterSound( "" ));  FIXME:  needs a sound
 		return;
 		break;
 	}
@@ -833,7 +834,7 @@ void CG_Chunks( int owner, vec3_t origin, const vec3_t normal, const vec3_t mins
 			// Try to use a custom chunk.
 			if ( cgs.gameModels[customChunk] )
 			{
-				chunk = qtrue;
+				chunk = true;
 				chunkModel = cgs.gameModels[customChunk];
 			}
 		}
@@ -936,7 +937,7 @@ void CG_Chunks( int owner, vec3_t origin, const vec3_t normal, const vec3_t mins
 
 			// Make sure that we have the desired start size set
 			le->radius = flrand( baseScale * 0.75f, baseScale * 1.25f );
-			re->nonNormalizedAxes = qtrue;
+			re->nonNormalizedAxes = true;
 			AxisCopy( axisDefault, re->axis ); // could do an angles to axis, but this is cheaper and works ok
 			for( k = 0; k < 3; k++ )
 			{
@@ -993,7 +994,7 @@ void CG_ScorePlum( int client, vec3_t org, int score ) {
 
 localEntity_t *CG_MakeExplosion( vec3_t origin, vec3_t dir,
 								qhandle_t hModel, int numFrames, qhandle_t shader,
-								int msec, qboolean isSprite, float scale, int flags )
+								int msec, bool isSprite, float scale, int flags )
 {
 	float			ang = 0;
 	localEntity_t	*ex;
@@ -1045,7 +1046,7 @@ localEntity_t *CG_MakeExplosion( vec3_t origin, vec3_t dir,
 
 	//Scale the explosion
 	if (scale != 1) {
-		ex->refEntity.nonNormalizedAxes = qtrue;
+		ex->refEntity.nonNormalizedAxes = true;
 
 		VectorScale( ex->refEntity.axis[0], scale, ex->refEntity.axis[0] );
 		VectorScale( ex->refEntity.axis[1], scale, ex->refEntity.axis[1] );
@@ -1065,7 +1066,7 @@ localEntity_t *CG_MakeExplosion( vec3_t origin, vec3_t dir,
 #define NUM_EXPLOSIONS	4
 
 // Adds an explosion to a surface
-void CG_SurfaceExplosion( vec3_t origin, vec3_t normal, float radius, float shake_speed, qboolean smoke )
+void CG_SurfaceExplosion( vec3_t origin, vec3_t normal, float radius, float shake_speed, bool smoke )
 {
 	localEntity_t	*le;
 	//FXTrail			*particle;
@@ -1083,8 +1084,8 @@ void CG_SurfaceExplosion( vec3_t origin, vec3_t normal, float radius, float shak
 	//	scale = 0.25f + (Q_flrand(0.0f, 1.0f) * 2.0f);
 
 /*		particle = FX_AddTrail( origin,
-								NULL,
-								NULL,
+								nullptr,
+								nullptr,
 								32.0f,
 								-64.0f,
 								scale,
@@ -1095,7 +1096,7 @@ void CG_SurfaceExplosion( vec3_t origin, vec3_t normal, float radius, float shak
 								4000.0f,
 								media.gfx.null,
 								rand() & FXF_BOUNCE);
-		if ( particle == NULL )
+		if ( particle == nullptr )
 			return;
 
 		FXE_Spray( normal, 500, 150, 1.0f, 768 + (rand() & 255), (FXPrimitive *) particle );*/
@@ -1122,7 +1123,7 @@ void CG_SurfaceExplosion( vec3_t origin, vec3_t normal, float radius, float shak
 
 /*		FX_AddSprite(	temp_org,
 						temp_vel,
-						NULL,
+						nullptr,
 						64.0f + (Q_flrand(0.0f, 1.0f) * 32.0f),
 						16.0f,
 						1.0f,
@@ -1140,14 +1141,14 @@ void CG_SurfaceExplosion( vec3_t origin, vec3_t normal, float radius, float shak
 	VectorNormalize( direction );
 
 	//Tag the last one with a light
-	le = CG_MakeExplosion( origin, direction, media.gfx.null, 6, media.gfx.null, 500, qfalse, radius * 0.02f + (Q_flrand(0.0f, 1.0f) * 0.3f), 0);
+	le = CG_MakeExplosion( origin, direction, media.gfx.null, 6, media.gfx.null, 500, false, radius * 0.02f + (Q_flrand(0.0f, 1.0f) * 0.3f), 0);
 	le->light = 150;
 	VectorSet( le->lightColor, 0.9f, 0.8f, 0.5f );
 
 	for ( i = 0; i < NUM_EXPLOSIONS-1; i ++)
 	{
 		VectorSet( new_org, (origin[0] + (16 + (Q_flrand(-1.0f, 1.0f) * 8))*Q_flrand(-1.0f, 1.0f)), (origin[1] + (16 + (Q_flrand(-1.0f, 1.0f) * 8))*Q_flrand(-1.0f, 1.0f)), (origin[2] + (16 + (Q_flrand(-1.0f, 1.0f) * 8))*Q_flrand(-1.0f, 1.0f)) );
-		le = CG_MakeExplosion( new_org, direction, media.gfx.null, 6, media.gfx.null, 300 + (rand() & 99), qfalse, radius * 0.05f + (Q_flrand(-1.0f, 1.0f) *0.3f), 0);
+		le = CG_MakeExplosion( new_org, direction, media.gfx.null, 6, media.gfx.null, 300 + (rand() & 99), false, radius * 0.05f + (Q_flrand(-1.0f, 1.0f) *0.3f), 0);
 	}
 
 	//Shake the camera
@@ -1159,11 +1160,11 @@ void CG_SurfaceExplosion( vec3_t origin, vec3_t normal, float radius, float shak
 	if ( smoke )
 	{
 		VectorMA( origin, -8, normal, temp_org );
-//		FX_AddSpawner( temp_org, normal, NULL, NULL, 100, Q_flrand(0.0f, 1.0f)*25.0f, 5000.0f, (void *) CG_SmokeSpawn );
+//		FX_AddSpawner( temp_org, normal, nullptr, nullptr, 100, Q_flrand(0.0f, 1.0f)*25.0f, 5000.0f, (void *) CG_SmokeSpawn );
 
 		//Impact mark
 		//FIXME: Replace mark
-		//CG_ImpactMark( media.gfx.null, origin, normal, Q_flrand(0.0f, 1.0f)*360, 1,1,1,1, qfalse, 8, qfalse );
+		//CG_ImpactMark( media.gfx.null, origin, normal, Q_flrand(0.0f, 1.0f)*360, 1,1,1,1, false, 8, false );
 	}
 }
 

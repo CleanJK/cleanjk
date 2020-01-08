@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -23,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // this is only used for visualization tools in cm_ debug functions
 #include "qcommon/cm_local.h"
-#include "qcommon/qcommon.h"
+#include "qcommon/q_common.h"
 
 // counters are only bumped when running single threaded,
 // because they are an awefull coherence problem
@@ -51,8 +52,8 @@ winding_t	*AllocWinding (int points)
 		c_peak_windings = c_active_windings;
 
 	s = sizeof(float)*3*points + sizeof(int);
-	w = (winding_t *)Z_Malloc (s, TAG_BSP, qtrue);
-//	Com_Memset (w, 0, s); // qtrue param in Z_Malloc does this
+	w = (winding_t *)Z_Malloc (s, TAG_BSP, true);
+//	Com_Memset (w, 0, s); // true param in Z_Malloc does this
 	return w;
 }
 
@@ -202,7 +203,7 @@ void ChopWindingInPlace (winding_t **inout, vec3_t normal, float dist, float eps
 	if (!counts[0])
 	{
 		FreeWinding (in);
-		*inout = NULL;
+		*inout = nullptr;
 		return;
 	}
 	if (!counts[1])

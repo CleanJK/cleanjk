@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -38,7 +39,7 @@ static void CG_ForceModelChange( void ) {
 		if ( !VALIDSTRING( clientInfo ) )
 			continue;
 
-		CG_NewClientInfo( i, qtrue );
+		CG_NewClientInfo( i, true );
 	}
 }
 
@@ -102,7 +103,7 @@ static const size_t cvarTableSize = ARRAY_LEN( cvarTable );
 
 void CG_RegisterCvars( void ) {
 	size_t i = 0;
-	const cvarTable_t *cv = NULL;
+	const cvarTable_t *cv = nullptr;
 
 	for ( i=0, cv=cvarTable; i<cvarTableSize; i++, cv++ ) {
 		trap->Cvar_Register( cv->vmCvar, cv->cvarName, cv->defaultString, cv->cvarFlags );
@@ -113,7 +114,7 @@ void CG_RegisterCvars( void ) {
 
 void CG_UpdateCvars( void ) {
 	size_t i = 0;
-	const cvarTable_t *cv = NULL;
+	const cvarTable_t *cv = nullptr;
 
 	for ( i=0, cv=cvarTable; i<cvarTableSize; i++, cv++ ) {
 		if ( cv->vmCvar ) {

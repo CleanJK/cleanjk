@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -114,7 +115,7 @@ int R_CullPointAndRadius( const vec3_t pt, float radius )
 	int		i;
 	float	dist;
 	cplane_t	*frust;
-	qboolean mightBeClipped = qfalse;
+	bool mightBeClipped = false;
 
 	if ( r_nocull->integer==1 ) {
 		return CULL_CLIP;
@@ -132,7 +133,7 @@ int R_CullPointAndRadius( const vec3_t pt, float radius )
 		}
 		else if ( dist <= radius )
 		{
-			mightBeClipped = qtrue;
+			mightBeClipped = true;
 		}
 	}
 
@@ -549,10 +550,10 @@ void R_PlaneForSurface (surfaceType_t *surfType, cplane_t *plane) {
 }
 
 // entityNum is the entity that the portal surface is a part of, which may be moving and rotating.
-// Returns qtrue if it should be mirrored
-qboolean R_GetPortalOrientations( drawSurf_t *drawSurf, int entityNum,
+// Returns true if it should be mirrored
+bool R_GetPortalOrientations( drawSurf_t *drawSurf, int entityNum,
 							 orientation_t *surface, orientation_t *camera,
-							 vec3_t pvsOrigin, qboolean *mirror ) {
+							 vec3_t pvsOrigin, bool *mirror ) {
 	int			i;
 	cplane_t	originalPlane, plane;
 	trRefEntity_t	*e;
@@ -612,8 +613,8 @@ qboolean R_GetPortalOrientations( drawSurf_t *drawSurf, int entityNum,
 			VectorCopy( surface->axis[1], camera->axis[1] );
 			VectorCopy( surface->axis[2], camera->axis[2] );
 
-			*mirror = qtrue;
-			return qtrue;
+			*mirror = true;
+			return true;
 		}
 
 		// project the origin onto the surface plane to get
@@ -651,8 +652,8 @@ qboolean R_GetPortalOrientations( drawSurf_t *drawSurf, int entityNum,
 			RotatePointAroundVector( camera->axis[1], camera->axis[0], transformed, d );
 			CrossProduct( camera->axis[0], camera->axis[1], camera->axis[2] );
 		}
-		*mirror = qfalse;
-		return qtrue;
+		*mirror = false;
+		return true;
 	}
 
 	// if we didn't locate a portal entity, don't render anything.
@@ -666,10 +667,10 @@ qboolean R_GetPortalOrientations( drawSurf_t *drawSurf, int entityNum,
 
 	//ri.Printf( PRINT_ALL, "Portal surface without a portal entity\n" );
 
-	return qfalse;
+	return false;
 }
 
-static qboolean IsMirror( const drawSurf_t *drawSurf, int entityNum )
+static bool IsMirror( const drawSurf_t *drawSurf, int entityNum )
 {
 	int			i;
 	cplane_t	originalPlane, plane;
@@ -721,16 +722,16 @@ static qboolean IsMirror( const drawSurf_t *drawSurf, int entityNum )
 			e->e.oldorigin[1] == e->e.origin[1] &&
 			e->e.oldorigin[2] == e->e.origin[2] )
 		{
-			return qtrue;
+			return true;
 		}
 
-		return qfalse;
+		return false;
 	}
-	return qfalse;
+	return false;
 }
 
 // Determines if a surface is completely offscreen.
-static qboolean SurfIsOffscreen( const drawSurf_t *drawSurf, vec4_t clipDest[128] ) {
+static bool SurfIsOffscreen( const drawSurf_t *drawSurf, vec4_t clipDest[128] ) {
 	float shortest = 100000000;
 	int entityNum;
 	int numTriangles;
@@ -773,7 +774,7 @@ static qboolean SurfIsOffscreen( const drawSurf_t *drawSurf, vec4_t clipDest[128
 	// trivially reject
 	if ( pointAnd )
 	{
-		return qtrue;
+		return true;
 	}
 
 	// determine if this surface is backfaced and also determine the distance
@@ -804,26 +805,26 @@ static qboolean SurfIsOffscreen( const drawSurf_t *drawSurf, vec4_t clipDest[128
 	}
 	if ( !numTriangles )
 	{
-		return qtrue;
+		return true;
 	}
 
 	// mirrors can early out at this point, since we don't do a fade over distance
 	// with them (although we could)
 	if ( IsMirror( drawSurf, entityNum ) )
 	{
-		return qfalse;
+		return false;
 	}
 
 	if ( shortest > (tess.shader->portalRange*tess.shader->portalRange) )
 	{
-		return qtrue;
+		return true;
 	}
 
-	return qfalse;
+	return false;
 }
 
-// Returns qtrue if another view has been rendered
-qboolean R_MirrorViewBySurface (drawSurf_t *drawSurf, int entityNum) {
+// Returns true if another view has been rendered
+bool R_MirrorViewBySurface (drawSurf_t *drawSurf, int entityNum) {
 	vec4_t			clipDest[128];
 	viewParms_t		newParms;
 	viewParms_t		oldParms;
@@ -832,26 +833,26 @@ qboolean R_MirrorViewBySurface (drawSurf_t *drawSurf, int entityNum) {
 	// don't recursively mirror
 	if (tr.viewParms.isPortal) {
 		ri.Printf( PRINT_DEVELOPER, S_COLOR_RED "WARNING: recursive mirror/portal found\n" );
-		return qfalse;
+		return false;
 	}
 
 	if ( r_noportals->integer || (r_fastsky->integer == 1) ) {
-		return qfalse;
+		return false;
 	}
 
 	// trivially reject portal/mirror
 	if ( SurfIsOffscreen( drawSurf, clipDest ) ) {
-		return qfalse;
+		return false;
 	}
 
 	// save old viewParms so we can return to it after the mirror view
 	oldParms = tr.viewParms;
 
 	newParms = tr.viewParms;
-	newParms.isPortal = qtrue;
+	newParms.isPortal = true;
 	if ( !R_GetPortalOrientations( drawSurf, entityNum, &surface, &camera,
 		newParms.pvsOrigin, &newParms.isMirror ) ) {
-		return qfalse;		// bad portal, no portalentity
+		return false;		// bad portal, no portalentity
 	}
 
 	R_MirrorPoint (oldParms.ori.origin, &surface, &camera, newParms.ori.origin );
@@ -870,7 +871,7 @@ qboolean R_MirrorViewBySurface (drawSurf_t *drawSurf, int entityNum) {
 
 	tr.viewParms = oldParms;
 
-	return qtrue;
+	return true;
 }
 
 // See if a sprite is inside a fog volume
@@ -907,8 +908,8 @@ static QINLINE void R_Radix( int byte, int size, drawSurf_t *source, drawSurf_t 
   int           count[ 256 ] = { 0 };
   int           index[ 256 ];
   int           i;
-  unsigned char *sortKey = NULL;
-  unsigned char *end = NULL;
+  unsigned char *sortKey = nullptr;
+  unsigned char *end = nullptr;
 
   sortKey = ( (unsigned char *)&source[ 0 ].sort ) + byte;
   end = sortKey + ( size * sizeof( drawSurf_t ) );
@@ -1041,7 +1042,7 @@ void R_AddEntitySurfaces (void) {
 
 		assert(ent->e.renderfx >= 0);
 
-		ent->needDlights = qfalse;
+		ent->needDlights = false;
 
 		// preshift the value we are going to OR into the drawsurf sort
 		tr.shiftedEntityNum = tr.currentEntityNum << QSORT_REFENTITYNUM_SHIFT;

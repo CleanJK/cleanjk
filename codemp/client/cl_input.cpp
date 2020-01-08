@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -30,6 +31,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "qcommon/com_cvar.h"
 #include "qcommon/com_cvars.h"
 #include "ui/ui_public.h"
+#include "sys/sys_public.h"
 #ifndef _WIN32
 #include <cmath>
 #endif
@@ -39,8 +41,8 @@ int			old_com_frameTime;
 float cl_mPitchOverride = 0.0f;
 float cl_mYawOverride = 0.0f;
 float cl_mSensitivityOverride = 0.0f;
-qboolean cl_bUseFighterPitch = qfalse;
-qboolean cl_crazyShipControls = qfalse;
+bool cl_bUseFighterPitch = false;
+bool cl_crazyShipControls = false;
 
 #define	OVERRIDE_MOUSE_SENSITIVITY 10.0f//20.0f = 180 degree turn in one mouse swipe across keyboard
 
@@ -62,10 +64,10 @@ kbutton_t	in_up, in_down;
 
 kbutton_t	in_buttons[MAX_KBUTTONS];
 
-qboolean	in_mlooking;
+bool	in_mlooking;
 
 void IN_MLookDown( void ) {
-	in_mlooking = qtrue;
+	in_mlooking = true;
 }
 
 void IN_CenterView (void) {
@@ -73,7 +75,7 @@ void IN_CenterView (void) {
 }
 
 void IN_MLookUp( void ) {
-	in_mlooking = qfalse;
+	in_mlooking = false;
 	if ( !cl_freelook->integer ) {
 		IN_CenterView ();
 	}
@@ -81,109 +83,109 @@ void IN_MLookUp( void ) {
 
 void IN_GenCMD1( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_SABERSWITCH;
 }
 
 void IN_GenCMD2( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_ENGAGE_DUEL;
 }
 
 void IN_GenCMD3( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_FORCE_HEAL;
 }
 
 void IN_GenCMD4( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_FORCE_SPEED;
 }
 
 void IN_GenCMD5( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_FORCE_PULL;
 }
 
 void IN_GenCMD6( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_FORCE_DISTRACT;
 }
 
 void IN_GenCMD7( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_FORCE_RAGE;
 }
 
 void IN_GenCMD8( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_FORCE_PROTECT;
 }
 
 void IN_GenCMD9( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_FORCE_ABSORB;
 }
 
 void IN_GenCMD10( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_FORCE_HEALOTHER;
 }
 
 void IN_GenCMD11( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_FORCE_FORCEPOWEROTHER;
 }
 
 void IN_GenCMD12( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_FORCE_SEEING;
 }
 
 void IN_GenCMD13( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_USE_SEEKER;
 }
 
 void IN_GenCMD14( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_USE_FIELD;
 }
 
 void IN_GenCMD15( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_USE_BACTA;
 }
 
 void IN_GenCMD16( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_USE_ELECTROBINOCULARS;
 }
 
 void IN_GenCMD17( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_ZOOM;
 }
 
 void IN_GenCMD18( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_USE_SENTRY;
 }
 
@@ -192,79 +194,79 @@ void IN_GenCMD19( void )
 	if ( d_saberStanceDebug->integer ) {
 		Com_Printf("SABERSTANCEDEBUG: Gencmd on client set successfully.\n");
 	}
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_SABERATTACKCYCLE;
 }
 
 void IN_GenCMD20( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_FORCE_THROW;
 }
 
 void IN_GenCMD21( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_USE_JETPACK;
 }
 
 void IN_GenCMD22( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_USE_BACTABIG;
 }
 
 void IN_GenCMD23( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_USE_HEALTHDISP;
 }
 
 void IN_GenCMD24( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_USE_AMMODISP;
 }
 
 void IN_GenCMD25( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_USE_EWEB;
 }
 
 void IN_GenCMD26( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_USE_CLOAK;
 }
 
 void IN_GenCMD27( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_TAUNT;
 }
 
 void IN_GenCMD28( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_BOW;
 }
 
 void IN_GenCMD29( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_MEDITATE;
 }
 
 void IN_GenCMD30( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_FLOURISH;
 }
 
 void IN_GenCMD31( void )
 {
-	cl.gcmdSendValue = qtrue;
+	cl.gcmdSendValue = true;
 	cl.gcmdValue = GENCMD_GLOAT;
 }
 
@@ -321,8 +323,8 @@ void IN_KeyDown( kbutton_t *b ) {
 	c = Cmd_Argv(2);
 	b->downtime = atoi(c);
 
-	b->active = qtrue;
-	b->wasPressed = qtrue;
+	b->active = true;
+	b->wasPressed = true;
 }
 
 void IN_KeyUp( kbutton_t *b ) {
@@ -336,7 +338,7 @@ void IN_KeyUp( kbutton_t *b ) {
 	} else {
 		// typed manually at the console, assume for unsticking, so clear all
 		b->down[0] = b->down[1] = 0;
-		b->active = qfalse;
+		b->active = false;
 		return;
 	}
 
@@ -351,7 +353,7 @@ void IN_KeyUp( kbutton_t *b ) {
 		return;		// some other key is still holding it down
 	}
 
-	b->active = qfalse;
+	b->active = false;
 
 	// save timestamp for partial frame summing
 	c = Cmd_Argv(2);
@@ -362,7 +364,7 @@ void IN_KeyUp( kbutton_t *b ) {
 		b->msec += frame_msec / 2;
 	}
 
-	b->active = qfalse;
+	b->active = false;
 }
 
 // Returns the fraction of the frame that the key was down
@@ -403,7 +405,7 @@ float CL_KeyState( kbutton_t *key ) {
 #define		AUTOMAP_KEY_DEFAULTVIEW		7
 static autoMapInput_t			g_clAutoMapInput;
 //intercept certain keys during automap mode
-static void CL_AutoMapKey(int autoMapKey, qboolean up)
+static void CL_AutoMapKey(int autoMapKey, bool up)
 {
 	autoMapInput_t *data = (autoMapInput_t *)cl.mSharedMemory;
 
@@ -471,7 +473,7 @@ static void CL_AutoMapKey(int autoMapKey, qboolean up)
 		break;
 	case AUTOMAP_KEY_DEFAULTVIEW:
 		memset(&g_clAutoMapInput, 0, sizeof(autoMapInput_t));
-		g_clAutoMapInput.goToDefaults = qtrue;
+		g_clAutoMapInput.goToDefaults = true;
 		break;
 	default:
 		break;
@@ -484,14 +486,14 @@ static void CL_AutoMapKey(int autoMapKey, qboolean up)
 		CGVM_AutomapInput();
 	}
 
-	g_clAutoMapInput.goToDefaults = qfalse;
+	g_clAutoMapInput.goToDefaults = false;
 }
 
 void IN_UpDown(void)
 {
 	if (g_clAutoMapMode)
 	{
-		CL_AutoMapKey(AUTOMAP_KEY_PITCHUP, qfalse);
+		CL_AutoMapKey(AUTOMAP_KEY_PITCHUP, false);
 	}
 	else
 	{
@@ -502,7 +504,7 @@ void IN_UpUp(void)
 {
 	if (g_clAutoMapMode)
 	{
-		CL_AutoMapKey(AUTOMAP_KEY_PITCHUP, qtrue);
+		CL_AutoMapKey(AUTOMAP_KEY_PITCHUP, true);
 	}
 	else
 	{
@@ -513,7 +515,7 @@ void IN_DownDown(void)
 {
 	if (g_clAutoMapMode)
 	{
-		CL_AutoMapKey(AUTOMAP_KEY_PITCHDOWN, qfalse);
+		CL_AutoMapKey(AUTOMAP_KEY_PITCHDOWN, false);
 	}
 	else
 	{
@@ -524,7 +526,7 @@ void IN_DownUp(void)
 {
 	if (g_clAutoMapMode)
 	{
-		CL_AutoMapKey(AUTOMAP_KEY_PITCHDOWN, qtrue);
+		CL_AutoMapKey(AUTOMAP_KEY_PITCHDOWN, true);
 	}
 	else
 	{
@@ -539,7 +541,7 @@ void IN_ForwardDown(void)
 {
 	if (g_clAutoMapMode)
 	{
-		CL_AutoMapKey(AUTOMAP_KEY_FORWARD, qfalse);
+		CL_AutoMapKey(AUTOMAP_KEY_FORWARD, false);
 	}
 	else
 	{
@@ -550,7 +552,7 @@ void IN_ForwardUp(void)
 {
 	if (g_clAutoMapMode)
 	{
-		CL_AutoMapKey(AUTOMAP_KEY_FORWARD, qtrue);
+		CL_AutoMapKey(AUTOMAP_KEY_FORWARD, true);
 	}
 	else
 	{
@@ -561,7 +563,7 @@ void IN_BackDown(void)
 {
 	if (g_clAutoMapMode)
 	{
-		CL_AutoMapKey(AUTOMAP_KEY_BACK, qfalse);
+		CL_AutoMapKey(AUTOMAP_KEY_BACK, false);
 	}
 	else
 	{
@@ -572,7 +574,7 @@ void IN_BackUp(void)
 {
 	if (g_clAutoMapMode)
 	{
-		CL_AutoMapKey(AUTOMAP_KEY_BACK, qtrue);
+		CL_AutoMapKey(AUTOMAP_KEY_BACK, true);
 	}
 	else
 	{
@@ -587,7 +589,7 @@ void IN_MoveleftDown(void)
 {
 	if (g_clAutoMapMode)
 	{
-		CL_AutoMapKey(AUTOMAP_KEY_YAWLEFT, qfalse);
+		CL_AutoMapKey(AUTOMAP_KEY_YAWLEFT, false);
 	}
 	else
 	{
@@ -598,7 +600,7 @@ void IN_MoveleftUp(void)
 {
 	if (g_clAutoMapMode)
 	{
-		CL_AutoMapKey(AUTOMAP_KEY_YAWLEFT, qtrue);
+		CL_AutoMapKey(AUTOMAP_KEY_YAWLEFT, true);
 	}
 	else
 	{
@@ -609,7 +611,7 @@ void IN_MoverightDown(void)
 {
 	if (g_clAutoMapMode)
 	{
-		CL_AutoMapKey(AUTOMAP_KEY_YAWRIGHT, qfalse);
+		CL_AutoMapKey(AUTOMAP_KEY_YAWRIGHT, false);
 	}
 	else
 	{
@@ -620,7 +622,7 @@ void IN_MoverightUp(void)
 {
 	if (g_clAutoMapMode)
 	{
-		CL_AutoMapKey(AUTOMAP_KEY_YAWRIGHT, qtrue);
+		CL_AutoMapKey(AUTOMAP_KEY_YAWRIGHT, true);
 	}
 	else
 	{
@@ -647,7 +649,7 @@ void IN_Button5Down(void) //use key
 {
 	if (g_clAutoMapMode)
 	{
-		CL_AutoMapKey(AUTOMAP_KEY_DEFAULTVIEW, qfalse);
+		CL_AutoMapKey(AUTOMAP_KEY_DEFAULTVIEW, false);
 	}
 	else
 	{
@@ -740,7 +742,7 @@ void IN_UseGivenForce(void)
 	}
 
 	if(genCmdNum != 0) {
-		cl.gcmdSendValue = qtrue;
+		cl.gcmdSendValue = true;
 		cl.gcmdValue = genCmdNum;
 	}
 }
@@ -804,7 +806,7 @@ void CL_KeyMove( usercmd_t *cmd ) {
 	// adjust for speed key / running
 	// the walking flag is to keep animations consistant
 	// even during acceleration and develeration
-	if ( in_speed.active ^ cl_run->integer ) {
+	if (((in_speed.active) ? 1 : 0) ^ cl_run->integer ) {
 		movespeed = 127;
 		cmd->buttons &= ~BUTTON_WALKING;
 	} else {
@@ -873,7 +875,7 @@ void CL_JoystickMove( usercmd_t *cmd ) {
 		return;
 	}
 
-	if ( !(in_speed.active ^ cl_run->integer) ) {
+	if ( !(((in_speed.active) ? 1 : 0) ^ cl_run->integer) ) {
 		cmd->buttons |= BUTTON_WALKING;
 	}
 
@@ -1076,11 +1078,11 @@ void CL_MouseMove( usercmd_t *cmd ) {
 		cmd->forwardmove = ClampChar( cmd->forwardmove - m_forward->value * my );
 }
 
-qboolean CL_NoUseableForce(void)
+bool CL_NoUseableForce(void)
 {
 	if (!cls.cgameStarted)
 	{ //ahh, no cgame loaded
-		return qfalse;
+		return false;
 	}
 
 	return CGVM_NoUseableForce();
@@ -1096,7 +1098,7 @@ void CL_CmdButtons( usercmd_t *cmd ) {
 		if ( in_buttons[i].active || in_buttons[i].wasPressed ) {
 			cmd->buttons |= 1 << i;
 		}
-		in_buttons[i].wasPressed = qfalse;
+		in_buttons[i].wasPressed = false;
 	}
 
 	if (cmd->buttons & BUTTON_FORCEPOWER)
@@ -1132,8 +1134,8 @@ void CL_FinishMove( usercmd_t *cmd ) {
 	if (cl.gcmdSendValue)
 	{
 		cmd->generic_cmd = cl.gcmdValue;
-		//cl.gcmdSendValue = qfalse;
-		cl.gcmdSentValue = qtrue;
+		//cl.gcmdSendValue = false;
+		cl.gcmdSentValue = true;
 	}
 	else
 	{
@@ -1279,23 +1281,23 @@ void CL_CreateNewCommands( void ) {
 	cl.cmds[cmdNum] = CL_CreateCmd();
 }
 
-// Returns qfalse if we are over the maxpackets limit and should choke back the bandwidth a bit by not sending a packet
+// Returns false if we are over the maxpackets limit and should choke back the bandwidth a bit by not sending a packet
 //	this frame.
 // All the commands will still get delivered in the next packet, but saving a header and getting more delta compression
 //	will reduce total bandwidth.
-qboolean CL_ReadyToSendPacket( void ) {
+bool CL_ReadyToSendPacket( void ) {
 	int		oldPacketNum;
 	int		delta;
 
 	// don't send anything if playing back a demo
 	if ( clc.demoplaying || cls.state == CA_CINEMATIC ) {
-		return qfalse;
+		return false;
 	}
 
 	// If we are downloading, we send no less than 50ms between packets
 	if ( *clc.downloadTempName &&
 		cls.realtime - clc.lastPacketSentTime < 50 ) {
-		return qfalse;
+		return false;
 	}
 
 	// if we don't have a valid gamestate yet, only send
@@ -1304,17 +1306,17 @@ qboolean CL_ReadyToSendPacket( void ) {
 		cls.state != CA_PRIMED &&
 		!*clc.downloadTempName &&
 		cls.realtime - clc.lastPacketSentTime < 1000 ) {
-		return qfalse;
+		return false;
 	}
 
 	// send every frame for loopbacks
 	if ( clc.netchan.remoteAddress.type == NA_LOOPBACK ) {
-		return qtrue;
+		return true;
 	}
 
 	// send every frame for LAN
 	if ( cl_lanForcePackets->integer && Sys_IsLANAddress( clc.netchan.remoteAddress ) ) {
-		return qtrue;
+		return true;
 	}
 
 	// check for exceeding cl_maxpackets
@@ -1328,10 +1330,10 @@ qboolean CL_ReadyToSendPacket( void ) {
 	delta = cls.realtime -  cl.outPackets[ oldPacketNum ].p_realtime;
 	if ( delta < 1000 / cl_maxpackets->integer ) {
 		// the accumulated commands will go out in the next packet
-		return qfalse;
+		return false;
 	}
 
-	return qtrue;
+	return true;
 }
 
 // Create and send the command packet to the server, including both the reliable commands and the usercmds
@@ -1433,8 +1435,8 @@ void CL_WritePacket( void ) {
 
 		if (cl.gcmdSentValue)
 		{ //hmm, just clear here, I guess.. hoping it will resolve issues with gencmd values sometimes not going through.
-			cl.gcmdSendValue = qfalse;
-			cl.gcmdSentValue = qfalse;
+			cl.gcmdSendValue = false;
+			cl.gcmdSentValue = false;
 			cl.gcmdValue = 0;
 		}
 	}
@@ -1488,115 +1490,115 @@ void CL_SendCmd( void ) {
 
 static const cmdList_t inputCmds[] =
 {
-	{ "centerview", "Centers view on screen", IN_CenterView, NULL },
-	{ "+moveup", "Jump", IN_UpDown, NULL },
-	{ "-moveup", NULL, IN_UpUp, NULL },
-	{ "+movedown", "Crouch", IN_DownDown, NULL },
-	{ "-movedown", NULL, IN_DownUp, NULL },
-	{ "+left", "Rotate camera left", IN_LeftDown, NULL },
-	{ "-left", NULL, IN_LeftUp, NULL },
-	{ "+right", "Rotate camera right", IN_RightDown, NULL },
-	{ "-right", NULL, IN_RightUp, NULL },
-	{ "+forward", "Move forward", IN_ForwardDown, NULL },
-	{ "-forward", NULL, IN_ForwardUp, NULL },
-	{ "+back", "Move backward", IN_BackDown, NULL },
-	{ "-back", NULL, IN_BackUp, NULL },
-	{ "+lookup", "Tilt camera up", IN_LookupDown, NULL },
-	{ "-lookup", NULL, IN_LookupUp, NULL },
-	{ "+lookdown", "Tilt camera down", IN_LookdownDown, NULL },
-	{ "-lookdown", NULL, IN_LookdownUp, NULL },
-	{ "+strafe", "Hold to strafe", IN_StrafeDown, NULL },
-	{ "-strafe", NULL, IN_StrafeUp, NULL },
-	{ "+moveleft", "Strafe left", IN_MoveleftDown, NULL },
-	{ "-moveleft", NULL, IN_MoveleftUp, NULL },
-	{ "+moveright", "Strafe right", IN_MoverightDown, NULL },
-	{ "-moveright", NULL, IN_MoverightUp, NULL },
-	{ "+speed", "Walk or run", IN_SpeedDown, NULL },
-	{ "-speed", NULL, IN_SpeedUp, NULL },
-	{ "+attack", "Primary Attack", IN_Button0Down, NULL },
-	{ "-attack", NULL, IN_Button0Up, NULL },
-	{ "+use", "Use item", IN_Button5Down, NULL },
-	{ "-use", NULL, IN_Button5Up, NULL },
-	{ "+force_grip", "Hold to use grip force power", IN_Button6Down, NULL },
-	{ "-force_grip", NULL, IN_Button6Up, NULL },
-	{ "+altattack", "Alternate Attack", IN_Button7Down, NULL },
-	{ "-altattack", NULL, IN_Button7Up, NULL },
-	{ "+useforce", "Use selected force power", IN_Button9Down, NULL },
-	{ "-useforce", NULL, IN_Button9Up, NULL },
-	{ "+force_lightning", "Hold to use lightning force power", IN_Button10Down, NULL },
-	{ "-force_lightning", NULL, IN_Button10Up, NULL },
-	{ "+force_drain", "Hold to use drain force power", IN_Button11Down, NULL },
-	{ "-force_drain", NULL, IN_Button11Up, NULL },
-	{ "+button0", "Button 0", IN_Button0Down, NULL },
-	{ "-button0", NULL, IN_Button0Up, NULL },
-	{ "+button1", "Button 1", IN_Button1Down, NULL },
-	{ "-button1", NULL, IN_Button1Up, NULL },
-	{ "+button2", "Button 2", IN_Button2Down, NULL },
-	{ "-button2", NULL, IN_Button2Up, NULL },
-	{ "+button3", "Button 3", IN_Button3Down, NULL },
-	{ "-button3", NULL, IN_Button3Up, NULL },
-	{ "+button4", "Button 4", IN_Button4Down, NULL },
-	{ "-button4", NULL, IN_Button4Up, NULL },
-	{ "+button5", "Button 5", IN_Button5Down, NULL },
-	{ "-button5", NULL, IN_Button5Up, NULL },
-	{ "+button6", "Button 6", IN_Button6Down, NULL },
-	{ "-button6", NULL, IN_Button6Up, NULL },
-	{ "+button7", "Button 7", IN_Button7Down, NULL },
-	{ "-button7", NULL, IN_Button7Up, NULL },
-	{ "+button8", "Button 8", IN_Button8Down, NULL },
-	{ "-button8", NULL, IN_Button8Up, NULL },
-	{ "+button9", "Button 9", IN_Button9Down, NULL },
-	{ "-button9", NULL, IN_Button9Up, NULL },
-	{ "+button10", "Button 10", IN_Button10Down, NULL },
-	{ "-button10", NULL, IN_Button10Up, NULL },
-	{ "+button11", "Button 11", IN_Button11Down, NULL },
-	{ "-button11", NULL, IN_Button11Up, NULL },
-	{ "+button12", "Button 12", IN_Button12Down, NULL },
-	{ "-button12", NULL, IN_Button12Up, NULL },
-	{ "+button13", "Button 13", IN_Button13Down, NULL },
-	{ "-button13", NULL, IN_Button13Up, NULL },
-	{ "+button14", "Button 14", IN_Button14Down, NULL },
-	{ "-button14", NULL, IN_Button14Up, NULL },
-	{ "+button15", "Button 15", IN_Button15Down, NULL },
-	{ "-button15", NULL, IN_Button15Up, NULL },
-	{ "+mlook", "Hold to use mouse look", IN_MLookDown, NULL },
-	{ "-mlook", NULL, IN_MLookUp, NULL },
-	{ "sv_saberswitch", "Holster/activate lightsaber", IN_GenCMD1, NULL },
-	{ "engage_duel", "Engage private duel", IN_GenCMD2, NULL },
-	{ "force_heal", "Use heal force power", IN_GenCMD3, NULL },
-	{ "force_speed", "Activate speed force power", IN_GenCMD4, NULL },
-	{ "force_pull", "Use pull force power", IN_GenCMD5, NULL },
-	{ "force_distract", "Activate mind trick force power", IN_GenCMD6, NULL },
-	{ "force_rage", "Activate rage force power", IN_GenCMD7, NULL },
-	{ "force_protect", "Activate protect force power", IN_GenCMD8, NULL },
-	{ "force_absorb", "Activate absorb force power", IN_GenCMD9, NULL },
-	{ "force_healother", "Use team heal force power", IN_GenCMD10, NULL },
-	{ "force_forcepowerother", "Use team energize force power", IN_GenCMD11, NULL },
-	{ "force_seeing", "Activate seeing force power", IN_GenCMD12, NULL },
-	{ "use_seeker", "Use seeker drone item", IN_GenCMD13, NULL },
-	{ "use_field", "Use forcefield item", IN_GenCMD14, NULL },
-	{ "use_bacta", "Use bacta item", IN_GenCMD15, NULL },
-	{ "use_electrobinoculars", "Use electro binoculars item", IN_GenCMD16, NULL },
-	{ "zoom", "Use binoculars item", IN_GenCMD17, NULL },
-	{ "use_sentry", "Use sentry gun item", IN_GenCMD18, NULL },
-	{ "saberAttackCycle", "Switch lightsaber attack styles", IN_GenCMD19, NULL },
-	{ "force_throw", "Use push force power", IN_GenCMD20, NULL },
-	{ "use_jetpack", "Use jetpack item", IN_GenCMD21, NULL },
-	{ "use_bactabig", "Use big bacta item", IN_GenCMD22, NULL },
-	{ "use_healthdisp", "Use health dispenser item", IN_GenCMD23, NULL },
-	{ "use_ammodisp", "Use ammo dispenser item", IN_GenCMD24, NULL },
-	{ "use_eweb", "Use e-web item", IN_GenCMD25, NULL },
-	{ "use_cloak", "Use cloaking item", IN_GenCMD26, NULL },
-	{ "taunt", "Taunt", IN_GenCMD27, NULL },
-	{ "bow", "Bow", IN_GenCMD28, NULL },
-	{ "meditate", "Meditate", IN_GenCMD29, NULL },
-	{ "flourish", "Flourish", IN_GenCMD30, NULL },
-	{ "gloat", "Gloat", IN_GenCMD31, NULL },
-	{ "useGivenForce", "Use specified force power", IN_UseGivenForce, NULL },
-	{ "automap_button", "Show/hide automap", IN_AutoMapButton, NULL },
-	{ "automap_toggle", "Show/hide radar", IN_AutoMapToggle, NULL },
-	{ "voicechat", "Open voice chat menu", IN_VoiceChatButton, NULL },
-	{ NULL, NULL, NULL, NULL }
+	{ "centerview", "Centers view on screen", IN_CenterView, nullptr },
+	{ "+moveup", "Jump", IN_UpDown, nullptr },
+	{ "-moveup", nullptr, IN_UpUp, nullptr },
+	{ "+movedown", "Crouch", IN_DownDown, nullptr },
+	{ "-movedown", nullptr, IN_DownUp, nullptr },
+	{ "+left", "Rotate camera left", IN_LeftDown, nullptr },
+	{ "-left", nullptr, IN_LeftUp, nullptr },
+	{ "+right", "Rotate camera right", IN_RightDown, nullptr },
+	{ "-right", nullptr, IN_RightUp, nullptr },
+	{ "+forward", "Move forward", IN_ForwardDown, nullptr },
+	{ "-forward", nullptr, IN_ForwardUp, nullptr },
+	{ "+back", "Move backward", IN_BackDown, nullptr },
+	{ "-back", nullptr, IN_BackUp, nullptr },
+	{ "+lookup", "Tilt camera up", IN_LookupDown, nullptr },
+	{ "-lookup", nullptr, IN_LookupUp, nullptr },
+	{ "+lookdown", "Tilt camera down", IN_LookdownDown, nullptr },
+	{ "-lookdown", nullptr, IN_LookdownUp, nullptr },
+	{ "+strafe", "Hold to strafe", IN_StrafeDown, nullptr },
+	{ "-strafe", nullptr, IN_StrafeUp, nullptr },
+	{ "+moveleft", "Strafe left", IN_MoveleftDown, nullptr },
+	{ "-moveleft", nullptr, IN_MoveleftUp, nullptr },
+	{ "+moveright", "Strafe right", IN_MoverightDown, nullptr },
+	{ "-moveright", nullptr, IN_MoverightUp, nullptr },
+	{ "+speed", "Walk or run", IN_SpeedDown, nullptr },
+	{ "-speed", nullptr, IN_SpeedUp, nullptr },
+	{ "+attack", "Primary Attack", IN_Button0Down, nullptr },
+	{ "-attack", nullptr, IN_Button0Up, nullptr },
+	{ "+use", "Use item", IN_Button5Down, nullptr },
+	{ "-use", nullptr, IN_Button5Up, nullptr },
+	{ "+force_grip", "Hold to use grip force power", IN_Button6Down, nullptr },
+	{ "-force_grip", nullptr, IN_Button6Up, nullptr },
+	{ "+altattack", "Alternate Attack", IN_Button7Down, nullptr },
+	{ "-altattack", nullptr, IN_Button7Up, nullptr },
+	{ "+useforce", "Use selected force power", IN_Button9Down, nullptr },
+	{ "-useforce", nullptr, IN_Button9Up, nullptr },
+	{ "+force_lightning", "Hold to use lightning force power", IN_Button10Down, nullptr },
+	{ "-force_lightning", nullptr, IN_Button10Up, nullptr },
+	{ "+force_drain", "Hold to use drain force power", IN_Button11Down, nullptr },
+	{ "-force_drain", nullptr, IN_Button11Up, nullptr },
+	{ "+button0", "Button 0", IN_Button0Down, nullptr },
+	{ "-button0", nullptr, IN_Button0Up, nullptr },
+	{ "+button1", "Button 1", IN_Button1Down, nullptr },
+	{ "-button1", nullptr, IN_Button1Up, nullptr },
+	{ "+button2", "Button 2", IN_Button2Down, nullptr },
+	{ "-button2", nullptr, IN_Button2Up, nullptr },
+	{ "+button3", "Button 3", IN_Button3Down, nullptr },
+	{ "-button3", nullptr, IN_Button3Up, nullptr },
+	{ "+button4", "Button 4", IN_Button4Down, nullptr },
+	{ "-button4", nullptr, IN_Button4Up, nullptr },
+	{ "+button5", "Button 5", IN_Button5Down, nullptr },
+	{ "-button5", nullptr, IN_Button5Up, nullptr },
+	{ "+button6", "Button 6", IN_Button6Down, nullptr },
+	{ "-button6", nullptr, IN_Button6Up, nullptr },
+	{ "+button7", "Button 7", IN_Button7Down, nullptr },
+	{ "-button7", nullptr, IN_Button7Up, nullptr },
+	{ "+button8", "Button 8", IN_Button8Down, nullptr },
+	{ "-button8", nullptr, IN_Button8Up, nullptr },
+	{ "+button9", "Button 9", IN_Button9Down, nullptr },
+	{ "-button9", nullptr, IN_Button9Up, nullptr },
+	{ "+button10", "Button 10", IN_Button10Down, nullptr },
+	{ "-button10", nullptr, IN_Button10Up, nullptr },
+	{ "+button11", "Button 11", IN_Button11Down, nullptr },
+	{ "-button11", nullptr, IN_Button11Up, nullptr },
+	{ "+button12", "Button 12", IN_Button12Down, nullptr },
+	{ "-button12", nullptr, IN_Button12Up, nullptr },
+	{ "+button13", "Button 13", IN_Button13Down, nullptr },
+	{ "-button13", nullptr, IN_Button13Up, nullptr },
+	{ "+button14", "Button 14", IN_Button14Down, nullptr },
+	{ "-button14", nullptr, IN_Button14Up, nullptr },
+	{ "+button15", "Button 15", IN_Button15Down, nullptr },
+	{ "-button15", nullptr, IN_Button15Up, nullptr },
+	{ "+mlook", "Hold to use mouse look", IN_MLookDown, nullptr },
+	{ "-mlook", nullptr, IN_MLookUp, nullptr },
+	{ "sv_saberswitch", "Holster/activate lightsaber", IN_GenCMD1, nullptr },
+	{ "engage_duel", "Engage private duel", IN_GenCMD2, nullptr },
+	{ "force_heal", "Use heal force power", IN_GenCMD3, nullptr },
+	{ "force_speed", "Activate speed force power", IN_GenCMD4, nullptr },
+	{ "force_pull", "Use pull force power", IN_GenCMD5, nullptr },
+	{ "force_distract", "Activate mind trick force power", IN_GenCMD6, nullptr },
+	{ "force_rage", "Activate rage force power", IN_GenCMD7, nullptr },
+	{ "force_protect", "Activate protect force power", IN_GenCMD8, nullptr },
+	{ "force_absorb", "Activate absorb force power", IN_GenCMD9, nullptr },
+	{ "force_healother", "Use team heal force power", IN_GenCMD10, nullptr },
+	{ "force_forcepowerother", "Use team energize force power", IN_GenCMD11, nullptr },
+	{ "force_seeing", "Activate seeing force power", IN_GenCMD12, nullptr },
+	{ "use_seeker", "Use seeker drone item", IN_GenCMD13, nullptr },
+	{ "use_field", "Use forcefield item", IN_GenCMD14, nullptr },
+	{ "use_bacta", "Use bacta item", IN_GenCMD15, nullptr },
+	{ "use_electrobinoculars", "Use electro binoculars item", IN_GenCMD16, nullptr },
+	{ "zoom", "Use binoculars item", IN_GenCMD17, nullptr },
+	{ "use_sentry", "Use sentry gun item", IN_GenCMD18, nullptr },
+	{ "saberAttackCycle", "Switch lightsaber attack styles", IN_GenCMD19, nullptr },
+	{ "force_throw", "Use push force power", IN_GenCMD20, nullptr },
+	{ "use_jetpack", "Use jetpack item", IN_GenCMD21, nullptr },
+	{ "use_bactabig", "Use big bacta item", IN_GenCMD22, nullptr },
+	{ "use_healthdisp", "Use health dispenser item", IN_GenCMD23, nullptr },
+	{ "use_ammodisp", "Use ammo dispenser item", IN_GenCMD24, nullptr },
+	{ "use_eweb", "Use e-web item", IN_GenCMD25, nullptr },
+	{ "use_cloak", "Use cloaking item", IN_GenCMD26, nullptr },
+	{ "taunt", "Taunt", IN_GenCMD27, nullptr },
+	{ "bow", "Bow", IN_GenCMD28, nullptr },
+	{ "meditate", "Meditate", IN_GenCMD29, nullptr },
+	{ "flourish", "Flourish", IN_GenCMD30, nullptr },
+	{ "gloat", "Gloat", IN_GenCMD31, nullptr },
+	{ "useGivenForce", "Use specified force power", IN_UseGivenForce, nullptr },
+	{ "automap_button", "Show/hide automap", IN_AutoMapButton, nullptr },
+	{ "automap_toggle", "Show/hide radar", IN_AutoMapToggle, nullptr },
+	{ "voicechat", "Open voice chat menu", IN_VoiceChatButton, nullptr },
+	{ nullptr, nullptr, nullptr, nullptr }
 };
 
 void CL_InitInput( void ) {

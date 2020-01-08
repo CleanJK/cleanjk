@@ -4,7 +4,8 @@ Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
 Copyright (C) 2005 - 2015, ioquake3 contributors
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -75,7 +76,7 @@ static void CG_ParseScores( void ) {
 
 		cg.scores[i].team = cgs.clientinfo[cg.scores[i].client].team;
 	}
-	CG_SetScoreSelection( NULL );
+	CG_SetScoreSelection( nullptr );
 }
 
 #define TEAMINFO_OFFSET (6)
@@ -108,7 +109,7 @@ static void CG_ParseTeamInfo( void ) {
 // This is called explicitly when the gamestate is first received, and whenever the server updates any serverinfo
 //	flagged cvars
 void CG_ParseServerinfo( void ) {
-	const char *info = NULL;
+	const char *info = nullptr;
 	char *mapname;
 	int i, value;
 
@@ -129,8 +130,8 @@ void CG_ParseServerinfo( void ) {
 	// this changes on map_restart, attempt to precache weapons
 	value = atoi( Info_ValueForKey( info, "g_weaponDisable" ) );
 	if ( cgs.wDisable != value ) {
-		gitem_t *item = NULL;
-		itemInfo_t *itemInfo = NULL;
+		gitem_t *item = nullptr;
+		itemInfo_t *itemInfo = nullptr;
 
 		cgs.wDisable = value;
 
@@ -403,7 +404,7 @@ static void CG_ConfigStringModified( void ) {
 
 	// do something with it if necessary
 	if ( num == CS_MUSIC ) {
-		CG_StartMusic( qtrue );
+		CG_StartMusic( true );
 	} else if ( num == CS_SERVERINFO ) {
 		CG_ParseServerinfo();
 	} else if ( num == CS_WARMUP ) {
@@ -470,24 +471,24 @@ static void CG_ConfigStringModified( void ) {
 		cgs.levelStartTime = atoi( str );
 	} else if ( num == CS_VOTE_TIME ) {
 		cgs.voteTime = atoi( str );
-		cgs.voteModified = qtrue;
+		cgs.voteModified = true;
 	} else if ( num == CS_VOTE_YES ) {
 		cgs.voteYes = atoi( str );
-		cgs.voteModified = qtrue;
+		cgs.voteModified = true;
 	} else if ( num == CS_VOTE_NO ) {
 		cgs.voteNo = atoi( str );
-		cgs.voteModified = qtrue;
+		cgs.voteModified = true;
 	} else if ( num == CS_VOTE_STRING ) {
 		Q_strncpyz( cgs.voteString, str, sizeof( cgs.voteString ) );
 	} else if ( num >= CS_TEAMVOTE_TIME && num <= CS_TEAMVOTE_TIME + 1) {
 		cgs.teamVoteTime[num-CS_TEAMVOTE_TIME] = atoi( str );
-		cgs.teamVoteModified[num-CS_TEAMVOTE_TIME] = qtrue;
+		cgs.teamVoteModified[num-CS_TEAMVOTE_TIME] = true;
 	} else if ( num >= CS_TEAMVOTE_YES && num <= CS_TEAMVOTE_YES + 1) {
 		cgs.teamVoteYes[num-CS_TEAMVOTE_YES] = atoi( str );
-		cgs.teamVoteModified[num-CS_TEAMVOTE_YES] = qtrue;
+		cgs.teamVoteModified[num-CS_TEAMVOTE_YES] = true;
 	} else if ( num >= CS_TEAMVOTE_NO && num <= CS_TEAMVOTE_NO + 1) {
 		cgs.teamVoteNo[num-CS_TEAMVOTE_NO] = atoi( str );
-		cgs.teamVoteModified[num-CS_TEAMVOTE_NO] = qtrue;
+		cgs.teamVoteModified[num-CS_TEAMVOTE_NO] = true;
 	} else if ( num >= CS_TEAMVOTE_STRING && num <= CS_TEAMVOTE_STRING + 1) {
 		Q_strncpyz( cgs.teamVoteString[num-CS_TEAMVOTE_STRING], str, sizeof( cgs.teamVoteString ) );
 	} else if ( num == CS_INTERMISSION ) {
@@ -531,7 +532,7 @@ static void CG_ConfigStringModified( void ) {
 	}
 	else if ( num >= CS_PLAYERS && num < CS_PLAYERS+MAX_CLIENTS )
 	{
-		CG_NewClientInfo( num - CS_PLAYERS, qtrue);
+		CG_NewClientInfo( num - CS_PLAYERS, true);
 		CG_BuildSpectatorString();
 	} else if ( num == CS_FLAGSTATUS ) {
 		if( cgs.gametype == GT_CTF || cgs.gametype == GT_CTY ) {
@@ -559,19 +560,19 @@ static void CG_ConfigStringModified( void ) {
 void CG_KillCEntityG2(int entNum)
 {
 	int j;
-	clientInfo_t *ci = (entNum < MAX_CLIENTS) ? &cgs.clientinfo[entNum] : NULL;
+	clientInfo_t *ci = (entNum < MAX_CLIENTS) ? &cgs.clientinfo[entNum] : nullptr;
 	centity_t *cent = &cg_entities[entNum];
 
 	if (ci)
 	{
 		if (ci->ghoul2Model == cent->ghoul2)
 		{
-			ci->ghoul2Model = NULL;
+			ci->ghoul2Model = nullptr;
 		}
 		else if (ci->ghoul2Model && trap->G2_HaveWeGhoul2Models(ci->ghoul2Model))
 		{
 			trap->G2API_CleanGhoul2Models(&ci->ghoul2Model);
-			ci->ghoul2Model = NULL;
+			ci->ghoul2Model = nullptr;
 		}
 
 		//Clean up any weapon instances for custom saber stuff
@@ -581,7 +582,7 @@ void CG_KillCEntityG2(int entNum)
 			if (ci->ghoul2Weapons[j] && trap->G2_HaveWeGhoul2Models(ci->ghoul2Weapons[j]))
 			{
 				trap->G2API_CleanGhoul2Models(&ci->ghoul2Weapons[j]);
-				ci->ghoul2Weapons[j] = NULL;
+				ci->ghoul2Weapons[j] = nullptr;
 			}
 
 			j++;
@@ -591,23 +592,23 @@ void CG_KillCEntityG2(int entNum)
 	if (cent->ghoul2 && trap->G2_HaveWeGhoul2Models(cent->ghoul2))
 	{
 		trap->G2API_CleanGhoul2Models(&cent->ghoul2);
-		cent->ghoul2 = NULL;
+		cent->ghoul2 = nullptr;
 	}
 
 	if (cent->grip_arm && trap->G2_HaveWeGhoul2Models(cent->grip_arm))
 	{
 		trap->G2API_CleanGhoul2Models(&cent->grip_arm);
-		cent->grip_arm = NULL;
+		cent->grip_arm = nullptr;
 	}
 
 	if (cent->frame_hold && trap->G2_HaveWeGhoul2Models(cent->frame_hold))
 	{
 		trap->G2API_CleanGhoul2Models(&cent->frame_hold);
-		cent->frame_hold = NULL;
+		cent->frame_hold = nullptr;
 	}
 
-	cent->isRagging = qfalse; //just in case.
-	cent->ikStatus = qfalse;
+	cent->isRagging = false; //just in case.
+	cent->ikStatus = false;
 
 	cent->localAnimIndex = 0;
 }
@@ -639,7 +640,7 @@ void CG_KillCEntityInstances(void)
 		cent->frame_minus1_refreshed = 0;
 		cent->frame_minus2_refreshed = 0;
 		cent->dustTrailTime = 0;
-		cent->ghoul2weapon = NULL;
+		cent->ghoul2weapon = nullptr;
 		//cent->torsoBolt = 0;
 		cent->trailTime = 0;
 		cent->frame_hold_time = 0;
@@ -677,13 +678,13 @@ static void CG_MapRestart( void ) {
 
 	cg.timelimitWarnings = 0;
 
-	cg.intermissionStarted = qfalse;
+	cg.intermissionStarted = false;
 
 	cgs.voteTime = 0;
 
-	cg.mapRestart = qtrue;
+	cg.mapRestart = true;
 
-	CG_StartMusic(qtrue);
+	CG_StartMusic(true);
 
 	trap->S_ClearLoopingSounds();
 
@@ -716,7 +717,7 @@ void CG_CheckSVStringEdRef(char *buf, const char *str)
 	int i = 0;
 	int b = 0;
 	int strLen = 0;
-	qboolean gotStrip = qfalse;
+	bool gotStrip = false;
 
 	if (!str || !str[0])
 	{
@@ -738,7 +739,7 @@ void CG_CheckSVStringEdRef(char *buf, const char *str)
 
 	while (i < strLen && str[i])
 	{
-		gotStrip = qfalse;
+		gotStrip = false;
 
 		if (str[i] == '@' && (i+1) < strLen)
 		{
@@ -809,7 +810,7 @@ static void CG_BodyQueueCopy(centity_t *cent, int clientNum, int knownWeapon)
 		return;
 	}
 
-	cent->isRagging = qfalse; //reset in case it's still set from another body that was in this cent slot.
+	cent->isRagging = false; //reset in case it's still set from another body that was in this cent slot.
 	cent->ownerRagging = source->isRagging; //if the owner was in ragdoll state, then we want to go into it too right away.
 
 	cent->bodyFadeTime = 0;
@@ -821,8 +822,8 @@ static void CG_BodyQueueCopy(centity_t *cent, int clientNum, int knownWeapon)
 
 	if (source->isRagging)
 	{ //just reset it now.
-		source->isRagging = qfalse;
-		trap->G2API_SetRagDoll(source->ghoul2, NULL); //calling with null parms resets to no ragdoll.
+		source->isRagging = false;
+		trap->G2API_SetRagDoll(source->ghoul2, nullptr); //calling with null parms resets to no ragdoll.
 	}
 
 	//either force the weapon from when we died or remove it if it was a dropped weapon
@@ -839,13 +840,13 @@ static void CG_BodyQueueCopy(centity_t *cent, int clientNum, int knownWeapon)
 	{
 		int aNum;
 		int eFrame;
-		qboolean fallBack = qfalse;
+		bool fallBack = false;
 
 		//anim = &bgAllAnims[cent->localAnimIndex].anims[ cent->currentState.torsoAnim ];
 		if (!BG_InDeathAnim(source->currentState.torsoAnim))
 		{ //then just snap the corpse into a default
 			anim = &bgAllAnims[source->localAnimIndex].anims[ BOTH_DEAD1 ];
-			fallBack = qtrue;
+			fallBack = true;
 		}
 		else
 		{
@@ -948,8 +949,8 @@ static void CG_KillLoopSounds_f( void ) {
 	//kill looping sounds
 	int indexNum = 0;
 	int argNum = trap->Cmd_Argc();
-	centity_t *clent = NULL;
-	centity_t *trackerent = NULL;
+	centity_t *clent = nullptr;
+	centity_t *trackerent = nullptr;
 
 	if ( argNum < 1 ) {
 		assert( 0 );
@@ -979,10 +980,10 @@ static void CG_RestoreClientGhoul_f( void ) {
 	int			indexNum = 0;
 	int			argNum = trap->Cmd_Argc();
 	centity_t	*clent;
-	qboolean	IRCG = qfalse;
+	bool	IRCG = false;
 
 	if ( !strcmp( CG_Argv( 0 ), "ircg" ) )
-		IRCG = qtrue;
+		IRCG = true;
 
 	if ( argNum < 1 ) {
 		assert( 0 );
@@ -1034,15 +1035,15 @@ static void CG_RestoreClientGhoul_f( void ) {
 
 	//make sure ragdoll state is reset
 	if ( clent->isRagging ) {
-		clent->isRagging = qfalse;
-		trap->G2API_SetRagDoll( clent->ghoul2, NULL ); //calling with null parms resets to no ragdoll.
+		clent->isRagging = false;
+		trap->G2API_SetRagDoll( clent->ghoul2, nullptr ); //calling with null parms resets to no ragdoll.
 	}
 
 	//clear all the decals as well
 	trap->G2API_ClearSkinGore( clent->ghoul2 );
 
 	clent->weapon = 0;
-	clent->ghoul2weapon = NULL; //force a weapon reinit
+	clent->ghoul2weapon = nullptr; //force a weapon reinit
 }
 
 static void CG_CenterPrint_f( void ) {
@@ -1156,7 +1157,7 @@ static void CG_RemapShader_f( void ) {
 static void CG_ClientLevelShot_f( void ) {
 	// clientLevelShot is sent before taking a special screenshot for
 	// the menu system during development
-	cg.levelShot = qtrue;
+	cg.levelShot = true;
 }
 
 typedef struct serverCommand_s {
@@ -1196,7 +1197,7 @@ static const size_t numCommands = ARRAY_LEN( commands );
 // The string has been tokenized and can be retrieved with Cmd_Argc() / Cmd_Argv()
 static void CG_ServerCommand( void ) {
 	const char		*cmd = CG_Argv( 0 );
-	serverCommand_t	*command = NULL;
+	serverCommand_t	*command = nullptr;
 
 	if ( !cmd[0] ) {
 		// server claimed the command

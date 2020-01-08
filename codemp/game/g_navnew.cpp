@@ -2,7 +2,8 @@
 ===========================================================================
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -22,7 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "game/b_local.h"
 
-qboolean NAV_CheckNodeFailedForEnt( gentity_t *ent, int nodeNum )
+bool NAV_CheckNodeFailedForEnt( gentity_t *ent, int nodeNum )
 {
 	int j;
 
@@ -31,10 +32,10 @@ qboolean NAV_CheckNodeFailedForEnt( gentity_t *ent, int nodeNum )
 	{
 		if ( ent->failedWaypoints[j] == nodeNum+1 )//+1 because 0 is a valid nodeNum, but also the default
 		{//we failed against this node
-			return qtrue;
+			return true;
 		}
 	}
-	return qfalse;
+	return false;
 }
 
 int NAVNEW_ClearPathBetweenPoints(vec3_t start, vec3_t end, vec3_t mins, vec3_t maxs, int ignore, int clipmask)
@@ -47,7 +48,7 @@ int NAVNEW_ClearPathBetweenPoints(vec3_t start, vec3_t end, vec3_t mins, vec3_t 
 		return ENTITYNUM_WORLD;
 	}
 
-	trap->Trace( &trace, start, mins, maxs, end, ignore, clipmask, qfalse, 0, 0 );
+	trap->Trace( &trace, start, mins, maxs, end, ignore, clipmask, false, 0, 0 );
 
 	//if( ( ( trace.startsolid == false ) && ( trace.allsolid == false ) ) && ( trace.fraction < 1.0f ) )
 	//{//FIXME: check for drops?

@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -23,12 +24,24 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
+// ======================================================================
+// INCLUDE
+// ======================================================================
+
 #include "qcommon/q_shared.h"
 #include "rd-common/tr_types.h"
 #include "ui/ui_public.h"
 #include "client/cl_keycodes.h"
 #include "game/bg_public.h"
 #include "ui/ui_shared.h"
+
+#define XCVAR_PROTO
+#include "ui/ui_xcvar.h"
+#undef XCVAR_PROTO
+
+// ======================================================================
+// DEFINE
+// ======================================================================
 
 #define ACTION_BUFFER_SIZE		128
 #define DEMO_DIRECTORY			"demos"
@@ -58,6 +71,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define SKIN_LENGTH				16
 #define TEAM_MEMBERS			8//5
 
+// ======================================================================
+// STRUCT
+// ======================================================================
+
 struct lerpFrame_t {
 	int			oldFrame;
 	int			oldFrameTime;		// time when ->oldFrame was exactly on
@@ -65,9 +82,9 @@ struct lerpFrame_t {
 	int			frameTime;			// time when ->frame will be exactly on
 	float		backlerp;
 	float		yawAngle;
-	qboolean	yawing;
+	bool	yawing;
 	float		pitchAngle;
-	qboolean	pitching;
+	bool	pitching;
 	int			animationNumber;
 	animation_t	*animation;
 	int			animationTime;		// time when the first frame of the animation will be exact
@@ -99,9 +116,9 @@ struct playerInfo_t {
 	int				torsoAnimationTimer;
 	int				pendingTorsoAnim;
 	int				legsAnimationTimer;
-	qboolean		chat;
-	qboolean		newModel;
-	qboolean		barrelSpinning;
+	bool		chat;
+	bool		newModel;
+	bool		barrelSpinning;
 	float			barrelAngle;
 	int				barrelTime;
 	int				realWeapon;
@@ -138,7 +155,7 @@ struct mapInfo_t {
 	int cinematic;
 	int timeToBeat[MAX_GAMETYPES];
 	qhandle_t levelShot;
-	qboolean active;
+	bool active;
 };
 
 struct tierInfo_t {
@@ -169,7 +186,7 @@ struct serverStatus_t {
 	int		sortKey;
 	int		sortDir;
 	int		lastCount;
-	qboolean refreshActive;
+	bool refreshActive;
 	int		currentServer;
 	int		displayServers[MAX_DISPLAY_SERVERS];
 	int		numDisplayServers;
@@ -192,7 +209,7 @@ struct pendingServer_t {
 	char		name[MAX_ADDRESSLENGTH];
 	int			startTime;
 	int			serverNum;
-	qboolean	valid;
+	bool	valid;
 };
 
 struct pendingServerStatus_t {
@@ -255,7 +272,7 @@ struct uiInfo_t {
 	int						playerRefresh;
 	int						playerIndex;
 	int						playerNumber;
-	qboolean				teamLeader;
+	bool				teamLeader;
 	char					playerNames[MAX_CLIENTS][MAX_NETNAME];
 	char					teamNames[MAX_CLIENTS][MAX_TEAMNAME];
 	int						teamClientNums[MAX_CLIENTS];
@@ -298,10 +315,10 @@ struct uiInfo_t {
 	int						forceConfigCount;
 	int						forceConfigSelected;
 	char					forceConfigNames[MAX_FORCE_CONFIGS][128];
-	qboolean				forceConfigSide[MAX_FORCE_CONFIGS]; //true if it's a light side config, false if dark side
+	bool				forceConfigSide[MAX_FORCE_CONFIGS]; //true if it's a light side config, false if dark side
 	int						forceConfigDarkIndexBegin; //mark the index number dark configs start at
 	int						forceConfigLightIndexBegin; //mark the index number light configs start at
-	qboolean				inGameLoad;
+	bool				inGameLoad;
 	int						playerSpeciesMax;
 	int						playerSpeciesCount;
 	playerSpeciesInfo_t		*playerSpecies;
@@ -313,43 +330,40 @@ struct uiInfo_t {
 	int						languageCountIndex;
 };
 
+// ======================================================================
+// EXTERN VARIABLE
+// ======================================================================
 
-
-qboolean    UI_ConsoleCommand         ( int realTime );
-char       *UI_Cvar_VariableString    ( const char *var_name );
-void        UI_DrawHandlePic          ( float x, float y, float w, float h, qhandle_t hShader );
-qboolean    UI_FeederSelection        ( float feederID, int index, itemDef_t *item );
-void        UI_FillRect               ( float x, float y, float width, float height, const float *color );
-char       *UI_GetBotNameByNumber     ( int num );
-int         UI_GetNumBots             ( void );
-const char *UI_GetStringEdString      ( const char *refSection, const char *refName );
-void        UI_Load                   ( void );
-void        UI_LoadArenas             ( void );
-void        UI_LoadBots               ( void );
-void        UI_LoadForceConfig_List   ( void );
-void        UI_LoadMenus              ( const char *menuFile, qboolean reset );
-void        UI_RegisterCvars          ( void );
-void        UI_Report                 ( void );
-qboolean    UI_SaberModelForSaber     ( const char *saberName, char *saberModel );
-qboolean    UI_SaberProperNameForSaber( const char *saberName, char *saberProperName );
-qboolean    UI_SaberTypeForSaber      ( const char *saberName, char *saberType );
-const char *UI_TeamName               ( int team );
-qboolean    UI_TrueJediEnabled        ( void );
-void        UI_UpdateCvars            ( void );
-void        UpdateForceUsed           ( void );
-
-// ui_cvar.c
-#define XCVAR_PROTO
-	#include "ui/ui_xcvar.h"
-#undef XCVAR_PROTO
-
-extern uiImport_t *trap;
+extern bool ui_saber_parms_parsed;
+extern uiImport_t* trap;
 extern uiInfo_t uiInfo;
 
-// Some extern functions hoisted from the middle of this file to get all the non-cgame,
-// non-namespace stuff together
-void UI_CacheSaberGlowGraphics(void);
-void UI_SaberDrawBlades( itemDef_t *item, vec3_t origin, vec3_t angles );
-void UI_SaberLoadParms( void );
+// ======================================================================
+// FUNCTION
+// ======================================================================
 
-extern qboolean ui_saber_parms_parsed;
+bool UI_ConsoleCommand(int realTime);
+bool UI_FeederSelection(float feederID, int index, itemDef_t* item);
+bool UI_SaberModelForSaber(const char* saberName, char* saberModel);
+bool UI_SaberProperNameForSaber(const char* saberName, char* saberProperName);
+bool UI_SaberTypeForSaber(const char* saberName, char* saberType);
+bool UI_TrueJediEnabled(void);
+char* UI_Cvar_VariableString(const char* var_name);
+char* UI_GetBotNameByNumber(int num);
+const char* UI_GetStringEdString(const char* refSection, const char* refName);
+const char* UI_TeamName(int team);
+int UI_GetNumBots(void);
+void UI_CacheSaberGlowGraphics(void);
+void UI_DrawHandlePic(float x, float y, float w, float h, qhandle_t hShader);
+void UI_FillRect(float x, float y, float width, float height, const float* color);
+void UI_Load(void);
+void UI_LoadArenas(void);
+void UI_LoadBots(void);
+void UI_LoadForceConfig_List(void);
+void UI_LoadMenus(const char* menuFile, bool reset);
+void UI_RegisterCvars(void);
+void UI_Report(void);
+void UI_SaberDrawBlades(itemDef_t* item, vec3_t origin, vec3_t angles);
+void UI_SaberLoadParms(void);
+void UI_UpdateCvars(void);
+void UpdateForceUsed(void);

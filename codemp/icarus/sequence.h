@@ -2,7 +2,8 @@
 ===========================================================================
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -22,13 +23,23 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-// Sequence Header File
+// ======================================================================
+// INCLUDE
+// ======================================================================
 
 #include "icarus/blockstream.h"
 #include "icarus/interface.h"
 #include "icarus/taskmanager.h"
 
+// ======================================================================
+// DEFINE
+// ======================================================================
+
 class ICARUS_Instance;
+
+// ======================================================================
+// CLASS
+// ======================================================================
 
 class CSequence
 {
@@ -89,7 +100,7 @@ public:
 
 	inline void *operator new( size_t size )
 	{	// Allocate the memory.
-		return Z_Malloc( size, TAG_ICARUS3, qtrue );
+		return Z_Malloc( size, TAG_ICARUS3, true );
 	}
 	// Overloaded delete operator.
 	inline void operator delete( void *pRawData )

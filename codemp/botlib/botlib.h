@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -25,16 +26,18 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // bot AI library
 
+// ======================================================================
+// INCLUDE
+// ======================================================================
+
+#include "qcommon/q_math.h"
 #include "qcommon/q_shared.h"
 
-#define	BOTLIB_API_VERSION		2
+// ======================================================================
+// DEFINE
+// ======================================================================
 
-struct bot_consolemessage_s;
-struct bot_match_s;
-struct bot_goal_s;
-struct bot_moveresult_s;
-struct bot_initmove_s;
-struct weaponinfo_s;
+#define	BOTLIB_API_VERSION		2
 
 #define BOTFILESBASEFOLDER		"botfiles"
 //debug line colors
@@ -98,6 +101,21 @@ struct weaponinfo_s;
 #define ACTION_FOLLOWME			0x8000000
 */
 
+// ======================================================================
+// FORWARD DECLARATION
+// ======================================================================
+
+struct bot_consolemessage_s;
+struct bot_match_s;
+struct bot_goal_s;
+struct bot_moveresult_s;
+struct bot_initmove_s;
+struct weaponinfo_s;
+
+// ======================================================================
+// STRUCT
+// ======================================================================
+
 //the bot input, will be converted to a usercmd_t
 typedef struct bot_input_s
 {
@@ -110,7 +128,6 @@ typedef struct bot_input_s
 } bot_input_t;
 
 #ifndef BSPTRACE
-
 #define BSPTRACE
 
 //bsp_trace_t hit surface
@@ -125,8 +142,8 @@ typedef struct bsp_surface_s
 //a trace is returned when a box is swept through the world
 typedef struct bsp_trace_s
 {
-	qboolean		allsolid;	// if true, plane is not valid
-	qboolean		startsolid;	// if true, the initial point was in a solid area
+	bool		allsolid;	// if true, plane is not valid
+	bool		startsolid;	// if true, the initial point was in a solid area
 	float			fraction;	// time completed, 1.0 = didn't hit anything
 	vec3_t			endpos;		// final position
 	cplane_t		plane;		// surface normal at impact

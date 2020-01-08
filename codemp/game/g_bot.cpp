@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -69,7 +70,7 @@ int G_ParseInfos( char *buf, int max, char *infos[] ) {
 
 		info[0] = '\0';
 		while ( 1 ) {
-			token = COM_ParseExt( (const char **)(&buf), qtrue );
+			token = COM_ParseExt( (const char **)(&buf), true );
 			if ( !token[0] ) {
 				Com_Printf( "Unexpected end of info file\n" );
 				break;
@@ -79,9 +80,9 @@ int G_ParseInfos( char *buf, int max, char *infos[] ) {
 			}
 			Q_strncpyz( key, token, sizeof( key ) );
 
-			token = COM_ParseExt( (const char **)(&buf), qfalse );
+			token = COM_ParseExt( (const char **)(&buf), false );
 			if ( !token[0] ) {
-				strcpy( token, "<NULL>" );
+				strcpy( token, "<nullptr>" );
 			}
 			Info_SetValueForKey( info, key, token );
 		}
@@ -157,21 +158,21 @@ int G_GetMapTypeBits(char *type)
 	return typeBits;
 }
 
-qboolean G_DoesMapSupportGametype(const char *mapname, int gametype)
+bool G_DoesMapSupportGametype(const char *mapname, int gametype)
 {
 	int			typeBits = 0;
 	int			thisLevel = -1;
 	int			n = 0;
-	char		*type = NULL;
+	char		*type = nullptr;
 
 	if (!level.arenas.infos[0])
 	{
-		return qfalse;
+		return false;
 	}
 
 	if (!mapname || !mapname[0])
 	{
-		return qfalse;
+		return false;
 	}
 
 	for( n = 0; n < level.arenas.num; n++ )
@@ -187,7 +188,7 @@ qboolean G_DoesMapSupportGametype(const char *mapname, int gametype)
 
 	if (thisLevel == -1)
 	{
-		return qfalse;
+		return false;
 	}
 
 	type = Info_ValueForKey(level.arenas.infos[thisLevel], "type");
@@ -195,30 +196,30 @@ qboolean G_DoesMapSupportGametype(const char *mapname, int gametype)
 	typeBits = G_GetMapTypeBits(type);
 	if (typeBits & (1 << gametype))
 	{ //the map in question supports the gametype in question, so..
-		return qtrue;
+		return true;
 	}
 
-	return qfalse;
+	return false;
 }
 
 //rww - auto-obtain nextmap. I could've sworn Q3 had something like this, but I guess not.
-const char *G_RefreshNextMap(int gametype, qboolean forced)
+const char *G_RefreshNextMap(int gametype, bool forced)
 {
 	int			typeBits = 0;
 	int			thisLevel = 0;
 	int			desiredMap = 0;
 	int			n = 0;
-	char		*type = NULL;
-	qboolean	loopingUp = qfalse;
+	char		*type = nullptr;
+	bool	loopingUp = false;
 
 	if (!g_autoMapCycle.integer && !forced)
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	if (!level.arenas.infos[0])
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	for( n = 0; n < level.arenas.num; n++ )
@@ -245,7 +246,7 @@ const char *G_RefreshNextMap(int gametype, qboolean forced)
 				break;
 			}
 			n = 0;
-			loopingUp = qtrue;
+			loopingUp = true;
 		}
 
 		type = Info_ValueForKey(level.arenas.infos[n], "type");
@@ -308,7 +309,7 @@ void G_LoadArenas( void ) {
 		Info_SetValueForKey( level.arenas.infos[n], "num", va( "%i", n ) );
 	}
 
-	G_RefreshNextMap(level.gametype, qfalse);
+	G_RefreshNextMap(level.gametype, false);
 }
 
 const char *G_GetArenaInfoByMap( const char *map ) {
@@ -320,7 +321,7 @@ const char *G_GetArenaInfoByMap( const char *map ) {
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 void G_AddRandomBot( int team ) {
@@ -406,9 +407,9 @@ int G_RemoveRandomBot( int team ) {
 			continue;
 
 		trap->SendConsoleCommand( EXEC_INSERT, va("clientkick %d\n", i) );
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
 int G_CountHumanPlayers( int team ) {
@@ -591,7 +592,7 @@ void G_CheckBotSpawn( void ) {
 		if ( botSpawnQueue[n].spawnTime > level.time ) {
 			continue;
 		}
-		ClientBegin( botSpawnQueue[n].clientNum, qfalse );
+		ClientBegin( botSpawnQueue[n].clientNum, false );
 		botSpawnQueue[n].spawnTime = 0;
 	}
 }
@@ -608,7 +609,7 @@ static void AddBotToSpawnQueue( int clientNum, int delay ) {
 	}
 
 	trap->Print( S_COLOR_YELLOW "Unable to delay spawn\n" );
-	ClientBegin( clientNum, qfalse );
+	ClientBegin( clientNum, false );
 }
 
 // Called on client disconnect to make sure the delayed spawn doesn't happen on a freed index
@@ -623,7 +624,7 @@ void G_RemoveQueuedBotBegin( int clientNum ) {
 	}
 }
 
-qboolean G_BotConnect( int clientNum, qboolean restart ) {
+bool G_BotConnect( int clientNum, bool restart ) {
 	bot_settings_t	settings;
 	char			userinfo[MAX_INFO_STRING];
 
@@ -635,22 +636,22 @@ qboolean G_BotConnect( int clientNum, qboolean restart ) {
 
 	if (!BotAISetupClient( clientNum, &settings, restart )) {
 		trap->DropClient( clientNum, "BotAISetupClient failed" );
-		return qfalse;
+		return false;
 	}
 
-	return qtrue;
+	return true;
 }
 
 static void G_AddBot( const char *name, float skill, const char *team, int delay, char *altname) {
-	gentity_t *bot = NULL;
+	gentity_t *bot = nullptr;
 	int       clientNum;
 	team_t    preTeam = TEAM_FREE;
 	char      userinfo[MAX_INFO_STRING] = {0};
-	char      *botinfo = NULL;
-	char      *key = NULL;
-	char      *s = NULL;
-	char      *botname = NULL;
-	char      *model = NULL;
+	char      *botinfo = nullptr;
+	char      *key = nullptr;
+	char      *s = nullptr;
+	char      *botname = nullptr;
+	char      *model = nullptr;
 
 	// have the server allocate a client slot
 	clientNum = trap->BotAllocateClient();
@@ -766,7 +767,7 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 
 	bot = &g_entities[ clientNum ];
 //	bot->r.svFlags |= SVF_BOT;
-//	bot->inuse = qtrue;
+//	bot->inuse = true;
 
 	// register the userinfo
 	trap->SetUserinfo( clientNum, userinfo );
@@ -784,7 +785,7 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 	preTeam = bot->client->sess.sessionTeam;
 
 	// have it connect to the game as a normal client
-	if ( ClientConnect( clientNum, qtrue, qtrue ) )
+	if ( ClientConnect( clientNum, true, true ) )
 		return;
 
 	if ( bot->client->sess.sessionTeam != preTeam )
@@ -817,7 +818,7 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 		int doubles = 0;
 
 		bot->client->sess.duelTeam = 0;
-		G_PowerDuelCount(&loners, &doubles, qtrue);
+		G_PowerDuelCount(&loners, &doubles, true);
 
 		if (!doubles || loners > (doubles/2))
 		{
@@ -834,7 +835,7 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 	else
 	{
 		if( delay == 0 ) {
-			ClientBegin( clientNum, qfalse );
+			ClientBegin( clientNum, false );
 			return;
 		}
 
@@ -979,7 +980,7 @@ static void G_LoadBots( void ) {
 char *G_GetBotInfoByNumber( int num ) {
 	if( num < 0 || num >= level.bots.num ) {
 		trap->Print( S_COLOR_RED "Invalid bot number: %i\n", num );
-		return NULL;
+		return nullptr;
 	}
 	return level.bots.infos[num];
 }
@@ -995,7 +996,7 @@ char *G_GetBotInfoByName( const char *name ) {
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 void G_InitBots( void ) {

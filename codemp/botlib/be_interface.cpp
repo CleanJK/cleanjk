@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -42,41 +43,41 @@ botlib_export_t be_botlib_export;
 botlib_import_t botimport;
 int botDeveloper;
 //true if the library is setup
-int botlibsetup = qfalse;
+bool botlibsetup = false;
 
 int Sys_MilliSeconds(void)
 {
 	return clock() * 1000 / CLOCKS_PER_SEC;
 } //end of the function Sys_MilliSeconds
-qboolean ValidClientNumber(int num, char *str)
+bool ValidClientNumber(int num, char *str)
 {
 	if (num < 0 || num > botlibglobals.maxclients)
 	{
 		//weird: the disabled stuff results in a crash
 		botimport.Print(PRT_ERROR, "%s: invalid client number %d, [0, %d]\n",
 										str, num, botlibglobals.maxclients);
-		return qfalse;
+		return false;
 	} //end if
-	return qtrue;
+	return true;
 } //end of the function BotValidateClientNumber
-qboolean ValidEntityNumber(int num, char *str)
+bool ValidEntityNumber(int num, char *str)
 {
 	if (num < 0 || num > botlibglobals.maxentities)
 	{
 		botimport.Print(PRT_ERROR, "%s: invalid entity number %d, [0, %d]\n",
 										str, num, botlibglobals.maxentities);
-		return qfalse;
+		return false;
 	} //end if
-	return qtrue;
+	return true;
 } //end of the function BotValidateClientNumber
-qboolean BotLibSetup(char *str)
+bool BotLibSetup(char *str)
 {
 	if (!botlibglobals.botlibsetup)
 	{
 		botimport.Print(PRT_ERROR, "%s: bot library used before being setup\n", str);
-		return qfalse;
+		return false;
 	} //end if
-	return qtrue;
+	return true;
 } //end of the function BotLibSetup
 
 int Export_BotLibSetup(void)
@@ -127,8 +128,8 @@ int Export_BotLibSetup(void)
 	errnum = BotSetupMoveAI();		//be_ai_move.c
 	if (errnum != BLERR_NOERROR) return errnum;
 	*/
-	botlibsetup = qtrue;
-	botlibglobals.botlibsetup = qtrue;
+	botlibsetup = true;
+	botlibglobals.botlibsetup = true;
 
 	return BLERR_NOERROR;
 } //end of the function Export_BotLibSetup
@@ -153,8 +154,8 @@ int Export_BotLibShutdown(void)
 	//shut down library log file
 	Log_Shutdown();
 
-	botlibsetup = qfalse;
-	botlibglobals.botlibsetup = qfalse;
+	botlibsetup = false;
+	botlibglobals.botlibsetup = false;
 	// print any files still open
 	PC_CheckOpenSourceHandles();
 
@@ -217,7 +218,7 @@ botlib_export_t *GetBotLibAPI(int apiVersion, botlib_import_t *import) {
 
 	if ( apiVersion != BOTLIB_API_VERSION ) {
 		botimport.Print( PRT_ERROR, "Mismatched BOTLIB_API_VERSION: expected %i, got %i\n", BOTLIB_API_VERSION, apiVersion );
-		return NULL;
+		return nullptr;
 	}
 
 	Init_EA_Export(&be_botlib_export.ea);

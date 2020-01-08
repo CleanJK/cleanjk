@@ -2,7 +2,8 @@
 ===========================================================================
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -75,7 +76,7 @@ int ICARUS_RunScript( sharedEntity_t *ent, const char *name )
 	int len;
 
 	//Make sure the caller is valid
-	if ( gSequencers[ent->s.number] == NULL )
+	if ( gSequencers[ent->s.number] == nullptr )
 	{
 		//Com_Printf( "%s : entity is not a valid script user\n", ent->classname );
 		return false;
@@ -144,7 +145,7 @@ void ICARUS_Init( void )
 	//Create the ICARUS instance for this session
 	iICARUS = ICARUS_Instance::Create( &interface_export );
 
-	if ( iICARUS == NULL )
+	if ( iICARUS == nullptr )
 	{
 		Com_Error( ERR_DROP, "Unable to initialize ICARUS instance\n" );
 		return;
@@ -191,7 +192,7 @@ void ICARUS_Shutdown( void )
 	if ( iICARUS )
 	{
 		iICARUS->Delete();
-		iICARUS = NULL;
+		iICARUS = nullptr;
 	}
 }
 
@@ -210,7 +211,7 @@ void ICARUS_FreeEnt( sharedEntity_t *ent )
 	}
 
 	//Make sure the ent is valid
-	if ( gSequencers[ent->s.number] == NULL )
+	if ( gSequencers[ent->s.number] == nullptr )
 		return;
 
 	//Remove them from the ICARUSE_EntList list so that when their g_entity index is reused, ICARUS doesn't try to affect the new (incorrect) ent.
@@ -233,8 +234,8 @@ void ICARUS_FreeEnt( sharedEntity_t *ent )
 	iICARUS->DeleteSequencer( gSequencers[ent->s.number] );
 
 	//Clean up the pointers
-	gSequencers[ent->s.number]		= NULL;
-	gTaskManagers[ent->s.number]	= NULL;
+	gSequencers[ent->s.number]		= nullptr;
+	gTaskManagers[ent->s.number]	= nullptr;
 }
 
 // Determines whether or not an entity needs ICARUS information
@@ -284,12 +285,12 @@ void ICARUS_AssociateEnt( sharedEntity_t *ent )
 }
 
 // Loads and caches a script
-bool ICARUS_RegisterScript( const char *name, qboolean bCalledDuringInterrogate /* = false */ )
+bool ICARUS_RegisterScript( const char *name, bool bCalledDuringInterrogate /* = false */ )
 {
 	bufferlist_t::iterator	ei;
 	pscript_t	*pscript;
 	char		newname[MAX_FILENAME_LENGTH];
-	char		*buffer = NULL;	// lose compiler warning about uninitialised vars
+	char		*buffer = nullptr;	// lose compiler warning about uninitialised vars
 	long		length;
 
 	//Make sure this isn't already cached
@@ -308,7 +309,7 @@ bool ICARUS_RegisterScript( const char *name, qboolean bCalledDuringInterrogate 
 	//	find stuff like BS_RUN_AND_SHOOT as scriptname...   During FINALBUILD the message won't appear anyway, hence
 	//	the ifndef, this just cuts down on internal error reports while testing release mode...
 
-	qboolean qbIgnoreFileRead = qfalse;
+	bool qbIgnoreFileRead = false;
 
 	length = qbIgnoreFileRead ? -1 : FS_ReadFile( newname, (void **) &buffer );
 
@@ -325,7 +326,7 @@ bool ICARUS_RegisterScript( const char *name, qboolean bCalledDuringInterrogate 
 
 	pscript = new pscript_t;
 
-	pscript->buffer = (char *) ICARUS_Malloc(length);//gi.Malloc(length, TAG_ICARUS, qfalse);
+	pscript->buffer = (char *) ICARUS_Malloc(length);//gi.Malloc(length, TAG_ICARUS, false);
 	memcpy (pscript->buffer, buffer, length);
 	pscript->length = length;
 
@@ -378,7 +379,7 @@ void ICARUS_InterrogateScript( const char *filename )
 	}
 
 	//Attempt to register this script
-	if ( ICARUS_RegisterScript( sFilename, qtrue ) == false )	// true = bCalledDuringInterrogate
+	if ( ICARUS_RegisterScript( sFilename, true ) == false )	// true = bCalledDuringInterrogate
 		return;
 
 	char	*buf;
@@ -389,7 +390,7 @@ void ICARUS_InterrogateScript( const char *filename )
 		return;
 
 	//Open the stream
-	if ( stream.Open( buf, len ) == qfalse )
+	if ( stream.Open( buf, len ) == false )
 		return;
 
 	const char	*sVal1, *sVal2;
@@ -400,7 +401,7 @@ void ICARUS_InterrogateScript( const char *filename )
 	while ( stream.BlockAvailable() )
 	{
 		//Get a block
-		if ( stream.ReadBlock( &block ) == qfalse )
+		if ( stream.ReadBlock( &block ) == false )
 			return;
 
 		//Determine what type of block this is
@@ -415,7 +416,7 @@ void ICARUS_InterrogateScript( const char *filename )
 					sVal1 = (const char *) block.GetMemberData( 1 );
 
 					//we can do this I guess since the roff is loaded on the server.
-					theROFFSystem.Cache((char *)sVal1, qfalse);
+					theROFFSystem.Cache((char *)sVal1, false);
 				}
 			}
 			break;
@@ -429,7 +430,7 @@ void ICARUS_InterrogateScript( const char *filename )
 				sVal1 = (const char *) block.GetMemberData( 1 );
 
 				//we can do this I guess since the roff is loaded on the server.
-				theROFFSystem.Cache((char *)sVal1, qfalse);
+				theROFFSystem.Cache((char *)sVal1, false);
 			}
 			break;
 
@@ -537,7 +538,7 @@ void ICARUS_PrecacheEnt( sharedEntity_t *ent )
 
 	for ( i = 0; i < NUM_BSETS; i++ )
 	{
-		if ( ent->behaviorSet[i] == NULL )
+		if ( ent->behaviorSet[i] == nullptr )
 			continue;
 
 		if ( GetIDForString( BSTable, ent->behaviorSet[i] ) == -1 )
@@ -555,13 +556,13 @@ void ICARUS_InitEnt( sharedEntity_t *ent )
 {
 	//Make sure this is a fresh ent
 	assert( iICARUS );
-	assert( gTaskManagers[ent->s.number] == NULL );
-	assert( gSequencers[ent->s.number] == NULL );
+	assert( gTaskManagers[ent->s.number] == nullptr );
+	assert( gSequencers[ent->s.number] == nullptr );
 
-	if ( gSequencers[ent->s.number] != NULL )
+	if ( gSequencers[ent->s.number] != nullptr )
 		return;
 
-	if ( gTaskManagers[ent->s.number] != NULL )
+	if ( gTaskManagers[ent->s.number] != nullptr )
 		return;
 
 	//Create the sequencer and setup the task manager
@@ -582,7 +583,7 @@ int ICARUS_LinkEntity( int entID, CSequencer *sequencer, CTaskManager *taskManag
 {
 	sharedEntity_t	*ent = SV_GentityNum(entID);
 
-	if ( ent == NULL )
+	if ( ent == nullptr )
 		return false;
 
 	gSequencers[ent->s.number] = sequencer;
@@ -591,39 +592,4 @@ int ICARUS_LinkEntity( int entID, CSequencer *sequencer, CTaskManager *taskManag
 	ICARUS_AssociateEnt( ent );
 
 	return true;
-}
-
-void Svcmd_ICARUS_f( void )
-{
-	//rwwFIXMEFIXME: Do something with this for debugging purposes at some point.
-	/*
-	char	*cmd = Cmd_Argv( 1 );
-
-	if ( Q_stricmp( cmd, "log" ) == 0 )
-	{
-		//g_ICARUSDebug->integer = WL_DEBUG;
-		if ( VALIDSTRING( Cmd_Argv( 2 ) ) )
-		{
-			sharedEntity_t	*ent = G_Find( NULL, FOFS( script_targetname ), gi.argv(2) );
-
-			if ( ent == NULL )
-			{
-				Com_Printf( "Entity \"%s\" not found!\n", gi.argv(2) );
-				return;
-			}
-
-			//Start logging
-			Com_Printf("Logging ICARUS info for entity %s\n", gi.argv(2) );
-
-			ICARUS_entFilter		= ( ent->s.number == ICARUS_entFilter ) ? -1 : ent->s.number;
-
-			return;
-		}
-
-		Com_Printf("Logging ICARUS info for all entities\n");
-
-		return;
-	}
-	*/
-	return;
 }

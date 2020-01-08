@@ -49,7 +49,7 @@ CON_Input
 */
 char *CON_Input( void )
 {
-	return NULL;
+	return nullptr;
 }
 
 /*

@@ -2,7 +2,8 @@
 ===========================================================================
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -22,8 +23,22 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
+// ======================================================================
+// INCLUDE
+// ======================================================================
+
 #include <map>
 #include <string>
+
+// ======================================================================
+// DEFINE
+// ======================================================================
+
+using entlist_t = std::map <std::string, int>;
+
+// ======================================================================
+// STRUCT
+// ======================================================================
 
 typedef struct pscript_s
 {
@@ -31,28 +46,30 @@ typedef struct pscript_s
 	long	length;
 } pscript_t;
 
-typedef	std::map < std::string, int >		entlist_t;
-typedef std::map < std::string, pscript_t* >	bufferlist_t;
+using bufferlist_t = std::map <std::string, pscript_t*>;
 
-//ICARUS includes
-extern	struct interface_export_s	interface_export;
+// ======================================================================
+// EXTERN VARIABLE
+// ======================================================================
 
-void Interface_Init( struct interface_export_s *pe );
-int ICARUS_RunScript( sharedEntity_t *ent, const char *name );
-bool ICARUS_RegisterScript( const char *name, qboolean bCalledDuringInterrogate = qfalse);
-extern class ICARUS_Instance	*iICARUS;
-extern bufferlist_t		ICARUS_BufferList;
-extern entlist_t		ICARUS_EntList;
+extern struct interface_export_s interface_export;
+extern int ICARUS_entFilter;
+extern class ICARUS_Instance* iICARUS;
+extern bufferlist_t	ICARUS_BufferList;
+extern entlist_t ICARUS_EntList;
 
-//	g_ICARUS.cpp
-void ICARUS_Init( void );
-bool ICARUS_ValidEnt( sharedEntity_t *ent );
-void ICARUS_InitEnt( sharedEntity_t *ent );
-void ICARUS_FreeEnt( sharedEntity_t *ent );
-void ICARUS_AssociateEnt( sharedEntity_t *ent );
-void ICARUS_Shutdown( void );
-int ICARUS_GetScript( const char *name, char **buf );
-int ICARUS_LinkEntity( int entID, class CSequencer *sequencer, class CTaskManager *taskManager );
-void Svcmd_ICARUS_f( void );
+// ======================================================================
+// FUNCTION
+// ======================================================================
 
-extern int		ICARUS_entFilter;
+bool ICARUS_RegisterScript(const char* name, bool bCalledDuringInterrogate = false);
+bool ICARUS_ValidEnt(sharedEntity_t* ent);
+int ICARUS_GetScript(const char* name, char** buf);
+int ICARUS_LinkEntity(int entID, class CSequencer* sequencer, class CTaskManager* taskManager);
+int ICARUS_RunScript(sharedEntity_t* ent, const char* name);
+void ICARUS_AssociateEnt(sharedEntity_t* ent);
+void ICARUS_FreeEnt(sharedEntity_t* ent);
+void ICARUS_Init(void);
+void ICARUS_InitEnt(sharedEntity_t* ent);
+void ICARUS_Shutdown(void);
+void Interface_Init(struct interface_export_s* pe);

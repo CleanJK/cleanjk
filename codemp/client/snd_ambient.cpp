@@ -2,7 +2,8 @@
 ===========================================================================
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -26,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "client/snd_ambient.h"
 #include "client/snd_local.h"
 
-static const int MAX_SET_VOLUME =	255;
+static constexpr int MAX_SET_VOLUME = 255;
 
 static void AS_GetGeneralSet( ambientSet_t & );
 static void AS_GetLocalSet( ambientSet_t & );
@@ -44,17 +45,17 @@ static int oldSetTime = 0;
 static int		numSets	= 0;
 
 // Main ambient sound group
-static CSetGroup*	aSets = NULL;
+static CSetGroup*	aSets = nullptr;
 
 // Globals for speed, blech
-static char	*parseBuffer	= NULL;
+static char	*parseBuffer	= nullptr;
 static int		parseSize		= 0;
 static int		parsePos		= 0;
 static char	tempBuffer[1024];
 
 //NOTENOTE: Be sure to change the mirrored code in g_spawn.cpp, and cg_main.cpp
 typedef	std::map<sstring_t, unsigned char>	namePrecache_m;
-static namePrecache_m*	pMap = NULL;
+static namePrecache_m*	pMap = nullptr;
 
 // Used for enum / string matching
 static const char	*setNames[NUM_AS_SETS] =
@@ -122,7 +123,7 @@ ambientSet_t *CSetGroup::AddSet( const char *name )
 	ambientSet_t	*set;
 
 	//Allocate the memory
-	set = (ambientSet_t *) Z_Malloc( sizeof( ambientSet_t ), TAG_AMBIENTSET, qtrue);
+	set = (ambientSet_t *) Z_Malloc( sizeof( ambientSet_t ), TAG_AMBIENTSET, true);
 
 	//Set up some defaults
 	Q_strncpyz(set->name,name,sizeof(set->name));
@@ -149,13 +150,13 @@ ambientSet_t *CSetGroup::GetSet( const char *name )
 {
 	std::map < sstring_t, ambientSet_t *>::iterator	mi;
 
-	if ( name == NULL )
-		return NULL;
+	if ( name == nullptr )
+		return nullptr;
 
 	mi = m_setMap->find( name );
 
 	if ( mi == m_setMap->end() )
-		return NULL;
+		return nullptr;
 
 	return (*mi).second;
 }
@@ -163,13 +164,13 @@ ambientSet_t *CSetGroup::GetSet( const char *name )
 ambientSet_t *CSetGroup::GetSet( int ID )
 {
 	if ( m_ambientSets->empty() )
-		return NULL;
+		return nullptr;
 
 	if ( ID < 0 )
-		return NULL;
+		return nullptr;
 
 	if ( ID >= m_numSets )
-		return NULL;
+		return nullptr;
 
 	return (*m_ambientSets)[ID];
 }
@@ -179,7 +180,7 @@ ambientSet_t *CSetGroup::GetSet( int ID )
 static int AS_GetSetNameIDForString( const char *name )
 {
 	//Make sure it's valid
-	if ( name == NULL || name[0] == '\0' )
+	if ( name == nullptr || name[0] == '\0' )
 		return -1;
 
 	for ( int i = 0; i < NUM_AS_SETS; i++ )
@@ -194,7 +195,7 @@ static int AS_GetSetNameIDForString( const char *name )
 static int AS_GetKeywordIDForString( const char *name )
 {
 	//Make sure it's valid
-	if ( name == NULL || name[0] == '\0' )
+	if ( name == nullptr || name[0] == '\0' )
 		return -1;
 
 	for ( int i = 0; i < NUM_AS_KEYWORDS; i++ )
@@ -507,14 +508,14 @@ static void AS_GetBModelSet( ambientSet_t &set )
 }
 
 // Parses an individual set group out of a set file buffer
-static qboolean AS_ParseSet( int setID, CSetGroup *sg )
+static bool AS_ParseSet( int setID, CSetGroup *sg )
 {
 	ambientSet_t	*set;
 	const char		*name;
 
 	//Make sure we're not overstepping the name array
 	if ( setID >= NUM_AS_SETS )
-		return qfalse;
+		return false;
 
 	//Reset the pointers for this run through
 	parsePos = 0;
@@ -557,7 +558,7 @@ static qboolean AS_ParseSet( int setID, CSetGroup *sg )
 		AS_SkipLine();
 	}
 
-	return qtrue;
+	return true;
 }
 
 // Parses the directory information out of the beginning of the file
@@ -603,13 +604,13 @@ static void AS_ParseHeader( void )
 }
 
 // Opens and parses a sound set file
-static qboolean AS_ParseFile( const char *filename, CSetGroup *sg )
+static bool AS_ParseFile( const char *filename, CSetGroup *sg )
 {
 	//Open the file and read the information from it
 	parseSize = FS_ReadFile( filename, (void **) &parseBuffer );
 
 	if ( parseSize <= 0 )
-		return qfalse;
+		return false;
 
 	//Parse the directory information out of the file
 	AS_ParseHeader();
@@ -621,7 +622,7 @@ static qboolean AS_ParseFile( const char *filename, CSetGroup *sg )
 	//Free the memory and close the file
 	FS_FreeFile( parseBuffer );
 
-	return qtrue;
+	return true;
 }
 
 // Main code
@@ -659,7 +660,7 @@ void AS_ParseSets( void )
 	AS_Init();
 
 	//Parse all the sets
-	if ( AS_ParseFile( AMBIENT_SET_FILENAME, aSets ) == qfalse ) {
+	if ( AS_ParseFile( AMBIENT_SET_FILENAME, aSets ) == false ) {
 		Com_Printf( S_COLOR_RED "ERROR: Couldn't load ambient sound sets from " AMBIENT_SET_FILENAME "\n" );
 	}
 
@@ -694,7 +695,7 @@ void AS_Free( void )
 	{
 		aSets->Free();
 		delete aSets;
-		aSets = NULL;
+		aSets = nullptr;
 
 		currentSet	= -1;
 		oldSet		= -1;
@@ -736,7 +737,7 @@ static void AS_UpdateSetVolumes( void )
 	//Get the sets and validate them
 	current = aSets->GetSet( currentSet );
 
-	if ( current == NULL )
+	if ( current == nullptr )
 		return;
 
 	if ( current->masterVolume < MAX_SET_VOLUME )
@@ -755,7 +756,7 @@ static void AS_UpdateSetVolumes( void )
 
 	old = aSets->GetSet( oldSet );
 
-	if ( old == NULL )
+	if ( old == nullptr )
 		return;
 
 	//Update the volumes
@@ -818,7 +819,7 @@ static void AS_PlayLocalSet( vec3_t listener_origin, vec3_t origin, ambientSet_t
 	int				time = cl.serverTime;
 
 	//Make sure it's valid
-	if ( set == NULL )
+	if ( set == nullptr )
 		return;
 
 	VectorSubtract( origin, listener_origin, dir );
@@ -857,7 +858,7 @@ static void AS_PlayAmbientSet( vec3_t origin, ambientSet_t *set, int *lastTime )
 	int				time = cls.realtime;
 
 	//Make sure it's valid
-	if ( set == NULL )
+	if ( set == nullptr )
 		return;
 
 	//Add the looping sound
@@ -890,7 +891,7 @@ void S_UpdateAmbientSet ( const char *name, vec3_t origin )
 	ambientSet_t	*current, *old;
 	ambientSet_t	*set = aSets->GetSet( name );
 
-	if ( set == NULL )
+	if ( set == nullptr )
 		return;
 
 	//Update the current and old set for crossfading
@@ -913,7 +914,7 @@ int S_AddLocalSet( const char *name, vec3_t listener_origin, vec3_t origin, int 
 
 	set = aSets->GetSet( name );
 
-	if ( set == NULL )
+	if ( set == nullptr )
 		return cl.serverTime;
 
 	currentTime = time;
@@ -929,7 +930,7 @@ sfxHandle_t AS_GetBModelSound( const char *name, int stage )
 
 	set = aSets->GetSet( name );
 
-	if ( set == NULL )
+	if ( set == nullptr )
 		return -1;
 
 	//Stage must be within a valid range

@@ -2,7 +2,8 @@
 ===========================================================================
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -22,16 +23,23 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-// Filename:-	mdx_format.h
 // DO NOT UPDATE THIS FILE IN ANY WAY WHATSOEVER WITHOUT TELLING ME (-Ste), BECAUSE THE MASTER COPY IS IN A DIFFERENT
-//	SOURCESAFE DATABASE AND WILL JUST GET PASTED OVER THIS ONE WHENEVER I CHANGE IT.
+// SOURCESAFE DATABASE AND WILL JUST GET PASTED OVER THIS ONE WHENEVER I CHANGE IT.
 
 // MDX file format (typically uses file extension GLX for mesh, and GLA for anim/skeleton file)
 // Notes:
-//	- All offset fields are relative to the address of the structure they occur in
-//	- So far, the only external symbol needed is MAX_QPATH, plus the typedefs for vec3_t, vec2_t etc
+// - All offset fields are relative to the address of the structure they occur in
+// - So far, the only external symbol needed is MAX_QPATH, plus the typedefs for vec3_t, vec2_t etc
+
+// ======================================================================
+// INCLUDE
+// ======================================================================
 
 #include "qcommon/q_shared.h"
+
+// ======================================================================
+// DEFINE
+// ======================================================================
 
 #define MDXM_IDENT			(('M'<<24)+('G'<<16)+('L'<<8)+'2')
 #define MDXA_IDENT			(('A'<<24)+('G'<<16)+('L'<<8)+'2')
@@ -79,6 +87,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #define sDEFAULT_GLA_NAME "*default"	// used when making special simple ghoul2 models, usually from MD3 files
 
+// ======================================================================
+// STRUCT
+// ======================================================================
+
 // these structs are defined here purely because of structure dependancy order...
 /*
 #ifdef __cplusplus
@@ -122,6 +134,7 @@ mdxaCompBone_t
 #endif
 ;
 */
+
 #ifdef __cplusplus
 struct mdxaCompQuatBone_t
 #else
@@ -148,7 +161,6 @@ typedef struct mdxaBone_s {
 #endif
 
 // mdxHeader_t  - this contains the header for the file, with sanity checking and version checking, plus number of lod's to be expected
-
 typedef struct mdxmHeader_s {
 
 	// ( first 3 fields are same format as MD3/MDR so we can apply easy model-format-type checks )
@@ -268,37 +280,133 @@ typedef struct mdxmHeader_s {
 
 				// } vert
 
+
+
+				// for each vert... (mdxmSurface_t->numVerts)  (seperated from mdxmVertex_t struct for cache reasons)
+				// {
+						// mdxVertex_t - this is an array with number of verts from the surface definition as its bounds. It contains normal info, texture coors and number of weightings for this bone
+
+						typedef struct mdxmVertexTexCoord_s
+						{
+							vec2_t			texCoords;
+						} mdxmVertexTexCoord_t;
+
+						// } vert
+
+				// } surface
+		// } LOD
+
+		// seperate file here for animation data...
+
+		// mdxaHeader_t  - this contains the header for the file, with sanity checking and version checking, plus number of lod's to be expected
+
+						typedef struct mdxaHeader_s
+						{
+
+							// ( first 3 fields are same format as MD3/MDR so we can apply easy model-format-type checks )
+
+							int			ident;				// 	"IDP3" = MD3, "RDM5" = MDR, "2LGA"(GL2 Anim) = MDXA
+							int			version;			// 1,2,3 etc as per format revision
+
+							char		name[MAX_QPATH];	// GLA name (eg "skeletons/marine")	// note: extension missing
+							float		fScale;				// will be zero if build before this field was defined, else scale it was built with
+
+							// frames and bones are shared by all levels of detail
+
+							int			numFrames;
+							int			ofsFrames;			// points at mdxaFrame_t array
+							int			numBones;			// (no offset to these since they're inside the frames array)
+							int			ofsCompBonePool;	// offset to global compressed-bone pool that all frames use
+							int			ofsSkel;			// offset to mdxaSkel_t info
+
+							int			ofsEnd;				// EOF, which of course gives overall file size
+
+						} mdxaHeader_t;
+
+						// for each bone... (doesn't actually need a struct for this, just makes source clearer)
+						// {
+						typedef struct
+						{
+							int offsets[1];		// variable sized (mdxaHeader_t->numBones), each offset points to an mdxaSkel_t below
+						} mdxaSkelOffsets_t;
+						// }
+
+						// for each bone...	 (mdxaHeader_t->numBones)
+						// {
+								// mdxaSkel_t - contains hierarchical info only...
+
+						typedef struct mdxaSkel_s
+						{
+							char		name[MAX_QPATH];	// name of bone
+							unsigned int flags;
+							int			parent;				// index of bone that is parent to this one, -1 = nullptr/root
+							mdxaBone_t	BasePoseMat;		// base pose
+							mdxaBone_t	BasePoseMatInv;		// inverse, to save run-time calc
+							int			numChildren;		// number of children bones
+							int			children[1];		// [mdxaSkel_t->numChildren] (variable sized)
+						} mdxaSkel_t;	// struct size = (int)( &((mdxaSkel_t *)0)->children[ mdxaSkel_t->numChildren ] );
+				// }
+
+					// (offset @ mdxaHeader_t->ofsFrames)
+
+					//  array of 3 byte indices here (hey, 25% saving over 4-byte really adds up)...
+
+					// access as follows to get the index for a given <iFrameNum, iBoneNum>
+
+					// (iFrameNum * mdxaHeader_t->numBones * 3) + (iBoneNum * 3)
+
+					// Then convert the three byte int at that location.
+					// This struct is used for easy searches.
+						typedef struct
+						{
+							byte    iIndex[3];
+						} mdxaIndex_t;
+
+						// (note that there's then an alignement-pad here to get the next struct back onto 32-bit alignement)
+
+						// this index then points into the following...
+
+					// Compressed-bone pool that all frames use  (mdxaHeader_t->ofsCompBonePool)  (defined at end because size unknown until end)
+					// for each bone in pool (unknown number, no actual total stored at the moment)...
+					// {
+							// mdxaCompBone_t  (defined at file top because of struct dependancy)
+					// }
+
 #ifdef __cplusplus
 
-// these are convenience functions that I can invoked in code. Do NOT change them (because this is a shared file),
-//	but if you want to copy the logic out and use your own versions then fine...
+// ======================================================================
+// FUNCTION
+// ======================================================================
 
-static inline int G2_GetVertWeights( const mdxmVertex_t *pVert )
+// these are convenience functions that I can invoked in code. Do NOT change them (because this is a shared file),
+// but if you want to copy the logic out and use your own versions then fine...
+
+static inline int G2_GetVertWeights(const mdxmVertex_t* pVert)
 {
-	int iNumWeights = (pVert->uiNmWeightsAndBoneIndexes >> 30)+1;	// 1..4 count
+	int iNumWeights = (pVert->uiNmWeightsAndBoneIndexes >> 30) + 1;	// 1..4 count
 
 	return iNumWeights;
 }
 
-static inline int G2_GetVertBoneIndex( const mdxmVertex_t *pVert, const int iWeightNum)
+static inline int G2_GetVertBoneIndex(const mdxmVertex_t* pVert, const int iWeightNum)
 {
-	int iBoneIndex = (pVert->uiNmWeightsAndBoneIndexes>>(iG2_BITS_PER_BONEREF*iWeightNum))&((1<<iG2_BITS_PER_BONEREF)-1);
+	int iBoneIndex = (pVert->uiNmWeightsAndBoneIndexes >> (iG2_BITS_PER_BONEREF * iWeightNum))& ((1 << iG2_BITS_PER_BONEREF) - 1);
 
 	return iBoneIndex;
 }
 
-static inline float G2_GetVertBoneWeight( const mdxmVertex_t *pVert, const int iWeightNum, float &fTotalWeight, int iNumWeights )
+static inline float G2_GetVertBoneWeight(const mdxmVertex_t* pVert, const int iWeightNum, float& fTotalWeight, int iNumWeights)
 {
 	float fBoneWeight;
 
-	if (iWeightNum == iNumWeights-1)
+	if (iWeightNum == iNumWeights - 1)
 	{
-		fBoneWeight = 1.0f-fTotalWeight;
+		fBoneWeight = 1.0f - fTotalWeight;
 	}
 	else
 	{
 		int iTemp = pVert->BoneWeightings[iWeightNum];
-			iTemp|= (pVert->uiNmWeightsAndBoneIndexes >> (iG2_BONEWEIGHT_TOPBITS_SHIFT+(iWeightNum*2)) ) & iG2_BONEWEIGHT_TOPBITS_AND;
+		iTemp |= (pVert->uiNmWeightsAndBoneIndexes >> (iG2_BONEWEIGHT_TOPBITS_SHIFT + (iWeightNum * 2)))& iG2_BONEWEIGHT_TOPBITS_AND;
 
 		fBoneWeight = fG2_BONEWEIGHT_RECIPROCAL_MULT * iTemp;
 		fTotalWeight += fBoneWeight;
@@ -307,89 +415,3 @@ static inline float G2_GetVertBoneWeight( const mdxmVertex_t *pVert, const int i
 	return fBoneWeight;
 }
 #endif
-				// for each vert... (mdxmSurface_t->numVerts)  (seperated from mdxmVertex_t struct for cache reasons)
-				// {
-						// mdxVertex_t - this is an array with number of verts from the surface definition as its bounds. It contains normal info, texture coors and number of weightings for this bone
-
-						typedef struct mdxmVertexTexCoord_s {
-							vec2_t			texCoords;
-						} mdxmVertexTexCoord_t;
-
-				// } vert
-
-		// } surface
-// } LOD
-
-// seperate file here for animation data...
-
-// mdxaHeader_t  - this contains the header for the file, with sanity checking and version checking, plus number of lod's to be expected
-
-typedef struct mdxaHeader_s {
-
-	// ( first 3 fields are same format as MD3/MDR so we can apply easy model-format-type checks )
-
-	int			ident;				// 	"IDP3" = MD3, "RDM5" = MDR, "2LGA"(GL2 Anim) = MDXA
-	int			version;			// 1,2,3 etc as per format revision
-
-	char		name[MAX_QPATH];	// GLA name (eg "skeletons/marine")	// note: extension missing
-	float		fScale;				// will be zero if build before this field was defined, else scale it was built with
-
-	// frames and bones are shared by all levels of detail
-
-	int			numFrames;
-	int			ofsFrames;			// points at mdxaFrame_t array
-	int			numBones;			// (no offset to these since they're inside the frames array)
-	int			ofsCompBonePool;	// offset to global compressed-bone pool that all frames use
-	int			ofsSkel;			// offset to mdxaSkel_t info
-
-	int			ofsEnd;				// EOF, which of course gives overall file size
-
-} mdxaHeader_t;
-
-// for each bone... (doesn't actually need a struct for this, just makes source clearer)
-// {
-		typedef struct
-		{
-			int offsets[1];		// variable sized (mdxaHeader_t->numBones), each offset points to an mdxaSkel_t below
-		} mdxaSkelOffsets_t;
-// }
-
-// for each bone...	 (mdxaHeader_t->numBones)
-// {
-		// mdxaSkel_t - contains hierarchical info only...
-
-		typedef struct mdxaSkel_s {
-			char		name[MAX_QPATH];	// name of bone
-			unsigned int flags;
-			int			parent;				// index of bone that is parent to this one, -1 = NULL/root
-			mdxaBone_t	BasePoseMat;		// base pose
-			mdxaBone_t	BasePoseMatInv;		// inverse, to save run-time calc
-			int			numChildren;		// number of children bones
-			int			children[1];		// [mdxaSkel_t->numChildren] (variable sized)
-		} mdxaSkel_t;	// struct size = (int)( &((mdxaSkel_t *)0)->children[ mdxaSkel_t->numChildren ] );
-// }
-
-	// (offset @ mdxaHeader_t->ofsFrames)
-
-	//  array of 3 byte indices here (hey, 25% saving over 4-byte really adds up)...
-
-	// access as follows to get the index for a given <iFrameNum, iBoneNum>
-
-	// (iFrameNum * mdxaHeader_t->numBones * 3) + (iBoneNum * 3)
-
-	// Then convert the three byte int at that location.
-	// This struct is used for easy searches.
-	typedef struct
-	{
-		byte    iIndex[3];
-	} mdxaIndex_t;
-
-	// (note that there's then an alignement-pad here to get the next struct back onto 32-bit alignement)
-
-	// this index then points into the following...
-
-// Compressed-bone pool that all frames use  (mdxaHeader_t->ofsCompBonePool)  (defined at end because size unknown until end)
-// for each bone in pool (unknown number, no actual total stored at the moment)...
-// {
-		// mdxaCompBone_t  (defined at file top because of struct dependancy)
-// }

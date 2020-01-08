@@ -2,7 +2,8 @@
 ===========================================================================
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -27,7 +28,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // this include must remain at the top of every Icarus CPP file
 #include "icarus/icarus.h"
 
-#include <assert.h>
+#include <cassert>
 
 CSequence::CSequence( void )
 {
@@ -35,8 +36,8 @@ CSequence::CSequence( void )
 	m_flags			= 0;
 	m_iterations	= 1;
 
-	m_parent		= NULL;
-	m_return		= NULL;
+	m_parent		= nullptr;
+	m_return		= nullptr;
 }
 
 CSequence::~CSequence( void )
@@ -50,8 +51,8 @@ CSequence *CSequence::Create( void )
 
 	//TODO: Emit warning
 	assert(seq);
-	if ( seq == NULL )
-		return NULL;
+	if ( seq == nullptr )
+		return nullptr;
 
 	seq->SetFlag( SQ_COMMON );
 
@@ -74,12 +75,12 @@ void CSequence::Delete( void )
 	{
 		/*for ( iterSeq = m_childrenMap.begin(); iterSeq != m_childrenMap.end(); iterSeq++ )
 		{
-			(*iterSeq).second->SetParent( NULL );
+			(*iterSeq).second->SetParent( nullptr );
 		}*/
 
 		for ( si = m_children.begin(); si != m_children.end(); ++si )
 		{
-			(*si)->SetParent( NULL );
+			(*si)->SetParent( nullptr );
 		}
 	}
 	m_children.clear();
@@ -96,7 +97,7 @@ void CSequence::Delete( void )
 void CSequence::AddChild( CSequence *child )
 {
 	assert( child );
-	if ( child == NULL )
+	if ( child == nullptr )
 		return;
 
 	m_children.insert( m_children.end(), child );
@@ -105,7 +106,7 @@ void CSequence::AddChild( CSequence *child )
 void CSequence::RemoveChild( CSequence *child )
 {
 	assert( child );
-	if ( child == NULL )
+	if ( child == nullptr )
 		return;
 
 	//Remove the child
@@ -132,7 +133,7 @@ void CSequence::SetParent( CSequence *parent )
 {
 	m_parent = parent;
 
-	if ( parent == NULL )
+	if ( parent == nullptr )
 		return;
 
 	//Inherit the parent's properties (this avoids messy tree walks later on)
@@ -145,13 +146,13 @@ void CSequence::SetParent( CSequence *parent )
 
 CBlock *CSequence::PopCommand( int type )
 {
-	CBlock	*command = NULL;
+	CBlock	*command = nullptr;
 
 	//Make sure everything is ok
 	assert( (type == POP_FRONT) || (type == POP_BACK) );
 
 	if ( m_commands.empty() )
-		return NULL;
+		return nullptr;
 
 	switch ( type )
 	{
@@ -175,7 +176,7 @@ CBlock *CSequence::PopCommand( int type )
 	}
 
 	//Invalid flag
-	return NULL;
+	return nullptr;
 }
 
 int CSequence::PushCommand( CBlock *block, int type )
@@ -241,7 +242,7 @@ void CSequence::SetReturn ( CSequence *sequence )
 CSequence *CSequence::GetChildByIndex( int iIndex )
 {
 	if ( iIndex < 0 || iIndex >= (int)m_children.size() )
-		return NULL;
+		return nullptr;
 
 	sequence_l::iterator iterSeq = m_children.begin();
 	for ( int i = 0; i < iIndex; i++  )

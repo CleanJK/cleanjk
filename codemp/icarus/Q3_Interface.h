@@ -2,7 +2,8 @@
 ===========================================================================
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -23,6 +24,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 //NOTENOTE: The enums and tables in this file will obviously bitch if they are included multiple times, don't do that
+
+// ======================================================================
+// ENUM
+// ======================================================================
 
 typedef enum //# setType_e
 {
@@ -45,7 +50,7 @@ typedef enum //# setType_e
 	SET_PARM16,//## %s="" # Set entity parm16
 
 	// NOTE!!! If you add any other SET_xxxxxxSCRIPT types, make sure you update the 'case' statements in
-	//	ICARUS_InterrogateScript() (game/g_ICARUS.cpp), or the script-precacher won't find them.
+	// ICARUS_InterrogateScript() (game/g_ICARUS.cpp), or the script-precacher won't find them.
 
 	//# #sep Scripts and other file paths
 	SET_SPAWNSCRIPT,//## %s="NULL" !!"W:\game\base\scripts\!!#*.txt" # Script to run when spawned //0 - do not change these, these are equal to BSET_SPAWN, etc
@@ -226,8 +231,17 @@ typedef enum //# setType_e
 
 #if !defined( _GAME ) && !defined( _CGAME ) && !defined( UI_BUILD )
 
-// this enum isn't used directly by the game, it's mainly for BehavEd to scan for...
+// ======================================================================
+// DEFINE
+// ======================================================================
 
+constexpr int Q3_TIME_SCALE = 1;	//MILLISECONDS
+
+// ======================================================================
+// ENUM
+// ======================================================================
+
+// this enum isn't used directly by the game, it's mainly for BehavEd to scan for...
 typedef enum //# playType_e
 {
 	//# #sep Types of file to play
@@ -238,24 +252,30 @@ typedef enum //# playType_e
 
 } playType_t;
 
-const	int	Q3_TIME_SCALE	= 1;	//MILLISECONDS
+// ======================================================================
+// EXTERN VARIABLE
+// ======================================================================
 
 extern char	cinematicSkipScript[1024];
 
-void     Q3_CameraDistance ( float distance, float initLerp );
-void     Q3_CameraFollow   ( const char *name, float speed, float initLerp );
-void     Q3_CameraRoll     ( float angle, float duration );
-void     Q3_CameraTrack    ( const char *name, float speed, float initLerp );
-void     Q3_DeclareVariable( int type, const char *name );
-void     Q3_DebugPrint     ( int level, const char *format, ... );
-void     Q3_DPrintf        ( const char *, ... );
-void     Q3_FreeVariable   ( const char *name );
-void     Q3_SetAnimBoth    ( int entID, const char *anim_name );
-void     Q3_SetVar         ( int taskID, int entID, const char *type_name, const char *data );
-void     Q3_SetVelocity    ( int entID, vec3_t angles );
-void     Q3_TaskIDClear    ( int *taskID );
-void     Q3_TaskIDComplete ( sharedEntity_t *ent, taskID_t taskType );
-qboolean Q3_TaskIDPending  ( sharedEntity_t *ent, taskID_t taskType );
-void     Q3_TaskIDSet      ( sharedEntity_t *ent, taskID_t taskType, int taskID );
+// ======================================================================
+// FUNCTION
+// ======================================================================
 
-#endif
+bool Q3_TaskIDPending(sharedEntity_t* ent, taskID_t taskType);
+void Q3_CameraDistance(float distance, float initLerp);
+void Q3_CameraFollow(const char* name, float speed, float initLerp);
+void Q3_CameraRoll(float angle, float duration);
+void Q3_CameraTrack(const char* name, float speed, float initLerp);
+void Q3_DebugPrint(int level, const char* format, ...);
+void Q3_DeclareVariable(int type, const char* name);
+void Q3_DPrintf(const char*, ...);
+void Q3_FreeVariable(const char* name);
+void Q3_SetAnimBoth(int entID, const char* anim_name);
+void Q3_SetVar(int taskID, int entID, const char* type_name, const char* data);
+void Q3_SetVelocity(int entID, vec3_t angles);
+void Q3_TaskIDClear(int* taskID);
+void Q3_TaskIDComplete(sharedEntity_t* ent, taskID_t taskType);
+void Q3_TaskIDSet(sharedEntity_t* ent, taskID_t taskType, int taskID);
+
+#endif // !defined( _GAME ) && !defined( _CGAME ) && !defined( UI_BUILD )

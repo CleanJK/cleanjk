@@ -259,7 +259,7 @@ void R_InitCvars( void ) {
 	r_windSpeed =                      ri.Cvar_Get( "r_windSpeed",                      "0",                              CVAR_NONE,                    "" );
 	r_znear =                          ri.Cvar_Get( "r_znear",                          "4",                              CVAR_ARCHIVE_ND,              "" );
 
-	ri.Cvar_CheckRange( r_picmip,         0,              16,             qtrue );
-	ri.Cvar_CheckRange( r_primitives,     MIN_PRIMITIVES, MAX_PRIMITIVES, qtrue );
-	ri.Cvar_CheckRange( r_znear,          0.001f,         10,             qfalse );
+	ri.Cvar_CheckRange( r_picmip,         0,              16,             true );
+	ri.Cvar_CheckRange( r_primitives,     MIN_PRIMITIVES, MAX_PRIMITIVES, true );
+	ri.Cvar_CheckRange( r_znear,          0.001f,         10,             false );
 }

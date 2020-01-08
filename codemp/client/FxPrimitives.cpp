@@ -2,7 +2,8 @@
 ===========================================================================
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -21,7 +22,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "client/cl_cgameapi.h"
-#include "client/cl_local.h"
+#include "client/cl_public.h"
 #include "client/FxScheduler.h"
 #include "game/bg_public.h"
 #include "qcommon/com_cvars.h"
@@ -231,11 +232,11 @@ bool CParticle::UpdateOrigin(void)
 			{
 				if (mFlags & FX_GHOUL2_TRACE)
 				{
-					theFxHelper.G2Trace( trace, mOrigin1, NULL, NULL, new_origin, -1, MASK_PLAYERSOLID );
+					theFxHelper.G2Trace( trace, mOrigin1, nullptr, nullptr, new_origin, -1, MASK_PLAYERSOLID );
 				}
 				else
 				{
-					theFxHelper.Trace( trace, mOrigin1, NULL, NULL, new_origin, -1, MASK_SOLID );
+					theFxHelper.Trace( trace, mOrigin1, nullptr, nullptr, new_origin, -1, MASK_SOLID );
 				}
 			}
 
@@ -1043,7 +1044,7 @@ void CTail::CalcNewEndpoint(void)
 CCylinder::CCylinder(void)
 {
 	mRefEnt.reType = RT_CYLINDER;
-	mTraceEnd = qfalse;
+	mTraceEnd = false;
 }
 
 bool CCylinder::Cull(void)
@@ -1064,7 +1065,7 @@ void CCylinder::UpdateLength(void)
 		trace_t tr;
 
 		VectorMA( mOrigin1, FX_MAX_TRACE_DIST, mRefEnt.axis[0], temp );
-		theFxHelper.Trace( tr, mOrigin1, NULL, NULL, temp, -1, MASK_SOLID );
+		theFxHelper.Trace( tr, mOrigin1, nullptr, nullptr, temp, -1, MASK_SOLID );
 		VectorSubtract( tr.endpos, mOrigin1, temp );
 		mLength = VectorLength(temp);
 	}
@@ -1226,7 +1227,7 @@ void CEmitter::Draw(void)
 	// Emitters don't draw themselves, but they may need to add an attached model
 	if ( mFlags & FX_ATTACHED_MODEL )
 	{
-		mRefEnt.nonNormalizedAxes = qtrue;
+		mRefEnt.nonNormalizedAxes = true;
 
 		VectorCopy( mOrigin1, mRefEnt.origin );
 

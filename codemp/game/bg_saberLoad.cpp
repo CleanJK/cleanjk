@@ -2,7 +2,8 @@
 ===========================================================================
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -123,37 +124,37 @@ const stringID_table_t saberMoveTable[] = {
 };
 
 //Also used in npc code
-qboolean BG_ParseLiteral( const char **data, const char *string ) {
+bool BG_ParseLiteral( const char **data, const char *string ) {
 	const char *token;
 
-	token = COM_ParseExt( data, qtrue );
+	token = COM_ParseExt( data, true );
 	if ( !token[0] ) {
 		Com_Printf( "unexpected EOF\n" );
-		return qtrue;
+		return true;
 	}
 
 	if ( Q_stricmp( token, string ) ) {
 		Com_Printf( "required string '%s' missing\n", string );
-		return qtrue;
+		return true;
 	}
 
-	return qfalse;
+	return false;
 }
 
-qboolean BG_ParseLiteralSilent( const char **data, const char *string ) {
+bool BG_ParseLiteralSilent( const char **data, const char *string ) {
 	const char *token;
 
-	token = COM_ParseExt( data, qtrue );
+	token = COM_ParseExt( data, true );
 	if ( !token[0] ) {
-		return qtrue;
+		return true;
 	}
 
 	if ( Q_stricmp( token, string ) ) {
 
-		return qtrue;
+		return true;
 	}
 
-	return qfalse;
+	return false;
 }
 
 saber_colors_t TranslateSaberColor( const char *name ) {
@@ -183,7 +184,7 @@ const char *SaberColorToString( saber_colors_t color ) {
 	if ( color == SABER_BLUE )		return "blue";
 	if ( color == SABER_PURPLE )	return "purple";
 
-	return NULL;
+	return nullptr;
 }
 
 saber_styles_t TranslateSaberStyle( const char *name ) {
@@ -213,53 +214,53 @@ saberType_t TranslateSaberType( const char *name ) {
 	return SABER_SINGLE;
 }
 
-qboolean WP_SaberBladeUseSecondBladeStyle( saberInfo_t *saber, int bladeNum ) {
+bool WP_SaberBladeUseSecondBladeStyle( saberInfo_t *saber, int bladeNum ) {
 	if ( saber
 		&& saber->bladeStyle2Start > 0
 		&& bladeNum >= saber->bladeStyle2Start )
-		return qtrue;
+		return true;
 
-	return qfalse;
+	return false;
 }
 
-qboolean WP_UseFirstValidSaberStyle( saberInfo_t *saber1, saberInfo_t *saber2, int saberHolstered, int *saberAnimLevel ) {
-	qboolean styleInvalid = qfalse;
-	qboolean saber1Active, saber2Active;
-	qboolean dualSabers = qfalse;
+bool WP_UseFirstValidSaberStyle( saberInfo_t *saber1, saberInfo_t *saber2, int saberHolstered, int *saberAnimLevel ) {
+	bool styleInvalid = false;
+	bool saber1Active, saber2Active;
+	bool dualSabers = false;
 	int	validStyles=0, styleNum;
 
 	if ( saber2 && saber2->model[0] )
-		dualSabers = qtrue;
+		dualSabers = true;
 
 	//dual
 	if ( dualSabers ) {
 		if ( saberHolstered > 1 )
-			saber1Active = saber2Active = qfalse;
+			saber1Active = saber2Active = false;
 		else if ( saberHolstered > 0 ) {
-			saber1Active = qtrue;
-			saber2Active = qfalse;
+			saber1Active = true;
+			saber2Active = false;
 		}
 		else
-			saber1Active = saber2Active = qtrue;
+			saber1Active = saber2Active = true;
 	}
 	// single/staff
 	else {
-		saber2Active = qfalse;
+		saber2Active = false;
 		if ( !saber1 || !saber1->model[0] )
-			saber1Active = qfalse;
+			saber1Active = false;
 		//staff
 		else if ( saber1->numBlades > 1 ) {
 			if ( saberHolstered > 1 )
-				saber1Active = qfalse;
+				saber1Active = false;
 			else
-				saber1Active = qtrue;
+				saber1Active = true;
 		}
 		//single
 		else {
 			if ( saberHolstered )
-				saber1Active = qfalse;
+				saber1Active = false;
 			else
-				saber1Active = qtrue;
+				saber1Active = true;
 		}
 	}
 
@@ -270,7 +271,7 @@ qboolean WP_UseFirstValidSaberStyle( saberInfo_t *saber1, saberInfo_t *saber2, i
 	if ( saber1Active && saber1 && saber1->model[0] && saber1->stylesForbidden ) {
 		if ( (saber1->stylesForbidden & (1<<*saberAnimLevel)) ) {
 			//not a valid style for first saber!
-			styleInvalid = qtrue;
+			styleInvalid = true;
 			validStyles &= ~saber1->stylesForbidden;
 		}
 	}
@@ -278,7 +279,7 @@ qboolean WP_UseFirstValidSaberStyle( saberInfo_t *saber1, saberInfo_t *saber2, i
 		if ( saber2Active && saber2->stylesForbidden ) {
 			if ( (saber2->stylesForbidden & (1<<*saberAnimLevel)) ) {
 				//not a valid style for second saber!
-				styleInvalid = qtrue;
+				styleInvalid = true;
 				//only the ones both sabers allow is valid
 				validStyles &= ~saber2->stylesForbidden;
 			}
@@ -297,61 +298,61 @@ qboolean WP_UseFirstValidSaberStyle( saberInfo_t *saber1, saberInfo_t *saber2, i
 		for ( styleNum=SS_FAST; styleNum<SS_NUM_SABER_STYLES; styleNum++ ) {
 			if ( (validStyles & (1<<styleNum)) ) {
 				*saberAnimLevel = styleNum;
-				return qtrue;
+				return true;
 			}
 		}
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean WP_SaberStyleValidForSaber( saberInfo_t *saber1, saberInfo_t *saber2, int saberHolstered, int saberAnimLevel ) {
-	qboolean saber1Active, saber2Active;
-	qboolean dualSabers = qfalse;
+bool WP_SaberStyleValidForSaber( saberInfo_t *saber1, saberInfo_t *saber2, int saberHolstered, int saberAnimLevel ) {
+	bool saber1Active, saber2Active;
+	bool dualSabers = false;
 
 	if ( saber2 && saber2->model[0] )
-		dualSabers = qtrue;
+		dualSabers = true;
 
 	if ( dualSabers ) {
 		if ( saberHolstered > 1 )
-			saber1Active = saber2Active = qfalse;
+			saber1Active = saber2Active = false;
 		else if ( saberHolstered > 0 ) {
-			saber1Active = qtrue;
-			saber2Active = qfalse;
+			saber1Active = true;
+			saber2Active = false;
 		}
 		else
-			saber1Active = saber2Active = qtrue;
+			saber1Active = saber2Active = true;
 	}
 	else {
-		saber2Active = qfalse;
+		saber2Active = false;
 		if ( !saber1 || !saber1->model[0] )
-			saber1Active = qfalse;
+			saber1Active = false;
 
 		//staff
 		else if ( saber1->numBlades > 1 )
-			saber1Active = (saberHolstered>1) ? qfalse : qtrue;
+			saber1Active = (saberHolstered>1) ? false : true;
 
 		//single
 		else
-			saber1Active = saberHolstered ? qfalse : qtrue;
+			saber1Active = saberHolstered ? false : true;
 	}
 
 	if ( saber1Active && saber1 && saber1->model[0] && saber1->stylesForbidden ) {
 		if ( (saber1->stylesForbidden & (1<<saberAnimLevel)) )
-			return qfalse;
+			return false;
 	}
 	if ( dualSabers && saber2Active && saber2 && saber2->model[0] )
 	{
 		if ( saber2->stylesForbidden ) {
 			if ( (saber2->stylesForbidden & (1<<saberAnimLevel)) )
-				return qfalse;
+				return false;
 		}
 		//now: if using dual sabers, only dual and tavion (if given with this saber) are allowed
 		if ( saberAnimLevel != SS_DUAL ) {
-			return qfalse;
+			return false;
 		}
 	}
 
-	return qtrue;
+	return true;
 }
 
 void WP_SaberSetDefaults( saberInfo_t *saber ) {
@@ -1419,121 +1420,121 @@ static keywordHash_t *KeywordHash_Find( keywordHash_t *table[], const char *keyw
 			return key;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 static keywordHash_t saberParseKeywords[] = {
-	{ "name",					Saber_ParseName,				NULL	},
-	{ "saberType",				Saber_ParseSaberType,			NULL	},
-	{ "saberModel",				Saber_ParseSaberModel,			NULL	},
-	{ "customSkin",				Saber_ParseCustomSkin,			NULL	},
-	{ "soundOn",				Saber_ParseSoundOn,				NULL	},
-	{ "soundLoop",				Saber_ParseSoundLoop,			NULL	},
-	{ "soundOff",				Saber_ParseSoundOff,			NULL	},
-	{ "numBlades",				Saber_ParseNumBlades,			NULL	},
-	{ "saberColor",				Saber_ParseSaberColor,			NULL	},
-	{ "saberColor2",			Saber_ParseSaberColor2,			NULL	},
-	{ "saberColor3",			Saber_ParseSaberColor3,			NULL	},
-	{ "saberColor4",			Saber_ParseSaberColor4,			NULL	},
-	{ "saberColor5",			Saber_ParseSaberColor5,			NULL	},
-	{ "saberColor6",			Saber_ParseSaberColor6,			NULL	},
-	{ "saberColor7",			Saber_ParseSaberColor7,			NULL	},
-	{ "saberLength",			Saber_ParseSaberLength,			NULL	},
-	{ "saberLength2",			Saber_ParseSaberLength2,		NULL	},
-	{ "saberLength3",			Saber_ParseSaberLength3,		NULL	},
-	{ "saberLength4",			Saber_ParseSaberLength4,		NULL	},
-	{ "saberLength5",			Saber_ParseSaberLength5,		NULL	},
-	{ "saberLength6",			Saber_ParseSaberLength6,		NULL	},
-	{ "saberLength7",			Saber_ParseSaberLength7,		NULL	},
-	{ "saberRadius",			Saber_ParseSaberRadius,			NULL	},
-	{ "saberRadius2",			Saber_ParseSaberRadius2,		NULL	},
-	{ "saberRadius3",			Saber_ParseSaberRadius3,		NULL	},
-	{ "saberRadius4",			Saber_ParseSaberRadius4,		NULL	},
-	{ "saberRadius5",			Saber_ParseSaberRadius5,		NULL	},
-	{ "saberRadius6",			Saber_ParseSaberRadius6,		NULL	},
-	{ "saberRadius7",			Saber_ParseSaberRadius7,		NULL	},
-	{ "saberStyle",				Saber_ParseSaberStyle,			NULL	},
-	{ "saberStyleLearned",		Saber_ParseSaberStyleLearned,	NULL	},
-	{ "saberStyleForbidden",	Saber_ParseSaberStyleForbidden,	NULL	},
-	{ "maxChain",				Saber_ParseMaxChain,			NULL	},
-	{ "forceRestrict",			Saber_ParseForceRestrict,		NULL	},
-	{ "lockBonus",				Saber_ParseLockBonus,			NULL	},
-	{ "parryBonus",				Saber_ParseParryBonus,			NULL	},
-	{ "breakParryBonus",		Saber_ParseBreakParryBonus,		NULL	},
-	{ "breakParryBonus2",		Saber_ParseBreakParryBonus2,	NULL	},
-	{ "disarmBonus",			Saber_ParseDisarmBonus,			NULL	},
-	{ "disarmBonus2",			Saber_ParseDisarmBonus2,		NULL	},
-	{ "singleBladeStyle",		Saber_ParseSingleBladeStyle,	NULL	},
-	{ "brokenSaber1",			Saber_ParseBrokenSaber1,		NULL	},
-	{ "brokenSaber2",			Saber_ParseBrokenSaber2,		NULL	},
-	{ "spinSound",				Saber_ParseSpinSound,			NULL	},
-	{ "swingSound1",			Saber_ParseSwingSound1,			NULL	},
-	{ "swingSound2",			Saber_ParseSwingSound2,			NULL	},
-	{ "swingSound3",			Saber_ParseSwingSound3,			NULL	},
-	{ "moveSpeedScale",			Saber_ParseMoveSpeedScale,		NULL	},
-	{ "animSpeedScale",			Saber_ParseAnimSpeedScale,		NULL	},
-	{ "kataMove",				Saber_ParseKataMove,			NULL	},
-	{ "lungeAtkMove",			Saber_ParseLungeAtkMove,		NULL	},
-	{ "jumpAtkUpMove",			Saber_ParseJumpAtkUpMove,		NULL	},
-	{ "jumpAtkFwdMove",			Saber_ParseJumpAtkFwdMove,		NULL	},
-	{ "jumpAtkBackMove",		Saber_ParseJumpAtkBackMove,		NULL	},
-	{ "jumpAtkRightMove",		Saber_ParseJumpAtkRightMove,	NULL	},
-	{ "jumpAtkLeftMove",		Saber_ParseJumpAtkLeftMove,		NULL	},
-	{ "readyAnim",				Saber_ParseReadyAnim,			NULL	},
-	{ "drawAnim",				Saber_ParseDrawAnim,			NULL	},
-	{ "putawayAnim",			Saber_ParsePutawayAnim,			NULL	},
-	{ "tauntAnim",				Saber_ParseTauntAnim,			NULL	},
-	{ "bowAnim",				Saber_ParseBowAnim,				NULL	},
-	{ "meditateAnim",			Saber_ParseMeditateAnim,		NULL	},
-	{ "flourishAnim",			Saber_ParseFlourishAnim,		NULL	},
-	{ "gloatAnim",				Saber_ParseGloatAnim,			NULL	},
-	{ "onInWater",				Saber_ParseOnInWater,			NULL	},
-	{ "notInMP",				Saber_ParseNotInMP,				NULL	},
-	{ "bladeStyle2Start",		Saber_ParseBladeStyle2Start,	NULL	},
-	{ "g2MarksShader",			Saber_ParseG2MarksShader,		NULL	},
-	{ "g2MarksShader2",			Saber_ParseG2MarksShader2,		NULL	},
-	{ "g2WeaponMarkShader",		Saber_ParseG2WeaponMarkShader,	NULL	},
-	{ "g2WeaponMarkShader2",	Saber_ParseG2WeaponMarkShader2,	NULL	},
-	{ "knockbackScale",			Saber_ParseKnockbackScale,		NULL	},
-	{ "knockbackScale2",		Saber_ParseKnockbackScale2,		NULL	},
-	{ "damageScale",			Saber_ParseDamageScale,			NULL	},
-	{ "damageScale2",			Saber_ParseDamageScale2,		NULL	},
-	{ "splashRadius",			Saber_ParseSplashRadius,		NULL	},
-	{ "splashRadius2",			Saber_ParseSplashRadius2,		NULL	},
-	{ "splashDamage",			Saber_ParseSplashDamage,		NULL	},
-	{ "splashDamage2",			Saber_ParseSplashDamage2,		NULL	},
-	{ "splashKnockback",		Saber_ParseSplashKnockback,		NULL	},
-	{ "splashKnockback2",		Saber_ParseSplashKnockback2,	NULL	},
-	{ "hitSound1",				Saber_ParseHitSound1,			NULL	},
-	{ "hit2Sound1",				Saber_ParseHit2Sound1,			NULL	},
-	{ "hitSound2",				Saber_ParseHitSound2,			NULL	},
-	{ "hit2Sound2",				Saber_ParseHit2Sound2,			NULL	},
-	{ "hitSound3",				Saber_ParseHitSound3,			NULL	},
-	{ "hit2Sound3",				Saber_ParseHit2Sound3,			NULL	},
-	{ "blockSound1",			Saber_ParseBlockSound1,			NULL	},
-	{ "block2Sound1",			Saber_ParseBlock2Sound1,		NULL	},
-	{ "blockSound2",			Saber_ParseBlockSound2,			NULL	},
-	{ "block2Sound2",			Saber_ParseBlock2Sound2,		NULL	},
-	{ "blockSound3",			Saber_ParseBlockSound3,			NULL	},
-	{ "block2Sound3",			Saber_ParseBlock2Sound3,		NULL	},
-	{ "bounceSound1",			Saber_ParseBounceSound1,		NULL	},
-	{ "bounce2Sound1",			Saber_ParseBounce2Sound1,		NULL	},
-	{ "bounceSound2",			Saber_ParseBounceSound2,		NULL	},
-	{ "bounce2Sound2",			Saber_ParseBounce2Sound2,		NULL	},
-	{ "bounceSound3",			Saber_ParseBounceSound3,		NULL	},
-	{ "bounce2Sound3",			Saber_ParseBounce2Sound3,		NULL	},
-	{ "blockEffect",			Saber_ParseBlockEffect,			NULL	},
-	{ "blockEffect2",			Saber_ParseBlockEffect2,		NULL	},
-	{ "hitPersonEffect",		Saber_ParseHitPersonEffect,		NULL	},
-	{ "hitPersonEffect2",		Saber_ParseHitPersonEffect2,	NULL	},
-	{ "hitOtherEffect",			Saber_ParseHitOtherEffect,		NULL	},
-	{ "hitOtherEffect2",		Saber_ParseHitOtherEffect2,		NULL	},
-	{ "bladeEffect",			Saber_ParseBladeEffect,			NULL	},
-	{ "bladeEffect2",			Saber_ParseBladeEffect2,		NULL	},
-	{ NULL,						NULL,							NULL	}
+	{ "name",					Saber_ParseName,				nullptr	},
+	{ "saberType",				Saber_ParseSaberType,			nullptr	},
+	{ "saberModel",				Saber_ParseSaberModel,			nullptr	},
+	{ "customSkin",				Saber_ParseCustomSkin,			nullptr	},
+	{ "soundOn",				Saber_ParseSoundOn,				nullptr	},
+	{ "soundLoop",				Saber_ParseSoundLoop,			nullptr	},
+	{ "soundOff",				Saber_ParseSoundOff,			nullptr	},
+	{ "numBlades",				Saber_ParseNumBlades,			nullptr	},
+	{ "saberColor",				Saber_ParseSaberColor,			nullptr	},
+	{ "saberColor2",			Saber_ParseSaberColor2,			nullptr	},
+	{ "saberColor3",			Saber_ParseSaberColor3,			nullptr	},
+	{ "saberColor4",			Saber_ParseSaberColor4,			nullptr	},
+	{ "saberColor5",			Saber_ParseSaberColor5,			nullptr	},
+	{ "saberColor6",			Saber_ParseSaberColor6,			nullptr	},
+	{ "saberColor7",			Saber_ParseSaberColor7,			nullptr	},
+	{ "saberLength",			Saber_ParseSaberLength,			nullptr	},
+	{ "saberLength2",			Saber_ParseSaberLength2,		nullptr	},
+	{ "saberLength3",			Saber_ParseSaberLength3,		nullptr	},
+	{ "saberLength4",			Saber_ParseSaberLength4,		nullptr	},
+	{ "saberLength5",			Saber_ParseSaberLength5,		nullptr	},
+	{ "saberLength6",			Saber_ParseSaberLength6,		nullptr	},
+	{ "saberLength7",			Saber_ParseSaberLength7,		nullptr	},
+	{ "saberRadius",			Saber_ParseSaberRadius,			nullptr	},
+	{ "saberRadius2",			Saber_ParseSaberRadius2,		nullptr	},
+	{ "saberRadius3",			Saber_ParseSaberRadius3,		nullptr	},
+	{ "saberRadius4",			Saber_ParseSaberRadius4,		nullptr	},
+	{ "saberRadius5",			Saber_ParseSaberRadius5,		nullptr	},
+	{ "saberRadius6",			Saber_ParseSaberRadius6,		nullptr	},
+	{ "saberRadius7",			Saber_ParseSaberRadius7,		nullptr	},
+	{ "saberStyle",				Saber_ParseSaberStyle,			nullptr	},
+	{ "saberStyleLearned",		Saber_ParseSaberStyleLearned,	nullptr	},
+	{ "saberStyleForbidden",	Saber_ParseSaberStyleForbidden,	nullptr	},
+	{ "maxChain",				Saber_ParseMaxChain,			nullptr	},
+	{ "forceRestrict",			Saber_ParseForceRestrict,		nullptr	},
+	{ "lockBonus",				Saber_ParseLockBonus,			nullptr	},
+	{ "parryBonus",				Saber_ParseParryBonus,			nullptr	},
+	{ "breakParryBonus",		Saber_ParseBreakParryBonus,		nullptr	},
+	{ "breakParryBonus2",		Saber_ParseBreakParryBonus2,	nullptr	},
+	{ "disarmBonus",			Saber_ParseDisarmBonus,			nullptr	},
+	{ "disarmBonus2",			Saber_ParseDisarmBonus2,		nullptr	},
+	{ "singleBladeStyle",		Saber_ParseSingleBladeStyle,	nullptr	},
+	{ "brokenSaber1",			Saber_ParseBrokenSaber1,		nullptr	},
+	{ "brokenSaber2",			Saber_ParseBrokenSaber2,		nullptr	},
+	{ "spinSound",				Saber_ParseSpinSound,			nullptr	},
+	{ "swingSound1",			Saber_ParseSwingSound1,			nullptr	},
+	{ "swingSound2",			Saber_ParseSwingSound2,			nullptr	},
+	{ "swingSound3",			Saber_ParseSwingSound3,			nullptr	},
+	{ "moveSpeedScale",			Saber_ParseMoveSpeedScale,		nullptr	},
+	{ "animSpeedScale",			Saber_ParseAnimSpeedScale,		nullptr	},
+	{ "kataMove",				Saber_ParseKataMove,			nullptr	},
+	{ "lungeAtkMove",			Saber_ParseLungeAtkMove,		nullptr	},
+	{ "jumpAtkUpMove",			Saber_ParseJumpAtkUpMove,		nullptr	},
+	{ "jumpAtkFwdMove",			Saber_ParseJumpAtkFwdMove,		nullptr	},
+	{ "jumpAtkBackMove",		Saber_ParseJumpAtkBackMove,		nullptr	},
+	{ "jumpAtkRightMove",		Saber_ParseJumpAtkRightMove,	nullptr	},
+	{ "jumpAtkLeftMove",		Saber_ParseJumpAtkLeftMove,		nullptr	},
+	{ "readyAnim",				Saber_ParseReadyAnim,			nullptr	},
+	{ "drawAnim",				Saber_ParseDrawAnim,			nullptr	},
+	{ "putawayAnim",			Saber_ParsePutawayAnim,			nullptr	},
+	{ "tauntAnim",				Saber_ParseTauntAnim,			nullptr	},
+	{ "bowAnim",				Saber_ParseBowAnim,				nullptr	},
+	{ "meditateAnim",			Saber_ParseMeditateAnim,		nullptr	},
+	{ "flourishAnim",			Saber_ParseFlourishAnim,		nullptr	},
+	{ "gloatAnim",				Saber_ParseGloatAnim,			nullptr	},
+	{ "onInWater",				Saber_ParseOnInWater,			nullptr	},
+	{ "notInMP",				Saber_ParseNotInMP,				nullptr	},
+	{ "bladeStyle2Start",		Saber_ParseBladeStyle2Start,	nullptr	},
+	{ "g2MarksShader",			Saber_ParseG2MarksShader,		nullptr	},
+	{ "g2MarksShader2",			Saber_ParseG2MarksShader2,		nullptr	},
+	{ "g2WeaponMarkShader",		Saber_ParseG2WeaponMarkShader,	nullptr	},
+	{ "g2WeaponMarkShader2",	Saber_ParseG2WeaponMarkShader2,	nullptr	},
+	{ "knockbackScale",			Saber_ParseKnockbackScale,		nullptr	},
+	{ "knockbackScale2",		Saber_ParseKnockbackScale2,		nullptr	},
+	{ "damageScale",			Saber_ParseDamageScale,			nullptr	},
+	{ "damageScale2",			Saber_ParseDamageScale2,		nullptr	},
+	{ "splashRadius",			Saber_ParseSplashRadius,		nullptr	},
+	{ "splashRadius2",			Saber_ParseSplashRadius2,		nullptr	},
+	{ "splashDamage",			Saber_ParseSplashDamage,		nullptr	},
+	{ "splashDamage2",			Saber_ParseSplashDamage2,		nullptr	},
+	{ "splashKnockback",		Saber_ParseSplashKnockback,		nullptr	},
+	{ "splashKnockback2",		Saber_ParseSplashKnockback2,	nullptr	},
+	{ "hitSound1",				Saber_ParseHitSound1,			nullptr	},
+	{ "hit2Sound1",				Saber_ParseHit2Sound1,			nullptr	},
+	{ "hitSound2",				Saber_ParseHitSound2,			nullptr	},
+	{ "hit2Sound2",				Saber_ParseHit2Sound2,			nullptr	},
+	{ "hitSound3",				Saber_ParseHitSound3,			nullptr	},
+	{ "hit2Sound3",				Saber_ParseHit2Sound3,			nullptr	},
+	{ "blockSound1",			Saber_ParseBlockSound1,			nullptr	},
+	{ "block2Sound1",			Saber_ParseBlock2Sound1,		nullptr	},
+	{ "blockSound2",			Saber_ParseBlockSound2,			nullptr	},
+	{ "block2Sound2",			Saber_ParseBlock2Sound2,		nullptr	},
+	{ "blockSound3",			Saber_ParseBlockSound3,			nullptr	},
+	{ "block2Sound3",			Saber_ParseBlock2Sound3,		nullptr	},
+	{ "bounceSound1",			Saber_ParseBounceSound1,		nullptr	},
+	{ "bounce2Sound1",			Saber_ParseBounce2Sound1,		nullptr	},
+	{ "bounceSound2",			Saber_ParseBounceSound2,		nullptr	},
+	{ "bounce2Sound2",			Saber_ParseBounce2Sound2,		nullptr	},
+	{ "bounceSound3",			Saber_ParseBounceSound3,		nullptr	},
+	{ "bounce2Sound3",			Saber_ParseBounce2Sound3,		nullptr	},
+	{ "blockEffect",			Saber_ParseBlockEffect,			nullptr	},
+	{ "blockEffect2",			Saber_ParseBlockEffect2,		nullptr	},
+	{ "hitPersonEffect",		Saber_ParseHitPersonEffect,		nullptr	},
+	{ "hitPersonEffect2",		Saber_ParseHitPersonEffect2,	nullptr	},
+	{ "hitOtherEffect",			Saber_ParseHitOtherEffect,		nullptr	},
+	{ "hitOtherEffect2",		Saber_ParseHitOtherEffect2,		nullptr	},
+	{ "bladeEffect",			Saber_ParseBladeEffect,			nullptr	},
+	{ "bladeEffect2",			Saber_ParseBladeEffect2,		nullptr	},
+	{ nullptr,						nullptr,							nullptr	}
 };
 static keywordHash_t *saberParseKeywordHash[KEYWORDHASH_SIZE];
-static qboolean hashSetup = qfalse;
+static bool hashSetup = false;
 
 static void WP_SaberSetupKeywordHash( void ) {
 	int i;
@@ -1542,13 +1543,13 @@ static void WP_SaberSetupKeywordHash( void ) {
 	for ( i=0; saberParseKeywords[i].keyword; i++ )
 		KeywordHash_Add( saberParseKeywordHash, &saberParseKeywords[i] );
 
-	hashSetup = qtrue;
+	hashSetup = true;
 }
 
-qboolean WP_SaberParseParms( const char *saberName, saberInfo_t *saber ) {
+bool WP_SaberParseParms( const char *saberName, saberInfo_t *saber ) {
 	const char	*token, *p;
 	char		useSaber[SABER_NAME_LENGTH];
-	qboolean	triedDefault = qfalse;
+	bool	triedDefault = false;
 	keywordHash_t *key;
 
 	// make sure the hash table has been setup
@@ -1556,14 +1557,14 @@ qboolean WP_SaberParseParms( const char *saberName, saberInfo_t *saber ) {
 		WP_SaberSetupKeywordHash();
 
 	if ( !saber )
-		return qfalse;
+		return false;
 
 	//Set defaults so that, if it fails, there's at least something there
 	WP_SaberSetDefaults( saber );
 
 	if ( !VALIDSTRING( saberName ) ) {
 		Q_strncpyz( useSaber, DEFAULT_SABER, sizeof( useSaber ) );
-		triedDefault = qtrue;
+		triedDefault = true;
 	}
 	else
 		Q_strncpyz( useSaber, saberName, sizeof( useSaber ) );
@@ -1574,17 +1575,17 @@ qboolean WP_SaberParseParms( const char *saberName, saberInfo_t *saber ) {
 
 	// look for the right saber
 	while ( p ) {
-		token = COM_ParseExt( &p, qtrue );
+		token = COM_ParseExt( &p, true );
 		if ( !token[0] ) {
 			if ( !triedDefault ) {
 				// fall back to default and restart, should always be there
 				p = saberParms;
 				COM_BeginParseSession( "saberinfo" );
 				Q_strncpyz( useSaber, DEFAULT_SABER, sizeof( useSaber ) );
-				triedDefault = qtrue;
+				triedDefault = true;
 			}
 			else
-				return qfalse;
+				return false;
 		}
 
 		if ( !Q_stricmp( token, useSaber ) )
@@ -1595,20 +1596,20 @@ qboolean WP_SaberParseParms( const char *saberName, saberInfo_t *saber ) {
 
 	// even the default saber isn't found?
 	if ( !p )
-		return qfalse;
+		return false;
 
 	// got the name we're using for sure
 	Q_strncpyz( saber->name, useSaber, sizeof( saber->name ) );
 
 	if ( BG_ParseLiteral( &p, "{" ) )
-		return qfalse;
+		return false;
 
 	// parse the saber info block
 	while ( 1 ) {
-		token = COM_ParseExt( &p, qtrue );
+		token = COM_ParseExt( &p, true );
 		if ( !token[0] ) {
 			Com_Printf( S_COLOR_RED"ERROR: unexpected EOF while parsing '%s' (WP_SaberParseParms)\n", useSaber );
-			return qfalse;
+			return false;
 		}
 
 		if ( !Q_stricmp( token, "}" ) )
@@ -1626,10 +1627,10 @@ qboolean WP_SaberParseParms( const char *saberName, saberInfo_t *saber ) {
 
 	//FIXME: precache the saberModel(s)?
 
-	return qtrue;
+	return true;
 }
 
-qboolean WP_SaberParseParm( const char *saberName, const char *parmname, char *saberData )
+bool WP_SaberParseParm( const char *saberName, const char *parmname, char *saberData )
 {
 	const char	*token;
 	const char	*value;
@@ -1637,7 +1638,7 @@ qboolean WP_SaberParseParm( const char *saberName, const char *parmname, char *s
 
 	if ( !saberName || !saberName[0] )
 	{
-		return qfalse;
+		return false;
 	}
 
 	//try to parse it out
@@ -1647,10 +1648,10 @@ qboolean WP_SaberParseParm( const char *saberName, const char *parmname, char *s
 	// look for the right saber
 	while ( p )
 	{
-		token = COM_ParseExt( &p, qtrue );
+		token = COM_ParseExt( &p, true );
 		if ( token[0] == 0 )
 		{
-			return qfalse;
+			return false;
 		}
 
 		if ( !Q_stricmp( token, saberName ) )
@@ -1662,22 +1663,22 @@ qboolean WP_SaberParseParm( const char *saberName, const char *parmname, char *s
 	}
 	if ( !p )
 	{
-		return qfalse;
+		return false;
 	}
 
 	if ( BG_ParseLiteral( &p, "{" ) )
 	{
-		return qfalse;
+		return false;
 	}
 
 	// parse the saber info block
 	while ( 1 )
 	{
-		token = COM_ParseExt( &p, qtrue );
+		token = COM_ParseExt( &p, true );
 		if ( !token[0] )
 		{
 			Com_Printf( S_COLOR_RED"ERROR: unexpected EOF while parsing '%s'\n", saberName );
-			return qfalse;
+			return false;
 		}
 
 		if ( !Q_stricmp( token, "}" ) )
@@ -1692,30 +1693,30 @@ qboolean WP_SaberParseParm( const char *saberName, const char *parmname, char *s
 				continue;
 			}
 			strcpy( saberData, value );
-			return qtrue;
+			return true;
 		}
 
 		SkipRestOfLine( &p );
 		continue;
 	}
 
-	return qfalse;
+	return false;
 }
 
-qboolean WP_SaberValidForPlayerInMP( const char *saberName )
+bool WP_SaberValidForPlayerInMP( const char *saberName )
 {
 	char allowed [8]={0};
 	if ( !WP_SaberParseParm( saberName, "notInMP", allowed ) )
 	{//not defined, default is yes
-		return qtrue;
+		return true;
 	}
 	if ( !allowed[0] )
 	{//not defined, default is yes
-		return qtrue;
+		return true;
 	}
 	else
 	{//return value
-		return ((qboolean)(atoi(allowed)==0));
+		return ((bool)(atoi(allowed)==0));
 	}
 }
 
@@ -1731,7 +1732,7 @@ void WP_RemoveSaber( saberInfo_t *sabers, int saberNum )
 	strcpy(sabers[saberNum].name, "none");
 	sabers[saberNum].model[0] = 0;
 
-	//ent->client->ps.dualSabers = qfalse;
+	//ent->client->ps.dualSabers = false;
 	BG_SI_Deactivate(&sabers[saberNum]);
 	BG_SI_SetLength(&sabers[saberNum], 0.0f);
 //	if ( ent->weaponModel[saberNum] > 0 )
@@ -1741,7 +1742,7 @@ void WP_RemoveSaber( saberInfo_t *sabers, int saberNum )
 //	}
 //	if ( saberNum == 1 )
 //	{
-//		ent->client->ps.dualSabers = qfalse;
+//		ent->client->ps.dualSabers = false;
 //	}
 }
 
@@ -1783,7 +1784,7 @@ void WP_SaberSetColor( saberInfo_t *sabers, int saberNum, int bladeNum, char *co
 #define EXT_SAB_FILENAME "ext_data/sabers.sab"
 void WP_SaberLoadParms( void ) {
 	fileHandle_t f;
-	char *scratch = NULL;
+	char *scratch = nullptr;
 	size_t compressedLen = 0u;
 
 	const size_t fileLen = trap->FS_Open( EXT_SAB_FILENAME, &f, FS_READ );
@@ -1811,21 +1812,21 @@ void WP_SaberLoadParms( void ) {
 	compressedLen = COM_Compress( scratch );
 	memcpy( saberParms, scratch, compressedLen+1 );
 	free( scratch );
-	scratch = NULL;
+	scratch = nullptr;
 }
 
 #ifdef UI_BUILD
-qboolean WP_IsSaberTwoHanded( const char *saberName )
+bool WP_IsSaberTwoHanded( const char *saberName )
 {
 	int twoHanded;
 	char	twoHandedString[8]={0};
 	WP_SaberParseParm( saberName, "twoHanded", twoHandedString );
 	if ( !twoHandedString[0] )
 	{//not defined defaults to "no"
-		return qfalse;
+		return false;
 	}
 	twoHanded = atoi( twoHandedString );
-	return ((qboolean)(twoHanded!=0));
+	return ((bool)(twoHanded!=0));
 }
 
 void WP_SaberGetHiltInfo( const char *singleHilts[MAX_SABER_HILTS], const char *staffHilts[MAX_SABER_HILTS] )
@@ -1842,7 +1843,7 @@ void WP_SaberGetHiltInfo( const char *singleHilts[MAX_SABER_HILTS], const char *
 	// look for a saber
 	while ( p )
 	{
-		token = COM_ParseExt( &p, qtrue );
+		token = COM_ParseExt( &p, true );
 		if ( token[0] == 0 )
 		{//invalid name
 			continue;
@@ -1865,7 +1866,7 @@ void WP_SaberGetHiltInfo( const char *singleHilts[MAX_SABER_HILTS], const char *
 
 		if ( WP_IsSaberTwoHanded( saberName ) )
 		{
-			if ( numStaffHilts < MAX_SABER_HILTS-1 )//-1 because we have to NULL terminate the list
+			if ( numStaffHilts < MAX_SABER_HILTS-1 )//-1 because we have to nullptr terminate the list
 			{
 				staffHilts[numStaffHilts++] = saberName;
 			}
@@ -1876,7 +1877,7 @@ void WP_SaberGetHiltInfo( const char *singleHilts[MAX_SABER_HILTS], const char *
 		}
 		else
 		{
-			if ( numSingleHilts < MAX_SABER_HILTS-1 )//-1 because we have to NULL terminate the list
+			if ( numSingleHilts < MAX_SABER_HILTS-1 )//-1 because we have to nullptr terminate the list
 			{
 				singleHilts[numSingleHilts++] = saberName;
 			}
@@ -1889,8 +1890,8 @@ void WP_SaberGetHiltInfo( const char *singleHilts[MAX_SABER_HILTS], const char *
 		SkipBracedSection( &p, 0 );
 	}
 	//null terminate the list so the UI code knows where to stop listing them
-	singleHilts[numSingleHilts] = NULL;
-	staffHilts[numStaffHilts] = NULL;
+	singleHilts[numSingleHilts] = nullptr;
+	staffHilts[numStaffHilts] = nullptr;
 }
 #endif
 
@@ -1906,13 +1907,13 @@ and BLADE indicates it was under bladeinfo.
 
 void BG_BLADE_ActivateTrail ( bladeInfo_t *blade, float duration )
 {
-	blade->trail.inAction = qtrue;
+	blade->trail.inAction = true;
 	blade->trail.duration = duration;
 }
 
 void BG_BLADE_DeactivateTrail ( bladeInfo_t *blade, float duration )
 {
-	blade->trail.inAction = qfalse;
+	blade->trail.inAction = false;
 	blade->trail.duration = duration;
 }
 
@@ -1922,7 +1923,7 @@ void BG_SI_Activate( saberInfo_t *saber )
 
 	for ( i = 0; i < saber->numBlades; i++ )
 	{
-		saber->blade[i].active = qtrue;
+		saber->blade[i].active = true;
 	}
 }
 
@@ -1932,7 +1933,7 @@ void BG_SI_Deactivate( saberInfo_t *saber )
 
 	for ( i = 0; i < saber->numBlades; i++ )
 	{
-		saber->blade[i].active = qfalse;
+		saber->blade[i].active = false;
 	}
 }
 
@@ -1941,7 +1942,7 @@ void BG_SI_Deactivate( saberInfo_t *saber )
 //	[in]		int iBlade		Which Blade to activate.
 //	[in]		bool bActive	Whether to activate it (default true), or deactivate it (false).
 //	[return]	void
-void BG_SI_BladeActivate( saberInfo_t *saber, int iBlade, qboolean bActive )
+void BG_SI_BladeActivate( saberInfo_t *saber, int iBlade, bool bActive )
 {
 	// Validate blade ID/Index.
 	if ( iBlade < 0 || iBlade >= saber->numBlades )
@@ -1950,7 +1951,7 @@ void BG_SI_BladeActivate( saberInfo_t *saber, int iBlade, qboolean bActive )
 	saber->blade[iBlade].active = bActive;
 }
 
-qboolean BG_SI_Active(saberInfo_t *saber)
+bool BG_SI_Active(saberInfo_t *saber)
 {
 	int i;
 
@@ -1958,10 +1959,10 @@ qboolean BG_SI_Active(saberInfo_t *saber)
 	{
 		if ( saber->blade[i].active )
 		{
-			return qtrue;
+			return true;
 		}
 	}
-	return qfalse;
+	return false;
 }
 
 void BG_SI_SetLength( saberInfo_t *saber, float length )

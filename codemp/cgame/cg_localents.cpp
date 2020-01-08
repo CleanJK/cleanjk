@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -121,10 +122,10 @@ void CG_FragmentBounceMark( localEntity_t *le, trace_t *trace ) {
 
 	if ( le->leMarkType == LEMT_BLOOD ) {
 	//	radius = 16 + (rand()&31);
-	//	CG_ImpactMark( media.gfx.null, trace->endpos, trace->plane.normal, Q_flrand(0.0f, 1.0f)*360, 1,1,1,1, qtrue, radius, qfalse );
+	//	CG_ImpactMark( media.gfx.null, trace->endpos, trace->plane.normal, Q_flrand(0.0f, 1.0f)*360, 1,1,1,1, true, radius, false );
 	} else if ( le->leMarkType == LEMT_BURN ) {
 	//	radius = 8 + (rand()&15);
-	//	CG_ImpactMark( media.gfx.null, trace->endpos, trace->plane.normal, Q_flrand(0.0f, 1.0f)*360, 1,1,1,1, qtrue, radius, qfalse );
+	//	CG_ImpactMark( media.gfx.null, trace->endpos, trace->plane.normal, Q_flrand(0.0f, 1.0f)*360, 1,1,1,1, true, radius, false );
 	}
 
 	// don't allow a fragment to make multiple marks, or they pile up while settling
@@ -241,7 +242,7 @@ void CG_AddFragment( localEntity_t *le ) {
 	BG_EvaluateTrajectory( &le->pos, cg.time, newOrigin );
 
 	// trace a line from previous position to new position
-	CG_Trace( &trace, le->refEntity.origin, NULL, NULL, newOrigin, -1, CONTENTS_SOLID );
+	CG_Trace( &trace, le->refEntity.origin, nullptr, nullptr, newOrigin, -1, CONTENTS_SOLID );
 	if ( trace.fraction == 1.0 ) {
 		// still in free fall
 		VectorCopy( newOrigin, le->refEntity.origin );
@@ -319,7 +320,7 @@ static void CG_AddFadeScaleModel( localEntity_t *le )
 
 	frac *= frac * frac; // yes, this is completely ridiculous...but it causes the shell to grow slowly then "explode" at the end
 
-	ent->nonNormalizedAxes = qtrue;
+	ent->nonNormalizedAxes = true;
 
 	AxisCopy( axisDefault, ent->axis );
 
@@ -593,9 +594,9 @@ void CG_AddScorePlum( localEntity_t *le ) {
 		return;
 	}
 
-	negative = qfalse;
+	negative = false;
 	if (score < 0) {
-		negative = qtrue;
+		negative = true;
 		score = -score;
 	}
 

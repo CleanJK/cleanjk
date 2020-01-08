@@ -6,7 +6,7 @@
 	#include "cgame/cg_local.h"
 #endif
 #include "ui/ui_shared.h"
-#include "qcommon/qfiles.h"	// for STYLE_BLINK etc
+#include "qcommon/q_files.h"	// for STYLE_BLINK etc
 #include "ui/ui_fonts.h"
 
 #if defined(_CGAME)
@@ -144,7 +144,7 @@ void Font::Paint( float x, float y, const char *text, const vec4_t colour, int s
 }
 
 void Text_Paint_Limit( float *maxX, float x, float y, float scale, const vec4_t color, const char *text, float adjust, int limit, int fontNum, bool customFont ) {
-	qboolean bIsTrailingPunctuation;
+	bool bIsTrailingPunctuation;
 
 	//float fMax = *maxX;
 	const Font font( fontNum, scale, customFont );

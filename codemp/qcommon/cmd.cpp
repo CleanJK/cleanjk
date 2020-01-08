@@ -4,7 +4,8 @@ Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
 Copyright (C) 2005 - 2015, ioquake3 contributors
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -24,7 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // cmd.c -- Quake script command processing module
 
-#include "qcommon/qcommon.h"
+#include "qcommon/q_common.h"
 #include "qcommon/com_cvar.h"
 #include "qcommon/com_cvars.h"
 
@@ -58,6 +59,7 @@ static void Cmd_Wait_f( void ) {
 
 // COMMAND BUFFER
 
+// allocates an initial text buffer that will grow as needed
 void Cbuf_Init (void)
 {
 	cmd_text.data = cmd_text_buf;
@@ -106,6 +108,7 @@ void Cbuf_InsertText( const char *text ) {
 	cmd_text.cursize += len;
 }
 
+// this can be used in place of either Cbuf_AddText or Cbuf_InsertText
 void Cbuf_ExecuteText (int exec_when, const char *text)
 {
 	switch (exec_when)
@@ -130,6 +133,11 @@ void Cbuf_ExecuteText (int exec_when, const char *text)
 	}
 }
 
+// Pulls off \n terminated lines of text from the command buffer and sends
+// them through Cmd_ExecuteString.  Stops when the buffer is empty.
+// Normally called once per frame, but may be explicitly invoked.
+// Do not call inside a command function, or current args will be destroyed.
+// Command execution takes a null terminated string, breaks it into tokens, then searches for a command or variable that matches the first token.
 void Cbuf_Execute (void)
 {
 	int		i;
@@ -140,8 +148,8 @@ void Cbuf_Execute (void)
 	// This will keep // style comments all on one line by not breaking on
 	// a semicolon.  It will keep /* ... */ style comments all on one line by not
 	// breaking it for semicolon or newline.
-	qboolean in_star_comment = qfalse;
-	qboolean in_slash_comment = qfalse;
+	bool in_star_comment = false;
+	bool in_slash_comment = false;
 
 	while (cmd_text.cursize)
 	{
@@ -164,11 +172,11 @@ void Cbuf_Execute (void)
 			if ( !(quotes&1)) {
 				if (i < cmd_text.cursize - 1) {
 					if (! in_star_comment && text[i] == '/' && text[i+1] == '/')
-						in_slash_comment = qtrue;
+						in_slash_comment = true;
 					else if (! in_slash_comment && text[i] == '/' && text[i+1] == '*')
-						in_star_comment = qtrue;
+						in_star_comment = true;
 					else if (in_star_comment && text[i] == '*' && text[i+1] == '/') {
-						in_star_comment = qfalse;
+						in_star_comment = false;
 						// If we are in a star comment, then the part after it is valid
 						// Note: This will cause it to NUL out the terminating '/'
 						// but ExecuteString doesn't require it anyway.
@@ -180,7 +188,7 @@ void Cbuf_Execute (void)
 					break;
 			}
 			if (! in_star_comment && (text[i] == '\n' || text[i] == '\r')) {
-				in_slash_comment = qfalse;
+				in_slash_comment = false;
 				break;
 			}
 		}
@@ -357,6 +365,9 @@ char *Cmd_Cmd(void)
 	}
 }*/
 
+// The functions that execute commands get their parameters with these
+// functions. Cmd_Argv () will return an empty string, not a nullptr
+// if arg > argc, so string operations are allways safe.
 void Cmd_Args_Sanitize( size_t length, const char *strip, const char *repl )
 {
 	for ( int i = 1; i < cmd_argc; i++ )
@@ -377,7 +388,7 @@ void Cmd_Args_Sanitize( size_t length, const char *strip, const char *repl )
 // Parses the given string into command line tokens.
 // The text is copied to a seperate buffer and 0 characters are inserted in the appropriate place,
 // The argv array will point into this temporary buffer.
-static void Cmd_TokenizeString2( const char *text_in, qboolean ignoreQuotes ) {
+static void Cmd_TokenizeString2( const char *text_in, bool ignoreQuotes ) {
 	const char	*text;
 	char	*textOut;
 
@@ -480,11 +491,13 @@ static void Cmd_TokenizeString2( const char *text_in, qboolean ignoreQuotes ) {
 }
 
 void Cmd_TokenizeString( const char *text_in ) {
-	Cmd_TokenizeString2( text_in, qfalse );
+	Cmd_TokenizeString2( text_in, false );
 }
 
+// Takes a null terminated string.  Does not need to be /n terminated.
+// breaks the string up into arg tokens.
 void Cmd_TokenizeStringIgnoreQuotes( const char *text_in ) {
-	Cmd_TokenizeString2( text_in, qtrue );
+	Cmd_TokenizeString2( text_in, true );
 }
 
 cmd_function_t *Cmd_FindCommand( const char *cmd_name )
@@ -493,9 +506,14 @@ cmd_function_t *Cmd_FindCommand( const char *cmd_name )
 	for( cmd = cmd_functions; cmd; cmd = cmd->next )
 		if( !Q_stricmp( cmd_name, cmd->name ) )
 			return cmd;
-	return NULL;
+	return nullptr;
 }
 
+// called by the init functions of other parts of the program to
+// register commands and functions to call for them.
+// The cmd_name is referenced later, so it should not be in temp memory
+// if function is nullptr, the command will be forwarded to the server
+// as a clc_clientCommand instead of executed locally
 void	Cmd_AddCommand( const char *cmd_name, xcommand_t function, const char *cmd_desc ) {
 	cmd_function_t	*cmd;
 
@@ -503,7 +521,7 @@ void	Cmd_AddCommand( const char *cmd_name, xcommand_t function, const char *cmd_
 	if( Cmd_FindCommand( cmd_name ) )
 	{
 		// allow completion-only commands to be silently doubled
-		if ( function != NULL ) {
+		if ( function != nullptr ) {
 			Com_Printf ("Cmd_AddCommand: %s already defined\n", cmd_name);
 		}
 		return;
@@ -515,9 +533,9 @@ void	Cmd_AddCommand( const char *cmd_name, xcommand_t function, const char *cmd_
 	if ( VALIDSTRING( cmd_desc ) )
 		cmd->description = CopyString( cmd_desc );
 	else
-		cmd->description = NULL;
+		cmd->description = nullptr;
 	cmd->function = function;
-	cmd->complete = NULL;
+	cmd->complete = nullptr;
 	cmd->next = cmd_functions;
 	cmd_functions = cmd;
 }
@@ -605,6 +623,7 @@ void Cmd_Print( const cmd_function_t *cmd )
 	Com_Printf( "\n" );
 }
 
+// callback with each valid string
 void	Cmd_CommandCompletion( completionCallback_t callback ) {
 	cmd_function_t	*cmd;
 
@@ -621,6 +640,8 @@ void Cmd_CompleteArgument( const char *command, char *args, int argNum ) {
 }
 
 // A complete command line has been parsed, so try to execute it
+// Parses a single line of text into arguments and tries to execute it
+// as if it was typed at the console
 void	Cmd_ExecuteString( const char *text ) {
 	cmd_function_t	*cmd, **prev;
 
@@ -686,9 +707,9 @@ bool CmdSort( const cmd_function_t *cmd1, const cmd_function_t *cmd2 )
 
 static void Cmd_List_f (void)
 {
-	const cmd_function_t	*cmd = NULL;
+	const cmd_function_t	*cmd = nullptr;
 	int				i, j;
-	char			*match = NULL;
+	char			*match = nullptr;
 	CmdFuncVector	cmds;
 
 	if ( Cmd_Argc() > 1 ) {
@@ -699,7 +720,7 @@ static void Cmd_List_f (void)
 		cmd;
 		cmd=cmd->next, i++ )
 	{
-		if ( !cmd->name || (match && !Com_Filter( match, cmd->name, qfalse )) )
+		if ( !cmd->name || (match && !Com_Filter( match, cmd->name, false )) )
 			continue;
 
 		cmds.push_back( cmd );
@@ -751,13 +772,13 @@ void Cmd_CompleteCmdName( char *args, int argNum )
 		char *p = Com_SkipTokens( args, 1, " " );
 
 		if ( p > args )
-			Field_CompleteCommand( p, qtrue, qfalse );
+			Field_CompleteCommand( p, true, false );
 	}
 }
 
 void Cmd_CompleteCfgName( char *args, int argNum ) {
 	if( argNum == 2 ) {
-		Field_CompleteFilename( "", "cfg", qfalse, qtrue );
+		Field_CompleteFilename( "", "cfg", false, true );
 	}
 }
 

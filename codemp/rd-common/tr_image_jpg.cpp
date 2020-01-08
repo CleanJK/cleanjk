@@ -4,7 +4,8 @@ Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
 Copyright (C) 2005 - 2015, ioquake3 contributors
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -54,11 +55,12 @@ static void R_JPGOutputMessage(j_common_ptr cinfo)
 	Com_Printf("%s\n", buffer);
 }
 
+// Load raw image data from JPEG image.
 void LoadJPG( const char *filename, unsigned char **pic, int *width, int *height ) {
 	/* This struct contains the JPEG decompression parameters and pointers to
 	* working space (which is allocated as needed by the JPEG library).
 	*/
-	struct jpeg_decompress_struct cinfo = { NULL };
+	struct jpeg_decompress_struct cinfo = { nullptr };
 	/* We use our private extension JPEG error handler.
 	* Note that this struct must live as long as the main JPEG parameter
 	* struct, to avoid dangling-pointer problems.
@@ -157,7 +159,7 @@ void LoadJPG( const char *filename, unsigned char **pic, int *width, int *height
 	memcount = pixelcount * 4;
 	row_stride = cinfo.output_width * cinfo.output_components;
 
-	out = (byte *)Z_Malloc(memcount, TAG_TEMP_WORKSPACE, qfalse);
+	out = (byte *)Z_Malloc(memcount, TAG_TEMP_WORKSPACE, false);
 
 	*width = cinfo.output_width;
 	*height = cinfo.output_height;
@@ -282,7 +284,7 @@ static void jpegDest (j_compress_ptr cinfo, byte* outfile, int size)
 	* manager serially with the same JPEG object, because their private object
 	* sizes may be different.  Caveat programmer.
 	*/
-	if (cinfo->dest == NULL) {	/* first time for this JPEG object? */
+	if (cinfo->dest == nullptr) {	/* first time for this JPEG object? */
 		cinfo->dest = (struct jpeg_destination_mgr *)
 			(*cinfo->mem->alloc_small) ((j_common_ptr) cinfo, JPOOL_PERMANENT,
 			sizeof(my_destination_mgr));
@@ -298,6 +300,7 @@ static void jpegDest (j_compress_ptr cinfo, byte* outfile, int size)
 
 // Encodes JPEG from image in image_buffer and writes to buffer.
 // Expects RGB input data
+// Convert raw image data to JPEG format and store in buffer.
 size_t RE_SaveJPGToBuffer(byte *buffer, size_t bufSize, int quality,
 	int image_width, int image_height, byte *image_buffer, int padding)
 {
@@ -367,6 +370,7 @@ size_t RE_SaveJPGToBuffer(byte *buffer, size_t bufSize, int quality,
 	return outcount;
 }
 
+// Save raw image data as JPEG image file.
 void RE_SaveJPG(const char * filename, int quality, int image_width, int image_height, byte *image_buffer, int padding)
 {
 	byte *out;

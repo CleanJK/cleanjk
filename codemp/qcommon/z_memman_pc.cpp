@@ -2,7 +2,8 @@
 ===========================================================================
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -143,26 +144,26 @@ typedef struct StaticMem_s {
 #pragma pack(pop)
 
 StaticZeroMem_t gZeroMalloc  =
-	{ {ZONE_MAGIC, TAG_STATIC,0,NULL,NULL},{ZONE_MAGIC}};
+	{ {ZONE_MAGIC, TAG_STATIC,0,nullptr,nullptr},{ZONE_MAGIC}};
 StaticMem_t gEmptyString =
-	{ {ZONE_MAGIC, TAG_STATIC,2,NULL,NULL},{'\0','\0'},{ZONE_MAGIC}};
+	{ {ZONE_MAGIC, TAG_STATIC,2,nullptr,nullptr},{'\0','\0'},{ZONE_MAGIC}};
 StaticMem_t gNumberString[] = {
-	{ {ZONE_MAGIC, TAG_STATIC,2,NULL,NULL},{'0','\0'},{ZONE_MAGIC}},
-	{ {ZONE_MAGIC, TAG_STATIC,2,NULL,NULL},{'1','\0'},{ZONE_MAGIC}},
-	{ {ZONE_MAGIC, TAG_STATIC,2,NULL,NULL},{'2','\0'},{ZONE_MAGIC}},
-	{ {ZONE_MAGIC, TAG_STATIC,2,NULL,NULL},{'3','\0'},{ZONE_MAGIC}},
-	{ {ZONE_MAGIC, TAG_STATIC,2,NULL,NULL},{'4','\0'},{ZONE_MAGIC}},
-	{ {ZONE_MAGIC, TAG_STATIC,2,NULL,NULL},{'5','\0'},{ZONE_MAGIC}},
-	{ {ZONE_MAGIC, TAG_STATIC,2,NULL,NULL},{'6','\0'},{ZONE_MAGIC}},
-	{ {ZONE_MAGIC, TAG_STATIC,2,NULL,NULL},{'7','\0'},{ZONE_MAGIC}},
-	{ {ZONE_MAGIC, TAG_STATIC,2,NULL,NULL},{'8','\0'},{ZONE_MAGIC}},
-	{ {ZONE_MAGIC, TAG_STATIC,2,NULL,NULL},{'9','\0'},{ZONE_MAGIC}},
+	{ {ZONE_MAGIC, TAG_STATIC,2,nullptr,nullptr},{'0','\0'},{ZONE_MAGIC}},
+	{ {ZONE_MAGIC, TAG_STATIC,2,nullptr,nullptr},{'1','\0'},{ZONE_MAGIC}},
+	{ {ZONE_MAGIC, TAG_STATIC,2,nullptr,nullptr},{'2','\0'},{ZONE_MAGIC}},
+	{ {ZONE_MAGIC, TAG_STATIC,2,nullptr,nullptr},{'3','\0'},{ZONE_MAGIC}},
+	{ {ZONE_MAGIC, TAG_STATIC,2,nullptr,nullptr},{'4','\0'},{ZONE_MAGIC}},
+	{ {ZONE_MAGIC, TAG_STATIC,2,nullptr,nullptr},{'5','\0'},{ZONE_MAGIC}},
+	{ {ZONE_MAGIC, TAG_STATIC,2,nullptr,nullptr},{'6','\0'},{ZONE_MAGIC}},
+	{ {ZONE_MAGIC, TAG_STATIC,2,nullptr,nullptr},{'7','\0'},{ZONE_MAGIC}},
+	{ {ZONE_MAGIC, TAG_STATIC,2,nullptr,nullptr},{'8','\0'},{ZONE_MAGIC}},
+	{ {ZONE_MAGIC, TAG_STATIC,2,nullptr,nullptr},{'9','\0'},{ZONE_MAGIC}},
 };
 
-qboolean gbMemFreeupOccured = qfalse;
-void *Z_Malloc(int iSize, memtag_t eTag, qboolean bZeroit /* = qfalse */, int iUnusedAlign /* = 4 */)
+bool gbMemFreeupOccured = false;
+void *Z_Malloc(int iSize, memtag_t eTag, bool bZeroit /* = false */, int iUnusedAlign /* = 4 */)
 {
-	gbMemFreeupOccured = qfalse;
+	gbMemFreeupOccured = false;
 
 	if (iSize == 0)
 	{
@@ -176,8 +177,8 @@ void *Z_Malloc(int iSize, memtag_t eTag, qboolean bZeroit /* = qfalse */, int iU
 
 	// Allocate a chunk...
 
-	zoneHeader_t *pMemory = NULL;
-	while (pMemory == NULL)
+	zoneHeader_t *pMemory = nullptr;
+	while (pMemory == nullptr)
 	{
 		if (gbMemFreeupOccured)
 		{
@@ -194,16 +195,16 @@ void *Z_Malloc(int iSize, memtag_t eTag, qboolean bZeroit /* = qfalse */, int iU
 			// new bit, if we fail to malloc memory, try dumping some of the cached stuff that's non-vital and try again...
 
 			// ditch the BSP cache...
-			if (CM_DeleteCachedMap(qfalse))
+			if (CM_DeleteCachedMap(false))
 			{
-				gbMemFreeupOccured = qtrue;
+				gbMemFreeupOccured = true;
 				continue;		// we've just ditched a whole load of memory, so try again with the malloc
 			}
 
 			// ditch any sounds not used on this level...
-			if (SND_RegisterAudio_LevelLoadEnd(qtrue))
+			if (SND_RegisterAudio_LevelLoadEnd(true))
 			{
-				gbMemFreeupOccured = qtrue;
+				gbMemFreeupOccured = true;
 				continue;		// we've dropped at least one sound, so try again with the malloc
 			}
 
@@ -212,16 +213,16 @@ void *Z_Malloc(int iSize, memtag_t eTag, qboolean bZeroit /* = qfalse */, int iU
 
 			if (re->RegisterImages_LevelLoadEnd())
 			{
-				gbMemFreeupOccured = qtrue;
+				gbMemFreeupOccured = true;
 				continue;		// we've dropped at least one image, so try again with the malloc
 			}
 #endif
 
 			// ditch the model-binaries cache...  (must be getting desperate here!)
 
-			if ( re->RegisterModels_LevelLoadEnd(qtrue) )
+			if ( re->RegisterModels_LevelLoadEnd(true) )
 			{
-				gbMemFreeupOccured = qtrue;
+				gbMemFreeupOccured = true;
 				continue;
 			}
 
@@ -235,7 +236,7 @@ void *Z_Malloc(int iSize, memtag_t eTag, qboolean bZeroit /* = qfalse */, int iU
 			//	again (though this will have freed twice the requested amount in that case), so it'll either work
 			//	eventually or not free up enough and drop through to the final ERR_DROP. No worries...
 
-			extern qboolean gbInsideLoadSound;
+			extern bool gbInsideLoadSound;
 			extern int SND_FreeOldestSound();
 			if (!gbInsideLoadSound)
 			{
@@ -249,7 +250,7 @@ void *Z_Malloc(int iSize, memtag_t eTag, qboolean bZeroit /* = qfalse */, int iU
 						if (iBytesFreed >= iRealSize)
 							break;	// early opt-out since we've managed to recover enough (mem-contiguity issues aside)
 					}
-					gbMemFreeupOccured = qtrue;
+					gbMemFreeupOccured = true;
 					continue;
 				}
 			}
@@ -261,7 +262,7 @@ void *Z_Malloc(int iSize, memtag_t eTag, qboolean bZeroit /* = qfalse */, int iU
 			Com_Printf(S_COLOR_RED"Z_Malloc(): Failed to alloc %d bytes (TAG_%s) !!!!!\n", iSize, psTagStrings[eTag]);
 			Z_Details_f();
 			Com_Error(ERR_FATAL,"(Repeat): Z_Malloc(): Failed to alloc %d bytes (TAG_%s) !!!!!\n", iSize, psTagStrings[eTag]);
-			return NULL;
+			return nullptr;
 		}
 	}
 
@@ -309,7 +310,7 @@ extern "C" Q_EXPORT void openjk_minizip_free(void* to_free);
 
 void* openjk_minizip_malloc(int size)
 {
-    return Z_Malloc(size, TAG_MINIZIP, qfalse, 0);
+    return Z_Malloc(size, TAG_MINIZIP, false, 0);
 }
 
 void openjk_minizip_free(void *to_free)
@@ -405,9 +406,9 @@ int Z_Size(void *pvAddress)
 // Frees a block of memory...
 void Z_Free(void *pvAddress)
 {
-	if (pvAddress == NULL)
+	if (pvAddress == nullptr)
 	{
-		//Com_Error(ERR_FATAL, "Z_Free(): NULL arg");
+		//Com_Error(ERR_FATAL, "Z_Free(): nullptr arg");
 		return;
 	}
 
@@ -489,7 +490,7 @@ static void Z_MemRecoverTest_f(void)
 	while (1)
 	{
 		int iThisMalloc = 5* (1024 * 1024);
-		Z_Malloc(iThisMalloc, TAG_SPECIAL_MEM_TEST, qfalse);	// and lose, just to consume memory
+		Z_Malloc(iThisMalloc, TAG_SPECIAL_MEM_TEST, false);	// and lose, just to consume memory
 		iTotalMalloc += iThisMalloc;
 
 		if (gbMemFreeupOccured)
@@ -628,13 +629,13 @@ void Com_TouchMemory( void ) {
 //	Com_Printf( "Com_TouchMemory: %i msec\n", end - start );
 }
 
-qboolean Com_TheHunkMarkHasBeenMade(void)
+bool Com_TheHunkMarkHasBeenMade(void)
 {
 	if (hunk_tag == TAG_HUNK_MARK2)
 	{
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
 void Com_InitHunkMemory( void ) {
@@ -664,13 +665,13 @@ void Hunk_ClearToMark( void ) {
 	Z_TagFree(TAG_HUNK_MARK2);
 }
 
-qboolean Hunk_CheckMark( void ) {
+bool Hunk_CheckMark( void ) {
 	//if( hunk_low.mark || hunk_high.mark ) {
 	if (hunk_tag != TAG_HUNK_MARK1)
 	{
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
 // The server calls this before shutting down or loading a new map
@@ -710,7 +711,7 @@ void Hunk_Clear( void ) {
 
 // Allocate permanent (until the hunk is cleared) memory
 void *Hunk_Alloc( int size, ha_pref preference ) {
-	return Z_Malloc(size, hunk_tag, qtrue);
+	return Z_Malloc(size, hunk_tag, true);
 }
 
 // This is used by the file loading system.
@@ -718,7 +719,7 @@ void *Hunk_Alloc( int size, ha_pref preference ) {
 // When the files-in-use count reaches zero, all temp memory will be deleted
 void *Hunk_AllocateTempMemory( int size ) {
 	// don't bother clearing, because we are going to load a file over it
-	return Z_Malloc(size, TAG_TEMP_HUNKALLOC, qfalse);
+	return Z_Malloc(size, TAG_TEMP_HUNKALLOC, false);
 }
 
 void Hunk_FreeTempMemory( void *buf )

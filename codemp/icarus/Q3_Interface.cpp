@@ -2,7 +2,8 @@
 ===========================================================================
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -70,11 +71,11 @@ static void Q3_CenterPrint ( const char *format, ... )
 	{
 		if( text[0] == '!')
 		{
-			SV_SendServerCommand( NULL, "cp \"%s\"", (text+1) );
+			SV_SendServerCommand( nullptr, "cp \"%s\"", (text+1) );
 			return;
 		}
 
-		SV_SendServerCommand( NULL, "cp \"%s\"", text );
+		SV_SendServerCommand( nullptr, "cp \"%s\"", text );
 	}
 
 	Q3_DebugPrint( WL_VERBOSE, "%s\n", text); 	// Just a developers note
@@ -88,24 +89,24 @@ void Q3_TaskIDClear( int *taskID )
 	*taskID = -1;
 }
 
-qboolean Q3_TaskIDPending( sharedEntity_t *ent, taskID_t taskType )
+bool Q3_TaskIDPending( sharedEntity_t *ent, taskID_t taskType )
 {
 	if ( !gSequencers[ent->s.number] || !gTaskManagers[ent->s.number] )
 	{
-		return qfalse;
+		return false;
 	}
 
 	if ( taskType < TID_CHAN_VOICE || taskType >= NUM_TIDS )
 	{
-		return qfalse;
+		return false;
 	}
 
 	if ( ent->taskID[taskType] >= 0 )//-1 is none
 	{
-		return qtrue;
+		return true;
 	}
 
-	return qfalse;
+	return false;
 }
 
 void Q3_TaskIDComplete( sharedEntity_t *ent, taskID_t taskType )
@@ -180,8 +181,8 @@ static sharedEntity_t *Q3_GetEntityByName( const char *name )
 	entlist_t::iterator		ei;
 	char					temp[1024];
 
-	if ( name == NULL || name[0] == '\0' )
-		return NULL;
+	if ( name == nullptr || name[0] == '\0' )
+		return nullptr;
 
 	strncpy( (char *) temp, name, sizeof(temp) );
 	temp[sizeof(temp)-1] = 0;
@@ -189,14 +190,14 @@ static sharedEntity_t *Q3_GetEntityByName( const char *name )
 	ei = ICARUS_EntList.find( Q_strupr( (char *) temp ) );
 
 	if ( ei == ICARUS_EntList.end() )
-		return NULL;
+		return nullptr;
 
 	ent = SV_GentityNum((*ei).second);
 
 	return ent;
 	// this now returns the ent instead of the sequencer -- dmv 06/27/01
-//	if (ent == NULL)
-//		return NULL;
+//	if (ent == nullptr)
+//		return nullptr;
 //	return gSequencers[ent->s.number];
 }
 
@@ -207,27 +208,27 @@ static unsigned int Q3_GetTime( void ) {
 
 // Take any string, look for "kyle/" replace with "kyla/" based on "sex"
 // And: Take any string, look for "/mr_" replace with "/ms_" based on "sex"
-// returns qtrue if changed to ms
+// returns true if changed to ms
 /*
-static qboolean G_AddSexToMunroString ( char *string, qboolean qDoBoth )
+static bool G_AddSexToMunroString ( char *string, bool qDoBoth )
 {
 	char *start;
 
 	if VALIDSTRING( string ) {
 		if ( g_sex->string[0] == 'f' ) {
 			start = strstr( string, "kyle/" );
-			if ( start != NULL ) {
+			if ( start != nullptr ) {
 				strncpy( start, "kyla", 5 );
-				return qtrue;
+				return true;
 			} else {
 				start = strrchr( string, '/' );		//get the last slash before the wav
-				if (start != NULL) {
+				if (start != nullptr) {
 					if (!Q_strncmp( start, "/mr_", 4) ) {
 						if (qDoBoth) {	//we want to change mr to ms
 							start[2] = 's';	//change mr to ms
-							return qtrue;
+							return true;
 						} else {	//IF qDoBoth
-							return qfalse;	//don't want this one
+							return false;	//don't want this one
 						}
 					}
 				}	//IF found slash
@@ -235,14 +236,14 @@ static qboolean G_AddSexToMunroString ( char *string, qboolean qDoBoth )
 		}	//IF Female
 		else {	//i'm male
 			start = strrchr( string, '/' );		//get the last slash before the wav
-			if (start != NULL) {
+			if (start != nullptr) {
 				if (!Q_strncmp( start, "/ms_", 4) ) {
-					return qfalse;	//don't want this one
+					return false;	//don't want this one
 				}
 			}	//IF found slash
 		}
 	}	//if VALIDSTRING
-	return qtrue;
+	return true;
 }
 */
 
@@ -575,7 +576,7 @@ int AppendToSaveGame(unsigned long chid, const void *data, int length)
 }
 
 // Changed by BTO (VV) - Visual C++ 7.1 doesn't allow default args on funcion pointers
-int ReadFromSaveGame(unsigned long chid, void *pvAddress, int iLength /* , void **ppvAddressPtr = NULL */ )
+int ReadFromSaveGame(unsigned long chid, void *pvAddress, int iLength /* , void **ppvAddressPtr = nullptr */ )
 {
 	return 1;
 }
@@ -646,11 +647,11 @@ static void Q3_Lerp2Pos( int taskID, int entID, vec3_t origin, vec3_t angles, fl
 	if (angles)
 	{
 		VectorCopy(angles, sharedMem->angles);
-		sharedMem->nullAngles = qfalse;
+		sharedMem->nullAngles = false;
 	}
 	else
 	{
-		sharedMem->nullAngles = qtrue;
+		sharedMem->nullAngles = true;
 	}
 	sharedMem->duration = duration;
 

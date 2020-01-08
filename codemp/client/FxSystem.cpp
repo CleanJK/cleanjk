@@ -2,7 +2,8 @@
 ===========================================================================
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -99,9 +100,9 @@ void SFxHelper::CameraShake( vec3_t origin, float intensity, int radius, int tim
 	CGVM_CameraShake();
 }
 
-qboolean SFxHelper::GetOriginAxisFromBolt(CGhoul2Info_v *pGhoul2, int mEntNum, int modelNum, int boltNum, vec3_t /*out*/origin, vec3_t /*out*/axis[3])
+bool SFxHelper::GetOriginAxisFromBolt(CGhoul2Info_v *pGhoul2, int mEntNum, int modelNum, int boltNum, vec3_t /*out*/origin, vec3_t /*out*/axis[3])
 {
-	qboolean doesBoltExist;
+	bool doesBoltExist;
 	mdxaBone_t 		boltMatrix;
 	TCGGetBoltData	*data = (TCGGetBoltData*)cl.mSharedMemory;
 	data->mEntityNum = mEntNum;

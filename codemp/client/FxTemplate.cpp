@@ -2,7 +2,8 @@
 ===========================================================================
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -475,7 +476,7 @@ bool CPrimitiveTemplate::ParseRotation( const char *val )
 {
 	float min, max;
 
-	if ( ParseFloat( val, &min, &max ) == qtrue )
+	if ( ParseFloat( val, &min, &max ) == true )
 	{
 		mRotation.SetRange( min, max );
 		return true;
@@ -491,7 +492,7 @@ bool CPrimitiveTemplate::ParseRotationDelta( const char *val )
 {
 	float min, max;
 
-	if ( ParseFloat( val, &min, &max ) == qtrue )
+	if ( ParseFloat( val, &min, &max ) == true )
 	{
 		mRotationDelta.SetRange( min, max );
 		return true;

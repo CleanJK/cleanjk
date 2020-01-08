@@ -2,7 +2,8 @@
 ===========================================================================
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -21,6 +22,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 #pragma once
+
+// ======================================================================
+// DEFINE
+// ======================================================================
 
 #define ARMOR_EFFECT_TIME	500
 
@@ -42,8 +47,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //This is a hack because ATM the saberEntityState is only non-0 if out or 0 if in, and we
 //at least want NPCs knowing when their saber is out regardless.
 
-#define JSF_AMBUSH		16	//ambusher Jedi
-
 #define SABER_RADIUS_STANDARD	3.0f
 #define	SABER_REFLECT_MISSILE_CONE	0.2f
 
@@ -55,39 +58,18 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define FORCE_LIGHTNING_RADIUS 300
 #define MAX_DRAIN_DISTANCE 512
 
-typedef enum forceJump_e
-{
-	FJ_FORWARD,
-	FJ_BACKWARD,
-	FJ_RIGHT,
-	FJ_LEFT,
-	FJ_UP
-} forceJump_t;
-
-typedef enum
-{
-	EVASION_NONE = 0,
-	EVASION_PARRY,
-	EVASION_DUCK_PARRY,
-	EVASION_JUMP_PARRY,
-	EVASION_DODGE,
-	EVASION_JUMP,
-	EVASION_DUCK,
-	EVASION_FJUMP,
-	EVASION_CARTWHEEL,
-	EVASION_OTHER,
-	NUM_EVASION_TYPES
-} evasionType_t;
-
-#define SABERMINS_X -3.0f//-24.0f
-#define SABERMINS_Y -3.0f//-24.0f
-#define SABERMINS_Z -3.0f//-8.0f
-#define SABERMAXS_X 3.0f//24.0f
-#define SABERMAXS_Y 3.0f//24.0f
-#define SABERMAXS_Z 3.0f//8.0f
+#define SABERMINS_X -3.0f //-24.0f
+#define SABERMINS_Y -3.0f //-24.0f
+#define SABERMINS_Z -3.0f //-8.0f
+#define SABERMAXS_X 3.0f //24.0f
+#define SABERMAXS_Y 3.0f //24.0f
+#define SABERMAXS_Z 3.0f //8.0f
 #define	SABER_MIN_THROW_DIST	80.0f
+
+// ======================================================================
+// EXTERN VARIABLE
+// ======================================================================
 
 extern int forcePowerNeeded[NUM_FORCE_POWER_LEVELS][NUM_FORCE_POWERS];
 extern float forceJumpHeight[NUM_FORCE_POWER_LEVELS];
 extern float forceJumpStrength[NUM_FORCE_POWER_LEVELS];
-extern float forcePushPullRadius[NUM_FORCE_POWER_LEVELS];

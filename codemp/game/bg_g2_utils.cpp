@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -34,7 +35,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #endif
 
 #define	MAX_VARIANTS 8
-qboolean BG_GetRootSurfNameWithVariant( void *ghoul2, const char *rootSurfName, char *returnSurfName, int returnSize )
+bool BG_GetRootSurfNameWithVariant( void *ghoul2, const char *rootSurfName, char *returnSurfName, int returnSize )
 {
 #if defined(_GAME)
 	if ( !ghoul2 || !trap->G2API_GetSurfaceRenderStatus( ghoul2, 0, rootSurfName ) )
@@ -43,7 +44,7 @@ qboolean BG_GetRootSurfNameWithVariant( void *ghoul2, const char *rootSurfName, 
 #endif
 	{//see if the basic name without variants is on
 		Q_strncpyz( returnSurfName, rootSurfName, returnSize );
-		return qtrue;
+		return true;
 	}
 	else
 	{//check variants
@@ -57,11 +58,11 @@ qboolean BG_GetRootSurfNameWithVariant( void *ghoul2, const char *rootSurfName, 
 			if ( !trap->G2API_GetSurfaceRenderStatus( ghoul2, 0, returnSurfName ) )
 		#endif
 			{
-				return qtrue;
+				return true;
 			}
 		}
 	}
 	Q_strncpyz( returnSurfName, rootSurfName, returnSize );
-	return qfalse;
+	return false;
 }
 

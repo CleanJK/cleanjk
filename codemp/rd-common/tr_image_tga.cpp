@@ -4,7 +4,8 @@ Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
 Copyright (C) 2005 - 2015, ioquake3 contributors
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -45,9 +46,9 @@ typedef struct TGAHeader_s {
 } TGAHeader_t;
 #pragma pack(pop)
 
-// *pic == pic, else NULL for failed.
-//  returns false if found but had a format error, else true for either OK or not-found (there's a reason for this)
-
+// *pic == pic, else nullptr for failed.
+// returns false if found but had a format error, else true for either OK or not-found (there's a reason for this)
+// Load raw image data from TGA image.
 void LoadTGA ( const char *name, byte **pic, int *width, int *height)
 {
 	char sErrorString[1024];
@@ -55,11 +56,11 @@ void LoadTGA ( const char *name, byte **pic, int *width, int *height)
 
 	// these don't need to be declared or initialised until later, but the compiler whines that 'goto' skips them.
 
-	byte *pRGBA = NULL;
-	byte *pOut	= NULL;
-	byte *pIn	= NULL;
+	byte *pRGBA = nullptr;
+	byte *pOut	= nullptr;
+	byte *pIn	= nullptr;
 
-	*pic = NULL;
+	*pic = nullptr;
 
 #define TGA_FORMAT_ERROR(blah) {sprintf(sErrorString,blah); bFormatErrors = true; goto TGADone;}
 //#define TGA_FORMAT_ERROR(blah) Com_Error( ERR_DROP, blah );
@@ -191,7 +192,7 @@ void LoadTGA ( const char *name, byte **pic, int *width, int *height)
 	if (height)
 		*height = pHeader->wImageHeight;
 
-	pRGBA	= (byte *) Z_Malloc (pHeader->wImageWidth * pHeader->wImageHeight * 4, TAG_TEMP_WORKSPACE, qfalse);
+	pRGBA	= (byte *) Z_Malloc (pHeader->wImageWidth * pHeader->wImageHeight * 4, TAG_TEMP_WORKSPACE, false);
 	*pic	= pRGBA;
 	pOut	= pRGBA;
 	pIn		= pTempLoadedBuffer + sizeof(*pHeader);

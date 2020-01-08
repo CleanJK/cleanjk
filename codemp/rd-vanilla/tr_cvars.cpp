@@ -283,10 +283,10 @@ void R_InitCvars( void ) {
 	sv_pure =                          ri.Cvar_Get( "sv_pure",                          "0",                              CVAR_SYSTEMINFO,               "Pure server" );
 	timescale =                        ri.Cvar_Get( "timescale",                        "1",                              CVAR_CHEAT | CVAR_SYSTEMINFO,  "" );
 
-	ri.Cvar_CheckRange( r_picmip,                0,              16,             qtrue );
-	ri.Cvar_CheckRange( r_subdivisions,          0,              80,             qfalse );
-	ri.Cvar_CheckRange( r_znear,                 0.001f,         10,             qfalse );
-	ri.Cvar_CheckRange( r_primitives,            MIN_PRIMITIVES, MAX_PRIMITIVES, qtrue );
-	ri.Cvar_CheckRange( r_aviMotionJpegQuality,  10,             100,            qtrue );
-	ri.Cvar_CheckRange( r_screenshotJpegQuality, 10,             100,            qtrue );
+	ri.Cvar_CheckRange( r_picmip,                0,              16,             true );
+	ri.Cvar_CheckRange( r_subdivisions,          0,              80,             false );
+	ri.Cvar_CheckRange( r_znear,                 0.001f,         10,             false );
+	ri.Cvar_CheckRange( r_primitives,            MIN_PRIMITIVES, MAX_PRIMITIVES, true );
+	ri.Cvar_CheckRange( r_aviMotionJpegQuality,  10,             100,            true );
+	ri.Cvar_CheckRange( r_screenshotJpegQuality, 10,             100,            true );
 }

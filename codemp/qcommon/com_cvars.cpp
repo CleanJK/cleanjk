@@ -1,10 +1,31 @@
+/*
+===========================================================================
+Copyright (C) 1999 - 2005, Id Software, Inc.
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
+
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
+
 #include "game/bg_public.h"
 #include "qcommon/com_cvar.h"
 #include "qcommon/com_cvars.h"
 #include "qcommon/game_version.h"
-#include "qcommon/q_platform.h"
-#include "qcommon/q_shared.h"
-#include "qcommon/qcommon.h"
 
 #ifdef _DEBUG
 cvar_t *fx_freeze;
@@ -574,10 +595,10 @@ void Com_InitCvars( void ) {
 	version =                   Cvar_Get( "version",                   JK_VERSION PLATFORM_STRING SOURCE_DATE, CVAR_ROM | CVAR_SERVERINFO,                  "" );
 
 	#ifdef DEDICATED
-		Cvar_CheckRange( dedicated, 1, 2, qtrue );
+		Cvar_CheckRange( dedicated, 1, 2, true );
 	#endif
-	Cvar_CheckRange( scr_conspeed, 1.0f, 100.0f, qfalse );
-	Cvar_CheckRange( sv_privateClients, 0, MAX_CLIENTS, qtrue );
-	Cvar_CheckRange( sv_ratePolicy, 1, 2, qtrue );
-	Cvar_CheckRange( sv_snapsPolicy, 0, 2, qtrue );
+	Cvar_CheckRange( scr_conspeed, 1.0f, 100.0f, false );
+	Cvar_CheckRange( sv_privateClients, 0, MAX_CLIENTS, true );
+	Cvar_CheckRange( sv_ratePolicy, 1, 2, true );
+	Cvar_CheckRange( sv_snapsPolicy, 0, 2, true );
 }

@@ -1,6 +1,7 @@
 /*
 ===========================================================================
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -20,17 +21,25 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
+// ======================================================================
+// INCLUDE
+// ======================================================================
+
 #include "ui/ui_public.h"
 
-void		UIVM_Init				( qboolean inGameLoad );
-void		UIVM_Shutdown			( void );
-void		UIVM_KeyEvent			( int key, qboolean down );
+// ======================================================================
+// FUNCTION
+// ======================================================================
+
+bool	UIVM_ConsoleCommand		( int realTime );
+bool	UIVM_IsFullscreen		( void );
+void		UIVM_DrawConnectScreen	( bool overlay );
+void		UIVM_Init				( bool inGameLoad );
+void		UIVM_KeyEvent			( int key, bool down );
 void		UIVM_MouseEvent			( int dx, int dy );
 void		UIVM_Refresh			( int realtime );
-qboolean	UIVM_IsFullscreen		( void );
 void		UIVM_SetActiveMenu		( uiMenuCommand_t menu );
-qboolean	UIVM_ConsoleCommand		( int realTime );
-void		UIVM_DrawConnectScreen	( qboolean overlay );
+void		UIVM_Shutdown			( void );
 
 void CL_BindUI( void );
 void CL_UnbindUI( void );

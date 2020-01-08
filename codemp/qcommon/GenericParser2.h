@@ -2,7 +2,8 @@
 ===========================================================================
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -26,17 +27,36 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 	#pragma message("...including GenericParser2.h")
 #endif
 
+// ======================================================================
+// INCLUDE
+// ======================================================================
+
 #include "qcommon/disablewarnings.h"
 
 #ifdef USE_LOCAL_GENERICPARSER
 #include <memory.h>
 #include <malloc.h>
-#include <string.h>
+#include <cstring>
+#endif
 
+// ======================================================================
+// DEFINE
+// ======================================================================
+
+#ifdef USE_LOCAL_GENERICPARSER
 #define trap_Z_Malloc(x, y)		malloc(x)
 #define trap_Z_Free(x)			free(x)
-
 #endif
+
+// The following groups of routines are used for a C interface into GP2.
+// C++ users should just use the objects as normally and not call these routines below
+typedef void* TGenericParser2;
+typedef void* TGPGroup;
+typedef void* TGPValue;
+
+// ======================================================================
+// CLASS
+// ======================================================================
 
 class CTextPool;
 class CGPObject;
@@ -60,7 +80,7 @@ public:
 	char		*AllocText(char *text, bool addNULL = true, CTextPool **poolPtr = 0);
 };
 
-void CleanTextPool(CTextPool *pool);
+
 
 class CGPObject
 {
@@ -174,41 +194,40 @@ public:
 	bool	Write(CTextPool *textPool);
 };
 
-// The following groups of routines are used for a C interface into GP2.
-// C++ users should just use the objects as normally and not call these routines below
+// ======================================================================
+// FUNCTION
+// ======================================================================
 
-typedef		void	*TGenericParser2;
-typedef		void	*TGPGroup;
-typedef		void	*TGPValue;
+void CleanTextPool(CTextPool* pool);
 
 // CGenericParser2 (void *) routines
-TGenericParser2		GP_Parse(char **dataPtr, bool cleanFirst, bool writeable);
-void				GP_Clean(TGenericParser2 GP2);
-void				GP_Delete(TGenericParser2 *GP2);
-TGPGroup			GP_GetBaseParseGroup(TGenericParser2 GP2);
+TGenericParser2 GP_Parse(char **dataPtr, bool cleanFirst, bool writeable);
+TGPGroup GP_GetBaseParseGroup(TGenericParser2 GP2);
+void GP_Clean(TGenericParser2 GP2);
+void GP_Delete(TGenericParser2 *GP2);
 
 // CGPGroup (void *) routines
-const char	*GPG_GetName(TGPGroup GPG);
-bool		GPG_GetName(TGPGroup GPG, char *Value);
-TGPGroup	GPG_GetNext(TGPGroup GPG);
-TGPGroup	GPG_GetInOrderNext(TGPGroup GPG);
-TGPGroup	GPG_GetInOrderPrevious(TGPGroup GPG);
-TGPGroup	GPG_GetPairs(TGPGroup GPG);
-TGPGroup	GPG_GetInOrderPairs(TGPGroup GPG);
-TGPGroup	GPG_GetSubGroups(TGPGroup GPG);
-TGPGroup	GPG_GetInOrderSubGroups(TGPGroup GPG);
-TGPGroup	GPG_FindSubGroup(TGPGroup GPG, const char *name);
-TGPValue	GPG_FindPair(TGPGroup GPG, const char *key);
-const char	*GPG_FindPairValue(TGPGroup GPG, const char *key, const char *defaultVal);
-bool		GPG_FindPairValue(TGPGroup GPG, const char *key, const char *defaultVal, char *Value);
+bool GPG_FindPairValue(TGPGroup GPG, const char *key, const char *defaultVal, char *Value);
+bool GPG_GetName(TGPGroup GPG, char *Value);
+const char *GPG_FindPairValue(TGPGroup GPG, const char *key, const char *defaultVal);
+const char*GPG_GetName(TGPGroup GPG);
+TGPGroup GPG_FindSubGroup(TGPGroup GPG, const char *name);
+TGPGroup GPG_GetInOrderNext(TGPGroup GPG);
+TGPGroup GPG_GetInOrderPairs(TGPGroup GPG);
+TGPGroup GPG_GetInOrderPrevious(TGPGroup GPG);
+TGPGroup GPG_GetInOrderSubGroups(TGPGroup GPG);
+TGPGroup GPG_GetNext(TGPGroup GPG);
+TGPGroup GPG_GetPairs(TGPGroup GPG);
+TGPGroup GPG_GetSubGroups(TGPGroup GPG);
+TGPValue GPG_FindPair(TGPGroup GPG, const char *key);
 
 // CGPValue (void *) routines
-const char	*GPV_GetName(TGPValue GPV);
-bool		GPV_GetName(TGPValue GPV, char *Value);
-TGPValue	GPV_GetNext(TGPValue GPV);
-TGPValue	GPV_GetInOrderNext(TGPValue GPV);
-TGPValue	GPV_GetInOrderPrevious(TGPValue GPV);
-bool		GPV_IsList(TGPValue GPV);
-const char	*GPV_GetTopValue(TGPValue GPV);
-bool		GPV_GetTopValue(TGPValue GPV, char *Value);
-TGPValue	GPV_GetList(TGPValue GPV);
+bool GPV_GetName(TGPValue GPV, char *Value);
+bool GPV_GetTopValue(TGPValue GPV, char *Value);
+bool GPV_IsList(TGPValue GPV);
+const char *GPV_GetName(TGPValue GPV);
+const char *GPV_GetTopValue(TGPValue GPV);
+TGPValue GPV_GetInOrderNext(TGPValue GPV);
+TGPValue GPV_GetInOrderPrevious(TGPValue GPV);
+TGPValue GPV_GetList(TGPValue GPV);
+TGPValue GPV_GetNext(TGPValue GPV);

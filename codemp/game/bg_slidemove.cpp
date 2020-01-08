@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -50,7 +51,7 @@ output: origin, velocity, impacts, stairup boolean
 extern bgEntity_t *pm_entSelf;
 extern bgEntity_t *pm_entVeh;
 
-qboolean PM_GroundSlideOkay( float zNormal )
+bool PM_GroundSlideOkay( float zNormal )
 {
 	if ( zNormal > 0 )
 	{
@@ -66,15 +67,15 @@ qboolean PM_GroundSlideOkay( float zNormal )
 				|| pm->ps->legsAnim == BOTH_FORCELONGLEAP_LAND
 				|| BG_InReboundJump( pm->ps->legsAnim ))
 			{
-				return qfalse;
+				return false;
 			}
 		}
 	}
-	return qtrue;
+	return true;
 }
 
 #ifdef _GAME
-qboolean PM_ClientImpact( trace_t *trace )
+bool PM_ClientImpact( trace_t *trace )
 {
 	//don't try to predict this
 	gentity_t	*traceEnt;
@@ -82,12 +83,12 @@ qboolean PM_ClientImpact( trace_t *trace )
 
 	if ( !pm_entSelf )
 	{
-		return qfalse;
+		return false;
 	}
 
 	if ( otherEntityNum >= ENTITYNUM_WORLD )
 	{
-		return qfalse;
+		return false;
 	}
 
 	traceEnt = &g_entities[otherEntityNum];
@@ -102,16 +103,16 @@ qboolean PM_ClientImpact( trace_t *trace )
 	if ( !traceEnt
 		|| !(traceEnt->r.contents&pm->tracemask) )
 	{//it's dead or not in my way anymore, don't clip against it
-		return qtrue;
+		return true;
 	}
 
-	return qfalse;
+	return false;
 }
 #endif
 
 #define	MAX_CLIP_PLANES	5
-// Returns qtrue if the velocity was clipped in some way
-qboolean	PM_SlideMove( qboolean gravity ) {
+// Returns true if the velocity was clipped in some way
+bool	PM_SlideMove( bool gravity ) {
 	int			bumpcount, numbumps;
 	vec3_t		dir;
 	float		d;
@@ -126,7 +127,7 @@ qboolean	PM_SlideMove( qboolean gravity ) {
 	float		into;
 	vec3_t		endVelocity;
 	vec3_t		endClipVelocity;
-	//qboolean	damageSelf = qtrue;
+	//bool	damageSelf = true;
 
 	numbumps = 4;
 
@@ -176,7 +177,7 @@ qboolean	PM_SlideMove( qboolean gravity ) {
 		if (trace.allsolid) {
 			// entity is completely trapped in another solid
 			pm->ps->velocity[2] = 0;	// don't build up falling damage, but allow sideways acceleration
-			return qtrue;
+			return true;
 		}
 
 		if (trace.fraction > 0) {
@@ -206,7 +207,7 @@ qboolean	PM_SlideMove( qboolean gravity ) {
 		if (numplanes >= MAX_CLIP_PLANES) {
 			// this shouldn't really happen
 			VectorClear( pm->ps->velocity );
-			return qtrue;
+			return true;
 		}
 
 		VectorCopy( trace.plane.normal, normal );
@@ -297,7 +298,7 @@ qboolean	PM_SlideMove( qboolean gravity ) {
 
 					// stop dead at a triple plane interaction
 					VectorClear( pm->ps->velocity );
-					return qtrue;
+					return true;
 				}
 			}
 
@@ -320,7 +321,7 @@ qboolean	PM_SlideMove( qboolean gravity ) {
 	return ( bumpcount != 0 );
 }
 
-void PM_StepSlideMove( qboolean gravity ) {
+void PM_StepSlideMove( bool gravity ) {
 	vec3_t		start_o, start_v;
 	vec3_t		down_o, down_v;
 	trace_t		trace;
@@ -328,14 +329,14 @@ void PM_StepSlideMove( qboolean gravity ) {
 //	vec3_t		delta, delta2;
 	vec3_t		up, down;
 	float		stepSize;
-	qboolean skipStep = qfalse;
+	bool skipStep = false;
 
 	VectorCopy (pm->ps->origin, start_o);
 	VectorCopy (pm->ps->velocity, start_v);
 
 	if ( BG_InReboundHold( pm->ps->legsAnim ) )
 	{
-		gravity = qfalse;
+		gravity = false;
 	}
 
 	if ( PM_SlideMove( gravity ) == 0 ) {
@@ -398,7 +399,7 @@ void PM_StepSlideMove( qboolean gravity ) {
 			VectorNormalize( stepVec );
 			if ( stepVec[2] > (1.0f-MIN_WALK_NORMAL) )
 			{
-				skipStep = qtrue;
+				skipStep = true;
 			}
 		}
 	}

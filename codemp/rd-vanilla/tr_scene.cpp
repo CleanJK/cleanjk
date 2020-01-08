@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -89,7 +90,7 @@ void R_AddPolygonSurfaces( void ) {
 
 	for ( i = 0, poly = tr.refdef.polys; i < tr.refdef.numPolys ; i++, poly++ ) {
 		sh = R_GetShaderByHandle( poly->hShader );
-		R_AddDrawSurf( (surfaceType_t *)poly, sh, poly->fogIndex, qfalse );
+		R_AddDrawSurf( (surfaceType_t *)poly, sh, poly->fogIndex, false );
 	}
 }
 
@@ -105,9 +106,9 @@ void RE_AddPolyToScene( qhandle_t hShader, int numVerts, const polyVert_t *verts
 	}
 
 	if ( !hShader ) {
-		ri.Printf( PRINT_ALL, S_COLOR_YELLOW  "WARNING: RE_AddPolyToScene: NULL poly shader(%i)\n", hShader );
+		ri.Printf( PRINT_ALL, S_COLOR_YELLOW  "WARNING: RE_AddPolyToScene: nullptr poly shader(%i)\n", hShader );
 	#ifdef PARANOID
-		//assert( !"RE_AddPolyToScene: NULL poly shader" );
+		//assert( !"RE_AddPolyToScene: nullptr poly shader" );
 	#endif
 		return;
 	}
@@ -137,7 +138,7 @@ void RE_AddPolyToScene( qhandle_t hShader, int numVerts, const polyVert_t *verts
 		r_numpolyverts += numVerts;
 
 		// if no world is loaded
-		if ( tr.world == NULL ) {
+		if ( tr.world == nullptr ) {
 			fogIndex = 0;
 		}
 		// see if it is in a fog volume
@@ -180,9 +181,9 @@ void RE_AddRefEntityToScene( const refEntity_t *ent ) {
 	}
 
 	/*if ( Q_isnan(ent->origin[0]) || Q_isnan(ent->origin[1]) || Q_isnan(ent->origin[2]) ) {
-		static qboolean firstTime = qtrue;
+		static bool firstTime = true;
 		if (firstTime) {
-			firstTime = qfalse;
+			firstTime = false;
 			ri.Printf( PRINT_WARNING, "RE_AddRefEntityToScene passed a refEntity which has an origin with a NaN component\n");
 		}
 		return;
@@ -207,7 +208,7 @@ void RE_AddRefEntityToScene( const refEntity_t *ent ) {
 	}
 
 	backEndData->entities[r_numentities].e = *ent;
-	backEndData->entities[r_numentities].lightingCalculated = qfalse;
+	backEndData->entities[r_numentities].lightingCalculated = false;
 
 	if (ent->ghoul2)
 	{
@@ -280,11 +281,11 @@ void RE_AddDynamicLightToScene( const vec3_t org, float intensity, float r, floa
 }
 
 void RE_AddLightToScene( const vec3_t org, float intensity, float r, float g, float b ) {
-	RE_AddDynamicLightToScene( org, intensity, r, g, b, qfalse );
+	RE_AddDynamicLightToScene( org, intensity, r, g, b, false );
 }
 
 void RE_AddAdditiveLightToScene( const vec3_t org, float intensity, float r, float g, float b ) {
-	RE_AddDynamicLightToScene( org, intensity, r, g, b, qtrue );
+	RE_AddDynamicLightToScene( org, intensity, r, g, b, true );
 }
 
 // Draw a 3D view into a part of the window, then return to 2D drawing.
@@ -306,7 +307,7 @@ void RE_RenderScene( const refdef_t *fd ) {
 	startTime = ri.Milliseconds()*timescale->value;
 
 	if (!tr.world && !( fd->rdflags & RDF_NOWORLDMODEL ) ) {
-		Com_Error (ERR_DROP, "R_RenderScene: NULL worldmodel");
+		Com_Error (ERR_DROP, "R_RenderScene: nullptr worldmodel");
 	}
 
 	memcpy( tr.refdef.text, fd->text, sizeof( tr.refdef.text ) );
@@ -358,7 +359,7 @@ void RE_RenderScene( const refdef_t *fd ) {
 
 	// copy the areamask data over and note if it has changed, which
 	// will force a reset of the visible leafs even if the view hasn't moved
-	tr.refdef.areamaskModified = qfalse;
+	tr.refdef.areamaskModified = false;
 	if ( ! (tr.refdef.rdflags & RDF_NOWORLDMODEL) ) {
 		int		areaDiff;
 		int		i;
@@ -372,7 +373,7 @@ void RE_RenderScene( const refdef_t *fd ) {
 
 		if ( areaDiff ) {
 			// a door just opened or something
-			tr.refdef.areamaskModified = qtrue;
+			tr.refdef.areamaskModified = true;
 		}
 	}
 
@@ -424,7 +425,7 @@ void RE_RenderScene( const refdef_t *fd ) {
 	parms.viewportY = glConfig.vidHeight - ( tr.refdef.y + tr.refdef.height );
 	parms.viewportWidth = tr.refdef.width;
 	parms.viewportHeight = tr.refdef.height;
-	parms.isPortal = qfalse;
+	parms.isPortal = false;
 
 	parms.fovX = tr.refdef.fov_x;
 	parms.fovY = tr.refdef.fov_y;

@@ -12,7 +12,7 @@
 #pragma warning (disable: 4032)
 #pragma warning (disable: 4201)
 #pragma warning (disable: 4214)
-#include <windows.h>
+#include <Windows.h>
 #include <gl/gl.h>
 
 #elif defined(MACOS_X)

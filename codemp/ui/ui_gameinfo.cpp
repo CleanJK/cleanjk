@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -59,7 +60,7 @@ int UI_ParseInfos( char *buf, int max, char *infos[] ) {
 
 		info[0] = '\0';
 		while ( 1 ) {
-			token = COM_ParseExt( (const char **)&buf, qtrue );
+			token = COM_ParseExt( (const char **)&buf, true );
 			if ( !token[0] ) {
 				Com_Printf( "Unexpected end of info file\n" );
 				break;
@@ -69,9 +70,9 @@ int UI_ParseInfos( char *buf, int max, char *infos[] ) {
 			}
 			Q_strncpyz( key, token, sizeof( key ) );
 
-			token = COM_ParseExt( (const char **)&buf, qfalse );
+			token = COM_ParseExt( (const char **)&buf, false );
 			if ( !token[0] ) {
-				strcpy( token, "<NULL>" );
+				strcpy( token, "<nullptr>" );
 			}
 			Info_SetValueForKey( info, key, token );
 		}
@@ -278,7 +279,7 @@ void UI_LoadBots( void ) {
 char *UI_GetBotInfoByNumber( int num ) {
 	if( num < 0 || num >= ui_numBots ) {
 		trap->Print( S_COLOR_RED "Invalid bot number: %i\n", num );
-		return NULL;
+		return nullptr;
 	}
 	return ui_botInfos[num];
 }
@@ -294,7 +295,7 @@ char *UI_GetBotInfoByName( const char *name ) {
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 int UI_GetNumBots() {

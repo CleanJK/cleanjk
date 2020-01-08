@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -23,9 +24,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // log file
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstdio>
+#include <cstring>
 
 #include "qcommon/q_shared.h"
 #include "botlib/botlib.h"
@@ -44,6 +45,7 @@ typedef struct logfile_s
 
 static logfile_t logfile;
 
+//open a log file
 void Log_Open(char *filename)
 {
 	if (!LibVarValue("log", "0")) return;
@@ -67,6 +69,7 @@ void Log_Open(char *filename)
 	botimport.Print(PRT_MESSAGE, "Opened log %s\n", logfile.filename);
 } //end of the function Log_Create
 
+//close the current log file
 void Log_Close(void)
 {
 	if (!logfile.fp) return;
@@ -75,15 +78,17 @@ void Log_Close(void)
 		botimport.Print(PRT_ERROR, "can't close log file %s\n", logfile.filename);
 		return;
 	} //end if
-	logfile.fp = NULL;
+	logfile.fp = nullptr;
 	botimport.Print(PRT_MESSAGE, "Closed log %s\n", logfile.filename);
 } //end of the function Log_Close
 
+//close log file if present
 void Log_Shutdown(void)
 {
 	if (logfile.fp) Log_Close();
 } //end of the function Log_Shutdown
 
+//write to the current opened log file
 void QDECL Log_Write(char *fmt, ...)
 {
 	va_list ap;
@@ -96,6 +101,7 @@ void QDECL Log_Write(char *fmt, ...)
 	fflush(logfile.fp);
 } //end of the function Log_Write
 
+//write to the current opened log file with a time stamp
 void QDECL Log_WriteTimeStamped(char *fmt, ...)
 {
 	va_list ap;
@@ -116,11 +122,13 @@ void QDECL Log_WriteTimeStamped(char *fmt, ...)
 	fflush(logfile.fp);
 } //end of the function Log_Write
 
+//returns a pointer to the log file
 FILE *Log_FilePointer(void)
 {
 	return logfile.fp;
 } //end of the function Log_FilePointer
 
+//flush log file
 void Log_Flush(void)
 {
 	if (logfile.fp) fflush(logfile.fp);

@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -28,7 +29,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "botlib/l_libvar.h"
 
 //list with library variables
-libvar_t *libvarlist = NULL;
+libvar_t *libvarlist = nullptr;
 
 float LibVarStringValue(char *string)
 {
@@ -84,6 +85,7 @@ void LibVarDeAlloc(libvar_t *v)
 	FreeMemory(v);
 } //end of the function LibVarDeAlloc
 
+//removes all library variables
 void LibVarDeAllocAll(void)
 {
 	libvar_t *v;
@@ -93,9 +95,10 @@ void LibVarDeAllocAll(void)
 		libvarlist = libvarlist->next;
 		LibVarDeAlloc(v);
 	} //end for
-	libvarlist = NULL;
+	libvarlist = nullptr;
 } //end of the function LibVarDeAllocAll
 
+//gets the library variable with the given name
 libvar_t *LibVarGet(char *var_name)
 {
 	libvar_t *v;
@@ -107,9 +110,10 @@ libvar_t *LibVarGet(char *var_name)
 			return v;
 		} //end if
 	} //end for
-	return NULL;
+	return nullptr;
 } //end of the function LibVarGet
 
+//gets the string of the library variable with the given name
 char *LibVarGetString(char *var_name)
 {
 	libvar_t *v;
@@ -125,6 +129,7 @@ char *LibVarGetString(char *var_name)
 	} //end else
 } //end of the function LibVarGetString
 
+//gets the value of the library variable with the given name
 float LibVarGetValue(char *var_name)
 {
 	libvar_t *v;
@@ -140,6 +145,7 @@ float LibVarGetValue(char *var_name)
 	} //end else
 } //end of the function LibVarGetValue
 
+//creates the library variable if not existing already and returns it
 libvar_t *LibVar(char *var_name, char *value)
 {
 	libvar_t *v;
@@ -153,11 +159,12 @@ libvar_t *LibVar(char *var_name, char *value)
 	//the value
 	v->value = LibVarStringValue(v->string);
 	//variable is modified
-	v->modified = qtrue;
+	v->modified = true;
 
 	return v;
 } //end of the function LibVar
 
+//creates the library variable if not existing already and returns the value string
 char *LibVarString(char *var_name, char *value)
 {
 	libvar_t *v;
@@ -166,6 +173,7 @@ char *LibVarString(char *var_name, char *value)
 	return v->string;
 } //end of the function LibVarString
 
+//creates the library variable if not existing already and returns the value
 float LibVarValue(char *var_name, char *value)
 {
 	libvar_t *v;
@@ -174,6 +182,7 @@ float LibVarValue(char *var_name, char *value)
 	return v->value;
 } //end of the function LibVarValue
 
+//sets the library variable
 void LibVarSet(char *var_name, char *value)
 {
 	libvar_t *v;
@@ -193,10 +202,11 @@ void LibVarSet(char *var_name, char *value)
 	//the value
 	v->value = LibVarStringValue(v->string);
 	//variable is modified
-	v->modified = qtrue;
+	v->modified = true;
 } //end of the function LibVarSet
 
-qboolean LibVarChanged(char *var_name)
+//returns true if the library variable has been modified
+bool LibVarChanged(char *var_name)
 {
 	libvar_t *v;
 
@@ -207,10 +217,11 @@ qboolean LibVarChanged(char *var_name)
 	} //end if
 	else
 	{
-		return qfalse;
+		return false;
 	} //end else
 } //end of the function LibVarChanged
 
+//sets the library variable to unmodified
 void LibVarSetNotModified(char *var_name)
 {
 	libvar_t *v;
@@ -218,6 +229,6 @@ void LibVarSetNotModified(char *var_name)
 	v = LibVarGet(var_name);
 	if (v)
 	{
-		v->modified = qfalse;
+		v->modified = false;
 	} //end if
 } //end of the function LibVarSetNotModified

@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -23,23 +24,33 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
+// ======================================================================
+// INCLUDE
+// ======================================================================
+
 #include "cgame/cg_public.h"
 #include "qcommon/q_shared.h"
-#include "qcommon/qcommon.h"
-#include "qcommon/qfiles.h"
+#include "qcommon/q_common.h"
+#include "qcommon/q_files.h"
 #include "rd-common/tr_public.h"
 #include "sys/sys_public.h"
 
-extern	refexport_t* re;		// interface to refresh .dll
+// ======================================================================
+// DEFINE
+// ======================================================================
 
 // the parseEntities array must be large enough to hold PACKET_BACKUP frames of
 // entities, so that when a delta compressed message arives from the server
 // it can be un-deltad from the original
 #define	MAX_PARSE_ENTITIES	( PACKET_BACKUP * MAX_SNAPSHOT_ENTITIES )
 
+// ======================================================================
+// STRUCT
+// ======================================================================
+
 // snapshots are a view of the server at a given time
 typedef struct clSnapshot_s {
-	qboolean		valid;			// cleared if delta parsing was invalid
+	bool		valid;			// cleared if delta parsing was invalid
 	int				snapFlags;		// rate delayed and dropped commands
 
 	int				serverTime;		// server time the message is valid for (in msec)
@@ -61,7 +72,6 @@ typedef struct clSnapshot_s {
 } clSnapshot_t;
 
 // the clientActive_t structure is wiped completely at every new gamestate_t, potentially several times during an established connection
-
 typedef struct outPacket_s {
 	int		p_cmdNumber;		// cl.cmdNumber when packet was sent
 	int		p_serverTime;		// usercmd->serverTime when packet was sent
@@ -79,9 +89,9 @@ typedef struct clientActive_s {
 	int			oldFrameServerTime;	// to check tournament restarts
 	int			serverTimeDelta;	// cl.serverTime = cls.realtime + cl.serverTimeDelta
 									// this value changes as net lag varies
-	qboolean	extrapolatedSnapshot;	// set if any cgame frame has been forced to extrapolate
+	bool	extrapolatedSnapshot;	// set if any cgame frame has been forced to extrapolate
 									// cleared when CL_AdjustTimeDelta looks at it
-	qboolean	newSnapshots;		// set on parse of any valid packet
+	bool	newSnapshots;		// set on parse of any valid packet
 
 	gameState_t	gameState;			// configstrings
 	char		mapname[MAX_QPATH];	// extracted from CS_SERVERINFO
@@ -101,8 +111,8 @@ typedef struct clientActive_s {
 	int			cgameForceSelection;
 	int			cgameInvenSelection;
 
-	qboolean	gcmdSendValue;
-	qboolean	gcmdSentValue;
+	bool	gcmdSendValue;
+	bool	gcmdSentValue;
 	byte		gcmdValue;
 
 	// cmds[cmdNumber] is the predicted command, [cmdNumber-1] is the last
@@ -132,10 +142,8 @@ typedef struct clientActive_s {
 	char* mSharedMemory;
 } clientActive_t;
 
-extern clientActive_t cl;
-
-// the clientConnection_t structure is wiped when disconnecting from a server, either to go to a full screen console, play a demo, or connect to a different
-//	server
+// the clientConnection_t structure is wiped when disconnecting from a server, either to go to a full screen console,
+// play a demo, or connect to a different server
 // A connection can be to either a server through the network layer or a demo through a file.
 typedef struct clientConnection_s {
 
@@ -178,15 +186,15 @@ typedef struct clientConnection_s {
 	int			downloadCount;	// how many bytes we got
 	int			downloadSize;	// how many bytes we got
 	char		downloadList[MAX_INFO_STRING]; // list of paks we need to download
-	qboolean	downloadRestart;	// if true, we need to do another FS_Restart because we downloaded a pak
+	bool	downloadRestart;	// if true, we need to do another FS_Restart because we downloaded a pak
 
 	// demo information
 	char		demoName[MAX_QPATH];
-	qboolean	spDemoRecording;
-	qboolean	demorecording;
-	qboolean	demoplaying;
-	qboolean	demowaiting;	// don't record until a non-delta message is received
-	qboolean	firstDemoFrameSkipped;
+	bool	spDemoRecording;
+	bool	demorecording;
+	bool	demoplaying;
+	bool	demowaiting;	// don't record until a non-delta message is received
+	bool	firstDemoFrameSkipped;
 	fileHandle_t	demofile;
 
 	int			timeDemoFrames;		// counter of rendered frames
@@ -200,8 +208,6 @@ typedef struct clientConnection_s {
 	netchan_t	netchan;
 } clientConnection_t;
 
-extern clientConnection_t clc;
-
 typedef struct serverInfo_s {
 	netadr_t	adr;
 	char	  	hostName[MAX_NAME_LENGTH];
@@ -214,8 +220,8 @@ typedef struct serverInfo_s {
 	int			minPing;
 	int			maxPing;
 	int			ping;
-	qboolean	visible;
-	qboolean	needPassword;
+	bool	visible;
+	bool	needPassword;
 	int			trueJedi;
 	int			weaponDisable;
 	int			forceDisable;
@@ -229,11 +235,11 @@ typedef struct clientStatic_s {
 	char		servername[MAX_OSPATH];		// name of server from original connect (used by reconnect)
 
 	// when the server clears the hunk, all of these must be restarted
-	qboolean	rendererStarted;
-	qboolean	soundStarted;
-	qboolean	soundRegistered;
-	qboolean	uiStarted;
-	qboolean	cgameStarted;
+	bool	rendererStarted;
+	bool	soundStarted;
+	bool	soundRegistered;
+	bool	uiStarted;
+	bool	cgameStarted;
 
 	int			framecount;
 	int			frametime;			// msec since last frame
@@ -269,13 +275,24 @@ typedef struct clientStatic_s {
 	qhandle_t	consoleShader;
 } clientStatic_t;
 
-extern clientStatic_t cls;
+// ======================================================================
+// EXTERN VARIABLE
+// ======================================================================
 
-const char* Key_KeynumToString(int keynum/*, qboolean bTranslate */);
+extern clientActive_t cl;
+extern clientConnection_t clc;
+extern clientStatic_t cls;
+extern refexport_t* re;		
+
+// ======================================================================
+// FUNCTION
+// ======================================================================
+
+const char* Key_KeynumToString(int keynum/*, bool bTranslate */);
 int Key_GetCatcher(void);
-qboolean CL_VideoRecording(void);
+bool CL_VideoRecording(void);
 void CIN_CloseAllVideos(void);
-void CL_ShutdownAll(qboolean shutdownRef);
+void CL_ShutdownAll(bool shutdownRef);
 void CL_ShutdownCGame(void);
 void CL_ShutdownUI(void);
 void CL_WriteAVIAudioFrame(const byte* pcmBuffer, int size);

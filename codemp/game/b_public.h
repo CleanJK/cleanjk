@@ -2,7 +2,8 @@
 ===========================================================================
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -21,6 +22,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 #pragma once
+
+// ======================================================================
+// DEFINE
+// ======================================================================
 
 //Script flags
 #define	SCF_CROUCHED		0x00000001	//Force ucmd.upmove to be -127
@@ -54,4 +59,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define	ENEMY_POS_LAG_INTERVAL	100
 #define	ENEMY_POS_LAG_STEPS	(MAX_ENEMY_POS_LAG/ENEMY_POS_LAG_INTERVAL)
 
-void G_LoadBoltOns( void );
+// ======================================================================
+// FUNCTION
+// ======================================================================
+
+void G_LoadBoltOns(void);

@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -114,37 +115,37 @@ float CG_GetValue(int ownerDraw) {
 	return -1;
 }
 
-qboolean CG_OtherTeamHasFlag(void) {
+bool CG_OtherTeamHasFlag(void) {
 	if (cgs.gametype == GT_CTF || cgs.gametype == GT_CTY) {
 		int team = cg.snap->ps.persistant[PERS_TEAM];
 		if (team == TEAM_RED && cgs.redflag == FLAG_TAKEN) {
-			return qtrue;
+			return true;
 		} else if (team == TEAM_BLUE && cgs.blueflag == FLAG_TAKEN) {
-			return qtrue;
+			return true;
 		} else {
-			return qfalse;
+			return false;
 		}
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean CG_YourTeamHasFlag(void) {
+bool CG_YourTeamHasFlag(void) {
 	if (cgs.gametype == GT_CTF || cgs.gametype == GT_CTY) {
 		int team = cg.snap->ps.persistant[PERS_TEAM];
 		if (team == TEAM_RED && cgs.blueflag == FLAG_TAKEN) {
-			return qtrue;
+			return true;
 		} else if (team == TEAM_BLUE && cgs.redflag == FLAG_TAKEN) {
-			return qtrue;
+			return true;
 		} else {
-			return qfalse;
+			return false;
 		}
 	}
-	return qfalse;
+	return false;
 }
 
 // THINKABOUTME: should these be exclusive or inclusive..
 
-qboolean CG_OwnerDrawVisible(int flags) {
+bool CG_OwnerDrawVisible(int flags) {
 
 	if (flags & CG_SHOW_TEAMINFO) {
 		return (cg_currentSelectedPlayer.integer == numSortedTeamPlayers);
@@ -164,40 +165,40 @@ qboolean CG_OwnerDrawVisible(int flags) {
 
 	if (flags & (CG_SHOW_BLUE_TEAM_HAS_REDFLAG | CG_SHOW_RED_TEAM_HAS_BLUEFLAG)) {
 		if (flags & CG_SHOW_BLUE_TEAM_HAS_REDFLAG && (cgs.redflag == FLAG_TAKEN || cgs.flagStatus == FLAG_TAKEN_RED)) {
-			return qtrue;
+			return true;
 		} else if (flags & CG_SHOW_RED_TEAM_HAS_BLUEFLAG && (cgs.blueflag == FLAG_TAKEN || cgs.flagStatus == FLAG_TAKEN_BLUE)) {
-			return qtrue;
+			return true;
 		}
-		return qfalse;
+		return false;
 	}
 
 	if (flags & CG_SHOW_ANYTEAMGAME) {
 		if( cgs.gametype >= GT_TEAM) {
-			return qtrue;
+			return true;
 		}
 	}
 
 	if (flags & CG_SHOW_ANYNONTEAMGAME) {
 		if( cgs.gametype < GT_TEAM) {
-			return qtrue;
+			return true;
 		}
 	}
 
 	if (flags & CG_SHOW_CTF) {
 		if( cgs.gametype == GT_CTF || cgs.gametype == GT_CTY ) {
-			return qtrue;
+			return true;
 		}
 	}
 
 	if (flags & CG_SHOW_HEALTHCRITICAL) {
 		if (cg.snap->ps.stats[STAT_HEALTH] < 25) {
-			return qtrue;
+			return true;
 		}
 	}
 
 	if (flags & CG_SHOW_HEALTHOK) {
 		if (cg.snap->ps.stats[STAT_HEALTH] >= 25) {
-			return qtrue;
+			return true;
 		}
 	}
 
@@ -206,10 +207,10 @@ qboolean CG_OwnerDrawVisible(int flags) {
 
 	if (flags & CG_SHOW_IF_PLAYER_HAS_FLAG) {
 		if (cg.snap->ps.powerups[PW_REDFLAG] || cg.snap->ps.powerups[PW_BLUEFLAG] || cg.snap->ps.powerups[PW_NEUTRALFLAG]) {
-			return qtrue;
+			return true;
 		}
 	}
-	return qfalse;
+	return false;
 }
 
 const char *CG_GetKillerText(void) {
@@ -321,7 +322,7 @@ void CG_DrawNewTeamInfo(rectDef_t *rect, float text_x, float text_y, float scale
 			// draw weapon icon
 			xx += PIC_WIDTH + 1;
 
-			trap->R_SetColor(NULL);
+			trap->R_SetColor(nullptr);
 			h = CG_StatusHandle(ci->teamTask);
 
 			if (h) {
@@ -414,7 +415,7 @@ void CG_DrawTeamSpectators(rectDef_t *rect, float scale, vec4_t color, qhandle_t
 void CG_DrawMedal(int ownerDraw, rectDef_t *rect, float scale, vec4_t color, qhandle_t shader) {
 	score_t *score = &cg.scores[cg.selectedScore];
 	float value = 0;
-	char *text = NULL;
+	char *text = nullptr;
 	color[3] = 0.25;
 
 	switch (ownerDraw) {
@@ -472,7 +473,7 @@ void CG_DrawMedal(int ownerDraw, rectDef_t *rect, float scale, vec4_t color, qha
 		value = font.Width(text);
 		font.Paint(rect->x + (rect->w - value) / 2, rect->y + rect->h + 10 , text, color);
 	}
-	trap->R_SetColor(NULL);
+	trap->R_SetColor(nullptr);
 
 }
 
@@ -506,7 +507,7 @@ void CG_MouseEvent(int x, int y) {
 	int n;
 
 	/*
-	if ( (cg.predictedPlayerState.pm_type == PM_NORMAL || cg.predictedPlayerState.pm_type == PM_JETPACK || cg.predictedPlayerState.pm_type == PM_FLOAT || cg.predictedPlayerState.pm_type == PM_SPECTATOR) && cg.showScores == qfalse) {
+	if ( (cg.predictedPlayerState.pm_type == PM_NORMAL || cg.predictedPlayerState.pm_type == PM_JETPACK || cg.predictedPlayerState.pm_type == PM_FLOAT || cg.predictedPlayerState.pm_type == PM_SPECTATOR) && cg.showScores == false) {
 		trap->Key_SetCatcher(0);
 		return;
 	}
@@ -535,7 +536,7 @@ void CG_MouseEvent(int x, int y) {
 	if (cgs.capturedItem) {
 		Display_MouseMove(cgs.capturedItem, x, y);
 	} else {
-		Display_MouseMove(NULL, cgs.cursorX, cgs.cursorY);
+		Display_MouseMove(nullptr, cgs.cursorX, cgs.cursorY);
 	}
 
 }
@@ -564,13 +565,13 @@ void CG_EventHandling(int type) {
 
 }
 
-void CG_KeyEvent(int key, qboolean down) {
+void CG_KeyEvent(int key, bool down) {
 
 	if (!down) {
 		return;
 	}
 
-	if ( cg.predictedPlayerState.pm_type == PM_NORMAL || cg.predictedPlayerState.pm_type == PM_JETPACK || cg.predictedPlayerState.pm_type == PM_NORMAL || (cg.predictedPlayerState.pm_type == PM_SPECTATOR && cg.showScores == qfalse)) {
+	if ( cg.predictedPlayerState.pm_type == PM_NORMAL || cg.predictedPlayerState.pm_type == PM_JETPACK || cg.predictedPlayerState.pm_type == PM_NORMAL || (cg.predictedPlayerState.pm_type == PM_SPECTATOR && cg.showScores == false)) {
 		CG_EventHandling(CGAME_EVENT_NONE);
 		trap->Key_SetCatcher(0);
 		return;
@@ -585,7 +586,7 @@ void CG_KeyEvent(int key, qboolean down) {
 	Display_HandleKey(key, down, cgs.cursorX, cgs.cursorY);
 
 	if (cgs.capturedItem) {
-		cgs.capturedItem = NULL;
+		cgs.capturedItem = nullptr;
 	}	else {
 		if (key == A_MOUSE2 && down) {
 			cgs.capturedItem = Display_CaptureItem(cgs.cursorX, cgs.cursorY);
@@ -612,9 +613,9 @@ void CG_ShowResponseHead(void) {
 void CG_RunMenuScript(char **args) {
 }
 
-qboolean CG_DeferMenuScript (char **args)
+bool CG_DeferMenuScript (char **args)
 {
-	return qfalse;
+	return false;
 }
 
 void CG_GetTeamColor(vec4_t *color) {

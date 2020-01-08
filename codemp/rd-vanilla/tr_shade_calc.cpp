@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -48,7 +49,7 @@ static float *TableForFunc( genFunc_t func )
 	}
 
 	Com_Error( ERR_DROP, "TableForFunc called with invalid function '%d' in shader '%s'\n", func, tess.shader->name );
-	return NULL;
+	return nullptr;
 }
 
 // Evaluates a given waveForm_t, referencing backEnd.refdef.time directly
@@ -735,7 +736,7 @@ void RB_CalcFogTexCoords( float *st ) {
 	float		*v;
 	float		s, t;
 	float		eyeT;
-	qboolean	eyeOutside;
+	bool	eyeOutside;
 	fog_t		*fog;
 	vec3_t		localVec;
 	vec4_t		fogDistanceVector, fogDepthVector;
@@ -777,9 +778,9 @@ void RB_CalcFogTexCoords( float *st ) {
 	// this is needed for clipping distance even for constant fog
 
 	if ( eyeT < 0 ) {
-		eyeOutside = qtrue;
+		eyeOutside = true;
 	} else {
-		eyeOutside = qfalse;
+		eyeOutside = false;
 	}
 
 	fogDistanceVector[3] += 1.0/512;

@@ -4,7 +4,8 @@ Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
 Copyright (C) 2005 - 2015, ioquake3 contributors
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -23,7 +24,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "qcommon/q_shared.h"
-#include "qcommon/qcommon.h"
+#include "qcommon/q_common.h"
+#include "qcommon/huffman.h"
 #include "server/server.h"
 #include "qcommon/com_cvars.h"
 
@@ -32,7 +34,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 static huffman_t		msgHuff;
 
-static qboolean			msgInit = qfalse;
+static bool			msgInit = false;
 #ifdef _NEWHUFFTABLE_
 static FILE				*fp=0;
 #endif
@@ -578,7 +580,7 @@ void MSG_initHuffman() {
 	fp=fopen("c:\\netchan.bin", "a");
 #endif // _NEWHUFFTABLE_
 
-	msgInit = qtrue;
+	msgInit = true;
 	Huff_Init(&msgHuff);
 	for(i=0;i<256;i++) {
 		for (j=0;j<msg_hData[i];j++) {
@@ -596,7 +598,7 @@ void MSG_initHuffman() {
 	int		size, i, ch;
 	int		array[256];
 
-	msgInit = qtrue;
+	msgInit = true;
 
 	Huff_Init(&msgHuff);
 	// load it in
@@ -643,29 +645,29 @@ void MSG_InitOOB( msg_t *buf, byte *data, int length ) {
 	Com_Memset( buf, 0, sizeof(*buf) );
 	buf->data = data;
 	buf->maxsize = length;
-	buf->oob = qtrue;
+	buf->oob = true;
 }
 
 void MSG_Clear( msg_t *buf ) {
 	buf->cursize = 0;
-	buf->overflowed = qfalse;
+	buf->overflowed = false;
 	buf->bit = 0;					//<- in bits
 }
 
 void MSG_Bitstream( msg_t *buf ) {
-	buf->oob = qfalse;
+	buf->oob = false;
 }
 
 void MSG_BeginReading( msg_t *msg ) {
 	msg->readcount = 0;
 	msg->bit = 0;
-	msg->oob = qfalse;
+	msg->oob = false;
 }
 
 void MSG_BeginReadingOOB( msg_t *msg ) {
 	msg->readcount = 0;
 	msg->bit = 0;
-	msg->oob = qtrue;
+	msg->oob = true;
 }
 
 // bit functions
@@ -680,7 +682,7 @@ void MSG_WriteBits( msg_t *msg, int value, int bits ) {
 
 	// this isn't an exact overflow check, but close enough
 	if ( msg->maxsize - msg->cursize < 4 ) {
-		msg->overflowed = qtrue;
+		msg->overflowed = true;
 		return;
 	}
 
@@ -758,15 +760,15 @@ void MSG_WriteBits( msg_t *msg, int value, int bits ) {
 int MSG_ReadBits( msg_t *msg, int bits ) {
 	int			value;
 	int			get;
-	qboolean	sgn;
+	bool	sgn;
 	int			i, nbits;
 	value = 0;
 
 	if ( bits < 0 ) {
 		bits = -bits;
-		sgn = qtrue;
+		sgn = true;
 	} else {
-		sgn = qfalse;
+		sgn = false;
 	}
 
 	if (msg->oob) {
@@ -1473,10 +1475,10 @@ netField_t	entityStateFields[] =
 
 // Writes part of a packetentities message, including the entity number.
 // Can delta from either a baseline or a previous packet_entity
-// If to is NULL, a remove entity update will be sent
+// If to is nullptr, a remove entity update will be sent
 // If force is not set, then nothing at all will be generated if the entity is identical, under the assumption that the in-order delta code will catch it.
 void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entityState_s *to,
-						   qboolean force ) {
+						   bool force ) {
 	int			i, lc;
 	int			numFields;
 	netField_t	*field;
@@ -1492,9 +1494,9 @@ void MSG_WriteDeltaEntity( msg_t *msg, struct entityState_s *from, struct entity
 	// struct without updating the message fields
 	assert( numFields + 1 == sizeof( *from )/4 );
 
-	// a NULL to is a delta remove message
-	if ( to == NULL ) {
-		if ( from == NULL ) {
+	// a nullptr to is a delta remove message
+	if ( to == nullptr ) {
+		if ( from == nullptr ) {
 			return;
 		}
 		MSG_WriteBits( msg, from->number, GENTITYNUM_BITS );

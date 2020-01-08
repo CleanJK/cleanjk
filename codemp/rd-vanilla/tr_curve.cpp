@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -104,14 +105,14 @@ static void MakeMeshNormals( int width, int height, drawVert_t ctrl[MAX_GRID_SIZ
 	int		x, y;
 	drawVert_t	*dv;
 	vec3_t		around[8], temp;
-	qboolean	good[8];
-	qboolean	wrapWidth, wrapHeight;
+	bool	good[8];
+	bool	wrapWidth, wrapHeight;
 	float		len;
 static	int	neighbors[8][2] = {
 	{0,1}, {1,1}, {1,0}, {1,-1}, {0,-1}, {-1,-1}, {-1,0}, {-1,1}
 	};
 
-	wrapWidth = qfalse;
+	wrapWidth = false;
 	for ( i = 0 ; i < height ; i++ ) {
 		VectorSubtract( ctrl[i][0].xyz, ctrl[i][width-1].xyz, delta );
 		len = VectorLengthSquared( delta );
@@ -120,10 +121,10 @@ static	int	neighbors[8][2] = {
 		}
 	}
 	if ( i == height ) {
-		wrapWidth = qtrue;
+		wrapWidth = true;
 	}
 
-	wrapHeight = qfalse;
+	wrapHeight = false;
 	for ( i = 0 ; i < width ; i++ ) {
 		VectorSubtract( ctrl[0][i].xyz, ctrl[height-1][i].xyz, delta );
 		len = VectorLengthSquared( delta );
@@ -132,7 +133,7 @@ static	int	neighbors[8][2] = {
 		}
 	}
 	if ( i == width) {
-		wrapHeight = qtrue;
+		wrapHeight = true;
 	}
 
 	for ( i = 0 ; i < width ; i++ ) {
@@ -142,7 +143,7 @@ static	int	neighbors[8][2] = {
 			VectorCopy( dv->xyz, base );
 			for ( k = 0 ; k < 8 ; k++ ) {
 				VectorClear( around[k] );
-				good[k] = qfalse;
+				good[k] = false;
 
 				for ( dist = 1 ; dist <= 3 ; dist++ ) {
 					x = i + neighbors[k][0] * dist;
@@ -169,7 +170,7 @@ static	int	neighbors[8][2] = {
 					if ( VectorNormalize2( temp, temp ) == 0 ) {
 						continue;				// degenerate edge, get more dist
 					} else {
-						good[k] = qtrue;
+						good[k] = true;
 						VectorCopy( temp, around[k] );
 						break;					// good edge
 					}
@@ -259,13 +260,13 @@ srfGridMesh_t *R_CreateSurfaceGridMesh(int width, int height,
 	size = (width * height - 1) * sizeof( drawVert_t ) + sizeof( *grid );
 
 #ifdef PATCH_STITCHING
-	grid = (struct srfGridMesh_s *)/*Hunk_Alloc*/ Z_Malloc( size, TAG_GRIDMESH, qfalse );
+	grid = (struct srfGridMesh_s *)/*Hunk_Alloc*/ Z_Malloc( size, TAG_GRIDMESH, false );
 	memset(grid, 0, size);
 
-	grid->widthLodError = (float *)/*Hunk_Alloc*/ Z_Malloc( width * 4, TAG_GRIDMESH, qfalse );
+	grid->widthLodError = (float *)/*Hunk_Alloc*/ Z_Malloc( width * 4, TAG_GRIDMESH, false );
 	memcpy( grid->widthLodError, errorTable[0], width * 4 );
 
-	grid->heightLodError = (float *)/*Hunk_Alloc*/ Z_Malloc( height * 4, TAG_GRIDMESH, qfalse );
+	grid->heightLodError = (float *)/*Hunk_Alloc*/ Z_Malloc( height * 4, TAG_GRIDMESH, false );
 	memcpy( grid->heightLodError, errorTable[1], height * 4 );
 #else
 	grid = Hunk_Alloc( size );
@@ -473,7 +474,7 @@ srfGridMesh_t *R_GridInsertColumn( srfGridMesh_t *grid, int column, int row, vec
 	oldwidth = 0;
 	width = grid->width + 1;
 	if (width > MAX_GRID_SIZE)
-		return NULL;
+		return nullptr;
 	height = grid->height;
 	for (i = 0; i < width; i++) {
 		if (i == column) {
@@ -523,7 +524,7 @@ srfGridMesh_t *R_GridInsertRow( srfGridMesh_t *grid, int row, int column, vec3_t
 	width = grid->width;
 	height = grid->height + 1;
 	if (height > MAX_GRID_SIZE)
-		return NULL;
+		return nullptr;
 	for (i = 0; i < height; i++) {
 		if (i == row) {
 			//insert new row

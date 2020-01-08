@@ -58,25 +58,25 @@ int Q_isalpha( int c )
 	return ( 0 );
 }
 
-qboolean Q_isanumber( const char *s )
+bool Q_isanumber( const char *s )
 {
 	char *p;
 	double ret;
 
 	if( *s == '\0' )
-		return qfalse;
+		return false;
 
 	ret = strtod( s, &p );
 
 	if ( ret == HUGE_VAL || errno == ERANGE )
-		return qfalse;
+		return false;
 
-	return (qboolean)(*p == '\0');
+	return (bool)(*p == '\0');
 }
 
-qboolean Q_isintegral( float f )
+bool Q_isintegral( float f )
 {
-	return (qboolean)( (int)f == f );
+	return (bool)( (int)f == f );
 }
 
 char* Q_strrchr( const char* string, int c )
@@ -112,13 +112,13 @@ void Q_strncpyz( char *dest, const char *src, int destsize ) {
 int Q_stricmpn (const char *s1, const char *s2, int n) {
 	int		c1, c2;
 
-	if ( s1 == NULL ) {
-		if ( s2 == NULL )
+	if ( s1 == nullptr ) {
+		if ( s2 == nullptr )
 			return 0;
 		else
 			return -1;
 	}
-	else if ( s2==NULL )
+	else if ( s2==nullptr )
 		return 1;
 
 	do {
@@ -225,7 +225,7 @@ const char *Q_stristr( const char *s, const char *find )
 			do
 			{
 				if ((sc = *s++) == 0)
-					return NULL;
+					return nullptr;
 				if (sc >= 'a' && sc <= 'z')
 				{
 					sc -= ('a' - 'A');
@@ -237,6 +237,7 @@ const char *Q_stristr( const char *s, const char *find )
 	return s;
 }
 
+// strlen that discounts Quake color sequences
 int Q_PrintStrlen( const char *string ) {
 	int			len;
 	const char	*p;
@@ -284,16 +285,16 @@ char *Q_CleanStr( char *string ) {
 // This function modifies INPUT (is mutable)
 // (Also strips ^8 and ^9)
 void Q_StripColor( char *text ) {
-	qboolean doPass = qtrue;
+	bool doPass = true;
 	char *read;
 	char *write;
 
 	while ( doPass ) {
-		doPass = qfalse;
+		doPass = false;
 		read = write = text;
 		while ( *read ) {
 			if ( Q_IsColorStringExt( read ) ) {
-				doPass = qtrue;
+				doPass = true;
 				read += 2;
 			}
 			else {
@@ -317,21 +318,21 @@ void Q_StripColor( char *text ) {
 //Examples:
 //	Q_strstrip( "Bo\nb is h\rairy!!", "\n\r!", "123" )	--> "Bo1b is h2airy33"
 //	Q_strstrip( "Bo\nb is h\rairy!!", "\n\r!", "12" )	--> "Bo1b is h2airy"
-//	Q_strstrip( "Bo\nb is h\rairy!!", "\n\r!", NULL )	--> "Bob is hairy"
+//	Q_strstrip( "Bo\nb is h\rairy!!", "\n\r!", nullptr )	--> "Bob is hairy"
 void Q_strstrip( char *string, const char *strip, const char *repl )
 {
 	char		*out=string, *p=string, c;
 	const char	*s=strip;
 	int			replaceLen = repl?strlen( repl ):0, offset=0;
-	qboolean	recordChar = qtrue;
+	bool	recordChar = true;
 
 	while ( (c = *p++) != '\0' ) {
-		recordChar = qtrue;
+		recordChar = true;
 		for ( s=strip; *s; s++ ) {
 			offset = s-strip;
 			if ( c == *s ) {
 				if ( !repl || offset >= replaceLen ) {
-					recordChar = qfalse;
+					recordChar = false;
 				}
 				else {
 					c = repl[offset];
@@ -347,7 +348,7 @@ void Q_strstrip( char *string, const char *strip, const char *repl )
 }
 
 // Find any characters in a string. Think of it as a shorthand strchr loop.
-// returns first instance of any characters found, otherwise NULL
+// returns first instance of any characters found, otherwise nullptr
 const char *Q_strchrs( const char *string, const char *search ) {
 	const char *p = string, *s = search;
 
@@ -360,12 +361,14 @@ const char *Q_strchrs( const char *string, const char *search ) {
 		p++;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 #if defined(_MSC_VER)
 // Special wrapper function for Microsoft's broken _vsnprintf() function.
 // MinGW comes with its own snprintf() which is not broken.
+// vsnprintf is ISO/IEC 9899:1999
+// abstracting this to make it portable
 int Q_vsnprintf(char *str, size_t size, const char *format, va_list ap)
 {
 	int retval;

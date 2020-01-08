@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -21,12 +22,18 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-// botlib interface
-
 #pragma once
+
+// ======================================================================
+// DEFINE
+// ======================================================================
 
 //#define DEBUG			//debug code
 #define RANDOMIZE		//randomize bot behaviour
+
+// ======================================================================
+// STRUCT
+// ======================================================================
 
 //FIXME: get rid of this global structure
 typedef struct botlib_globals_s
@@ -36,15 +43,23 @@ typedef struct botlib_globals_s
 	int maxclients;							//maximum number of clients
 	float time;								//the global time
 #ifdef DEBUG
-	qboolean debug;							//true if debug is on
+	bool debug;							//true if debug is on
 	int goalareanum;
 	vec3_t goalorigin;
 	int runai;
 #endif
 } botlib_globals_t;
 
+// ======================================================================
+// EXTERN VARIABLE
+// ======================================================================
+
 extern botlib_globals_t botlibglobals;
 extern botlib_import_t botimport;
 extern int botDeveloper;					//true if developer is on
+
+// ======================================================================
+// FUNCTION
+// ======================================================================
 
 int Sys_MilliSeconds(void);

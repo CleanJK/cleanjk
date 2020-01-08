@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -21,7 +22,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "qcommon/qcommon.h"
+#include "qcommon/q_common.h"
 #include "qcommon/com_cvar.h"
 #include "qcommon/com_cvars.h"
 
@@ -47,21 +48,21 @@ void CL_PacketEvent( netadr_t from, msg_t *msg ) {
 void CL_CharEvent( int key ) {
 }
 
-void CL_Disconnect( qboolean showMainMenu ) {
+void CL_Disconnect( bool showMainMenu ) {
 }
 
 void CL_MapLoading( void ) {
 }
 
-qboolean CL_GameCommand( void ) {
-	return qfalse;
+bool CL_GameCommand( void ) {
+	return false;
 }
 
-void CL_KeyEvent (int key, qboolean down, unsigned time) {
+void CL_KeyEvent (int key, bool down, unsigned time) {
 }
 
-qboolean UI_GameCommand( void ) {
-	return qfalse;
+bool UI_GameCommand( void ) {
+	return false;
 }
 
 void CL_ForwardCommandToServer( const char *string ) {
@@ -82,6 +83,6 @@ void CL_FlushMemory( void ) {
 void CL_StartHunkUsers( void ) {
 }
 
-qboolean CL_ConnectedToRemoteServer( void ) {
-	return qfalse;
+bool CL_ConnectedToRemoteServer( void ) {
+	return false;
 }

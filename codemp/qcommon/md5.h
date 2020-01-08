@@ -20,7 +20,22 @@
 
 #pragma once
 
+ // ======================================================================
+ // INCLUDE
+ // ======================================================================
+
 #include "qcommon/q_shared.h"
+
+// ======================================================================
+// DEFINE
+// ======================================================================
+
+constexpr size_t MD5_BLOCK_SIZE = 64;
+constexpr size_t MD5_DIGEST_SIZE = 16;
+
+// ======================================================================
+// STRUCT
+// ======================================================================
 
 typedef struct MD5Context {
 	uint32_t buf[4];
@@ -28,27 +43,21 @@ typedef struct MD5Context {
 	unsigned char in[64];
 } MD5_CTX;
 
-void MD5Init(struct MD5Context *ctx);
-void MD5Update(struct MD5Context *ctx, unsigned char const *buf, unsigned len);
-void MD5Final(struct MD5Context *ctx, unsigned char *digest);
-
-const size_t MD5_BLOCK_SIZE = 64;
-const size_t MD5_DIGEST_SIZE = 16;
-typedef struct {
-	struct MD5Context md5Context;
-	unsigned char iKeyPad[MD5_BLOCK_SIZE];
-	unsigned char oKeyPad[MD5_BLOCK_SIZE];
+typedef struct
+{
+    struct MD5Context md5Context;
+    unsigned char iKeyPad[MD5_BLOCK_SIZE];
+    unsigned char oKeyPad[MD5_BLOCK_SIZE];
 } hmacMD5Context_t;
 
-// Initialize a new HMAC-MD5 construct using the specified secret key.
-void HMAC_MD5_Init(hmacMD5Context_t *ctx, unsigned char const *key, unsigned int keylen);
+// ======================================================================
+// FUNCTION
+// ======================================================================
 
-// Update the HMAC message with len number of bytes from the given buffer.
-void HMAC_MD5_Update(hmacMD5Context_t *ctx, unsigned char const *buf, unsigned int len);
-
-// Finalize the HMAC calculation and fill the given buffer with the digest bytes.
-// 'digest' must point to a buffer that can hold MD5_DIGEST_SIZE bytes!
-void HMAC_MD5_Final(hmacMD5Context_t *ctx, unsigned char *digest);
-
-// Reset the context to begin working on a new message, using the same secret key as previously initialised.
-void HMAC_MD5_Reset(hmacMD5Context_t *ctx);
+void HMAC_MD5_Final(hmacMD5Context_t* ctx, unsigned char* digest);
+void HMAC_MD5_Init(hmacMD5Context_t* ctx, unsigned char const* key, unsigned int keylen);
+void HMAC_MD5_Reset(hmacMD5Context_t* ctx);
+void HMAC_MD5_Update(hmacMD5Context_t* ctx, unsigned char const* buf, unsigned int len);
+void MD5Final(struct MD5Context* ctx, unsigned char* digest);
+void MD5Init(struct MD5Context* ctx);
+void MD5Update(struct MD5Context* ctx, unsigned char const* buf, unsigned len);

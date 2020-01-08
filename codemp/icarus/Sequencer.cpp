@@ -2,7 +2,8 @@
 ===========================================================================
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -27,7 +28,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // this include must remain at the top of every Icarus CPP file
 #include "icarus/icarus.h"
 
-#include <assert.h>
+#include <cassert>
 #include <algorithm>
 
 // Sequencer
@@ -36,13 +37,13 @@ CSequencer::CSequencer( void )
 {
 	m_numCommands	= 0;
 
-	m_curStream		= NULL;
-	m_curSequence	= NULL;
+	m_curStream		= nullptr;
+	m_curSequence	= nullptr;
 
 	m_elseValid = 0;
-	m_elseOwner = NULL;
+	m_elseOwner = nullptr;
 
-	m_curGroup = NULL;
+	m_curGroup = nullptr;
 }
 
 CSequencer::~CSequencer( void )
@@ -85,7 +86,7 @@ int CSequencer::Free( void )
 
 	//Clean up any other info
 	m_numCommands = 0;
-	m_curSequence = NULL;
+	m_curSequence = nullptr;
 
 	bstream_t *streamToDel;
 	while(!m_streamsCreated.empty())
@@ -99,7 +100,7 @@ int CSequencer::Free( void )
 
 int CSequencer::Flush( CSequence *owner )
 {
-	if ( owner == NULL )
+	if ( owner == nullptr )
 		return SEQ_FAILED;
 
 	Recall();
@@ -124,8 +125,8 @@ int CSequencer::Flush( CSequence *owner )
 	}
 
 	//Make sure this owner knows it's now the root sequence
-	owner->SetParent( NULL );
-	owner->SetReturn( NULL );
+	owner->SetParent( nullptr );
+	owner->SetReturn( nullptr );
 
 	return SEQ_OK;
 }
@@ -158,7 +159,7 @@ void CSequencer::DeleteStream( bstream_t *bstream )
 	delete bstream->stream;
 	delete bstream;
 
-	bstream = NULL;
+	bstream = nullptr;
 }
 
 void CSequencer::AddTaskSequence( CSequence *sequence, CTaskGroup *group )
@@ -173,7 +174,7 @@ CSequence *CSequencer::GetTaskSequence( CTaskGroup *group )
 	tsi = m_taskSequences.find( group );
 
 	if ( tsi == m_taskSequences.end() )
-		return NULL;
+		return nullptr;
 
 	return (*tsi).second;
 }
@@ -184,8 +185,8 @@ CSequence *CSequencer::AddSequence( void )
 	CSequence	*sequence = m_owner->GetSequence();
 
 	assert( sequence );
-	if ( sequence == NULL )
-		return NULL;
+	if ( sequence == nullptr )
+		return nullptr;
 
 	//Add it to the list
 	m_sequences.insert( m_sequences.end(), sequence );
@@ -201,8 +202,8 @@ CSequence *CSequencer::AddSequence( CSequence *parent, CSequence *returnSeq, int
 	CSequence	*sequence = m_owner->GetSequence();
 
 	assert( sequence );
-	if ( sequence == NULL )
-		return NULL;
+	if ( sequence == nullptr )
+		return nullptr;
 
 	//Add it to the list
 	m_sequences.insert( m_sequences.end(), sequence );
@@ -222,7 +223,7 @@ CSequence *CSequencer::GetSequence( int id )
 	mi = m_sequenceMap.find( id );
 
 	if ( mi == m_sequenceMap.end() )
-		return NULL;
+		return nullptr;
 
 	return (*mi).second;*/
 
@@ -233,14 +234,14 @@ CSequence *CSequencer::GetSequence( int id )
 			return (*iterSeq);
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 void CSequencer::Interrupt( void )
 {
 	CBlock	*command = m_taskManager->GetCurrentTask();
 
-	if ( command == NULL )
+	if ( command == nullptr )
 		return;
 
 	//Save it
@@ -264,7 +265,7 @@ int CSequencer::Run( char *buffer, long size )
 		return SEQ_FAILED;
 	}
 
-	CSequence *sequence = AddSequence( NULL, m_curSequence, SQ_COMMON );
+	CSequence *sequence = AddSequence( nullptr, m_curSequence, SQ_COMMON );
 
 	// Interpret the command blocks and route them properly
 	if ( S_FAILED( Route( sequence, blockStream )) )
@@ -295,7 +296,7 @@ int CSequencer::ParseRun( CBlock *block )
 	{
 		m_ie->I_DPrintf( WL_ERROR, "'%s' : could not open file\n", (char*) block->GetMemberData( 0 ));
 		delete block;
-		block = NULL;
+		block = nullptr;
 		return SEQ_FAILED;
 	}
 
@@ -307,7 +308,7 @@ int CSequencer::ParseRun( CBlock *block )
 	{
 		m_ie->I_DPrintf( WL_ERROR, "invalid stream" );
 		delete block;
-		block = NULL;
+		block = nullptr;
 		return SEQ_FAILED;
 	}
 
@@ -321,7 +322,7 @@ int CSequencer::ParseRun( CBlock *block )
 	{
 		//Error code is set inside of Route()
 		delete block;
-		block = NULL;
+		block = nullptr;
 		return SEQ_FAILED;
 	}
 
@@ -344,11 +345,11 @@ int CSequencer::ParseIf( CBlock *block, bstream_t *bstream )
 	sequence = AddSequence( m_curSequence, m_curSequence, SQ_CONDITIONAL );
 
 	assert( sequence );
-	if ( sequence == NULL )
+	if ( sequence == nullptr )
 	{
 		m_ie->I_DPrintf( WL_ERROR, "ParseIf: failed to allocate container sequence" );
 		delete block;
-		block = NULL;
+		block = nullptr;
 		return SEQ_FAILED;
 	}
 
@@ -374,7 +375,7 @@ int CSequencer::ParseElse( CBlock *block, bstream_t *bstream )
 {
 	//The else is not retained
 	delete block;
-	block = NULL;
+	block = nullptr;
 
 	CSequence	*sequence;
 
@@ -382,7 +383,7 @@ int CSequencer::ParseElse( CBlock *block, bstream_t *bstream )
 	sequence = AddSequence( m_curSequence, m_curSequence, SQ_CONDITIONAL );
 
 	assert( sequence );
-	if ( sequence == NULL )
+	if ( sequence == nullptr )
 	{
 		m_ie->I_DPrintf( WL_ERROR, "ParseIf: failed to allocate container sequence" );
 		return SEQ_FAILED;
@@ -392,7 +393,7 @@ int CSequencer::ParseElse( CBlock *block, bstream_t *bstream )
 
 	//Add a unique conditional identifier to the block for reference later
 	//TODO: Emit warning
-	if ( m_elseOwner == NULL )
+	if ( m_elseOwner == nullptr )
 	{
 		m_ie->I_DPrintf( WL_ERROR, "Invalid 'else' found!\n" );
 		return SEQ_FAILED;
@@ -406,7 +407,7 @@ int CSequencer::ParseElse( CBlock *block, bstream_t *bstream )
 	Route( sequence, bstream );
 
 	m_elseValid = 0;
-	m_elseOwner = NULL;
+	m_elseOwner = nullptr;
 
 	return SEQ_OK;
 }
@@ -424,11 +425,11 @@ int CSequencer::ParseLoop( CBlock *block, bstream_t *bstream )
 	sequence = AddSequence( m_curSequence, m_curSequence, ( SQ_LOOP | SQ_RETAIN ) );
 
 	assert( sequence );
-	if ( sequence == NULL )
+	if ( sequence == nullptr )
 	{
 		m_ie->I_DPrintf( WL_ERROR, "ParseLoop : failed to allocate container sequence" );
 		delete block;
-		block = NULL;
+		block = nullptr;
 		return SEQ_FAILED;
 	}
 
@@ -489,7 +490,7 @@ int CSequencer::AddAffect( bstream_t *bstream, int retain, int *id )
 
 	*id = sequence->GetID();
 
-	sequence->SetReturn( NULL );
+	sequence->SetReturn( nullptr );
 
 	return SEQ_OK;
 }
@@ -497,8 +498,8 @@ int CSequencer::AddAffect( bstream_t *bstream, int retain, int *id )
 // Parses an affect command
 int CSequencer::ParseAffect( CBlock *block, bstream_t *bstream )
 {
-	CSequencer	*stream_sequencer = NULL;
-	char		*entname = NULL;
+	CSequencer	*stream_sequencer = nullptr;
+	char		*entname = nullptr;
 	int			ret;
 	sharedEntity_t	*ent = 0;
 
@@ -510,9 +511,9 @@ int CSequencer::ParseAffect( CBlock *block, bstream_t *bstream )
 		//try to parse a 'get' command that is embeded in this 'affect'
 
 		int				id;
-		char			*p1 = NULL;
+		char			*p1 = nullptr;
 		char			*name = 0;
-		CBlockMember	*bm = NULL;
+		CBlockMember	*bm = nullptr;
 
 		//	Get the first parameter (this should be the get)
 
@@ -544,7 +545,7 @@ int CSequencer::ParseAffect( CBlock *block, bstream_t *bstream )
 						if ( m_ie->I_GetString( m_ownerID, type, name, &p1 ) == false)
 						{
 							delete block;
-							block = NULL;
+							block = nullptr;
 							return false;
 						}
 						break;
@@ -552,7 +553,7 @@ int CSequencer::ParseAffect( CBlock *block, bstream_t *bstream )
 						//FIXME: Make an enum id for the error...
 						m_ie->I_DPrintf( WL_ERROR, "Invalid parameter type on affect _1" );
 						delete block;
-						block = NULL;
+						block = nullptr;
 						return false;
 						break;
 				}
@@ -564,7 +565,7 @@ int CSequencer::ParseAffect( CBlock *block, bstream_t *bstream )
 			//FIXME: Make an enum id for the error...
 				m_ie->I_DPrintf( WL_ERROR, "Invalid parameter type on affect _2" );
 				delete block;
-				block = NULL;
+				block = nullptr;
 				return false;
 				break;
 		}//end id switch
@@ -585,7 +586,7 @@ int CSequencer::ParseAffect( CBlock *block, bstream_t *bstream )
 		stream_sequencer = gSequencers[ent->s.number];//ent->sequencer;
 	}
 
-	if (stream_sequencer == NULL)
+	if (stream_sequencer == nullptr)
 	{
 		m_ie->I_DPrintf( WL_WARNING, "'%s' : invalid affect() target\n", entname );
 
@@ -598,14 +599,14 @@ int CSequencer::ParseAffect( CBlock *block, bstream_t *bstream )
 		DestroySequence( trashSeq );
 		m_curSequence = backSeq;
 		delete block;
-		block = NULL;
+		block = nullptr;
 		return SEQ_OK;
 	}
 
 	if S_FAILED ( stream_sequencer->AddAffect( bstream, (int) m_curSequence->HasFlag( SQ_RETAIN ), &ret ) )
 	{
 		delete block;
-		block = NULL;
+		block = nullptr;
 		return SEQ_FAILED;
 	}
 
@@ -642,11 +643,11 @@ int CSequencer::ParseTask( CBlock *block, bstream_t *bstream )
 	//Get a new task group from the task manager
 	group = m_taskManager->AddTaskGroup( taskName );
 
-	if ( group == NULL )
+	if ( group == nullptr )
 	{
 		m_ie->I_DPrintf( WL_ERROR, "error : unable to allocate a new task group" );
 		delete block;
-		block = NULL;
+		block = nullptr;
 		return SEQ_FAILED;
 	}
 
@@ -659,7 +660,7 @@ int CSequencer::ParseTask( CBlock *block, bstream_t *bstream )
 
 	//PushCommand( block, PUSH_FRONT );
 	delete block;
-	block = NULL;
+	block = nullptr;
 
 	//Recursively obtain the loop
 	Route( sequence, bstream );
@@ -820,7 +821,7 @@ int CSequencer::Route( CSequence *sequence, bstream_t *bstream )
 	}
 
 	//Check to start the communication
-	if ( ( bstream->last == NULL ) && ( m_numCommands > 0 ) )
+	if ( ( bstream->last == nullptr ) && ( m_numCommands > 0 ) )
 	{
 		//Everything is routed, so get it all rolling
 		Prime( m_taskManager, PopCommand( POP_BACK ) );
@@ -840,7 +841,7 @@ void CSequencer::CheckRun( CBlock **command )
 {
 	CBlock	*block = *command;
 
-	if ( block == NULL )
+	if ( block == nullptr )
 		return;
 
 	//Check for a run command
@@ -857,19 +858,19 @@ void CSequencer::CheckRun( CBlock **command )
 		else
 		{
 			delete block;
-			block = NULL;
+			block = nullptr;
 
-			*command = NULL;
+			*command = nullptr;
 		}
 
 		m_curSequence = GetSequence( id );
 
 		//TODO: Emit warning
 		assert( m_curSequence );
-		if ( m_curSequence == NULL )
+		if ( m_curSequence == nullptr )
 		{
 			m_ie->I_DPrintf( WL_ERROR, "Unable to find 'run' sequence!\n" );
-			*command = NULL;
+			*command = nullptr;
 			return;
 		}
 
@@ -894,8 +895,8 @@ void CSequencer::CheckRun( CBlock **command )
 		else
 		{
 			delete block;
-			block = NULL;
-			*command = NULL;
+			block = nullptr;
+			*command = nullptr;
 		}
 
 		m_curSequence = ReturnSequence( m_curSequence );
@@ -917,9 +918,9 @@ int CSequencer::EvaluateConditional( CBlock *block )
 {
 	CBlockMember	*bm;
 	char			tempString1[128], tempString2[128];
-	vector_t		vec;
+	vec3_t		vec;
 	int				id, i, oper, memberNum = 0;
-	char			*p1 = NULL, *p2 = NULL;
+	char			*p1 = nullptr, *p2 = nullptr;
 	int				t1, t2;
 
 	//	Get the first parameter
@@ -1006,7 +1007,7 @@ int CSequencer::EvaluateConditional( CBlock *block )
 
 			case TK_VECTOR:
 				{
-					vector_t	vVal;
+					vec3_t	vVal;
 
 					if ( m_ie->I_GetVector( m_ownerID, type, name, vVal ) == false)
 						return false;
@@ -1172,7 +1173,7 @@ int CSequencer::EvaluateConditional( CBlock *block )
 
 			case TK_VECTOR:
 				{
-					vector_t	vVal;
+					vec3_t	vVal;
 
 					if ( m_ie->I_GetVector( m_ownerID, type, name, vVal ) == false)
 						return false;
@@ -1246,7 +1247,7 @@ void CSequencer::CheckIf( CBlock **command )
 	int			successID, failureID;
 	CSequence	*successSeq, *failureSeq;
 
-	if ( block == NULL )
+	if ( block == nullptr )
 		return;
 
 	if ( block->GetBlockID() == ID_IF )
@@ -1268,10 +1269,10 @@ void CSequencer::CheckIf( CBlock **command )
 
 			//TODO: Emit warning
 			assert( successSeq );
-			if ( successSeq == NULL )
+			if ( successSeq == nullptr )
 			{
 				m_ie->I_DPrintf( WL_ERROR, "Unable to find conditional success sequence!\n" );
-				*command = NULL;
+				*command = nullptr;
 				return;
 			}
 
@@ -1283,8 +1284,8 @@ void CSequencer::CheckIf( CBlock **command )
 			else
 			{
 				delete block;
-				block = NULL;
-				*command = NULL;
+				block = nullptr;
+				*command = nullptr;
 			}
 
 			m_curSequence = successSeq;
@@ -1303,10 +1304,10 @@ void CSequencer::CheckIf( CBlock **command )
 
 			//TODO: Emit warning
 			assert( failureSeq );
-			if ( failureSeq == NULL )
+			if ( failureSeq == nullptr )
 			{
 				m_ie->I_DPrintf( WL_ERROR, "Unable to find conditional failure sequence!\n" );
-				*command = NULL;
+				*command = nullptr;
 				return;
 			}
 
@@ -1318,8 +1319,8 @@ void CSequencer::CheckIf( CBlock **command )
 			else
 			{
 				delete block;
-				block = NULL;
-				*command = NULL;
+				block = nullptr;
+				*command = nullptr;
 			}
 
 			m_curSequence = failureSeq;
@@ -1339,8 +1340,8 @@ void CSequencer::CheckIf( CBlock **command )
 		else
 		{
 			delete block;
-			block = NULL;
-			*command = NULL;
+			block = nullptr;
+			*command = nullptr;
 		}
 
 		//Conditional failed, just move on to the next command
@@ -1353,9 +1354,9 @@ void CSequencer::CheckIf( CBlock **command )
 	if ( ( block->GetBlockID() == ID_BLOCK_END ) && ( m_curSequence->HasFlag( SQ_CONDITIONAL ) ) )
 	{
 		assert( m_curSequence->GetReturn() );
-		if ( m_curSequence->GetReturn() == NULL )
+		if ( m_curSequence->GetReturn() == nullptr )
 		{
-			*command = NULL;
+			*command = nullptr;
 			return;
 		}
 
@@ -1367,17 +1368,17 @@ void CSequencer::CheckIf( CBlock **command )
 		else
 		{
 			delete block;
-			block = NULL;
-			*command = NULL;
+			block = nullptr;
+			*command = nullptr;
 		}
 
 		//Back out of the conditional and resume the previous sequence
 		m_curSequence = ReturnSequence( m_curSequence );
 
 		//This can safely happen
-		if ( m_curSequence == NULL )
+		if ( m_curSequence == nullptr )
 		{
-			*command = NULL;
+			*command = nullptr;
 			return;
 		}
 
@@ -1396,7 +1397,7 @@ void CSequencer::CheckLoop( CBlock **command )
 	int				loopID;
 	int				memberNum = 0;
 
-	if ( block == NULL )
+	if ( block == nullptr )
 		return;
 
 	//Check for a loop
@@ -1424,17 +1425,17 @@ void CSequencer::CheckLoop( CBlock **command )
 
 		//TODO: Emit warning
 		assert( loop );
-		if ( loop == NULL )
+		if ( loop == nullptr )
 		{
 			m_ie->I_DPrintf( WL_ERROR, "Unable to find 'loop' sequence!\n" );
-			*command = NULL;
+			*command = nullptr;
 			return;
 		}
 
 		assert( loop->GetParent() );
-		if ( loop->GetParent() == NULL )
+		if ( loop->GetParent() == nullptr )
 		{
-			*command = NULL;
+			*command = nullptr;
 			return;
 		}
 
@@ -1449,8 +1450,8 @@ void CSequencer::CheckLoop( CBlock **command )
 		else
 		{
 			delete block;
-			block = NULL;
-			*command = NULL;
+			block = nullptr;
+			*command = nullptr;
 		}
 
 		m_curSequence = loop;
@@ -1483,9 +1484,9 @@ void CSequencer::CheckLoop( CBlock **command )
 		else
 		{
 			assert( m_curSequence->GetReturn() );
-			if ( m_curSequence->GetReturn() == NULL )
+			if ( m_curSequence->GetReturn() == nullptr )
 			{
-				*command = NULL;
+				*command = nullptr;
 				return;
 			}
 
@@ -1497,17 +1498,17 @@ void CSequencer::CheckLoop( CBlock **command )
 			else
 			{
 				delete block;
-				block = NULL;
-				*command = NULL;
+				block = nullptr;
+				*command = nullptr;
 			}
 
 			//Back out of the loop and resume the previous sequence
 			m_curSequence = ReturnSequence( m_curSequence );
 
 			//This can safely happen
-			if ( m_curSequence == NULL )
+			if ( m_curSequence == nullptr )
 			{
-				*command = NULL;
+				*command = nullptr;
 				return;
 			}
 
@@ -1522,7 +1523,7 @@ void CSequencer::CheckFlush( CBlock **command )
 {
 	CBlock *block =			*command;
 
-	if ( block == NULL )
+	if ( block == nullptr )
 		return;
 
 	if ( block->GetBlockID() == ID_FLUSH )
@@ -1538,8 +1539,8 @@ void CSequencer::CheckFlush( CBlock **command )
 		else
 		{
 			delete block;
-			block = NULL;
-			*command = NULL;
+			block = nullptr;
+			*command = nullptr;
 		}
 
 		*command = PopCommand( POP_BACK );
@@ -1553,18 +1554,18 @@ void CSequencer::CheckFlush( CBlock **command )
 void CSequencer::CheckAffect( CBlock **command )
 {
 	CBlock *block = *command;
-	sharedEntity_t	*ent = NULL;
-	char		*entname = NULL;
+	sharedEntity_t	*ent = nullptr;
+	char		*entname = nullptr;
 	int			memberNum = 0;
 
-	if ( block == NULL )
+	if ( block == nullptr )
 	{
 		return;
 	}
 
 	if ( block->GetBlockID() == ID_AFFECT )
 	{
-		CSequencer *sequencer	= NULL;
+		CSequencer *sequencer	= nullptr;
 		entname = (char*) block->GetMemberData( memberNum++ );
 		ent		= m_ie->I_GetEntityByName( entname );
 
@@ -1573,9 +1574,9 @@ void CSequencer::CheckAffect( CBlock **command )
 			//try to parse a 'get' command that is embeded in this 'affect'
 
 			int				id;
-			char			*p1 = NULL;
+			char			*p1 = nullptr;
 			char			*name = 0;
-			CBlockMember	*bm = NULL;
+			CBlockMember	*bm = nullptr;
 
 			//	Get the first parameter (this should be the get)
 
@@ -1655,12 +1656,12 @@ void CSequencer::CheckAffect( CBlock **command )
 		else
 		{
 			delete block;
-			block = NULL;
-			*command = NULL;
+			block = nullptr;
+			*command = nullptr;
 		}
 
 		//NOTENOTE: If this isn't found, continue on to the next command
-		if ( sequencer == NULL )
+		if ( sequencer == nullptr )
 		{
 			*command = PopCommand( POP_BACK );
 			Prep( command );
@@ -1689,15 +1690,15 @@ void CSequencer::CheckAffect( CBlock **command )
 		else
 		{
 			delete block;
-			block = NULL;
-			*command = NULL;
+			block = nullptr;
+			*command = nullptr;
 		}
 
 		m_curSequence = ReturnSequence( m_curSequence );
 
-		if ( m_curSequence == NULL )
+		if ( m_curSequence == nullptr )
 		{
-			*command = NULL;
+			*command = nullptr;
 			return;
 		}
 
@@ -1716,7 +1717,7 @@ void CSequencer::CheckDo( CBlock **command )
 {
 	CBlock *block = *command;
 
-	if ( block == NULL )
+	if ( block == nullptr )
 		return;
 
 	if ( block->GetBlockID() == ID_DO )
@@ -1728,21 +1729,21 @@ void CSequencer::CheckDo( CBlock **command )
 
 		//TODO: Emit warning
 		assert( group );
-		if ( group == NULL )
+		if ( group == nullptr )
 		{
 			//TODO: Give name/number of entity trying to execute, too
 			m_ie->I_DPrintf( WL_ERROR, "ICARUS Unable to find task group \"%s\"!\n", groupName );
-			*command = NULL;
+			*command = nullptr;
 			return;
 		}
 
 		//TODO: Emit warning
 		assert( sequence );
-		if ( sequence == NULL )
+		if ( sequence == nullptr )
 		{
 			//TODO: Give name/number of entity trying to execute, too
 			m_ie->I_DPrintf( WL_ERROR, "ICARUS Unable to find task 'group' sequence!\n", groupName );
-			*command = NULL;
+			*command = nullptr;
 			return;
 		}
 
@@ -1754,8 +1755,8 @@ void CSequencer::CheckDo( CBlock **command )
 		else
 		{
 			delete block;
-			block = NULL;
-			*command = NULL;
+			block = nullptr;
+			*command = nullptr;
 		}
 
 		//Set this to our current sequence
@@ -1784,20 +1785,20 @@ void CSequencer::CheckDo( CBlock **command )
 		else
 		{
 			delete block;
-			block = NULL;
-			*command = NULL;
+			block = nullptr;
+			*command = nullptr;
 		}
 
 		m_taskManager->MarkTask( m_curGroup->GetGUID(), TASK_END );
 		m_curGroup = m_curGroup->GetParent();
 
 		CSequence *returnSeq = ReturnSequence( m_curSequence );
-		m_curSequence->SetReturn( NULL );
+		m_curSequence->SetReturn( nullptr );
 		m_curSequence = returnSeq;
 
-		if ( m_curSequence == NULL )
+		if ( m_curSequence == nullptr )
 		{
-			*command = NULL;
+			*command = nullptr;
 			return;
 		}
 
@@ -1839,10 +1840,10 @@ int CSequencer::Callback( CTaskManager *taskManager, CBlock *block, int returnCo
 	if (returnCode == TASK_RETURN_COMPLETE)
 	{
 		//There are no more pending commands
-		if ( m_curSequence == NULL )
+		if ( m_curSequence == nullptr )
 		{
 			delete block;
-			block = NULL;
+			block = nullptr;
 			return SEQ_OK;
 		}
 
@@ -1854,13 +1855,13 @@ int CSequencer::Callback( CTaskManager *taskManager, CBlock *block, int returnCo
 		else
 		{
 			delete block;
-			block = NULL;
+			block = nullptr;
 		}
 
 		//Check for pending commands
 		if ( m_curSequence->GetNumCommands() <= 0 )
 		{
-			if ( m_curSequence->GetReturn() == NULL)
+			if ( m_curSequence->GetReturn() == nullptr)
 				return SEQ_OK;
 
 			m_curSequence = m_curSequence->GetReturn();
@@ -1884,7 +1885,7 @@ int CSequencer::Callback( CTaskManager *taskManager, CBlock *block, int returnCo
 
 int CSequencer::Recall( void )
 {
-	CBlock	*block	= NULL;
+	CBlock	*block	= nullptr;
 
 	if (!m_taskManager)
 	{ //uh.. ok.
@@ -1892,7 +1893,7 @@ int CSequencer::Recall( void )
 		return true;
 	}
 
-	while ( ( block = m_taskManager->RecallTask() ) != NULL )
+	while ( ( block = m_taskManager->RecallTask() ) != nullptr )
 	{
 		if (m_curSequence)
 		{
@@ -1901,7 +1902,7 @@ int CSequencer::Recall( void )
 		else
 		{
 			delete block;
-			block = NULL;
+			block = nullptr;
 		}
 	}
 
@@ -1912,7 +1913,7 @@ int CSequencer::Affect( int id, int type )
 {
 	CSequence	*sequence = GetSequence( id );
 
-	if ( sequence == NULL )
+	if ( sequence == nullptr )
 	{
 		return SEQ_FAILED;
 	}
@@ -1960,7 +1961,7 @@ int CSequencer::PushCommand( CBlock *command, int flag )
 {
 	//Make sure everything is ok
 	assert( m_curSequence );
-	if ( m_curSequence == NULL )
+	if ( m_curSequence == nullptr )
 		return SEQ_FAILED;
 
 	m_curSequence->PushCommand( command, flag );
@@ -1975,12 +1976,12 @@ CBlock *CSequencer::PopCommand( int flag )
 {
 	//Make sure everything is ok
 	assert( m_curSequence );
-	if ( m_curSequence == NULL )
-		return NULL;
+	if ( m_curSequence == nullptr )
+		return nullptr;
 
 	CBlock *block = m_curSequence->PopCommand( flag );
 
-	if ( block != NULL )
+	if ( block != nullptr )
 		m_numCommands--;
 
 	return block;
@@ -2000,15 +2001,15 @@ int CSequencer::RemoveSequence( CSequence *sequence )
 
 		//TODO: Emit warning
 		assert( temp );
-		if ( temp == NULL )
+		if ( temp == nullptr )
 		{
 			m_ie->I_DPrintf( WL_WARNING, "Unable to find child sequence on RemoveSequence call!\n" );
 			continue;
 		}
 
 		//Remove the references to this sequence
-		temp->SetParent( NULL );
-		temp->SetReturn( NULL );
+		temp->SetParent( nullptr );
+		temp->SetReturn( nullptr );
 
 	}
 
@@ -2040,7 +2041,7 @@ int CSequencer::DestroySequence( CSequence *sequence )
 	if ( parent )
 	{
 		parent->RemoveChild( sequence );
-		parent = NULL;
+		parent = nullptr;
 	}
 
 	int curChild = sequence->GetNumChildren();
@@ -2066,14 +2067,14 @@ inline CSequence *CSequencer::ReturnSequence( CSequence *sequence )
 	{
 		assert(sequence != sequence->GetReturn() );
 		if ( sequence == sequence->GetReturn() )
-			return NULL;
+			return nullptr;
 
 		sequence = sequence->GetReturn();
 
 		if ( sequence->GetNumCommands() > 0 )
 			return sequence;
 	}
-	return NULL;
+	return nullptr;
 }
 
 //Save / Load

@@ -4,7 +4,8 @@ Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
 Copyright (C) 2005 - 2015, ioquake3 contributors
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -43,23 +44,26 @@ const ImageLoaderMap *FindImageLoader ( const char *extension )
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 // Adds a new image loader to load the specified image file extension.
 // The 'extension' string should not begin with a period (full stop).
-qboolean R_ImageLoader_Add ( const char *extension, ImageLoaderFn imageLoader )
+//
+// Adds a new image loader to handle a new image type. 
+// The extension should not begin with a period (a full stop).
+bool R_ImageLoader_Add ( const char *extension, ImageLoaderFn imageLoader )
 {
 	if ( numImageLoaders >= MAX_IMAGE_LOADERS )
 	{
 		ri.Printf (PRINT_DEVELOPER, "R_AddImageLoader: Cannot add any more image loaders (maximum %d).\n", MAX_IMAGE_LOADERS);
-		return qfalse;
+		return false;
 	}
 
-	if ( FindImageLoader (extension) != NULL )
+	if ( FindImageLoader (extension) != nullptr )
 	{
 		ri.Printf (PRINT_DEVELOPER, "R_AddImageLoader: Image loader already exists for extension \"%s\".\n", extension);
-		return qfalse;
+		return false;
 	}
 
 	ImageLoaderMap *newImageLoader = &imageLoaders[numImageLoaders];
@@ -68,7 +72,7 @@ qboolean R_ImageLoader_Add ( const char *extension, ImageLoaderFn imageLoader )
 
 	numImageLoaders++;
 
-	return qtrue;
+	return true;
 }
 
 // Initializes the image loader, and adds the built-in image loaders
@@ -84,14 +88,14 @@ void R_ImageLoader_Init()
 
 // Loads any of the supported image types into a cannonical 32 bit format.
 void R_LoadImage( const char *shortname, byte **pic, int *width, int *height ) {
-	*pic = NULL;
+	*pic = nullptr;
 	*width = 0;
 	*height = 0;
 
 	// Try loading the image with the original extension (if possible).
 	const char *extension = COM_GetExtension (shortname);
 	const ImageLoaderMap *imageLoader = FindImageLoader (extension);
-	if ( imageLoader != NULL )
+	if ( imageLoader != nullptr )
 	{
 		imageLoader->loader (shortname, pic, width, height);
 		if ( *pic )

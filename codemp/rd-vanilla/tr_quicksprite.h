@@ -2,7 +2,8 @@
 ===========================================================================
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -22,7 +23,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-// tr_QuickSprite.h: interface for the CQuickSprite class.
+// interface for the CQuickSprite class.
+
+// ======================================================================
+// CLASS
+// ======================================================================
 
 class CQuickSpriteSystem
 {
@@ -30,7 +35,7 @@ private:
 			textureBundle_t	*mTexBundle;
 			uint32_t	mGLStateBits;
 			int				mFogIndex;
-			qboolean		mUseFog;
+			bool		mUseFog;
 			vec4_t			mVerts[SHADER_MAX_VERTEXES];
 			vec2_t			mTextureCoords[SHADER_MAX_VERTEXES];	// Ideally this would be static, cause it never changes
 			vec2_t			mFogTextureCoords[SHADER_MAX_VERTEXES];
@@ -46,7 +51,11 @@ public:
 			void StartGroup(textureBundle_t *bundle, uint32_t glbits, int fogIndex = -1);
 			void EndGroup(void);
 
-			void Add(float *pointdata, color4ub_t color, vec2_t fog=NULL);
+			void Add(float *pointdata, color4ub_t color, vec2_t fog=nullptr);
 };
+
+// ======================================================================
+// EXTERN VARIABLE
+// ======================================================================
 
 extern CQuickSpriteSystem SQuickSprite;

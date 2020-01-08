@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -96,7 +97,7 @@ bool g_bTextureRectangleHack = false;
 void R_Splash()
 {
 	image_t *pImage;
-	pImage = R_FindImageFile( "gfx/menus/splash", qfalse, qfalse, qfalse, GL_CLAMP);
+	pImage = R_FindImageFile( "gfx/menus/splash", false, false, false, GL_CLAMP);
 
 	RB_SetGL2D();
 
@@ -253,17 +254,17 @@ static void GLimp_InitExtensions( void )
 	GLW_InitTextureCompression();
 
 	// GL_EXT_texture_env_add
-	glConfig.textureEnvAddAvailable = qfalse;
+	glConfig.textureEnvAddAvailable = false;
 	if ( ri.GL_ExtensionSupported( "GL_EXT_texture_env_add" ) )
 	{
 		if ( r_ext_texture_env_add->integer )
 		{
-			glConfig.textureEnvAddAvailable = qtrue;
+			glConfig.textureEnvAddAvailable = true;
 			Com_Printf ("...using GL_EXT_texture_env_add\n" );
 		}
 		else
 		{
-			glConfig.textureEnvAddAvailable = qfalse;
+			glConfig.textureEnvAddAvailable = false;
 			Com_Printf ("...ignoring GL_EXT_texture_env_add\n" );
 		}
 	}
@@ -300,13 +301,13 @@ static void GLimp_InitExtensions( void )
 	}
 
 	// GL_EXT_clamp_to_edge
-	glConfig.clampToEdgeAvailable = qtrue;
+	glConfig.clampToEdgeAvailable = true;
 	Com_Printf ("...using GL_EXT_texture_edge_clamp\n" );
 
 	// GL_ARB_multitexture
-	qglMultiTexCoord2fARB = NULL;
-	qglActiveTextureARB = NULL;
-	qglClientActiveTextureARB = NULL;
+	qglMultiTexCoord2fARB = nullptr;
+	qglActiveTextureARB = nullptr;
+	qglClientActiveTextureARB = nullptr;
 	if ( ri.GL_ExtensionSupported( "GL_ARB_multitexture" ) )
 	{
 		if ( r_ext_multitexture->integer )
@@ -325,9 +326,9 @@ static void GLimp_InitExtensions( void )
 				}
 				else
 				{
-					qglMultiTexCoord2fARB = NULL;
-					qglActiveTextureARB = NULL;
-					qglClientActiveTextureARB = NULL;
+					qglMultiTexCoord2fARB = nullptr;
+					qglActiveTextureARB = nullptr;
+					qglClientActiveTextureARB = nullptr;
 					Com_Printf ("...not using GL_ARB_multitexture, < 2 texture units\n" );
 				}
 			}
@@ -343,8 +344,8 @@ static void GLimp_InitExtensions( void )
 	}
 
 	// GL_EXT_compiled_vertex_array
-	qglLockArraysEXT = NULL;
-	qglUnlockArraysEXT = NULL;
+	qglLockArraysEXT = nullptr;
+	qglUnlockArraysEXT = nullptr;
 	if ( ri.GL_ExtensionSupported( "GL_EXT_compiled_vertex_array" ) )
 	{
 		if ( r_ext_compiled_vertex_array->integer )
@@ -398,8 +399,8 @@ static void GLimp_InitExtensions( void )
 				 !qglGetCombinerOutputParameterfvNV || !qglGetCombinerOutputParameterivNV || !qglGetFinalCombinerInputParameterfvNV || !qglGetFinalCombinerInputParameterivNV )
 			{
 				bNVRegisterCombiners = false;
-				qglCombinerParameterfvNV = NULL;
-				qglCombinerParameteriNV = NULL;
+				qglCombinerParameterfvNV = nullptr;
+				qglCombinerParameteriNV = nullptr;
 				Com_Printf ("...GL_NV_register_combiners failed\n" );
 			}
 		}
@@ -476,8 +477,8 @@ static void GLimp_InitExtensions( void )
 		{
 			bARBVertexProgram = false;
 			bARBFragmentProgram = false;
-			qglGenProgramsARB = NULL;	//clear ptrs that get checked
-			qglProgramEnvParameter4fARB = NULL;
+			qglGenProgramsARB = nullptr;	//clear ptrs that get checked
+			qglProgramEnvParameter4fARB = nullptr;
 			Com_Printf ("...ignoring GL_ARB_vertex_program\n" );
 			Com_Printf ("...ignoring GL_ARB_fragment_program\n" );
 		}
@@ -503,7 +504,7 @@ static void GLimp_InitExtensions( void )
 	if(bNVRegisterCombiners)
 		qglGetIntegerv( GL_MAX_GENERAL_COMBINERS_NV, &iNumGeneralCombiners );
 
-	glConfigExt.doGammaCorrectionWithShaders = qfalse;
+	glConfigExt.doGammaCorrectionWithShaders = false;
 	if ( r_gammaShaders->integer && qglActiveTextureARB && bTexRectSupported && bARBVertexProgram && bARBFragmentProgram )
 	{
 #if !defined(__APPLE__)
@@ -511,10 +512,10 @@ static void GLimp_InitExtensions( void )
 		qglTexSubImage3D = (PFNGLTEXSUBIMAGE3DPROC)ri.GL_GetProcAddress("glTexSubImage3D");
 		if ( qglTexImage3D && qglTexSubImage3D )
 		{
-			glConfigExt.doGammaCorrectionWithShaders = qtrue;
+			glConfigExt.doGammaCorrectionWithShaders = true;
 		}
 #else
-		glConfigExt.doGammaCorrectionWithShaders = qtrue;
+		glConfigExt.doGammaCorrectionWithShaders = true;
 #endif
 	}
 
@@ -543,13 +544,13 @@ static const char *TruncateGLExtensionsString (const char *extensionsString, int
 
 	char *truncatedExtensions;
 
-	while ( (q = strchr (p, ' ')) != NULL && numExtensions <= maxExtensions )
+	while ( (q = strchr (p, ' ')) != nullptr && numExtensions <= maxExtensions )
 	{
 		p = q + 1;
 		numExtensions++;
 	}
 
-	if ( q != NULL )
+	if ( q != nullptr )
 	{
 		// We still have more extensions. We'll call this the end
 
@@ -743,7 +744,7 @@ void R_TakeScreenshot( int x, int y, int width, int height, char *fileName ) {
 }
 
 void R_TakeScreenshotPNG( int x, int y, int width, int height, char *fileName ) {
-	byte *buffer=NULL;
+	byte *buffer=nullptr;
 	size_t offset=0;
 	int padlen=0;
 
@@ -847,7 +848,7 @@ static void R_LevelShot( void ) {
 //	screenshot [filename]
 void R_ScreenShotTGA_f (void) {
 	char checkname[MAX_OSPATH] = {0};
-	qboolean silent = qfalse;
+	bool silent = false;
 
 	if ( !strcmp( ri.Cmd_Argv(1), "levelshot" ) ) {
 		R_LevelShot();
@@ -855,7 +856,7 @@ void R_ScreenShotTGA_f (void) {
 	}
 
 	if ( !strcmp( ri.Cmd_Argv(1), "silent" ) )
-		silent = qtrue;
+		silent = true;
 
 	if ( ri.Cmd_Argc() == 2 && !silent ) {
 		// explicit filename
@@ -884,7 +885,7 @@ void R_ScreenShotTGA_f (void) {
 //	screenshot [filename]
 void R_ScreenShotPNG_f (void) {
 	char checkname[MAX_OSPATH] = {0};
-	qboolean silent = qfalse;
+	bool silent = false;
 
 	if ( !strcmp( ri.Cmd_Argv(1), "levelshot" ) ) {
 		R_LevelShot();
@@ -892,7 +893,7 @@ void R_ScreenShotPNG_f (void) {
 	}
 
 	if ( !strcmp( ri.Cmd_Argv(1), "silent" ) )
-		silent = qtrue;
+		silent = true;
 
 	if ( ri.Cmd_Argc() == 2 && !silent ) {
 		// explicit filename
@@ -916,14 +917,14 @@ void R_ScreenShotPNG_f (void) {
 
 void R_ScreenShot_f (void) {
 	char checkname[MAX_OSPATH] = {0};
-	qboolean silent = qfalse;
+	bool silent = false;
 
 	if ( !strcmp( ri.Cmd_Argv(1), "levelshot" ) ) {
 		R_LevelShot();
 		return;
 	}
 	if ( !strcmp( ri.Cmd_Argv(1), "silent" ) )
-		silent = qtrue;
+		silent = true;
 
 	if ( ri.Cmd_Argc() == 2 && !silent ) {
 		// explicit filename
@@ -1341,7 +1342,7 @@ void R_Init( void ) {
 	InitOpenGL();
 
 	R_InitImages();
-	R_InitShaders(qfalse);
+	R_InitShaders(false);
 	R_InitSkins();
 
 	R_InitFonts();
@@ -1365,7 +1366,7 @@ void R_Init( void ) {
 //	ri.Printf( PRINT_ALL, "----- finished R_Init -----\n" );
 }
 
-void RE_Shutdown( qboolean destroyWindow, qboolean restarting ) {
+void RE_Shutdown( bool destroyWindow, bool restarting ) {
 
 //	ri.Printf( PRINT_ALL, "RE_Shutdown( %i )\n", destroyWindow );
 
@@ -1437,7 +1438,7 @@ void RE_Shutdown( qboolean destroyWindow, qboolean restarting ) {
 		ri.WIN_Shutdown();
 	}
 
-	tr.registered = qfalse;
+	tr.registered = false;
 }
 
 // Touch all images to make sure they are resident
@@ -1462,16 +1463,16 @@ void RE_GetLightStyle(int style, color4ub_t color)
 
 static void SetRangedFog( float range ) { tr.rangedFog = range; }
 
-extern qboolean gG2_GBMNoReconstruct;
-extern qboolean gG2_GBMUseSPMethod;
-static void G2API_BoltMatrixReconstruction( qboolean reconstruct ) { gG2_GBMNoReconstruct = (qboolean)!reconstruct; }
-static void G2API_BoltMatrixSPMethod( qboolean spMethod ) { gG2_GBMUseSPMethod = spMethod; }
+extern bool gG2_GBMNoReconstruct;
+extern bool gG2_GBMUseSPMethod;
+static void G2API_BoltMatrixReconstruction( bool reconstruct ) { gG2_GBMNoReconstruct = (bool)!reconstruct; }
+static void G2API_BoltMatrixSPMethod( bool spMethod ) { gG2_GBMUseSPMethod = spMethod; }
 
 extern float tr_distortionAlpha; //opaque
 extern float tr_distortionStretch; //no stretch override
-extern qboolean tr_distortionPrePost; //capture before postrender phase?
-extern qboolean tr_distortionNegate; //negative blend mode
-static void SetRefractionProperties( float distortionAlpha, float distortionStretch, qboolean distortionPrePost, qboolean distortionNegate ) {
+extern bool tr_distortionPrePost; //capture before postrender phase?
+extern bool tr_distortionNegate; //negative blend mode
+static void SetRefractionProperties( float distortionAlpha, float distortionStretch, bool distortionPrePost, bool distortionNegate ) {
 	tr_distortionAlpha = distortionAlpha;
 	tr_distortionStretch = distortionStretch;
 	tr_distortionPrePost = distortionPrePost;
@@ -1496,7 +1497,7 @@ Q_EXPORT refexport_t* QDECL GetRefAPI( int apiVersion, refimport_t *rimp ) {
 
 	if ( apiVersion != REF_API_VERSION ) {
 		ri.Printf( PRINT_ALL,  "Mismatched REF_API_VERSION: expected %i, got %i\n", REF_API_VERSION, apiVersion );
-		return NULL;
+		return nullptr;
 	}
 
 	// the RE_ functions are Renderer Entry points

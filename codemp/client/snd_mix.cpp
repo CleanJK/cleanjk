@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -283,7 +284,7 @@ void S_PaintChannelFromMP3( channel_t *ch, const sfx_t *sc, int count, int sampl
 	portable_samplepair_t	*samp;
 	static short tempMP3Buffer[PAINTBUFFER_SIZE];
 
-	MP3Stream_GetSamples( ch, sampleOffset, count, tempMP3Buffer, qfalse );	// qfalse = not stereo
+	MP3Stream_GetSamples( ch, sampleOffset, count, tempMP3Buffer, false );	// false = not stereo
 
 	leftvol = ch->leftvol*snd_vol;
 	rightvol = ch->rightvol*snd_vol;
@@ -440,7 +441,7 @@ void S_PaintChannels( int endtime ) {
 				ltime = s_paintedtime;
 				sc = ch->thesfx;
 
-				if (sc->soundData==NULL || sc->soundLength==0) {
+				if (sc->soundData==nullptr || sc->soundLength==0) {
 					continue;
 				}
 				// we might have to make two passes if it

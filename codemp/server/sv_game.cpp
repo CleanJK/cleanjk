@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -73,7 +74,7 @@ sharedEntity_t *SV_GEntityForSvEntity( svEntity_t *svEnt ) {
 }
 
 // Also checks portalareas so that doors block sight
-qboolean SV_inPVS (const vec3_t p1, const vec3_t p2)
+bool SV_inPVS (const vec3_t p1, const vec3_t p2)
 {
 	int		leafnum;
 	int		cluster;
@@ -89,10 +90,10 @@ qboolean SV_inPVS (const vec3_t p1, const vec3_t p2)
 	cluster = CM_LeafCluster (leafnum);
 	area2 = CM_LeafArea (leafnum);
 	if ( mask && (!(mask[cluster>>3] & (1<<(cluster&7)) ) ) )
-		return qfalse;
+		return false;
 	if (!CM_AreasConnected (area1, area2))
-		return qfalse;		// a door blocks sight
-	return qtrue;
+		return false;		// a door blocks sight
+	return true;
 }
 
 // Called every time a map changes
@@ -110,16 +111,16 @@ void SV_InitGameProgs( void ) {
 
 	bot_enabled = bot_enable ? bot_enable->integer : 0;
 
-	svs.gameStarted = qtrue;
+	svs.gameStarted = true;
 	SV_BindGame();
 
-	SV_InitGame( qfalse );
+	SV_InitGame( false );
 }
 
 // See if the current console command is claimed by the game
-qboolean SV_GameCommand( void ) {
+bool SV_GameCommand( void ) {
 	if ( sv.state != SS_GAME ) {
-		return qfalse;
+		return false;
 	}
 
 	return GVM_ConsoleCommand();

@@ -9,7 +9,7 @@
 #include <curses.h>
 #include <unistd.h>
 #endif
-#include <stdio.h>
+#include <cstdio>
 
 #include "icarus/tokenizer.h"
 #include "icarus/blockstream.h"
@@ -171,7 +171,7 @@ int CInterpreter::Error( char *format, ... )
 
 #ifdef __POP_UPS__
 
-	MessageBox( NULL, out_msg, "Error", MB_OK );
+	MessageBox( nullptr, out_msg, "Error", MB_OK );
 
 #else
 
@@ -218,8 +218,8 @@ variable_t *CInterpreter::AddVar( const char *name, int type )
 
 	var = new variable_t;
 
-	if ( var == NULL )
-		return NULL;
+	if ( var == nullptr )
+		return nullptr;
 
 	//Specify the type
 	var->type = type;
@@ -240,7 +240,7 @@ variable_t *CInterpreter::FindVar( const char *name )
 	vmi = m_varMap.find( name );
 
 	if ( vmi == m_varMap.end() )
-		return NULL;
+		return nullptr;
 
 	return (*vmi).second;
 }
@@ -1888,7 +1888,7 @@ int	CInterpreter::Interpret( CTokenizer *Tokenizer, CBlockStream *BlockStream, c
 	m_iCurrentLine = m_tokenizer->GetCurLine();
 	token = m_tokenizer->GetToEndOfLine(TK_STRING);
 	m_sCurrentLine = token->GetStringValue();
-	m_tokenizer->PutBackToken(token, false, NULL, true);
+	m_tokenizer->PutBackToken(token, false, nullptr, true);
 
 	m_iBadCBlockNumber = 0;
 
@@ -1915,7 +1915,7 @@ int	CInterpreter::Interpret( CTokenizer *Tokenizer, CBlockStream *BlockStream, c
 			m_iCurrentLine = m_tokenizer->GetCurLine();
 			token = m_tokenizer->GetToEndOfLine(TK_STRING);
 			m_sCurrentLine = token->GetStringValue();
-			m_tokenizer->PutBackToken(token, false, NULL, true);
+			m_tokenizer->PutBackToken(token, false, nullptr, true);
 			break;
 
 		case TK_CHAR:

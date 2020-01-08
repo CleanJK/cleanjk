@@ -2,7 +2,8 @@
 ===========================================================================
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -27,12 +28,14 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "game/bg_public.h"
 #include "qcommon/com_cvars.h"
 #include "qcommon/q_shared.h"
+#include "qcommon/q_math.h"
 
 #include <algorithm>
 #include <cmath>
 #include <string>
 
-CFxScheduler	theFxScheduler;
+// The choosen one
+CFxScheduler theFxScheduler;
 
 CMediaHandles &CMediaHandles::operator=(const CMediaHandles &that )
 {
@@ -455,7 +458,7 @@ void CFxScheduler::AddPrimitiveToEffect( SEffectTemplate *fx, CPrimitiveTemplate
 
 // Finds an unused effect template and returns it to the caller.
 //	id		pointer to an id that will be filled in,
-//	file	should be NULL when requesting a copy
+//	file	should be nullptr when requesting a copy
 // Returns the id of the added effect template
 SEffectTemplate *CFxScheduler::GetNewEffectTemplate( int *id, const char *file )
 {
@@ -531,7 +534,7 @@ SEffectTemplate *CFxScheduler::GetEffectCopy( int fxHandle, int *newHandle )
 #endif
 
 	// Copies shouldn't have names, otherwise they could trash our stl map used for getting ID from name
-	SEffectTemplate *copy = GetNewEffectTemplate( newHandle, NULL );
+	SEffectTemplate *copy = GetNewEffectTemplate( newHandle, nullptr );
 
 	if ( copy && *newHandle )
 	{
@@ -556,7 +559,7 @@ CPrimitiveTemplate *CFxScheduler::GetPrimitiveCopy( SEffectTemplate *effectCopy,
 {
 	if ( !effectCopy || !effectCopy->mInUse )
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	for ( int i = 0; i < effectCopy->mPrimitiveCount; i++ )
@@ -569,7 +572,7 @@ CPrimitiveTemplate *CFxScheduler::GetPrimitiveCopy( SEffectTemplate *effectCopy,
 	}
 
 	// bah, no good.
-	return NULL;
+	return nullptr;
 }
 
 void	CFxScheduler::MaterialImpact(trace_t *tr, CEffect *effect)
@@ -650,7 +653,7 @@ void CFxScheduler::PlayEffect( const char *file, vec3_t origin, matrix3_t axis, 
 	}
 #endif
 
-	PlayEffect( mEffectIDs[sfile], origin, axis, boltInfo, ghoul2, fxParm, vol, rad, qfalse, iLoopTime, isRelative );
+	PlayEffect( mEffectIDs[sfile], origin, axis, boltInfo, ghoul2, fxParm, vol, rad, false, iLoopTime, isRelative );
 }
 
 int	totalPrimitives = 0;
@@ -817,7 +820,7 @@ void CFxScheduler::PlayEffect( int id, vec3_t origin, matrix3_t axis, const int 
 			{
 				SScheduledEffect		*sfx = mScheduledEffectsPool.Alloc();
 
-				if ( sfx == NULL )
+				if ( sfx == nullptr )
 				{
 					Com_Error (ERR_DROP, "ERROR: Failed to allocate EFX from memory pool.");
 					return;
@@ -830,7 +833,7 @@ void CFxScheduler::PlayEffect( int id, vec3_t origin, matrix3_t axis, const int 
 
 				if ( boltInfo == -1 )
 				{
-					sfx->ghoul2 = NULL;
+					sfx->ghoul2 = nullptr;
 					if ( entityNum == -1 )
 					{
 						// we aren't bolting, so make sure the spawn system knows this by putting -1's in these fields
@@ -909,7 +912,7 @@ void CFxScheduler::PlayEffect( const char *file, vec3_t origin, vec3_t forward, 
 	PlayEffect( mEffectIDs[sfile], origin, forward, vol, rad );
 }
 
-bool gEffectsInPortal = qfalse; //this is just because I don't want to have to add an mPortalEffect field to every actual effect.
+bool gEffectsInPortal = false; //this is just because I don't want to have to add an mPortalEffect field to every actual effect.
 
 // Handles determining if a scheduled effect should be created or not
 // If it should it handles converting the template effect into a real one.
@@ -919,7 +922,7 @@ void CFxScheduler::AddScheduledEffects( bool portal )
 	vec3_t						origin;
 	matrix3_t					axis;
 	int							oldEntNum = -1, oldBoltIndex = -1, oldModelNum = -1;
-	qboolean					doesBoltExist  = qfalse;
+	bool					doesBoltExist  = false;
 
 	if (portal)
 	{
@@ -1064,7 +1067,7 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ma
 	AxisCopy( axis, ax );
 
 	int flags = fx->mFlags;
-	if (ghoul2 != NULL && modelNum>=0 && boltNum>=0)
+	if (ghoul2 != nullptr && modelNum>=0 && boltNum>=0)
 	{//since you passed in these values, mark as relative to use them if it is supported
 		switch( fx->mType )
 		{
@@ -1258,7 +1261,7 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ma
 				}
 			}
 
-			theFxHelper.Trace( tr, org, NULL, NULL, temp, -1, MASK_SOLID );
+			theFxHelper.Trace( tr, org, nullptr, nullptr, temp, -1, MASK_SOLID );
 
 			VectorCopy( tr.endpos, org2 );
 
@@ -1342,7 +1345,7 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ma
 			fx->mLength.end.GetVal(), fx->mLengthParm.GetVal(), fx->mAlpha.start.GetVal(), fx->mAlpha.end.GetVal(),
 			fx->mAlphaParm.GetVal(), sRGB, eRGB, fx->mRGBParm.GetVal(), fx->mLife.GetVal(),
 			fx->mMediaHandles.GetHandle(), flags, fx->mMatImpactFX, fxParm, ghoul2, entNum, modelNum, boltNum,
-			(qboolean)(fx->mSpawnFlags & FX_ORG2_FROM_TRACE)
+			(bool)(fx->mSpawnFlags & FX_ORG2_FROM_TRACE)
 		);
 	} break;
 
@@ -1439,7 +1442,7 @@ void CFxScheduler::CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, ma
 
 		theFxHelper.AddDecalToScene(
 			fx->mMediaHandles.GetHandle(), org, ax[0], fx->mRotation.GetVal(), sRGB[0], sRGB[1], sRGB[2],
-			fx->mAlpha.start.GetVal(), qtrue, fx->mSize.start.GetVal(), qfalse
+			fx->mAlpha.start.GetVal(), true, fx->mSize.start.GetVal(), false
 		);
 
 		if ( fx->mFlags & FX_GHOUL2_DECALS ) {

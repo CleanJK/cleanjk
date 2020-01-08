@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -21,9 +22,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-// lexicographical parser
-
 #pragma once
+
+// ======================================================================
+// DEFINE
+// ======================================================================
 
 //undef if binary numbers of the form 0b... or 0B... are not allowed
 #define BINARYNUMBERS
@@ -132,6 +135,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //name sub type
 //		the length of the name
 
+// ======================================================================
+// STRUCT
+// ======================================================================
+
 //punctuation
 typedef struct punctuation_s
 {
@@ -178,55 +185,33 @@ typedef struct script_s
 	struct script_s *next;			//next script in a chain
 } script_t;
 
-//read a token from the script
-int PS_ReadToken(script_t *script, token_t *token);
-//expect a certain token
-int PS_ExpectTokenString(script_t *script, char *string);
-//expect a certain token type
-int PS_ExpectTokenType(script_t *script, int type, int subtype, token_t *token);
-//expect a token
-int PS_ExpectAnyToken(script_t *script, token_t *token);
-//returns true when the token is available
-int PS_CheckTokenString(script_t *script, char *string);
-//returns true and reads the token when a token with the given type is available
-int PS_CheckTokenType(script_t *script, int type, int subtype, token_t *token);
-//skip tokens until the given token string is read
-int PS_SkipUntilString(script_t *script, char *string);
-//unread the last token read from the script
-void PS_UnreadLastToken(script_t *script);
-//unread the given token
-void PS_UnreadToken(script_t *script, token_t *token);
-//returns the next character of the read white space, returns NULL if none
-char PS_NextWhiteSpaceChar(script_t *script);
-//remove any leading and trailing double quotes from the token
-void StripDoubleQuotes(char *string);
-//remove any leading and trailing single quotes from the token
-void StripSingleQuotes(char *string);
-//read a possible signed integer
-signed long int ReadSignedInt(script_t *script);
-//read a possible signed floating point number
-long double ReadSignedFloat(script_t *script);
-//set an array with punctuations, NULL restores default C/C++ set
-void SetScriptPunctuations(script_t *script, punctuation_t *p);
-//set script flags
-void SetScriptFlags(script_t *script, int flags);
-//get script flags
-int GetScriptFlags(script_t *script);
-//reset a script
-void ResetScript(script_t *script);
-//returns true if at the end of the script
-int EndOfScript(script_t *script);
-//returns a pointer to the punctuation with the given number
-const char *PunctuationFromNum(script_t *script, int num);
-//load a script from the given file at the given offset with the given length
-script_t *LoadScriptFile(const char *filename);
-//load a script from the given memory with the given length
-script_t *LoadScriptMemory(char *ptr, int length, char *name);
-//free a script
-void FreeScript(script_t *script);
-//set the base folder to load files from
-void PS_SetBaseFolder(char *path);
-//print a script error with filename and line number
-void QDECL ScriptError(script_t *script, char *str, ...) __attribute__ ((format (printf, 2, 3)));
-//print a script warning with filename and line number
-void QDECL ScriptWarning(script_t *script, char *str, ...) __attribute__ ((format (printf, 2, 3)));
+// ======================================================================
+// FUNCTION
+// ======================================================================
+
+char PS_NextWhiteSpaceChar(script_t* script);
+const char* PunctuationFromNum(script_t* script, int num);
+int EndOfScript(script_t* script);
+int GetScriptFlags(script_t* script);
+int PS_CheckTokenString(script_t* script, char* string);
+int PS_CheckTokenType(script_t* script, int type, int subtype, token_t* token);
+int PS_ExpectAnyToken(script_t* script, token_t* token);
+int PS_ExpectTokenString(script_t* script, char* string);
+int PS_ExpectTokenType(script_t* script, int type, int subtype, token_t* token);
+int PS_ReadToken(script_t* script, token_t* token);
+int PS_SkipUntilString(script_t* script, char* string);
+long double ReadSignedFloat(script_t* script);
+script_t* LoadScriptFile(const char* filename);
+script_t* LoadScriptMemory(char* ptr, int length, char* name);
+signed long int ReadSignedInt(script_t* script);
+void FreeScript(script_t* script);
+void PS_SetBaseFolder(char* path);
+void PS_UnreadLastToken(script_t* script);
+void PS_UnreadToken(script_t* script, token_t* token);
+void QDECL ScriptError(script_t* script, char* str, ...) __attribute__((format(printf, 2, 3)));
+void QDECL ScriptWarning(script_t* script, char* str, ...) __attribute__((format(printf, 2, 3)));
+void ResetScript(script_t* script);
+void SetScriptFlags(script_t* script, int flags);
+void SetScriptPunctuations(script_t* script, punctuation_t* p);
+void StripDoubleQuotes(char* string);
+void StripSingleQuotes(char* string);

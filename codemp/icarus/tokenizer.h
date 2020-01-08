@@ -2,7 +2,8 @@
 ===========================================================================
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -22,13 +23,19 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-// Tokenizer.h
+// ======================================================================
+// INCLUDE
+// ======================================================================
 
 #include <string>
 #include <vector>
 #include <map>
 
 #include "qcommon/q_shared.h"
+
+// ======================================================================
+// DEFINE
+// ======================================================================
 
 #define MAX_STRING_LENGTH		256
 #define MAX_IDENTIFIER_LENGTH	128
@@ -45,6 +52,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define TKF_NOUNDERSCOREINIDENTIFIER	0x00000200
 #define TKF_NODASHINIDENTIFIER			0x00000400
 #define TKF_COMMENTTOKENS				0x00000800
+
+// ======================================================================
+// ENUM
+// ======================================================================
 
 enum
 {
@@ -82,10 +93,18 @@ enum
 	TK_USERDEF,
 };
 
+// ======================================================================
+// STRUCT
+// ======================================================================
+
 typedef struct keywordArray_s {
 	char*		m_keyword;
 	int			m_tokenvalue;
 } keywordArray_t;
+
+// ======================================================================
+// CLASS
+// ======================================================================
 
 class lessstr
 {
@@ -277,7 +296,7 @@ protected:
 	char*			m_symbolName;
 };
 
-typedef std::map<const char *, CSymbol*, lessstr> symbolmap_t;
+using symbolmap_t = std::map<const char*, CSymbol*, lessstr>;
 
 class CDirectiveSymbol : public CSymbol
 {
@@ -409,7 +428,7 @@ public:
 
 	CToken* GetToken(unsigned onFlags = 0, unsigned offFlags = 0);
 	CToken* GetToken(keywordArray_t* keywords, unsigned onFlags, unsigned offFlags);
-	void PutBackToken(CToken* theToken, bool commented = false, const char *addedChars = NULL, bool bIgnoreThisTokenType = false);
+	void PutBackToken(CToken* theToken, bool commented = false, const char *addedChars = nullptr, bool bIgnoreThisTokenType = false);
 	bool RequireToken(int tokenType);
 	void ScanUntilToken(int tokenType);
 	void SkipToLineEnd();
@@ -430,7 +449,7 @@ public:
 	void GetCurFilename(char** filename);
 	int GetCurLine();
 
-	const char *LookupToken(int tokenID, keywordArray_t* theTable = NULL);
+	const char *LookupToken(int tokenID, keywordArray_t* theTable = nullptr);
 
 protected:
 	void SetError(int theError, const char *errString);
@@ -440,7 +459,7 @@ protected:
 	bool NextChar(byte& theByte);
 	byte Escapement();
 	void InsertSymbol(const char *theSymbol, int theValue);
-	void PutBackChar(byte theByte, int curLine = 0, const char *filename = NULL);
+	void PutBackChar(byte theByte, int curLine = 0, const char *filename = nullptr);
 	CToken* TokenFromName(const char *name);
 	CToken* HandleDirective();
 	CToken* HandleSlash();

@@ -1,7 +1,8 @@
 /*
 ===========================================================================
 Copyright (C) 2005 - 2015, ioquake3 contributors
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -21,14 +22,19 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
+// ======================================================================
+// INCLUDE
+// ======================================================================
+
 #include <cstdio>
 
-/* con_passive.cpp | con_win32.cpp | con_tty.cpp */
-void CON_Shutdown( void );
-void CON_Init( void );
-char *CON_Input( void );
-void CON_Print( const char *msg );
+// ======================================================================
+// FUNCTION
+// ======================================================================
 
-/* con_log.cpp */
-void ConsoleLogAppend( const char *string );
-void ConsoleLogWriteOut( FILE *fp );
+char* CON_Input(void);
+void CON_Init(void);
+void CON_Print(const char* msg);
+void CON_Shutdown(void);
+void ConsoleLogAppend(const char* string);
+void ConsoleLogWriteOut(FILE* fp);

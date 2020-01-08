@@ -4,7 +4,8 @@ Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
 Copyright (C) 2005 - 2015, ioquake3 contributors
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -30,7 +31,7 @@ int GetIDForString ( const stringID_table_t *table, const char *string )
 {
 	int	index = 0;
 
-	while ( ( table[index].name != NULL ) &&
+	while ( ( table[index].name != nullptr ) &&
 			( table[index].name[0] != 0 ) )
 	{
 		if ( !Q_stricmp( table[index].name, string ) )
@@ -56,7 +57,7 @@ const char *GetStringForID( stringID_table_t *table, int id )
 {
 	int	index = 0;
 
-	while ( ( table[index].name != NULL ) &&
+	while ( ( table[index].name != nullptr ) &&
 			( table[index].name[0] != 0 ) )
 	{
 		if ( table[index].id == id )
@@ -65,7 +66,7 @@ const char *GetStringForID( stringID_table_t *table, int id )
 		index++;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 char *COM_SkipPath (char *pathname)
@@ -103,8 +104,8 @@ void COM_StripExtension( const char *in, char *out, int destsize )
 		Q_strncpyz(out, in, destsize);
 }
 
-// string compare the end of the strings and return qtrue if strings match
-qboolean COM_CompareExtension(const char *in, const char *ext)
+// string compare the end of the strings and return true if strings match
+bool COM_CompareExtension(const char *in, const char *ext)
 {
 	int inlen, extlen;
 
@@ -116,10 +117,10 @@ qboolean COM_CompareExtension(const char *in, const char *ext)
 		in += inlen - extlen;
 
 		if(!Q_stricmp(in, ext))
-			return qtrue;
+			return true;
 	}
 
-	return qfalse;
+	return false;
 }
 
 void COM_DefaultExtension( char *path, int maxSize, const char *extension )
@@ -157,7 +158,7 @@ int COM_GetCurrentParseLine( void )
 
 char *COM_Parse( const char **data_p )
 {
-	return COM_ParseExt( data_p, qtrue );
+	return COM_ParseExt( data_p, true );
 }
 
 void COM_ParseError( char *format, ... )
@@ -185,18 +186,18 @@ void COM_ParseWarning( char *format, ... )
 }
 
 // Parse a token out of a string
-// Will never return NULL, just empty strings
-// If "allowLineBreaks" is qtrue then an empty string will be returned if the next token is a newline.
-const char *SkipWhitespace( const char *data, qboolean *hasNewLines ) {
+// Will never return nullptr, just empty strings
+// If "allowLineBreaks" is true then an empty string will be returned if the next token is a newline.
+const char *SkipWhitespace( const char *data, bool *hasNewLines ) {
 	int c;
 
 	while( (c = *(const unsigned char* /*eurofix*/)data) <= ' ') {
 		if( !c ) {
-			return NULL;
+			return nullptr;
 		}
 		if( c == '\n' ) {
 			com_lines++;
-			*hasNewLines = qtrue;
+			*hasNewLines = true;
 		}
 		data++;
 	}
@@ -207,7 +208,7 @@ const char *SkipWhitespace( const char *data, qboolean *hasNewLines ) {
 int COM_Compress( char *data_p ) {
 	char *in, *out;
 	int c;
-	qboolean newline = qfalse, whitespace = qfalse;
+	bool newline = false, whitespace = false;
 
 	in = out = data_p;
 	if (in) {
@@ -225,22 +226,22 @@ int COM_Compress( char *data_p ) {
 					in += 2;
 				// record when we hit a newline
 			} else if ( c == '\n' || c == '\r' ) {
-				newline = qtrue;
+				newline = true;
 				in++;
 				// record when we hit whitespace
 			} else if ( c == ' ' || c == '\t') {
-				whitespace = qtrue;
+				whitespace = true;
 				in++;
 				// an actual token
 			} else {
 				// if we have a pending newline, emit it (and it counts as whitespace)
 				if (newline) {
 					*out++ = '\n';
-					newline = qfalse;
-					whitespace = qfalse;
+					newline = false;
+					whitespace = false;
 				} if (whitespace) {
 					*out++ = ' ';
-					whitespace = qfalse;
+					whitespace = false;
 				}
 
 				// copy quoted strings unmolested
@@ -273,10 +274,10 @@ int COM_Compress( char *data_p ) {
 	return out - data_p;
 }
 
-char *COM_ParseExt( const char **data_p, qboolean allowLineBreaks )
+char *COM_ParseExt( const char **data_p, bool allowLineBreaks )
 {
 	int c = 0, len;
-	qboolean hasNewLines = qfalse;
+	bool hasNewLines = false;
 	const char *data;
 
 	data = *data_p;
@@ -287,7 +288,7 @@ char *COM_ParseExt( const char **data_p, qboolean allowLineBreaks )
 	// make sure incoming data is valid
 	if ( !data )
 	{
-		*data_p = NULL;
+		*data_p = nullptr;
 		return com_token;
 	}
 
@@ -297,7 +298,7 @@ char *COM_ParseExt( const char **data_p, qboolean allowLineBreaks )
 		data = SkipWhitespace( data, &hasNewLines );
 		if ( !data )
 		{
-			*data_p = NULL;
+			*data_p = nullptr;
 			return com_token;
 		}
 		if ( hasNewLines && !allowLineBreaks )
@@ -385,49 +386,49 @@ char *COM_ParseExt( const char **data_p, qboolean allowLineBreaks )
 	return com_token;
 }
 
-qboolean COM_ParseString( const char **data, const char **s )
+bool COM_ParseString( const char **data, const char **s )
 {
-//	*s = COM_ParseExt( data, qtrue );
-	*s = COM_ParseExt( data, qfalse );
+//	*s = COM_ParseExt( data, true );
+	*s = COM_ParseExt( data, false );
 	if ( s[0] == 0 )
 	{
 		COM_ParseWarning( "COM_ParseString: unexpected EOF" );
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean COM_ParseInt( const char **data, int *i )
+bool COM_ParseInt( const char **data, int *i )
 {
 	const char	*token;
 
-	token = COM_ParseExt( data, qfalse );
+	token = COM_ParseExt( data, false );
 	if ( token[0] == 0 )
 	{
 		COM_ParseWarning( "COM_ParseInt: unexpected EOF" );
-		return qtrue;
+		return true;
 	}
 
 	*i = atoi( token );
-	return qfalse;
+	return false;
 }
 
-qboolean COM_ParseFloat( const char **data, float *f )
+bool COM_ParseFloat( const char **data, float *f )
 {
 	const char	*token;
 
-	token = COM_ParseExt( data, qfalse );
+	token = COM_ParseExt( data, false );
 	if ( token[0] == 0 )
 	{
 		COM_ParseWarning( "COM_ParseFloat: unexpected EOF" );
-		return qtrue;
+		return true;
 	}
 
 	*f = atof( token );
-	return qfalse;
+	return false;
 }
 
-qboolean COM_ParseVec4( const char **buffer, vec4_t *c)
+bool COM_ParseVec4( const char **buffer, vec4_t *c)
 {
 	int i;
 	float f;
@@ -436,13 +437,14 @@ qboolean COM_ParseVec4( const char **buffer, vec4_t *c)
 	{
 		if (COM_ParseFloat(buffer, &f))
 		{
-			return qtrue;
+			return true;
 		}
 		(*c)[i] = f;
 	}
-	return qfalse;
+	return false;
 }
 
+// data is an in/out parm, returns a parsed out token
 void COM_MatchToken( const char **buf_p, char *match ) {
 	char	*token;
 
@@ -455,11 +457,11 @@ void COM_MatchToken( const char **buf_p, char *match ) {
 // The next token should be an open brace or set depth to 1 if already parsed it.
 // Skips until a matching close brace is found.
 // Internal brace depths are properly skipped.
-qboolean SkipBracedSection (const char **program, int depth) {
+bool SkipBracedSection (const char **program, int depth) {
 	char			*token;
 
 	do {
-		token = COM_ParseExt( program, qtrue );
+		token = COM_ParseExt( program, true );
 		if( token[1] == 0 ) {
 			if( token[0] == '{' ) {
 				depth++;
@@ -470,7 +472,7 @@ qboolean SkipBracedSection (const char **program, int depth) {
 		}
 	} while( depth && *program );
 
-	return (qboolean)( depth == 0 );
+	return (bool)( depth == 0 );
 }
 
 void SkipRestOfLine ( const char **data ) {
@@ -674,8 +676,8 @@ char *Info_ValueForKey( const char *s, const char *key ) {
 }
 
 // Used to itterate through all the key/value pairs in an info string
-// Return qfalse if we discover the infostring is invalid
-qboolean Info_NextPair( const char **head, char *key, char *value ) {
+// Return false if we discover the infostring is invalid
+bool Info_NextPair( const char **head, char *key, char *value ) {
 	char *o;
 	const char *s = *head;
 
@@ -689,7 +691,7 @@ qboolean Info_NextPair( const char **head, char *key, char *value ) {
 		if ( !*s ) {
 			key[0] = 0;
 			*head  = s;
-			return qtrue;
+			return true;
 		}
 		*o++ = *s++;
 	}
@@ -699,7 +701,7 @@ qboolean Info_NextPair( const char **head, char *key, char *value ) {
 	// If they key is empty at this point with a slash after it
 	// then this is considered invalid, possibly an attempt at hacked userinfo strings
 	if ( !key[0] )
-		return qfalse;
+		return false;
 
 	o = value;
 	while ( *s != '\\' && *s ) {
@@ -709,11 +711,11 @@ qboolean Info_NextPair( const char **head, char *key, char *value ) {
 
 	*head = s;
 
-	return qtrue;
+	return true;
 }
 
 void Info_RemoveKey( char *s, const char *key ) {
-	char	*start = NULL, *o = NULL;
+	char	*start = nullptr, *o = nullptr;
 	char	pkey[MAX_INFO_KEY] = {0};
 	char	value[MAX_INFO_VALUE] = {0};
 
@@ -816,24 +818,24 @@ void Info_RemoveKey_Big( char *s, const char *key ) {
 }
 
 // Some characters are illegal in info strings because they can mess up the server's parsing
-qboolean Info_Validate( const char *s ) {
+bool Info_Validate( const char *s ) {
 	const char *c = s;
 
 	while ( *c != '\0' )
 	{
 		if( !Q_isprint( *c ) )
-			return qfalse;
+			return false;
 
 		if( *c == '\"' )
-			return qfalse;
+			return false;
 
 		if( *c == ';' )
-			return qfalse;
+			return false;
 
 		++c;
 	}
 
-	return qtrue;
+	return true;
 }
 
 // Changes or adds a key/value pair
@@ -904,15 +906,15 @@ void Info_SetValueForKey_Big( char *s, const char *key, const char *value ) {
 	strcat (s, newi);
 }
 
-static qboolean Com_CharIsOneOfCharset( char c, char *set ) {
+static bool Com_CharIsOneOfCharset( char c, char *set ) {
 	size_t i;
 
 	for ( i=0; i<strlen( set ); i++ ) {
 		if ( set[i] == c )
-			return qtrue;
+			return true;
 	}
 
-	return qfalse;
+	return false;
 }
 
 char *Com_SkipCharset( char *s, char *sep ) {
@@ -948,8 +950,8 @@ char *Com_SkipTokens( char *s, int numTokens, char *sep ) {
 		return s;
 }
 
-qboolean Q_InBitflags( const uint32_t *bits, int index, uint32_t bitsPerByte ) {
-	return ( bits[index / bitsPerByte] & (1 << (index % bitsPerByte)) ) ? qtrue : qfalse;
+bool Q_InBitflags( const uint32_t *bits, int index, uint32_t bitsPerByte ) {
+	return ( bits[index / bitsPerByte] & (1 << (index % bitsPerByte)) ) ? true : false;
 }
 
 void Q_AddToBitflags( uint32_t *bits, int index, uint32_t bitsPerByte ) {
@@ -969,5 +971,5 @@ void *Q_LinearSearch( const void *key, const void *ptr, size_t count,
 		if ( cmp( key, ptr ) == 0 ) return (void *)ptr;
 		ptr = (const char *)ptr + size;
 	}
-	return NULL;
+	return nullptr;
 }

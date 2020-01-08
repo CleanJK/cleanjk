@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -42,80 +43,80 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 punctuation_t default_punctuations[] =
 {
 	//binary operators
-	{">>=",P_RSHIFT_ASSIGN, NULL},
-	{"<<=",P_LSHIFT_ASSIGN, NULL},
+	{">>=",P_RSHIFT_ASSIGN, nullptr},
+	{"<<=",P_LSHIFT_ASSIGN, nullptr},
 
-	{"...",P_PARMS, NULL},
+	{"...",P_PARMS, nullptr},
 	//define merge operator
-	{"##",P_PRECOMPMERGE, NULL},
+	{"##",P_PRECOMPMERGE, nullptr},
 	//logic operators
-	{"&&",P_LOGIC_AND, NULL},
-	{"||",P_LOGIC_OR, NULL},
-	{">=",P_LOGIC_GEQ, NULL},
-	{"<=",P_LOGIC_LEQ, NULL},
-	{"==",P_LOGIC_EQ, NULL},
-	{"!=",P_LOGIC_UNEQ, NULL},
+	{"&&",P_LOGIC_AND, nullptr},
+	{"||",P_LOGIC_OR, nullptr},
+	{">=",P_LOGIC_GEQ, nullptr},
+	{"<=",P_LOGIC_LEQ, nullptr},
+	{"==",P_LOGIC_EQ, nullptr},
+	{"!=",P_LOGIC_UNEQ, nullptr},
 	//arithmatic operators
-	{"*=",P_MUL_ASSIGN, NULL},
-	{"/=",P_DIV_ASSIGN, NULL},
-	{"%=",P_MOD_ASSIGN, NULL},
-	{"+=",P_ADD_ASSIGN, NULL},
-	{"-=",P_SUB_ASSIGN, NULL},
-	{"++",P_INC, NULL},
-	{"--",P_DEC, NULL},
+	{"*=",P_MUL_ASSIGN, nullptr},
+	{"/=",P_DIV_ASSIGN, nullptr},
+	{"%=",P_MOD_ASSIGN, nullptr},
+	{"+=",P_ADD_ASSIGN, nullptr},
+	{"-=",P_SUB_ASSIGN, nullptr},
+	{"++",P_INC, nullptr},
+	{"--",P_DEC, nullptr},
 	//binary operators
-	{"&=",P_BIN_AND_ASSIGN, NULL},
-	{"|=",P_BIN_OR_ASSIGN, NULL},
-	{"^=",P_BIN_XOR_ASSIGN, NULL},
-	{">>",P_RSHIFT, NULL},
-	{"<<",P_LSHIFT, NULL},
+	{"&=",P_BIN_AND_ASSIGN, nullptr},
+	{"|=",P_BIN_OR_ASSIGN, nullptr},
+	{"^=",P_BIN_XOR_ASSIGN, nullptr},
+	{">>",P_RSHIFT, nullptr},
+	{"<<",P_LSHIFT, nullptr},
 	//reference operators
-	{"->",P_POINTERREF, NULL},
+	{"->",P_POINTERREF, nullptr},
 	//C++
-	{"::",P_CPP1, NULL},
-	{".*",P_CPP2, NULL},
+	{"::",P_CPP1, nullptr},
+	{".*",P_CPP2, nullptr},
 	//arithmatic operators
-	{"*",P_MUL, NULL},
-	{"/",P_DIV, NULL},
-	{"%",P_MOD, NULL},
-	{"+",P_ADD, NULL},
-	{"-",P_SUB, NULL},
-	{"=",P_ASSIGN, NULL},
+	{"*",P_MUL, nullptr},
+	{"/",P_DIV, nullptr},
+	{"%",P_MOD, nullptr},
+	{"+",P_ADD, nullptr},
+	{"-",P_SUB, nullptr},
+	{"=",P_ASSIGN, nullptr},
 	//binary operators
-	{"&",P_BIN_AND, NULL},
-	{"|",P_BIN_OR, NULL},
-	{"^",P_BIN_XOR, NULL},
-	{"~",P_BIN_NOT, NULL},
+	{"&",P_BIN_AND, nullptr},
+	{"|",P_BIN_OR, nullptr},
+	{"^",P_BIN_XOR, nullptr},
+	{"~",P_BIN_NOT, nullptr},
 	//logic operators
-	{"!",P_LOGIC_NOT, NULL},
-	{">",P_LOGIC_GREATER, NULL},
-	{"<",P_LOGIC_LESS, NULL},
+	{"!",P_LOGIC_NOT, nullptr},
+	{">",P_LOGIC_GREATER, nullptr},
+	{"<",P_LOGIC_LESS, nullptr},
 	//reference operator
-	{".",P_REF, NULL},
+	{".",P_REF, nullptr},
 	//seperators
-	{",",P_COMMA, NULL},
-	{";",P_SEMICOLON, NULL},
+	{",",P_COMMA, nullptr},
+	{";",P_SEMICOLON, nullptr},
 	//label indication
-	{":",P_COLON, NULL},
+	{":",P_COLON, nullptr},
 	//if statement
-	{"?",P_QUESTIONMARK, NULL},
+	{"?",P_QUESTIONMARK, nullptr},
 	//embracements
-	{"(",P_PARENTHESESOPEN, NULL},
-	{")",P_PARENTHESESCLOSE, NULL},
-	{"{",P_BRACEOPEN, NULL},
-	{"}",P_BRACECLOSE, NULL},
-	{"[",P_SQBRACKETOPEN, NULL},
-	{"]",P_SQBRACKETCLOSE, NULL},
+	{"(",P_PARENTHESESOPEN, nullptr},
+	{")",P_PARENTHESESCLOSE, nullptr},
+	{"{",P_BRACEOPEN, nullptr},
+	{"}",P_BRACECLOSE, nullptr},
+	{"[",P_SQBRACKETOPEN, nullptr},
+	{"]",P_SQBRACKETCLOSE, nullptr},
 
-	{"\\",P_BACKSLASH, NULL},
+	{"\\",P_BACKSLASH, nullptr},
 	//precompiler operator
-	{"#",P_PRECOMP, NULL},
+	{"#",P_PRECOMP, nullptr},
 #ifdef DOLLAR
-	{"$",P_DOLLAR, NULL},
+	{"$",P_DOLLAR, nullptr},
 #endif //DOLLAR
 	// StringEd key
-	{"@",P_ATSIGN, NULL},
-	{NULL, 0}
+	{"@",P_ATSIGN, nullptr},
+	{nullptr, 0}
 };
 
 char basefolder[MAX_QPATH];
@@ -133,7 +134,7 @@ void PS_CreatePunctuationTable(script_t *script, punctuation_t *punctuations)
 	for (i = 0; punctuations[i].p; i++)
 	{
 		newp = &punctuations[i];
-		lastp = NULL;
+		lastp = nullptr;
 		//sort the punctuations in this table entry on length (longer punctuations first)
 		for (p = script->punctuationtable[(unsigned int) newp->p[0]]; p; p = p->next)
 		{
@@ -148,13 +149,14 @@ void PS_CreatePunctuationTable(script_t *script, punctuation_t *punctuations)
 		} //end for
 		if (!p)
 		{
-			newp->next = NULL;
+			newp->next = nullptr;
 			if (lastp) lastp->next = newp;
 			else script->punctuationtable[(unsigned int) newp->p[0]] = newp;
 		} //end if
 	} //end for
 } //end of the function PS_CreatePunctuationTable
 
+//returns a pointer to the punctuation with the given number
 const char *PunctuationFromNum(script_t *script, int num)
 {
 	int i;
@@ -166,6 +168,7 @@ const char *PunctuationFromNum(script_t *script, int num)
 	return "unkown punctuation";
 } //end of the function PunctuationFromNum
 
+//print a script error with filename and line number
 void QDECL ScriptError(script_t *script, char *str, ...)
 {
 	char text[1024];
@@ -181,6 +184,7 @@ void QDECL ScriptError(script_t *script, char *str, ...)
 #endif //BOTLIB
 } //end of the function ScriptError
 
+//print a script warning with filename and line number
 void QDECL ScriptWarning(script_t *script, char *str, ...)
 {
 	char text[1024];
@@ -196,6 +200,7 @@ void QDECL ScriptWarning(script_t *script, char *str, ...)
 #endif //BOTLIB
 } //end of the function ScriptWarning
 
+//set an array with punctuations, nullptr restores default C/C++ set
 void SetScriptPunctuations(script_t *script, punctuation_t *p)
 {
 #ifdef PUNCTABLE
@@ -334,7 +339,7 @@ int PS_ReadEscapeCharacter(script_t *script, char *ch)
 // Reads C-like string. Escape characters are interpretted.
 // Quotes are included with the string.
 // Reads two strings with a white space between them as one string.
-// returns qtrue when a string was read succesfully
+// returns true when a string was read succesfully
 //	script	script to read from
 //	token	buffer to store the string
 int PS_ReadString(script_t *script, token_t *token, int quote)
@@ -570,14 +575,14 @@ int PS_ReadNumber(script_t *script, token_t *token)
 #endif //BINARYNUMBERS
 	else //decimal or octal integer or floating point number
 	{
-		octal = qfalse;
-		dot = qfalse;
-		if (*script->script_p == '0') octal = qtrue;
+		octal = false;
+		dot = false;
+		if (*script->script_p == '0') octal = true;
 		while(1)
 		{
 			c = *script->script_p;
-			if (c == '.') dot = qtrue;
-			else if (c == '8' || c == '9') octal = qfalse;
+			if (c == '.') dot = true;
+			else if (c == '8' || c == '9') octal = false;
 			else if (c < '0' || c > '9') break;
 			token->string[len++] = *script->script_p++;
 			if (len >= MAX_TOKEN - 1)
@@ -715,6 +720,7 @@ int PS_ReadPrimitive(script_t *script, token_t *token)
 	return 1;
 } //end of the function PS_ReadPrimitive
 
+//read a token from the script
 int PS_ReadToken(script_t *script, token_t *token)
 {
 	//if there is a token available (from UnreadToken)
@@ -784,6 +790,7 @@ int PS_ReadToken(script_t *script, token_t *token)
 	return 1;
 } //end of the function PS_ReadToken
 
+//expect a certain token
 int PS_ExpectTokenString(script_t *script, char *string)
 {
 	token_t token;
@@ -802,6 +809,7 @@ int PS_ExpectTokenString(script_t *script, char *string)
 	return 1;
 } //end of the function PS_ExpectToken
 
+//expect a certain token type
 int PS_ExpectTokenType(script_t *script, int type, int subtype, token_t *token)
 {
 	char str[MAX_TOKEN];
@@ -857,6 +865,7 @@ int PS_ExpectTokenType(script_t *script, int type, int subtype, token_t *token)
 	return 1;
 } //end of the function PS_ExpectTokenType
 
+//expect a token
 int PS_ExpectAnyToken(script_t *script, token_t *token)
 {
 	if (!PS_ReadToken(script, token))
@@ -870,6 +879,7 @@ int PS_ExpectAnyToken(script_t *script, token_t *token)
 	} //end else
 } //end of the function PS_ExpectAnyToken
 
+//returns true when the token is available
 int PS_CheckTokenString(script_t *script, char *string)
 {
 	token_t tok;
@@ -882,6 +892,7 @@ int PS_CheckTokenString(script_t *script, char *string)
 	return 0;
 } //end of the function PS_CheckTokenString
 
+//returns true and reads the token when a token with the given type is available
 int PS_CheckTokenType(script_t *script, int type, int subtype, token_t *token)
 {
 	token_t tok;
@@ -899,6 +910,7 @@ int PS_CheckTokenType(script_t *script, int type, int subtype, token_t *token)
 	return 0;
 } //end of the function PS_CheckTokenType
 
+//skip tokens until the given token string is read
 int PS_SkipUntilString(script_t *script, char *string)
 {
 	token_t token;
@@ -910,18 +922,20 @@ int PS_SkipUntilString(script_t *script, char *string)
 	return 0;
 } //end of the function PS_SkipUntilString
 
+//unread the last token read from the script
 void PS_UnreadLastToken(script_t *script)
 {
 	script->tokenavailable = 1;
 } //end of the function UnreadLastToken
 
+//unread the given token
 void PS_UnreadToken(script_t *script, token_t *token)
 {
 	Com_Memcpy(&script->token, token, sizeof(token_t));
 	script->tokenavailable = 1;
 } //end of the function UnreadToken
 
-// returns the next character of the read white space, returns NULL if none
+// returns the next character of the read white space, returns nullptr if none
 char PS_NextWhiteSpaceChar(script_t *script)
 {
 	if (script->whitespace_p != script->endwhitespace_p)
@@ -934,6 +948,7 @@ char PS_NextWhiteSpaceChar(script_t *script)
 	} //end else
 } //end of the function PS_NextWhiteSpaceChar
 
+//remove any leading and trailing double quotes from the token
 void StripDoubleQuotes(char *string)
 {
 	if (*string == '\"')
@@ -946,6 +961,7 @@ void StripDoubleQuotes(char *string)
 	} //end if
 } //end of the function StripDoubleQuotes
 
+//remove any leading and trailing single quotes from the token
 void StripSingleQuotes(char *string)
 {
 	if (*string == '\'')
@@ -958,6 +974,7 @@ void StripSingleQuotes(char *string)
 	} //end if
 } //end of the function StripSingleQuotes
 
+//read a possible signed floating point number
 long double ReadSignedFloat(script_t *script)
 {
 	token_t token;
@@ -984,6 +1001,7 @@ long double ReadSignedFloat(script_t *script)
 	return sign * token.floatvalue;
 } //end of the function ReadSignedFloat
 
+//read a possible signed integer
 signed long int ReadSignedInt(script_t *script)
 {
 	token_t token;
@@ -1010,11 +1028,13 @@ signed long int ReadSignedInt(script_t *script)
 	return sign * token.intvalue;
 } //end of the function ReadSignedInt
 
+//set script flags
 void SetScriptFlags(script_t *script, int flags)
 {
 	script->flags = flags;
 } //end of the function SetScriptFlags
 
+//get script flags
 int GetScriptFlags(script_t *script)
 {
 	return script->flags;
@@ -1027,9 +1047,9 @@ void ResetScript(script_t *script)
 	//pointer in script buffer before reading token
 	script->lastscript_p = script->buffer;
 	//begin of white space
-	script->whitespace_p = NULL;
+	script->whitespace_p = nullptr;
 	//end of white space
-	script->endwhitespace_p = NULL;
+	script->endwhitespace_p = nullptr;
 	//set if there's a token available in script->token
 	script->tokenavailable = 0;
 
@@ -1086,6 +1106,7 @@ int FileLength(FILE *fp)
 } //end of the function FileLength
 #endif
 
+//load a script from the given file at the given offset with the given length
 script_t *LoadScriptFile(const char *filename)
 {
 #ifdef BOTLIB
@@ -1104,10 +1125,10 @@ script_t *LoadScriptFile(const char *filename)
 	else
 		Com_sprintf(pathname, sizeof(pathname), "%s", filename);
 	length = botimport.FS_FOpenFile( pathname, &fp, FS_READ );
-	if (!fp) return NULL;
+	if (!fp) return nullptr;
 #else
 	fp = fopen(filename, "rb");
-	if (!fp) return NULL;
+	if (!fp) return nullptr;
 
 	length = FileLength(fp);
 #endif
@@ -1131,7 +1152,7 @@ script_t *LoadScriptFile(const char *filename)
 	script->line = 1;
 	script->lastline = 1;
 
-	SetScriptPunctuations(script, NULL);
+	SetScriptPunctuations(script, nullptr);
 
 #ifdef BOTLIB
 	botimport.FS_Read(script->buffer, length, fp);
@@ -1140,7 +1161,7 @@ script_t *LoadScriptFile(const char *filename)
 	if (fread(script->buffer, length, 1, fp) != 1)
 	{
 		FreeMemory(buffer);
-		script = NULL;
+		script = nullptr;
 	} //end if
 	fclose(fp);
 #endif
@@ -1150,6 +1171,7 @@ script_t *LoadScriptFile(const char *filename)
 	return script;
 } //end of the function LoadScriptFile
 
+//load a script from the given memory with the given length
 script_t *LoadScriptMemory(char *ptr, int length, char *name)
 {
 	void *buffer;
@@ -1174,7 +1196,7 @@ script_t *LoadScriptMemory(char *ptr, int length, char *name)
 	script->line = 1;
 	script->lastline = 1;
 
-	SetScriptPunctuations(script, NULL);
+	SetScriptPunctuations(script, nullptr);
 
 	Com_Memcpy(script->buffer, ptr, length);
 
@@ -1189,6 +1211,7 @@ void FreeScript(script_t *script)
 	FreeMemory(script);
 } //end of the function FreeScript
 
+//set the base folder to load files from
 void PS_SetBaseFolder(char *path)
 {
 	Com_sprintf(basefolder, sizeof(basefolder), "%s", path);

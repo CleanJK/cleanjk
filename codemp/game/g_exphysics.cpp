@@ -2,7 +2,8 @@
 ===========================================================================
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -29,7 +30,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //Run physics on the object (purely origin-related) using custom epVelocity entity
 //state value. Origin smoothing on the client is expected to compensate for choppy
 //movement.
-void G_RunExPhys(gentity_t *ent, float gravity, float mass, float bounce, qboolean autoKill, int *g2Bolts, int numG2Bolts)
+void G_RunExPhys(gentity_t *ent, float gravity, float mass, float bounce, bool autoKill, int *g2Bolts, int numG2Bolts)
 {
 	trace_t tr;
 	vec3_t projectedOrigin;
@@ -45,7 +46,7 @@ void G_RunExPhys(gentity_t *ent, float gravity, float mass, float bounce, qboole
 		VectorCopy(ent->r.currentOrigin, ground);
 		ground[2] -= 0.1f;
 
-		trap->Trace(&tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, ground, ent->s.number, ent->clipmask, qfalse, 0, 0);
+		trap->Trace(&tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, ground, ent->s.number, ent->clipmask, false, 0, 0);
 
 		if (tr.fraction == 1.0f)
 		{
@@ -77,7 +78,7 @@ void G_RunExPhys(gentity_t *ent, float gravity, float mass, float bounce, qboole
 	{ //nothing to do if we have no velocity even after gravity.
 		if (ent->touch)
 		{ //call touch if we're in something
-			trap->Trace(&tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, ent->r.currentOrigin, ent->s.number, ent->clipmask, qfalse, 0, 0);
+			trap->Trace(&tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, ent->r.currentOrigin, ent->s.number, ent->clipmask, false, 0, 0);
 			if (tr.startsolid || tr.allsolid)
 			{
 				ent->touch(ent, &g_entities[tr.entityNum], &tr);
@@ -112,7 +113,7 @@ void G_RunExPhys(gentity_t *ent, float gravity, float mass, float bounce, qboole
 		vec3_t collisionRootPos;
 		mdxaBone_t matrix;
 		trace_t bestCollision;
-		qboolean hasFirstCollision = qfalse;
+		bool hasFirstCollision = false;
 		int i = 0;
 
 		//Maybe we could use a trap call and get the default radius for the bone specified,
@@ -129,13 +130,13 @@ void G_RunExPhys(gentity_t *ent, float gravity, float mass, float bounce, qboole
 		while (i < numG2Bolts)
 		{
 			//Get the position of the actual bolt for this frame
-			trap->G2API_GetBoltMatrix(ent->ghoul2, 0, g2Bolts[i], &matrix, gbmAngles, ent->r.currentOrigin, level.time, NULL, ent->modelScale);
+			trap->G2API_GetBoltMatrix(ent->ghoul2, 0, g2Bolts[i], &matrix, gbmAngles, ent->r.currentOrigin, level.time, nullptr, ent->modelScale);
 			BG_GiveMeVectorFromMatrix(&matrix, ORIGIN, boneOrg);
 
 			//Now add the projected positional difference into the result
 			VectorAdd(boneOrg, trajDif, projectedBoneOrg);
 
-			trap->Trace(&tr, boneOrg, tMins, tMaxs, projectedBoneOrg, ent->s.number, ent->clipmask, qfalse, 0, 0);
+			trap->Trace(&tr, boneOrg, tMins, tMaxs, projectedBoneOrg, ent->s.number, ent->clipmask, false, 0, 0);
 
 			if (tr.fraction != 1.0 || tr.startsolid || tr.allsolid)
 			{ //we've hit something
@@ -144,7 +145,7 @@ void G_RunExPhys(gentity_t *ent, float gravity, float mass, float bounce, qboole
 				{ //don't have one yet so just use this one
 					bestCollision = tr;
 					VectorCopy(boneOrg, collisionRootPos);
-					hasFirstCollision = qtrue;
+					hasFirstCollision = true;
 				}
 				else
 				{
@@ -183,7 +184,7 @@ void G_RunExPhys(gentity_t *ent, float gravity, float mass, float bounce, qboole
 	//If we didn't collide with any bolts projectedOrigin will still be the original desired
 	//projected position so all is well. If we did then projectedOrigin will be modified
 	//to provide us with a relative position which does not place the bolt in a solid.
-	trap->Trace(&tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, projectedOrigin, ent->s.number, ent->clipmask, qfalse, 0, 0);
+	trap->Trace(&tr, ent->r.currentOrigin, ent->r.mins, ent->r.maxs, projectedOrigin, ent->s.number, ent->clipmask, false, 0, 0);
 
 	if (tr.startsolid || tr.allsolid)
 	{ //can't go anywhere from here

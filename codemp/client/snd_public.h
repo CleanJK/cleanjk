@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -23,11 +24,23 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include "qcommon/qcommon.h"
+// ======================================================================
+// INCLUDE
+// ======================================================================
+
+#include "qcommon/q_common.h"
+
+// ======================================================================
+// DEFINE
+// ======================================================================
 
 #define	WAV_FORMAT_PCM		1
 #define WAV_FORMAT_ADPCM	2	// not actually implemented, but is the value that you get in a header
 #define WAV_FORMAT_MP3		3	// not actually used this way, but just ensures we don't match one of the legit formats
+
+// ======================================================================
+// STRUCT
+// ======================================================================
 
 typedef struct dma_s {
 	int			channels;
@@ -38,18 +51,21 @@ typedef struct dma_s {
 	byte* buffer;
 } dma_t;
 
+// ======================================================================
+// EXTERN VARIABLE
+// ======================================================================
+
 extern	dma_t	dma;
 extern	int		s_rawend;
-extern qboolean s_shutUp;
+extern bool s_shutUp;
 
-qboolean SND_RegisterAudio_LevelLoadEnd(qboolean bDeleteEverythingNotUsedThisLevel /* 99% qfalse */);
+// ======================================================================
+// FUNCTION
+// ======================================================================
+
+bool SND_RegisterAudio_LevelLoadEnd(bool bDeleteEverythingNotUsedThisLevel /* 99% false */);
 sfxHandle_t	S_RegisterSound(const char* sample);
 void S_AddLoopingSound(int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfx);
-
-#ifdef USE_OPENAL
-void S_AL_MuteAllSounds(qboolean bMute);
-#endif // USE_OPENAL
-
 void S_BeginRegistration(void);
 void S_ClearLoopingSounds(void);
 void S_DisableSounds(void);
@@ -59,7 +75,7 @@ void S_RawSamples(int samples, int rate, int width, int channels, const byte* da
 void S_Respatialize(int entityNum, const vec3_t head, matrix3_t axis, int inwater);
 void S_RestartMusic(void);
 void S_Shutdown(void);
-void S_StartBackgroundTrack(const char* intro, const char* loop, qboolean bCalledByCGameStart);
+void S_StartBackgroundTrack(const char* intro, const char* loop, bool bCalledByCGameStart);
 void S_StartLocalSound(sfxHandle_t sfx, int channelNum);
 void S_StartSound(const vec3_t origin, int entnum, int entchannel, sfxHandle_t sfx);
 void S_StopAllSounds(void);
@@ -67,3 +83,7 @@ void S_StopBackgroundTrack(void);
 void S_StopLoopingSound(int entityNum);
 void S_Update(void);
 void S_UpdateEntityPosition(int entityNum, const vec3_t origin);
+
+#ifdef USE_OPENAL
+void S_AL_MuteAllSounds(bool bMute);
+#endif // USE_OPENAL

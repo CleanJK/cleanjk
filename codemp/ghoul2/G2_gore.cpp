@@ -2,7 +2,8 @@
 ===========================================================================
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -35,7 +36,7 @@ GoreTextureCoordinates::~GoreTextureCoordinates()
 		if ( tex[i] )
 		{
 			ri.Z_Free(tex[i]);
-			tex[i] = NULL;
+			tex[i] = nullptr;
 		}
 	}
 }

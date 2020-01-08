@@ -4,7 +4,8 @@ Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
 Copyright (C) 2005 - 2015, ioquake3 contributors
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -61,7 +62,7 @@ void SHOWNET( msg_t *msg, char *s) {
 
 // Parses deltas from the given base and adds the resulting entity to the current frame
 void CL_DeltaEntity (msg_t *msg, clSnapshot_t *frame, int newnum, entityState_t *old,
-					 qboolean unchanged) {
+					 bool unchanged) {
 	entityState_t	*state;
 
 	// save the parsed entity state into the big circular buffer so
@@ -94,7 +95,7 @@ void CL_ParsePacketEntities( msg_t *msg, clSnapshot_t *oldframe, clSnapshot_t *n
 
 	// delta from the entities present in oldframe
 	oldindex = 0;
-	oldstate = NULL;
+	oldstate = nullptr;
 	if (!oldframe) {
 		oldnum = 99999;
 	} else {
@@ -124,7 +125,7 @@ void CL_ParsePacketEntities( msg_t *msg, clSnapshot_t *oldframe, clSnapshot_t *n
 			if ( cl_shownet->integer == 3 ) {
 				Com_Printf ("%3i:  unchanged: %i\n", msg->readcount, oldnum);
 			}
-			CL_DeltaEntity( msg, newframe, oldnum, oldstate, qtrue );
+			CL_DeltaEntity( msg, newframe, oldnum, oldstate, true );
 
 			oldindex++;
 
@@ -141,7 +142,7 @@ void CL_ParsePacketEntities( msg_t *msg, clSnapshot_t *oldframe, clSnapshot_t *n
 			if ( cl_shownet->integer == 3 ) {
 				Com_Printf ("%3i:  delta: %i\n", msg->readcount, newnum);
 			}
-			CL_DeltaEntity( msg, newframe, newnum, oldstate, qfalse );
+			CL_DeltaEntity( msg, newframe, newnum, oldstate, false );
 
 			oldindex++;
 
@@ -160,7 +161,7 @@ void CL_ParsePacketEntities( msg_t *msg, clSnapshot_t *oldframe, clSnapshot_t *n
 			if ( cl_shownet->integer == 3 ) {
 				Com_Printf ("%3i:  baseline: %i\n", msg->readcount, newnum);
 			}
-			CL_DeltaEntity( msg, newframe, newnum, &cl.entityBaselines[newnum], qfalse );
+			CL_DeltaEntity( msg, newframe, newnum, &cl.entityBaselines[newnum], false );
 			continue;
 		}
 
@@ -172,7 +173,7 @@ void CL_ParsePacketEntities( msg_t *msg, clSnapshot_t *oldframe, clSnapshot_t *n
 		if ( cl_shownet->integer == 3 ) {
 			Com_Printf ("%3i:  unchanged: %i\n", msg->readcount, oldnum);
 		}
-		CL_DeltaEntity( msg, newframe, oldnum, oldstate, qtrue );
+		CL_DeltaEntity( msg, newframe, oldnum, oldstate, true );
 
 		oldindex++;
 
@@ -212,7 +213,7 @@ void CL_ParseSnapshot( msg_t *msg ) {
 
 	// if we were just unpaused, we can only *now* really let the
 	// change come into effect or the client hangs.
-	cl_paused->modified = qfalse;
+	cl_paused->modified = false;
 
 	newSnap.messageNum = clc.serverMessageSequence;
 
@@ -229,9 +230,9 @@ void CL_ParseSnapshot( msg_t *msg ) {
 	// the frame, but not use it, then ask for a non-compressed
 	// message
 	if ( newSnap.deltaNum <= 0 ) {
-		newSnap.valid = qtrue;		// uncompressed frame
-		old = NULL;
-		clc.demowaiting = qfalse;	// we can start recording now
+		newSnap.valid = true;		// uncompressed frame
+		old = nullptr;
+		clc.demowaiting = false;	// we can start recording now
 	} else {
 		old = &cl.snapshots[newSnap.deltaNum & PACKET_MASK];
 		if ( !old->valid ) {
@@ -254,7 +255,7 @@ void CL_ParseSnapshot( msg_t *msg ) {
 		} else if ( cl.parseEntitiesNum - old->parseEntitiesNum > MAX_PARSE_ENTITIES-128 ) {
 			Com_DPrintf ("Delta parseEntitiesNum too old.\n");
 		} else {
-			newSnap.valid = qtrue;	// valid delta parse
+			newSnap.valid = true;	// valid delta parse
 		}
 	}
 
@@ -274,7 +275,7 @@ void CL_ParseSnapshot( msg_t *msg ) {
 	if ( old ) {
 		MSG_ReadDeltaPlayerstate( msg, &old->ps, &newSnap.ps );
 	} else {
-		MSG_ReadDeltaPlayerstate( msg, NULL, &newSnap.ps );
+		MSG_ReadDeltaPlayerstate( msg, nullptr, &newSnap.ps );
 	}
 
 	// read packet entities
@@ -297,7 +298,7 @@ void CL_ParseSnapshot( msg_t *msg ) {
 		oldMessageNum = newSnap.messageNum - ( PACKET_BACKUP - 1 );
 	}
 	for ( ; oldMessageNum < newSnap.messageNum ; oldMessageNum++ ) {
-		cl.snapshots[oldMessageNum & PACKET_MASK].valid = qfalse;
+		cl.snapshots[oldMessageNum & PACKET_MASK].valid = false;
 	}
 
 	// copy to the current good spot
@@ -319,7 +320,7 @@ void CL_ParseSnapshot( msg_t *msg ) {
 		cl.snap.deltaNum, cl.snap.ping );
 	}
 
-	cl.newSnapshots = qtrue;
+	cl.newSnapshots = true;
 }
 
 // rww - Update fs_game, this message is so we can use the ext_data *_overrides.txt files for mods.
@@ -373,7 +374,7 @@ void CL_SystemInfoChanged( void ) {
 	const char		*s, *t;
 	char			key[BIG_INFO_KEY];
 	char			value[BIG_INFO_VALUE];
-	qboolean		gameSet;
+	bool		gameSet;
 
 	systemInfo = cl.gameState.stringData + cl.gameState.stringOffsets[ CS_SYSTEMINFO ];
 	// NOTE TTimo:
@@ -403,7 +404,7 @@ void CL_SystemInfoChanged( void ) {
 	t = Info_ValueForKey( systemInfo, "sv_referencedPakNames" );
 	FS_PureServerSetReferencedPaks( s, t );
 
-	gameSet = qfalse;
+	gameSet = false;
 	// scan through all the variables in the systeminfo and locally set cvars to match
 	s = systemInfo;
 	while ( s ) {
@@ -424,7 +425,7 @@ void CL_SystemInfoChanged( void ) {
 				Q_strncpyz(value, "", sizeof(value));
 			}
 
-			gameSet = qtrue;
+			gameSet = true;
 		}
 		Cvar_Server_Set( key, value );
 	}
@@ -546,7 +547,7 @@ void CL_ParseGamestate( msg_t *msg ) {
 		// don't set to true because we yet have to start downloading
 		// enabling this can cause double loading of a map when connecting to
 		// a server which has a different game directory set
-		//clc.downloadRestart = qtrue;
+		//clc.downloadRestart = true;
 	}
 
 	// This used to call CL_StartHunkUsers, but now we enter the download state before loading the
@@ -565,7 +566,7 @@ void CL_ParseDownload ( msg_t *msg ) {
 
 	if (!*clc.downloadTempName) {
 		Com_Printf("Server sending download, but no download was requested\n");
-		CL_AddReliableCommand("stopdl", qfalse);
+		CL_AddReliableCommand("stopdl", false);
 		return;
 	}
 
@@ -608,7 +609,7 @@ void CL_ParseDownload ( msg_t *msg ) {
 
 		if (!clc.download) {
 			Com_Printf( "Could not create %s\n", clc.downloadTempName );
-			CL_AddReliableCommand( "stopdl", qfalse );
+			CL_AddReliableCommand( "stopdl", false );
 			CL_NextDownload();
 			return;
 		}
@@ -617,7 +618,7 @@ void CL_ParseDownload ( msg_t *msg ) {
 	if (size)
 		FS_Write( data, size, clc.download );
 
-	CL_AddReliableCommand( va("nextdl %d", clc.downloadBlock), qfalse );
+	CL_AddReliableCommand( va("nextdl %d", clc.downloadBlock), false );
 	clc.downloadBlock++;
 
 	clc.downloadCount += size;
@@ -631,7 +632,7 @@ void CL_ParseDownload ( msg_t *msg ) {
 			clc.download = 0;
 
 			// rename the file
-			FS_SV_Rename ( clc.downloadTempName, clc.downloadName, qfalse );
+			FS_SV_Rename ( clc.downloadTempName, clc.downloadName, false );
 		}
 
 		// send intentions now

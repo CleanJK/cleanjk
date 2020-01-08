@@ -2,7 +2,8 @@
 ===========================================================================
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -22,13 +23,19 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-// ICARUS Intance header
+// ======================================================================
+// INCLUDE
+// ======================================================================
 
 #include "icarus/blockstream.h"
 #include "icarus/interface.h"
 #include "icarus/taskmanager.h"
 #include "icarus/sequence.h"
 #include "icarus/sequencer.h"
+
+// ======================================================================
+// CLASS
+// ======================================================================
 
 class ICARUS_Instance
 {
@@ -86,7 +93,6 @@ protected:
 	signal_m			m_signals;
 
 #ifdef _DEBUG
-
 	int	m_DEBUG_NumSequencerAlloc;
 	int	m_DEBUG_NumSequencerFreed;
 	int m_DEBUG_NumSequencerResidual;
@@ -94,7 +100,5 @@ protected:
 	int	m_DEBUG_NumSequenceAlloc;
 	int	m_DEBUG_NumSequenceFreed;
 	int m_DEBUG_NumSequenceResidual;
-
 #endif
-
 };

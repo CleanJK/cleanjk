@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -71,7 +72,7 @@ void CG_DamageFeedback( int yawByte, int pitchByte, int damage ) {
 		angles[YAW] = yaw;
 		angles[ROLL] = 0;
 
-		AngleVectors( angles, dir, NULL, NULL );
+		AngleVectors( angles, dir, nullptr, nullptr );
 		VectorSubtract( vec3_origin, dir, dir );
 
 		front = DotProduct (dir, cg.refdef.viewaxis[0] );
@@ -124,7 +125,7 @@ void CG_DamageFeedback( int yawByte, int pitchByte, int damage ) {
 // A respawn happened this snapshot
 void CG_Respawn( void ) {
 	// no error decay on player movement
-	cg.thisFrameTeleport = qtrue;
+	cg.thisFrameTeleport = true;
 
 	// display weapons available
 	cg.weaponSelectTime = cg.time;
@@ -270,39 +271,39 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 
 #ifdef JK2AWARDS
 	// reward sounds
-	reward = qfalse;
+	reward = false;
 	if (ps->persistant[PERS_CAPTURES] != ops->persistant[PERS_CAPTURES]) {
 		pushReward(media.gfx.null, media.gfx.null, ps->persistant[PERS_CAPTURES]);
-		reward = qtrue;
+		reward = true;
 		//Com_Printf("capture\n");
 	}
 	if (ps->persistant[PERS_IMPRESSIVE_COUNT] != ops->persistant[PERS_IMPRESSIVE_COUNT]) {
 		sfx = media.gfx.null;
 
 		pushReward(sfx, media.gfx.null, ps->persistant[PERS_IMPRESSIVE_COUNT]);
-		reward = qtrue;
+		reward = true;
 		//Com_Printf("impressive\n");
 	}
 	if (ps->persistant[PERS_EXCELLENT_COUNT] != ops->persistant[PERS_EXCELLENT_COUNT]) {
 		sfx = media.gfx.null;
 		pushReward(sfx, media.gfx.null, ps->persistant[PERS_EXCELLENT_COUNT]);
-		reward = qtrue;
+		reward = true;
 		//Com_Printf("excellent\n");
 	}
 	if (ps->persistant[PERS_GAUNTLET_FRAG_COUNT] != ops->persistant[PERS_GAUNTLET_FRAG_COUNT]) {
 		sfx = media.gfx.null;
 		pushReward(sfx, media.gfx.null, ps->persistant[PERS_GAUNTLET_FRAG_COUNT]);
-		reward = qtrue;
+		reward = true;
 		//Com_Printf("gauntlet frag\n");
 	}
 	if (ps->persistant[PERS_DEFEND_COUNT] != ops->persistant[PERS_DEFEND_COUNT]) {
 		pushReward(media.gfx.null, media.gfx.null, ps->persistant[PERS_DEFEND_COUNT]);
-		reward = qtrue;
+		reward = true;
 		//Com_Printf("defend\n");
 	}
 	if (ps->persistant[PERS_ASSIST_COUNT] != ops->persistant[PERS_ASSIST_COUNT]) {
 		//pushReward(media.gfx.null, media.gfx.null, ps->persistant[PERS_ASSIST_COUNT]);
-		//reward = qtrue;
+		//reward = true;
 		//Com_Printf("assist\n");
 	}
 	// if any of the player event bits changed
@@ -315,10 +316,10 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 				(ops->persistant[PERS_PLAYEREVENTS] & PLAYEREVENT_GAUNTLETREWARD)) {
 			trap->S_StartLocalSound( media.sounds.null, CHAN_ANNOUNCER );
 		}
-		reward = qtrue;
+		reward = true;
 	}
 #else
-	reward = qfalse;
+	reward = false;
 #endif
 	// lead changes
 	if (!reward && cgAnnouncerTime < cg.time) {
@@ -396,7 +397,7 @@ void CG_CheckLocalSounds( playerState_t *ps, playerState_t *ops ) {
 void CG_TransitionPlayerState( playerState_t *ps, playerState_t *ops ) {
 	// check for changing follow mode
 	if ( ps->clientNum != ops->clientNum ) {
-		cg.thisFrameTeleport = qtrue;
+		cg.thisFrameTeleport = true;
 		// make sure we don't get any unwanted transition effects
 		*ops = *ps;
 	}
@@ -413,7 +414,7 @@ void CG_TransitionPlayerState( playerState_t *ps, playerState_t *ops ) {
 
 	if ( cg.mapRestart ) {
 		CG_Respawn();
-		cg.mapRestart = qfalse;
+		cg.mapRestart = false;
 	}
 
 	if ( cg.snap->ps.pm_type != PM_INTERMISSION

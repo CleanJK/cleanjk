@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -67,7 +68,7 @@ void LAN_SaveServersToCache( ) {
 
 void LAN_ResetPings(int source) {
 	int count,i;
-	serverInfo_t *servers = NULL;
+	serverInfo_t *servers = nullptr;
 	count = 0;
 
 	switch (source) {
@@ -95,9 +96,9 @@ void LAN_ResetPings(int source) {
 int LAN_AddServer(int source, const char *name, const char *address) {
 	int max, *count, i;
 	netadr_t adr;
-	serverInfo_t *servers = NULL;
+	serverInfo_t *servers = nullptr;
 	max = MAX_OTHER_SERVERS;
-	count = NULL;
+	count = nullptr;
 
 	switch (source) {
 		case AS_LOCAL :
@@ -125,7 +126,7 @@ int LAN_AddServer(int source, const char *name, const char *address) {
 		if (i >= *count) {
 			servers[*count].adr = adr;
 			Q_strncpyz(servers[*count].hostName, name, sizeof(servers[*count].hostName));
-			servers[*count].visible = qtrue;
+			servers[*count].visible = true;
 			(*count)++;
 			return 1;
 		}
@@ -152,7 +153,7 @@ int LAN_AddFavAddr( const char *address ) {
 		cls.favoriteServers[cls.numfavoriteservers].adr = adr;
 		Q_strncpyz( cls.favoriteServers[cls.numfavoriteservers].hostName, address,
 			sizeof(cls.favoriteServers[cls.numfavoriteservers].hostName) );
-		cls.favoriteServers[cls.numfavoriteservers].visible = qtrue;
+		cls.favoriteServers[cls.numfavoriteservers].visible = true;
 		cls.numfavoriteservers++;
 		return 1;
 	}
@@ -162,8 +163,8 @@ int LAN_AddFavAddr( const char *address ) {
 
 void LAN_RemoveServer(int source, const char *addr) {
 	int *count, i;
-	serverInfo_t *servers = NULL;
-	count = NULL;
+	serverInfo_t *servers = nullptr;
+	count = nullptr;
 	switch (source) {
 		case AS_LOCAL :
 			count = &cls.numlocalservers;
@@ -239,7 +240,7 @@ void LAN_GetServerAddressString( int source, int n, char *buf, int buflen ) {
 
 void LAN_GetServerInfo( int source, int n, char *buf, int buflen ) {
 	char info[MAX_STRING_CHARS];
-	serverInfo_t *server = NULL;
+	serverInfo_t *server = nullptr;
 	info[0] = '\0';
 	switch (source) {
 		case AS_LOCAL :
@@ -289,7 +290,7 @@ void LAN_GetServerInfo( int source, int n, char *buf, int buflen ) {
 }
 
 int LAN_GetServerPing( int source, int n ) {
-	serverInfo_t *server = NULL;
+	serverInfo_t *server = nullptr;
 	switch (source) {
 		case AS_LOCAL :
 			if (n >= 0 && n < MAX_OTHER_SERVERS) {
@@ -333,7 +334,7 @@ static serverInfo_t *LAN_GetServerPtr( int source, int n ) {
 			}
 			break;
 	}
-	return NULL;
+	return nullptr;
 }
 
 int LAN_CompareServers( int source, int sortKey, int sortDir, int s1, int s2 ) {
@@ -416,10 +417,10 @@ void LAN_GetPingInfo( int n, char *buf, int buflen ) {
 	CL_GetPingInfo( n, buf, buflen );
 }
 
-void LAN_MarkServerVisible(int source, int n, qboolean visible ) {
+void LAN_MarkServerVisible(int source, int n, bool visible ) {
 	if (n == -1) {
 		int count = MAX_OTHER_SERVERS;
-		serverInfo_t *server = NULL;
+		serverInfo_t *server = nullptr;
 		switch (source) {
 			case AS_LOCAL :
 				server = &cls.localServers[0];
@@ -480,10 +481,10 @@ int LAN_ServerIsVisible(int source, int n ) {
 			}
 			break;
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean LAN_UpdateVisiblePings(int source ) {
+bool LAN_UpdateVisiblePings(int source ) {
 	return CL_UpdateVisiblePings_f(source);
 }
 

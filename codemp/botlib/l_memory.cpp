@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -59,7 +60,7 @@ memoryblock_t *memory;
 
 void LinkMemoryBlock(memoryblock_t *block)
 {
-	block->prev = NULL;
+	block->prev = nullptr;
 	block->next = memory;
 	if (memory) memory->prev = block;
 	memory = block;
@@ -73,14 +74,16 @@ void UnlinkMemoryBlock(memoryblock_t *block)
 } //end of the function UnlinkMemoryBlock
 
 #ifdef MEMDEBUG
+//allocate a memory block of the given size
 void *GetMemoryDebug(unsigned long size, char *label, char *file, int line)
 #else
+//allocate a memory block of the given size
 void *GetMemory(unsigned long size)
 #endif //MEMDEBUG
 {
 	void *ptr;
 	memoryblock_t *block;
-  assert(botimport.GetMemory); // bk001129 - was NULL'ed
+  assert(botimport.GetMemory); // bk001129 - was nullptr'ed
 	ptr = botimport.GetMemory(size + sizeof(memoryblock_t));
 	block = (memoryblock_t *) ptr;
 	block->id = MEM_ID;
@@ -99,6 +102,7 @@ void *GetMemory(unsigned long size)
 } //end of the function GetMemoryDebug
 
 #ifdef MEMDEBUG
+//allocate a memory block of the given size and clear it
 void *GetClearedMemoryDebug(unsigned long size, char *label, char *file, int line)
 #else
 void *GetClearedMemory(unsigned long size)
@@ -115,6 +119,7 @@ void *GetClearedMemory(unsigned long size)
 } //end of the function GetClearedMemory
 
 #ifdef MEMDEBUG
+//allocate a memory block of the given size
 void *GetHunkMemoryDebug(unsigned long size, char *label, char *file, int line)
 #else
 void *GetHunkMemory(unsigned long size)
@@ -141,6 +146,7 @@ void *GetHunkMemory(unsigned long size)
 } //end of the function GetHunkMemoryDebug
 
 #ifdef MEMDEBUG
+//allocate a memory block of the given size and clear it
 void *GetClearedHunkMemoryDebug(unsigned long size, char *label, char *file, int line)
 #else
 void *GetClearedHunkMemory(unsigned long size)
@@ -163,22 +169,22 @@ memoryblock_t *BlockFromPointer(void *ptr, char *str)
 	if (!ptr)
 	{
 #ifdef MEMDEBUG
-		//char *crash = (char *) NULL;
+		//char *crash = (char *) nullptr;
 		//crash[0] = 1;
-		botimport.Print(PRT_FATAL, "%s: NULL pointer\n", str);
+		botimport.Print(PRT_FATAL, "%s: nullptr pointer\n", str);
 #endif // MEMDEBUG
-		return NULL;
+		return nullptr;
 	} //end if
 	block = (memoryblock_t *) ((char *) ptr - sizeof(memoryblock_t));
 	if (block->id != MEM_ID && block->id != HUNK_ID)
 	{
 		botimport.Print(PRT_FATAL, "%s: invalid memory block\n", str);
-		return NULL;
+		return nullptr;
 	} //end if
 	if (block->ptr != ptr)
 	{
 		botimport.Print(PRT_FATAL, "%s: memory block pointer invalid\n", str);
-		return NULL;
+		return nullptr;
 	} //end if
 	return block;
 } //end of the function BlockFromPointer
@@ -205,6 +211,7 @@ int AvailableMemory(void)
 	return botimport.AvailableMemory();
 } //end of the function AvailableMemory
 
+//returns the size of the memory block in bytes
 int MemoryByteSize(void *ptr)
 {
 	memoryblock_t *block;
@@ -246,6 +253,7 @@ void PrintMemoryLabels(void)
 	} //end for
 } //end of the function PrintMemoryLabels
 
+//free all allocated memory
 void DumpMemory(void)
 {
 	memoryblock_t *block;
@@ -270,15 +278,17 @@ void *GetMemory(unsigned long size)
 	unsigned long int *memid;
 
 	ptr = botimport.GetMemory(size + sizeof(qmax_align_t));
-	if (!ptr) return NULL;
+	if (!ptr) return nullptr;
 	memid = (unsigned long int *) ptr;
 	*memid = MEM_ID;
 	return (unsigned long int *) ((char *) ptr + sizeof(qmax_align_t));
 } //end of the function GetMemory
 
 #ifdef MEMDEBUG
+//allocate a memory block of the given size and clear it
 void *GetClearedMemoryDebug(unsigned long size, char *label, char *file, int line)
 #else
+//allocate a memory block of the given size and clear it
 void *GetClearedMemory(unsigned long size)
 #endif //MEMDEBUG
 {
@@ -293,8 +303,10 @@ void *GetClearedMemory(unsigned long size)
 } //end of the function GetClearedMemory
 
 #ifdef MEMDEBUG
+//allocate a memory block of the given size
 void *GetHunkMemoryDebug(unsigned long size, char *label, char *file, int line)
 #else
+//allocate a memory block of the given size
 void *GetHunkMemory(unsigned long size)
 #endif //MEMDEBUG
 {
@@ -302,15 +314,17 @@ void *GetHunkMemory(unsigned long size)
 	unsigned long int *memid;
 
 	ptr = botimport.HunkAlloc(size + sizeof(qmax_align_t));
-	if (!ptr) return NULL;
+	if (!ptr) return nullptr;
 	memid = (unsigned long int *) ptr;
 	*memid = HUNK_ID;
 	return (unsigned long int *) ((char *) ptr + sizeof(qmax_align_t));
 } //end of the function GetHunkMemory
 
 #ifdef MEMDEBUG
+//allocate a memory block of the given size and clear it
 void *GetClearedHunkMemoryDebug(unsigned long size, char *label, char *file, int line)
 #else
+//allocate a memory block of the given size and clear it
 void *GetClearedHunkMemory(unsigned long size)
 #endif //MEMDEBUG
 {
@@ -324,6 +338,7 @@ void *GetClearedHunkMemory(unsigned long size)
 	return ptr;
 } //end of the function GetClearedHunkMemory
 
+//free the given memory block
 void FreeMemory(void *ptr)
 {
 	unsigned long int *memid;
@@ -336,15 +351,18 @@ void FreeMemory(void *ptr)
 	} //end if
 } //end of the function FreeMemory
 
+//returns the amount available memory
 int AvailableMemory(void)
 {
 	return botimport.AvailableMemory();
 } //end of the function AvailableMemory
 
+//prints the total used memory size
 void PrintUsedMemorySize(void)
 {
 } //end of the function PrintUsedMemorySize
 
+//print all memory blocks with label
 void PrintMemoryLabels(void)
 {
 } //end of the function PrintMemoryLabels

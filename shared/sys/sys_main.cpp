@@ -1,7 +1,8 @@
 /*
 ===========================================================================
 Copyright (C) 2005 - 2015, ioquake3 contributors
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -26,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <sys/stat.h>
 #define __STDC_FORMAT_MACROS
 #include <inttypes.h>
-#include "qcommon/qcommon.h"
+#include "qcommon/q_common.h"
 #include "qcommon/com_cvar.h"
 #include "qcommon/com_cvars.h"
 #include "sys/sys_local.h"
@@ -96,17 +97,13 @@ char *Sys_DefaultAppPath(void)
 	return Sys_BinaryPath();
 }
 
-/*
-==================
-Sys_GetClipboardData
-==================
-*/
+// note that this isn't journaled...
 char *Sys_GetClipboardData( void ) {
 #ifdef DEDICATED
-	return NULL;
+	return nullptr;
 #else
 	if ( !SDL_HasClipboardText() )
-		return NULL;
+		return nullptr;
 
 	char *cbText = SDL_GetClipboardText();
 	size_t len = strlen( cbText ) + 1;
@@ -208,7 +205,7 @@ static void Sys_ErrorDialog( const char *error )
 		fclose( fp );
 
 		const char *errorMessage = va( "%s\n\nThe crash log was written to %s", error, crashLogPath );
-		if ( SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "Error", errorMessage, NULL ) < 0 )
+		if ( SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "Error", errorMessage, nullptr ) < 0 )
 		{
 			fprintf( stderr, "%s", errorMessage );
 		}
@@ -221,7 +218,7 @@ static void Sys_ErrorDialog( const char *error )
 
 		const char *errorMessage = va( "%s\nCould not write the crash log file, but we printed it to stderr.\n"
 										"Try running the game using a command line interface.", error );
-		if ( SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "Error", errorMessage, NULL ) < 0 )
+		if ( SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "Error", errorMessage, nullptr ) < 0 )
 		{
 			// We really have hit rock bottom here :(
 			fprintf( stderr, "%s", errorMessage );
@@ -281,7 +278,7 @@ void Sys_UnloadDll( void *dllHandle )
 {
 	if( !dllHandle )
 	{
-		Com_Printf("Sys_UnloadDll(NULL)\n");
+		Com_Printf("Sys_UnloadDll(nullptr)\n");
 		return;
 	}
 
@@ -296,15 +293,15 @@ First try to load library name from system library path,
 from executable path, then fs_basepath.
 =================
 */
-void *Sys_LoadDll( const char *name, qboolean useSystemLib )
+void *Sys_LoadDll( const char *name, bool useSystemLib )
 {
-	void *dllhandle = NULL;
+	void *dllhandle = nullptr;
 
 	// Don't load any DLLs that end with the pk3 extension
 	if ( COM_CompareExtension( name, ".pk3" ) )
 	{
 		Com_Printf( S_COLOR_YELLOW "WARNING: Rejecting DLL named \"%s\"", name );
-		return NULL;
+		return nullptr;
 	}
 
 	if ( useSystemLib )
@@ -344,14 +341,14 @@ void *Sys_LoadDll( const char *name, qboolean useSystemLib )
 
 		Com_Printf( "%s(%s) failed: \"%s\"\n", __FUNCTION__, fn, Sys_LibraryError() );
 	}
-	return NULL;
+	return nullptr;
 }
 
 #if defined(MACOS_X) && !defined(_JK2EXE)
 void *Sys_LoadMachOBundle( const char *name )
 {
 	if ( !FS_LoadMachOBundle(name) )
-		return NULL;
+		return nullptr;
 
 	char *homepath = Cvar_VariableString( "fs_homepath" );
 	char *gamedir = Cvar_VariableString( "fs_game" );
@@ -364,7 +361,7 @@ void *Sys_LoadMachOBundle( const char *name )
 
 	void    *libHandle = Sys_LoadLibrary( fn );
 
-	if ( libHandle != NULL ) {
+	if ( libHandle != nullptr ) {
 		Com_Printf( "Loaded pk3 bundle %s.\n", name );
 	}
 
@@ -454,7 +451,7 @@ static void *Sys_LoadDllFromPaths( const char *filename, const char *gamedir, co
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 static void FreeUnpackDLLResult(UnpackDLLResult *result)
@@ -465,7 +462,7 @@ static void FreeUnpackDLLResult(UnpackDLLResult *result)
 
 void *Sys_LoadSPGameDll( const char *name, GetGameAPIProc **GetGameAPI )
 {
-	void	*libHandle = NULL;
+	void	*libHandle = nullptr;
 	char	filename[MAX_OSPATH];
 
 	assert( GetGameAPI );
@@ -501,14 +498,14 @@ void *Sys_LoadSPGameDll( const char *name, GetGameAPIProc **GetGameAPI )
 											SEARCH_PATH_BASE | SEARCH_PATH_MOD | SEARCH_PATH_OPENJK | SEARCH_PATH_ROOT,
 											__FUNCTION__ );
 		if ( !libHandle )
-			return NULL;
+			return nullptr;
 	}
 
 	*GetGameAPI = (GetGameAPIProc *)Sys_LoadFunction( libHandle, "GetGameAPI" );
 	if ( !*GetGameAPI ) {
 		Com_DPrintf ( "%s(%s) failed to find GetGameAPI function:\n...%s!\n", __FUNCTION__, name, Sys_LibraryError() );
 		Sys_UnloadLibrary( libHandle );
-		return NULL;
+		return nullptr;
 	}
 
 	return libHandle;
@@ -516,7 +513,7 @@ void *Sys_LoadSPGameDll( const char *name, GetGameAPIProc **GetGameAPI )
 
 void *Sys_LoadGameDll( const char *name, GetModuleAPIProc **moduleAPI )
 {
-	void	*libHandle = NULL;
+	void	*libHandle = nullptr;
 	char	filename[MAX_OSPATH];
 
 	Com_sprintf (filename, sizeof(filename), "%s" ARCH_STRING DLL_EXT, name);
@@ -533,7 +530,7 @@ void *Sys_LoadGameDll( const char *name, GetModuleAPIProc **moduleAPI )
 			{
 				FreeUnpackDLLResult(&unpackResult);
 				Com_DPrintf( "Sys_LoadGameDll: Failed to unpack %s from PK3.\n", filename );
-				return NULL;
+				return nullptr;
 			}
 		}
 		else
@@ -572,7 +569,7 @@ void *Sys_LoadGameDll( const char *name, GetModuleAPIProc **moduleAPI )
 
 				libHandle = Sys_LoadDllFromPaths( filename, gamedir, searchPaths, numPaths, SEARCH_PATH_BASE | SEARCH_PATH_MOD, __FUNCTION__ );
 				if ( !libHandle )
-					return NULL;
+					return nullptr;
 			}
 		}
 	}
@@ -581,7 +578,7 @@ void *Sys_LoadGameDll( const char *name, GetModuleAPIProc **moduleAPI )
 	if ( !*moduleAPI ) {
 		Com_DPrintf ( "Sys_LoadGameDll(%s) failed to find GetModuleAPI function:\n...%s!\n", name, Sys_LibraryError() );
 		Sys_UnloadLibrary( libHandle );
-		return NULL;
+		return nullptr;
 	}
 
 	return libHandle;
@@ -594,7 +591,7 @@ Sys_SigHandler
 */
 void Sys_SigHandler( int signal )
 {
-	static qboolean signalcaught = qfalse;
+	static bool signalcaught = false;
 
 	if( signalcaught )
 	{
@@ -603,11 +600,11 @@ void Sys_SigHandler( int signal )
 	}
 	else
 	{
-		signalcaught = qtrue;
+		signalcaught = true;
 		//VM_Forced_Unload_Start();
 #ifndef DEDICATED
 		CL_Shutdown();
-		//CL_Shutdown(va("Received signal %d", signal), qtrue, qtrue);
+		//CL_Shutdown(va("Received signal %d", signal), true, true);
 #endif
 		SV_Shutdown(va("Received signal %d", signal) );
 		//VM_Forced_Unload_Done();
@@ -678,7 +675,7 @@ int main ( int argc, char* argv[] )
 	// Concatenate the command line for passing to Com_Init
 	for( i = 1; i < argc; i++ )
 	{
-		const bool containsSpaces = (strchr(argv[i], ' ') != NULL);
+		const bool containsSpaces = (strchr(argv[i], ' ') != nullptr);
 		if (containsSpaces)
 			Q_strcat( commandLine, sizeof( commandLine ), "\"" );
 

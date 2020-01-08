@@ -1,10 +1,37 @@
+/*
+===========================================================================
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
+
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
+
 #pragma once
+
+// ======================================================================
+// INCLUDE
+// ======================================================================
 
 #include "qcommon/q_math.h"
 
-#if defined(__cplusplus)
-extern "C" {
-#endif
+// ======================================================================
+// DEFINE
+// ======================================================================
 
 #define	MAKERGB( v, r, g, b ) v[0]=r;v[1]=g;v[2]=b
 #define	MAKERGBA( v, r, g, b, a ) v[0]=r;v[1]=g;v[2]=b;v[3]=a
@@ -38,6 +65,10 @@ extern "C" {
 #define S_COLOR_WHITE	"^7"
 #define S_COLOR_ORANGE	"^8"
 #define S_COLOR_GREY	"^9"
+
+// ======================================================================
+// ENUM
+// ======================================================================
 
 typedef enum ct_table_e
 {
@@ -127,28 +158,18 @@ typedef enum ct_table_e
 	CT_MAX
 } ct_table_t;
 
-extern vec4_t colorBlack;
-extern vec4_t colorRed;
-extern vec4_t colorGreen;
-extern vec4_t colorBlue;
-extern vec4_t colorYellow;
-extern vec4_t colorOrange;
-extern vec4_t colorMagenta;
-extern vec4_t colorCyan;
+// ======================================================================
+// EXTERN VARIABLE
+// ======================================================================
+
 extern vec4_t colorWhite;
-extern vec4_t colorLtGrey;
-extern vec4_t colorMdGrey;
-extern vec4_t colorDkGrey;
-extern vec4_t colorLtBlue;
-extern vec4_t colorDkBlue;
-
-extern vec4_t g_color_table[Q_COLOR_BITS+1];
 extern vec4_t colorTable[CT_MAX];
+extern vec4_t g_color_table[Q_COLOR_BITS+1];
 
+// ======================================================================
+// FUNCTION
+// ======================================================================
+
+float NormalizeColor( const vec3_t in, vec3_t out );
 unsigned ColorBytes3 (float r, float g, float b);
 unsigned ColorBytes4 (float r, float g, float b, float a);
-float NormalizeColor( const vec3_t in, vec3_t out );
-
-#if defined(__cplusplus)
-} // extern "C"
-#endif

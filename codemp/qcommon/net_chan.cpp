@@ -4,7 +4,8 @@ Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
 Copyright (C) 2005 - 2015, ioquake3 contributors
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -34,9 +35,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // If the base part of the net address matches and the qport matches, then the channel matches even if the IP port
 //	differs. The IP port should be updated to the new value before sending out any replies.
 
-#include "qcommon/qcommon.h"
+#include "qcommon/q_common.h"
 #include "qcommon/com_cvar.h"
 #include "qcommon/com_cvars.h"
+#include "qcommon/huffman.h"
+#include "sys/sys_public.h"
 
 #define	MAX_PACKETLEN			1400		// max size of a network packet
 #define	FRAGMENT_SIZE			(MAX_PACKETLEN - 100)
@@ -111,7 +114,7 @@ void Netchan_TransmitNextFragment( netchan_t *chan ) {
 	// can tell there aren't more to follow
 	if ( chan->unsentFragmentStart == chan->unsentLength && fragmentLength != FRAGMENT_SIZE ) {
 		chan->outgoingSequence++;
-		chan->unsentFragments = qfalse;
+		chan->unsentFragments = false;
 	}
 }
 
@@ -133,7 +136,7 @@ void Netchan_Transmit( netchan_t *chan, int length, const byte *data ) {
 	// fragment large reliable messages
 	if ( length >= FRAGMENT_SIZE )
 	{
-		chan->unsentFragments = qtrue;
+		chan->unsentFragments = true;
 		chan->unsentLength = length;
 		Com_Memcpy( chan->unsentBuffer, data, length );
 
@@ -168,13 +171,13 @@ void Netchan_Transmit( netchan_t *chan, int length, const byte *data ) {
 	}
 }
 
-// Returns qfalse if the message should not be processed due to being out of order or a fragment.
+// Returns false if the message should not be processed due to being out of order or a fragment.
 // Msg must be large enough to hold MAX_MSGLEN, because if this is the final fragment of a multi-part message, the entire thing will be copied out.
-qboolean Netchan_Process( netchan_t *chan, msg_t *msg ) {
+bool Netchan_Process( netchan_t *chan, msg_t *msg ) {
 	int			sequence;
 	//int			qport;
 	int			fragmentStart, fragmentLength;
-	qboolean	fragmented;
+	bool	fragmented;
 
 	// get sequence numbers
 	MSG_BeginReadingOOB( msg );
@@ -183,9 +186,9 @@ qboolean Netchan_Process( netchan_t *chan, msg_t *msg ) {
 	// check for fragment information
 	if ( sequence & FRAGMENT_BIT ) {
 		sequence &= ~FRAGMENT_BIT;
-		fragmented = qtrue;
+		fragmented = true;
 	} else {
-		fragmented = qfalse;
+		fragmented = false;
 	}
 
 	// read the qport if we are a server
@@ -226,7 +229,7 @@ qboolean Netchan_Process( netchan_t *chan, msg_t *msg ) {
 				,  sequence
 				, chan->incomingSequence );
 		}
-		return qfalse;
+		return false;
 	}
 
 	// dropped packets don't keep the message from being used
@@ -272,7 +275,7 @@ qboolean Netchan_Process( netchan_t *chan, msg_t *msg ) {
 			chan->incomingSequence = sequence;
 			chan->fragmentSequence = 0;
 			*/
-			return qfalse;
+			return false;
 		}
 
 		// copy the fragment to the fragment buffer
@@ -282,7 +285,7 @@ qboolean Netchan_Process( netchan_t *chan, msg_t *msg ) {
 				Com_Printf ("%s:illegal fragment length\n"
 				, NET_AdrToString (chan->remoteAddress ) );
 			}
-			return qfalse;
+			return false;
 		}
 
 		Com_Memcpy( chan->fragmentBuffer + chan->fragmentLength,
@@ -292,14 +295,14 @@ qboolean Netchan_Process( netchan_t *chan, msg_t *msg ) {
 
 		// if this wasn't the last fragment, don't process anything
 		if ( fragmentLength == FRAGMENT_SIZE ) {
-			return qfalse;
+			return false;
 		}
 
 		if ( chan->fragmentLength+4 > msg->maxsize ) {
 			Com_Printf( "%s:fragmentLength %i > msg->maxsize\n"
 				, NET_AdrToString (chan->remoteAddress ),
 				chan->fragmentLength+4 );
-			return qfalse;
+			return false;
 		}
 
 		// copy the full message over the partial fragment
@@ -315,27 +318,27 @@ qboolean Netchan_Process( netchan_t *chan, msg_t *msg ) {
 
 		// but I am a wuss -mw
 		// chan->incomingSequence = sequence;   // lets not accept any more with this sequence number -gil
-		return qtrue;
+		return true;
 	}
 
 	// the message can now be read from the current message pointer
 
 	chan->incomingSequence = sequence;
 
-	return qtrue;
+	return true;
 }
 
 // Compare without port, and up to the bit number given in netmask.
-qboolean NET_CompareBaseAdrMask( netadr_t a, netadr_t b, int netmask )
+bool NET_CompareBaseAdrMask( netadr_t a, netadr_t b, int netmask )
 {
 	byte cmpmask, *addra, *addrb;
 	int curbyte;
 
 	if ( a.type != b.type )
-		return qfalse;
+		return false;
 
 	if ( a.type == NA_LOOPBACK )
-		return qtrue;
+		return true;
 
 	if ( a.type == NA_IP )
 	{
@@ -348,13 +351,13 @@ qboolean NET_CompareBaseAdrMask( netadr_t a, netadr_t b, int netmask )
 	else
 	{
 		Com_Printf( "NET_CompareBaseAdr: bad address type\n" );
-		return qfalse;
+		return false;
 	}
 
 	curbyte = netmask >> 3;
 
 	if ( curbyte && memcmp( addra, addrb, curbyte ) )
-		return qfalse;
+		return false;
 
 	netmask &= 0x07;
 	if ( netmask )
@@ -363,16 +366,16 @@ qboolean NET_CompareBaseAdrMask( netadr_t a, netadr_t b, int netmask )
 		cmpmask <<= 8 - netmask;
 
 		if ( (addra[curbyte] & cmpmask) == (addrb[curbyte] & cmpmask) )
-			return qtrue;
+			return true;
 	}
 	else
-		return qtrue;
+		return true;
 
-	return qfalse;
+	return false;
 }
 
 // Compares without the port
-qboolean NET_CompareBaseAdr( netadr_t a, netadr_t b )
+bool NET_CompareBaseAdr( netadr_t a, netadr_t b )
 {
 	return NET_CompareBaseAdrMask( a, b, -1 );
 }
@@ -395,27 +398,27 @@ const char	*NET_AdrToString (netadr_t a)
 	return s;
 }
 
-qboolean	NET_CompareAdr (netadr_t a, netadr_t b)
+bool	NET_CompareAdr (netadr_t a, netadr_t b)
 {
 	if (a.type != b.type)
-		return qfalse;
+		return false;
 
 	if (a.type == NA_LOOPBACK)
-		return qtrue;
+		return true;
 
 	if (a.type == NA_IP)
 	{
 		if ((memcmp(a.ip, b.ip, 4) == 0) && a.port == b.port)
-			return qtrue;
-		return qfalse;
+			return true;
+		return false;
 	}
 
 	Com_Printf ("NET_CompareAdr: bad address type\n");
-	return qfalse;
+	return false;
 }
 
-qboolean	NET_IsLocalAddress( netadr_t adr ) {
-	return (qboolean)(adr.type == NA_LOOPBACK);
+bool	NET_IsLocalAddress( netadr_t adr ) {
+	return (bool)(adr.type == NA_LOOPBACK);
 }
 
 // LOOPBACK BUFFERS FOR LOCAL PLAYER
@@ -435,7 +438,7 @@ typedef struct loopback_s {
 
 loopback_t	loopbacks[2];
 
-qboolean	NET_GetLoopPacket (netsrc_t sock, netadr_t *net_from, msg_t *net_message)
+bool	NET_GetLoopPacket (netsrc_t sock, netadr_t *net_from, msg_t *net_message)
 {
 	int		i;
 	loopback_t	*loop;
@@ -446,7 +449,7 @@ qboolean	NET_GetLoopPacket (netsrc_t sock, netadr_t *net_from, msg_t *net_messag
 		loop->get = loop->send - MAX_LOOPBACK;
 
 	if (loop->get >= loop->send)
-		return qfalse;
+		return false;
 
 	i = loop->get & (MAX_LOOPBACK-1);
 	loop->get++;
@@ -455,7 +458,7 @@ qboolean	NET_GetLoopPacket (netsrc_t sock, netadr_t *net_from, msg_t *net_messag
 	net_message->cursize = loop->msgs[i].datalen;
 	Com_Memset (net_from, 0, sizeof(*net_from));
 	net_from->type = NA_LOOPBACK;
-	return qtrue;
+	return true;
 
 }
 
@@ -537,14 +540,14 @@ void QDECL NET_OutOfBandData( netsrc_t sock, netadr_t adr, byte *format, int len
 }
 
 // Traps "localhost" for loopback, passes everything else to system
-qboolean	NET_StringToAdr( const char *s, netadr_t *a ) {
+bool	NET_StringToAdr( const char *s, netadr_t *a ) {
 	char	base[MAX_STRING_CHARS];
-	char	*port = NULL;
+	char	*port = nullptr;
 
 	if (!strcmp (s, "localhost")) {
 		Com_Memset (a, 0, sizeof(*a));
 		a->type = NA_LOOPBACK;
-		return qtrue;
+		return true;
 	}
 
 	// look for a port number
@@ -557,13 +560,13 @@ qboolean	NET_StringToAdr( const char *s, netadr_t *a ) {
 
 	if ( !Sys_StringToAdr( base, a ) ) {
 		a->type = NA_BAD;
-		return qfalse;
+		return false;
 	}
 
 	// inet_addr returns this if out of range
 	if ( a->ip[0] == 255 && a->ip[1] == 255 && a->ip[2] == 255 && a->ip[3] == 255 ) {
 		a->type = NA_BAD;
-		return qfalse;
+		return false;
 	}
 
 	if ( port ) {
@@ -572,6 +575,6 @@ qboolean	NET_StringToAdr( const char *s, netadr_t *a ) {
 		a->port = BigShort( PORT_SERVER );
 	}
 
-	return qtrue;
+	return true;
 }
 

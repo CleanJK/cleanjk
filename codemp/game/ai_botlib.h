@@ -1,6 +1,38 @@
+/*
+===========================================================================
+Copyright (C) 2000 - 2013, Raven Software, Inc.
+Copyright (C) 2001 - 2013, Activision, Inc.
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
+
+This file is part of the OpenJK source code.
+
+OpenJK is free software; you can redistribute it and/or modify it
+under the terms of the GNU General Public License version 2 as
+published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, see <http://www.gnu.org/licenses/>.
+===========================================================================
+*/
+
 #pragma once
 
 #ifdef BOTLIB_INTERNAL
+
+// ======================================================================
+// DEFINE
+// ======================================================================
+
+using aas_vertex_t = vec3_t;
+using aas_edgeindex_t = int32_t;
+using aas_faceindex_t = int32_t;
+using aas_portalindex_t = int32_t;
 
 #define MAX_AVOIDGOALS     256
 #define MAX_AVOIDREACH     1
@@ -12,10 +44,9 @@
 #define ON_EPSILON         0.0005
 #define TRACEPLANE_EPSILON 0.125
 
-using aas_vertex_t = vec3_t;
-using aas_edgeindex_t = int32_t;
-using aas_faceindex_t = int32_t;
-using aas_portalindex_t = int32_t;
+// ======================================================================
+// ENUM
+// ======================================================================
 
 enum areaContents_e {
 	AREACONTENTS_WATER =         1,
@@ -57,6 +88,10 @@ enum presenceType_e {
 	PRESENCE_NORMAL = 2,
 	PRESENCE_CROUCH = 4,
 };
+
+// ======================================================================
+// STRUCT
+// ======================================================================
 
 struct aas_area_t {
 	int    areanum;   // number of this area
@@ -206,13 +241,13 @@ struct aas_routingupdate_t {
 	vec3_t              start;            // start point the area was entered
 	uint16_t            tmptraveltime;    // temporary travel time
 	uint16_t            *areatraveltimes; // travel times within the area
-	qboolean            inlist;           // true if the update is in the list
+	bool            inlist;           // true if the update is in the list
 	aas_routingupdate_t *next;
 	aas_routingupdate_t *prev;
 };
 
 struct aas_trace_t {
-	qboolean startsolid; // if true, the initial point was in a solid area
+	bool startsolid; // if true, the initial point was in a solid area
 	float    fraction;   // time completed, 1.0 = didn't hit anything
 	vec3_t   endpos;     // final position
 	int      ent;        // entity blocking the trace
@@ -293,8 +328,8 @@ struct bsp_surface_t {
 };
 
 struct bsp_trace_t {
-	qboolean      allsolid;   // if true, plane is not valid
-	qboolean      startsolid; // if true, the initial point was in a solid area
+	bool      allsolid;   // if true, plane is not valid
+	bool      startsolid; // if true, the initial point was in a solid area
 	float         fraction;   // time completed, 1.0 = didn't hit anything
 	vec3_t        endpos;     // final position
 	cplane_t      plane;      // surface normal at impact
@@ -436,124 +471,55 @@ struct bot_weaponstate_t {
 	int            *weaponweightindex;  // weapon weight index
 };
 
-aas_link_t        *AAS_AASLinkEntity( vec3_t absmins, vec3_t absmaxs, int entnum );
-aas_link_t        *AAS_AllocAASLink( void );
-qboolean           AAS_AreaEntityCollision( int areanum, vec3_t start, vec3_t end, int presencetype, int passent, aas_trace_t *trace );
-int                AAS_BestReachableLinkArea( aas_link_t *areas );
-int                AAS_BoxOnPlaneSide2( vec3_t absmins, vec3_t absmaxs, aas_plane_t *p );
-void               AAS_DeAllocAASLink( aas_link_t *link );
-qboolean           AAS_EntityCollision( int entnum, vec3_t start, vec3_t boxmins, vec3_t boxmaxs, vec3_t end, int contentmask, bsp_trace_t *trace );
-void               AAS_EntityInfo( int entnum, aas_entityinfo_t *info );
-aas_link_t        *AAS_LinkEntityClientBBox( vec3_t absmins, vec3_t absmaxs, int entnum, int presencetype );
-aas_trace_t        AAS_TraceClientBBox( vec3_t start, vec3_t end, int presencetype, int passent );
-void               AAS_UnlinkFromAreas( aas_link_t *areas );
-void               AddLevelItemToList( levelitem_t *li );
-levelitem_t       *AllocLevelItem( void );
-void               BotEntityTrace( bsp_trace_t *bsptrace, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int entnum, int contentmask );
-bot_goalstate_t   *BotGoalStateFromHandle( int handle );
-bot_weaponstate_t *BotWeaponStateFromHandle( int handle );
-void               FreeLevelItem( levelitem_t *li );
-void               FreeWeightConfig( weightconfig_t *config );
-void               RemoveLevelItemFromList( levelitem_t *li );
+// ======================================================================
+// FUNCTION
+// ======================================================================
+
+aas_link_t* AAS_AASLinkEntity(vec3_t absmins, vec3_t absmaxs, int entnum);
+aas_link_t* AAS_AllocAASLink(void);
+aas_link_t* AAS_LinkEntityClientBBox(vec3_t absmins, vec3_t absmaxs, int entnum, int presencetype);
+aas_trace_t AAS_TraceClientBBox(vec3_t start, vec3_t end, int presencetype, int passent);
+bool AAS_AreaEntityCollision(int areanum, vec3_t start, vec3_t end, int presencetype, int passent, aas_trace_t* trace);
+bool AAS_EntityCollision(int entnum, vec3_t start, vec3_t boxmins, vec3_t boxmaxs, vec3_t end, int contentmask, bsp_trace_t* trace);
+bot_goalstate_t* BotGoalStateFromHandle(int handle);
+bot_weaponstate_t* BotWeaponStateFromHandle(int handle);
+int AAS_BestReachableLinkArea(aas_link_t* areas);
+int AAS_BoxOnPlaneSide2(vec3_t absmins, vec3_t absmaxs, aas_plane_t* p);
+levelitem_t* AllocLevelItem(void);
+void AAS_DeAllocAASLink(aas_link_t* link);
+void AAS_EntityInfo(int entnum, aas_entityinfo_t* info);
+void AAS_UnlinkFromAreas(aas_link_t* areas);
+void AddLevelItemToList(levelitem_t* li);
+void BotEntityTrace(bsp_trace_t* bsptrace, vec3_t start, vec3_t mins, vec3_t maxs, vec3_t end, int entnum, int contentmask);
+void FreeLevelItem(levelitem_t* li);
+void FreeWeightConfig(weightconfig_t* config);
+void RemoveLevelItemFromList(levelitem_t* li);
 
 #endif // BOTLIB_INTERNAL
 
-int   AAS_AreaGrounded            ( int areanum );
-int   AAS_AreaJumpPad             ( int areanum );
-int   AAS_AreaReachability        ( int areanum );
-int   AAS_AreaSwim                ( int areanum );
-int   AAS_BestReachableArea       ( vec3_t origin, vec3_t mins, vec3_t maxs, vec3_t goalorigin );
-int   AAS_EntityType              ( int entnum );
-int   AAS_EntityModelindex        ( int entnum );
-int   AAS_NextEntity              ( int entnum );
-int   AAS_PointAreaNum            ( vec3_t point );
-void  AAS_PresenceTypeBoundingBox ( int presencetype, vec3_t mins, vec3_t maxs );
-float AAS_Time                    ( void );
-int   BotAllocGoalState           ( int client );
-int   BotAllocMoveState           ( void );
-int   BotAllocWeaponState         ( void );
-void  BotFreeGoalState            ( int handle );
-void  BotFreeItemWeights          ( int goalstate );
-void  BotFreeMoveState            ( int handle );
-void  BotFreeWeaponState          ( int handle );
-void  BotFreeWeaponWeights        ( int weaponstate );
-void  BotResetMoveState           ( int movestate );
-void  BotResetGoalState           ( int goalstate );
-void  BotResetWeaponState         ( int weaponstate );
-void  BotResetAvoidGoals          ( int goalstate );
-void  BotResetAvoidReach          ( int movestate );
-void  BotUpdateEntityItems        ( void );
-void  FreeMemory                  ( void *ptr );
-
-/*
-int   BotLoadCharacter                ( char *charfile, float skill );
-void  BotFreeCharacter                ( int character );
-float Characteristic_Float            ( int character, int index );
-float Characteristic_BFloat           ( int character, int index, float min, float max );
-int   Characteristic_Integer          ( int character, int index );
-int   Characteristic_BInteger         ( int character, int index, int min, int max );
-void  Characteristic_String           ( int character, int index, char *buf, int size );
-int   BotAllocChatState               ( void );
-void  BotFreeChatState                ( int handle );
-void  BotQueueConsoleMessage          ( int chatstate, int type, char *message );
-void  BotRemoveConsoleMessage         ( int chatstate, int handle );
-int   BotNextConsoleMessage           ( int chatstate, void *cm );
-int   BotNumConsoleMessages           ( int chatstate );
-void  BotInitialChat                  ( int chatstate, char *type, int mcontext, char *var0, char *var1, char *var2, char *var3, char *var4, char *var5, char *var6, char *var7 );
-int   BotReplyChat                    ( int chatstate, char *message, int mcontext, int vcontext, char *var0, char *var1, char *var2, char *var3, char *var4, char *var5, char *var6, char *var7 );
-int   BotChatLength                   ( int chatstate );
-void  BotEnterChat                    ( int chatstate, int client, int sendto );
-int   StringContains                  ( char *str1, char *str2, int casesensitive );
-int   BotFindMatch                    ( char *str, void *match, unsigned long int context );
-void  BotMatchVariable                ( void *match, int variable, char *buf, int size );
-void  UnifyWhiteSpaces                ( char *string );
-void  BotReplaceSynonyms              ( char *string, unsigned long int context );
-int   BotLoadChatFile                 ( int chatstate, char *chatfile, char *chatname );
-void  BotSetChatGender                ( int chatstate, int gender );
-void  BotSetChatName                  ( int chatstate, char *name, int client );
-void  BotResetGoalState               ( int goalstate );
-void  BotResetAvoidGoals              ( int goalstate );
-void  BotPushGoal                     ( int goalstate, void *goal );
-void  BotPopGoal                      ( int goalstate );
-void  BotEmptyGoalStack               ( int goalstate );
-void  BotDumpAvoidGoals               ( int goalstate );
-void  BotDumpGoalStack                ( int goalstate );
-void  BotGoalName                     ( int number, char *name, int size );
-int   BotGetTopGoal                   ( int goalstate, void *goal );
-int   BotGetSecondGoal                ( int goalstate, void *goal );
-int   BotChooseLTGItem                ( int goalstate, vec3_t origin, int *inventory, int travelflags );
-int   BotChooseNBGItem                ( int goalstate, vec3_t origin, int *inventory, int travelflags, void *ltg, float maxtime );
-int   BotTouchingGoal                 ( vec3_t origin, void *goal );
-int   BotItemGoalInVisButNotVisible   ( int viewer, vec3_t eye, vec3_t viewangles, void *goal );
-int   BotGetLevelItemGoal             ( int index, char *classname, void *goal );
-float BotAvoidGoalTime                ( int goalstate, int number );
-void  BotInitLevelItems               ( void );
-int   BotLoadItemWeights              ( int goalstate, char *filename );
-void  BotSaveGoalFuzzyLogic           ( int goalstate, char *filename );
-void  BotFreeGoalState                ( int handle );
-void  BotResetMoveState               ( int movestate );
-void  BotMoveToGoal                   ( void *result, int movestate, void *goal, int travelflags );
-int   BotMoveInDirection              ( int movestate, vec3_t dir, float speed, int type );
-void  BotResetAvoidReach              ( int movestate );
-void  BotResetLastAvoidReach          ( int movestate );
-int   BotReachabilityArea             ( vec3_t origin, int testground );
-int   BotMovementViewTarget           ( int movestate, void *goal, int travelflags, float lookahead, vec3_t target );
-void  BotFreeMoveState                ( int handle );
-void  BotInitMoveState                ( int handle, void *initmove );
-int   BotChooseBestFightWeapon        ( int weaponstate, int *inventory );
-void  BotGetWeaponInfo                ( int weaponstate, int weapon, void *weaponinfo );
-int   BotLoadWeaponWeights            ( int weaponstate, char *filename );
-void  BotFreeWeaponState              ( int weaponstate );
-void  BotResetWeaponState             ( int weaponstate );
-int   GeneticParentsAndChildSelection ( int numranks, float *ranks, int *parent1, int *parent2, int *child );
-void  BotInterbreedGoalFuzzyLogic     ( int parent1, int parent2, int child );
-void  BotMutateGoalFuzzyLogic         ( int goalstate, float range );
-int   BotGetNextCampSpotGoal          ( int num, void *goal );
-int   BotGetMapLocationGoal           ( char *name, void *goal );
-int   BotNumInitialChats              ( int chatstate, char *type );
-void  BotGetChatMessage               ( int chatstate, char *buf, int size );
-void  BotRemoveFromAvoidGoals         ( int goalstate, int number );
-int   BotPredictVisiblePosition       ( vec3_t origin, int areanum, void *goal, int travelflags, vec3_t target );
-void  BotSetAvoidGoalTime             ( int goalstate, int number, float avoidtime );
-void  BotAddAvoidSpot                 ( int movestate, vec3_t origin, float radius, int type );
-*/
+float AAS_Time(void);
+int AAS_AreaGrounded(int areanum);
+int AAS_AreaJumpPad(int areanum);
+int AAS_AreaReachability(int areanum);
+int AAS_AreaSwim(int areanum);
+int AAS_BestReachableArea(vec3_t origin, vec3_t mins, vec3_t maxs, vec3_t goalorigin);
+int AAS_EntityModelindex(int entnum);
+int AAS_EntityType(int entnum);
+int AAS_NextEntity(int entnum);
+int AAS_PointAreaNum(vec3_t point);
+int BotAllocGoalState(int client);
+int BotAllocMoveState(void);
+int BotAllocWeaponState(void);
+void AAS_PresenceTypeBoundingBox(int presencetype, vec3_t mins, vec3_t maxs);
+void BotFreeGoalState(int handle);
+void BotFreeItemWeights(int goalstate);
+void BotFreeMoveState(int handle);
+void BotFreeWeaponState(int handle);
+void BotFreeWeaponWeights(int weaponstate);
+void BotResetAvoidGoals(int goalstate);
+void BotResetAvoidReach(int movestate);
+void BotResetGoalState(int goalstate);
+void BotResetMoveState(int movestate);
+void BotResetWeaponState(int weaponstate);
+void BotUpdateEntityItems(void);
+void FreeMemory(void* ptr);

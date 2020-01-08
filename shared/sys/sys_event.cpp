@@ -4,7 +4,8 @@ Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
 Copyright (C) 2005 - 2015, ioquake3 contributors
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -22,7 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "qcommon/qcommon.h"
+#include "qcommon/q_common.h"
 #include "sys/sys_local.h"
 #include "sys/sys_public.h"
 
@@ -76,7 +77,7 @@ sysEvent_t Sys_GetEvent( void ) {
 		int		len;
 
 		len = strlen( s ) + 1;
-		b = (char *)Z_Malloc( len,TAG_EVENT,qfalse );
+		b = (char *)Z_Malloc( len,TAG_EVENT,false );
 		strcpy( b, s );
 		Sys_QueEvent( 0, SE_CONSOLE, 0, 0, len, b );
 	}

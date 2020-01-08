@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -30,8 +31,8 @@ backEndData_t	*backEndData;
 backEndState_t	backEnd;
 
 bool tr_stencilled = false;
-extern qboolean tr_distortionPrePost; //tr_shadows.cpp
-extern qboolean tr_distortionNegate; //tr_shadows.cpp
+extern bool tr_distortionPrePost; //tr_shadows.cpp
+extern bool tr_distortionNegate; //tr_shadows.cpp
 static void RB_DrawGlowOverlay();
 static void RB_BlurGlowTexture();
 
@@ -54,7 +55,7 @@ void GL_Bind( image_t *image ) {
 	int texnum;
 
 	if ( !image ) {
-		ri.Printf( PRINT_ALL, S_COLOR_YELLOW  "GL_Bind: NULL image\n" );
+		ri.Printf( PRINT_ALL, S_COLOR_YELLOW  "GL_Bind: nullptr image\n" );
 		texnum = tr.defaultImage->texnum;
 	} else {
 		texnum = image->texnum;
@@ -380,7 +381,7 @@ static void RB_Hyperspace( void ) {
 	qglClearColor( c, c, c, 1 );
 	qglClear( GL_COLOR_BUFFER_BIT );
 
-	backEnd.isHyperspace = qtrue;
+	backEnd.isHyperspace = true;
 }
 
 void SetViewportAndScissor( void ) {
@@ -402,15 +403,15 @@ void RB_BeginDrawingView (void) {
 	// sync with gl if needed
 	if ( r_finish->integer == 1 && !glState.finishCalled ) {
 		qglFinish ();
-		glState.finishCalled = qtrue;
+		glState.finishCalled = true;
 	}
 	if ( r_finish->integer == 0 ) {
-		glState.finishCalled = qtrue;
+		glState.finishCalled = true;
 	}
 
 	// we will need to change the projection matrix before drawing
 	// 2D images again
-	backEnd.projection2D = qfalse;
+	backEnd.projection2D = false;
 
 	// set the modelview matrix for the viewer
 
@@ -482,13 +483,13 @@ void RB_BeginDrawingView (void) {
 	}
 	else
 	{
-		backEnd.isHyperspace = qfalse;
+		backEnd.isHyperspace = false;
 	}
 
 	glState.faceCulling = -1;		// force face culling to set next time
 
 	// we will only draw a sun if there was sky rendered in this view
-	backEnd.skyRenderedThisView = qfalse;
+	backEnd.skyRenderedThisView = false;
 
 	// clip to the plane of the portal
 	if ( backEnd.viewParms.isPortal ) {
@@ -576,7 +577,7 @@ typedef struct postRender_s {
 	int			depthRange;
 	drawSurf_t	*drawSurf;
 	shader_t	*shader;
-	qboolean	eValid;
+	bool	eValid;
 } postRender_t;
 
 static postRender_t g_postRenders[MAX_POST_RENDERS];
@@ -611,12 +612,12 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	// draw everything
 	oldEntityNum = -1;
 	backEnd.currentEntity = &tr.worldEntity;
-	oldShader = NULL;
+	oldShader = nullptr;
 	oldFogNum = -1;
-	oldDepthRange = qfalse;
-	oldDlighted = qfalse;
+	oldDepthRange = false;
+	oldDlighted = false;
 	oldSort = (unsigned int) -1;
-	depthRange = qfalse;
+	depthRange = false;
 
 	backEnd.pc.c_surfaces += numDrawSurfs;
 
@@ -685,12 +686,12 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 				/*
 				if (shader == tr.distortionShader)
 				{
-					pRender->eValid = qfalse;
+					pRender->eValid = false;
 				}
 				else
 				*/
 				{
-					pRender->eValid = qtrue;
+					pRender->eValid = true;
 				}
 
 				//assure the info is back to the last set state
@@ -729,7 +730,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 			pRender->fogNum = fogNum;
 			pRender->shader = shader;
 
-			pRender->eValid = qfalse;
+			pRender->eValid = false;
 
 			//assure the info is back to the last set state
 			shader = oldShader;
@@ -747,7 +748,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 		if (shader != oldShader || fogNum != oldFogNum || dlighted != oldDlighted
 			|| ( entityNum != oldEntityNum && !shader->entityMergable ) )
 		{
-			if (oldShader != NULL) {
+			if (oldShader != nullptr) {
 				RB_EndSurface();
 
 				if (!didShadowPass && shader && shader->sort > SS_BANNER)
@@ -836,7 +837,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 	// draw the contents of the last shader batch
 	//assert(entityNum < MAX_GENTITIES);
 
-	if (oldShader != NULL) {
+	if (oldShader != nullptr) {
 		RB_EndSurface();
 	}
 
@@ -1050,7 +1051,7 @@ void RB_RenderDrawSurfList( drawSurf_t *drawSurfs, int numDrawSurfs ) {
 // RENDER BACK END FUNCTIONS
 
 void	RB_SetGL2D (void) {
-	backEnd.projection2D = qtrue;
+	backEnd.projection2D = true;
 
 	// set 2D virtual screen size
 	qglViewport( 0, 0, glConfig.vidWidth, glConfig.vidHeight );
@@ -1076,7 +1077,7 @@ void	RB_SetGL2D (void) {
 // Stretches a raw 32 bit power of 2 bitmap image over the given screen rectangle.
 // Used for cinematics.
 //FIXME: not exactly backend
-void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *data, int client, qboolean dirty)
+void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *data, int client, bool dirty)
 {
 	int			start, end;
 
@@ -1143,7 +1144,7 @@ void RE_StretchRaw (int x, int y, int w, int h, int cols, int rows, const byte *
 	qglEnd ();
 }
 
-void RE_UploadCinematic (int cols, int rows, const byte *data, int client, qboolean dirty) {
+void RE_UploadCinematic (int cols, int rows, const byte *data, int client, bool dirty) {
 
 	GL_Bind( tr.scratchImage[client] );
 
@@ -1213,7 +1214,7 @@ const void *RB_StretchPic ( const void *data ) {
 	tess.indexes[ numIndexes + 4 ] = numVerts + 0;
 	tess.indexes[ numIndexes + 5 ] = numVerts + 1;
 
-	byteAlias_t *baDest = NULL, *baSource = (byteAlias_t *)&backEnd.color2D;
+	byteAlias_t *baDest = nullptr, *baSource = (byteAlias_t *)&backEnd.color2D;
 	baDest = (byteAlias_t *)&tess.vertexColors[numVerts + 0]; baDest->ui = baSource->ui;
 	baDest = (byteAlias_t *)&tess.vertexColors[numVerts + 1]; baDest->ui = baSource->ui;
 	baDest = (byteAlias_t *)&tess.vertexColors[numVerts + 2]; baDest->ui = baSource->ui;
@@ -1299,7 +1300,7 @@ const void *RB_RotatePic ( const void *data )
 		tess.indexes[ numIndexes + 4 ] = numVerts + 0;
 		tess.indexes[ numIndexes + 5 ] = numVerts + 1;
 
-		byteAlias_t *baDest = NULL, *baSource = (byteAlias_t *)&backEnd.color2D;
+		byteAlias_t *baDest = nullptr, *baSource = (byteAlias_t *)&backEnd.color2D;
 		baDest = (byteAlias_t *)&tess.vertexColors[numVerts + 0]; baDest->ui = baSource->ui;
 		baDest = (byteAlias_t *)&tess.vertexColors[numVerts + 1]; baDest->ui = baSource->ui;
 		baDest = (byteAlias_t *)&tess.vertexColors[numVerts + 2]; baDest->ui = baSource->ui;
@@ -1393,7 +1394,7 @@ const void *RB_RotatePic2 ( const void *data )
 			tess.indexes[ numIndexes + 4 ] = numVerts + 0;
 			tess.indexes[ numIndexes + 5 ] = numVerts + 1;
 
-			byteAlias_t *baDest = NULL, *baSource = (byteAlias_t *)&backEnd.color2D;
+			byteAlias_t *baDest = nullptr, *baSource = (byteAlias_t *)&backEnd.color2D;
 			baDest = (byteAlias_t *)&tess.vertexColors[numVerts + 0]; baDest->ui = baSource->ui;
 			baDest = (byteAlias_t *)&tess.vertexColors[numVerts + 1]; baDest->ui = baSource->ui;
 			baDest = (byteAlias_t *)&tess.vertexColors[numVerts + 2]; baDest->ui = baSource->ui;
@@ -1596,7 +1597,7 @@ void RB_ShowImages( void ) {
 
 	int i=0;
 	   				 R_Images_StartIteration();
-	while ( (image = R_Images_GetNextIteration()) != NULL)
+	while ( (image = R_Images_GetNextIteration()) != nullptr)
 	{
 		w = glConfig.vidWidth / 20;
 		h = glConfig.vidHeight / 15;
@@ -1720,7 +1721,7 @@ const void	*RB_SwapBuffers( const void *data ) {
 
     ri.WIN_Present(&window);
 
-	backEnd.projection2D = qfalse;
+	backEnd.projection2D = false;
 
 	return (const void *)(cmd + 1);
 }

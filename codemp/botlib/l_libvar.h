@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -21,38 +22,34 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-// botlib vars
-
 #pragma once
+
+// ======================================================================
+// STRUCT
+// ======================================================================
 
 //library variable
 typedef struct libvar_s
 {
-	char		*name;
-	char		*string;
+	char* name;
+	char* string;
 	int		flags;
-	qboolean	modified;	// set each time the cvar is changed
+	bool	modified;	// set each time the cvar is changed
 	float		value;
-	struct	libvar_s *next;
+	struct	libvar_s* next;
 } libvar_t;
 
-//removes all library variables
+// ======================================================================
+// FUNCTION
+// ======================================================================
+
+bool LibVarChanged(char* var_name);
+char* LibVarGetString(char* var_name);
+char* LibVarString(char* var_name, char* value);
+float LibVarGetValue(char* var_name);
+float LibVarValue(char* var_name, char* value);
+libvar_t* LibVar(char* var_name, char* value);
+libvar_t* LibVarGet(char* var_name);
 void LibVarDeAllocAll(void);
-//gets the library variable with the given name
-libvar_t *LibVarGet(char *var_name);
-//gets the string of the library variable with the given name
-char *LibVarGetString(char *var_name);
-//gets the value of the library variable with the given name
-float LibVarGetValue(char *var_name);
-//creates the library variable if not existing already and returns it
-libvar_t *LibVar(char *var_name, char *value);
-//creates the library variable if not existing already and returns the value
-float LibVarValue(char *var_name, char *value);
-//creates the library variable if not existing already and returns the value string
-char *LibVarString(char *var_name, char *value);
-//sets the library variable
-void LibVarSet(char *var_name, char *value);
-//returns true if the library variable has been modified
-qboolean LibVarChanged(char *var_name);
-//sets the library variable to unmodified
-void LibVarSetNotModified(char *var_name);
+void LibVarSet(char* var_name, char* value);
+void LibVarSetNotModified(char* var_name);

@@ -2,7 +2,8 @@
 ===========================================================================
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -44,7 +45,7 @@ int G_WeaponLogDeaths[MAX_CLIENTS][WP_NUM_WEAPONS];
 int G_WeaponLogFrags[MAX_CLIENTS][MAX_CLIENTS];
 int G_WeaponLogTime[MAX_CLIENTS][WP_NUM_WEAPONS];
 int G_WeaponLogLastTime[MAX_CLIENTS];
-qboolean G_WeaponLogClientTouch[MAX_CLIENTS];
+bool G_WeaponLogClientTouch[MAX_CLIENTS];
 int G_WeaponLogPowerups[MAX_CLIENTS][HI_NUM_HOLDABLE];
 int	G_WeaponLogItems[MAX_CLIENTS][PW_NUM_POWERUPS];
 
@@ -138,7 +139,7 @@ void QDECL G_LogWeaponPickup(int client, int weaponid)
 		return;
 
 	G_WeaponLogPickups[client][weaponid]++;
-	G_WeaponLogClientTouch[client] = qtrue;
+	G_WeaponLogClientTouch[client] = true;
 #endif //_LOGGING_WEAPONS
 }
 
@@ -157,7 +158,7 @@ void QDECL G_LogWeaponFire(int client, int weaponid)
 	else
 		G_WeaponLogTime[client][weaponid] += dur;
 	G_WeaponLogLastTime[client] = level.time;
-	G_WeaponLogClientTouch[client] = qtrue;
+	G_WeaponLogClientTouch[client] = true;
 #endif //_LOGGING_WEAPONS
 }
 
@@ -167,7 +168,7 @@ void QDECL G_LogWeaponDamage(int client, int mod, int amount)
 	if (client>=MAX_CLIENTS)
 		return;
 	G_WeaponLogDamage[client][mod] += amount;
-	G_WeaponLogClientTouch[client] = qtrue;
+	G_WeaponLogClientTouch[client] = true;
 #endif //_LOGGING_WEAPONS
 }
 
@@ -177,7 +178,7 @@ void QDECL G_LogWeaponKill(int client, int mod)
 	if (client>=MAX_CLIENTS)
 		return;
 	G_WeaponLogKills[client][mod]++;
-	G_WeaponLogClientTouch[client] = qtrue;
+	G_WeaponLogClientTouch[client] = true;
 #endif //_LOGGING_WEAPONS
 }
 
@@ -187,7 +188,7 @@ void QDECL G_LogWeaponFrag(int attacker, int deadguy)
 	if ( (attacker>=MAX_CLIENTS) || (deadguy>=MAX_CLIENTS) )
 		return;
 	G_WeaponLogFrags[attacker][deadguy]++;
-	G_WeaponLogClientTouch[attacker] = qtrue;
+	G_WeaponLogClientTouch[attacker] = true;
 #endif //_LOGGING_WEAPONS
 }
 
@@ -197,7 +198,7 @@ void QDECL G_LogWeaponDeath(int client, int weaponid)
 	if (client>=MAX_CLIENTS)
 		return;
 	G_WeaponLogDeaths[client][weaponid]++;
-	G_WeaponLogClientTouch[client] = qtrue;
+	G_WeaponLogClientTouch[client] = true;
 #endif //_LOGGING_WEAPONS
 }
 
@@ -207,7 +208,7 @@ void QDECL G_LogWeaponPowerup(int client, int powerupid)
 	if (client>=MAX_CLIENTS)
 		return;
 	G_WeaponLogPowerups[client][powerupid]++;
-	G_WeaponLogClientTouch[client] = qtrue;
+	G_WeaponLogClientTouch[client] = true;
 #endif //_LOGGING_WEAPONS
 }
 
@@ -217,7 +218,7 @@ void QDECL G_LogWeaponItem(int client, int itemid)
 	if (client>=MAX_CLIENTS)
 		return;
 	G_WeaponLogItems[client][itemid]++;
-	G_WeaponLogClientTouch[client] = qtrue;
+	G_WeaponLogClientTouch[client] = true;
 #endif //_LOGGING_WEAPONS
 }
 
@@ -817,12 +818,12 @@ void G_LogWeaponOutput(void)
 }
 
 // did this player earn the efficiency award?
-qboolean CalculateEfficiency(gentity_t *ent, int *efficiency)
+bool CalculateEfficiency(gentity_t *ent, int *efficiency)
 {
 #ifdef LOGGING_WEAPONS
 	float		fAccuracyRatio = 0, fBestRatio = 0;
 	int			i = 0, nShotsFired = 0, nShotsHit = 0, nBestPlayer = -1, tempEff = 0;
-	gentity_t	*player = NULL;
+	gentity_t	*player = nullptr;
 
 	for (i = 0; i < sv_maxclients.integer; i++)
 	{
@@ -841,7 +842,7 @@ qboolean CalculateEfficiency(gentity_t *ent, int *efficiency)
 	if (-1 == nBestPlayer)
 	{
 		// huh?
-		return qfalse;
+		return false;
 	}
 	if (nBestPlayer == ent->s.number)
 	{
@@ -849,26 +850,26 @@ qboolean CalculateEfficiency(gentity_t *ent, int *efficiency)
 		if (tempEff > 50)
 		{
 			*efficiency = tempEff;
-			return qtrue;
+			return true;
 		}
-		return qfalse;
+		return false;
 	}
 #endif // LOGGING_WEAPONS
-	return qfalse;
+	return false;
 }
 
 // did this player earn the sharpshooter award?
-qboolean CalculateSharpshooter(gentity_t *ent, int *frags)
+bool CalculateSharpshooter(gentity_t *ent, int *frags)
 {
 #ifdef LOGGING_WEAPONS
 	int			i = 0, nBestPlayer = -1, nKills = 0, nMostKills = 0,
 				playTime = (level.time - ent->client->pers.enterTime)/60000;
-	gentity_t	*player = NULL;
+	gentity_t	*player = nullptr;
 
 	// if this guy didn't get one kill per minute, reject him right now
 	if ( ((float)(G_WeaponLogKills[ent-g_entities][MOD_DISRUPTOR_SNIPER]))/((float)(playTime)) < 1.0 )
 	{
-		return qfalse;
+		return false;
 	}
 
 	for (i = 0; i < sv_maxclients.integer; i++)
@@ -886,19 +887,19 @@ qboolean CalculateSharpshooter(gentity_t *ent, int *frags)
 	}
 	if (-1 == nBestPlayer)
 	{
-		return qfalse;
+		return false;
 	}
 	if (nBestPlayer == ent->s.number)
 	{
 		*frags = nMostKills;
-		return qtrue;
+		return true;
 	}
 #endif // LOGGING_WEAPONS
-	return qfalse;
+	return false;
 }
 
 // did this player earn the untouchable award?
-qboolean CalculateUntouchable(gentity_t *ent)
+bool CalculateUntouchable(gentity_t *ent)
 {
 #ifdef LOGGING_WEAPONS
 	int			playTime;
@@ -906,28 +907,28 @@ qboolean CalculateUntouchable(gentity_t *ent)
 
 	if ( level.gametype == GT_JEDIMASTER && ent->client->ps.isJediMaster )
 	{//Jedi Master can only be killed once anyway
-		return qfalse;
+		return false;
 	}
 	//------------------------------------------------------ MUST HAVE ACHIEVED 2 KILLS PER MINUTE
 	if ( ((float)ent->client->ps.persistant[PERS_SCORE])/((float)(playTime)) < 2.0  || playTime==0)
-		return qfalse;
+		return false;
 	//------------------------------------------------------ MUST HAVE ACHIEVED 2 KILLS PER MINUTE
 
 	// if this guy was never killed...  Award Away!!!
 	if (ent->client->ps.persistant[PERS_KILLED]==0)
-		return qtrue;
+		return true;
 
 #endif // LOGGING_WEAPONS
-	return qfalse;
+	return false;
 }
 
 // did this player earn the logistics award?
-qboolean CalculateLogistics(gentity_t *ent, int *stuffUsed)
+bool CalculateLogistics(gentity_t *ent, int *stuffUsed)
 {
 #ifdef LOGGING_WEAPONS
 	int			i = 0, j = 0, nBestPlayer = -1, nStuffUsed = 0, nMostStuffUsed = 0,
 				nDifferent = 0, nMostDifferent = 0;
-	gentity_t	*player = NULL;
+	gentity_t	*player = nullptr;
 
 	for (i = 0; i < sv_maxclients.integer; i++)
 	{
@@ -964,42 +965,42 @@ qboolean CalculateLogistics(gentity_t *ent, int *stuffUsed)
 	}
 	if (-1 == nBestPlayer)
 	{
-		return qfalse;
+		return false;
 	}
 	if (nBestPlayer == ent->s.number)
 	{
 		*stuffUsed = nMostDifferent;
-		return qtrue;
+		return true;
 	}
 #endif // LOGGING_WEAPONS
-	return qfalse;
+	return false;
 }
 
 // did this player earn the tactician award?
-qboolean CalculateTactician(gentity_t *ent, int *kills)
+bool CalculateTactician(gentity_t *ent, int *kills)
 {
 #ifdef LOGGING_WEAPONS
 	int			i = 0, nBestPlayer = -1, nKills = 0, nMostKills = 0;
 	int			person = 0, weapon = 0;
-	gentity_t	*player = NULL;
+	gentity_t	*player = nullptr;
 	int			wasPickedUpBySomeone[WP_NUM_WEAPONS];
 	int			killsWithWeapon[WP_NUM_WEAPONS];
 	int			playTime = (level.time - ent->client->pers.enterTime)/60000;
 
 	if ( HasSetSaberOnly() )
 	{//duh, only 1 weapon
-		return qfalse;
+		return false;
 	}
 	if ( level.gametype == GT_JEDIMASTER && ent->client->ps.isJediMaster )
 	{//Jedi Master has only 1 weapon
-		return qfalse;
+		return false;
 	}
 	//------------------------------------------------------ MUST HAVE ACHIEVED 2 KILLS PER MINUTE
 	if (playTime<0.3)
-		return qfalse;
+		return false;
 
 	if ( ((float)ent->client->ps.persistant[PERS_SCORE])/((float)(playTime)) < 2.0 )
-		return qfalse;
+		return false;
 	//------------------------------------------------------ MUST HAVE ACHIEVED 2 KILLS PER MINUTE
 
 	//------------------------------------------------------ FOR EVERY WEAPON, ADD UP TOTAL PICKUPS
@@ -1059,19 +1060,19 @@ qboolean CalculateTactician(gentity_t *ent, int *kills)
 	if (nBestPlayer == ent->s.number)
 	{
 		*kills = nMostKills;
-		return qtrue;
+		return true;
 	}
 #endif // LOGGING_WEAPONS
-	return qfalse;
+	return false;
 }
 
 // did this player earn the demolitionist award?
-qboolean CalculateDemolitionist(gentity_t *ent, int *kills)
+bool CalculateDemolitionist(gentity_t *ent, int *kills)
 {
 #ifdef LOGGING_WEAPONS
 	int			i = 0, nBestPlayer = -1, nKills = 0, nMostKills = 0,
 				playTime = (level.time - ent->client->pers.enterTime)/60000;
-	gentity_t	*player = NULL;
+	gentity_t	*player = nullptr;
 
 	for (i = 0; i < sv_maxclients.integer; i++)
 	{
@@ -1104,15 +1105,15 @@ qboolean CalculateDemolitionist(gentity_t *ent, int *kills)
 	}
 	if (-1 == nBestPlayer)
 	{
-		return qfalse;
+		return false;
 	}
 	if (nBestPlayer == ent->s.number)
 	{
 		*kills = nMostKills;
-		return qtrue;
+		return true;
 	}
 #endif // LOGGING_WEAPONS
-	return qfalse;
+	return false;
 }
 
 int CalculateStreak(gentity_t *ent)
@@ -1121,11 +1122,11 @@ int CalculateStreak(gentity_t *ent)
 	return 0;
 }
 
-qboolean CalculateTeamMVP(gentity_t *ent)
+bool CalculateTeamMVP(gentity_t *ent)
 {
 	int			i = 0, nBestPlayer = -1, nScore = 0, nHighestScore = 0,
 				team = ent->client->ps.persistant[PERS_TEAM];
-	gentity_t	*player = NULL;
+	gentity_t	*player = nullptr;
 
 	for (i = 0; i < sv_maxclients.integer; i++)
 	{
@@ -1142,25 +1143,25 @@ qboolean CalculateTeamMVP(gentity_t *ent)
 	}
 	if (-1 == nBestPlayer)
 	{
-		return qfalse;
+		return false;
 	}
 	if (nBestPlayer == ent->s.number)
 	{
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean CalculateTeamDefender(gentity_t *ent)
+bool CalculateTeamDefender(gentity_t *ent)
 {
 	int			i = 0, nBestPlayer = -1, nScore = 0, nHighestScore = 0,
 				team = ent->client->ps.persistant[PERS_TEAM];
-	gentity_t	*player = NULL;
+	gentity_t	*player = nullptr;
 
 	/*
 	if (CalculateTeamMVP(ent))
 	{
-		return qfalse;
+		return false;
 	}
 	*/
 	for (i = 0; i < sv_maxclients.integer; i++)
@@ -1178,25 +1179,25 @@ qboolean CalculateTeamDefender(gentity_t *ent)
 	}
 	if (-1 == nBestPlayer)
 	{
-		return qfalse;
+		return false;
 	}
 	if (nBestPlayer == ent->s.number)
 	{
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean CalculateTeamWarrior(gentity_t *ent)
+bool CalculateTeamWarrior(gentity_t *ent)
 {
 	int			i = 0, nBestPlayer = -1, nScore = 0, nHighestScore = 0,
 				team = ent->client->ps.persistant[PERS_TEAM];
-	gentity_t	*player = NULL;
+	gentity_t	*player = nullptr;
 
 	/*
 	if (CalculateTeamMVP(ent) || CalculateTeamDefender(ent))
 	{
-		return qfalse;
+		return false;
 	}
 	*/
 	for (i = 0; i < sv_maxclients.integer; i++)
@@ -1214,25 +1215,25 @@ qboolean CalculateTeamWarrior(gentity_t *ent)
 	}
 	if (-1 == nBestPlayer)
 	{
-		return qfalse;
+		return false;
 	}
 	if (nBestPlayer == ent->s.number)
 	{
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean CalculateTeamCarrier(gentity_t *ent)
+bool CalculateTeamCarrier(gentity_t *ent)
 {
 	int			i = 0, nBestPlayer = -1, nScore = 0, nHighestScore = 0,
 				team = ent->client->ps.persistant[PERS_TEAM];
-	gentity_t	*player = NULL;
+	gentity_t	*player = nullptr;
 
 	/*
 	if (CalculateTeamMVP(ent) || CalculateTeamDefender(ent) || CalculateTeamWarrior(ent))
 	{
-		return qfalse;
+		return false;
 	}
 	*/
 	for (i = 0; i < sv_maxclients.integer; i++)
@@ -1250,26 +1251,26 @@ qboolean CalculateTeamCarrier(gentity_t *ent)
 	}
 	if (-1 == nBestPlayer)
 	{
-		return qfalse;
+		return false;
 	}
 	if (nBestPlayer == ent->s.number)
 	{
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean CalculateTeamInterceptor(gentity_t *ent)
+bool CalculateTeamInterceptor(gentity_t *ent)
 {
 	int			i = 0, nBestPlayer = -1, nScore = 0, nHighestScore = 0,
 				team = ent->client->ps.persistant[PERS_TEAM];
-	gentity_t	*player = NULL;
+	gentity_t	*player = nullptr;
 
 	/*
 	if (CalculateTeamMVP(ent) || CalculateTeamDefender(ent) || CalculateTeamWarrior(ent) ||
 		CalculateTeamCarrier(ent))
 	{
-		return qfalse;
+		return false;
 	}
 	*/
 	for (i = 0; i < sv_maxclients.integer; i++)
@@ -1288,26 +1289,26 @@ qboolean CalculateTeamInterceptor(gentity_t *ent)
 	}
 	if (-1 == nBestPlayer)
 	{
-		return qfalse;
+		return false;
 	}
 	if (nBestPlayer == ent->s.number)
 	{
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean CalculateTeamRedShirt(gentity_t *ent)
+bool CalculateTeamRedShirt(gentity_t *ent)
 {
 	int			i = 0, nBestPlayer = -1, nScore = 0, nHighestScore = 0,
 				team = ent->client->ps.persistant[PERS_TEAM];
-	gentity_t	*player = NULL;
+	gentity_t	*player = nullptr;
 
 	/*
 	if (CalculateTeamMVP(ent) || CalculateTeamDefender(ent) || CalculateTeamWarrior(ent) ||
 		CalculateTeamCarrier(ent) || CalculateTeamInterceptor(ent))
 	{
-		return qfalse;
+		return false;
 	}
 	*/
 	for (i = 0; i < sv_maxclients.integer; i++)
@@ -1326,13 +1327,13 @@ qboolean CalculateTeamRedShirt(gentity_t *ent)
 	}
 	if (-1 == nBestPlayer)
 	{
-		return qfalse;
+		return false;
 	}
 	if (nBestPlayer == ent->s.number)
 	{
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
 typedef enum {
@@ -1395,10 +1396,10 @@ int CalculateTeamAward(gentity_t *ent)
 	return teamAwards;
 }
 
-qboolean CalculateSection31Award(gentity_t *ent)
+bool CalculateSection31Award(gentity_t *ent)
 {
 	int			i = 0, frags = 0, efficiency = 0;
-	gentity_t	*player = NULL;
+	gentity_t	*player = nullptr;
 
 	for (i = 0; i < sv_maxclients.integer; i++)
 	{
@@ -1418,9 +1419,9 @@ qboolean CalculateSection31Award(gentity_t *ent)
 		{
 			continue;
 		}
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 // kef -- if a client leaves the game, clear out all counters he may have set
 void QDECL G_ClearClientLog(int client)
@@ -1460,7 +1461,7 @@ void QDECL G_ClearClientLog(int client)
 		G_WeaponLogTime[client][i] = 0;
 	}
 	G_WeaponLogLastTime[client] = 0;
-	G_WeaponLogClientTouch[client] = qfalse;
+	G_WeaponLogClientTouch[client] = false;
 	for (i = 0; i < HI_NUM_HOLDABLE; i++)
 	{
 		G_WeaponLogPowerups[client][i] = 0;

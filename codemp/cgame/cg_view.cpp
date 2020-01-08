@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -24,7 +25,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // cg_view.c -- setup all the parameters (position, angle, etc)
 // for a 3D rendering
 #include "cgame/cg_local.h"
-#include "game/bg_saga.h"
 #include "cgame/cg_media.h"
 
 #define MASK_CAMERACLIP (MASK_SOLID|CONTENTS_PLAYERCLIP)
@@ -85,13 +85,13 @@ void CG_TestModel_f (void) {
 	angles[ROLL] = 0;
 
 	AnglesToAxis( angles, cg.testModelEntity.axis );
-	cg.testGun = qfalse;
+	cg.testGun = false;
 }
 
 // Replaces the current view weapon with the given model
 void CG_TestGun_f (void) {
 	CG_TestModel_f();
-	cg.testGun = qtrue;
+	cg.testGun = true;
 	//cg.testModelEntity.renderfx = RF_MINLIGHT | RF_DEPTHHACK | RF_FIRST_PERSON;
 
 	// rww - 9-13-01 [1-26-01-sof2]
@@ -217,7 +217,7 @@ float	cameraStiffFactor=0.0f;
 // cg.refdef.viewangles		at the start holds the client's view angles
 //							it is set to the final view angle of the camera at the end of the camera code.
 
-extern qboolean gCGHasFallVector;
+extern bool gCGHasFallVector;
 extern vec3_t gCGFallVector;
 
 static void CG_CalcIdealThirdPersonViewTarget( void ) {
@@ -260,7 +260,7 @@ static void CG_ResetThirdPersonViewDamp(void)
 		cameraFocusAngles[PITCH] = -89.0;
 	}
 
-	AngleVectors(cameraFocusAngles, camerafwd, NULL, cameraup);
+	AngleVectors(cameraFocusAngles, camerafwd, nullptr, cameraup);
 
 	// Set the cameraIdealTarget
 	CG_CalcIdealThirdPersonViewTarget();
@@ -493,7 +493,7 @@ static void CG_OffsetThirdPersonView( void )
 			cameraFocusAngles[PITCH] = -80.0;
 		}
 
-		AngleVectors(cameraFocusAngles, camerafwd, NULL, cameraup);
+		AngleVectors(cameraFocusAngles, camerafwd, nullptr, cameraup);
 
 		deltayaw = fabs(cameraFocusAngles[YAW] - cameraLastYaw);
 		if (deltayaw > 180.0f)
@@ -810,10 +810,10 @@ static int CG_CalcFov( void ) {
 		v = WAVE_AMPLITUDE * sin( phase );
 		fov_x += v;
 		fov_y -= v;
-		inwater = qtrue;
+		inwater = true;
 	}
 	else {
-		inwater = qfalse;
+		inwater = false;
 	}
 
 	// set it
@@ -890,7 +890,7 @@ int cg_actionCamLastTime = 0;
 vec3_t cg_actionCamLastPos;
 
 //action cam routine -rww
-static qboolean CG_ThirdPersonActionCam(void)
+static bool CG_ThirdPersonActionCam(void)
 {
     centity_t *cent = &cg_entities[cg.snap->ps.clientNum];
 	clientInfo_t *ci = &cgs.clientinfo[cg.snap->ps.clientNum];
@@ -904,17 +904,17 @@ static qboolean CG_ThirdPersonActionCam(void)
 
 	if (!cent->ghoul2)
 	{ //if we don't have a g2 instance this frame for whatever reason then do nothing
-		return qfalse;
+		return false;
 	}
 
 	if (cent->currentState.weapon != WP_SABER)
 	{ //just being safe, should not ever happen
-		return qfalse;
+		return false;
 	}
 
 	if ((cg.time - ci->saber[0].blade[0].trail.lastTime) > 300)
 	{ //too long since we last got the blade position
-		return qfalse;
+		return false;
 	}
 
 	//get direction from base to ent origin
@@ -926,7 +926,7 @@ static qboolean CG_ThirdPersonActionCam(void)
 
 	//trace to the desired pos to see how far that way we can actually go before we hit something
 	//the endpos will be valid for our desiredpos no matter what
-	CG_Trace(&tr, cent->lerpOrigin, NULL, NULL, desiredPos, cent->currentState.number, MASK_SOLID);
+	CG_Trace(&tr, cent->lerpOrigin, nullptr, nullptr, desiredPos, cent->currentState.number, MASK_SOLID);
 	VectorCopy(tr.endpos, desiredPos);
 
 	if ((cg.time - cg_actionCamLastTime) > 300)
@@ -955,7 +955,7 @@ static qboolean CG_ThirdPersonActionCam(void)
 	}
 
 	//Make sure the point is alright
-	CG_Trace(&tr, cent->lerpOrigin, NULL, NULL, cg.refdef.vieworg, cent->currentState.number, MASK_SOLID);
+	CG_Trace(&tr, cent->lerpOrigin, nullptr, nullptr, cg.refdef.vieworg, cent->currentState.number, MASK_SOLID);
 	VectorCopy(tr.endpos, cg.refdef.vieworg);
 
 	VectorSubtract(cent->lerpOrigin, cg.refdef.vieworg, positionDir);
@@ -963,7 +963,7 @@ static qboolean CG_ThirdPersonActionCam(void)
 
 	//just set the angles for now
 	VectorCopy(desiredAngles, cg.refdef.viewangles);
-	return qtrue;
+	return true;
 }
 
 // Keep view reasonably constrained in relation to gun -rww
@@ -996,7 +996,7 @@ static void CG_EmplacedView( vec3_t angles ) {
 
 // Sets cg.refdef view values
 static int CG_CalcViewValues( void ) {
-	qboolean manningTurret = qfalse;
+	bool manningTurret = false;
 	playerState_t	*ps;
 
 	memset( &cg.refdef, 0, sizeof( cg.refdef ) );
@@ -1019,7 +1019,7 @@ static int CG_CalcViewValues( void ) {
 			AnglesToAxis( cg.refdef.viewangles, cg.refdef.viewaxis );
 			return CG_CalcFov();
 		} else {
-			cg.cameraMode = qfalse;
+			cg.cameraMode = false;
 		}
 	}
 */
@@ -1117,15 +1117,15 @@ static void CG_PowerupTimerSounds( void ) {
 			continue;
 		}
 		if ( ( t - cg.time ) / POWERUP_BLINK_TIME != ( t - cg.oldTime ) / POWERUP_BLINK_TIME ) {
-			//trap->S_StartSound( NULL, cg.snap->ps.clientNum, CHAN_ITEM, media.sounds.null );
+			//trap->S_StartSound( nullptr, cg.snap->ps.clientNum, CHAN_ITEM, media.sounds.null );
 		}
 	}
 }
 
-extern qboolean cg_skyOri;
+extern bool cg_skyOri;
 extern vec3_t cg_skyOriPos;
 extern float cg_skyOriScale;
-extern qboolean cg_noFogOutsidePortal;
+extern bool cg_noFogOutsidePortal;
 void CG_DrawSkyBoxPortal(const char *cstr)
 {
 	refdef_t backuprefdef;
@@ -1139,28 +1139,28 @@ void CG_DrawSkyBoxPortal(const char *cstr)
 
 	COM_BeginParseSession ("CG_DrawSkyBoxPortal");
 
-	token = COM_ParseExt(&cstr, qfalse);
+	token = COM_ParseExt(&cstr, false);
 	if (!token || !token[0])
 	{
 		trap->Error( ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring\n");
 	}
 	cg.refdef.vieworg[0] = atof(token);
 
-	token = COM_ParseExt(&cstr, qfalse);
+	token = COM_ParseExt(&cstr, false);
 	if (!token || !token[0])
 	{
 		trap->Error( ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring\n");
 	}
 	cg.refdef.vieworg[1] = atof(token);
 
-	token = COM_ParseExt(&cstr, qfalse);
+	token = COM_ParseExt(&cstr, false);
 	if (!token || !token[0])
 	{
 		trap->Error( ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring\n");
 	}
 	cg.refdef.vieworg[2] = atof(token);
 
-	token = COM_ParseExt(&cstr, qfalse);
+	token = COM_ParseExt(&cstr, false);
 	if (!token || !token[0])
 	{
 		trap->Error( ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring\n");
@@ -1173,7 +1173,7 @@ void CG_DrawSkyBoxPortal(const char *cstr)
 	}
 
 	// setup fog the first time, ignore this part of the configstring after that
-	token = COM_ParseExt(&cstr, qfalse);
+	token = COM_ParseExt(&cstr, false);
 	if (!token || !token[0])
 	{
 		trap->Error( ERR_DROP, "CG_DrawSkyBoxPortal: error parsing skybox configstring.  No fog state\n");
@@ -1234,10 +1234,10 @@ void CG_DrawSkyBoxPortal(const char *cstr)
 
 	if ( !cg.hyperspace)
 	{ //rww - also had to add this to add effects being rendered in portal sky areas properly.
-		trap->FX_AddScheduledEffects(qtrue);
+		trap->FX_AddScheduledEffects(true);
 	}
 
-	CG_AddPacketEntities(qtrue); //rww - There was no proper way to put real entities inside the portal view before.
+	CG_AddPacketEntities(true); //rww - There was no proper way to put real entities inside the portal view before.
 									//This will put specially flagged entities in the render.
 
 	if (cg_skyOri)
@@ -1385,7 +1385,7 @@ void CG_SE_UpdateMusic(void)
 
 			if (cgScreenEffects.music_volume_multiplier == 1.0f)
 			{
-				cgScreenEffects.music_volume_set = qfalse;
+				cgScreenEffects.music_volume_set = false;
 			}
 			else
 			{
@@ -1402,7 +1402,7 @@ void CG_SE_UpdateMusic(void)
 
 		Com_sprintf(musMultStr, sizeof(musMultStr), "%f", cgScreenEffects.music_volume_multiplier);
 		trap->Cvar_Set("s_musicMult", musMultStr);
-		cgScreenEffects.music_volume_set = qtrue;
+		cgScreenEffects.music_volume_set = true;
 	}
 }
 
@@ -1460,7 +1460,7 @@ void CGCam_SetMusicMult( float multiplier, int duration )
 
 	cgScreenEffects.music_volume_multiplier = multiplier;
 	cgScreenEffects.music_volume_time = cg.time + duration;
-	cgScreenEffects.music_volume_set = qfalse;
+	cgScreenEffects.music_volume_set = false;
 }
 
 // Screen Effect stuff ends here
@@ -1703,7 +1703,7 @@ void CG_SetupFrustum( void ) {
 }
 
 //	CG_CullPoint - returns true if culled
-qboolean CG_CullPoint( vec3_t pt ) {
+bool CG_CullPoint( vec3_t pt ) {
 	int i;
 	plane_t *frust;
 
@@ -1712,14 +1712,14 @@ qboolean CG_CullPoint( vec3_t pt ) {
 		frust = &frustum[i];
 
 		if ( ( DotProduct( pt, frust->normal ) - frust->dist ) < 0 ) {
-			return( qtrue );
+			return( true );
 		}
 	}
 
-	return( qfalse );
+	return( false );
 }
 
-qboolean CG_CullPointAndRadius( const vec3_t pt, float radius ) {
+bool CG_CullPointAndRadius( const vec3_t pt, float radius ) {
 	int i;
 	plane_t *frust;
 
@@ -1728,20 +1728,20 @@ qboolean CG_CullPointAndRadius( const vec3_t pt, float radius ) {
 		frust = &frustum[i];
 
 		if ( ( DotProduct( pt, frust->normal ) - frust->dist ) < -radius ) {
-			return( qtrue );
+			return( true );
 		}
 	}
 
-	return( qfalse );
+	return( false );
 }
 
 // Generates and draws a game scene and status information at the given time.
-static qboolean cg_rangedFogging = qfalse; //so we know if we should go back to normal fog
+static bool cg_rangedFogging = false; //so we know if we should go back to normal fog
 float cg_linearFogOverride = 0.0f; //designer-specified override for linear fogging style
 
-extern qboolean cgQueueLoad;
+extern bool cgQueueLoad;
 
-void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demoPlayback ) {
+void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, bool demoPlayback ) {
 	int		inwater;
 	const char *cstr;
 	float mSensitivity = cg.zoomSensitivity;
@@ -1751,7 +1751,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 	if (cgQueueLoad)
 	{ //do this before you start messing around with adding ghoul2 refents and crap
 		CG_ActualLoadDeferredPlayers();
-		cgQueueLoad = qfalse;
+		cgQueueLoad = false;
 	}
 
 	cg.time = serverTime;
@@ -1806,7 +1806,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 		mSensitivity = 0.2f;
 	}
 
-	trap->SetUserCmdValue( cg.weaponSelect, mSensitivity, mPitchOverride, mYawOverride, 0.0f, cg.forceSelect, cg.itemSelect, qfalse );
+	trap->SetUserCmdValue( cg.weaponSelect, mSensitivity, mPitchOverride, mYawOverride, 0.0f, cg.forceSelect, cg.itemSelect, false );
 
 	// this counter will be bumped for every valid scene we generate
 	cg.clientFrame++;
@@ -1861,13 +1861,13 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 	}
 	else if (cg.predictedPlayerState.zoomMode)
 	{ //zooming with binoculars or sniper, set the fog range based on the zoom level -rww
-		cg_rangedFogging = qtrue;
+		cg_rangedFogging = true;
 		//smaller the fov the less fog we have between the view and cull dist
 		trap->R_SetRangedFog(cg.refdef.fov_x*64.0f);
 	}
 	else if (cg_rangedFogging)
 	{ //disable it
-		cg_rangedFogging = qfalse;
+		cg_rangedFogging = false;
 		trap->R_SetRangedFog(0.0f);
 	}
 
@@ -1887,7 +1887,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 
 	// build the render lists
 	if ( !cg.hyperspace ) {
-		CG_AddPacketEntities(qfalse);			// adter calcViewValues, so predicted player state is correct
+		CG_AddPacketEntities(false);			// adter calcViewValues, so predicted player state is correct
 		CG_AddMarks();
 		CG_AddLocalEntities();
 	}
@@ -1895,7 +1895,7 @@ void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, qboolean demo
 
 	if ( !cg.hyperspace)
 	{
-		trap->FX_AddScheduledEffects(qfalse);
+		trap->FX_AddScheduledEffects(false);
 	}
 
 	// add buffered sounds

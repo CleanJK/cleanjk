@@ -4,7 +4,8 @@ Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
 Copyright (C) 2005 - 2015, ioquake3 contributors
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -25,7 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // string allocation/managment
 
 #define __STDC_FORMAT_MACROS
-#include <inttypes.h>
+#include <cinttypes>
 
 #ifdef _CGAME
 	#include "cgame/cg_local.h"
@@ -76,22 +77,22 @@ typedef struct scrollInfo_s {
 	float xStart;
 	float yStart;
 	itemDef_t *item;
-	qboolean scrollDir;
+	bool scrollDir;
 } scrollInfo_t;
 
 static scrollInfo_t scrollInfo;
 
-static void (*captureFunc) (void *p) = NULL;
-static void *captureData = NULL;
-static itemDef_t *itemCapture = NULL;   // item that has the mouse captured ( if any )
+static void (*captureFunc) (void *p) = nullptr;
+static void *captureData = nullptr;
+static itemDef_t *itemCapture = nullptr;   // item that has the mouse captured ( if any )
 
-displayContextDef_t *DC = NULL;
+displayContextDef_t *DC = nullptr;
 
-static qboolean g_waitingForKey = qfalse;
-static qboolean g_editingField = qfalse;
+static bool g_waitingForKey = false;
+static bool g_editingField = false;
 
-static itemDef_t *g_bindItem = NULL;
-static itemDef_t *g_editItem = NULL;
+static itemDef_t *g_bindItem = nullptr;
+static itemDef_t *g_editItem = nullptr;
 
 menuDef_t Menus[MAX_MENUS];      // defined menus
 int menuCount = 0;               // how many
@@ -99,12 +100,12 @@ int menuCount = 0;               // how many
 menuDef_t *menuStack[MAX_OPEN_MENUS];
 int openMenuCount = 0;
 
-static qboolean debugMode = qfalse;
+static bool debugMode = false;
 
 #define DOUBLE_CLICK_DELAY 300
 static int lastListBoxClickTime = 0;
 
-static qboolean Menu_OverActiveItem(menuDef_t *menu, float x, float y);
+static bool Menu_OverActiveItem(menuDef_t *menu, float x, float y);
 static void Item_TextScroll_BuildLines ( itemDef_t* item );
 
 #ifdef _CGAME
@@ -115,7 +116,7 @@ static void Item_TextScroll_BuildLines ( itemDef_t* item );
 
 static char memoryPool[MEM_POOL_SIZE];
 static int allocPoint;
-static qboolean outOfMemory;
+static bool outOfMemory;
 
 typedef struct  itemFlagsDef_s {
 	const char *string;
@@ -124,18 +125,18 @@ typedef struct  itemFlagsDef_s {
 
 const itemFlagsDef_t itemFlags[] = {
 	{ "WINDOW_INACTIVE", WINDOW_INACTIVE },
-	{ NULL,              0 }
+	{ nullptr,              0 }
 };
 
 void *UI_Alloc( int size ) {
 	char	*p;
 
 	if ( allocPoint + size > MEM_POOL_SIZE ) {
-		outOfMemory = qtrue;
+		outOfMemory = true;
 		if (DC->Print) {
 			DC->Print("UI_Alloc: Failure. Out of memory!\n");
 		}
-		return NULL;
+		return nullptr;
 	}
 
 	p = &memoryPool[allocPoint];
@@ -147,10 +148,10 @@ void *UI_Alloc( int size ) {
 
 void UI_InitMemory( void ) {
 	allocPoint = 0;
-	outOfMemory = qfalse;
+	outOfMemory = false;
 }
 
-qboolean UI_OutOfMemory( void ) {
+bool UI_OutOfMemory( void ) {
 	return outOfMemory;
 }
 
@@ -190,8 +191,8 @@ const char *String_Alloc(const char *p) {
 	stringDef_t *str, *last;
 	static const char *staticNULL = "";
 
-	if (p == NULL) {
-		return NULL;
+	if (p == nullptr) {
+		return nullptr;
 	}
 
 	if (*p == 0) {
@@ -230,7 +231,7 @@ const char *String_Alloc(const char *p) {
 		}
 
 		str  = (stringDef_t *) UI_Alloc(sizeof(stringDef_t));
-		str->next = NULL;
+		str->next = nullptr;
 		str->str = &strPool[ph];
 		if (last) {
 			last->next = str;
@@ -245,7 +246,7 @@ const char *String_Alloc(const char *p) {
 
 	//Increase STRING_POOL_SIZE.
 	Com_Printf( S_COLOR_RED, "String pool has been exhausted.\n" );
-	return NULL;
+	return nullptr;
 }
 
 void String_Report() {
@@ -313,144 +314,144 @@ void LerpColor(vec4_t a, vec4_t b, vec4_t c, float t)
 	}
 }
 
-qboolean Float_Parse(char **p, float *f) {
+bool Float_Parse(char **p, float *f) {
 	char	*token;
-	token = COM_ParseExt((const char **)p, qfalse);
+	token = COM_ParseExt((const char **)p, false);
 	if (token && token[0] != 0) {
 		*f = atof(token);
-		return qtrue;
+		return true;
 	} else {
-		return qfalse;
+		return false;
 	}
 }
 
-qboolean PC_Float_Parse(int handle, float *f) {
+bool PC_Float_Parse(int handle, float *f) {
 	pc_token_t token;
-	int negative = qfalse;
+	bool negative = false;
 
 	if ( !trap->PC_ReadToken( handle, &token ) )
-		return qfalse;
+		return false;
 
 	if ( token.string[0] == '-' ) {
 		if ( !trap->PC_ReadToken( handle, &token ) )
-			return qfalse;
-		negative = qtrue;
+			return false;
+		negative = true;
 	}
 	if (token.type != TT_NUMBER) {
 		PC_SourceError(handle, "expected float but found %s", token.string);
-		return qfalse;
+		return false;
 	}
 	if (negative)
 		*f = -token.floatvalue;
 	else
 		*f = token.floatvalue;
-	return qtrue;
+	return true;
 }
 
-qboolean Color_Parse(char **p, vec4_t *c) {
+bool Color_Parse(char **p, vec4_t *c) {
 	int i;
 	float f;
 
 	for (i = 0; i < 4; i++) {
 		if (!Float_Parse(p, &f)) {
-			return qfalse;
+			return false;
 		}
 		(*c)[i] = f;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean PC_Color_Parse(int handle, vec4_t *c) {
+bool PC_Color_Parse(int handle, vec4_t *c) {
 	int i;
 	float f;
 
 	for (i = 0; i < 4; i++) {
 		if (!PC_Float_Parse(handle, &f)) {
-			return qfalse;
+			return false;
 		}
 		(*c)[i] = f;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean Int_Parse(char **p, int *i) {
+bool Int_Parse(char **p, int *i) {
 	char	*token;
-	token = COM_ParseExt((const char **)p, qfalse);
+	token = COM_ParseExt((const char **)p, false);
 
 	if (token && token[0] != 0) {
 		*i = atoi(token);
-		return qtrue;
+		return true;
 	} else {
-		return qfalse;
+		return false;
 	}
 }
 
-qboolean PC_Int_Parse(int handle, int *i) {
+bool PC_Int_Parse(int handle, int *i) {
 	pc_token_t token;
-	int negative = qfalse;
+	bool negative = false;
 
 	if (!trap->PC_ReadToken(handle, &token))
-		return qfalse;
+		return false;
 	if (token.string[0] == '-') {
 		if (!trap->PC_ReadToken(handle, &token))
-			return qfalse;
-		negative = qtrue;
+			return false;
+		negative = true;
 	}
 	if (token.type != TT_NUMBER) {
 		PC_SourceError(handle, "expected integer but found %s", token.string);
-		return qfalse;
+		return false;
 	}
 	*i = token.intvalue;
 	if (negative)
 		*i = - *i;
-	return qtrue;
+	return true;
 }
 
-qboolean Rect_Parse(char **p, rectDef_t *r) {
+bool Rect_Parse(char **p, rectDef_t *r) {
 	if (Float_Parse(p, &r->x)) {
 		if (Float_Parse(p, &r->y)) {
 			if (Float_Parse(p, &r->w)) {
 				if (Float_Parse(p, &r->h)) {
-					return qtrue;
+					return true;
 				}
 			}
 		}
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean PC_Rect_Parse(int handle, rectDef_t *r) {
+bool PC_Rect_Parse(int handle, rectDef_t *r) {
 	if (PC_Float_Parse(handle, &r->x)) {
 		if (PC_Float_Parse(handle, &r->y)) {
 			if (PC_Float_Parse(handle, &r->w)) {
 				if (PC_Float_Parse(handle, &r->h)) {
-					return qtrue;
+					return true;
 				}
 			}
 		}
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean String_Parse(char **p, const char **out) {
+bool String_Parse(char **p, const char **out) {
 	char *token;
 
-	token = COM_ParseExt((const char **)p, qfalse);
+	token = COM_ParseExt((const char **)p, false);
 	if (token && token[0] != 0) {
 		*(out) = String_Alloc(token);
-		return *(out)!=NULL;
+		return *(out)!=nullptr;
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean PC_String_Parse(int handle, const char **out)
+bool PC_String_Parse(int handle, const char **out)
 {
 	static char*	squiggy = "}";
 	pc_token_t		token;
 
 	if (!trap->PC_ReadToken(handle, &token))
 	{
-		return qfalse;
+		return false;
 	}
 
 	// Save some memory by not return the end squiggy as an allocated string
@@ -462,10 +463,10 @@ qboolean PC_String_Parse(int handle, const char **out)
 	{
 		*(out) = String_Alloc(token.string);
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean PC_Script_Parse(int handle, const char **out) {
+bool PC_Script_Parse(int handle, const char **out) {
 	char script[2048];
 	pc_token_t token;
 
@@ -474,18 +475,18 @@ qboolean PC_Script_Parse(int handle, const char **out) {
 	// basically we want everything between the { } as it will be interpreted at run time
 
 	if (!trap->PC_ReadToken(handle, &token))
-		return qfalse;
+		return false;
 	if (Q_stricmp(token.string, "{") != 0) {
-	    return qfalse;
+	    return false;
 	}
 
 	while ( 1 ) {
 		if (!trap->PC_ReadToken(handle, &token))
-			return qfalse;
+			return false;
 
 		if (Q_stricmp(token.string, "}") == 0) {
 			*out = String_Alloc(script);
-			return qtrue;
+			return true;
 		}
 
 		if (token.string[1] != '\0') {
@@ -495,7 +496,7 @@ qboolean PC_Script_Parse(int handle, const char **out) {
 		}
 		Q_strcat(script, 2048, " ");
 	}
-	return qfalse;
+	return false;
 }
 
 // display, window, menu, item code
@@ -511,7 +512,7 @@ void GradientBar_Paint(rectDef_t *rect, vec4_t color) {
 	// gradient bar takes two paints
 	DC->setColor( color );
 	DC->drawHandlePic(rect->x, rect->y, rect->w, rect->h, DC->Assets.gradientBar);
-	DC->setColor( NULL );
+	DC->setColor( nullptr );
 }
 
 // Initializes a window structure ( windowDef_t ) with defaults
@@ -523,7 +524,7 @@ void Window_Init(windowDef_t *w) {
 	w->flags |= WINDOW_VISIBLE;
 }
 
-void Fade(int *flags, float *f, float clamp, int *nextTime, int offsetTime, qboolean bFlags, float fadeAmount) {
+void Fade(int *flags, float *f, float clamp, int *nextTime, int offsetTime, bool bFlags, float fadeAmount) {
 	if ( *flags & ( WINDOW_FADINGOUT | WINDOW_FADINGIN ) ) {
 		if ( DC->realTime > *nextTime ) {
 			const double tAdjust = DC->frameTime / (1000.0/60.0); //(60.0 / DC->FPS);
@@ -552,7 +553,7 @@ void Window_Paint(windowDef_t *w, float fadeAmount, float fadeClamp, float fadeC
 	vec4_t color;
 	rectDef_t fillRect;
 
-	if ( w == NULL )
+	if ( w == nullptr )
 		return;
 
 	if ( debugMode ) {
@@ -574,10 +575,10 @@ void Window_Paint(windowDef_t *w, float fadeAmount, float fadeClamp, float fadeC
 	if ( w->style == WINDOW_STYLE_FILLED ) {
 		// box, but possible a shader that needs filled
 		if ( w->background ) {
-			Fade( &w->flags, &w->backColor[3], fadeClamp, &w->nextTime, fadeCycle, qtrue, fadeAmount );
+			Fade( &w->flags, &w->backColor[3], fadeClamp, &w->nextTime, fadeCycle, true, fadeAmount );
 			DC->setColor( w->backColor );
 			DC->drawHandlePic( fillRect.x, fillRect.y, fillRect.w, fillRect.h, w->background );
-			DC->setColor( NULL );
+			DC->setColor( nullptr );
 		}
 		else {
 			DC->fillRect( fillRect.x, fillRect.y, fillRect.w, fillRect.h, w->backColor );
@@ -601,7 +602,7 @@ void Window_Paint(windowDef_t *w, float fadeAmount, float fadeClamp, float fadeC
 		if ( w->flags & WINDOW_FORECOLORSET )
 			DC->setColor(w->foreColor);
 		DC->drawHandlePic( fillRect.x, fillRect.y, fillRect.w, fillRect.h, w->background );
-		DC->setColor( NULL );
+		DC->setColor( nullptr );
 	}
 	else if ( w->style == WINDOW_STYLE_TEAMCOLOR ) {
 		if ( DC->getTeamColor ) {
@@ -644,13 +645,13 @@ void Window_Paint(windowDef_t *w, float fadeAmount, float fadeClamp, float fadeC
 		// top/bottom
 		DC->setColor( w->borderColor );
 		DC->drawTopBottom( w->rect.x, w->rect.y, w->rect.w, w->rect.h, w->borderSize );
-		DC->setColor( NULL );
+		DC->setColor( nullptr );
 	}
 	else if (w->border == WINDOW_BORDER_VERT) {
 		// left right
 		DC->setColor( w->borderColor );
 		DC->drawSides( w->rect.x, w->rect.y, w->rect.w, w->rect.h, w->borderSize );
-		DC->setColor( NULL );
+		DC->setColor( nullptr );
 	}
 	else if ( w->border == WINDOW_BORDER_KCGRADIENT ) {
 		// this is just two gradient bars along each horz edge
@@ -664,7 +665,7 @@ void Window_Paint(windowDef_t *w, float fadeAmount, float fadeClamp, float fadeC
 
 void Item_SetScreenCoords(itemDef_t *item, float x, float y)
 {
-	if (item == NULL)
+	if (item == nullptr)
 		return;
 
 	if (item->window.border != 0) {
@@ -698,7 +699,7 @@ void Item_UpdatePosition(itemDef_t *item)
 	float x, y;
 	menuDef_t *menu;
 
-	if (item == NULL || item->parent == NULL)
+	if (item == nullptr || item->parent == nullptr)
 		return;
 
 	menu = (menuDef_t *) item->parent;
@@ -719,7 +720,7 @@ void Menu_UpdatePosition(menuDef_t *menu) {
 	int i;
 	float x, y;
 
-	if (menu == NULL) {
+	if (menu == nullptr) {
 		return;
 	}
 
@@ -736,7 +737,7 @@ void Menu_UpdatePosition(menuDef_t *menu) {
 }
 
 void Menu_PostParse(menuDef_t *menu) {
-	if ( menu == NULL )
+	if ( menu == nullptr )
 		return;
 
 	if ( menu->fullScreen ) {
@@ -750,10 +751,10 @@ void Menu_PostParse(menuDef_t *menu) {
 
 itemDef_t *Menu_ClearFocus(menuDef_t *menu) {
 	int i;
-	itemDef_t *ret = NULL;
+	itemDef_t *ret = nullptr;
 
-	if ( menu == NULL )
-		return NULL;
+	if ( menu == nullptr )
+		return nullptr;
 
 	for ( i=0; i<menu->itemCount; i++ ) {
 		if ( menu->items[i]->window.flags & WINDOW_HASFOCUS )
@@ -767,16 +768,16 @@ itemDef_t *Menu_ClearFocus(menuDef_t *menu) {
 	return ret;
 }
 
-qboolean IsVisible(int flags) {
+bool IsVisible(int flags) {
 	return (flags & WINDOW_VISIBLE && !(flags & WINDOW_FADINGOUT));
 }
 
-qboolean Rect_ContainsPoint(rectDef_t *rect, float x, float y) {
+bool Rect_ContainsPoint(rectDef_t *rect, float x, float y) {
 	if ( rect ) {
 		if ( x > rect->x && x < rect->x + rect->w && y > rect->y && y < rect->y + rect->h )
-			return qtrue;
+			return true;
 	}
-	return qfalse;
+	return false;
 }
 
 int Menu_ItemsMatchingGroup(menuDef_t *menu, const char *name) {
@@ -807,10 +808,10 @@ itemDef_t *Menu_GetMatchingItemByNumber(menuDef_t *menu, int index, const char *
 			count++;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
-qboolean Script_SetColor ( itemDef_t *item, char **args )
+bool Script_SetColor ( itemDef_t *item, char **args )
 {
 	const char *name;
 	int i;
@@ -820,7 +821,7 @@ qboolean Script_SetColor ( itemDef_t *item, char **args )
 	// expecting type of color to set and 4 args for the color
 	if (String_Parse(args, &name))
 	{
-		out = NULL;
+		out = nullptr;
 		if (Q_stricmp(name, "backcolor") == 0)
 		{
 			out = &item->window.backColor;
@@ -842,17 +843,17 @@ qboolean Script_SetColor ( itemDef_t *item, char **args )
 			{
 				if (!Float_Parse(args, &f))
 				{
-					return qtrue;
+					return true;
 				}
 				(*out)[i] = f;
 			}
 		}
 	}
 
-	return qtrue;
+	return true;
 }
 
-qboolean Script_SetAsset(itemDef_t *item, char **args)
+bool Script_SetAsset(itemDef_t *item, char **args)
 {
 	const char *name;
 	// expecting name to set asset to
@@ -863,10 +864,10 @@ qboolean Script_SetAsset(itemDef_t *item, char **args)
 		{
 		}
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean Script_SetBackground(itemDef_t *item, char **args)
+bool Script_SetBackground(itemDef_t *item, char **args)
 {
 	const char *name;
 	// expecting name to set asset to
@@ -874,10 +875,10 @@ qboolean Script_SetBackground(itemDef_t *item, char **args)
 	{
 		item->window.background = DC->registerShaderNoMip(name);
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean Script_SetItemRectCvar(itemDef_t *item, char **args)
+bool Script_SetItemRectCvar(itemDef_t *item, char **args)
 {
 	const char	*itemName;
 	const char	*cvarName;
@@ -918,7 +919,7 @@ qboolean Script_SetItemRectCvar(itemDef_t *item, char **args)
 							item2->window.rect.w = item2->window.rectClient.w;
 							item2->window.rect.h = item2->window.rectClient.h;
 
-							return qtrue;
+							return true;
 						}
 					}
 				}
@@ -937,10 +938,10 @@ qboolean Script_SetItemRectCvar(itemDef_t *item, char **args)
 
 //	Com_Printf(S_COLOR_YELLOW"WARNING: SetItemRectCvar: problems. Set cvar to 0's\n" );
 
-	return qtrue;
+	return true;
 }
 
-qboolean Script_SetItemBackground(itemDef_t *item, char **args)
+bool Script_SetItemBackground(itemDef_t *item, char **args)
 {
 	const char *itemName;
 	const char *name;
@@ -950,10 +951,10 @@ qboolean Script_SetItemBackground(itemDef_t *item, char **args)
 	{
 		Menu_SetItemBackground((menuDef_t *) item->parent, itemName, name);
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean Script_SetItemText(itemDef_t *item, char **args)
+bool Script_SetItemText(itemDef_t *item, char **args)
 {
 	const char *itemName;
 	const char *text;
@@ -963,13 +964,13 @@ qboolean Script_SetItemText(itemDef_t *item, char **args)
 	{
 		Menu_SetItemText((menuDef_t *) item->parent, itemName, text);
 	}
-	return qtrue;
+	return true;
 }
 
 itemDef_t *Menu_FindItemByName(menuDef_t *menu, const char *p) {
 	int i;
-	if (menu == NULL || p == NULL) {
-		return NULL;
+	if (menu == nullptr || p == nullptr) {
+		return nullptr;
 	}
 
 	for (i = 0; i < menu->itemCount; i++) {
@@ -978,10 +979,10 @@ itemDef_t *Menu_FindItemByName(menuDef_t *menu, const char *p) {
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
-qboolean Script_SetTeamColor(itemDef_t *item, char **args)
+bool Script_SetTeamColor(itemDef_t *item, char **args)
 {
 	if (DC->getTeamColor)
 	{
@@ -993,10 +994,10 @@ qboolean Script_SetTeamColor(itemDef_t *item, char **args)
 			item->window.backColor[i] = color[i];
 		}
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean Script_SetItemColor(itemDef_t *item, char **args)
+bool Script_SetItemColor(itemDef_t *item, char **args)
 {
 	const char *itemname;
 	const char *name;
@@ -1023,15 +1024,15 @@ qboolean Script_SetItemColor(itemDef_t *item, char **args)
 
 		if (!Color_Parse(args, &color))
 		{
-			return qtrue;
+			return true;
 		}
 
 		for (j = 0; j < count; j++)
 		{
 			item2 = Menu_GetMatchingItemByNumber((menuDef_t *) item->parent, j, itemname);
-			if (item2 != NULL)
+			if (item2 != nullptr)
 			{
-				out = NULL;
+				out = nullptr;
 				if (Q_stricmp(name, "backcolor") == 0)
 				{
 					out = &item2->window.backColor;
@@ -1057,10 +1058,10 @@ qboolean Script_SetItemColor(itemDef_t *item, char **args)
 		}
 	}
 
-	return qtrue;
+	return true;
 }
 
-qboolean Script_SetItemColorCvar(itemDef_t *item, char **args)
+bool Script_SetItemColorCvar(itemDef_t *item, char **args)
 {
 	const char *itemname;
 	char	*colorCvarName,*holdBuf,*holdVal;
@@ -1090,7 +1091,7 @@ qboolean Script_SetItemColorCvar(itemDef_t *item, char **args)
 		// Get the cvar with the color
 		if (!String_Parse(args,(const char **) &colorCvarName))
 		{
-			return qtrue;
+			return true;
 		}
 		else
 		{
@@ -1118,9 +1119,9 @@ qboolean Script_SetItemColorCvar(itemDef_t *item, char **args)
 		for (j = 0; j < count; j++)
 		{
 			item2 = Menu_GetMatchingItemByNumber((menuDef_t *) item->parent, j, itemname);
-			if (item2 != NULL)
+			if (item2 != nullptr)
 			{
-				out = NULL;
+				out = nullptr;
 				if (Q_stricmp(name, "backcolor") == 0)
 				{
 					out = &item2->window.backColor;
@@ -1146,10 +1147,10 @@ qboolean Script_SetItemColorCvar(itemDef_t *item, char **args)
 		}
 	}
 
-	return qtrue;
+	return true;
 }
 
-qboolean Script_SetItemRect(itemDef_t *item, char **args)
+bool Script_SetItemRect(itemDef_t *item, char **args)
 {
 	const char *itemname;
 	rectDef_t *out;
@@ -1165,7 +1166,7 @@ qboolean Script_SetItemRect(itemDef_t *item, char **args)
 
 		if (!Rect_Parse(args, &rect))
 		{
-			return qtrue;
+			return true;
 		}
 
 		menu = (menuDef_t *) item->parent;
@@ -1173,7 +1174,7 @@ qboolean Script_SetItemRect(itemDef_t *item, char **args)
 		for (j = 0; j < count; j++)
 		{
 			item2 = Menu_GetMatchingItemByNumber(menu, j, itemname);
-			if (item2 != NULL)
+			if (item2 != nullptr)
 			{
 				out = &item2->window.rect;
 
@@ -1187,10 +1188,10 @@ qboolean Script_SetItemRect(itemDef_t *item, char **args)
 			}
 		}
 	}
-	return qtrue;
+	return true;
 }
 
-void Menu_ShowGroup (menuDef_t *menu, const char *groupName, qboolean showFlag)
+void Menu_ShowGroup (menuDef_t *menu, const char *groupName, bool showFlag)
 {
 	itemDef_t *item;
 	int count,j;
@@ -1199,7 +1200,7 @@ void Menu_ShowGroup (menuDef_t *menu, const char *groupName, qboolean showFlag)
 	for (j = 0; j < count; j++)
 	{
 		item = Menu_GetMatchingItemByNumber( menu, j, groupName);
-		if (item != NULL)
+		if (item != nullptr)
 		{
 			if (showFlag)
 			{
@@ -1213,13 +1214,13 @@ void Menu_ShowGroup (menuDef_t *menu, const char *groupName, qboolean showFlag)
 	}
 }
 
-void Menu_ShowItemByName(menuDef_t *menu, const char *p, qboolean bShow) {
+void Menu_ShowItemByName(menuDef_t *menu, const char *p, bool bShow) {
 	itemDef_t *item;
 	int i;
 	int count = Menu_ItemsMatchingGroup(menu, p);
 	for (i = 0; i < count; i++) {
 		item = Menu_GetMatchingItemByNumber(menu, i, p);
-		if (item != NULL) {
+		if (item != nullptr) {
 			if (bShow) {
 				item->window.flags |= WINDOW_VISIBLE;
 			} else {
@@ -1234,13 +1235,13 @@ void Menu_ShowItemByName(menuDef_t *menu, const char *p, qboolean bShow) {
 	}
 }
 
-void Menu_FadeItemByName(menuDef_t *menu, const char *p, qboolean fadeOut) {
+void Menu_FadeItemByName(menuDef_t *menu, const char *p, bool fadeOut) {
 	itemDef_t *item;
 	int i;
 	int count = Menu_ItemsMatchingGroup(menu, p);
 	for (i = 0; i < count; i++) {
 		item = Menu_GetMatchingItemByNumber(menu, i, p);
-		if (item != NULL) {
+		if (item != nullptr) {
 			if (fadeOut) {
 				item->window.flags |= (WINDOW_FADINGOUT | WINDOW_VISIBLE);
 				item->window.flags &= ~WINDOW_FADINGIN;
@@ -1259,7 +1260,7 @@ menuDef_t *Menus_FindByName(const char *p) {
 			return &Menus[i];
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 void Menus_ShowByName(const char *p) {
@@ -1292,7 +1293,7 @@ void Menus_CloseByName ( const char *p )
 	menuDef_t *menu = Menus_FindByName(p);
 
 	// If the menu wasnt found just exit
-	if (menu == NULL)
+	if (menu == nullptr)
 	{
 		return;
 	}
@@ -1315,7 +1316,7 @@ void Menus_CloseByName ( const char *p )
 			menuStack[openMenuCount]->window.flags |= WINDOW_HASFOCUS;
 
 			// Remove the top menu from the list
-			menuStack[openMenuCount] = NULL;
+			menuStack[openMenuCount] = nullptr;
 		}
 	}
 
@@ -1329,7 +1330,7 @@ void Menus_CloseAll()
 {
 	int i;
 
-	g_waitingForKey = qfalse;
+	g_waitingForKey = false;
 
 	for (i = 0; i < menuCount; i++)
 	{
@@ -1343,56 +1344,56 @@ void Menus_CloseAll()
 	FPMessageTime = 0;
 }
 
-qboolean Script_Show(itemDef_t *item, char **args)
+bool Script_Show(itemDef_t *item, char **args)
 {
 	const char *name;
 	if (String_Parse(args, &name))
 	{
-		Menu_ShowItemByName((menuDef_t *) item->parent, name, qtrue);
+		Menu_ShowItemByName((menuDef_t *) item->parent, name, true);
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean Script_Hide(itemDef_t *item, char **args)
+bool Script_Hide(itemDef_t *item, char **args)
 {
 	const char *name;
 	if (String_Parse(args, &name))
 	{
-		Menu_ShowItemByName((menuDef_t *) item->parent, name, qfalse);
+		Menu_ShowItemByName((menuDef_t *) item->parent, name, false);
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean Script_FadeIn(itemDef_t *item, char **args)
+bool Script_FadeIn(itemDef_t *item, char **args)
 {
 	const char *name;
 	if (String_Parse(args, &name))
 	{
-		Menu_FadeItemByName((menuDef_t *) item->parent, name, qfalse);
+		Menu_FadeItemByName((menuDef_t *) item->parent, name, false);
 	}
 
-	return qtrue;
+	return true;
 }
 
-qboolean Script_FadeOut(itemDef_t *item, char **args)
+bool Script_FadeOut(itemDef_t *item, char **args)
 {
 	const char *name;
 	if (String_Parse(args, &name))
 	{
-		Menu_FadeItemByName((menuDef_t *) item->parent, name, qtrue);
+		Menu_FadeItemByName((menuDef_t *) item->parent, name, true);
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean Script_Open( itemDef_t *item, char **args ) {
+bool Script_Open( itemDef_t *item, char **args ) {
 	const char *name;
 	if ( String_Parse( args, &name ) ) {
 		Menus_OpenByName( name );
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean Script_Close(itemDef_t *item, char **args)
+bool Script_Close(itemDef_t *item, char **args)
 {
 	const char *name;
 	if ( String_Parse( args, &name ) ) {
@@ -1403,7 +1404,7 @@ qboolean Script_Close(itemDef_t *item, char **args)
 			Menus_CloseByName( name );
 		}
 	}
-	return qtrue;
+	return true;
 }
 
 void Menu_TransitionItemByName(menuDef_t *menu, const char *p, const rectDef_t *rectFrom, const rectDef_t *rectTo, int time, float amt)
@@ -1414,7 +1415,7 @@ void Menu_TransitionItemByName(menuDef_t *menu, const char *p, const rectDef_t *
 	for (i = 0; i < count; i++)
 	{
 		item = Menu_GetMatchingItemByNumber(menu, i, p);
-		if (item != NULL)
+		if (item != nullptr)
 		{
 			if (!rectFrom)
 			{
@@ -1448,7 +1449,7 @@ void Menu_Transition3ItemByName(menuDef_t *menu, const char *p, const float minx
 	for (i = 0; i < count; i++)
 	{
 		item = Menu_GetMatchingItemByNumber(menu, i, p);
-		if (item != NULL)
+		if (item != nullptr)
 		{
 			if ( item->type == ITEM_TYPE_MODEL )
 			{
@@ -1490,11 +1491,11 @@ void Menu_Transition3ItemByName(menuDef_t *menu, const char *p, const float minx
 #define MAX_DEFERRED_SCRIPT		2048
 
 char		ui_deferredScript [ MAX_DEFERRED_SCRIPT ];
-itemDef_t*	ui_deferredScriptItem = NULL;
+itemDef_t*	ui_deferredScriptItem = nullptr;
 
 // Defers the rest of the script based on the defer condition.
 // The deferred portion of the script can later be run with the "rundeferred"
-qboolean Script_Defer ( itemDef_t* item, char **args )
+bool Script_Defer ( itemDef_t* item, char **args )
 {
 	// Should the script be deferred?
 	if ( DC->deferScript ( (char**)args ) )
@@ -1506,29 +1507,29 @@ qboolean Script_Defer ( itemDef_t* item, char **args )
 		Q_strncpyz ( ui_deferredScript, *args, MAX_DEFERRED_SCRIPT );
 
 		// No more running
-		return qfalse;
+		return false;
 	}
 
 	// Keep running the script, its ok
-	return qtrue;
+	return true;
 }
 
 // Runs the last deferred script, there can only be one script deferred at a time so be careful of recursion
-qboolean Script_RunDeferred ( itemDef_t* item, char **args )
+bool Script_RunDeferred ( itemDef_t* item, char **args )
 {
 	// Make sure there is something to run.
 	if ( !ui_deferredScript[0] || !ui_deferredScriptItem )
 	{
-		return qtrue;
+		return true;
 	}
 
 	// Run the deferred script now
 	Item_RunScript ( ui_deferredScriptItem, ui_deferredScript );
 
-	return qtrue;
+	return true;
 }
 
-qboolean Script_Transition(itemDef_t *item, char **args)
+bool Script_Transition(itemDef_t *item, char **args)
 {
 	const char *name;
 	rectDef_t rectFrom, rectTo;
@@ -1543,7 +1544,7 @@ qboolean Script_Transition(itemDef_t *item, char **args)
 		}
 	}
 
-	return qtrue;
+	return true;
 }
 
 void Menu_OrbitItemByName(menuDef_t *menu, const char *p, float x, float y, float cx, float cy, int time)
@@ -1553,7 +1554,7 @@ void Menu_OrbitItemByName(menuDef_t *menu, const char *p, float x, float y, floa
 	int count = Menu_ItemsMatchingGroup(menu, p);
 	for (i = 0; i < count; i++) {
 		item = Menu_GetMatchingItemByNumber(menu, i, p);
-		if (item != NULL) {
+		if (item != nullptr) {
 			item->window.flags |= (WINDOW_ORBITING | WINDOW_VISIBLE);
 			item->window.offsetTime = time;
 			item->window.rectEffects.x = cx;
@@ -1565,7 +1566,7 @@ void Menu_OrbitItemByName(menuDef_t *menu, const char *p, float x, float y, floa
 	}
 }
 
-void Menu_ItemDisable(menuDef_t *menu, const char *name, qboolean disableFlag)
+void Menu_ItemDisable(menuDef_t *menu, const char *name, bool disableFlag)
 {
 	int	j,count;
 	itemDef_t *itemFound;
@@ -1575,7 +1576,7 @@ void Menu_ItemDisable(menuDef_t *menu, const char *name, qboolean disableFlag)
 	for (j = 0; j < count; j++)
 	{
 		itemFound = Menu_GetMatchingItemByNumber( menu, j, name);
-		if (itemFound != NULL)
+		if (itemFound != nullptr)
 		{
 			itemFound->disabled = disableFlag;
 			// Just in case it had focus
@@ -1585,7 +1586,7 @@ void Menu_ItemDisable(menuDef_t *menu, const char *name, qboolean disableFlag)
 }
 
 // Set item disable flags
-qboolean Script_Disable(itemDef_t *item, char **args)
+bool Script_Disable(itemDef_t *item, char **args)
 {
 	char *name;
 	int	value;
@@ -1610,11 +1611,11 @@ qboolean Script_Disable(itemDef_t *item, char **args)
 		}
 	}
 
-	return qtrue;
+	return true;
 }
 
 // Scale the given item instantly.
-qboolean Script_Scale(itemDef_t *item, char **args)
+bool Script_Scale(itemDef_t *item, char **args)
 {
 	const char *name;
 	float scale;
@@ -1641,7 +1642,7 @@ qboolean Script_Scale(itemDef_t *item, char **args)
 			for (j = 0; j < count; j++)
 			{
 				itemFound = Menu_GetMatchingItemByNumber( (menuDef_t *) item->parent, j, name);
-				if (itemFound != NULL)
+				if (itemFound != nullptr)
 				{
 					rectTo.h = itemFound->window.rect.h * scale;
 					rectTo.w = itemFound->window.rect.w * scale;
@@ -1655,10 +1656,10 @@ qboolean Script_Scale(itemDef_t *item, char **args)
 		}
 	}
 
-	return qtrue;
+	return true;
 }
 
-qboolean Script_Orbit(itemDef_t *item, char **args)
+bool Script_Orbit(itemDef_t *item, char **args)
 {
 	const char *name;
 	float cx, cy, x, y;
@@ -1672,10 +1673,10 @@ qboolean Script_Orbit(itemDef_t *item, char **args)
 		}
 	}
 
-	return qtrue;
+	return true;
 }
 
-qboolean Script_SetFocus(itemDef_t *item, char **args)
+bool Script_SetFocus(itemDef_t *item, char **args)
 {
 	const char *name;
 	itemDef_t *focusItem;
@@ -1695,10 +1696,10 @@ qboolean Script_SetFocus(itemDef_t *item, char **args)
 		}
 	}
 
-	return qtrue;
+	return true;
 }
 
-qboolean Script_SetPlayerModel(itemDef_t *item, char **args)
+bool Script_SetPlayerModel(itemDef_t *item, char **args)
 {
 	const char *name;
 	if (String_Parse(args, &name))
@@ -1706,10 +1707,10 @@ qboolean Script_SetPlayerModel(itemDef_t *item, char **args)
 		DC->setCVar("model", name);
 	}
 
-	return qtrue;
+	return true;
 }
 
-qboolean ParseRect(const char **p, rectDef_t *r)
+bool ParseRect(const char **p, rectDef_t *r)
 {
 	if (!COM_ParseFloat(p, &r->x))
 	{
@@ -1719,17 +1720,17 @@ qboolean ParseRect(const char **p, rectDef_t *r)
 			{
 				if (!COM_ParseFloat(p, &r->h))
 				{
-					return qtrue;
+					return true;
 				}
 			}
 		}
 	}
-	return qfalse;
+	return false;
 }
 
 // uses current origin instead of specifing a starting origin
 // transition2		lfvscr		25 0 202 264  20 25
-qboolean Script_Transition2(itemDef_t *item, char **args)
+bool Script_Transition2(itemDef_t *item, char **args)
 {
 	const char *name;
 	rectDef_t rectTo;
@@ -1748,16 +1749,16 @@ qboolean Script_Transition2(itemDef_t *item, char **args)
 		}
 	}
 
-	return qtrue;
+	return true;
 }
 
 #ifdef _TRANS3
 /// used exclusively with model views
 // uses current origin instead of specifing a starting origin
 //	transition3		lfvscr		(min extent) (max extent) (fovx,y)  20 25
-qboolean Script_Transition3(itemDef_t *item, char **args)
+bool Script_Transition3(itemDef_t *item, char **args)
 {
-	const char *name = NULL, *value = NULL;
+	const char *name = nullptr, *value = nullptr;
 	float minx, miny, minz, maxx, maxy, maxz, fovtx, fovty;
 	int time;
 	float amt;
@@ -1803,7 +1804,7 @@ qboolean Script_Transition3(itemDef_t *item, char **args)
 														fovtx, fovty,
 														time, amt);
 
-												return qtrue;
+												return true;
 											}
 										}
 									}
@@ -1818,53 +1819,53 @@ qboolean Script_Transition3(itemDef_t *item, char **args)
 	if ( name ) {
 		Com_Printf( S_COLOR_YELLOW "WARNING: Script_Transition3: error parsing '%s'\n", name );
 	}
-	return qtrue;
+	return true;
 }
 #endif
 
-qboolean Script_SetCvar(itemDef_t *item, char **args)
+bool Script_SetCvar(itemDef_t *item, char **args)
 {
 	const char *cvar, *val;
 	if (String_Parse(args, &cvar) && String_Parse(args, &val))
 	{
 		DC->setCVar(cvar, val);
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean Script_SetCvarToCvar(itemDef_t *item, char **args) {
+bool Script_SetCvarToCvar(itemDef_t *item, char **args) {
 	const char *cvar, *val;
 	if (String_Parse(args, &cvar) && String_Parse(args, &val)) {
 		char cvarBuf[1024];
 		DC->getCVarString(val, cvarBuf, sizeof(cvarBuf));
 		DC->setCVar(cvar, cvarBuf);
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean Script_Exec(itemDef_t *item, char **args) {
+bool Script_Exec(itemDef_t *item, char **args) {
 	const char *val;
 	if (String_Parse(args, &val)) {
 		DC->executeText(EXEC_APPEND, va("%s ; ", val));
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean Script_Play(itemDef_t *item, char **args) {
+bool Script_Play(itemDef_t *item, char **args) {
 	const char *val;
 	if (String_Parse(args, &val)) {
 		DC->startLocalSound(DC->registerSound(val), CHAN_AUTO);
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean Script_playLooped(itemDef_t *item, char **args) {
+bool Script_playLooped(itemDef_t *item, char **args) {
 	const char *val;
 	if (String_Parse(args, &val)) {
 		DC->stopBackgroundTrack();
-		DC->startBackgroundTrack(val, val, qfalse);
+		DC->startBackgroundTrack(val, val, false);
 	}
-	return qtrue;
+	return true;
 }
 
 commandDef_t commandList[] = {
@@ -1917,7 +1918,7 @@ void Menu_SetItemBackground(const menuDef_t *menu,const char *itemName, const ch
 	for (j = 0; j < count; j++)
 	{
 		item = Menu_GetMatchingItemByNumber( (menuDef_t *) menu, j, itemName);
-		if (item != NULL)
+		if (item != nullptr)
 		{
 			item->window.background = DC->registerShaderNoMip(background);
 		}
@@ -1940,11 +1941,11 @@ void Menu_SetItemText(const menuDef_t *menu,const char *itemName, const char *te
 	for (j = 0; j < count; j++)
 	{
 		item = Menu_GetMatchingItemByNumber( (menuDef_t *) menu, j, itemName);
-		if (item != NULL)
+		if (item != nullptr)
 		{
 			if (text[0] == '*')
 			{
-				item->text = NULL;		// Null this out because this would take presidence over cvar text.
+				item->text = nullptr;		// Null this out because this would take presidence over cvar text.
 				item->cvar = text+1;
 				switch ( item->type )
 				{
@@ -1992,7 +1993,7 @@ void Item_RunScript(itemDef_t *item, const char *s)
 {
 	char script[2048], *p;
 	int i;
-	qboolean bRan;
+	bool bRan;
 
 	script[0] = 0;
 
@@ -2005,7 +2006,7 @@ void Item_RunScript(itemDef_t *item, const char *s)
 		{
 			const char *command;
 
-			// expect command then arguments, ; ends command, NULL ends script
+			// expect command then arguments, ; ends command, nullptr ends script
 			if (!String_Parse(&p, &command))
 			{
 				return;
@@ -2016,7 +2017,7 @@ void Item_RunScript(itemDef_t *item, const char *s)
 				continue;
 			}
 
-			bRan = qfalse;
+			bRan = false;
 			for (i = 0; i < scriptCommandCount; i++)
 			{
 				if (Q_stricmp(command, commandList[i].name) == 0)
@@ -2027,7 +2028,7 @@ void Item_RunScript(itemDef_t *item, const char *s)
 						return;
 					}
 
-					bRan = qtrue;
+					bRan = true;
 					break;
 				}
 			}
@@ -2041,7 +2042,7 @@ void Item_RunScript(itemDef_t *item, const char *s)
 	}
 }
 
-qboolean Item_EnableShowViaCvar(itemDef_t *item, int flag) {
+bool Item_EnableShowViaCvar(itemDef_t *item, int flag) {
   char script[2048], *p;
   if (item && item->enableCvar && *item->enableCvar && item->cvarTest && *item->cvarTest) {
 		char buff[2048];
@@ -2051,9 +2052,9 @@ qboolean Item_EnableShowViaCvar(itemDef_t *item, int flag) {
     p = script;
     while (1) {
       const char *val;
-      // expect value then ; or NULL, NULL ends list
+      // expect value then ; or nullptr, nullptr ends list
       if (!String_Parse(&p, &val)) {
-				return (item->cvarFlags & flag) ? qfalse : qtrue;
+				return (item->cvarFlags & flag) ? false : true;
       }
 
       if (val[0] == ';' && val[1] == '\0') {
@@ -2063,31 +2064,31 @@ qboolean Item_EnableShowViaCvar(itemDef_t *item, int flag) {
 			// enable it if any of the values are true
 			if (item->cvarFlags & flag) {
         if (Q_stricmp(buff, val) == 0) {
-					return qtrue;
+					return true;
 				}
 			} else {
 				// disable it if any of the values are true
         if (Q_stricmp(buff, val) == 0) {
-					return qfalse;
+					return false;
 				}
 			}
 
     }
-		return (item->cvarFlags & flag) ? qfalse : qtrue;
+		return (item->cvarFlags & flag) ? false : true;
   }
-	return qtrue;
+	return true;
 }
 
 // will optionaly set focus to this item
-qboolean Item_SetFocus(itemDef_t *item, float x, float y) {
+bool Item_SetFocus(itemDef_t *item, float x, float y) {
 	int i;
 	itemDef_t *oldFocus;
 	sfxHandle_t *sfx = &DC->Assets.itemFocusSound;
-	qboolean playSound = qfalse;
+	bool playSound = false;
 	menuDef_t *parent;
 	// sanity check, non-null, not a decoration and does not already have the focus
-	if (item == NULL || item->window.flags & WINDOW_DECORATION || item->window.flags & WINDOW_HASFOCUS || !(item->window.flags & WINDOW_VISIBLE)) {
-		return qfalse;
+	if (item == nullptr || item->window.flags & WINDOW_DECORATION || item->window.flags & WINDOW_HASFOCUS || !(item->window.flags & WINDOW_VISIBLE)) {
+		return false;
 	}
 
 	parent = (menuDef_t*)item->parent;
@@ -2095,16 +2096,16 @@ qboolean Item_SetFocus(itemDef_t *item, float x, float y) {
 	// items can be enabled and disabled
 	if (item->disabled)
 	{
-		return qfalse;
+		return false;
 	}
 
 	// items can be enabled and disabled based on cvars
 	if (item->cvarFlags & (CVAR_ENABLE | CVAR_DISABLE) && !Item_EnableShowViaCvar(item, CVAR_ENABLE)) {
-		return qfalse;
+		return false;
 	}
 
 	if (item->cvarFlags & (CVAR_SHOW | CVAR_HIDE) && !Item_EnableShowViaCvar(item, CVAR_SHOW)) {
-		return qfalse;
+		return false;
 	}
 
 	oldFocus = Menu_ClearFocus(parent);
@@ -2120,7 +2121,7 @@ qboolean Item_SetFocus(itemDef_t *item, float x, float y) {
 			if (item->focusSound) {
 				sfx = &item->focusSound;
 			}
-			playSound = qtrue;
+			playSound = true;
 		}
 		else
 		{
@@ -2139,7 +2140,7 @@ qboolean Item_SetFocus(itemDef_t *item, float x, float y) {
 		if (item->focusSound) {
 			sfx = &item->focusSound;
 		}
-		playSound = qtrue;
+		playSound = true;
 	}
 
 	if (playSound && sfx) {
@@ -2153,7 +2154,7 @@ qboolean Item_SetFocus(itemDef_t *item, float x, float y) {
 		}
 	}
 
-	return qtrue;
+	return true;
 }
 
 int Item_TextScroll_MaxScroll ( itemDef_t *item )
@@ -2262,7 +2263,7 @@ void Item_TextScroll_MouseEnter (itemDef_t *item, float x, float y)
 	item->window.flags |= Item_TextScroll_OverLB(item, x, y);
 }
 
-qboolean Item_TextScroll_HandleKey ( itemDef_t *item, int key, qboolean down, qboolean force)
+bool Item_TextScroll_HandleKey ( itemDef_t *item, int key, bool down, bool force)
 {
 	textScrollDef_t *scrollPtr = item->typeData.textscroll;
 	int				max;
@@ -2280,7 +2281,7 @@ qboolean Item_TextScroll_HandleKey ( itemDef_t *item, int key, qboolean down, qb
 			{
 				scrollPtr->startPos = 0;
 			}
-			return qtrue;
+			return true;
 		}
 
 		if ( key == A_CURSOR_DOWN || key == A_KP_2 )
@@ -2291,7 +2292,7 @@ qboolean Item_TextScroll_HandleKey ( itemDef_t *item, int key, qboolean down, qb
 				scrollPtr->startPos = max;
 			}
 
-			return qtrue;
+			return true;
 		}
 
 		if ( key == A_MWHEELUP )
@@ -2301,11 +2302,11 @@ qboolean Item_TextScroll_HandleKey ( itemDef_t *item, int key, qboolean down, qb
 			if (scrollPtr->startPos < 0)
 			{
 				scrollPtr->startPos = 0;
-				Display_MouseMove(NULL, DC->cursorx, DC->cursory);
-				return qfalse;
+				Display_MouseMove(nullptr, DC->cursorx, DC->cursory);
+				return false;
 			}
-			Display_MouseMove(NULL, DC->cursorx, DC->cursory);
-			return qtrue;
+			Display_MouseMove(nullptr, DC->cursorx, DC->cursory);
+			return true;
 		}
 		if ( key == A_MWHEELDOWN )
 		{
@@ -2314,11 +2315,11 @@ qboolean Item_TextScroll_HandleKey ( itemDef_t *item, int key, qboolean down, qb
 			if (scrollPtr->startPos > max)
 			{
 				scrollPtr->startPos = max;
-				Display_MouseMove(NULL, DC->cursorx, DC->cursory);
-				return qfalse;
+				Display_MouseMove(nullptr, DC->cursorx, DC->cursory);
+				return false;
 			}
-			Display_MouseMove(NULL, DC->cursorx, DC->cursory);
-			return qtrue;
+			Display_MouseMove(nullptr, DC->cursorx, DC->cursory);
+			return true;
 		}
 
 		// mouse hit
@@ -2364,20 +2365,20 @@ qboolean Item_TextScroll_HandleKey ( itemDef_t *item, int key, qboolean down, qb
 				// Display_SetCaptureItem(item);
 			}
 
-			return qtrue;
+			return true;
 		}
 
 		if ( key == A_HOME || key == A_KP_7)
 		{
 			// home
 			scrollPtr->startPos = 0;
-			return qtrue;
+			return true;
 		}
 		if ( key == A_END || key == A_KP_1)
 		{
 			// end
 			scrollPtr->startPos = max;
-			return qtrue;
+			return true;
 		}
 		if (key == A_PAGE_UP || key == A_KP_9 )
 		{
@@ -2387,7 +2388,7 @@ qboolean Item_TextScroll_HandleKey ( itemDef_t *item, int key, qboolean down, qb
 					scrollPtr->startPos = 0;
 			}
 
-			return qtrue;
+			return true;
 		}
 		if ( key == A_PAGE_DOWN || key == A_KP_3 )
 		{
@@ -2396,11 +2397,11 @@ qboolean Item_TextScroll_HandleKey ( itemDef_t *item, int key, qboolean down, qb
 			{
 				scrollPtr->startPos = max;
 			}
-			return qtrue;
+			return true;
 		}
 	}
 
-	return qfalse;
+	return false;
 }
 
 int Item_ListBox_MaxScroll(itemDef_t *item) {
@@ -2796,10 +2797,10 @@ itemDef_t *Menu_HitTest(menuDef_t *menu, float x, float y) {
       return menu->items[i];
     }
   }
-  return NULL;
+  return nullptr;
 }
 
-void Item_SetMouseOver(itemDef_t *item, qboolean focus) {
+void Item_SetMouseOver(itemDef_t *item, bool focus) {
   if (item) {
     if (focus) {
       item->window.flags |= WINDOW_MOUSEOVER;
@@ -2809,7 +2810,7 @@ void Item_SetMouseOver(itemDef_t *item, qboolean focus) {
   }
 }
 
-qboolean Item_OwnerDraw_HandleKey(itemDef_t *item, int key) {
+bool Item_OwnerDraw_HandleKey(itemDef_t *item, int key) {
   if (item && DC->ownerDrawHandleKey)
   {
 
@@ -2839,7 +2840,7 @@ qboolean Item_OwnerDraw_HandleKey(itemDef_t *item, int key) {
 			case UI_FORCE_RANK_SABERTHROW:
 	  			if(!Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) )
 				{
-					return qfalse;
+					return false;
 				}
 				break;
 		}
@@ -2847,10 +2848,10 @@ qboolean Item_OwnerDraw_HandleKey(itemDef_t *item, int key) {
 
     return DC->ownerDrawHandleKey(item->window.ownerDraw, item->window.ownerDrawFlags, &item->special, key);
   }
-  return qfalse;
+  return false;
 }
 
-qboolean Item_ListBox_HandleKey(itemDef_t *item, int key, qboolean down, qboolean force) {
+bool Item_ListBox_HandleKey(itemDef_t *item, int key, bool down, bool force) {
 	listBoxDef_t *listPtr = item->typeData.listbox;
 	int count = DC->feederCount(item->special);
 	int max, viewmax;
@@ -2865,24 +2866,24 @@ qboolean Item_ListBox_HandleKey(itemDef_t *item, int key, qboolean down, qboolea
 					listPtr->cursorPos--;
 					if (listPtr->cursorPos < 0) {
 						listPtr->cursorPos = 0;
-						return qfalse;
+						return false;
 					}
 					if (listPtr->cursorPos < listPtr->startPos) {
 						listPtr->startPos = listPtr->cursorPos;
-						return qfalse;
+						return false;
 					}
 					if (listPtr->cursorPos >= listPtr->startPos + viewmax) {
 						listPtr->startPos = listPtr->cursorPos - viewmax + 1;
 					}
 					item->cursorPos = listPtr->cursorPos;
-					DC->feederSelection(item->special, item->cursorPos, NULL);
+					DC->feederSelection(item->special, item->cursorPos, nullptr);
 				}
 				else {
 					listPtr->startPos--;
 					if (listPtr->startPos < 0)
 						listPtr->startPos = 0;
 				}
-				return qtrue;
+				return true;
 			}
 			if ( key == A_CURSOR_RIGHT || key == A_KP_6 )
 			{
@@ -2890,24 +2891,24 @@ qboolean Item_ListBox_HandleKey(itemDef_t *item, int key, qboolean down, qboolea
 					listPtr->cursorPos++;
 					if (listPtr->cursorPos < listPtr->startPos) {
 						listPtr->startPos = listPtr->cursorPos;
-						return qfalse;
+						return false;
 					}
 					if (listPtr->cursorPos >= count) {
 						listPtr->cursorPos = count-1;
-						return qfalse;
+						return false;
 					}
 					if (listPtr->cursorPos >= listPtr->startPos + viewmax) {
 						listPtr->startPos = listPtr->cursorPos - viewmax + 1;
 					}
 					item->cursorPos = listPtr->cursorPos;
-					DC->feederSelection(item->special, item->cursorPos, NULL);
+					DC->feederSelection(item->special, item->cursorPos, nullptr);
 				}
 				else {
 					listPtr->startPos++;
 					if (listPtr->startPos >= count)
 						listPtr->startPos = count-1;
 				}
-				return qtrue;
+				return true;
 			}
 		}
 		// Vertical scroll
@@ -2929,24 +2930,24 @@ qboolean Item_ListBox_HandleKey(itemDef_t *item, int key, qboolean down, qboolea
 					listPtr->cursorPos--;
 					if (listPtr->cursorPos < 0) {
 						listPtr->cursorPos = 0;
-						return qfalse;
+						return false;
 					}
 					if (listPtr->cursorPos < listPtr->startPos) {
 						listPtr->startPos = listPtr->cursorPos;
-						return qfalse;
+						return false;
 					}
 					if (listPtr->cursorPos >= listPtr->startPos + viewmax) {
 						listPtr->startPos = listPtr->cursorPos - viewmax + 1;
 					}
 					item->cursorPos = listPtr->cursorPos;
-					DC->feederSelection(item->special, item->cursorPos, NULL);
+					DC->feederSelection(item->special, item->cursorPos, nullptr);
 				}
 				else {
 					listPtr->startPos--;
 					if (listPtr->startPos < 0)
 						listPtr->startPos = 0;
 				}
-				return qtrue;
+				return true;
 			}
 			if ( key == A_CURSOR_DOWN || key == A_KP_2 )
 			{
@@ -2954,24 +2955,24 @@ qboolean Item_ListBox_HandleKey(itemDef_t *item, int key, qboolean down, qboolea
 					listPtr->cursorPos++;
 					if (listPtr->cursorPos < listPtr->startPos) {
 						listPtr->startPos = listPtr->cursorPos;
-						return qfalse;
+						return false;
 					}
 					if (listPtr->cursorPos >= count) {
 						listPtr->cursorPos = count-1;
-						return qfalse;
+						return false;
 					}
 					if (listPtr->cursorPos >= listPtr->startPos + viewmax) {
 						listPtr->startPos = listPtr->cursorPos - viewmax + 1;
 					}
 					item->cursorPos = listPtr->cursorPos;
-					DC->feederSelection(item->special, item->cursorPos, NULL);
+					DC->feederSelection(item->special, item->cursorPos, nullptr);
 				}
 				else {
 					listPtr->startPos++;
 					if (listPtr->startPos > max)
 						listPtr->startPos = max;
 				}
-				return qtrue;
+				return true;
 			}
 
 			if ( key == A_MWHEELUP )
@@ -2981,11 +2982,11 @@ qboolean Item_ListBox_HandleKey(itemDef_t *item, int key, qboolean down, qboolea
 				if (listPtr->startPos < 0)
 				{
 					listPtr->startPos = 0;
-					Display_MouseMove(NULL, DC->cursorx, DC->cursory);
-					return qfalse;
+					Display_MouseMove(nullptr, DC->cursorx, DC->cursory);
+					return false;
 				}
-				Display_MouseMove(NULL, DC->cursorx, DC->cursory);
-				return qtrue;
+				Display_MouseMove(nullptr, DC->cursorx, DC->cursory);
+				return true;
 			}
 			if ( key == A_MWHEELDOWN )
 			{
@@ -2994,11 +2995,11 @@ qboolean Item_ListBox_HandleKey(itemDef_t *item, int key, qboolean down, qboolea
 				if (listPtr->startPos > max)
 				{
 					listPtr->startPos = max;
-					Display_MouseMove(NULL, DC->cursorx, DC->cursory);
-					return qfalse;
+					Display_MouseMove(nullptr, DC->cursorx, DC->cursory);
+					return false;
 				}
-				Display_MouseMove(NULL, DC->cursorx, DC->cursory);
-				return qtrue;
+				Display_MouseMove(nullptr, DC->cursorx, DC->cursory);
+				return true;
 			}
 		}
 		// mouse hit
@@ -3046,17 +3047,17 @@ qboolean Item_ListBox_HandleKey(itemDef_t *item, int key, qboolean down, qboolea
 					}
 				}
 			}
-			return qtrue;
+			return true;
 		}
 		if ( key == A_HOME || key == A_KP_7) {
 			// home
 			listPtr->startPos = 0;
-			return qtrue;
+			return true;
 		}
 		if ( key == A_END || key == A_KP_1) {
 			// end
 			listPtr->startPos = max;
-			return qtrue;
+			return true;
 		}
 		if (key == A_PAGE_UP || key == A_KP_9 ) {
 			// page up
@@ -3072,7 +3073,7 @@ qboolean Item_ListBox_HandleKey(itemDef_t *item, int key, qboolean down, qboolea
 					listPtr->startPos = listPtr->cursorPos - viewmax + 1;
 				}
 				item->cursorPos = listPtr->cursorPos;
-				DC->feederSelection(item->special, item->cursorPos, NULL);
+				DC->feederSelection(item->special, item->cursorPos, nullptr);
 			}
 			else {
 				listPtr->startPos -= viewmax;
@@ -3080,7 +3081,7 @@ qboolean Item_ListBox_HandleKey(itemDef_t *item, int key, qboolean down, qboolea
 					listPtr->startPos = 0;
 				}
 			}
-			return qtrue;
+			return true;
 		}
 		if ( key == A_PAGE_DOWN || key == A_KP_3 ) {
 			// page down
@@ -3096,7 +3097,7 @@ qboolean Item_ListBox_HandleKey(itemDef_t *item, int key, qboolean down, qboolea
 					listPtr->startPos = listPtr->cursorPos - viewmax + 1;
 				}
 				item->cursorPos = listPtr->cursorPos;
-				DC->feederSelection(item->special, item->cursorPos, NULL);
+				DC->feederSelection(item->special, item->cursorPos, nullptr);
 			}
 			else {
 				listPtr->startPos += viewmax;
@@ -3104,29 +3105,29 @@ qboolean Item_ListBox_HandleKey(itemDef_t *item, int key, qboolean down, qboolea
 					listPtr->startPos = max;
 				}
 			}
-			return qtrue;
+			return true;
 		}
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean Item_YesNo_HandleKey(itemDef_t *item, int key) {
+bool Item_YesNo_HandleKey(itemDef_t *item, int key) {
   if (Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && item->window.flags & WINDOW_HASFOCUS && item->cvar)
 	{
 		if (key == A_MOUSE1 || key == A_ENTER || key == A_MOUSE2 || key == A_MOUSE3)
 		{
 	    DC->setCVar(item->cvar, va("%i", !DC->getCVarValue(item->cvar)));
-		  return qtrue;
+		  return true;
 		}
   }
 
-  return qfalse;
+  return false;
 
 }
 
 int Item_Multi_CountSettings(itemDef_t *item) {
 	multiDef_t *multiPtr = item->typeData.multi;
-	if (multiPtr == NULL) {
+	if (multiPtr == nullptr) {
 		return 0;
 	}
 	return multiPtr->count;
@@ -3201,7 +3202,7 @@ const char *Item_Multi_Setting(itemDef_t *item) {
 	return "@MENUS_CUSTOM";
 }
 
-qboolean Item_Multi_HandleKey(itemDef_t *item, int key)
+bool Item_Multi_HandleKey(itemDef_t *item, int key)
 {
 	multiDef_t *multiPtr = item->typeData.multi;
 	if (multiPtr)
@@ -3252,18 +3253,18 @@ qboolean Item_Multi_HandleKey(itemDef_t *item, int key)
 					DC->feederSelection(item->special, current, item);
 				}
 
-				return qtrue;
+				return true;
 			}
 		}
 	}
-  return qfalse;
+  return false;
 }
 
 // Leaving an edit field so reset it so it prints from the beginning.
 void Leaving_EditField(itemDef_t *item)
 {
 	// switching fields so reset printed text of edit field
-	if ((g_editingField==qtrue) && (item->type==ITEM_TYPE_EDITFIELD))
+	if ((g_editingField==true) && (item->type==ITEM_TYPE_EDITFIELD))
 	{
 		editFieldDef_t *editPtr = item->typeData.edit;
 		if (editPtr)
@@ -3275,19 +3276,19 @@ void Leaving_EditField(itemDef_t *item)
 
 itemDef_t *Menu_SetNextCursorItem(menuDef_t *menu) {
 
-  qboolean wrapped = qfalse;
+  bool wrapped = false;
 	int oldCursor = menu->cursorItem;
 
   if (menu->cursorItem == -1) {
     menu->cursorItem = 0;
-    wrapped = qtrue;
+    wrapped = true;
   }
 
   while (menu->cursorItem < menu->itemCount) {
 
     menu->cursorItem++;
     if (menu->cursorItem >= menu->itemCount && !wrapped) {
-      wrapped = qtrue;
+      wrapped = true;
       menu->cursorItem = 0;
     }
 		if (Item_SetFocus(menu->items[menu->cursorItem], DC->cursorx, DC->cursory)) {
@@ -3298,16 +3299,16 @@ itemDef_t *Menu_SetNextCursorItem(menuDef_t *menu) {
   }
 
 	menu->cursorItem = oldCursor;
-	return NULL;
+	return nullptr;
 }
 
 itemDef_t *Menu_SetPrevCursorItem(menuDef_t *menu) {
-	qboolean wrapped = qfalse;
+	bool wrapped = false;
 	int oldCursor = menu->cursorItem;
 
 	if (menu->cursorItem < 0) {
 		menu->cursorItem = menu->itemCount-1;
-		wrapped = qtrue;
+		wrapped = true;
 	}
 
 	while (menu->cursorItem > -1)
@@ -3318,7 +3319,7 @@ itemDef_t *Menu_SetPrevCursorItem(menuDef_t *menu) {
 			{
 				break;
 			}
-			wrapped = qtrue;
+			wrapped = true;
 			menu->cursorItem = menu->itemCount -1;
 		}
 
@@ -3328,12 +3329,12 @@ itemDef_t *Menu_SetPrevCursorItem(menuDef_t *menu) {
 		}
 	}
 	menu->cursorItem = oldCursor;
-	return NULL;
+	return nullptr;
 
 }
 
 #ifdef UI_BUILD
-qboolean Item_TextField_HandleKey( itemDef_t *item, int key );
+bool Item_TextField_HandleKey( itemDef_t *item, int key );
 static void Item_TextField_Paste( itemDef_t *item ) {
 	int		pasteLen, i;
 	char	buff[2048] = { 0 };
@@ -3352,10 +3353,10 @@ static void Item_TextField_Paste( itemDef_t *item ) {
 }
 #endif
 
-qboolean Item_TextField_HandleKey(itemDef_t *item, int key) {
+bool Item_TextField_HandleKey(itemDef_t *item, int key) {
 	char buff[2048];
 	int len;
-	itemDef_t *newItem = NULL;
+	itemDef_t *newItem = nullptr;
 	editFieldDef_t *editPtr = item->typeData.edit;
 
 	if (item->cvar) {
@@ -3372,7 +3373,7 @@ qboolean Item_TextField_HandleKey(itemDef_t *item, int key) {
 #ifdef UI_BUILD
 			if ( key == 'v' - 'a' + 1 ) {	// ctrl-v is paste
 				Item_TextField_Paste( item );
-				return qtrue;
+				return true;
 			}
 #endif
 
@@ -3385,29 +3386,29 @@ qboolean Item_TextField_HandleKey(itemDef_t *item, int key) {
 					}
 				}
 				DC->setCVar(item->cvar, buff);
-	    		return qtrue;
+	    		return true;
 			}
 
 			// ignore any non printable chars
 
 			if ( key < 32 || !item->cvar) {
-			    return qtrue;
+			    return true;
 		    }
 
 			if (item->type == ITEM_TYPE_NUMERICFIELD) {
 				if (key < '0' || key > '9') {
-					return qfalse;
+					return false;
 				}
 			}
 
 			if (!DC->getOverstrikeMode()) {
 				if (( len == MAX_EDITFIELD - 1 ) || (editPtr->maxChars && len >= editPtr->maxChars)) {
-					return qtrue;
+					return true;
 				}
 				memmove( &buff[item->cursorPos + 1], &buff[item->cursorPos], len + 1 - item->cursorPos );
 			} else {
 				if (editPtr->maxChars && item->cursorPos >= editPtr->maxChars) {
-					return qtrue;
+					return true;
 				}
 			}
 
@@ -3439,7 +3440,7 @@ qboolean Item_TextField_HandleKey(itemDef_t *item, int key) {
 					memmove( buff + item->cursorPos, buff + item->cursorPos + 1, len - item->cursorPos);
 					DC->setCVar(item->cvar, buff);
 				}
-				return qtrue;
+				return true;
 			}
 
 			if ( key == A_CURSOR_RIGHT || key == A_KP_6 )
@@ -3447,12 +3448,12 @@ qboolean Item_TextField_HandleKey(itemDef_t *item, int key) {
 				if (editPtr->maxPaintChars && item->cursorPos >= editPtr->maxPaintChars && item->cursorPos < len) {
 					item->cursorPos++;
 					editPtr->paintOffset++;
-					return qtrue;
+					return true;
 				}
 				if (item->cursorPos < len) {
 					item->cursorPos++;
 				}
-				return qtrue;
+				return true;
 			}
 
 			if ( key == A_CURSOR_LEFT || key == A_KP_4 )
@@ -3463,13 +3464,13 @@ qboolean Item_TextField_HandleKey(itemDef_t *item, int key) {
 				if (item->cursorPos < editPtr->paintOffset) {
 					editPtr->paintOffset--;
 				}
-				return qtrue;
+				return true;
 			}
 
 			if ( key == A_HOME || key == A_KP_7) {// || ( tolower(key) == 'a' && trap->Key_IsDown( K_CTRL ) ) ) {
 				item->cursorPos = 0;
 				editPtr->paintOffset = 0;
-				return qtrue;
+				return true;
 			}
 
 			if ( key == A_END || key == A_KP_1)  {// ( tolower(key) == 'e' && trap->Key_IsDown( K_CTRL ) ) ) {
@@ -3477,12 +3478,12 @@ qboolean Item_TextField_HandleKey(itemDef_t *item, int key) {
 				if(item->cursorPos > editPtr->maxPaintChars) {
 					editPtr->paintOffset = len - editPtr->maxPaintChars;
 				}
-				return qtrue;
+				return true;
 			}
 
 			if ( key == A_INSERT || key == A_KP_0 ) {
 				DC->setOverstrikeMode(!DC->getOverstrikeMode());
-				return qtrue;
+				return true;
 			}
 		}
 
@@ -3490,12 +3491,12 @@ qboolean Item_TextField_HandleKey(itemDef_t *item, int key) {
 		{
 			// switching fields so reset printed text of edit field
 			Leaving_EditField(item);
-			g_editingField = qfalse;
+			g_editingField = false;
 			newItem = Menu_SetNextCursorItem((menuDef_t *) item->parent);
 			if (newItem && (newItem->type == ITEM_TYPE_EDITFIELD || newItem->type == ITEM_TYPE_NUMERICFIELD))
 			{
 				g_editItem = newItem;
-				g_editingField = qtrue;
+				g_editingField = true;
 			}
 		}
 
@@ -3504,24 +3505,24 @@ qboolean Item_TextField_HandleKey(itemDef_t *item, int key) {
 			// switching fields so reset printed text of edit field
 			Leaving_EditField(item);
 
-			g_editingField = qfalse;
+			g_editingField = false;
 			newItem = Menu_SetPrevCursorItem((menuDef_t *) item->parent);
 			if (newItem && (newItem->type == ITEM_TYPE_EDITFIELD || newItem->type == ITEM_TYPE_NUMERICFIELD))
 			{
 				g_editItem = newItem;
-				g_editingField = qtrue;
+				g_editingField = true;
 			}
 		}
 
 	//	if ( key == A_ENTER || key == A_KP_ENTER || key == A_ESCAPE)  {
 		if ( key == A_ENTER || key == A_KP_ENTER || key == A_ESCAPE || (key == A_MOUSE1 && !Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) )) {
-			DC->setOverstrikeMode( qfalse );
-			return qfalse;
+			DC->setOverstrikeMode( false );
+			return false;
 		}
 
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 
 }
 
@@ -3534,7 +3535,7 @@ static void Scroll_TextScroll_AutoFunc (void *p)
 		// need to scroll which is done by simulating a click to the item
 		// this is done a bit sideways as the autoscroll "knows" that the item is a listbox
 		// so it calls it directly
-		Item_TextScroll_HandleKey(si->item, si->scrollKey, qtrue, qfalse);
+		Item_TextScroll_HandleKey(si->item, si->scrollKey, true, false);
 		si->nextScrollTime = DC->realTime + si->adjustValue;
 	}
 
@@ -3584,7 +3585,7 @@ static void Scroll_TextScroll_ThumbFunc(void *p)
 		// need to scroll which is done by simulating a click to the item
 		// this is done a bit sideways as the autoscroll "knows" that the item is a listbox
 		// so it calls it directly
-		Item_TextScroll_HandleKey(si->item, si->scrollKey, qtrue, qfalse);
+		Item_TextScroll_HandleKey(si->item, si->scrollKey, true, false);
 		si->nextScrollTime = DC->realTime + si->adjustValue;
 	}
 
@@ -3604,7 +3605,7 @@ static void Scroll_ListBox_AutoFunc(void *p) {
 		// need to scroll which is done by simulating a click to the item
 		// this is done a bit sideways as the autoscroll "knows" that the item is a listbox
 		// so it calls it directly
-		Item_ListBox_HandleKey(si->item, si->scrollKey, qtrue, qfalse);
+		Item_ListBox_HandleKey(si->item, si->scrollKey, true, false);
 		si->nextScrollTime = DC->realTime + si->adjustValue;
 	}
 
@@ -3679,7 +3680,7 @@ static void Scroll_ListBox_ThumbFunc(void *p) {
 		// need to scroll which is done by simulating a click to the item
 		// this is done a bit sideways as the autoscroll "knows" that the item is a listbox
 		// so it calls it directly
-		Item_ListBox_HandleKey(si->item, si->scrollKey, qtrue, qfalse);
+		Item_ListBox_HandleKey(si->item, si->scrollKey, true, false);
 		si->nextScrollTime = DC->realTime + si->adjustValue;
 	}
 
@@ -3731,7 +3732,7 @@ void Item_StartCapture(itemDef_t *item, int key)
 				scrollInfo.nextAdjustTime = DC->realTime + SCROLL_TIME_ADJUST;
 				scrollInfo.adjustValue = SCROLL_TIME_START;
 				scrollInfo.scrollKey = key;
-				scrollInfo.scrollDir = (flags & WINDOW_LB_LEFTARROW) ? qtrue : qfalse;
+				scrollInfo.scrollDir = (flags & WINDOW_LB_LEFTARROW) ? true : false;
 				scrollInfo.item = item;
 				captureData = &scrollInfo;
 				captureFunc = &Scroll_ListBox_AutoFunc;
@@ -3756,7 +3757,7 @@ void Item_StartCapture(itemDef_t *item, int key)
 				scrollInfo.nextAdjustTime = DC->realTime + SCROLL_TIME_ADJUST;
 				scrollInfo.adjustValue = SCROLL_TIME_START;
 				scrollInfo.scrollKey = key;
-				scrollInfo.scrollDir = (flags & WINDOW_LB_LEFTARROW) ? qtrue : qfalse;
+				scrollInfo.scrollDir = (flags & WINDOW_LB_LEFTARROW) ? true : false;
 				scrollInfo.item = item;
 				captureData = &scrollInfo;
 				captureFunc = &Scroll_TextScroll_AutoFunc;
@@ -3795,7 +3796,7 @@ void Item_StopCapture(itemDef_t *item) {
 
 }
 
-qboolean Item_Slider_HandleKey(itemDef_t *item, int key, qboolean down) {
+bool Item_Slider_HandleKey(itemDef_t *item, int key, bool down) {
 	float x, value, width, work;
 
 	//DC->Print("slider handle key\n");
@@ -3826,13 +3827,13 @@ qboolean Item_Slider_HandleKey(itemDef_t *item, int key, qboolean down) {
 					// value = (((float)(DC->cursorx - x)/ SLIDER_WIDTH) * (editDef->maxVal - editDef->minVal));
 					value += editDef->minVal;
 					DC->setCVar(item->cvar, va("%f", value));
-					return qtrue;
+					return true;
 				}
 			}
 		}
 	}
 	//DC->Print("slider handle key exit\n");
-	return qfalse;
+	return false;
 }
 
 static const char *g_bindCommands[] = {
@@ -3927,36 +3928,36 @@ int BindingIDFromName( const char *name ) {
 	return -1;
 }
 
-qboolean Item_Bind_HandleKey(itemDef_t *item, int key, qboolean down) {
+bool Item_Bind_HandleKey(itemDef_t *item, int key, bool down) {
 	int id;
 
 	if ( key == A_MOUSE1 && Rect_ContainsPoint(&item->window.rect, DC->cursorx, DC->cursory) && !g_waitingForKey ) {
 		if (down) {
-			g_waitingForKey = qtrue;
+			g_waitingForKey = true;
 			g_bindItem = item;
 		}
-		return qtrue;
+		return true;
 	}
 	else if ( key == A_ENTER && !g_waitingForKey ) {
 		if ( down ) {
-			g_waitingForKey = qtrue;
+			g_waitingForKey = true;
 			g_bindItem = item;
 		}
-		return qtrue;
+		return true;
 	}
 	else {
-		if ( !g_waitingForKey || g_bindItem == NULL ) {
-			return qfalse;
+		if ( !g_waitingForKey || g_bindItem == nullptr ) {
+			return false;
 		}
 
 		if ( key & K_CHAR_FLAG ) {
-			return qtrue;
+			return true;
 		}
 
 		switch ( key ) {
 			case A_ESCAPE:
-				g_waitingForKey = qfalse;
-				return qtrue;
+				g_waitingForKey = false;
+				return true;
 
 			case A_BACKSPACE:
 				id = BindingIDFromName(item->cvar);
@@ -3972,12 +3973,12 @@ qboolean Item_Bind_HandleKey(itemDef_t *item, int key, qboolean down) {
 					g_bindKeys[id][1] = -1;
 				}
 				Controls_SetConfig();
-				g_waitingForKey = qfalse;
-				g_bindItem = NULL;
-				return qtrue;
+				g_waitingForKey = false;
+				g_bindItem = nullptr;
+				return true;
 
 			case '`':
-				return qtrue;
+				return true;
 		}
 	}
 
@@ -4022,17 +4023,17 @@ qboolean Item_Bind_HandleKey(itemDef_t *item, int key, qboolean down) {
 	}
 
 	Controls_SetConfig();
-	g_waitingForKey = qfalse;
+	g_waitingForKey = false;
 
-	return qtrue;
+	return true;
 }
 
-qboolean Item_HandleKey(itemDef_t *item, int key, qboolean down) {
+bool Item_HandleKey(itemDef_t *item, int key, bool down) {
 	if (itemCapture) {
 		Item_StopCapture(itemCapture);
-		itemCapture = NULL;
+		itemCapture = nullptr;
 		captureFunc = 0;
-		captureData = NULL;
+		captureData = nullptr;
 	} else {
 		if ( down && ( key == A_MOUSE1 || key == A_MOUSE2 || key == A_MOUSE3 ) ) {
 			Item_StartCapture(item, key);
@@ -4040,18 +4041,18 @@ qboolean Item_HandleKey(itemDef_t *item, int key, qboolean down) {
 	}
 
 	if (!down) {
-		return qfalse;
+		return false;
 	}
 
 	switch (item->type) {
 	case ITEM_TYPE_BUTTON:
-		return qfalse;
+		return false;
 		break;
 	case ITEM_TYPE_RADIOBUTTON:
-		return qfalse;
+		return false;
 		break;
 	case ITEM_TYPE_CHECKBOX:
-		return qfalse;
+		return false;
 		break;
 	case ITEM_TYPE_EDITFIELD:
 	case ITEM_TYPE_NUMERICFIELD:
@@ -4066,16 +4067,16 @@ qboolean Item_HandleKey(itemDef_t *item, int key, qboolean down) {
 
 			//return Item_TextField_HandleKey(item, key);
 		}
-		return qfalse;
+		return false;
 		break;
 	case ITEM_TYPE_COMBO:
-		return qfalse;
+		return false;
 		break;
 	case ITEM_TYPE_LISTBOX:
-		return Item_ListBox_HandleKey(item, key, down, qfalse);
+		return Item_ListBox_HandleKey(item, key, down, false);
 		break;
 	case ITEM_TYPE_TEXTSCROLL:
-		return Item_TextScroll_HandleKey(item, key, down, qfalse);
+		return Item_TextScroll_HandleKey(item, key, down, false);
 		break;
 	case ITEM_TYPE_YESNO:
 		return Item_YesNo_HandleKey(item, key);
@@ -4096,21 +4097,21 @@ qboolean Item_HandleKey(itemDef_t *item, int key, qboolean down) {
 		//  Item_Image_Paint(item);
 		//  break;
 	default:
-		return qfalse;
+		return false;
 		break;
 	}
 }
 
 //JLFACCEPT MPMOVED
 // If Item has an accept script, run it.
-qboolean Item_HandleAccept(itemDef_t * item)
+bool Item_HandleAccept(itemDef_t * item)
 {
 	if (item->accept)
 	{
 		Item_RunScript(item, item->accept);
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
 void Item_Action(itemDef_t *item) {
@@ -4157,7 +4158,7 @@ void  Menus_Activate(menuDef_t *menu) {
 
 	if (menu->soundName && *menu->soundName) {
 //		DC->stopBackgroundTrack();					// you don't want to do this since it will reset s_rawend
-		DC->startBackgroundTrack(menu->soundName, menu->soundName, qfalse);
+		DC->startBackgroundTrack(menu->soundName, menu->soundName, false);
 	}
 
 	menu->appearanceTime = 0;
@@ -4176,7 +4177,7 @@ int Display_VisibleMenuCount() {
 	return count;
 }
 
-void Menus_HandleOOBClick(menuDef_t *menu, int key, qboolean down) {
+void Menus_HandleOOBClick(menuDef_t *menu, int key, bool down) {
 	if (menu) {
 		int i;
 		// basically the behaviour we are looking for is if there are windows in the stack.. see if
@@ -4199,14 +4200,14 @@ void Menus_HandleOOBClick(menuDef_t *menu, int key, qboolean down) {
 
 		if (Display_VisibleMenuCount() == 0) {
 			if (DC->Pause) {
-				DC->Pause(qfalse);
+				DC->Pause(false);
 			}
 		}
 		Display_CloseCinematics();
 	}
 }
 
-void Menu_HandleKey(menuDef_t *menu, int key, qboolean down) {
+void Menu_HandleKey(menuDef_t *menu, int key, bool down) {
 	if ( g_waitingForKey && down ) {
 		Item_Bind_HandleKey( g_bindItem, key, down );
 		return;
@@ -4214,33 +4215,33 @@ void Menu_HandleKey(menuDef_t *menu, int key, qboolean down) {
 
 	if ( g_editingField && down ) {
 		if ( !Item_TextField_HandleKey( g_editItem, key ) ) {
-			g_editingField = qfalse;
-			g_editItem = NULL;
+			g_editingField = false;
+			g_editItem = nullptr;
 			return;
 		}
 		else if ( key == A_MOUSE1 || key == A_MOUSE2 || key == A_MOUSE3 ) {
 			// switching fields so reset printed text of edit field
 			Leaving_EditField( g_editItem );
-			g_editingField = qfalse;
-			g_editItem = NULL;
-			Display_MouseMove( NULL, DC->cursorx, DC->cursory );
+			g_editingField = false;
+			g_editItem = nullptr;
+			Display_MouseMove( nullptr, DC->cursorx, DC->cursory );
 		}
 		else if ( key == A_TAB || key == A_CURSOR_UP || key == A_CURSOR_DOWN ) {
 			return;
 		}
 	}
 
-	if ( menu == NULL ) {
+	if ( menu == nullptr ) {
 		return;
 	}
 
 	// see if the mouse is within the window bounds and if so is this a mouse click
 	if ( down && !(menu->window.flags & WINDOW_POPUP) && !Rect_ContainsPoint( &menu->window.rect, DC->cursorx, DC->cursory ) ) {
-		static qboolean inHandleKey = qfalse;
+		static bool inHandleKey = false;
 		if ( !inHandleKey && (key == A_MOUSE1 || key == A_MOUSE2 || key == A_MOUSE3) ) {
-			inHandleKey = qtrue;
+			inHandleKey = true;
 			Menus_HandleOOBClick( menu, key, down );
-			inHandleKey = qfalse;
+			inHandleKey = false;
 			return;
 		}
 	}
@@ -4258,7 +4259,7 @@ void Menu_HandleKey(menuDef_t *menu, int key, qboolean down) {
 		return;
 	}
 
-	if ( item != NULL ) {
+	if ( item != nullptr ) {
 		if ( Item_HandleKey( item, key, down ) ) {
 			// It is possible for an item to be disable after Item_HandleKey is run (like in Voice Chat)
 			if ( !item->disabled ) {
@@ -4313,7 +4314,7 @@ void Menu_HandleKey(menuDef_t *menu, int key, qboolean down) {
 				it.parent = menu;
 				Item_RunScript( &it, menu->onESC );
 			}
-		    g_waitingForKey = qfalse;
+		    g_waitingForKey = false;
 		} break;
 
 		case A_TAB:
@@ -4338,9 +4339,9 @@ void Menu_HandleKey(menuDef_t *menu, int key, qboolean down) {
 					if ( Rect_ContainsPoint( &item->window.rect, DC->cursorx, DC->cursory ) ) {
 						Item_Action( item );
 						item->cursorPos = 0;
-						g_editingField = qtrue;
+						g_editingField = true;
 						g_editItem = item;
-						//DC->setOverstrikeMode( qtrue );
+						//DC->setOverstrikeMode( true );
 					}
 				} break;
 
@@ -4372,9 +4373,9 @@ void Menu_HandleKey(menuDef_t *menu, int key, qboolean down) {
 			if ( item ) {
 				if ( item->type == ITEM_TYPE_EDITFIELD || item->type == ITEM_TYPE_NUMERICFIELD ) {
 					item->cursorPos = 0;
-					g_editingField = qtrue;
+					g_editingField = true;
 					g_editItem = item;
-					//DC->setOverstrikeMode( qtrue );
+					//DC->setOverstrikeMode( true );
 				}
 				else {
 					Item_Action( item );
@@ -4404,7 +4405,7 @@ void Rect_ToWindowCoords(rectDef_t *rect, windowDef_t *window) {
 void Item_SetTextExtents(itemDef_t *item, int *width, int *height, const char *text) {
 	const char *textPtr = (text) ? text : item->text;
 
-	if (textPtr == NULL ) {
+	if (textPtr == nullptr ) {
 		return;
 	}
 
@@ -4459,7 +4460,7 @@ void Item_TextColor(itemDef_t *item, vec4_t *newColor) {
 	vec4_t lowLight;
 	menuDef_t *parent = (menuDef_t*)item->parent;
 
-	Fade(&item->window.flags, &item->window.foreColor[3], parent->fadeClamp, &item->window.nextTime, parent->fadeCycle, qtrue, parent->fadeAmount);
+	Fade(&item->window.flags, &item->window.foreColor[3], parent->fadeClamp, &item->window.nextTime, parent->fadeCycle, true, parent->fadeAmount);
 
 	if (item->window.flags & WINDOW_HASFOCUS) {
 		lowLight[0] = 0.8 * parent->focusColor[0];
@@ -4499,10 +4500,10 @@ void Item_Text_AutoWrapped_Paint(itemDef_t *item) {
 	vec4_t color;
 
 	textWidth = 0;
-	newLinePtr = NULL;
+	newLinePtr = nullptr;
 
-	if (item->text == NULL) {
-		if (item->cvar == NULL) {
+	if (item->text == nullptr) {
+		if (item->cvar == nullptr) {
 			return;
 		}
 		else {
@@ -4585,8 +4586,8 @@ void Item_Text_Wrapped_Paint(itemDef_t *item) {
 	// now paint the text and/or any optional images
 	// default to left
 
-	if (item->text == NULL) {
-		if (item->cvar == NULL) {
+	if (item->text == nullptr) {
+		if (item->cvar == nullptr) {
 			return;
 		}
 		else {
@@ -4640,8 +4641,8 @@ void Item_Text_Paint(itemDef_t *item) {
 		return;
 	}
 
-	if (item->text == NULL) {
-		if (item->cvar == NULL) {
+	if (item->text == nullptr) {
+		if (item->cvar == nullptr) {
 			return;
 		}
 		else {
@@ -4992,7 +4993,7 @@ void Item_Bind_Paint(itemDef_t *item)
 	}
 }
 
-qboolean Display_KeyBindPending( void ) {
+bool Display_KeyBindPending( void ) {
 	return g_waitingForKey;
 }
 
@@ -5001,15 +5002,15 @@ void UI_ScaleModelAxis( refEntity_t *ent )
 {
 	if ( ent->modelScale[0] && ent->modelScale[0] != 1.0f ) {
 		VectorScale( ent->axis[0], ent->modelScale[0] , ent->axis[0] );
-		ent->nonNormalizedAxes = qtrue;
+		ent->nonNormalizedAxes = true;
 	}
 	if ( ent->modelScale[1] && ent->modelScale[1] != 1.0f ) {
 		VectorScale( ent->axis[1], ent->modelScale[1] , ent->axis[1] );
-		ent->nonNormalizedAxes = qtrue;
+		ent->nonNormalizedAxes = true;
 	}
 	if ( ent->modelScale[2] && ent->modelScale[2] != 1.0f ) {
 		VectorScale( ent->axis[2], ent->modelScale[2] , ent->axis[2] );
-		ent->nonNormalizedAxes = qtrue;
+		ent->nonNormalizedAxes = true;
 	}
 }
 
@@ -5022,7 +5023,7 @@ void Item_Model_Paint(itemDef_t *item)
 	vec3_t			angles;
 	modelDef_t *modelPtr = item->typeData.model;
 
-	if (modelPtr == NULL)
+	if (modelPtr == nullptr)
 	{
 		return;
 	}
@@ -5133,7 +5134,7 @@ void Item_Model_Paint(itemDef_t *item)
 	origin[1] = 0.5 * ( mins[1] + maxs[1] );
 
 	// calculate distance so the model nearly fills the box
-	if (qtrue)
+	if (true)
 	{
 		float len = 0.5 * ( maxs[2] - mins[2] );
 		origin[0] = len / 0.268;	// len / tan( fov/2 )
@@ -5220,7 +5221,7 @@ void Item_Model_Paint(itemDef_t *item)
 }
 
 void Item_Image_Paint(itemDef_t *item) {
-	if (item == NULL) {
+	if (item == nullptr) {
 		return;
 	}
 	DC->drawHandlePic(item->window.rect.x+1, item->window.rect.y+1, item->window.rect.w-2, item->window.rect.h-2, item->asset);
@@ -5319,7 +5320,7 @@ void Item_ListBox_Paint(itemDef_t *item) {
 	{//probably changed feeders, so reset
 		item->cursorPos = (count?count-1:count);
 		// NOTE : might consider moving this to any spot in here we change the cursor position
-		DC->feederSelection( item->special, item->cursorPos, NULL );
+		DC->feederSelection( item->special, item->cursorPos, nullptr );
 	}
 
 	// default is vertical if horizontal flag is not here
@@ -5609,7 +5610,7 @@ void Item_ListBox_Paint(itemDef_t *item) {
 						{
 							imageStartX = listPtr->columnInfo[j+1].pos;
 						}
-						DC->setColor( NULL );
+						DC->setColor( nullptr );
 						if (optionalImage3 >= 0)
 						{
 							DC->drawHandlePic(imageStartX - listPtr->elementHeight*3, y+listPtr->elementHeight+2, listPtr->elementHeight, listPtr->elementHeight, optionalImage3);
@@ -5659,14 +5660,14 @@ void Item_ListBox_Paint(itemDef_t *item) {
 
 void Item_OwnerDraw_Paint(itemDef_t *item) {
 
-	if (item == NULL) {
+	if (item == nullptr) {
 		return;
 	}
 
 	if (DC->ownerDrawItem) {
 		vec4_t color, lowLight;
 		menuDef_t *parent = (menuDef_t*)item->parent;
-		Fade(&item->window.flags, &item->window.foreColor[3], parent->fadeClamp, &item->window.nextTime, parent->fadeCycle, qtrue, parent->fadeAmount);
+		Fade(&item->window.flags, &item->window.foreColor[3], parent->fadeClamp, &item->window.nextTime, parent->fadeCycle, true, parent->fadeAmount);
 		memcpy(&color, &item->window.foreColor, sizeof(color));
 		if (item->numColors > 0 && DC->getValue) {
 			// if the value is within one of the ranges then set color to that, otherwise leave at default
@@ -5724,7 +5725,7 @@ void Item_Paint(itemDef_t *item)
 	red[0] = red[3] = 1;
 	red[1] = red[2] = 0;
 
-	if (item == NULL)
+	if (item == nullptr)
 	{
 		return;
 	}
@@ -6303,7 +6304,7 @@ void Item_Paint(itemDef_t *item)
 	}
 
 	//FIXME: this might be bad
-	DC->setColor( NULL );
+	DC->setColor( nullptr );
 }
 
 void Menu_Init(menuDef_t *menu) {
@@ -6324,7 +6325,7 @@ itemDef_t *Menu_GetFocusedItem(menuDef_t *menu) {
 			}
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 menuDef_t *Menu_GetFocused() {
@@ -6334,15 +6335,15 @@ menuDef_t *Menu_GetFocused() {
 			return &Menus[i];
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
-void Menu_ScrollFeeder(menuDef_t *menu, int feeder, qboolean down) {
+void Menu_ScrollFeeder(menuDef_t *menu, int feeder, bool down) {
 	if (menu) {
 		int i;
 		for (i = 0; i < menu->itemCount; i++) {
 			if (menu->items[i]->special == feeder) {
-				Item_ListBox_HandleKey(menu->items[i], (down) ? A_CURSOR_DOWN : A_CURSOR_UP, qtrue, qtrue);
+				Item_ListBox_HandleKey(menu->items[i], (down) ? A_CURSOR_DOWN : A_CURSOR_UP, true, true);
 				return;
 			}
 		}
@@ -6350,8 +6351,8 @@ void Menu_ScrollFeeder(menuDef_t *menu, int feeder, qboolean down) {
 }
 
 void Menu_SetFeederSelection(menuDef_t *menu, int feeder, int index, const char *name) {
-	if (menu == NULL) {
-		if (name == NULL) {
+	if (menu == nullptr) {
+		if (name == nullptr) {
 			menu = Menu_GetFocused();
 		} else {
 			menu = Menus_FindByName(name);
@@ -6368,32 +6369,32 @@ void Menu_SetFeederSelection(menuDef_t *menu, int feeder, int index, const char 
 					listPtr->startPos = 0;
 				}
 				menu->items[i]->cursorPos = index;
-				DC->feederSelection(menu->items[i]->special, menu->items[i]->cursorPos, NULL);
+				DC->feederSelection(menu->items[i]->special, menu->items[i]->cursorPos, nullptr);
 				return;
 			}
 		}
 	}
 }
 
-qboolean Menus_AnyFullScreenVisible( void ) {
+bool Menus_AnyFullScreenVisible( void ) {
   int i;
   for (i = 0; i < menuCount; i++) {
     if (Menus[i].window.flags & WINDOW_VISIBLE && Menus[i].fullScreen) {
-			return qtrue;
+			return true;
     }
   }
-  return qfalse;
+  return false;
 }
 
 menuDef_t *Menus_ActivateByName(const char *p) {
 	menuDef_t *focus = Menu_GetFocused();
 
-	menuDef_t *m = NULL;
+	menuDef_t *m = nullptr;
 	for ( int i=0; i<menuCount; i++ ) {
 		if ( !Q_stricmp( Menus[i].window.name, p ) ) {
 			m = &Menus[i];
 			Menus_Activate( m );
-			if ( openMenuCount < MAX_OPEN_MENUS && focus != NULL ) {
+			if ( openMenuCount < MAX_OPEN_MENUS && focus != nullptr ) {
 				menuStack[openMenuCount++] = focus;
 			}
 		}
@@ -6419,10 +6420,10 @@ void Item_Init(itemDef_t *item) {
 
 void Menu_HandleMouseMove(menuDef_t *menu, float x, float y) {
   int i, pass;
-  qboolean focusSet = qfalse;
+  bool focusSet = false;
 
   itemDef_t *overItem;
-  if (menu == NULL) {
+  if (menu == nullptr) {
     return;
   }
 
@@ -6476,7 +6477,7 @@ void Menu_HandleMouseMove(menuDef_t *menu, float x, float y) {
 					if (IsVisible(overItem->window.flags)) {
 						// different one
 						Item_MouseEnter(overItem, x, y);
-						// Item_SetMouseOver(overItem, qtrue);
+						// Item_SetMouseOver(overItem, true);
 
 						// if item is not a decoration see if it can take focus
 						if (!focusSet) {
@@ -6486,17 +6487,17 @@ void Menu_HandleMouseMove(menuDef_t *menu, float x, float y) {
 				}
       } else if (menu->items[i]->window.flags & WINDOW_MOUSEOVER) {
           Item_MouseLeave(menu->items[i]);
-          Item_SetMouseOver(menu->items[i], qfalse);
+          Item_SetMouseOver(menu->items[i], false);
       }
     }
   }
 
 }
 
-void Menu_Paint(menuDef_t *menu, qboolean forcePaint) {
+void Menu_Paint(menuDef_t *menu, bool forcePaint) {
 	int i;
 
-	if (menu == NULL) {
+	if (menu == nullptr) {
 		return;
 	}
 
@@ -6612,7 +6613,7 @@ void Item_ValidateTypeData(itemDef_t *item)
 typedef struct keywordHash_s
 {
 	char *keyword;
-	qboolean (*func)(itemDef_t *item, int handle);
+	bool (*func)(itemDef_t *item, int handle);
 	struct keywordHash_s *next;
 } keywordHash_t;
 
@@ -6636,7 +6637,7 @@ static void KeywordHash_Add(keywordHash_t *table[], keywordHash_t *key) {
 	hash = KeywordHash_Key(key->keyword);
 /*
 	if (table[hash]) {
-		int collision = qtrue;
+		bool collision = true;
 	}
 */
 	key->next = table[hash];
@@ -6653,87 +6654,87 @@ static keywordHash_t *KeywordHash_Find(keywordHash_t *table[], char *keyword)
 		if (!Q_stricmp(key->keyword, keyword))
 			return key;
 	}
-	return NULL;
+	return nullptr;
 }
 
 // Item Keyword Parse functions
 
 // name <string>
-qboolean ItemParse_name( itemDef_t *item, int handle ) {
+bool ItemParse_name( itemDef_t *item, int handle ) {
 	if (!PC_String_Parse(handle, &item->window.name)) {
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
 // name <string>
-qboolean ItemParse_focusSound( itemDef_t *item, int handle ) {
+bool ItemParse_focusSound( itemDef_t *item, int handle ) {
 	pc_token_t token;
 	if (!trap->PC_ReadToken(handle, &token)) {
-		return qfalse;
+		return false;
 	}
 	item->focusSound = DC->registerSound(token.string);
-	return qtrue;
+	return true;
 }
 
 // text <string>
-qboolean ItemParse_text( itemDef_t *item, int handle ) {
+bool ItemParse_text( itemDef_t *item, int handle ) {
 	if (!PC_String_Parse(handle, &item->text)) {
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
 // text <string>
-qboolean ItemParse_descText( itemDef_t *item, int handle)
+bool ItemParse_descText( itemDef_t *item, int handle)
 {
 
 	if (!PC_String_Parse(handle, &item->descText))
 	{
-		return qfalse;
+		return false;
 	}
 
-	return qtrue;
+	return true;
 
 }
 
 // text <string>
-qboolean ItemParse_text2( itemDef_t *item, int handle)
+bool ItemParse_text2( itemDef_t *item, int handle)
 {
 
 	if (!PC_String_Parse(handle, &item->text2))
 	{
-		return qfalse;
+		return false;
 	}
 
-	return qtrue;
+	return true;
 
 }
 
-qboolean ItemParse_text2alignx( itemDef_t *item, int handle)
+bool ItemParse_text2alignx( itemDef_t *item, int handle)
 {
 	if (!PC_Float_Parse(handle, &item->text2alignx))
 	{
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean ItemParse_text2aligny( itemDef_t *item, int handle)
+bool ItemParse_text2aligny( itemDef_t *item, int handle)
 {
 	if (!PC_Float_Parse(handle, &item->text2aligny))
 	{
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
 // group <string>
-qboolean ItemParse_group( itemDef_t *item, int handle ) {
+bool ItemParse_group( itemDef_t *item, int handle ) {
 	if (!PC_String_Parse(handle, &item->window.group)) {
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
 typedef struct uiG2PtrTracker_s uiG2PtrTracker_t;
@@ -6744,7 +6745,7 @@ struct uiG2PtrTracker_s
 	uiG2PtrTracker_t *next;
 };
 
-uiG2PtrTracker_t *ui_G2PtrTracker = NULL;
+uiG2PtrTracker_t *ui_G2PtrTracker = nullptr;
 
 //rww - UI G2 shared management functions.
 
@@ -6767,7 +6768,7 @@ void UI_InsertG2Pointer(void *ghoul2)
 	if (!(*nextFree))
 	{ //if we aren't reusing a chain then allocate space for it.
 		(*nextFree) = (uiG2PtrTracker_t *)BG_Alloc(sizeof(uiG2PtrTracker_t));
-		(*nextFree)->next = NULL;
+		(*nextFree)->next = nullptr;
 	}
 
 	(*nextFree)->ghoul2 = ghoul2;
@@ -6787,7 +6788,7 @@ void UI_ClearG2Pointer(void *ghoul2)
 	{
 		if (next->ghoul2 == ghoul2)
 		{ //found it, set it to null so we can reuse this link.
-			next->ghoul2 = NULL;
+			next->ghoul2 = nullptr;
 			break;
 		}
 
@@ -6810,7 +6811,7 @@ void UI_CleanupGhoul2(void)
 }
 
 // asset_model <string>
-qboolean ItemParse_asset_model_go( itemDef_t *item, const char *name,int *runTimeLength )
+bool ItemParse_asset_model_go( itemDef_t *item, const char *name,int *runTimeLength )
 {
 #ifdef UI_BUILD
 	int g2Model;
@@ -6854,7 +6855,7 @@ qboolean ItemParse_asset_model_go( itemDef_t *item, const char *name,int *runTim
 					{ //If this isn't true the gla path must be messed up somehow.
 						strcpy(slash, "/animation.cfg");
 
-						animIndex = UI_ParseAnimationFile(GLAName, NULL, qfalse);
+						animIndex = UI_ParseAnimationFile(GLAName, nullptr, false);
 						if (animIndex != -1)
 						{ //We parsed out the animation info for whatever model this is
 							animation_t *anim = &bgAllAnims[animIndex].anims[modelPtr->g2anim];
@@ -6899,17 +6900,17 @@ qboolean ItemParse_asset_model_go( itemDef_t *item, const char *name,int *runTim
 		item->flags &= ~ITF_G2VALID;
 	}
 #endif
-	return qtrue;
+	return true;
 }
 
-qboolean ItemParse_asset_model( itemDef_t *item, int handle ) {
+bool ItemParse_asset_model( itemDef_t *item, int handle ) {
 	int animRunLength;
 	pc_token_t token;
 
 	Item_ValidateTypeData(item);
 
 	if (!trap->PC_ReadToken(handle, &token)) {
-		return qfalse;
+		return false;
 	}
 
 #ifdef UI_BUILD
@@ -6926,17 +6927,17 @@ qboolean ItemParse_asset_model( itemDef_t *item, int handle ) {
 }
 
 // asset_shader <string>
-qboolean ItemParse_asset_shader( itemDef_t *item, int handle ) {
+bool ItemParse_asset_shader( itemDef_t *item, int handle ) {
 	pc_token_t token;
 	if (!trap->PC_ReadToken(handle, &token)) {
-		return qfalse;
+		return false;
 	}
 	item->asset = DC->registerShaderNoMip(token.string);
-	return qtrue;
+	return true;
 }
 
 // model_origin <number> <number> <number>
-qboolean ItemParse_model_origin( itemDef_t *item, int handle ) {
+bool ItemParse_model_origin( itemDef_t *item, int handle ) {
 	modelDef_t *modelPtr;
 	Item_ValidateTypeData(item);
 	modelPtr = item->typeData.model;
@@ -6944,63 +6945,63 @@ qboolean ItemParse_model_origin( itemDef_t *item, int handle ) {
 	if (PC_Float_Parse(handle, &modelPtr->origin[0])) {
 		if (PC_Float_Parse(handle, &modelPtr->origin[1])) {
 			if (PC_Float_Parse(handle, &modelPtr->origin[2])) {
-				return qtrue;
+				return true;
 			}
 		}
 	}
-	return qfalse;
+	return false;
 }
 
 // model_fovx <number>
-qboolean ItemParse_model_fovx( itemDef_t *item, int handle ) {
+bool ItemParse_model_fovx( itemDef_t *item, int handle ) {
 	modelDef_t *modelPtr;
 	Item_ValidateTypeData(item);
 	modelPtr = item->typeData.model;
 
 	if (!PC_Float_Parse(handle, &modelPtr->fov_x)) {
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
 // model_fovy <number>
-qboolean ItemParse_model_fovy( itemDef_t *item, int handle ) {
+bool ItemParse_model_fovy( itemDef_t *item, int handle ) {
 	modelDef_t *modelPtr;
 	Item_ValidateTypeData(item);
 	modelPtr = item->typeData.model;
 
 	if (!PC_Float_Parse(handle, &modelPtr->fov_y)) {
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
 // model_rotation <integer>
-qboolean ItemParse_model_rotation( itemDef_t *item, int handle ) {
+bool ItemParse_model_rotation( itemDef_t *item, int handle ) {
 	modelDef_t *modelPtr;
 	Item_ValidateTypeData(item);
 	modelPtr = item->typeData.model;
 
 	if (!PC_Int_Parse(handle, &modelPtr->rotationSpeed)) {
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
 // model_angle <integer>
-qboolean ItemParse_model_angle( itemDef_t *item, int handle ) {
+bool ItemParse_model_angle( itemDef_t *item, int handle ) {
 	modelDef_t *modelPtr;
 	Item_ValidateTypeData(item);
 	modelPtr = item->typeData.model;
 
 	if (!PC_Int_Parse(handle, &modelPtr->angle)) {
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
 // model_g2mins <number> <number> <number>
-qboolean ItemParse_model_g2mins( itemDef_t *item, int handle ) {
+bool ItemParse_model_g2mins( itemDef_t *item, int handle ) {
 	modelDef_t *modelPtr;
 	Item_ValidateTypeData(item);
 	modelPtr = item->typeData.model;
@@ -7008,15 +7009,15 @@ qboolean ItemParse_model_g2mins( itemDef_t *item, int handle ) {
 	if (PC_Float_Parse(handle, &modelPtr->g2mins[0])) {
 		if (PC_Float_Parse(handle, &modelPtr->g2mins[1])) {
 			if (PC_Float_Parse(handle, &modelPtr->g2mins[2])) {
-				return qtrue;
+				return true;
 			}
 		}
 	}
-	return qfalse;
+	return false;
 }
 
 // model_g2maxs <number> <number> <number>
-qboolean ItemParse_model_g2maxs( itemDef_t *item, int handle ) {
+bool ItemParse_model_g2maxs( itemDef_t *item, int handle ) {
 	modelDef_t *modelPtr;
 	Item_ValidateTypeData(item);
 	modelPtr = item->typeData.model;
@@ -7024,15 +7025,15 @@ qboolean ItemParse_model_g2maxs( itemDef_t *item, int handle ) {
 	if (PC_Float_Parse(handle, &modelPtr->g2maxs[0])) {
 		if (PC_Float_Parse(handle, &modelPtr->g2maxs[1])) {
 			if (PC_Float_Parse(handle, &modelPtr->g2maxs[2])) {
-				return qtrue;
+				return true;
 			}
 		}
 	}
-	return qfalse;
+	return false;
 }
 
 // model_g2scale <number> <number> <number>
-qboolean ItemParse_model_g2scale( itemDef_t *item, int handle ) {
+bool ItemParse_model_g2scale( itemDef_t *item, int handle ) {
 	modelDef_t *modelPtr;
 	Item_ValidateTypeData(item);
 	modelPtr = item->typeData.model;
@@ -7040,14 +7041,14 @@ qboolean ItemParse_model_g2scale( itemDef_t *item, int handle ) {
 	if (PC_Float_Parse(handle, &modelPtr->g2scale[0])) {
 		if (PC_Float_Parse(handle, &modelPtr->g2scale[1])) {
 			if (PC_Float_Parse(handle, &modelPtr->g2scale[2])) {
-				return qtrue;
+				return true;
 			}
 		}
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean ItemParse_model_g2skin( itemDef_t *item, int handle ) {
+bool ItemParse_model_g2skin( itemDef_t *item, int handle ) {
 	modelDef_t *modelPtr;
 	pc_token_t token;
 
@@ -7055,21 +7056,21 @@ qboolean ItemParse_model_g2skin( itemDef_t *item, int handle ) {
 	modelPtr = item->typeData.model;
 
 	if (!trap->PC_ReadToken(handle, &token)) {
-		return qfalse;
+		return false;
 	}
 
 	if (!token.string[0])
 	{ //it was parsed correctly so still return true.
-		return qtrue;
+		return true;
 	}
 
 	modelPtr->g2skin = trap->R_RegisterSkin(token.string);
 
-	return qtrue;
+	return true;
 }
 
 // model_g2anim <number>
-qboolean ItemParse_model_g2anim( itemDef_t *item, int handle ) {
+bool ItemParse_model_g2anim( itemDef_t *item, int handle ) {
 	modelDef_t *modelPtr;
 	pc_token_t token;
 	int i = 0;
@@ -7078,12 +7079,12 @@ qboolean ItemParse_model_g2anim( itemDef_t *item, int handle ) {
 	modelPtr = item->typeData.model;
 
 	if (!trap->PC_ReadToken(handle, &token)) {
-		return qfalse;
+		return false;
 	}
 
 	if ( !token.string[0])
 	{ //it was parsed correctly so still return true.
-		return qtrue;
+		return true;
 	}
 
 	while (i < MAX_ANIMATIONS)
@@ -7091,17 +7092,17 @@ qboolean ItemParse_model_g2anim( itemDef_t *item, int handle ) {
 		if (!Q_stricmp(token.string, animTable[i].name))
 		{ //found it
 			modelPtr->g2anim = i;
-			return qtrue;
+			return true;
 		}
 		i++;
 	}
 
 	Com_Printf("Could not find '%s' in the anim table\n", token.string);
-	return qtrue;
+	return true;
 }
 
 // model_g2skin <string>
-qboolean ItemParse_model_g2skin_go( itemDef_t *item, const char *skinName )
+bool ItemParse_model_g2skin_go( itemDef_t *item, const char *skinName )
 {
 	modelDef_t *modelPtr;
 	int defSkin;
@@ -7114,7 +7115,7 @@ qboolean ItemParse_model_g2skin_go( itemDef_t *item, const char *skinName )
 		modelPtr->g2skin = 0;
 		trap->G2API_SetSkin(item->ghoul2, 0, 0, 0);
 
-		return qtrue;
+		return true;
 	}
 
 	// set skin
@@ -7124,11 +7125,11 @@ qboolean ItemParse_model_g2skin_go( itemDef_t *item, const char *skinName )
 		trap->G2API_SetSkin(item->ghoul2, 0, defSkin, defSkin);
 	}
 
-	return qtrue;
+	return true;
 }
 
 // model_g2anim <number>
-qboolean ItemParse_model_g2anim_go( itemDef_t *item, const char *animName )
+bool ItemParse_model_g2anim_go( itemDef_t *item, const char *animName )
 {
 	modelDef_t *modelPtr;
 	int i = 0;
@@ -7138,7 +7139,7 @@ qboolean ItemParse_model_g2anim_go( itemDef_t *item, const char *animName )
 
 	if (!animName || !animName[0])
 	{ //it was parsed correctly so still return true.
-		return qtrue;
+		return true;
 	}
 
 	while (i < MAX_ANIMATIONS)
@@ -7146,17 +7147,17 @@ qboolean ItemParse_model_g2anim_go( itemDef_t *item, const char *animName )
 		if (!Q_stricmp(animName, animTable[i].name))
 		{ //found it
 			modelPtr->g2anim = animTable[i].id;
-			return qtrue;
+			return true;
 		}
 		i++;
 	}
 
 	Com_Printf("Could not find '%s' in the anim table\n", animName);
-	return qtrue;
+	return true;
 }
 
 // Get the cvar, get the values and stuff them in the rect structure.
-qboolean ItemParse_rectcvar( itemDef_t *item, int handle )
+bool ItemParse_rectcvar( itemDef_t *item, int handle )
 {
 	char	cvarBuf[1024];
 	const char	*holdVal;
@@ -7166,7 +7167,7 @@ qboolean ItemParse_rectcvar( itemDef_t *item, int handle )
 	pc_token_t token;
 	if (!trap->PC_ReadToken(handle, &token))
 	{
-		return qfalse;
+		return false;
 	}
 
 	// get cvar data
@@ -7185,33 +7186,33 @@ qboolean ItemParse_rectcvar( itemDef_t *item, int handle )
 				if (String_Parse(&holdBuf,&holdVal))
 				{
 					item->window.rectClient.h = atof(holdVal);
-					return qtrue;
+					return true;
 				}
 			}
 		}
 	}
 
 	// There may be no cvar built for this, and that's okay. . . I guess.
-	return qtrue;
+	return true;
 }
 
 // rect <rectangle>
-qboolean ItemParse_rect( itemDef_t *item, int handle ) {
+bool ItemParse_rect( itemDef_t *item, int handle ) {
 	if (!PC_Rect_Parse(handle, &item->window.rectClient)) {
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
 // flag <flag string>
-qboolean ItemParse_flag( itemDef_t *item, int handle)
+bool ItemParse_flag( itemDef_t *item, int handle)
 {
 	int i;
 	pc_token_t token;
 
 	if (!trap->PC_ReadToken(handle, &token))
 	{
-		return qfalse;
+		return false;
 	}
 
 	for ( i=0; itemFlags[i].string; i++ )
@@ -7223,45 +7224,45 @@ qboolean ItemParse_flag( itemDef_t *item, int handle)
 		}
 	}
 
-	if (itemFlags[i].string == NULL)
+	if (itemFlags[i].string == nullptr)
 	{
 		Com_Printf( S_COLOR_YELLOW "Unknown item style value '%s'\n", token.string );
 	}
 
-	return qtrue;
+	return true;
 }
 
 // style <integer>
-qboolean ItemParse_style( itemDef_t *item, int handle)
+bool ItemParse_style( itemDef_t *item, int handle)
 {
 	if (!PC_Int_Parse(handle, &item->window.style))
 	{
 		Com_Printf(S_COLOR_YELLOW "Unknown item style value\n");
-		return qfalse;
+		return false;
 	}
 
-	return qtrue;
+	return true;
 }
 
 // decoration
-qboolean ItemParse_decoration( itemDef_t *item, int handle ) {
+bool ItemParse_decoration( itemDef_t *item, int handle ) {
 	item->window.flags |= WINDOW_DECORATION;
-	return qtrue;
+	return true;
 }
 
 // notselectable
-qboolean ItemParse_notselectable( itemDef_t *item, int handle ) {
+bool ItemParse_notselectable( itemDef_t *item, int handle ) {
 	listBoxDef_t *listPtr;
 	Item_ValidateTypeData(item);
 	listPtr = item->typeData.listbox;
 	if (item->type == ITEM_TYPE_LISTBOX && listPtr) {
-		listPtr->notselectable = qtrue;
+		listPtr->notselectable = true;
 	}
-	return qtrue;
+	return true;
 }
 
 // scrollhidden
-qboolean ItemParse_scrollhidden( itemDef_t *item , int handle)
+bool ItemParse_scrollhidden( itemDef_t *item , int handle)
 {
 	listBoxDef_t *listPtr;
 	Item_ValidateTypeData(item);
@@ -7269,89 +7270,89 @@ qboolean ItemParse_scrollhidden( itemDef_t *item , int handle)
 
 	if (item->type == ITEM_TYPE_LISTBOX && listPtr)
 	{
-		listPtr->scrollhidden = qtrue;
+		listPtr->scrollhidden = true;
 	}
-	return qtrue;
+	return true;
 }
 
 // manually wrapped
-qboolean ItemParse_wrapped( itemDef_t *item, int handle ) {
+bool ItemParse_wrapped( itemDef_t *item, int handle ) {
 	item->window.flags |= WINDOW_WRAPPED;
-	return qtrue;
+	return true;
 }
 
 // auto wrapped
-qboolean ItemParse_autowrapped( itemDef_t *item, int handle ) {
+bool ItemParse_autowrapped( itemDef_t *item, int handle ) {
 	item->window.flags |= WINDOW_AUTOWRAPPED;
-	return qtrue;
+	return true;
 }
 
 // horizontalscroll
-qboolean ItemParse_horizontalscroll( itemDef_t *item, int handle ) {
+bool ItemParse_horizontalscroll( itemDef_t *item, int handle ) {
 	item->window.flags |= WINDOW_HORIZONTAL;
-	return qtrue;
+	return true;
 }
 
 // type <integer>
-qboolean ItemParse_type( itemDef_t *item, int handle  )
+bool ItemParse_type( itemDef_t *item, int handle  )
 {
 	if (!PC_Int_Parse(handle, &item->type))
 	{
-		return qfalse;
+		return false;
 	}
 	Item_ValidateTypeData(item);
-	return qtrue;
+	return true;
 }
 
 // elementwidth, used for listbox image elements
 // uses textalignx for storage
-qboolean ItemParse_elementwidth( itemDef_t *item, int handle ) {
+bool ItemParse_elementwidth( itemDef_t *item, int handle ) {
 	listBoxDef_t *listPtr;
 
 	Item_ValidateTypeData(item);
 	listPtr = item->typeData.listbox;
 	if (!listPtr || !PC_Float_Parse(handle, &listPtr->elementWidth)) {
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
 // elementheight, used for listbox image elements
 // uses textaligny for storage
-qboolean ItemParse_elementheight( itemDef_t *item, int handle ) {
+bool ItemParse_elementheight( itemDef_t *item, int handle ) {
 	listBoxDef_t *listPtr;
 
 	Item_ValidateTypeData(item);
 	listPtr = item->typeData.listbox;
 	if (!listPtr || !PC_Float_Parse(handle, &listPtr->elementHeight)) {
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
 // feeder <float>
-qboolean ItemParse_feeder( itemDef_t *item, int handle ) {
+bool ItemParse_feeder( itemDef_t *item, int handle ) {
 	if (!PC_Float_Parse(handle, &item->special)) {
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
 // elementtype, used to specify what type of elements a listbox contains
 // uses textstyle for storage
-qboolean ItemParse_elementtype( itemDef_t *item, int handle ) {
+bool ItemParse_elementtype( itemDef_t *item, int handle ) {
 	listBoxDef_t *listPtr;
 
 	Item_ValidateTypeData(item);
 	listPtr = item->typeData.listbox;
 	if (!listPtr || !PC_Int_Parse(handle, &listPtr->elementStyle)) {
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
 // columns sets a number of columns and an x pos and width per..
-qboolean ItemParse_columns( itemDef_t *item, int handle ) {
+bool ItemParse_columns( itemDef_t *item, int handle ) {
 	int i;
 	listBoxDef_t *listPtr;
 
@@ -7369,58 +7370,58 @@ qboolean ItemParse_columns( itemDef_t *item, int handle ) {
 				listPtr->columnInfo[i].width = width;
 				listPtr->columnInfo[i].maxChars = maxChars;
 			} else {
-				return qfalse;
+				return false;
 			}
 		}
 	} else {
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean ItemParse_border( itemDef_t *item, int handle ) {
+bool ItemParse_border( itemDef_t *item, int handle ) {
 	if (!PC_Int_Parse(handle, &item->window.border)) {
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean ItemParse_bordersize( itemDef_t *item, int handle ) {
+bool ItemParse_bordersize( itemDef_t *item, int handle ) {
 	if (!PC_Float_Parse(handle, &item->window.borderSize)) {
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean ItemParse_visible( itemDef_t *item, int handle ) {
+bool ItemParse_visible( itemDef_t *item, int handle ) {
 	int i;
 
 	if (!PC_Int_Parse(handle, &i)) {
-		return qfalse;
+		return false;
 	}
 	if (i) {
 		item->window.flags |= WINDOW_VISIBLE;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean ItemParse_ownerdraw( itemDef_t *item, int handle ) {
+bool ItemParse_ownerdraw( itemDef_t *item, int handle ) {
 	if (!PC_Int_Parse(handle, &item->window.ownerDraw)) {
-		return qfalse;
+		return false;
 	}
 	item->type = ITEM_TYPE_OWNERDRAW;
-	return qtrue;
+	return true;
 }
 
-qboolean ItemParse_align( itemDef_t *item, int handle ) {
+bool ItemParse_align( itemDef_t *item, int handle ) {
 	if (!PC_Int_Parse(handle, &item->alignment)) {
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
 // Sets item flag showing this is a character
-qboolean ItemParse_isCharacter( itemDef_t *item, int handle  )
+bool ItemParse_isCharacter( itemDef_t *item, int handle  )
 {
 	int flag;
 
@@ -7434,223 +7435,223 @@ qboolean ItemParse_isCharacter( itemDef_t *item, int handle  )
 		{
 			item->flags &= ~ITF_ISCHARACTER;
 		}
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean ItemParse_textalign( itemDef_t *item, int handle )
+bool ItemParse_textalign( itemDef_t *item, int handle )
 {
 	if (!PC_Int_Parse(handle, &item->textalignment))
 	{
 		Com_Printf(S_COLOR_YELLOW "Unknown text alignment value\n");
 
-		return qfalse;
+		return false;
 	}
 
-	return qtrue;
+	return true;
 }
 
-qboolean ItemParse_textalignx( itemDef_t *item, int handle ) {
+bool ItemParse_textalignx( itemDef_t *item, int handle ) {
 	if (!PC_Float_Parse(handle, &item->textalignx)) {
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean ItemParse_textaligny( itemDef_t *item, int handle ) {
+bool ItemParse_textaligny( itemDef_t *item, int handle ) {
 	if (!PC_Float_Parse(handle, &item->textaligny)) {
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean ItemParse_textscale( itemDef_t *item, int handle ) {
+bool ItemParse_textscale( itemDef_t *item, int handle ) {
 	if (!PC_Float_Parse(handle, &item->textscale)) {
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean ItemParse_textstyle( itemDef_t *item, int handle ) {
+bool ItemParse_textstyle( itemDef_t *item, int handle ) {
 	if (!PC_Int_Parse(handle, &item->textStyle)) {
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
 //JLFYESNO MPMOVED
-qboolean ItemParse_invertyesno( itemDef_t *item, int handle)
+bool ItemParse_invertyesno( itemDef_t *item, int handle)
 {
 	if (!PC_Int_Parse(handle, &item->invertYesNo))
 	{
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
 // used for yes/no and multi
-qboolean ItemParse_xoffset( itemDef_t *item, int handle)
+bool ItemParse_xoffset( itemDef_t *item, int handle)
 {
 	if (PC_Int_Parse(handle, &item->xoffset))
 	{
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean ItemParse_backcolor( itemDef_t *item, int handle ) {
+bool ItemParse_backcolor( itemDef_t *item, int handle ) {
 	int i;
 	float f;
 
 	for (i = 0; i < 4; i++) {
 		if (!PC_Float_Parse(handle, &f)) {
-			return qfalse;
+			return false;
 		}
 		item->window.backColor[i]  = f;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean ItemParse_forecolor( itemDef_t *item, int handle ) {
+bool ItemParse_forecolor( itemDef_t *item, int handle ) {
 	int i;
 	float f;
 
 	for (i = 0; i < 4; i++) {
 		if (!PC_Float_Parse(handle, &f)) {
-			return qfalse;
+			return false;
 		}
 
 		if (f < 0)
 		{	//special case for player color
 			item->window.flags |= WINDOW_PLAYERCOLOR;
-			return qtrue;
+			return true;
 		}
 
 		item->window.foreColor[i]  = f;
 		item->window.flags |= WINDOW_FORECOLORSET;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean ItemParse_bordercolor( itemDef_t *item, int handle ) {
+bool ItemParse_bordercolor( itemDef_t *item, int handle ) {
 	int i;
 	float f;
 
 	for (i = 0; i < 4; i++) {
 		if (!PC_Float_Parse(handle, &f)) {
-			return qfalse;
+			return false;
 		}
 		item->window.borderColor[i]  = f;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean ItemParse_outlinecolor( itemDef_t *item, int handle ) {
+bool ItemParse_outlinecolor( itemDef_t *item, int handle ) {
 	if (!PC_Color_Parse(handle, &item->window.outlineColor)){
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean ItemParse_background( itemDef_t *item, int handle ) {
+bool ItemParse_background( itemDef_t *item, int handle ) {
 	pc_token_t token;
 
 	if (!trap->PC_ReadToken(handle, &token)) {
-		return qfalse;
+		return false;
 	}
 	item->window.background = DC->registerShaderNoMip(token.string);
-	return qtrue;
+	return true;
 }
 
-qboolean ItemParse_cinematic( itemDef_t *item, int handle ) {
+bool ItemParse_cinematic( itemDef_t *item, int handle ) {
 	if (!PC_String_Parse(handle, &item->window.cinematicName)) {
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean ItemParse_doubleClick( itemDef_t *item, int handle ) {
+bool ItemParse_doubleClick( itemDef_t *item, int handle ) {
 	listBoxDef_t *listPtr;
 
 	Item_ValidateTypeData(item);
 	listPtr = item->typeData.listbox;
 
 	if (!listPtr || !PC_Script_Parse(handle, &listPtr->doubleClick)) {
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean ItemParse_onFocus( itemDef_t *item, int handle ) {
+bool ItemParse_onFocus( itemDef_t *item, int handle ) {
 	if (!PC_Script_Parse(handle, &item->onFocus)) {
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean ItemParse_leaveFocus( itemDef_t *item, int handle ) {
+bool ItemParse_leaveFocus( itemDef_t *item, int handle ) {
 	if (!PC_Script_Parse(handle, &item->leaveFocus)) {
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean ItemParse_mouseEnter( itemDef_t *item, int handle ) {
+bool ItemParse_mouseEnter( itemDef_t *item, int handle ) {
 	if (!PC_Script_Parse(handle, &item->mouseEnter)) {
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean ItemParse_mouseExit( itemDef_t *item, int handle ) {
+bool ItemParse_mouseExit( itemDef_t *item, int handle ) {
 	if (!PC_Script_Parse(handle, &item->mouseExit)) {
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean ItemParse_mouseEnterText( itemDef_t *item, int handle ) {
+bool ItemParse_mouseEnterText( itemDef_t *item, int handle ) {
 	if (!PC_Script_Parse(handle, &item->mouseEnterText)) {
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean ItemParse_mouseExitText( itemDef_t *item, int handle ) {
+bool ItemParse_mouseExitText( itemDef_t *item, int handle ) {
 	if (!PC_Script_Parse(handle, &item->mouseExitText)) {
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean ItemParse_action( itemDef_t *item, int handle ) {
+bool ItemParse_action( itemDef_t *item, int handle ) {
 	if (!PC_Script_Parse(handle, &item->action)) {
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean ItemParse_special( itemDef_t *item, int handle ) {
+bool ItemParse_special( itemDef_t *item, int handle ) {
 	if (!PC_Float_Parse(handle, &item->special)) {
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean ItemParse_cvarTest( itemDef_t *item, int handle ) {
+bool ItemParse_cvarTest( itemDef_t *item, int handle ) {
 	if (!PC_String_Parse(handle, &item->cvarTest)) {
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean ItemParse_cvar( itemDef_t *item, int handle )
+bool ItemParse_cvar( itemDef_t *item, int handle )
 {
 	Item_ValidateTypeData(item);
 	if (!PC_String_Parse(handle, &item->cvar))
 	{
-		return qfalse;
+		return false;
 	}
 
 	switch ( item->type )
@@ -7671,56 +7672,56 @@ qboolean ItemParse_cvar( itemDef_t *item, int handle )
 			break;
 		}
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean ItemParse_font( itemDef_t *item, int handle )
+bool ItemParse_font( itemDef_t *item, int handle )
 {
 	Item_ValidateTypeData(item);
 	if (!PC_Int_Parse(handle, &item->iMenuFont))
 	{
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean ItemParse_maxChars( itemDef_t *item, int handle ) {
+bool ItemParse_maxChars( itemDef_t *item, int handle ) {
 	editFieldDef_t *editPtr;
 
 	Item_ValidateTypeData(item);
 	editPtr = (editFieldDef_t*)item->typeData.edit;
 
 	if (!editPtr || !PC_Int_Parse(handle, &editPtr->maxChars)) {
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean ItemParse_maxPaintChars( itemDef_t *item, int handle ) {
+bool ItemParse_maxPaintChars( itemDef_t *item, int handle ) {
 	editFieldDef_t *editPtr;
 
 	Item_ValidateTypeData(item);
 	editPtr = (editFieldDef_t*)item->typeData.edit;
 
 	if (!editPtr || !PC_Int_Parse(handle, &editPtr->maxPaintChars)) {
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean ItemParse_maxLineChars( itemDef_t *item, int handle ) {
+bool ItemParse_maxLineChars( itemDef_t *item, int handle ) {
 	textScrollDef_t *scrollPtr;
 
 	Item_ValidateTypeData(item);
 	scrollPtr = item->typeData.textscroll;
 
 	if (!scrollPtr || !PC_Int_Parse(handle, &scrollPtr->maxLineChars)) {
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean ItemParse_lineHeight( itemDef_t *item, int handle ) {
+bool ItemParse_lineHeight( itemDef_t *item, int handle ) {
 	textScrollDef_t *scrollPtr;
 	int height;
 
@@ -7728,28 +7729,28 @@ qboolean ItemParse_lineHeight( itemDef_t *item, int handle ) {
 	scrollPtr = item->typeData.textscroll;
 
 	if (!scrollPtr || !PC_Int_Parse(handle, &height)) {
-		return qfalse;
+		return false;
 	}
 	scrollPtr->lineHeight = height;
-	return qtrue;
+	return true;
 }
 
-qboolean ItemParse_cvarFloat( itemDef_t *item, int handle ) {
+bool ItemParse_cvarFloat( itemDef_t *item, int handle ) {
 	editFieldDef_t *editPtr;
 
 	Item_ValidateTypeData(item);
 	editPtr = item->typeData.edit;
 
 	if (!editPtr)
-		return qfalse;
+		return false;
 
 	if (PC_String_Parse(handle, &item->cvar) &&
 		PC_Float_Parse(handle, &editPtr->defVal) &&
 		PC_Float_Parse(handle, &editPtr->minVal) &&
 		PC_Float_Parse(handle, &editPtr->maxVal)) {
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
 #ifdef UI_BUILD
@@ -7757,7 +7758,7 @@ char currLanguage[32][128];
 static const char languageString[32] = "@MENUS_MYLANGUAGE";
 #endif
 
-qboolean ItemParse_cvarStrList( itemDef_t *item, int handle ) {
+bool ItemParse_cvarStrList( itemDef_t *item, int handle ) {
 	pc_token_t token;
 	multiDef_t *multiPtr;
 	int pass;
@@ -7766,14 +7767,14 @@ qboolean ItemParse_cvarStrList( itemDef_t *item, int handle ) {
 	multiPtr = item->typeData.multi;
 
 	if (!multiPtr)
-		return qfalse;
+		return false;
 
 	multiPtr->count = 0;
-	multiPtr->strDef = qtrue;
+	multiPtr->strDef = true;
 
 	if (!trap->PC_ReadToken(handle, &token))
 	{
-		return qfalse;
+		return false;
 	}
 
 	if (!Q_stricmp(token.string,"feeder") && item->special == FEEDER_PLAYER_SPECIES)
@@ -7785,7 +7786,7 @@ qboolean ItemParse_cvarStrList( itemDef_t *item, int handle ) {
 			multiPtr->cvarStr[multiPtr->count] = uiInfo.playerSpecies[multiPtr->count].Name;	//value
 		}
 #endif
-		return qtrue;
+		return true;
 	}
 	// languages
 	if (!Q_stricmp(token.string,"feeder") && item->special == FEEDER_LANGUAGES)
@@ -7801,11 +7802,11 @@ qboolean ItemParse_cvarStrList( itemDef_t *item, int handle ) {
 			multiPtr->cvarStr[multiPtr->count] = currLanguage[multiPtr->count];
 		}
 #endif
-		return qtrue;
+		return true;
 	}
 
 	if (*token.string != '{') {
-		return qfalse;
+		return false;
 	}
 
 	pass = 0;
@@ -7815,14 +7816,14 @@ qboolean ItemParse_cvarStrList( itemDef_t *item, int handle ) {
 		if (!PC_String_Parse(handle, (const char **)&psString))
 		{
 			PC_SourceError(handle, "end of file inside menu item");
-			return qfalse;
+			return false;
 		}
 
 		//a normal StringAlloc ptr
 		if (psString)
 		{
 			if (*psString == '}') {
-				return qtrue;
+				return true;
 			}
 
 			if (*psString == ',' || *psString == ';') {
@@ -7838,15 +7839,15 @@ qboolean ItemParse_cvarStrList( itemDef_t *item, int handle ) {
 			pass = 0;
 			multiPtr->count++;
 			if (multiPtr->count >= MAX_MULTI_CVARS) {
-				return qfalse;
+				return false;
 			}
 		}
 
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean ItemParse_cvarFloatList( itemDef_t *item, int handle )
+bool ItemParse_cvarFloatList( itemDef_t *item, int handle )
 {
 	pc_token_t token;
 	multiDef_t *multiPtr;
@@ -7855,19 +7856,19 @@ qboolean ItemParse_cvarFloatList( itemDef_t *item, int handle )
 	multiPtr = item->typeData.multi;
 
 	if (!multiPtr)
-		return qfalse;
+		return false;
 
 	multiPtr->count = 0;
-	multiPtr->strDef = qfalse;
+	multiPtr->strDef = false;
 
 	if (!trap->PC_ReadToken(handle, &token))
 	{
-		return qfalse;
+		return false;
 	}
 
 	if (*token.string != '{')
 	{
-		return qfalse;
+		return false;
 	}
 
 	while ( 1 )
@@ -7877,7 +7878,7 @@ qboolean ItemParse_cvarFloatList( itemDef_t *item, int handle )
 		if ( !PC_String_Parse ( handle, (const char **)&string ) )
 		{
 			PC_SourceError(handle, "end of file inside menu item");
-			return qfalse;
+			return false;
 		}
 
 		//a normal StringAlloc ptr
@@ -7885,7 +7886,7 @@ qboolean ItemParse_cvarFloatList( itemDef_t *item, int handle )
 		{
 			if (*string == '}')
 			{
-				return qtrue;
+				return true;
 			}
 
 			if (*string == ',' || *string == ';')
@@ -7897,20 +7898,20 @@ qboolean ItemParse_cvarFloatList( itemDef_t *item, int handle )
 		multiPtr->cvarList[multiPtr->count] = string;
 		if (!PC_Float_Parse(handle, &multiPtr->cvarValue[multiPtr->count]))
 		{
-			return qfalse;
+			return false;
 		}
 
 		multiPtr->count++;
 		if (multiPtr->count >= MAX_MULTI_CVARS)
 		{
-			return qfalse;
+			return false;
 		}
 
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean ItemParse_addColorRange( itemDef_t *item, int handle ) {
+bool ItemParse_addColorRange( itemDef_t *item, int handle ) {
 	colorRangeDef_t color;
 
 	if (PC_Float_Parse(handle, &color.low) &&
@@ -7920,62 +7921,62 @@ qboolean ItemParse_addColorRange( itemDef_t *item, int handle ) {
 			memcpy(&item->colorRanges[item->numColors], &color, sizeof(color));
 			item->numColors++;
 		}
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean ItemParse_ownerdrawFlag( itemDef_t *item, int handle ) {
+bool ItemParse_ownerdrawFlag( itemDef_t *item, int handle ) {
 	int i;
 	if (!PC_Int_Parse(handle, &i)) {
-		return qfalse;
+		return false;
 	}
 	item->window.ownerDrawFlags |= i;
-	return qtrue;
+	return true;
 }
 
-qboolean ItemParse_enableCvar( itemDef_t *item, int handle ) {
+bool ItemParse_enableCvar( itemDef_t *item, int handle ) {
 	if (PC_Script_Parse(handle, &item->enableCvar)) {
 		item->cvarFlags = CVAR_ENABLE;
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean ItemParse_disableCvar( itemDef_t *item, int handle ) {
+bool ItemParse_disableCvar( itemDef_t *item, int handle ) {
 	if (PC_Script_Parse(handle, &item->enableCvar)) {
 		item->cvarFlags = CVAR_DISABLE;
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean ItemParse_showCvar( itemDef_t *item, int handle ) {
+bool ItemParse_showCvar( itemDef_t *item, int handle ) {
 	if (PC_Script_Parse(handle, &item->enableCvar)) {
 		item->cvarFlags = CVAR_SHOW;
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean ItemParse_hideCvar( itemDef_t *item, int handle ) {
+bool ItemParse_hideCvar( itemDef_t *item, int handle ) {
 	if (PC_Script_Parse(handle, &item->enableCvar)) {
 		item->cvarFlags = CVAR_HIDE;
-		return qtrue;
+		return true;
 	}
-	return qfalse;
+	return false;
 }
 
-qboolean ItemParse_Appearance_slot( itemDef_t *item, int handle )
+bool ItemParse_Appearance_slot( itemDef_t *item, int handle )
 {
 	if (!PC_Int_Parse(handle, &item->appearanceSlot))
 	{
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean ItemParse_isSaber( itemDef_t *item, int handle  )
+bool ItemParse_isSaber( itemDef_t *item, int handle  )
 {
 #ifndef _CGAME
 
@@ -7997,13 +7998,13 @@ qboolean ItemParse_isSaber( itemDef_t *item, int handle  )
 			item->flags &= ~ITF_ISSABER;
 		}
 
-		return qtrue;
+		return true;
 	}
 #endif
-	return qfalse;
+	return false;
 }
 
-qboolean ItemParse_isSaber2( itemDef_t *item, int handle  )
+bool ItemParse_isSaber2( itemDef_t *item, int handle  )
 {
 #ifndef _CGAME
 	int	i;
@@ -8023,97 +8024,97 @@ qboolean ItemParse_isSaber2( itemDef_t *item, int handle  )
 			item->flags &= ~ITF_ISSABER2;
 		}
 
-		return qtrue;
+		return true;
 	}
 #endif
 
-	return qfalse;
+	return false;
 }
 
 keywordHash_t itemParseKeywords[] = {
-	{ "action",           ItemParse_action,           NULL },
-	{ "addColorRange",    ItemParse_addColorRange,    NULL },
-	{ "align",            ItemParse_align,            NULL },
-	{ "appearance_slot",  ItemParse_Appearance_slot,  NULL },
-	{ "asset_model",      ItemParse_asset_model,      NULL },
-	{ "asset_shader",     ItemParse_asset_shader,     NULL },
-	{ "autowrapped",      ItemParse_autowrapped,      NULL },
-	{ "backcolor",        ItemParse_backcolor,        NULL },
-	{ "background",       ItemParse_background,       NULL },
-	{ "border",           ItemParse_border,           NULL },
-	{ "bordercolor",      ItemParse_bordercolor,      NULL },
-	{ "bordersize",       ItemParse_bordersize,       NULL },
-	{ "cinematic",        ItemParse_cinematic,        NULL },
-	{ "columns",          ItemParse_columns,          NULL },
-	{ "cvar",             ItemParse_cvar,             NULL },
-	{ "cvarFloat",        ItemParse_cvarFloat,        NULL },
-	{ "cvarFloatList",    ItemParse_cvarFloatList,    NULL },
-	{ "cvarStrList",      ItemParse_cvarStrList,      NULL },
-	{ "cvarTest",         ItemParse_cvarTest,         NULL },
-	{ "decoration",       ItemParse_decoration,       NULL },
-	{ "desctext",         ItemParse_descText,         NULL },
-	{ "disableCvar",      ItemParse_disableCvar,      NULL },
-	{ "doubleclick",      ItemParse_doubleClick,      NULL },
-	{ "elementheight",    ItemParse_elementheight,    NULL },
-	{ "elementtype",      ItemParse_elementtype,      NULL },
-	{ "elementwidth",     ItemParse_elementwidth,     NULL },
-	{ "enableCvar",       ItemParse_enableCvar,       NULL },
-	{ "feeder",           ItemParse_feeder,           NULL },
-	{ "flag",             ItemParse_flag,             NULL },
-	{ "focusSound",       ItemParse_focusSound,       NULL },
-	{ "font",             ItemParse_font,             NULL },
-	{ "forecolor",        ItemParse_forecolor,        NULL },
-	{ "group",            ItemParse_group,            NULL },
-	{ "hideCvar",         ItemParse_hideCvar,         NULL },
-	{ "horizontalscroll", ItemParse_horizontalscroll, NULL },
-	{ "invertyesno",      ItemParse_invertyesno,      NULL },
-	{ "isCharacter",      ItemParse_isCharacter,      NULL },
-	{ "isSaber",          ItemParse_isSaber,          NULL },
-	{ "isSaber2",         ItemParse_isSaber2,         NULL },
-	{ "leaveFocus",       ItemParse_leaveFocus,       NULL },
-	{ "lineHeight",       ItemParse_lineHeight,       NULL },
-	{ "maxChars",         ItemParse_maxChars,         NULL },
-	{ "maxLineChars",     ItemParse_maxLineChars,     NULL },
-	{ "maxPaintChars",    ItemParse_maxPaintChars,    NULL },
-	{ "model_angle",      ItemParse_model_angle,      NULL },
-	{ "model_fovx",       ItemParse_model_fovx,       NULL },
-	{ "model_fovy",       ItemParse_model_fovy,       NULL },
-	{ "model_g2anim",     ItemParse_model_g2anim,     NULL },
-	{ "model_g2maxs",     ItemParse_model_g2maxs,     NULL },
-	{ "model_g2mins",     ItemParse_model_g2mins,     NULL },
-	{ "model_g2scale",    ItemParse_model_g2scale,    NULL },
-	{ "model_g2skin",     ItemParse_model_g2skin,     NULL },
-	{ "model_origin",     ItemParse_model_origin,     NULL },
-	{ "model_rotation",   ItemParse_model_rotation,   NULL },
-	{ "mouseEnter",       ItemParse_mouseEnter,       NULL },
-	{ "mouseEnterText",   ItemParse_mouseEnterText,   NULL },
-	{ "mouseExit",        ItemParse_mouseExit,        NULL },
-	{ "mouseExitText",    ItemParse_mouseExitText,    NULL },
-	{ "name",             ItemParse_name,             NULL },
-	{ "notselectable",    ItemParse_notselectable,    NULL },
-	{ "onFocus",          ItemParse_onFocus,          NULL },
-	{ "outlinecolor",     ItemParse_outlinecolor,     NULL },
-	{ "ownerdraw",        ItemParse_ownerdraw,        NULL },
-	{ "ownerdrawFlag",    ItemParse_ownerdrawFlag,    NULL },
-	{ "rect",             ItemParse_rect,             NULL },
-	{ "rectcvar",         ItemParse_rectcvar,         NULL },
-	{ "scrollhidden",     ItemParse_scrollhidden,     NULL },
-	{ "showCvar",         ItemParse_showCvar,         NULL },
-	{ "special",          ItemParse_special,          NULL },
-	{ "style",            ItemParse_style,            NULL },
-	{ "text",             ItemParse_text,             NULL },
-	{ "text2",            ItemParse_text2,            NULL },
-	{ "text2alignx",      ItemParse_text2alignx,      NULL },
-	{ "text2aligny",      ItemParse_text2aligny,      NULL },
-	{ "textalign",        ItemParse_textalign,        NULL },
-	{ "textalignx",       ItemParse_textalignx,       NULL },
-	{ "textaligny",       ItemParse_textaligny,       NULL },
-	{ "textscale",        ItemParse_textscale,        NULL },
-	{ "textstyle",        ItemParse_textstyle,        NULL },
-	{ "type",             ItemParse_type,             NULL },
-	{ "visible",          ItemParse_visible,          NULL },
-	{ "wrapped",          ItemParse_wrapped,          NULL },
-	{ "xoffset",          ItemParse_xoffset,          NULL },
+	{ "action",           ItemParse_action,           nullptr },
+	{ "addColorRange",    ItemParse_addColorRange,    nullptr },
+	{ "align",            ItemParse_align,            nullptr },
+	{ "appearance_slot",  ItemParse_Appearance_slot,  nullptr },
+	{ "asset_model",      ItemParse_asset_model,      nullptr },
+	{ "asset_shader",     ItemParse_asset_shader,     nullptr },
+	{ "autowrapped",      ItemParse_autowrapped,      nullptr },
+	{ "backcolor",        ItemParse_backcolor,        nullptr },
+	{ "background",       ItemParse_background,       nullptr },
+	{ "border",           ItemParse_border,           nullptr },
+	{ "bordercolor",      ItemParse_bordercolor,      nullptr },
+	{ "bordersize",       ItemParse_bordersize,       nullptr },
+	{ "cinematic",        ItemParse_cinematic,        nullptr },
+	{ "columns",          ItemParse_columns,          nullptr },
+	{ "cvar",             ItemParse_cvar,             nullptr },
+	{ "cvarFloat",        ItemParse_cvarFloat,        nullptr },
+	{ "cvarFloatList",    ItemParse_cvarFloatList,    nullptr },
+	{ "cvarStrList",      ItemParse_cvarStrList,      nullptr },
+	{ "cvarTest",         ItemParse_cvarTest,         nullptr },
+	{ "decoration",       ItemParse_decoration,       nullptr },
+	{ "desctext",         ItemParse_descText,         nullptr },
+	{ "disableCvar",      ItemParse_disableCvar,      nullptr },
+	{ "doubleclick",      ItemParse_doubleClick,      nullptr },
+	{ "elementheight",    ItemParse_elementheight,    nullptr },
+	{ "elementtype",      ItemParse_elementtype,      nullptr },
+	{ "elementwidth",     ItemParse_elementwidth,     nullptr },
+	{ "enableCvar",       ItemParse_enableCvar,       nullptr },
+	{ "feeder",           ItemParse_feeder,           nullptr },
+	{ "flag",             ItemParse_flag,             nullptr },
+	{ "focusSound",       ItemParse_focusSound,       nullptr },
+	{ "font",             ItemParse_font,             nullptr },
+	{ "forecolor",        ItemParse_forecolor,        nullptr },
+	{ "group",            ItemParse_group,            nullptr },
+	{ "hideCvar",         ItemParse_hideCvar,         nullptr },
+	{ "horizontalscroll", ItemParse_horizontalscroll, nullptr },
+	{ "invertyesno",      ItemParse_invertyesno,      nullptr },
+	{ "isCharacter",      ItemParse_isCharacter,      nullptr },
+	{ "isSaber",          ItemParse_isSaber,          nullptr },
+	{ "isSaber2",         ItemParse_isSaber2,         nullptr },
+	{ "leaveFocus",       ItemParse_leaveFocus,       nullptr },
+	{ "lineHeight",       ItemParse_lineHeight,       nullptr },
+	{ "maxChars",         ItemParse_maxChars,         nullptr },
+	{ "maxLineChars",     ItemParse_maxLineChars,     nullptr },
+	{ "maxPaintChars",    ItemParse_maxPaintChars,    nullptr },
+	{ "model_angle",      ItemParse_model_angle,      nullptr },
+	{ "model_fovx",       ItemParse_model_fovx,       nullptr },
+	{ "model_fovy",       ItemParse_model_fovy,       nullptr },
+	{ "model_g2anim",     ItemParse_model_g2anim,     nullptr },
+	{ "model_g2maxs",     ItemParse_model_g2maxs,     nullptr },
+	{ "model_g2mins",     ItemParse_model_g2mins,     nullptr },
+	{ "model_g2scale",    ItemParse_model_g2scale,    nullptr },
+	{ "model_g2skin",     ItemParse_model_g2skin,     nullptr },
+	{ "model_origin",     ItemParse_model_origin,     nullptr },
+	{ "model_rotation",   ItemParse_model_rotation,   nullptr },
+	{ "mouseEnter",       ItemParse_mouseEnter,       nullptr },
+	{ "mouseEnterText",   ItemParse_mouseEnterText,   nullptr },
+	{ "mouseExit",        ItemParse_mouseExit,        nullptr },
+	{ "mouseExitText",    ItemParse_mouseExitText,    nullptr },
+	{ "name",             ItemParse_name,             nullptr },
+	{ "notselectable",    ItemParse_notselectable,    nullptr },
+	{ "onFocus",          ItemParse_onFocus,          nullptr },
+	{ "outlinecolor",     ItemParse_outlinecolor,     nullptr },
+	{ "ownerdraw",        ItemParse_ownerdraw,        nullptr },
+	{ "ownerdrawFlag",    ItemParse_ownerdrawFlag,    nullptr },
+	{ "rect",             ItemParse_rect,             nullptr },
+	{ "rectcvar",         ItemParse_rectcvar,         nullptr },
+	{ "scrollhidden",     ItemParse_scrollhidden,     nullptr },
+	{ "showCvar",         ItemParse_showCvar,         nullptr },
+	{ "special",          ItemParse_special,          nullptr },
+	{ "style",            ItemParse_style,            nullptr },
+	{ "text",             ItemParse_text,             nullptr },
+	{ "text2",            ItemParse_text2,            nullptr },
+	{ "text2alignx",      ItemParse_text2alignx,      nullptr },
+	{ "text2aligny",      ItemParse_text2aligny,      nullptr },
+	{ "textalign",        ItemParse_textalign,        nullptr },
+	{ "textalignx",       ItemParse_textalignx,       nullptr },
+	{ "textaligny",       ItemParse_textaligny,       nullptr },
+	{ "textscale",        ItemParse_textscale,        nullptr },
+	{ "textstyle",        ItemParse_textstyle,        nullptr },
+	{ "type",             ItemParse_type,             nullptr },
+	{ "visible",          ItemParse_visible,          nullptr },
+	{ "wrapped",          ItemParse_wrapped,          nullptr },
+	{ "xoffset",          ItemParse_xoffset,          nullptr },
 	{ 0,                  0,                          0 }
 };
 
@@ -8136,7 +8137,7 @@ static void Item_ApplyHacks( itemDef_t *item ) {
 		{
 			menuDef_t *parent = (menuDef_t *)item->parent;
 			VectorSet4( parent->disableColor, 0.5f, 0.5f, 0.5f, 1.0f );
-			item->disabled = qtrue;
+			item->disabled = true;
 			// Just in case it had focus
 			item->window.flags &= ~WINDOW_MOUSEOVER;
 			Com_Printf( "Disabling eax field because current platform does not support EAX.\n");
@@ -8148,7 +8149,7 @@ static void Item_ApplyHacks( itemDef_t *item ) {
 		{
 			menuDef_t *parent = (menuDef_t *)item->parent;
 			VectorSet4( parent->disableColor, 0.5f, 0.5f, 0.5f, 1.0f );
-			item->disabled = item->disabledHidden = qtrue;
+			item->disabled = item->disabledHidden = true;
 			// Just in case it had focus
 			item->window.flags &= ~WINDOW_MOUSEOVER;
 			Com_Printf( "Hiding eax_icon object because current platform does not support EAX.\n");
@@ -8184,12 +8185,12 @@ static void Item_ApplyHacks( itemDef_t *item ) {
 	if ( item->type == ITEM_TYPE_MULTI && item->window.name && !Q_stricmp( item->window.name, "sound_quality") ) {
 		multiDef_t *multiPtr = item->typeData.multi;
 		int i;
-		qboolean found = qfalse;
+		bool found = false;
 		for( i = 0; i < multiPtr->count; i++ )
 		{
 			if ( multiPtr->cvarValue[i] == 44 )
 			{
-				found = qtrue;
+				found = true;
 				break;
 			}
 		}
@@ -8203,24 +8204,24 @@ static void Item_ApplyHacks( itemDef_t *item ) {
 	}
 }
 
-qboolean Item_Parse(int handle, itemDef_t *item) {
+bool Item_Parse(int handle, itemDef_t *item) {
 	pc_token_t token;
 	keywordHash_t *key;
 
 	if (!trap->PC_ReadToken(handle, &token))
-		return qfalse;
+		return false;
 
 	if (*token.string != '{') {
-		return qfalse;
+		return false;
 	}
 	while ( 1 ) {
 		if (!trap->PC_ReadToken(handle, &token)) {
 			PC_SourceError(handle, "end of file inside menu item");
-			return qfalse;
+			return false;
 		}
 
 		if (*token.string == '}') {
-			return qtrue;
+			return true;
 		}
 
 		key = KeywordHash_Find(itemParseKeywordHash, token.string);
@@ -8230,10 +8231,10 @@ qboolean Item_Parse(int handle, itemDef_t *item) {
 		}
 		if ( !key->func(item, handle) ) {
 			PC_SourceError(handle, "couldn't parse menu item keyword %s", token.string);
-			return qfalse;
+			return false;
 		}
 	}
-	return qfalse;
+	return false;
 }
 
 static void Item_TextScroll_BuildLines ( itemDef_t* item )
@@ -8255,7 +8256,7 @@ static void Item_TextScroll_BuildLines ( itemDef_t* item )
 	const char *psReadPosAtLineStart;
 	const char *psBestLineBreakSrcPos;
 	const char *psLastGood_s;	// needed if we get a full screen of chars with no punctuation or space (see usage notes)
-	qboolean bIsTrailingPunctuation;
+	bool bIsTrailingPunctuation;
 	unsigned int uiLetter;
 
 	if (*psText == '@')	// string reference
@@ -8364,7 +8365,7 @@ static void Item_TextScroll_BuildLines ( itemDef_t* item )
 
 		/// arrgghh, this is gettng horrible now...
 
-		if (scrollPtr->pLines[ scrollPtr->iLineCount ] == NULL && strlen(sLineForDisplay))
+		if (scrollPtr->pLines[ scrollPtr->iLineCount ] == nullptr && strlen(sLineForDisplay))
 		{
 			// then this is the last line and we've just run out of text, no CR, no overflow etc...
 
@@ -8454,7 +8455,7 @@ static void Item_TextScroll_BuildLines ( itemDef_t* item )
 // init's special control types
 void Item_InitControls(itemDef_t *item)
 {
-	if (item == NULL)
+	if (item == nullptr)
 	{
 		return;
 	}
@@ -8475,188 +8476,188 @@ void Item_InitControls(itemDef_t *item)
 
 // Menu Keyword Parse functions
 
-qboolean MenuParse_font( itemDef_t *item, int handle ) {
+bool MenuParse_font( itemDef_t *item, int handle ) {
 	menuDef_t *menu = (menuDef_t*)item;
 	if (!PC_String_Parse(handle, &menu->font)) {
-		return qfalse;
+		return false;
 	}
 	if (!DC->Assets.fontRegistered) {
 		//DC->registerFont(menu->font, 48, &DC->Assets.textFont);
 		DC->Assets.qhMediumFont = DC->RegisterFont(menu->font);
-		DC->Assets.fontRegistered = qtrue;
+		DC->Assets.fontRegistered = true;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean MenuParse_name( itemDef_t *item, int handle ) {
+bool MenuParse_name( itemDef_t *item, int handle ) {
 	menuDef_t *menu = (menuDef_t*)item;
 	if (!PC_String_Parse(handle, &menu->window.name)) {
-		return qfalse;
+		return false;
 	}
 	if (Q_stricmp(menu->window.name, "main") == 0) {
 		// default main as having focus
 		//menu->window.flags |= WINDOW_HASFOCUS;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean MenuParse_fullscreen( itemDef_t *item, int handle ) {
+bool MenuParse_fullscreen( itemDef_t *item, int handle ) {
 	menuDef_t *menu = (menuDef_t*)item;
 	byteAlias_t fullscreen;
 	if (!PC_Int_Parse(handle, &fullscreen.i)) {
-		return qfalse;
+		return false;
 	}
 	menu->fullScreen = fullscreen.qb;
-	return qtrue;
+	return true;
 }
 
-qboolean MenuParse_rect( itemDef_t *item, int handle ) {
+bool MenuParse_rect( itemDef_t *item, int handle ) {
 	menuDef_t *menu = (menuDef_t*)item;
 	if (!PC_Rect_Parse(handle, &menu->window.rect)) {
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean MenuParse_style( itemDef_t *item, int handle)
+bool MenuParse_style( itemDef_t *item, int handle)
 {
 	menuDef_t *menu = (menuDef_t*)item;
 
 	if (!PC_Int_Parse(handle, &menu->window.style))
 	{
 		Com_Printf(S_COLOR_YELLOW "Unknown menu style value\n");
-		return qfalse;
+		return false;
 	}
 
-	return qtrue;
+	return true;
 }
 
-qboolean MenuParse_visible( itemDef_t *item, int handle ) {
+bool MenuParse_visible( itemDef_t *item, int handle ) {
 	int i;
 	menuDef_t *menu = (menuDef_t*)item;
 
 	if (!PC_Int_Parse(handle, &i)) {
-		return qfalse;
+		return false;
 	}
 	if (i) {
 		menu->window.flags |= WINDOW_VISIBLE;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean MenuParse_onOpen( itemDef_t *item, int handle ) {
+bool MenuParse_onOpen( itemDef_t *item, int handle ) {
 	menuDef_t *menu = (menuDef_t*)item;
 	if (!PC_Script_Parse(handle, &menu->onOpen)) {
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean MenuParse_onClose( itemDef_t *item, int handle ) {
+bool MenuParse_onClose( itemDef_t *item, int handle ) {
 	menuDef_t *menu = (menuDef_t*)item;
 	if (!PC_Script_Parse(handle, &menu->onClose)) {
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
 //JLFACCEPT MPMOVED
-qboolean MenuParse_onAccept( itemDef_t *item, int handle )
+bool MenuParse_onAccept( itemDef_t *item, int handle )
 {
 	menuDef_t *menu = (menuDef_t*)item;
 
 	if (!PC_Script_Parse(handle, &menu->onAccept))
 	{
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean MenuParse_onESC( itemDef_t *item, int handle ) {
+bool MenuParse_onESC( itemDef_t *item, int handle ) {
 	menuDef_t *menu = (menuDef_t*)item;
 	if (!PC_Script_Parse(handle, &menu->onESC)) {
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean MenuParse_border( itemDef_t *item, int handle ) {
+bool MenuParse_border( itemDef_t *item, int handle ) {
 	menuDef_t *menu = (menuDef_t*)item;
 	if (!PC_Int_Parse(handle, &menu->window.border)) {
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean MenuParse_borderSize( itemDef_t *item, int handle ) {
+bool MenuParse_borderSize( itemDef_t *item, int handle ) {
 	menuDef_t *menu = (menuDef_t*)item;
 	if (!PC_Float_Parse(handle, &menu->window.borderSize)) {
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean MenuParse_backcolor( itemDef_t *item, int handle ) {
+bool MenuParse_backcolor( itemDef_t *item, int handle ) {
 	int i;
 	float f;
 	menuDef_t *menu = (menuDef_t*)item;
 
 	for (i = 0; i < 4; i++) {
 		if (!PC_Float_Parse(handle, &f)) {
-			return qfalse;
+			return false;
 		}
 		menu->window.backColor[i]  = f;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean MenuParse_descAlignment( itemDef_t *item, int handle )
+bool MenuParse_descAlignment( itemDef_t *item, int handle )
 {
 	menuDef_t *menu = (menuDef_t*)item;
 
 	if (!PC_Int_Parse(handle, &menu->descAlignment))
 	{
 		Com_Printf(S_COLOR_YELLOW "Unknown desc alignment value\n");
-		return qfalse;
+		return false;
 	}
 
-	return qtrue;
+	return true;
 }
 
-qboolean MenuParse_descX( itemDef_t *item, int handle )
+bool MenuParse_descX( itemDef_t *item, int handle )
 {
 	menuDef_t *menu = (menuDef_t*)item;
 
 	if (!PC_Int_Parse(handle, &menu->descX))
 	{
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean MenuParse_descY( itemDef_t *item, int handle )
+bool MenuParse_descY( itemDef_t *item, int handle )
 {
 	menuDef_t *menu = (menuDef_t*)item;
 
 	if (!PC_Int_Parse(handle, &menu->descY))
 	{
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean MenuParse_descScale( itemDef_t *item, int handle)
+bool MenuParse_descScale( itemDef_t *item, int handle)
 {
 	menuDef_t *menu = (menuDef_t*)item;
 
 	if (!PC_Float_Parse(handle, &menu->descScale))
 	{
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean MenuParse_descColor( itemDef_t *item, int handle)
+bool MenuParse_descColor( itemDef_t *item, int handle)
 {
 	int i;
 	float f;
@@ -8666,237 +8667,237 @@ qboolean MenuParse_descColor( itemDef_t *item, int handle)
 	{
 		if (!PC_Float_Parse(handle, &f))
 		{
-			return qfalse;
+			return false;
 		}
 		menu->descColor[i]  = f;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean MenuParse_forecolor( itemDef_t *item, int handle ) {
+bool MenuParse_forecolor( itemDef_t *item, int handle ) {
 	int i;
 	float f;
 	menuDef_t *menu = (menuDef_t*)item;
 
 	for (i = 0; i < 4; i++) {
 		if (!PC_Float_Parse(handle, &f)) {
-			return qfalse;
+			return false;
 		}
 		if (f < 0)
 		{	//special case for player color
 			menu->window.flags |= WINDOW_PLAYERCOLOR;
-			return qtrue;
+			return true;
 		}
 		menu->window.foreColor[i]  = f;
 		menu->window.flags |= WINDOW_FORECOLORSET;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean MenuParse_bordercolor( itemDef_t *item, int handle ) {
+bool MenuParse_bordercolor( itemDef_t *item, int handle ) {
 	int i;
 	float f;
 	menuDef_t *menu = (menuDef_t*)item;
 
 	for (i = 0; i < 4; i++) {
 		if (!PC_Float_Parse(handle, &f)) {
-			return qfalse;
+			return false;
 		}
 		menu->window.borderColor[i]  = f;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean MenuParse_focuscolor( itemDef_t *item, int handle ) {
+bool MenuParse_focuscolor( itemDef_t *item, int handle ) {
 	int i;
 	float f;
 	menuDef_t *menu = (menuDef_t*)item;
 
 	for (i = 0; i < 4; i++) {
 		if (!PC_Float_Parse(handle, &f)) {
-			return qfalse;
+			return false;
 		}
 		menu->focusColor[i]  = f;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean MenuParse_disablecolor( itemDef_t *item, int handle ) {
+bool MenuParse_disablecolor( itemDef_t *item, int handle ) {
 	int i;
 	float f;
 	menuDef_t *menu = (menuDef_t*)item;
 	for (i = 0; i < 4; i++) {
 		if (!PC_Float_Parse(handle, &f)) {
-			return qfalse;
+			return false;
 		}
 		menu->disableColor[i]  = f;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean MenuParse_outlinecolor( itemDef_t *item, int handle ) {
+bool MenuParse_outlinecolor( itemDef_t *item, int handle ) {
 	menuDef_t *menu = (menuDef_t*)item;
 	if (!PC_Color_Parse(handle, &menu->window.outlineColor)){
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean MenuParse_background( itemDef_t *item, int handle ) {
+bool MenuParse_background( itemDef_t *item, int handle ) {
 	pc_token_t token;
 	menuDef_t *menu = (menuDef_t*)item;
 
 	if (!trap->PC_ReadToken(handle, &token)) {
-		return qfalse;
+		return false;
 	}
 	menu->window.background = DC->registerShaderNoMip(token.string);
-	return qtrue;
+	return true;
 }
 
-qboolean MenuParse_cinematic( itemDef_t *item, int handle ) {
+bool MenuParse_cinematic( itemDef_t *item, int handle ) {
 	menuDef_t *menu = (menuDef_t*)item;
 
 	if (!PC_String_Parse(handle, &menu->window.cinematicName)) {
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean MenuParse_ownerdrawFlag( itemDef_t *item, int handle ) {
+bool MenuParse_ownerdrawFlag( itemDef_t *item, int handle ) {
 	int i;
 	menuDef_t *menu = (menuDef_t*)item;
 
 	if (!PC_Int_Parse(handle, &i)) {
-		return qfalse;
+		return false;
 	}
 	menu->window.ownerDrawFlags |= i;
-	return qtrue;
+	return true;
 }
 
-qboolean MenuParse_ownerdraw( itemDef_t *item, int handle ) {
+bool MenuParse_ownerdraw( itemDef_t *item, int handle ) {
 	menuDef_t *menu = (menuDef_t*)item;
 
 	if (!PC_Int_Parse(handle, &menu->window.ownerDraw)) {
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
 // decoration
-qboolean MenuParse_popup( itemDef_t *item, int handle ) {
+bool MenuParse_popup( itemDef_t *item, int handle ) {
 	menuDef_t *menu = (menuDef_t*)item;
 	menu->window.flags |= WINDOW_POPUP;
-	return qtrue;
+	return true;
 }
 
-qboolean MenuParse_outOfBounds( itemDef_t *item, int handle ) {
+bool MenuParse_outOfBounds( itemDef_t *item, int handle ) {
 	menuDef_t *menu = (menuDef_t*)item;
 
 	menu->window.flags |= WINDOW_OOB_CLICK;
-	return qtrue;
+	return true;
 }
 
-qboolean MenuParse_soundLoop( itemDef_t *item, int handle ) {
+bool MenuParse_soundLoop( itemDef_t *item, int handle ) {
 	menuDef_t *menu = (menuDef_t*)item;
 
 	if (!PC_String_Parse(handle, &menu->soundName)) {
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean MenuParse_fadeClamp( itemDef_t *item, int handle ) {
+bool MenuParse_fadeClamp( itemDef_t *item, int handle ) {
 	menuDef_t *menu = (menuDef_t*)item;
 
 	if (!PC_Float_Parse(handle, &menu->fadeClamp)) {
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean MenuParse_fadeAmount( itemDef_t *item, int handle ) {
+bool MenuParse_fadeAmount( itemDef_t *item, int handle ) {
 	menuDef_t *menu = (menuDef_t*)item;
 
 	if (!PC_Float_Parse(handle, &menu->fadeAmount)) {
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean MenuParse_fadeCycle( itemDef_t *item, int handle ) {
+bool MenuParse_fadeCycle( itemDef_t *item, int handle ) {
 	menuDef_t *menu = (menuDef_t*)item;
 
 	if (!PC_Int_Parse(handle, &menu->fadeCycle)) {
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean MenuParse_itemDef( itemDef_t *item, int handle ) {
+bool MenuParse_itemDef( itemDef_t *item, int handle ) {
 	menuDef_t *menu = (menuDef_t*)item;
 	if (menu->itemCount < MAX_MENUITEMS) {
 		itemDef_t *newItem = menu->items[menu->itemCount] = (itemDef_t *) UI_Alloc(sizeof(itemDef_t));
 		Item_Init(newItem);
 		if (!Item_Parse(handle, newItem))
 		{
-			return qfalse;
+			return false;
 		}
 		Item_InitControls( newItem );
 		newItem->parent = menu->items[menu->itemCount]->parent = menu;
 		menu->itemCount++;
 		Item_ApplyHacks( newItem );
 	}
-	return qtrue;
+	return true;
 }
 
-qboolean MenuParse_appearanceIncrement( itemDef_t *item, int handle )
+bool MenuParse_appearanceIncrement( itemDef_t *item, int handle )
 {
 	menuDef_t *menu = (menuDef_t*)item;
 
 	if (!PC_Float_Parse(handle, &menu->appearanceIncrement))
 	{
-		return qfalse;
+		return false;
 	}
-	return qtrue;
+	return true;
 }
 
 keywordHash_t menuParseKeywords[] = {
-	{ "appearanceIncrement", MenuParse_appearanceIncrement, NULL },
-	{ "backcolor",           MenuParse_backcolor,           NULL },
-	{ "background",          MenuParse_background,          NULL },
-	{ "border",              MenuParse_border,              NULL },
-	{ "bordercolor",         MenuParse_bordercolor,         NULL },
-	{ "borderSize",          MenuParse_borderSize,          NULL },
-	{ "cinematic",           MenuParse_cinematic,           NULL },
-	{ "descAlignment",       MenuParse_descAlignment,       NULL },
-	{ "desccolor",           MenuParse_descColor,           NULL },
-	{ "descX",               MenuParse_descX,               NULL },
-	{ "descY",               MenuParse_descY,               NULL },
-	{ "descScale",           MenuParse_descScale,           NULL },
-	{ "disablecolor",        MenuParse_disablecolor,        NULL },
-	{ "fadeAmount",          MenuParse_fadeAmount,          NULL },
-	{ "fadeClamp",           MenuParse_fadeClamp,           NULL },
-	{ "fadeCycle",           MenuParse_fadeCycle,           NULL },
-	{ "focuscolor",          MenuParse_focuscolor,          NULL },
-	{ "font",                MenuParse_font,                NULL },
-	{ "forecolor",           MenuParse_forecolor,           NULL },
-	{ "fullscreen",          MenuParse_fullscreen,          NULL },
-	{ "itemDef",             MenuParse_itemDef,             NULL },
-	{ "name",                MenuParse_name,                NULL },
-	{ "onClose",             MenuParse_onClose,             NULL },
+	{ "appearanceIncrement", MenuParse_appearanceIncrement, nullptr },
+	{ "backcolor",           MenuParse_backcolor,           nullptr },
+	{ "background",          MenuParse_background,          nullptr },
+	{ "border",              MenuParse_border,              nullptr },
+	{ "bordercolor",         MenuParse_bordercolor,         nullptr },
+	{ "borderSize",          MenuParse_borderSize,          nullptr },
+	{ "cinematic",           MenuParse_cinematic,           nullptr },
+	{ "descAlignment",       MenuParse_descAlignment,       nullptr },
+	{ "desccolor",           MenuParse_descColor,           nullptr },
+	{ "descX",               MenuParse_descX,               nullptr },
+	{ "descY",               MenuParse_descY,               nullptr },
+	{ "descScale",           MenuParse_descScale,           nullptr },
+	{ "disablecolor",        MenuParse_disablecolor,        nullptr },
+	{ "fadeAmount",          MenuParse_fadeAmount,          nullptr },
+	{ "fadeClamp",           MenuParse_fadeClamp,           nullptr },
+	{ "fadeCycle",           MenuParse_fadeCycle,           nullptr },
+	{ "focuscolor",          MenuParse_focuscolor,          nullptr },
+	{ "font",                MenuParse_font,                nullptr },
+	{ "forecolor",           MenuParse_forecolor,           nullptr },
+	{ "fullscreen",          MenuParse_fullscreen,          nullptr },
+	{ "itemDef",             MenuParse_itemDef,             nullptr },
+	{ "name",                MenuParse_name,                nullptr },
+	{ "onClose",             MenuParse_onClose,             nullptr },
 	//JLFACCEPT MPMOVED
-	{ "onAccept",            MenuParse_onAccept,            NULL },
-	{ "onESC",               MenuParse_onESC,               NULL },
-	{ "outOfBoundsClick",    MenuParse_outOfBounds,         NULL },
-	{ "onOpen",              MenuParse_onOpen,              NULL },
-	{ "outlinecolor",        MenuParse_outlinecolor,        NULL },
-	{ "ownerdraw",           MenuParse_ownerdraw,           NULL },
-	{ "ownerdrawFlag",       MenuParse_ownerdrawFlag,       NULL },
-	{ "popup",               MenuParse_popup,               NULL },
-	{ "rect",                MenuParse_rect,                NULL },
-	{ "soundLoop",           MenuParse_soundLoop,           NULL },
-	{ "style",               MenuParse_style,               NULL },
-	{ "visible",             MenuParse_visible,             NULL },
+	{ "onAccept",            MenuParse_onAccept,            nullptr },
+	{ "onESC",               MenuParse_onESC,               nullptr },
+	{ "outOfBoundsClick",    MenuParse_outOfBounds,         nullptr },
+	{ "onOpen",              MenuParse_onOpen,              nullptr },
+	{ "outlinecolor",        MenuParse_outlinecolor,        nullptr },
+	{ "ownerdraw",           MenuParse_ownerdraw,           nullptr },
+	{ "ownerdrawFlag",       MenuParse_ownerdrawFlag,       nullptr },
+	{ "popup",               MenuParse_popup,               nullptr },
+	{ "rect",                MenuParse_rect,                nullptr },
+	{ "soundLoop",           MenuParse_soundLoop,           nullptr },
+	{ "style",               MenuParse_style,               nullptr },
+	{ "visible",             MenuParse_visible,             nullptr },
 	{ 0,                     0,                             0 }
 };
 
@@ -8911,24 +8912,24 @@ void Menu_SetupKeywordHash(void) {
 	}
 }
 
-qboolean Menu_Parse(int handle, menuDef_t *menu) {
+bool Menu_Parse(int handle, menuDef_t *menu) {
 	pc_token_t token;
 	keywordHash_t *key;
 
 	if (!trap->PC_ReadToken(handle, &token))
-		return qfalse;
+		return false;
 	if (*token.string != '{') {
-		return qfalse;
+		return false;
 	}
 
 	while ( 1 ) {
 		if (!trap->PC_ReadToken(handle, &token)) {
 			PC_SourceError(handle, "end of file inside menu");
-			return qfalse;
+			return false;
 		}
 
 		if (*token.string == '}') {
-			return qtrue;
+			return true;
 		}
 
 		key = KeywordHash_Find(menuParseKeywordHash, token.string);
@@ -8938,10 +8939,10 @@ qboolean Menu_Parse(int handle, menuDef_t *menu) {
 		}
 		if ( !key->func((itemDef_t*)menu, handle) ) {
 			PC_SourceError(handle, "couldn't parse menu keyword %s", token.string);
-			return qfalse;
+			return false;
 		}
 	}
-	return qfalse;
+	return false;
 }
 
 void Menu_New(int handle) {
@@ -8967,7 +8968,7 @@ void Menu_PaintAll() {
 	}
 
 	for (i = 0; i < Menu_Count(); i++) {
-		Menu_Paint(&Menus[i], qfalse);
+		Menu_Paint(&Menus[i], false);
 	}
 
 	if (debugMode) {
@@ -8996,20 +8997,20 @@ void *Display_CaptureItem(int x, int y) {
 			return &Menus[i];
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 // FIXME:
-qboolean Display_MouseMove(void *p, int x, int y) {
+bool Display_MouseMove(void *p, int x, int y) {
 	int i;
 	menuDef_t *menu = (menuDef_t *) p;
 
-	if (menu == NULL) {
+	if (menu == nullptr) {
     menu = Menu_GetFocused();
 		if (menu) {
 			if (menu->window.flags & WINDOW_POPUP) {
 				Menu_HandleMouseMove(menu, x, y);
-				return qtrue;
+				return true;
 			}
 		}
 		for (i = 0; i < menuCount; i++) {
@@ -9020,7 +9021,7 @@ qboolean Display_MouseMove(void *p, int x, int y) {
 		menu->window.rect.y += y;
 		Menu_UpdatePosition(menu);
 	}
- 	return qtrue;
+ 	return true;
 
 }
 
@@ -9038,9 +9039,9 @@ int Display_CursorType(int x, int y) {
 	return CURSOR_ARROW;
 }
 
-void Display_HandleKey(int key, qboolean down, int x, int y) {
+void Display_HandleKey(int key, bool down, int x, int y) {
 	menuDef_t *menu = (menuDef_t *) Display_CaptureItem(x, y);
-	if (menu == NULL) {
+	if (menu == nullptr) {
 		menu = Menu_GetFocused();
 	}
 	if (menu) {
@@ -9086,7 +9087,7 @@ void Display_CacheAll() {
 	}
 }
 
-static qboolean Menu_OverActiveItem(menuDef_t *menu, float x, float y) {
+static bool Menu_OverActiveItem(menuDef_t *menu, float x, float y) {
  	if (menu && menu->window.flags & (WINDOW_VISIBLE | WINDOW_FORCED)) {
 		if (Rect_ContainsPoint(&menu->window.rect, x, y)) {
 			int i;
@@ -9106,19 +9107,19 @@ static qboolean Menu_OverActiveItem(menuDef_t *menu, float x, float y) {
 					itemDef_t *overItem = menu->items[i];
 					if (overItem->type == ITEM_TYPE_TEXT && overItem->text) {
 						if (Rect_ContainsPoint(&overItem->window.rect, x, y)) {
-							return qtrue;
+							return true;
 						} else {
 							continue;
 						}
 					} else {
-						return qtrue;
+						return true;
 					}
 				}
 			}
 
 		}
 	}
-	return qfalse;
+	return false;
 }
 
 void String_Init() {

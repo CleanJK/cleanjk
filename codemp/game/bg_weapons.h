@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -23,11 +24,35 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-// Filename:-	bg_weapons.h
-
 // This crosses both client and server.  It could all be crammed into bg_public, but isolation of this type of data is best.
 
-enum weapon_t : int {
+// ======================================================================
+// INCLUDE
+// ======================================================================
+
+#include <cstdint>
+
+// ======================================================================
+// DEFINE
+// ======================================================================
+
+//anything > this will be considered not player useable
+#define LAST_USEABLE_WEAPON			WP_BRYAR_OLD
+
+// Specific weapon information
+#define FIRST_WEAPON		WP_BRYAR_PISTOL		// this is the first weapon for next and prev weapon switching
+#define MAX_PLAYER_WEAPONS	WP_NUM_WEAPONS-1	// this is the max you can switch to and get with the give all.
+
+#define DEFAULT_SHOTGUN_SPREAD	700
+#define DEFAULT_SHOTGUN_COUNT	11
+
+#define	LIGHTNING_RANGE		768
+
+// ======================================================================
+// ENUM
+// ======================================================================
+
+enum weapon_t : int32_t {
 	WP_NONE,
 
 	WP_STUN_BATON,
@@ -60,9 +85,6 @@ enum weapon_t : int {
 	WP_NUM_WEAPONS
 };
 
-//anything > this will be considered not player useable
-#define LAST_USEABLE_WEAPON			WP_BRYAR_OLD
-
 typedef enum //# ammo_e
 {
 	AMMO_NONE,
@@ -77,6 +99,10 @@ typedef enum //# ammo_e
 	AMMO_DETPACK,
 	AMMO_MAX
 } ammo_t;
+
+// ======================================================================
+// STRUCT
+// ======================================================================
 
 typedef struct weaponData_s
 {
@@ -109,15 +135,9 @@ typedef struct  ammoData_s
 	int		max;		// Max amount player can hold of ammo
 } ammoData_t;
 
-extern weaponData_t weaponData[WP_NUM_WEAPONS];
+// ======================================================================
+// EXTERN VARIABLE
+// ======================================================================
+
 extern ammoData_t ammoData[AMMO_MAX];
-
-// Specific weapon information
-
-#define FIRST_WEAPON		WP_BRYAR_PISTOL		// this is the first weapon for next and prev weapon switching
-#define MAX_PLAYER_WEAPONS	WP_NUM_WEAPONS-1	// this is the max you can switch to and get with the give all.
-
-#define DEFAULT_SHOTGUN_SPREAD	700
-#define DEFAULT_SHOTGUN_COUNT	11
-
-#define	LIGHTNING_RANGE		768
+extern weaponData_t weaponData[WP_NUM_WEAPONS];

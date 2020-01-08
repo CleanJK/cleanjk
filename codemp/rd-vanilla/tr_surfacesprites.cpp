@@ -2,7 +2,8 @@
 ===========================================================================
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -83,13 +84,13 @@ vec3_t	curWindBlowVect={0,0,0}, targetWindBlowVect={0,0,0};
 vec3_t	curWindGrassDir={0,0,0}, targetWindGrassDir={0,0,0};
 int		totalsurfsprites=0, sssurfaces=0;
 
-qboolean curWindPointActive=qfalse;
+bool curWindPointActive=false;
 float curWindPointForce = 0;
 vec3_t curWindPoint;
 int nextGustTime=0;
 float gustLeft=0;
 
-qboolean standardfovinitialized=qfalse;
+bool standardfovinitialized=false;
 float	standardfovx = 90, standardscalex = 1.0;
 float	rangescalefactor=1.0;
 
@@ -97,7 +98,7 @@ vec3_t  ssrightvectors[4];
 vec3_t  ssfwdvector;
 int		rightvectorcount;
 
-trRefEntity_t *ssLastEntityDrawn=NULL;
+trRefEntity_t *ssLastEntityDrawn=nullptr;
 vec3_t	ssViewOrigin, ssViewRight, ssViewUp;
 
 static void R_SurfaceSpriteFrameUpdate(void)
@@ -120,7 +121,7 @@ static void R_SurfaceSpriteFrameUpdate(void)
 	}
 
 	// Reset the last entity drawn, since this is a new frame.
-	ssLastEntityDrawn = NULL;
+	ssLastEntityDrawn = nullptr;
 
 	// Adjust for an FOV.  If things look twice as wide on the screen, pretend the shaders have twice the range.
 	// ASSUMPTION HERE IS THAT "standard" fov is the first one rendered.
@@ -131,7 +132,7 @@ static void R_SurfaceSpriteFrameUpdate(void)
 		{
 			standardfovx = backEnd.refdef.fov_x;
 			standardscalex = tan(standardfovx * 0.5 * (M_PI/180.0f));
-			standardfovinitialized = qtrue;
+			standardfovinitialized = true;
 		}
 		else
 		{
@@ -252,13 +253,13 @@ static void R_SurfaceSpriteFrameUpdate(void)
 	}
 
 	// Get the grass wind vector first
-	AngleVectors(ang, targetWindGrassDir, NULL, NULL);
+	AngleVectors(ang, targetWindGrassDir, nullptr, nullptr);
 	targetWindGrassDir[2]-=1.0;
 //		VectorScale(targetWindGrassDir, targetspeed, targetWindGrassDir);
 
 	// Now get the general wind vector (no pitch)
 	ang[PITCH]=0;
-	AngleVectors(ang, targetWindBlowVect, NULL, NULL);
+	AngleVectors(ang, targetWindBlowVect, nullptr, nullptr);
 
 	// Start calculating a smoothing factor so wind doesn't change abruptly between speeds.
 	dampfactor = 1.0-r_windDampFactor->value;	// We must exponent the amount LEFT rather than the amount bled off
@@ -285,11 +286,11 @@ static void R_SurfaceSpriteFrameUpdate(void)
 	curWindPointForce = r_windPointForce->value - (ratio * (r_windPointForce->value - curWindPointForce));
 	if (curWindPointForce < 0.01)
 	{
-		curWindPointActive = qfalse;
+		curWindPointActive = false;
 	}
 	else
 	{
-		curWindPointActive = qtrue;
+		curWindPointActive = true;
 		curWindPoint[0] = r_windPointX->value;
 		curWindPoint[1] = r_windPointY->value;
 		curWindPoint[2] = 0;
@@ -313,8 +314,8 @@ float SSVertAlpha[SHADER_MAX_VERTEXES];
 float SSVertWindForce[SHADER_MAX_VERTEXES];
 vec2_t SSVertWindDir[SHADER_MAX_VERTEXES];
 
-qboolean SSAdditiveTransparency=qfalse;
-qboolean SSUsingFog=qfalse;
+bool SSAdditiveTransparency=false;
+bool SSUsingFog=false;
 
 // Vertical surface sprites
 
@@ -547,7 +548,7 @@ static void RB_DrawVerticalSurfaceSprites( shaderStage_t *stage, shaderCommands_
 	vec2_t fogv;
 	vec2_t winddiffv;
 	float windforce=0;
-	qboolean usewindpoint = (qboolean) !! (curWindPointActive && stage->ss->wind > 0);
+	bool usewindpoint = (bool) !! (curWindPointActive && stage->ss->wind > 0);
 
 	float cutdist=stage->ss->fadeMax*rangescalefactor, cutdist2=cutdist*cutdist;
 	float fadedist=stage->ss->fadeDist*rangescalefactor, fadedist2=fadedist*fadedist;
@@ -603,7 +604,7 @@ static void RB_DrawVerticalSurfaceSprites( shaderStage_t *stage, shaderCommands_
 				}
 			}
 		}
-		tess.SSInitializedWind = qtrue;
+		tess.SSInitializedWind = true;
 	}
 
 	for (curindex=0; curindex<input->numIndexes-2; curindex+=3)
@@ -792,7 +793,7 @@ static void RB_DrawVerticalSurfaceSprites( shaderStage_t *stage, shaderCommands_
 						else
 						{
 							RB_VerticalSurfaceSpriteWindPoint(curpoint, width, height, (byte)light, (byte)(alpha*255.0),
-										stage->ss->wind, stage->ss->windIdle, NULL, stage->ss->facing, skew,
+										stage->ss->wind, stage->ss->windIdle, nullptr, stage->ss->facing, skew,
 										winddiffv, windforce, SURFSPRITE_FLATTENED == stage->ss->surfaceSpriteType);
 						}
 					}
@@ -806,7 +807,7 @@ static void RB_DrawVerticalSurfaceSprites( shaderStage_t *stage, shaderCommands_
 						else
 						{
 							RB_VerticalSurfaceSprite(curpoint, width, height, (byte)light, (byte)(alpha*255.0),
-										stage->ss->wind, stage->ss->windIdle, NULL, stage->ss->facing, skew, SURFSPRITE_FLATTENED == stage->ss->surfaceSpriteType);
+										stage->ss->wind, stage->ss->windIdle, nullptr, stage->ss->facing, skew, SURFSPRITE_FLATTENED == stage->ss->surfaceSpriteType);
 						}
 					}
 
@@ -1080,7 +1081,7 @@ static void RB_DrawOrientedSurfaceSprites( shaderStage_t *stage, shaderCommands_
 					}
 					else
 					{
-						RB_OrientedSurfaceSprite(curpoint, width, height, (byte)light, (byte)(alpha*255.0), NULL, stage->ss->facing);
+						RB_OrientedSurfaceSprite(curpoint, width, height, (byte)light, (byte)(alpha*255.0), nullptr, stage->ss->facing);
 					}
 
 					totalsurfsprites++;
@@ -1171,7 +1172,7 @@ static void RB_EffectSurfaceSprite(vec3_t loc, float width, float height, byte l
 	}
 
 	// Add the sprite to the render list.
-	SQuickSprite.Add(points, color, NULL);
+	SQuickSprite.Add(points, color, nullptr);
 }
 
 static void RB_DrawEffectSurfaceSprites( shaderStage_t *stage, shaderCommands_t *input)
@@ -1200,7 +1201,7 @@ static void RB_DrawEffectSurfaceSprites( shaderStage_t *stage, shaderCommands_t 
 	float fadedist=stage->ss->fadeDist*rangescalefactor, fadedist2=fadedist*fadedist;
 
 	float fxalpha = stage->ss->fxAlphaEnd - stage->ss->fxAlphaStart;
-	qboolean fadeinout=qfalse;
+	bool fadeinout=false;
 
 	assert(cutdist2 != fadedist2);
 	float inv_fadediff = 1.0/(cutdist2-fadedist2);
@@ -1224,7 +1225,7 @@ static void RB_DrawEffectSurfaceSprites( shaderStage_t *stage, shaderCommands_t 
 	// Make the object fade in.
 	if (stage->ss->fxAlphaEnd < 0.05 && stage->ss->height >= 0.1 && stage->ss->width >= 0.1)
 	{	// The sprite fades out, and it doesn't start at a pinpoint.  Let's fade it in.
-		fadeinout=qtrue;
+		fadeinout=true;
 	}
 
 	if (stage->ss->surfaceSpriteType == SURFSPRITE_WEATHERFX)
@@ -1419,23 +1420,23 @@ void RB_DrawSurfaceSprites( shaderStage_t *stage, shaderCommands_t *input)
 
 	if ( tess.fogNum && tess.shader->fogPass && r_drawfog->value)
 	{
-		SSUsingFog = qtrue;
+		SSUsingFog = true;
 		SQuickSprite.StartGroup(&stage->bundle[0], glbits, tess.fogNum);
 	}
 	else
 	{
-		SSUsingFog = qfalse;
+		SSUsingFog = false;
 		SQuickSprite.StartGroup(&stage->bundle[0], glbits);
 	}
 
 	// Special provision in case the transparency is additive.
 	if ((glbits & (GLS_SRCBLEND_BITS|GLS_DSTBLEND_BITS)) == (GLS_SRCBLEND_ONE|GLS_DSTBLEND_ONE))
 	{	// Additive transparency, scale light value
-		SSAdditiveTransparency=qtrue;
+		SSAdditiveTransparency=true;
 	}
 	else
 	{
-		SSAdditiveTransparency=qfalse;
+		SSAdditiveTransparency=false;
 	}
 
 	//Check if this is a new entity transformation (incl. world entity), and update the appropriate vectors if so.

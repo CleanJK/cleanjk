@@ -3,7 +3,8 @@
 Copyright (C) 1999 - 2005, Id Software, Inc.
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -23,10 +24,18 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
+// ======================================================================
+// INCLUDE
+// ======================================================================
+
 #include "cgame/cg_public.h"
 #include "client/cl_public.h"
 #include "qcommon/q_shared.h"
 #include "sys/sys_public.h"
+
+// ======================================================================
+// DEFINE
+// ======================================================================
 
 // time between connection packet retransmits
 #define	RETRANSMIT_TIMEOUT	3000
@@ -38,11 +47,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define	CON_TEXTSIZE	0x30000 //was 32768
 #define	NUM_CON_TIMES	4
 
-extern vec3_t cl_windVec;
-
-extern int g_console_field_width;
-extern int cl_connectedToPureServer;
-extern int cl_connectedToCheatServer;
+// ======================================================================
+// STRUCT
+// ======================================================================
 
 typedef struct ping_s {
 	netadr_t	adr;
@@ -52,7 +59,7 @@ typedef struct ping_s {
 } ping_t;
 
 typedef struct console_s {
-	qboolean	initialized;
+	bool	initialized;
 
 	short	text[CON_TEXTSIZE];
 	int		current;		// line where next message will be printed
@@ -79,9 +86,22 @@ typedef struct kbutton_s {
 	int			down[2];		// key nums holding it down
 	unsigned	downtime;		// msec timestamp
 	unsigned	msec;			// msec down this frame if both a down and up happened
-	qboolean	active;			// current state
-	qboolean	wasPressed;		// set when down, not cleared when up
+	bool	active;			// current state
+	bool	wasPressed;		// set when down, not cleared when up
 } kbutton_t;
+
+// ======================================================================
+// EXTERN VARIABLE
+// ======================================================================
+
+extern int cl_connectedToCheatServer;
+extern int cl_connectedToPureServer;
+extern int g_console_field_width;
+extern vec3_t cl_windVec;
+
+// ======================================================================
+// FUNCTION
+// ======================================================================
 
 e_status CIN_RunCinematic(int handle);
 e_status CIN_StopCinematic(int handle);
@@ -90,21 +110,21 @@ int CIN_PlayCinematic(const char* arg0, int xpos, int ypos, int width, int heigh
 int CL_GetPingQueueCount(void);
 int CL_ServerStatus(const char* serverAddress, char* serverStatusString, int maxLen);
 int SCR_GetBigStringWidth(const char* str);
-qboolean CL_CheckPaused(void);
-qboolean CL_CloseAVI(void);
-qboolean CL_GameCommand(void);
-qboolean CL_GetDefaultState(int index, entityState_t* state);
-qboolean CL_GetServerCommand(int serverCommandNumber);
-qboolean CL_GetSnapshot(int snapshotNumber, snapshot_t* snapshot);
-qboolean CL_GetUserCmd(int cmdNumber, usercmd_t* ucmd);
-qboolean CL_Netchan_Process(netchan_t* chan, msg_t* msg);
-qboolean CL_OpenAVIForWriting(const char* filename);
-qboolean CL_UpdateVisiblePings_f(int source);
+bool CL_CheckPaused(void);
+bool CL_CloseAVI(void);
+bool CL_GameCommand(void);
+bool CL_GetDefaultState(int index, entityState_t* state);
+bool CL_GetServerCommand(int serverCommandNumber);
+bool CL_GetSnapshot(int snapshotNumber, snapshot_t* snapshot);
+bool CL_GetUserCmd(int cmdNumber, usercmd_t* ucmd);
+bool CL_Netchan_Process(netchan_t* chan, msg_t* msg);
+bool CL_OpenAVIForWriting(const char* filename);
+bool CL_UpdateVisiblePings_f(int source);
 void CIN_DrawCinematic(int handle);
 void CIN_SetExtents(int handle, int x, int y, int w, int h);
-void CIN_SetLooping(int handle, qboolean loop);
+void CIN_SetLooping(int handle, bool loop);
 void CIN_UploadCinematic(int handle);
-void CL_AddReliableCommand(const char* cmd, qboolean isDisconnectCmd);
+void CL_AddReliableCommand(const char* cmd, bool isDisconnectCmd);
 void CL_CGameRendering(stereoFrame_t stereo);
 void CL_ClearPing(int n);
 void CL_ClearState(void);
@@ -159,12 +179,12 @@ void Key_SetCatcher(int catcher);
 void LAN_LoadCachedServers();
 void LAN_SaveServersToCache();
 void SCR_DebugGraph(float value, int color);
-void SCR_DrawBigString(int x, int y, const char* s, float alpha, qboolean noColorEscape);
+void SCR_DrawBigString(int x, int y, const char* s, float alpha, bool noColorEscape);
 void SCR_DrawCinematic(void);
 void SCR_DrawNamedPic(float x, float y, float width, float height, const char* picname);
 void SCR_DrawPic(float x, float y, float width, float height, qhandle_t hShader);
 void SCR_DrawSmallChar(int x, int y, int ch);
-void SCR_DrawSmallStringExt(int x, int y, const char* string, float* setColor, qboolean forceColor, qboolean noColorEscape);
+void SCR_DrawSmallStringExt(int x, int y, const char* string, float* setColor, bool forceColor, bool noColorEscape);
 void SCR_FillRect(float x, float y, float width, float height, const float* color);
 void SCR_Init(void);
 void SCR_RunCinematic(void);

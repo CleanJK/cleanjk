@@ -2,7 +2,8 @@
 ===========================================================================
 Copyright (C) 2000 - 2013, Raven Software, Inc.
 Copyright (C) 2001 - 2013, Activision, Inc.
-Copyright (C) 2013 - 2015, OpenJK contributors
+Copyright (C) 2013 - 2019, OpenJK contributors
+Copyright (C) 2019 - 2020, CleanJoKe contributors
 
 This file is part of the OpenJK source code.
 
@@ -22,14 +23,22 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
+// ======================================================================
+// INCLUDE
+// ======================================================================
+
 #include "client/FxUtil.h"
 #include "qcommon/GenericParser2.h"
 
 #include <algorithm>
-#include <vector>
-#include <map>
 #include <list>
+#include <map>
 #include <string>
+#include <vector>
+
+// ======================================================================
+// DEFINE
+// ======================================================================
 
 #define FX_FILE_PATH	"effects"
 
@@ -63,6 +72,45 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define FX_RGB_COMPONENT_INTERP	0x04000	// Picks a color on the line defined by RGB min & max, default is to pick color in cube defined by min & max
 
 #define FX_AFFECTED_BY_WIND		0x10000	// this effect primitive needs to query wind
+
+// ======================================================================
+// ENUM
+// ======================================================================
+
+// Supported primitive types
+enum EPrimType
+{
+	None = 0,
+	Particle,		// sprite
+	Line,
+	Tail,			// comet-like tail thing
+	Cylinder,
+	Emitter,		// emits effects as it moves, can also attach a chunk
+	Sound,
+	Decal,			// projected onto architecture
+	OrientedParticle,
+	Electricity,
+	FxRunner,
+	Light,
+	CameraShake,
+	ScreenFlash
+};
+
+// ======================================================================
+// FORWARD DECLARATION
+// ======================================================================
+
+// TODOYBE
+
+// ======================================================================
+// STRUCT
+// ======================================================================
+
+// TODOYBE
+
+// ======================================================================
+// CLASS / STRUCT
+// ======================================================================
 
 // Primitive templates might want to use a list of sounds, shaders or models to get a bit more variation in their effects.
 class CMediaHandles
@@ -104,25 +152,6 @@ public:
 														return (int)(flrand(mMin, mMax) + 0.5f);}
 
 	bool operator==(const CFxRange &rhs) const		{ return ((mMin == rhs.mMin) &&	(mMax == rhs.mMax)); }
-};
-
-// Supported primitive types
-enum EPrimType
-{
-	None = 0,
-	Particle,		// sprite
-	Line,
-	Tail,			// comet-like tail thing
-	Cylinder,
-	Emitter,		// emits effects as it moves, can also attach a chunk
-	Sound,
-	Decal,			// projected onto architecture
-	OrientedParticle,
-	Electricity,
-	FxRunner,
-	Light,
-	CameraShake,
-	ScreenFlash
 };
 
 struct CFxRange2 {
@@ -345,7 +374,7 @@ public:
 	{
 		if ( numFree == 0 )
 		{
-			return NULL;
+			return nullptr;
 		}
 
 		T *ptr = new (&pool[freeAndAllocated[0]]) T;
@@ -367,8 +396,8 @@ public:
 
 		highWatermark = 0;
 		numFree = N;
-		freeAndAllocated = NULL;
-		pool = NULL;
+		freeAndAllocated = nullptr;
+		pool = nullptr;
 	}
 
 	bool OwnsPtr ( const T *ptr ) const
@@ -438,13 +467,13 @@ class PagedPoolAllocator
 
 		T *Alloc ()
 		{
-			T *ptr = NULL;
-			for ( int i = 0; i < numPages && ptr == NULL; i++ )
+			T *ptr = nullptr;
+			for ( int i = 0; i < numPages && ptr == nullptr; i++ )
 			{
 				ptr = pages[i].Alloc ();
 			}
 
-			if ( ptr == NULL )
+			if ( ptr == nullptr )
 			{
 				PoolAllocator<T, N> *newPages = new PoolAllocator<T, N>[numPages + 1] ();
 				for ( int i = 0; i < numPages; i++ )
@@ -456,9 +485,9 @@ class PagedPoolAllocator
 				pages = newPages;
 
 				ptr = pages[numPages].Alloc ();
-				if ( ptr == NULL )
+				if ( ptr == nullptr )
 				{
-					return NULL;
+					return nullptr;
 				}
 
 				numPages++;
@@ -584,7 +613,7 @@ private:
 	void	AddPrimitiveToEffect( SEffectTemplate *fx, CPrimitiveTemplate *prim );
 	int		ParseEffect( const char *file, CGPGroup *base );
 
-	void	CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, matrix3_t axis, int lateTime, int fxParm = -1,  CGhoul2Info_v *ghoul2 = NULL, int entNum = -1, int modelNum = -1, int boltNum = -1);
+	void	CreateEffect( CPrimitiveTemplate *fx, const vec3_t origin, matrix3_t axis, int lateTime, int fxParm = -1,  CGhoul2Info_v *ghoul2 = nullptr, int entNum = -1, int modelNum = -1, int boltNum = -1);
 	void	CreateEffect( CPrimitiveTemplate *fx, SScheduledEffect *schedFx );
 
 public:
@@ -597,12 +626,12 @@ public:
 	//rww - maybe this should be done differently.. it's more than a bit confusing.
 	//Remind me when I don't have 50 files checked out.
 	void	PlayEffect( int id, vec3_t org, vec3_t fwd, int vol = -1, int rad = -1, bool isPortal = false );				// builds arbitrary perp. right vector, does a cross product to define up
-	void	PlayEffect( int id, vec3_t origin, matrix3_t axis, const int boltInfo=-1, CGhoul2Info_v *ghoul2 = NULL,
-				int fxParm = -1, int vol = -1, int rad = -1, bool isPortal = false, int iLoopTime = false, bool isRelative = false  );
+	void	PlayEffect( int id, vec3_t origin, matrix3_t axis, const int boltInfo=-1, CGhoul2Info_v *ghoul2 = nullptr,
+				int fxParm = -1, int vol = -1, int rad = -1, bool isPortal = false, int iLoopTime = 0, bool isRelative = false  );
 	void	PlayEffect( const char *file, vec3_t org, int vol = -1, int rad = -1 );					// uses a default up axis
 	void	PlayEffect( const char *file, vec3_t org, vec3_t fwd, int vol = -1, int rad = -1 );		// builds arbitrary perp. right vector, does a cross product to define up
 	void	PlayEffect( const char *file, vec3_t origin,
-				matrix3_t axis, const int boltInfo = -1, CGhoul2Info_v *ghoul2 = NULL, int fxParm = -1, int vol = -1, int rad = -1, int iLoopTime = false, bool isRelative = false );
+				matrix3_t axis, const int boltInfo = -1, CGhoul2Info_v *ghoul2 = nullptr, int fxParm = -1, int vol = -1, int rad = -1, int iLoopTime = 0, bool isRelative = false );
 
 	void	StopEffect( const char *file, const int boltInfo, bool isPortal = false );	//find a scheduled Looping effect with these parms and kill it
 	void	AddScheduledEffects( bool portal );								// call once per CGame frame
@@ -625,5 +654,8 @@ public:
 	void	MaterialImpact(trace_t *tr, CEffect *effect);
 };
 
-// The one and only
+// ======================================================================
+// EXTERN VARIABLE
+// ======================================================================
+
 extern CFxScheduler theFxScheduler;
