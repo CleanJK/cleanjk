@@ -1,6 +1,6 @@
 # Language String Files
 
-These are handled in code[mp]/qcommon/stringed_ingame.cpp and stringed_interface.cpp
+These are handled in codemp/qcommon/stringed_ingame.cpp and stringed_interface.cpp
 
 Recursive folder parsing
 

@@ -94,15 +94,6 @@ if(BuildMPEngine OR BuildMPDed)
 	source_group("common" FILES ${MPBotlibCommonFiles})
 	set(MPBotlibFiles ${MPBotlibFiles} ${MPBotlibCommonFiles})
 
-	set(MPBotlibCommonSafeFiles
-		"${SharedDir}/qcommon/safe/gsl.h"
-		"${SharedDir}/qcommon/safe/string.cpp"
-		"${SharedDir}/qcommon/safe/string.h"
-		"${SharedDir}/qcommon/safe/sscanf.h"
-		)
-	source_group("common/safe" FILES ${MPBotlibCommonSafeFiles})
-	set(MPBotlibFiles ${MPBotlibFiles} ${MPBotlibCommonSafeFiles})
-
 	set(MPBotlibServerFiles
 		"${MPDir}/server/server.h"
 		)
@@ -221,14 +212,6 @@ if(BuildMPEngine OR BuildMPDed)
 	endif(WIN32)
 	source_group("common" FILES ${MPEngineAndDedCommonFiles})
 	set(MPEngineAndDedFiles ${MPEngineAndDedFiles} ${MPEngineAndDedCommonFiles})
-
-	set(MPEngineAndDedCommonSafeFiles
-		"${SharedDir}/qcommon/safe/files.cpp"
-		"${SharedDir}/qcommon/safe/files.h"
-		"${SharedDir}/qcommon/safe/gsl.h"
-		)
-	source_group("common/safe" FILES ${MPEngineAndDedCommonSafeFiles})
-	set(MPEngineAndDedFiles ${MPEngineAndDedFiles} ${MPEngineAndDedCommonSafeFiles})
 
 	set(MPEngineAndDedG2Files
 		"${MPDir}/ghoul2/G2.h"
