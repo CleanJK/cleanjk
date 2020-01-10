@@ -180,7 +180,7 @@ void RE_AddRefEntityToScene( const refEntity_t *ent ) {
 		return;
 	}
 
-	/*if ( Q_isnan(ent->origin[0]) || Q_isnan(ent->origin[1]) || Q_isnan(ent->origin[2]) ) {
+	/*if ( std::isnan(ent->origin[0]) || std::isnan(ent->origin[1]) || std::isnan(ent->origin[2]) ) {
 		static bool firstTime = true;
 		if (firstTime) {
 			firstTime = false;

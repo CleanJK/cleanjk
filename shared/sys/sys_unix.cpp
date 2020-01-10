@@ -21,10 +21,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <dirent.h>
-#include <stdarg.h>
-#include <stdlib.h>
+#include <cstdarg>
+#include <cstdlib>
 #include <sys/time.h>
-#include <errno.h>
+#include <cerrno>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -32,7 +32,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <pwd.h>
 #include <libgen.h>
 #include <sched.h>
-#include <signal.h>
+#include <csignal>
 
 #include "qcommon/q_common.h"
 #include "qcommon/q_shared.h"

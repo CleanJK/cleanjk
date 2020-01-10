@@ -842,7 +842,7 @@ void EALFileInit(const char *level)
 			long lRoom = -10000;
 			for (int i = 0; i < s_NumFXSlots; i++)
 			{
-				s_eaxSet(&s_FXSlotInfo[i].FXSlotGuid, EAXREVERB_ROOM, nullptr,
+				s_eaxSet(&s_FXSlotInfo[i].FXSlotGuid, EAXREVERB_ROOM, 0,
 					&lRoom, sizeof(long));
 			}
 		}
@@ -1406,7 +1406,7 @@ void S_StartSound(const vec3_t origin, int entityNum, int entchannel, sfxHandle_
 				{
 					// Stop this sound
 					alSourceStop(ch->alSource);
-					alSourcei(ch->alSource, AL_BUFFER, nullptr);
+					alSourcei(ch->alSource, AL_BUFFER, 0);
 					ch->bPlaying = false;
 					ch->thesfx = nullptr;
 					break;
@@ -1422,7 +1422,7 @@ void S_StartSound(const vec3_t origin, int entityNum, int entchannel, sfxHandle_
 				{
 					// Stop this sound
 					alSourceStop(ch->alSource);
-					alSourcei(ch->alSource, AL_BUFFER, nullptr);
+					alSourcei(ch->alSource, AL_BUFFER, 0);
 					ch->bPlaying = false;
 					ch->thesfx = nullptr;
 					break;
@@ -1611,7 +1611,7 @@ void S_StopSounds(void)
 		for (i = 0; i < s_numChannels; i++, ch++)
 		{
 			alSourceStop(s_channels[i].alSource);
-			alSourcei(s_channels[i].alSource, AL_BUFFER, nullptr);
+			alSourcei(s_channels[i].alSource, AL_BUFFER, 0);
 			ch->thesfx = nullptr;
 			memset(&ch->MP3StreamHeader, 0, sizeof(MP3STREAM));
 			ch->bLooping = false;
@@ -2269,10 +2269,10 @@ void S_Respatialize( int entityNum, const vec3_t head, matrix3_t axis, int inwat
 					// Load underwater reverb effect into FX Slot 0, and set this as the Primary FX Slot
 					unsigned int ulEnvironment = EAX_ENVIRONMENT_UNDERWATER;
 					s_eaxSet(&EAXPROPERTYID_EAX40_FXSlot0, EAXREVERB_ENVIRONMENT,
-						nullptr, &ulEnvironment, sizeof(unsigned int));
+						0, &ulEnvironment, sizeof(unsigned int));
 					s_EnvironmentID = 999;
 
-					s_eaxSet(&EAXPROPERTYID_EAX40_Context, EAXCONTEXT_PRIMARYFXSLOTID, nullptr, (ALvoid*)&EAXPROPERTYID_EAX40_FXSlot0,
+					s_eaxSet(&EAXPROPERTYID_EAX40_Context, EAXCONTEXT_PRIMARYFXSLOTID, 0, (ALvoid*)&EAXPROPERTYID_EAX40_FXSlot0,
 						sizeof(GUID));
 
 					// Occlude all sounds into this environment, and mute all their sends to other reverbs
@@ -2697,7 +2697,7 @@ void S_Update_(void) {
 					nBuffersToAdd = i + 1;
 
 				// Make sure queue is empty first
-				alSourcei(s_channels[source].alSource, AL_BUFFER, nullptr);
+				alSourcei(s_channels[source].alSource, AL_BUFFER, 0);
 
 				for (i = 0; i < nBuffersToAdd; i++)
 				{
@@ -2867,7 +2867,7 @@ void UpdateSingleShotSounds()
 						if (state == AL_STOPPED)
 						{
 							// Attach nullptr buffer to Source to remove any buffers left in the queue
-							alSourcei(ch->alSource, AL_BUFFER, nullptr);
+							alSourcei(ch->alSource, AL_BUFFER, 0);
 							ch->thesfx = nullptr;
 							ch->bPlaying = false;
 						}
@@ -4962,7 +4962,7 @@ void InitEAXManager()
 
 					for (i = 0; i < EAX_MAX_FXSLOTS; i++)
 					{
-						if (s_eaxSet(&FXSlotGuids[i], EAXFXSLOT_ALLPARAMETERS, nullptr, &FXSlotProp, sizeof(EAXFXSLOTPROPERTIES))==AL_NO_ERROR)
+						if (s_eaxSet(&FXSlotGuids[i], EAXFXSLOT_ALLPARAMETERS, 0, &FXSlotProp, sizeof(EAXFXSLOTPROPERTIES))==AL_NO_ERROR)
 						{
 							// We can use this slot
 							s_FXSlotInfo[s_NumFXSlots].FXSlotGuid = FXSlotGuids[i];
@@ -4972,13 +4972,13 @@ void InitEAXManager()
 						{
 							// If this slot already contains a reverb, then we will use it anyway (Slot 0 will
 							// be in this category).  (It probably means that Slot 0 is locked)
-							if (s_eaxGet(&FXSlotGuids[i], EAXFXSLOT_LOADEFFECT, nullptr, &Effect, sizeof(GUID))==AL_NO_ERROR)
+							if (s_eaxGet(&FXSlotGuids[i], EAXFXSLOT_LOADEFFECT, 0, &Effect, sizeof(GUID))==AL_NO_ERROR)
 							{
 								if (Effect == EAX_REVERB_EFFECT)
 								{
 									// We can use this slot
 									// Make sure the environment flag is on
-									s_eaxSet(&FXSlotGuids[i], EAXFXSLOT_FLAGS, nullptr, &FXSlotProp.ulFlags, sizeof(unsigned long));
+									s_eaxSet(&FXSlotGuids[i], EAXFXSLOT_FLAGS, 0, &FXSlotProp.ulFlags, sizeof(unsigned long));
 									s_FXSlotInfo[s_NumFXSlots].FXSlotGuid = FXSlotGuids[i];
 									s_NumFXSlots++;
 								}
@@ -5385,7 +5385,7 @@ void UpdateEAXListener()
 
 						// Set Environment
 						s_eaxSet(&EAXPROPERTYID_EAX40_FXSlot0, EAXREVERB_ALLPARAMETERS,
-							nullptr, &s_eaxLPCur, sizeof(EAXREVERBPROPERTIES));
+							0, &s_eaxLPCur, sizeof(EAXREVERBPROPERTIES));
 
 						s_EnvironmentID = lID;
 					}
@@ -5497,7 +5497,7 @@ void UpdateEAXListener()
 
 				// Mute it
 				lVolume = -10000;
-				if (s_eaxSet(&s_FXSlotInfo[i].FXSlotGuid, EAXFXSLOT_VOLUME, nullptr, &lVolume, sizeof(long))!=AL_NO_ERROR)
+				if (s_eaxSet(&s_FXSlotInfo[i].FXSlotGuid, EAXFXSLOT_VOLUME, 0, &lVolume, sizeof(long))!=AL_NO_ERROR)
 					Com_OPrintf("Failed to Mute FX Slot\n");
 
 				// If any source is sending to this Slot ID then we need to stop them sending to the slot
@@ -5555,7 +5555,7 @@ void UpdateEAXListener()
 							// Override Air Absorption HF
 							Reverb.flAirAbsorptionHF = 0.0f;
 
-							s_eaxSet(&s_FXSlotInfo[i].FXSlotGuid, EAXREVERB_ALLPARAMETERS, nullptr, &Reverb, sizeof(EAXREVERBPROPERTIES));
+							s_eaxSet(&s_FXSlotInfo[i].FXSlotGuid, EAXREVERB_ALLPARAMETERS, 0, &Reverb, sizeof(EAXREVERBPROPERTIES));
 
 							// See if any Sources are in this environment, if they are, enable their sends
 							ch = s_channels + 1;
@@ -5620,7 +5620,7 @@ void UpdateEAXListener()
 		// Make sure Primary FX Slot ID is set correctly
 		if (s_EnvironmentID != ReverbData[2].lEnvID)
 		{
-			s_eaxSet(&EAXPROPERTYID_EAX40_Context, EAXCONTEXT_PRIMARYFXSLOTID, nullptr, &(s_FXSlotInfo[s_lpEnvTable[ReverbData[2].lEnvID].lFXSlotID].FXSlotGuid), sizeof(GUID));
+			s_eaxSet(&EAXPROPERTYID_EAX40_Context, EAXCONTEXT_PRIMARYFXSLOTID, 0, &(s_FXSlotInfo[s_lpEnvTable[ReverbData[2].lEnvID].lFXSlotID].FXSlotGuid), sizeof(GUID));
 			s_EnvironmentID = ReverbData[2].lEnvID;
 		}
 
@@ -5708,10 +5708,10 @@ void UpdateEAXListener()
 				Pan.y *= -flMagnitude;
 				Pan.z *= -flMagnitude;
 
-				if (s_eaxSet(&s_FXSlotInfo[i].FXSlotGuid, EAXREVERB_REVERBPAN, nullptr, &Pan, sizeof(EAXVECTOR))!=AL_NO_ERROR)
+				if (s_eaxSet(&s_FXSlotInfo[i].FXSlotGuid, EAXREVERB_REVERBPAN, 0, &Pan, sizeof(EAXVECTOR))!=AL_NO_ERROR)
 					Com_OPrintf("Failed to set Listener Reverb Pan\n");
 
-				if (s_eaxSet(&s_FXSlotInfo[i].FXSlotGuid, EAXREVERB_REFLECTIONSPAN, nullptr, &Pan, sizeof(EAXVECTOR))!=AL_NO_ERROR)
+				if (s_eaxSet(&s_FXSlotInfo[i].FXSlotGuid, EAXREVERB_REFLECTIONSPAN, 0, &Pan, sizeof(EAXVECTOR))!=AL_NO_ERROR)
 					Com_OPrintf("Failed to set Listener Reflections Pan\n");
 			}
 			else
@@ -5758,10 +5758,10 @@ void UpdateEAXListener()
 				Pan.y *= flMagnitude;
 				Pan.z *= flMagnitude;
 
-				if (s_eaxSet(&s_FXSlotInfo[i].FXSlotGuid, EAXREVERB_REVERBPAN, nullptr, &Pan, sizeof(EAXVECTOR))!=AL_NO_ERROR)
+				if (s_eaxSet(&s_FXSlotInfo[i].FXSlotGuid, EAXREVERB_REVERBPAN, 0, &Pan, sizeof(EAXVECTOR))!=AL_NO_ERROR)
 					Com_OPrintf("Failed to set Reverb Pan\n");
 
-				if (s_eaxSet(&s_FXSlotInfo[i].FXSlotGuid, EAXREVERB_REFLECTIONSPAN, nullptr, &Pan, sizeof(EAXVECTOR))!=AL_NO_ERROR)
+				if (s_eaxSet(&s_FXSlotInfo[i].FXSlotGuid, EAXREVERB_REFLECTIONSPAN, 0, &Pan, sizeof(EAXVECTOR))!=AL_NO_ERROR)
 					Com_OPrintf("Failed to set Reflections Pan\n");
 			}
 		}
@@ -5769,7 +5769,7 @@ void UpdateEAXListener()
 		lVolume = 0;
 		for (i = 0; i < s_NumFXSlots; i++)
 		{
-			if (s_eaxSet(&s_FXSlotInfo[i].FXSlotGuid, EAXFXSLOT_VOLUME, nullptr, &lVolume, sizeof(long))!=AL_NO_ERROR)
+			if (s_eaxSet(&s_FXSlotInfo[i].FXSlotGuid, EAXFXSLOT_VOLUME, 0, &lVolume, sizeof(long))!=AL_NO_ERROR)
 				Com_OPrintf("Failed to set FX Slot Volume to 0\n");
 		}
 	}

@@ -29,7 +29,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // ======================================================================
 
 #include <cstdint>
-#include <math.h>
+#include <cmath>
 
 #include "qcommon/q_type.h"
 
@@ -176,7 +176,6 @@ float Q_rsqrt(float number);
 int Com_AbsClampi(int min, int max, int value);
 int Com_Clampi(int min, int max, int value);
 int Q_log2(int val);
-bool Q_isnan(float f);
 signed char ClampChar(int i);
 signed short ClampShort(int i);
 void AnglesSubtract(vec3_t v1, vec3_t v2, vec3_t v3);

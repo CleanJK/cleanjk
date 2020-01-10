@@ -38,11 +38,11 @@ int	FX_RegisterEffect(const char *file)
 void FX_PlayEffect( const char *file, vec3_t org, vec3_t fwd, int vol, int rad )
 {
 #ifdef __FXCHECKER
-	if (_isnan(org[0]) || _isnan(org[1]) || _isnan(org[2]))
+	if (std::isnan(org[0]) || std::isnan(org[1]) || std::isnan(org[2]))
 	{
 		assert(0);
 	}
-	if (_isnan(fwd[0]) || _isnan(fwd[1]) || _isnan(fwd[2]))
+	if (std::isnan(fwd[0]) || std::isnan(fwd[1]) || std::isnan(fwd[2]))
 	{
 		assert(0);
 	}
@@ -59,11 +59,11 @@ void FX_PlayEffect( const char *file, vec3_t org, vec3_t fwd, int vol, int rad )
 void FX_PlayEffectID( int id, vec3_t org, vec3_t fwd, int vol, int rad, bool isPortal )
 {
 #ifdef __FXCHECKER
-	if (_isnan(org[0]) || _isnan(org[1]) || _isnan(org[2]))
+	if (std::isnan(org[0]) || std::isnan(org[1]) || std::isnan(org[2]))
 	{
 		assert(0);
 	}
-	if (_isnan(fwd[0]) || _isnan(fwd[1]) || _isnan(fwd[2]))
+	if (std::isnan(fwd[0]) || std::isnan(fwd[1]) || std::isnan(fwd[2]))
 	{
 		assert(0);
 	}
@@ -86,7 +86,7 @@ void FX_PlayEntityEffectID( int id, vec3_t org,
 						matrix3_t axis, const int boltInfo, const int entNum, int vol, int rad )
 {
 #ifdef __FXCHECKER
-	if (_isnan(org[0]) || _isnan(org[1]) || _isnan(org[2]))
+	if (std::isnan(org[0]) || std::isnan(org[1]) || std::isnan(org[2]))
 	{
 		assert(0);
 	}

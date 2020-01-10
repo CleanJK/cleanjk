@@ -242,7 +242,7 @@ class CBoneCache
 		{
 			for ( int j = 0; j < 4; j++ )
 			{
-				assert( !Q_isnan(mSmoothBones[index].boneMatrix.matrix[i][j]));
+				assert( !std::isnan(mSmoothBones[index].boneMatrix.matrix[i][j]));
 			}
 		}
 #endif// _DEBUG
@@ -632,7 +632,7 @@ void G2_GetBoneMatrixLow(CGhoul2Info &ghoul2,int boneNum,const vec3_t scale,mdxa
 	{
 		for ( int j = 0; j < 4; j++ )
 		{
-			assert( !Q_isnan(retMatrix.matrix[i][j]));
+			assert( !std::isnan(retMatrix.matrix[i][j]));
 		}
 	}
 #endif// _DEBUG

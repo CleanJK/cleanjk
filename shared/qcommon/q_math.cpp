@@ -24,10 +24,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "qcommon/q_shared.h"
 #include "qcommon/q_math.h"
-#include <assert.h>
-#include <float.h>
-#include <math.h>
-#include <stdlib.h>
+#include <cassert>
+#include <cfloat>
+#include <cmath>
+#include <cstdlib>
 
 // DIRECTION ENCODING
 
@@ -356,7 +356,7 @@ float Q_rsqrt( float number )
 	y  = y * ( threehalfs - ( x2 * y * y ) );   // 1st iteration
 												//	y  = y * ( threehalfs - ( x2 * y * y ) );   // 2nd iteration, this can be removed
 
-	assert( !Q_isnan(y) );
+	assert( !std::isnan(y) );
 	return y;
 }
 
@@ -408,15 +408,6 @@ float Q_powf ( float x, int y )
 	for ( y--; y>0; y-- )
 		r *= x;
 	return r;
-}
-
-bool Q_isnan (float f)
-{
-#ifdef _MSC_VER
-	return (bool)(_isnan (f) != 0);
-#else
-	return (bool)(isnan (f) != 0);
-#endif
 }
 
 int Q_log2( int val )

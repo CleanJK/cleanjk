@@ -228,7 +228,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #if defined (_MSC_VER)
 	#if _MSC_VER >= 1600
-		#include <stdint.h>
+		// needed for mp3 code still being in C
+		#if defined(__cplusplus)
+			#include <cstdint>
+		#else
+			#include <stdint.h>
+		#endif
 	#else
 		typedef signed __int64 int64_t;
 		typedef signed __int32 int32_t;
@@ -243,7 +248,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 	#if !defined(__STDC_LIMIT_MACROS)
 		#define __STDC_LIMIT_MACROS
 	#endif
-	#include <stdint.h>
+	// needed for mp3 code still being in C
+	#if defined(__cplusplus)
+		#include <cstdint>
+	#else
+		#include <stdint.h>
+	#endif
 #endif
 
 // catch missing defines in above blocks
@@ -265,7 +275,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // endianness
 // Use compiler builtins where possible for maximum performance
-#include <stdint.h>
+// needed for mp3 code still being in C
+#if defined(__cplusplus)
+	#include <cstdint>
+#else
+	#include <stdint.h>
+#endif
 #if !defined(__clang__) && (defined(__GNUC__) || defined(__GNUG__)) \
             && ((__GNUC__ * 100 + __GNUC_MINOR__) >= 403)
 // gcc >= 4.3
@@ -287,7 +302,13 @@ static inline uint32_t LongSwap(uint32_t v)
 // MSVC
 
 // required for _byteswap_ushort/ulong
-#include <stdlib.h>
+// needed for mp3 code still being in C
+#if defined(__cplusplus)
+	#include <cstdlib>
+#else
+	#include <stdlib.h>
+#endif
+
 
 static uint16_t ShortSwap(uint16_t v)
 {
