@@ -1,0 +1,127 @@
+# ===========================================================================
+# Copyright (C) 2013 - 2019, OpenJK contributors
+# Copyright (C) 2019 - 2020, CleanJoKe contributors
+# This file is part of the OpenJK source code.
+# OpenJK is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, see <http://www.gnu.org/licenses/>.
+# ===========================================================================
+
+language: cpp
+os: linux
+dist: bionic
+
+# https://docs.travis-ci.com/user/environment-variables/
+
+# https://docs.travis-ci.com/user/reference/overview/
+
+# https://docs.travis-ci.com/user/reference/bionic/
+# https://docs.travis-ci.com/user/reference/osx/
+# https://docs.travis-ci.com/user/reference/windows/
+# Only Windows Server, version 1803 is currently supported with Visual Studio 2017. (12 january 2020)
+
+# CMAKE_BUILD_TYPE defaulted to Release
+# ARCH defaulted to x64 (x64 VMs)
+
+before_install:
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then chmod +x ./continuous_integration/travis/install/linux.sh ; fi
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ] || [ "${TRAVIS_OS_NAME}" = "osx" ]; then chmod +x ./continuous_integration/travis/build/linux_osx.sh ; fi
+  - if [ "${TRAVIS_OS_NAME}" = "windows" ]; then export PATH=$MSBUILD_PATH:$PATH ; fi
+
+install:
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then ./continuous_integration/travis/install/linux.sh "${ARCH=x64}" ; fi
+
+script:
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ] || [ "${TRAVIS_OS_NAME}" = "osx" ]; then ./continuous_integration/travis/build/linux_osx.sh "${ARCH=x64}" "${CMAKE_BUILD_TYPE=Release}" ; fi
+  - if [ "${TRAVIS_OS_NAME}" = "windows" ]; then ./continuous_integration/travis/build/windows.bat "${ARCH=x64}" "${CMAKE_BUILD_TYPE=Release}" ; fi
+
+addons:
+  homebrew:
+    packages:
+      - sdl2
+    update: true
+
+jobs:
+  include:
+
+    # ===========================
+    #           RELEASE          
+    # ===========================
+
+    - name: "(Release) x64 [GCC 7.4] - Ubuntu 18.04"
+      compiler: gcc
+
+    - name: "(Release) x64 [clang 7] - Ubuntu 18.04"
+      compiler: clang
+
+    - name: "(Release) x64 [Visual Studio 2017] - Windows Server, version 1803"
+      os: windows
+      env: MSBUILD_PATH="c:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\MSBuild\15.0\Bin"
+
+    - name: "(Release) x64 [Apple clang version 11.0.0] - macOS 10.14"
+      os: osx
+      osx_image: xcode11.3
+      compiler: clang
+ 
+    - name: "(Release) x86 [GCC 7.4] - Ubuntu 18.04"
+      compiler: gcc
+      env: ARCH=x86
+
+    - name: "(Release) x86 [clang 7] - Ubuntu 18.04"
+      compiler: clang
+      env: ARCH=x86
+
+    - name: "(Release) x86 [Visual Studio 2017] - Windows Server, version 1803"
+      os: windows
+      env: 
+        - MSBUILD_PATH="c:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\MSBuild\15.0\Bin"
+        - ARCH=x86
+
+    # =========================
+    #           DEBUG          
+    # =========================
+
+    - name: "(Debug) x64 [GCC 7.4] - Ubuntu 18.04"
+      compiler: gcc
+      env: CMAKE_BUILD_TYPE=Debug
+
+    - name: "(Debug) x64 [clang 7] - Ubuntu 18.04"
+      compiler: clang
+      env: CMAKE_BUILD_TYPE=Debug
+
+    - name: "(Debug) x64 [Visual Studio 2017] - Windows Server, version 1803"
+      os: windows
+      env: 
+        - MSBUILD_PATH="c:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\MSBuild\15.0\Bin"
+        - CMAKE_BUILD_TYPE=Debug
+
+    - name: "(Debug) x64 [Apple clang version 11.0.0] - macOS 10.14"
+      os: osx
+      osx_image: xcode11.3
+      compiler: clang
+      env: CMAKE_BUILD_TYPE=Debug
+
+    - name: "(Debug) x86 [GCC 7.4] - Ubuntu 18.04"
+      compiler: gcc
+      env: 
+        - CMAKE_BUILD_TYPE=Debug
+        - ARCH=x86
+
+    - name: "(Debug) x86 [clang 7] - Ubuntu 18.04"
+      compiler: clang
+      env: 
+        - CMAKE_BUILD_TYPE=Debug
+        - ARCH=x86
+
+    - name: "(Debug) x86 [Visual Studio 2017] - Windows Server, version 1803"
+      os: windows
+      env: 
+        - MSBUILD_PATH="c:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\MSBuild\15.0\Bin"
+        - CMAKE_BUILD_TYPE=Debug
+        - ARCH=x86
