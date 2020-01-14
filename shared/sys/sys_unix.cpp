@@ -461,8 +461,8 @@ char *Sys_DefaultHomePath(void)
 			Com_sprintf( homePath, sizeof( homePath ), "%s%c", p, PATH_SEP );
 			Q_strcat( homePath, sizeof( homePath ), "Library/Application Support/" );
 
-			if ( com_homepath && com_homepath->string[0] )
-				Q_strcat( homePath, sizeof( homePath ), com_homepath->string );
+			if ( fs_homepath && fs_homepath->string[0] )
+				Q_strcat( homePath, sizeof( homePath ), fs_homepath->string );
 			else
 				Q_strcat( homePath, sizeof( homePath ), HOMEPATH_NAME_MACOSX );
 		}
