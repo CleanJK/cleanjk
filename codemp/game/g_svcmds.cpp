@@ -410,7 +410,7 @@ int svcmdcmp( const void *a, const void *b ) {
 	return Q_stricmp( (const char *)a, ((svcmd_t*)b)->name );
 }
 
-const svcmd_t svcmds[] = {
+constexpr svcmd_t svcmds[] = {
 	{ "addbot",                   Svcmd_AddBot_f,                   false },
 	{ "addip",                    Svcmd_AddIP_f,                    false },
 	{ "botlist",                  Svcmd_BotList_f,                  false },

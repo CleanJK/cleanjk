@@ -47,7 +47,7 @@ typedef struct cvarTable_s {
 	#include "game/g_xcvar.h"
 #undef XCVAR_DECL
 
-static const cvarTable_t gameCvarTable[] = {
+static constexpr cvarTable_t gameCvarTable[] = {
 	#define XCVAR_LIST
 		#include "game/g_xcvar.h"
 	#undef XCVAR_LIST

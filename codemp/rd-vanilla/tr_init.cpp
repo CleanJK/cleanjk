@@ -1226,7 +1226,7 @@ typedef struct consoleCommand_s {
 	xcommand_t	func;
 } consoleCommand_t;
 
-static consoleCommand_t	commands[] = {
+static constexpr consoleCommand_t	commands[] = {
 	{ "imagelist",			R_ImageList_f },
 	{ "shaderlist",			R_ShaderList_f },
 	{ "skinlist",			R_SkinList_f },

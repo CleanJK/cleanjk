@@ -664,7 +664,7 @@ void body_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int d
 }
 
 // these are just for logging, the client prints its own messages
-char	*modNames[MOD_MAX] = {
+char *modNames[MOD_MAX] = {
 	"MOD_UNKNOWN",
 	"MOD_STUN_BATON",
 	"MOD_MELEE",

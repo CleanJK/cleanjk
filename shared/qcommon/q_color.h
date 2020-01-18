@@ -164,7 +164,7 @@ typedef enum ct_table_e
 
 extern vec4_t colorWhite;
 extern vec4_t colorTable[CT_MAX];
-extern vec4_t g_color_table[Q_COLOR_BITS+1];
+extern const vec4_t g_color_table[Q_COLOR_BITS+1];
 
 // ======================================================================
 // FUNCTION

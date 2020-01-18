@@ -94,7 +94,7 @@ typedef struct cvarTable_s {
 	#include "cgame/cg_xcvar.h"
 #undef XCVAR_DECL
 
-static const cvarTable_t cvarTable[] = {
+static constexpr cvarTable_t cvarTable[] = {
 	#define XCVAR_LIST
 		#include "cgame/cg_xcvar.h"
 	#undef XCVAR_LIST

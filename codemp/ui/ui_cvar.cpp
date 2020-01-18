@@ -98,7 +98,7 @@ typedef struct cvarTable_s {
 	#include "ui/ui_xcvar.h"
 #undef XCVAR_DECL
 
-static const cvarTable_t uiCvarTable[] = {
+static constexpr cvarTable_t uiCvarTable[] = {
 	#define XCVAR_LIST
 		#include "ui/ui_xcvar.h"
 	#undef XCVAR_LIST

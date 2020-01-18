@@ -1164,7 +1164,7 @@ extern int numSortedTeamPlayers;
 extern char systemChat[256];
 
 extern cgameImport_t *trap;
-extern char *cg_customSoundNames[MAX_CUSTOM_SOUNDS];
+extern const char *cg_customSoundNames[MAX_CUSTOM_SOUNDS];
 extern const char *cg_customCombatSoundNames[MAX_CUSTOM_COMBAT_SOUNDS];
 extern const char *cg_customExtraSoundNames[MAX_CUSTOM_EXTRA_SOUNDS];
 extern const char *cg_customJediSoundNames[MAX_CUSTOM_JEDI_SOUNDS];
@@ -1201,7 +1201,7 @@ const char* CG_ConfigString(int index);
 const char* CG_GetGameStatusText(void);
 const char* CG_GetKillerText(void);
 const char* CG_GetLocationString(const char* loc);
-const char* CG_GetStringEdString(char* refSection, char* refName);
+const char* CG_GetStringEdString(char* refSection, const char* refName);
 const char* CG_PlaceString(int rank);
 float CG_GetValue(int ownerDraw);
 float CG_RadiusForCent(centity_t* cent);

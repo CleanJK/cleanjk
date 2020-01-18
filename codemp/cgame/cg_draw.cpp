@@ -1641,7 +1641,7 @@ void CG_DrawInvenSelect( void )
 		itemNdex = BG_GetItemIndexByTag(cg.itemSelect, IT_HOLDABLE);
 		if (bg_itemlist[itemNdex].classname)
 		{
-			vec4_t	textColor = { .312f, .75f, .621f, 1.0f };
+			constexpr vec4_t	textColor = { .312f, .75f, .621f, 1.0f };
 			char	text[1024];
 			char	upperKey[1024];
 
@@ -2045,7 +2045,8 @@ static float CG_DrawFPS( float y ) {
 
 	const Font font( FONT_SMALL, 1.0f );
 	if ( cg_drawFPS.integer ) {
-		vec4_t fpsColour = { 1.0f, 1.0f, 1.0f, 1.0f }, fpsGood = { 0.0f, 1.0f, 0.0f, 1.0f }, fpsBad = { 1.0f, 0.0f, 0.0f, 1.0f };
+		constexpr vec4_t fpsGood = { 0.0f, 1.0f, 0.0f, 1.0f }, fpsBad = { 1.0f, 0.0f, 0.0f, 1.0f };
+		vec4_t fpsColour = { 1.0f, 1.0f, 1.0f, 1.0f };
 		Q_LerpColour(
 			fpsBad, fpsGood, fpsColour,
 			std::min(

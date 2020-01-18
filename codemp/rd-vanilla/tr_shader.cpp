@@ -1788,7 +1788,7 @@ static void ParseDeform( const char **text ) {
 // skyParms <outerbox> <cloudheight> <innerbox>
 static void ParseSkyParms( const char **text ) {
 	char		*token;
-	const char	*suf[6] = {"rt", "lf", "bk", "ft", "up", "dn"};
+	constexpr const char	*suf[6] = {"rt", "lf", "bk", "ft", "up", "dn"};
 	char		pathname[MAX_QPATH];
 	int			i;
 
@@ -1909,7 +1909,7 @@ typedef struct infoParm_s {
 	uint32_t	clearSolid, surfaceFlags, contents;
 } infoParm_t;
 
-const infoParm_t infoParms[] = {
+constexpr infoParm_t infoParms[] = {
 	{ "nonsolid",    ~CONTENTS_SOLID,                   SURF_NONE,       CONTENTS_NONE },        // special hack to clear solid flag
 	{ "nonopaque",   ~CONTENTS_OPAQUE,                  SURF_NONE,       CONTENTS_NONE },        // special hack to clear opaque flag
 	{ "lava",        ~CONTENTS_SOLID,                   SURF_NONE,       CONTENTS_LAVA },        // very damaging
@@ -2259,7 +2259,7 @@ typedef struct collapse_s {
 	int		multitextureBlend;
 } collapse_t;
 
-static const collapse_t collapse[] = {
+static constexpr collapse_t collapse[] = {
 	{
 		0,
 		GLS_DSTBLEND_SRC_COLOR | GLS_SRCBLEND_ZERO,

@@ -31,7 +31,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 vm_t *currentVM = nullptr;
 
-static const char *vmNames[MAX_VM] = {
+static constexpr const char *vmNames[MAX_VM] = {
 	"jampgame",
 	"cgame",
 	"ui"

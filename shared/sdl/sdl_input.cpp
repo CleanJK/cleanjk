@@ -490,7 +490,7 @@ static void IN_DeactivateMouse( void )
 }
 
 // We translate axes movement into keypresses
-static int joy_keys[16] = {
+static constexpr int joy_keys[16] = {
 	A_CURSOR_LEFT, A_CURSOR_RIGHT,
 	A_CURSOR_UP, A_CURSOR_DOWN,
 	A_JOY16, A_JOY17,
@@ -503,7 +503,7 @@ static int joy_keys[16] = {
 
 // translate hat events into keypresses
 // the 4 highest buttons are used for the first hat ...
-static int hat_keys[16] = {
+static constexpr int hat_keys[16] = {
 	A_JOY28, A_JOY29,
 	A_JOY30, A_JOY31,
 	A_JOY24, A_JOY25,

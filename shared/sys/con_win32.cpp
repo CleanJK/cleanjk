@@ -67,7 +67,7 @@ static WORD CON_ColorCharToAttrib( char color ) {
 	}
 	else
 	{
-		float *rgba = g_color_table[ ColorIndex( color ) ];
+		const float *rgba = g_color_table[ ColorIndex( color ) ];
 
 		// set foreground color
 		attrib = ( rgba[0] >= 0.5 ? FOREGROUND_RED		: 0 ) |

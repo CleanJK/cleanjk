@@ -43,7 +43,7 @@ typedef struct vidmode_s
     int         width, height;
 } vidmode_t;
 
-const vidmode_t r_vidModes[] = {
+constexpr vidmode_t r_vidModes[] = {
     { "Mode  0: 320x240",		320,	240 },
     { "Mode  1: 400x300",		400,	300 },
     { "Mode  2: 512x384",		512,	384 },
@@ -101,7 +101,7 @@ typedef struct consoleCommand_s {
 	xcommand_t	func;
 } consoleCommand_t;
 
-static consoleCommand_t	commands[] = {
+static constexpr consoleCommand_t	commands[] = {
 	{ "modellist",			R_Modellist_f },
 	{ "modelist",			R_ModeList_f },
 	{ "modelcacheinfo",		RE_RegisterModels_Info_f },

@@ -37,7 +37,7 @@ typedef struct teamgame_s {
 
 teamgame_t teamgame;
 
-static const char ctfFlagStatusRemap[] = { '0', '1', '*', '*', '2' };
+static constexpr const char ctfFlagStatusRemap[] = { '0', '1', '*', '*', '2' };
 
 void Team_SetFlagStatus( int team, flagStatus_t status ) {
 	bool modified = false;

@@ -1114,7 +1114,7 @@ typedef struct ucmd_s {
 	void	(*func)( client_t *cl );
 } ucmd_t;
 
-static const ucmd_t ucmds[] = {
+static constexpr ucmd_t ucmds[] = {
 	{ "userinfo",   SV_UpdateUserinfo_f },
 	{ "disconnect", SV_Disconnect_f },
 	{ "cp",         SV_VerifyPaks_f },

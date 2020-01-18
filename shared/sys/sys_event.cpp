@@ -44,7 +44,7 @@ static uint32_t		eventHead = 0, eventTail = 0;
 
 static const char *Sys_EventName( sysEventType_t evType ) {
 
-	static const char *evNames[SE_MAX] = {
+	static constexpr const char *evNames[SE_MAX] = {
 		"SE_NONE",
 		"SE_KEY",
 		"SE_CHAR",

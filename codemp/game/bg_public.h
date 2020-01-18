@@ -1305,7 +1305,7 @@ extern int              bgNumAnimEvents;
 extern animation_t bgHumanoidAnimations[MAX_TOTALANIMATIONS];
 extern bgLoadedAnim_t bgAllAnims[MAX_ANIM_FILES];
 extern bool BGPAFtextLoaded;
-extern char *forceMasteryLevels[NUM_FORCE_MASTERY_LEVELS];
+extern const char *forceMasteryLevels[NUM_FORCE_MASTERY_LEVELS];
 extern const char *bg_customSiegeSoundNames[MAX_CUSTOM_SIEGE_SOUNDS];
 extern const char *bgToggleableSurfaces[BG_NUM_TOGGLEABLE_SURFACES];
 extern const char *gametypeStringShort[GT_MAX_GAME_TYPE];
@@ -1313,16 +1313,16 @@ extern const int bgToggleableSurfaceDebris[BG_NUM_TOGGLEABLE_SURFACES];
 extern gitem_t bg_itemlist[];
 extern int bg_numItems;
 extern int bgForcePowerCost[NUM_FORCE_POWERS][NUM_FORCE_POWER_LEVELS];
-extern int forceMasteryPoints[NUM_FORCE_MASTERY_LEVELS];
-extern int forcePowerDarkLight[NUM_FORCE_POWERS];
-extern int forcePowerSorted[NUM_FORCE_POWERS];
-extern int WeaponAttackAnim[WP_NUM_WEAPONS];
-extern int WeaponReadyAnim[WP_NUM_WEAPONS];
+extern const int forceMasteryPoints[NUM_FORCE_MASTERY_LEVELS];
+extern const int forcePowerDarkLight[NUM_FORCE_POWERS];
+extern const int forcePowerSorted[NUM_FORCE_POWERS];
+extern const int WeaponAttackAnim[WP_NUM_WEAPONS];
+extern const int WeaponReadyAnim[WP_NUM_WEAPONS];
 extern pmove_t *pm;
-extern saberMoveData_t saberMoveData[LS_MOVE_MAX];
-extern stringID_table_t animEventTypeTable[MAX_ANIM_EVENTS+1];
-extern stringID_table_t footstepTypeTable[NUM_FOOTSTEP_TYPES+1];
-extern vec3_t WP_MuzzlePoint[WP_NUM_WEAPONS];
+extern const saberMoveData_t saberMoveData[LS_MOVE_MAX];
+extern const stringID_table_t animEventTypeTable[MAX_ANIM_EVENTS+1];
+extern const stringID_table_t footstepTypeTable[NUM_FOOTSTEP_TYPES+1];
+extern const vec3_t WP_MuzzlePoint[WP_NUM_WEAPONS];
 
 // ======================================================================
 // FUNCTION

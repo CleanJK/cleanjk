@@ -122,7 +122,7 @@ typedef struct gfield_s {
 	fieldtype_t	type;
 } gfield_t;
 
-const gfield_t fields[] = {
+constexpr gfield_t fields[] = {
 	{ "alliedteam",         FOFS( alliedTeam ),                  F_INT },//for misc_turrets
 	{ "angerscript",        FOFS( behaviorSet[BSET_ANGER] ),     F_STRING },//name of script to run
 	{ "angle",              FOFS( s.angles ),                    F_ANGLEHACK },
@@ -271,7 +271,7 @@ void SP_gametype_item ( gentity_t* ent )
 	}
 }
 
-const spawn_t	spawns[] = {
+constexpr spawn_t	spawns[] = {
 	{ "emplaced_gun",                      SP_emplaced_gun },
 	{ "func_bobbing",                      SP_func_bobbing },
 	{ "func_breakable",                    SP_func_breakable },
@@ -555,8 +555,9 @@ static void Adjust_AreaPortal( gentity_t *ent ) {
 void G_SpawnGEntityFromSpawnVars( bool inSubBSP ) {
 	int			i;
 	gentity_t	*ent;
-	char		*s, *value, *gametypeName;
-	static char *gametypeNames[GT_MAX_GAME_TYPE] = {"ffa", "holocron", "jedimaster", "duel", "powerduel", "team", "ctf", "cty"};
+	char* s, * value;
+	const char *gametypeName;
+	static constexpr const char *gametypeNames[GT_MAX_GAME_TYPE] = {"ffa", "holocron", "jedimaster", "duel", "powerduel", "team", "ctf", "cty"};
 
 	// get the next free entity
 	ent = G_Spawn();
