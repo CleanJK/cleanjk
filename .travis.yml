@@ -21,6 +21,9 @@ dist: bionic
 
 # https://docs.travis-ci.com/user/reference/overview/
 
+# For arm64, check :
+# https://docs.travis-ci.com/user/multi-cpu-architectures
+
 # https://docs.travis-ci.com/user/reference/bionic/
 # https://docs.travis-ci.com/user/reference/osx/
 # https://docs.travis-ci.com/user/reference/windows/
@@ -57,7 +60,15 @@ jobs:
     - name: "(Release) x64 [GCC 7.4] - Ubuntu 18.04"
       compiler: gcc
 
+    - name: "(Release) arm64 [GCC 7.4] - Ubuntu 18.04"
+      arch: arm64
+      compiler: gcc
+
     - name: "(Release) x64 [clang 7] - Ubuntu 18.04"
+      compiler: clang
+
+    - name: "(Release) arm64 [clang 7] - Ubuntu 18.04"
+      arch: arm64
       compiler: clang
 
     - name: "(Release) x64 [Visual Studio 2017] - Windows Server, version 1803"
@@ -91,7 +102,17 @@ jobs:
       compiler: gcc
       env: CMAKE_BUILD_TYPE=Debug
 
+    - name: "(Debug) arm64 [GCC 7.4] - Ubuntu 18.04"
+      arch: arm64
+      compiler: gcc
+      env: CMAKE_BUILD_TYPE=Debug
+
     - name: "(Debug) x64 [clang 7] - Ubuntu 18.04"
+      compiler: clang
+      env: CMAKE_BUILD_TYPE=Debug
+
+    - name: "(Debug) arm64 [clang 7] - Ubuntu 18.04"
+      arch: arm64
       compiler: clang
       env: CMAKE_BUILD_TYPE=Debug
 
