@@ -12,4 +12,7 @@ if "%ARCH%" == "x64" (
     cmake -G "Visual Studio 15" -A Win32 -T host=x86 ..
 )
 
-MSBuild.exe ALL_BUILD.vcxproj -p:Configuration=%BUILD_TYPE%
+:: https://docs.travis-ci.com/user/speeding-up-the-build/#makefile-optimization
+:: https://docs.microsoft.com/fr-fr/visualstudio/msbuild/building-multiple-projects-in-parallel-with-msbuild?view=vs-2017
+:: https://docs.travis-ci.com/user/reference/overview/#virtualization-environments
+MSBuild.exe ALL_BUILD.vcxproj -maxcpucount -p:Configuration=%BUILD_TYPE%

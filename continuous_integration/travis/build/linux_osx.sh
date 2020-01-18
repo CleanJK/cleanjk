@@ -20,4 +20,6 @@ case "${ARCH}" in
 		;;
 esac
 
-make
+# https://docs.travis-ci.com/user/speeding-up-the-build/#makefile-optimization
+# https://docs.travis-ci.com/user/reference/overview/#virtualization-environments
+make -j2
