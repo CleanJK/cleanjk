@@ -205,18 +205,18 @@ struct ENVTABLE_t {
 		ALfloat vPos2[3];
 		ALfloat vCenter[3];
 	} Aperture[64];
-} ENVTABLE, *LPENVTABLE;
+};
 
 struct REVERBDATA_t {
 	long lEnvID;
 	long lApertureNum;
 	float flDist;
-} REVERBDATA, *LPREVERBDATA;
+};
 
 struct FXSLOTINFO_t {
 	GUID	FXSlotGuid;
 	ALint	lEnvID;
-} FXSLOTINFO, *LPFXSLOTINFO;
+};
 
 ALboolean				s_bEAX;					// Is EAX 4.0 support available
 bool					s_bEALFileLoaded;		// Has an .eal file been loaded for the current level
@@ -228,11 +228,11 @@ HINSTANCE				s_hEAXManInst;			// Handle of EAXManager DLL
 EAXSet					s_eaxSet;				// EAXSet() function
 EAXGet					s_eaxGet;				// EAXGet() function
 EAXREVERBPROPERTIES		s_eaxLPCur;				// Current EAX Parameters
-LPENVTABLE				s_lpEnvTable=nullptr;		// Stores information about each environment zone
+ENVTABLE_t				*s_lpEnvTable=nullptr;	// Stores information about each environment zone
 long					s_lLastEnvUpdate;		// Time of last EAX update
 long					s_lNumEnvironments;		// Number of environment zones
 long					s_NumFXSlots;			// Number of EAX 4.0 FX Slots
-FXSLOTINFO				s_FXSlotInfo[EAX_MAX_FXSLOTS];	// Stores information about the EAX 4.0 FX Slots
+FXSLOTINFO_t			s_FXSlotInfo[EAX_MAX_FXSLOTS];	// Stores information about the EAX 4.0 FX Slots
 
 void Normalize(EAXVECTOR *v)
 {
@@ -5130,7 +5130,7 @@ bool LoadEALFile(char *szEALFilename)
 
 										if (bValid)
 										{
-											s_lpEnvTable = (LPENVTABLE)Z_Malloc(s_lNumEnvironments * sizeof(ENVTABLE), TAG_GENERAL, true);
+											s_lpEnvTable = (ENVTABLE_t*)Z_Malloc(s_lNumEnvironments * sizeof(ENVTABLE_t), TAG_GENERAL, true);
 										}
 									}
 									else
@@ -5344,7 +5344,7 @@ void UpdateEAXListener()
 	long lCurTime;
 	channel_t	*ch;
 	EAXVECTOR	LR, LP1, LP2, Pan;
-	REVERBDATA ReverbData[3]; // Hardcoded to three (maximum no of reverbs)
+	REVERBDATA_t ReverbData[3]; // Hardcoded to three (maximum no of reverbs)
 #ifdef DISPLAY_CLOSEST_ENVS
 	char szEnvName[256];
 #endif

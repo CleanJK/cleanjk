@@ -93,7 +93,7 @@ struct STREAMINGBUFFER_t {
 	ALuint	BufferID;
 	ALuint	Status;
 	char	*Data;
-} STREAMINGBUFFER;
+};
 #endif
 
 struct channel_t {
@@ -125,7 +125,7 @@ struct channel_t {
 	bool	bProcessed;	// Signifies if this channel / source has been processed
 	bool	bStreaming;	// Set to true if the data needs to be streamed (MP3 or dialogue)
 #ifdef USE_OPENAL
-	STREAMINGBUFFER	buffers[NUM_STREAMING_BUFFERS];	// AL Buffers for streaming
+	STREAMINGBUFFER_t	buffers[NUM_STREAMING_BUFFERS];	// AL Buffers for streaming
 	ALuint		alSource;		// Open AL Source
 #endif
 	bool		bPlaying;		// Set to true when a sound is playing on this channel / source
