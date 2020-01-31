@@ -1553,7 +1553,7 @@ static userinfoValidate_t userinfoFields[] = {
 };
 static const size_t numUserinfoFields = ARRAY_LEN( userinfoFields );
 
-static const char *userinfoValidateExtra[USERINFO_VALIDATION_MAX] = {
+static constexpr const char *userinfoValidateExtra[USERINFO_VALIDATION_MAX] = {
 	"Size",					// USERINFO_VALIDATION_SIZE
 	"# of slashes",			// USERINFO_VALIDATION_SLASH
 	"Extended ascii",		// USERINFO_VALIDATION_EXTASCII

@@ -71,7 +71,7 @@ struct vidmode_t {
     int         width, height;
 };
 
-const vidmode_t r_vidModes[] = {
+constexpr vidmode_t r_vidModes[] = {
     { "Mode  0: 320x240",		320,	240 },
     { "Mode  1: 400x300",		400,	300 },
     { "Mode  2: 512x384",		512,	384 },

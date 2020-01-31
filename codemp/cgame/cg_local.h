@@ -842,7 +842,7 @@ extern const char      *cg_customCombatSoundNames[MAX_CUSTOM_COMBAT_SOUNDS];
 extern const char      *cg_customDuelSoundNames[MAX_CUSTOM_DUEL_SOUNDS];
 extern const char      *cg_customExtraSoundNames[MAX_CUSTOM_EXTRA_SOUNDS];
 extern const char      *cg_customJediSoundNames[MAX_CUSTOM_JEDI_SOUNDS];
-extern char            *cg_customSoundNames[MAX_CUSTOM_SOUNDS];
+extern const char      *cg_customSoundNames[MAX_CUSTOM_SOUNDS];
 extern centity_t       cg_entities[MAX_GENTITIES];
 extern centity_t      *cg_permanents[MAX_GENTITIES];
 extern int             cg_numpermanents;
@@ -950,7 +950,7 @@ void           CG_GetColorForHealth             ( int health, int armor, vec4_t 
 const char    *CG_GetGameStatusText             ( void );
 const char    *CG_GetKillerText                 ( void );
 const char    *CG_GetLocationString             ( const char *loc );
-const char    *CG_GetStringEdString             ( char *refSection, char *refName );
+const char    *CG_GetStringEdString             ( char *refSection, const char *refName );
 void           CG_GetTeamColor                  ( vec4_t *color );
 float          CG_GetValue                      ( int ownerDraw );
 void           CG_GlassShatter                  ( int entnum, vec3_t dmgPt, vec3_t dmgDir, float dmgRadius, int maxShards );

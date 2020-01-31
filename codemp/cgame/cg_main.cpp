@@ -338,7 +338,7 @@ int BG_GetTime( void ) {
 
 extern char *forceHolocronModels[];
 
-const char *CG_GetStringEdString(char *refSection, char *refName)
+const char *CG_GetStringEdString(char *refSection, const char *refName)
 {
 	static char text[2][1024];	//just incase it's nested
 	static int		index = 0;

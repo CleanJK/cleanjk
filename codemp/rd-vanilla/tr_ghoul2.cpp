@@ -3615,7 +3615,7 @@ void RB_SurfaceGhoul( CRenderableSurface *surf )
 // These are the old bones:
 // Complete list of all 72 bones:
 
-int OldToNewRemapTable[72] = {
+constexpr int OldToNewRemapTable[72] = {
 0,// Bone 0:   "model_root":           Parent: ""  (index -1)
 1,// Bone 1:   "pelvis":               Parent: "model_root"  (index 0)
 2,// Bone 2:   "Motion":               Parent: "pelvis"  (index 1)

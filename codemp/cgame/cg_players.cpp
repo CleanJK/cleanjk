@@ -33,7 +33,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 extern stringID_table_t animTable [MAX_ANIMATIONS+1];
 
-char	*cg_customSoundNames[MAX_CUSTOM_SOUNDS] = {
+const char *cg_customSoundNames[MAX_CUSTOM_SOUNDS] = {
 	"*death1",
 	"*death2",
 	"*death3",

@@ -47,7 +47,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #define	FRAGMENT_BIT	(1<<31)
 
-static char *netsrcString[2] = {
+static constexpr const char *netsrcString[2] = {
 	"client",
 	"server"
 };

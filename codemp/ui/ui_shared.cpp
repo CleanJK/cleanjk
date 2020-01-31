@@ -1868,7 +1868,7 @@ bool Script_playLooped(itemDef_t *item, char **args) {
 	return true;
 }
 
-commandDef_t commandList[] = {
+constexpr commandDef_t commandList[] = {
   { "close",             &Script_Close },             // menu
   { "defer",             &Script_Defer },             //
   { "disable",           &Script_Disable },           // group/name
@@ -3836,7 +3836,7 @@ bool Item_Slider_HandleKey(itemDef_t *item, int key, bool down) {
 	return false;
 }
 
-static const char *g_bindCommands[] = {
+static constexpr const char *g_bindCommands[] = {
 	"+altattack",
 	"+attack",
 	"+back",

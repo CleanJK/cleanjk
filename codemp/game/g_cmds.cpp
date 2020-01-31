@@ -1364,7 +1364,7 @@ static void Cmd_VoiceCommand_f(gentity_t *ent)
 	te->r.svFlags |= SVF_BROADCAST;
 }
 
-static const char *gameNames[GT_MAX_GAME_TYPE] = {
+static constexpr const char *gameNames[GT_MAX_GAME_TYPE] = {
 	"Free For All",
 	"Holocron FFA",
 	"Jedi Master",
@@ -1582,7 +1582,7 @@ struct voteString_t {
 	const char	*shortHelp;	// nullptr if no arguments needed
 };
 
-static voteString_t validVoteStrings[] = {
+static constexpr voteString_t validVoteStrings[] = {
 	//	vote string				aliases										# args	valid gametypes							exec delay		short help
 	{	"capturelimit",			"caps",				G_VoteCapturelimit,		1,		GTB_CTF|GTB_CTY,						true,			"<num>" },
 	{	"clientkick",			nullptr,				G_VoteClientkick,		1,		GTB_ALL,								false,			"<clientnum>" },
@@ -1629,7 +1629,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	int				i=0, numArgs=0;
 	char			arg1[MAX_CVAR_VALUE_STRING] = {0};
 	char			arg2[MAX_CVAR_VALUE_STRING] = {0};
-	voteString_t	*vote = nullptr;
+	const voteString_t	*vote = nullptr;
 
 	// not allowed to vote at all
 	if ( !g_allowVote.integer ) {

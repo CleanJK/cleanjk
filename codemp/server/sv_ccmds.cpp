@@ -1157,7 +1157,7 @@ static void SV_ConTell_f(void) {
 }
 
 //CJKFIXME: move forceToggle/weaponToggle to game/ - this has no business being in the server
-const char *forceToggleNamePrints[NUM_FORCE_POWERS] = {
+constexpr const char *forceToggleNamePrints[NUM_FORCE_POWERS] = {
 	"HEAL",
 	"JUMP",
 	"SPEED",
@@ -1224,7 +1224,7 @@ static void SV_ForceToggle_f( void ) {
 	}
 }
 
-const char *weaponToggleNamePrints[WP_NUM_WEAPONS] = {
+constexpr const char *weaponToggleNamePrints[WP_NUM_WEAPONS] = {
 	"NO WEAPON",
 	"STUN BATON",
 	"MELEE",

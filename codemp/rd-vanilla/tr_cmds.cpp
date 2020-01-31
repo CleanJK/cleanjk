@@ -162,7 +162,7 @@ void	RE_SetColor( const float *rgba ) {
 	}
 	cmd->commandId = RC_SET_COLOR;
 	if ( !rgba ) {
-		static float colorWhite[4] = { 1, 1, 1, 1 };
+		static constexpr float colorWhite[4] = { 1, 1, 1, 1 };
 
 		rgba = colorWhite;
 	}

@@ -37,7 +37,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // The vertigons are applied as part of the renderer backend. That is, they access OpenGL calls directly.
 
 unsigned char randomindex, randominterval;
-const float randomchart[256] = {
+constexpr float randomchart[256] = {
 	0.6554f, 0.6909f, 0.4806f, 0.6218f, 0.5717f, 0.3896f, 0.0677f, 0.7356f,
 	0.8333f, 0.1105f, 0.4445f, 0.8161f, 0.4689f, 0.0433f, 0.7152f, 0.0336f,
 	0.0186f, 0.9140f, 0.1626f, 0.6553f, 0.8340f, 0.7094f, 0.2020f, 0.8087f,

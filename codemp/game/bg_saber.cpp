@@ -138,7 +138,7 @@ bool BG_EnoughForcePowerForMove( int cost )
 #define AFLAG_FINISH (SETANIM_FLAG_HOLD)
 
 //FIXME: add the alternate anims for each style?
-saberMoveData_t	saberMoveData[LS_MOVE_MAX] = {//							NB:randomized
+const saberMoveData_t	saberMoveData[LS_MOVE_MAX] = {//							NB:randomized
 	// name			anim(do all styles?)startQ	endQ	setanimflag		blend,	blocking	chain_idle		chain_attack	trailLen
 	{"None",		BOTH_STAND1,		Q_R,	Q_R,	AFLAG_IDLE,		350,	BLK_NO,		LS_NONE,		LS_NONE,		0	},	// LS_NONE		= 0,
 
@@ -390,7 +390,7 @@ saberMoveName_t PM_AttackMoveForQuad( int quad )
 	return LS_NONE;
 }
 
-static const int saberMoveTransitionAngle[Q_NUM_QUADS][Q_NUM_QUADS] = {
+static constexpr int saberMoveTransitionAngle[Q_NUM_QUADS][Q_NUM_QUADS] = {
 //		Q_BR,Q_BR,	Q_BR,Q_R,	Q_BR,Q_TR,	Q_BR,Q_T,	Q_BR,Q_TL,	Q_BR,Q_L,	Q_BR,Q_BL,	Q_BR,Q_B,
 	{	0,			45,			90,			135,		180,		215,		270,		45			},
 //		Q_R,Q_BR,	Q_R,Q_R,	Q_R,Q_TR,	Q_R,Q_T,	Q_R,Q_TL,	Q_R,Q_L,	Q_R,Q_BL,	Q_R,Q_B,

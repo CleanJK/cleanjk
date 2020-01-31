@@ -210,7 +210,7 @@ static void CG_ParseWarmup( void ) {
 
 // this is a reverse map of flag statuses as seen in g_team.c
 //static char ctfFlagStatusRemap[] = { '0', '1', '*', '*', '2' };
-static const char ctfFlagStatusRemap[] = {
+static constexpr char ctfFlagStatusRemap[] = {
 	FLAG_ATBASE,
 	FLAG_TAKEN,			// CTF
 	// server doesn't use FLAG_TAKEN_RED or FLAG_TAKEN_BLUE
@@ -1169,7 +1169,7 @@ int svcmdcmp( const void *a, const void *b ) {
 	return Q_stricmp( (const char *)a, ((serverCommand_t*)b)->cmd );
 }
 
-static const serverCommand_t commands[] = {
+static constexpr serverCommand_t commands[] = {
 	{ "chat",            CG_Chat_f },
 	{ "clientLevelShot", CG_ClientLevelShot_f },
 	{ "cp",              CG_CenterPrint_f },

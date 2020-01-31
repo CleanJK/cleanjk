@@ -655,7 +655,7 @@ cvar_t *Cvar_User_Set( const char *var_name, const char *value) {
 	return Cvar_Set2 (var_name, value, CVAR_USER_CREATED, false);
 }
 
-static const char *legacyCvars[] = {
+static constexpr const char *legacyCvars[] = {
 	"bg_fighterAltControl",
 	"g_dlURL",
 	"g_synchronousClients",

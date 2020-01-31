@@ -133,7 +133,7 @@ void SCR_DrawSmallChar( int x, int y, int ch ) {
 
 // Draws a multi-colored string with a drop shadow, optionally forcing to a fixed color.
 // Coordinates are at 640 by 480 virtual resolution
-void SCR_DrawStringExt( int x, int y, float size, const char *string, float *setColor, bool forceColor, bool noColorEscape ) {
+static void SCR_DrawStringExt( int x, int y, float size, const char *string, const float *setColor, bool forceColor, bool noColorEscape ) {
 	vec4_t		color;
 	const char	*s;
 	int			xx;

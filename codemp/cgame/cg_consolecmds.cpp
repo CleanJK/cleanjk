@@ -193,7 +193,7 @@ int cmdcmp( const void *a, const void *b ) {
 	return Q_stricmp( (const char *)a, ((consoleCommand_t*)b)->cmd );
 }
 
-static const consoleCommand_t commands[] = {
+static constexpr consoleCommand_t commands[] = {
 	{ "-scores",       CG_ScoresUp_f },
 	{ "+scores",       CG_ScoresDown_f },
 	{ "clientlist",    CG_ClientList_f },
@@ -237,7 +237,7 @@ bool CG_ConsoleCommand( void ) {
 	return true;
 }
 
-static const char *gcmds[] = {
+static constexpr const char *gcmds[] = {
 	"addbot",
 	"callteamvote",
 	"callvote",

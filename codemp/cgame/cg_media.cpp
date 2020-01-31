@@ -22,11 +22,11 @@ struct resource_t {
 	uint32_t	 gametypes;
 };
 
-static const resource_t efx[] = {
+static constexpr resource_t efx[] = {
 	{ &media.efx.null, "", RFL_NONE, GTB_ALL }
 };
 
-static const resource_t gfx[] = {
+static constexpr resource_t gfx[] = {
 //	{ &media.gfx.null,                 "",                     RFL_NONE,  GTB_ALL },
 	{ &media.gfx.hud.crosshairs[0],    "gfx/hud/crosshair/a",  RFL_NOMIP, GTB_ALL },
 	{ &media.gfx.hud.crosshairs[1],    "gfx/hud/crosshair/b",  RFL_NOMIP, GTB_ALL },
@@ -42,11 +42,11 @@ static const resource_t gfx[] = {
 	{ &media.gfx.interface.cursor,     "gfx/interface/cursor", RFL_NOMIP, GTB_ALL },
 };
 
-static const resource_t models[] = {
+static constexpr resource_t models[] = {
 	{ &media.models.null, "models/null.md3", RFL_NONE, GTB_ALL }
 };
 
-static const resource_t sounds[] = {
+static constexpr resource_t sounds[] = {
 	{ &media.sounds.null, "sounds/null.wav", RFL_NONE, GTB_ALL }
 };
 

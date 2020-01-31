@@ -114,7 +114,7 @@ struct datpadmovedata_t {
 	short	sound;
 };
 
-static datpadmovedata_t datapadMoveData[MD_MOVE_TITLE_MAX][MAX_MOVES] = {
+static constexpr datpadmovedata_t datapadMoveData[MD_MOVE_TITLE_MAX][MAX_MOVES] = {
 	{// Acrobatics
 		{ "@MENUS_FORCE_JUMP1",				"@MENUS_FORCE_JUMP1_DESC",				"BOTH_FORCEJUMP1",				MDS_FORCE_JUMP },
 		{ "@MENUS_FORCE_FLIP",				"@MENUS_FORCE_FLIP_DESC",				"BOTH_FLIP_F",					MDS_FORCE_JUMP },
@@ -466,7 +466,7 @@ static const char *UI_SelectedMap(int index, int *actual);
 int	uiSkinColor=TEAM_FREE;
 int	uiHoldSkinColor=TEAM_FREE;	// Stores the skin color so that in non-team games, the player screen remembers the team you chose, in case you're coming back from the force powers screen.
 
-static const char *skillLevels[] = {
+static constexpr const char *skillLevels[] = {
 	"SKILL1", // "Initiate"
 	"SKILL2", // "Padawan"
 	"SKILL3", // "Jedi"
@@ -475,7 +475,7 @@ static const char *skillLevels[] = {
 };
 static const size_t numSkillLevels = ARRAY_LEN( skillLevels );
 
-static const char *gameTypes[GT_MAX_GAME_TYPE] = {
+static constexpr const char *gameTypes[GT_MAX_GAME_TYPE] = {
 	"FFA",
 	"Holocron",
 	"JediMaster",
@@ -487,7 +487,7 @@ static const char *gameTypes[GT_MAX_GAME_TYPE] = {
 };
 static const int numGameTypes = ARRAY_LEN( gameTypes );
 
-static const char *netNames[] = {
+static constexpr const char *netNames[] = {
 	"???",
 	"UDP",
 	nullptr
@@ -1259,7 +1259,7 @@ const char *UI_FilterDir( int value ) {
 	return uiInfo.modList[value - 1].modName;
 }
 
-static const char *handicapValues[] = {"None","95","90","85","80","75","70","65","60","55","50","45","40","35","30","25","20","15","10","5",nullptr};
+static constexpr const char *handicapValues[] = {"None","95","90","85","80","75","70","65","60","55","50","45","40","35","30","25","20","15","10","5",nullptr};
 
 static void UI_DrawHandicap(rectDef_t *rect, float scale, vec4_t color, int textStyle, int iMenuFont) {
 	int i, h;
@@ -6149,7 +6149,7 @@ struct serverStatusCvar_t {
 	char *name, *altName;
 };
 
-const serverStatusCvar_t serverStatusCvars[] = {
+constexpr serverStatusCvar_t serverStatusCvars[] = {
 	{ "sv_hostname", "Name" },
 	{ "Address",     "" },
 	{ "gamename",    "Game name" },

@@ -52,7 +52,7 @@ struct textureMode_t {
 	int	minimize, maximize;
 };
 
-textureMode_t modes[] = {
+constexpr textureMode_t modes[] = {
 	{"GL_NEAREST", GL_NEAREST, GL_NEAREST},
 	{"GL_LINEAR", GL_LINEAR, GL_LINEAR},
 	{"GL_NEAREST_MIPMAP_NEAREST", GL_NEAREST_MIPMAP_NEAREST, GL_NEAREST},
@@ -213,7 +213,7 @@ void R_ImageList_f( void ) {
 	image_t	*image;
 	int		texels=0;
 	float	texBytes = 0.0f;
-	const char *yesno[] = {"no ", "yes"};
+	constexpr const char *yesno[] = {"no ", "yes"};
 
 	ri.Printf( PRINT_ALL,  "\n      -w-- -h-- -mm- -if-- wrap --name-------\n");
 
@@ -430,7 +430,7 @@ static void R_MipMap (byte *in, int width, int height) {
 }
 
 // Apply a color blend over a set of pixels
-static void R_BlendOverTexture( byte *data, int pixelCount, byte blend[4] ) {
+static void R_BlendOverTexture( byte *data, int pixelCount, const byte blend[4] ) {
 	int		i;
 	int		inverseAlpha;
 	int		premult[3];
@@ -447,7 +447,7 @@ static void R_BlendOverTexture( byte *data, int pixelCount, byte blend[4] ) {
 	}
 }
 
-byte	mipBlendColors[16][4] = {
+constexpr byte	mipBlendColors[16][4] = {
 	{0,0,0,0},
 	{255,0,0,128},
 	{0,255,0,128},

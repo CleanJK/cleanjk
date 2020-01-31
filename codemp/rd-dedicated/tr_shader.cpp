@@ -1749,7 +1749,7 @@ static void ParseDeform( const char **text ) {
 // skyParms <outerbox> <cloudheight> <innerbox>
 static void ParseSkyParms( const char **text ) {
 	char		*token;
-	const char	*suf[6] = {"rt", "lf", "bk", "ft", "up", "dn"};
+	constexpr const char	*suf[6] = {"rt", "lf", "bk", "ft", "up", "dn"};
 	char		pathname[MAX_QPATH];
 	int			i;
 
@@ -1862,7 +1862,7 @@ struct infoParm_t {
 	uint32_t	clearSolid, surfaceFlags, contents;
 };
 
-infoParm_t	infoParms[] = {
+constexpr infoParm_t	infoParms[] = {
 	// Game content Flags
 	{ "nonsolid",		~CONTENTS_SOLID,					SURF_NONE,			CONTENTS_NONE },		// special hack to clear solid flag
 	{ "nonopaque",		~CONTENTS_OPAQUE,					SURF_NONE,			CONTENTS_NONE },		// special hack to clear opaque flag

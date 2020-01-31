@@ -108,7 +108,7 @@ static void MakeMeshNormals( int width, int height, drawVert_t ctrl[MAX_GRID_SIZ
 	bool	good[8];
 	bool	wrapWidth, wrapHeight;
 	float		len;
-static	int	neighbors[8][2] = {
+static constexpr	int	neighbors[8][2] = {
 	{0,1}, {1,1}, {1,0}, {1,-1}, {0,-1}, {-1,-1}, {-1,0}, {-1,1}
 	};
 

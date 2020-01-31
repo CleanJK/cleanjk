@@ -18,7 +18,7 @@ vec4_t		colorDkGrey	= {0.25, 0.25, 0.25, 1};
 vec4_t		colorLtBlue	= {0.367f, 0.261f, 0.722f, 1};
 vec4_t		colorDkBlue	= {0.199f, 0.0f,   0.398f, 1};
 
-vec4_t g_color_table[Q_COLOR_BITS+1] = {
+const vec4_t g_color_table[Q_COLOR_BITS+1] = {
 	{ 0.0, 0.0, 0.0, 1.0 },	// black
 	{ 1.0, 0.0, 0.0, 1.0 },	// red
 	{ 0.0, 1.0, 0.0, 1.0 },	// green

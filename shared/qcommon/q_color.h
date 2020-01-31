@@ -160,7 +160,7 @@ extern vec4_t colorDkGrey;
 extern vec4_t colorLtBlue;
 extern vec4_t colorDkBlue;
 
-extern vec4_t g_color_table[Q_COLOR_BITS+1];
+extern const vec4_t g_color_table[Q_COLOR_BITS+1];
 extern vec4_t colorTable[CT_MAX];
 
 unsigned ColorBytes3 (float r, float g, float b);

@@ -138,11 +138,11 @@ struct StaticMem_t {
 };
 #pragma pack(pop)
 
-StaticZeroMem_t gZeroMalloc  =
+constexpr StaticZeroMem_t gZeroMalloc  =
 	{ {ZONE_MAGIC, TAG_STATIC,0,nullptr,nullptr},{ZONE_MAGIC}};
-StaticMem_t gEmptyString =
+constexpr StaticMem_t gEmptyString =
 	{ {ZONE_MAGIC, TAG_STATIC,2,nullptr,nullptr},{'\0','\0'},{ZONE_MAGIC}};
-StaticMem_t gNumberString[] = {
+constexpr StaticMem_t gNumberString[] = {
 	{ {ZONE_MAGIC, TAG_STATIC,2,nullptr,nullptr},{'0','\0'},{ZONE_MAGIC}},
 	{ {ZONE_MAGIC, TAG_STATIC,2,nullptr,nullptr},{'1','\0'},{ZONE_MAGIC}},
 	{ {ZONE_MAGIC, TAG_STATIC,2,nullptr,nullptr},{'2','\0'},{ZONE_MAGIC}},
