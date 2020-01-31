@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #pragma once
 
 #include <cstdint>
-#include <math.h>
+#include <cmath>
 
 #include "qcommon/q_type.h"
 #include "qcommon/q_platform.h"

@@ -1237,7 +1237,7 @@ static void G2_Generate_MatrixRag(
 	{
 		for (j = 0; j < 4; j++ )
 		{
-			assert( !Q_isnan(bone.matrix.matrix[i][j]));
+			assert( !std::isnan(bone.matrix.matrix[i][j]));
 		}
 	}
 #endif// _DEBUG
@@ -1316,8 +1316,8 @@ static int G2_Set_Bone_Rag(const mdxaHeader_t *mod_a,
 
 		G2_GetBoneMatrixLow(ghoul2,bone.boneNumber,scale,bone.originalTrueBoneMatrix,bone.basepose,bone.baseposeInv);
 //		bone.parentRawBoneIndex=G2_GetParentBoneMatrixLow(ghoul2,bone.boneNumber,scale,bone.parentTrueBoneMatrix,bone.baseposeParent,bone.baseposeInvParent);
-		assert( !Q_isnan(bone.originalTrueBoneMatrix.matrix[1][1]));
-		assert( !Q_isnan(bone.originalTrueBoneMatrix.matrix[1][3]));
+		assert( !std::isnan(bone.originalTrueBoneMatrix.matrix[1][1]));
+		assert( !std::isnan(bone.originalTrueBoneMatrix.matrix[1][3]));
 		bone.originalOrigin[0]=bone.originalTrueBoneMatrix.matrix[0][3];
 		bone.originalOrigin[1]=bone.originalTrueBoneMatrix.matrix[1][3];
 		bone.originalOrigin[2]=bone.originalTrueBoneMatrix.matrix[2][3];
@@ -1852,7 +1852,7 @@ void G2_SetRagDollBullet(CGhoul2Info &ghoul2,const vec3_t rayStart,const vec3_t 
 //					bone.velocityEffector[0]=shotDir[0]*(effect+flrand(0.0f,0.05f))*flrand(-0.1f,3.0f);
 //					bone.velocityEffector[1]=shotDir[1]*(effect+flrand(0.0f,0.05f))*flrand(-0.1f,3.0f);
 //					bone.velocityEffector[2]=fabs(shotDir[2])*(effect+flrand(0.0f,0.05f))*flrand(-0.1f,3.0f);
-					assert( !Q_isnan(shotDir[2]));
+					assert( !std::isnan(shotDir[2]));
 	//				bone.currentAngles[0]+=flrand(-10.0f*lenr,10.0f*lenr);
 	//				bone.currentAngles[1]+=flrand(-10.0f*lenr,10.0f*lenr);
 	//				bone.currentAngles[2]+=flrand(-10.0f*lenr,10.0f*lenr);
@@ -2240,7 +2240,7 @@ static void G2_RagDollCurrentPosition(CGhoul2Info_v &ghoul2V,int g2Index,int fra
 		for (k=0;k<3;k++)
 		{
 			ragEffectors[i].currentOrigin[k]=ragBones[i].matrix[k][3];
-			assert( !Q_isnan(ragEffectors[i].currentOrigin[k]));
+			assert( !std::isnan(ragEffectors[i].currentOrigin[k]));
 			if (!i)
 			{
 				// set mins, maxs and cm
@@ -2510,10 +2510,10 @@ static bool G2_RagDollSettlePositionNumeroTrois(CGhoul2Info_v &ghoul2V, const ve
 
 		{
 			trace_t		tr;
-			assert( !Q_isnan(testStart[1]));
-			assert( !Q_isnan(testEnd[1]));
-			assert( !Q_isnan(testMins[1]));
-			assert( !Q_isnan(testMaxs[1]));
+			assert( !std::isnan(testStart[1]));
+			assert( !std::isnan(testEnd[1]));
+			assert( !std::isnan(testMins[1]));
+			assert( !std::isnan(testMaxs[1]));
 			Rag_Trace(&tr,testStart,testMins,testMaxs,testEnd,ignoreNum,RAG_MASK,G2_NOCOLLIDE,0/*SV_TRACE_NO_PLAYER*/);
 			if (tr.entityNum==0)
 			{
@@ -2568,10 +2568,10 @@ static bool G2_RagDollSettlePositionNumeroTrois(CGhoul2Info_v &ghoul2V, const ve
 		vec3_t testEnd;
 		VectorCopy(testStart,testEnd); //last arg is dest
 		testEnd[2]-=8.0f;
-		assert( !Q_isnan(testStart[1]));
-		assert( !Q_isnan(testEnd[1]));
-		assert( !Q_isnan(testMins[1]));
-		assert( !Q_isnan(testMaxs[1]));
+		assert( !std::isnan(testStart[1]));
+		assert( !std::isnan(testEnd[1]));
+		assert( !std::isnan(testMins[1]));
+		assert( !std::isnan(testMaxs[1]));
 		float vertEffectorTraceFraction=0.0f;
 		{
 			trace_t		tr;
@@ -2647,10 +2647,10 @@ static bool G2_RagDollSettlePositionNumeroTrois(CGhoul2Info_v &ghoul2V, const ve
 			VectorCopy(effectorGroundSpot,testEnd); //last arg is dest
 			bone.solidCount = 0;
 		}
-		assert( !Q_isnan(testStart[1]));
-		assert( !Q_isnan(testEnd[1]));
-		assert( !Q_isnan(testMins[1]));
-		assert( !Q_isnan(testMaxs[1]));
+		assert( !std::isnan(testStart[1]));
+		assert( !std::isnan(testEnd[1]));
+		assert( !std::isnan(testMins[1]));
+		assert( !std::isnan(testMaxs[1]));
 
 		float ztest;
 
@@ -2828,7 +2828,7 @@ static inline void G2_RagGetWorldAnimMatrix(CGhoul2Info &ghoul2, boneInfo_t &bon
 	//bone matrix and give us a useable world position
 	Multiply_3x4Matrix(&retMatrix, &worldMatrix, &baseBoneMatrix);
 
-	assert(!Q_isnan(retMatrix.matrix[2][3]));
+	assert(!std::isnan(retMatrix.matrix[2][3]));
 }
 
 //get the current pelvis Z direction and the base anim matrix Z direction
@@ -3392,7 +3392,7 @@ static void G2_RagDollSolve(CGhoul2Info_v &ghoul2V,int g2Index,float decay,int f
 			{
 				float	magicFactor12=0.25f; // dampfactor for pelvis pos
 				float	magicFactor13=0.20f; //controls the speed of the gradient descent (pelvis pos)
-				assert( !Q_isnan(bone.ragOverrideMatrix.matrix[2][3]));
+				assert( !std::isnan(bone.ragOverrideMatrix.matrix[2][3]));
 				vec3_t deltaInEntitySpace;
 				TransformPoint(desiredPelvisOffset,deltaInEntitySpace,&N); // dest middle arg
 				for (k=0;k<3;k++)
@@ -3461,10 +3461,10 @@ static void G2_RagDollSolve(CGhoul2Info_v &ghoul2V,int g2Index,float decay,int f
 						vec3_t change;
 						VectorSubtract(tPosition,ragEffectors[depIndex].currentOrigin,change); // dest is last arg
 						float goodness=DotProduct(change,ragEffectors[depIndex].desiredDirection);
-						assert( !Q_isnan(goodness));
+						assert( !std::isnan(goodness));
 						goodness*=depBone.weight;
 						delAngles[k]+=goodness; // keep bigger stuff more out of wall or something
-						assert( !Q_isnan(delAngles[k]));
+						assert( !std::isnan(delAngles[k]));
 					}
 					allSolidCount += depBone.solidCount;
 				}
@@ -3559,7 +3559,7 @@ static void G2_RagDollSolve(CGhoul2Info_v &ghoul2V,int g2Index,float decay,int f
 			Create_Matrix(bone.currentAngles,&temp1);
 			Multiply_3x4Matrix(&temp2,&temp1,bone.baseposeInv);
 			Multiply_3x4Matrix(&bone.ragOverrideMatrix,bone.basepose, &temp2);
-			assert( !Q_isnan(bone.ragOverrideMatrix.matrix[2][3]));
+			assert( !std::isnan(bone.ragOverrideMatrix.matrix[2][3]));
 		}
 		G2_Generate_MatrixRag(blist,ragBlistIndex[bone.boneNumber]);
 	}
@@ -3694,10 +3694,10 @@ static void G2_IKSolve(CGhoul2Info_v &ghoul2V,int g2Index,float decay,int frameN
 					vec3_t change;
 					VectorSubtract(tPosition,ragEffectors[depIndex].currentOrigin,change); // dest is last arg
 					float goodness=DotProduct(change,ragEffectors[depIndex].desiredDirection);
-					assert( !Q_isnan(goodness));
+					assert( !std::isnan(goodness));
 					goodness*=depBone.weight;
 					delAngles[k]+=goodness; // keep bigger stuff more out of wall or something
-					assert( !Q_isnan(delAngles[k]));
+					assert( !std::isnan(delAngles[k]));
 				}
 			}
 		}
@@ -3753,7 +3753,7 @@ static void G2_IKSolve(CGhoul2Info_v &ghoul2V,int g2Index,float decay,int frameN
 		Create_Matrix(bone.currentAngles, &temp1);
 		Multiply_3x4Matrix(&temp2, &temp1, bone.baseposeInv);
 		Multiply_3x4Matrix(&bone.ragOverrideMatrix, bone.basepose, &temp2);
-		assert( !Q_isnan(bone.ragOverrideMatrix.matrix[2][3]));
+		assert( !std::isnan(bone.ragOverrideMatrix.matrix[2][3]));
 
 		G2_Generate_MatrixRag(blist, ragBlistIndex[bone.boneNumber]);
 	}
