@@ -198,6 +198,7 @@ static void Init_EA_Export( ea_export_t *ea ) {
 	ea->EA_MoveBack = EA_MoveBack;
 	ea->EA_MoveLeft = EA_MoveLeft;
 	ea->EA_MoveRight = EA_MoveRight;
+	ea->EA_Walk = EA_Walk;
 
 	ea->EA_SelectWeapon = EA_SelectWeapon;
 	ea->EA_Jump = EA_Jump;

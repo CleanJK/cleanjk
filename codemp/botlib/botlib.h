@@ -32,7 +32,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define BSPTRACE
 #endif	// BSPTRACE
 
-#define	BOTLIB_API_VERSION		2
+#define	BOTLIB_API_VERSION		3
 #define BOTFILESBASEFOLDER		"botfiles"
 
 enum debugLineColour_e {
@@ -214,6 +214,7 @@ struct ea_export_t {
 	void	(*EA_MoveBack)(int client);
 	void	(*EA_MoveLeft)(int client);
 	void	(*EA_MoveRight)(int client);
+	void	(*EA_Walk)(int client);
 	void	(*EA_Crouch)(int client);
 	void	(*EA_Alt_Attack)(int client);
 	void	(*EA_ForcePower)(int client);

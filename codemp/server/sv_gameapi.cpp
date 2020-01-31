@@ -581,6 +581,10 @@ static void SV_EA_MoveRight( int client ) {
 	botlib_export->ea.EA_MoveRight( client );
 }
 
+static void SV_EA_Walk( int client ) {
+	botlib_export->ea.EA_Walk( client );
+}
+
 static void SV_EA_SelectWeapon( int client, int weapon ) {
 	botlib_export->ea.EA_SelectWeapon( client, weapon );
 }
@@ -1067,6 +1071,7 @@ void SV_BindGame( void ) {
 	gi.EA_MoveBack							= SV_EA_MoveBack;
 	gi.EA_MoveLeft							= SV_EA_MoveLeft;
 	gi.EA_MoveRight							= SV_EA_MoveRight;
+	gi.EA_Walk								= SV_EA_Walk;
 	gi.EA_SelectWeapon						= SV_EA_SelectWeapon;
 	gi.EA_Jump								= SV_EA_Jump;
 	gi.EA_DelayedJump						= SV_EA_DelayedJump;

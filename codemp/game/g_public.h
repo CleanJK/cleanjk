@@ -470,6 +470,7 @@ struct gameImport_t {
 	void		(*EA_MoveBack)							( int client );
 	void		(*EA_MoveLeft)							( int client );
 	void		(*EA_MoveRight)							( int client );
+	void		(*EA_Walk)								( int client );
 	void		(*EA_SelectWeapon)						( int client, int weapon );
 	void		(*EA_Jump)								( int client );
 	void		(*EA_DelayedJump)						( int client );
