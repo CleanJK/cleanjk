@@ -105,12 +105,6 @@ set(MPVanillaRendererCommonFiles
 source_group("common" FILES ${MPVanillaRendererCommonFiles})
 set(MPVanillaRendererFiles ${MPVanillaRendererFiles} ${MPVanillaRendererCommonFiles})
 
-set(MPVanillaRendererCommonSafeFiles
-	${SharedCommonSafeFiles}
-	)
-source_group("common/safe" FILES ${MPVanillaRendererCommonSafeFiles})
-set(MPVanillaRendererFiles ${MPVanillaRendererFiles} ${MPVanillaRendererCommonSafeFiles})
-
 # Transparently use either bundled or system libjpeg.
 list(APPEND MPVanillaRendererIncludeDirectories ${JPEG_INCLUDE_DIR})
 list(APPEND MPVanillaRendererLibraries          ${JPEG_LIBRARIES})

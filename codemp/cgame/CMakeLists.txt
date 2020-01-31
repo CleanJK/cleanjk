@@ -97,12 +97,6 @@ set(MPCGameCommonFiles
 source_group("common" FILES ${MPCGameCommonFiles})
 set(MPCGameFiles ${MPCGameFiles} ${MPCGameCommonFiles})
 
-set(MPCGameCommonSafeFiles
-	${SharedCommonSafeFiles}
-	)
-source_group("common/safe" FILES ${MPCGameCommonSafeFiles})
-set(MPCGameFiles ${MPCGameFiles} ${MPCGameCommonSafeFiles})
-
 set(MPCGameUiFiles
 	"${MPDir}/ui/ui_fonts.cpp"
 	"${MPDir}/ui/ui_shared.cpp"
