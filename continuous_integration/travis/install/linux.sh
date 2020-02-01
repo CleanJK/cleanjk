@@ -45,4 +45,14 @@ case "${ARCH}" in
 			libjpeg-turbo8-dev:i386 \
 			libsdl2-dev:i386
 		;;
+		
+	x86_64-w64-mingw32)
+		# Already installed
+		#${APT_GET_INSTALL} g++-mingw-w64-x86-64
+		;;
+
+	i686-w64-mingw32)
+		# Already installed
+		#${APT_GET_INSTALL} g++-mingw-w64-i686
+		;;
 esac

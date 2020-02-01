@@ -40,6 +40,10 @@ dist: bionic
 # CMAKE_BUILD_TYPE defaulted to Release
 # ARCH defaulted to x64 (x64 VMs)
 
+# Cross-compiling using Toolchains (MinGW)
+# https://launchpad.net/ubuntu/+source/gcc-mingw-w64
+# https://gitlab.kitware.com/cmake/community/-/wikis/doc/cmake/cross_compiling/Mingw
+
 # https://docs.travis-ci.com/user/caching/
 cache: ccache
 
@@ -117,7 +121,11 @@ jobs:
       os: osx
       osx_image: xcode11.3
       compiler: clang
- 
+
+    - name: "(Release) x64 [MinGW-64 7] - Ubuntu 18.04"
+      compiler: gcc
+      env: ARCH=x86_64-w64-mingw32
+
     - name: "(Release) x86 [GCC 9] - Ubuntu 18.04"
       compiler: gcc
       env: ARCH=x86
@@ -131,6 +139,10 @@ jobs:
       env: 
         - MSBUILD_PATH="c:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\MSBuild\15.0\Bin"
         - ARCH=x86
+
+    - name: "(Release) x86 [MinGW-64 7] - Ubuntu 18.04"
+      compiler: gcc
+      env: ARCH=i686-w64-mingw32
 
     # =========================
     #           DEBUG          
