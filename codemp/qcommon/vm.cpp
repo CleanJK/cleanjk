@@ -68,7 +68,7 @@ vm_t *VM_Restart( vm_t *vm ) {
 	return VM_Create( saved.slot );
 }
 
-vm_t *VM_Create( vmSlots_t vmSlot ) {
+vm_t *VM_Create( vmSlots_e vmSlot ) {
 	vm_t *vm = nullptr;
 
 	// see if we already have the VM

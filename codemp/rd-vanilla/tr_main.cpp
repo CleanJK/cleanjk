@@ -42,7 +42,7 @@ refimport_t	ri;
 
 // entities that will have procedurally generated surfaces will just
 // point at this for their sorting surface
-surfaceType_t	entitySurface = SF_ENTITY;
+surfaceType_e	entitySurface = SF_ENTITY;
 
 // Returns CULL_IN, CULL_CLIP, or CULL_OUT
 int R_CullLocalBox (const vec3_t bounds[2]) {
@@ -512,7 +512,7 @@ void R_MirrorVector (vec3_t in, orientation_t *surface, orientation_t *camera, v
 	}
 }
 
-void R_PlaneForSurface (surfaceType_t *surfType, cplane_t *plane) {
+void R_PlaneForSurface (surfaceType_e *surfType, cplane_t *plane) {
 	srfTriangles_t	*tri;
 	srfPoly_t		*poly;
 	drawVert_t		*v1, *v2, *v3;
@@ -943,7 +943,7 @@ static void R_RadixSort( drawSurf_t *source, int size )
 #endif //Q3_LITTLE_ENDIAN
 }
 
-void R_AddDrawSurf( surfaceType_t *surface, shader_t *shader,
+void R_AddDrawSurf( surfaceType_e *surface, shader_t *shader,
 				   int fogIndex, int dlightMap ) {
 	int			index;
 

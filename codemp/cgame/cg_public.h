@@ -60,7 +60,7 @@ struct snapshot_t {
 	int				serverCommandSequence;	// snapshot becomes current
 };
 
-enum cgameEvent_t {
+enum cgameEvent_e {
 	CGAME_EVENT_NONE=0,
 	CGAME_EVENT_TEAMMENU,
 	CGAME_EVENT_SCOREBOARD,
@@ -237,7 +237,7 @@ struct cgameImport_t {
 	// filesystem
 	void			(*FS_Close)								( fileHandle_t f );
 	int				(*FS_GetFileList)						( const char *path, const char *extension, char *listbuf, int bufsize );
-	int				(*FS_Open)								( const char *qpath, fileHandle_t *f, fsMode_t mode );
+	int				(*FS_Open)								( const char *qpath, fileHandle_t *f, fsMode_e mode );
 	int				(*FS_Read)								( void *buffer, int len, fileHandle_t f );
 	int				(*FS_Write)								( const void *buffer, int len, fileHandle_t f );
 
@@ -356,9 +356,9 @@ struct cgameImport_t {
 	// cinematics
 	void			(*CIN_DrawCinematic)					( int handle );
 	int				(*CIN_PlayCinematic)					( const char *arg, int x, int y, int w, int h, int systemBits );
-	e_status		(*CIN_RunCinematic)						( int handle );
+	status_e		(*CIN_RunCinematic)						( int handle );
 	void			(*CIN_SetExtents)						( int handle, int x, int y, int w, int h );
-	e_status		(*CIN_StopCinematic)					( int handle );
+	status_e		(*CIN_StopCinematic)					( int handle );
 
 	// FX
 	void			(*FX_AddLine)							( vec3_t start, vec3_t end, float size1, float size2, float sizeParm, float alpha1, float alpha2, float alphaParm, const vec3_t sRGB, const vec3_t eRGB, float rgbParm, int killTime, qhandle_t shader, int flags );
@@ -454,7 +454,7 @@ struct cgameExport_t {
 	void			(*Init)						( int serverMessageNum, int serverCommandSequence, int clientNum );
 	void			(*Shutdown)					( void );
 	bool			(*ConsoleCommand)			( void );
-	void			(*DrawActiveFrame)			( int serverTime, stereoFrame_t stereoView, bool demoPlayback );
+	void			(*DrawActiveFrame)			( int serverTime, stereoFrame_e stereoView, bool demoPlayback );
 	int				(*CrosshairPlayer)			( void );
 	int				(*LastAttacker)				( void );
 	void			(*KeyEvent)					( int key, bool down );

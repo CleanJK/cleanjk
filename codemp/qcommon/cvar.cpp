@@ -709,7 +709,7 @@ void Cvar_Server_Set( const char *var_name, const char *value )
 
 // Set cvar for game, cgame, or ui vm.
 // sometimes we set variables from an untrusted source: fail if flags & CVAR_PROTECTED
-void Cvar_VM_Set( const char *var_name, const char *value, vmSlots_t vmslot )
+void Cvar_VM_Set( const char *var_name, const char *value, vmSlots_e vmslot )
 {
 	uint32_t flags = Cvar_Flags( var_name );
 
@@ -753,7 +753,7 @@ void Cvar_User_SetValue( const char *var_name, float value) {
 }
 
 // expands value to a string and calls Cvar_Set/Cvar_User_Set/Cvar_VM_Set
-void Cvar_VM_SetValue( const char *var_name, float value, vmSlots_t vmslot ) {
+void Cvar_VM_SetValue( const char *var_name, float value, vmSlots_e vmslot ) {
 	char	val[32];
 
 	if( Q_isintegral( value ) )

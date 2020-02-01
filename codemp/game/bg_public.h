@@ -209,7 +209,7 @@ enum setAnimBits_e : uint32_t {
 	SETANIM_BOTH =  (SETANIM_TORSO|SETANIM_LEGS),
 };
 
-enum g2ModelParts_t {
+enum g2ModelParts_e {
 	G2_MODELPART_HEAD = 10,
 	G2_MODELPART_WAIST,
 	G2_MODELPART_LARM,
@@ -219,7 +219,7 @@ enum g2ModelParts_t {
 	G2_MODELPART_RLEG
 };
 
-enum forceHandAnims_t {
+enum forceHandAnims_e {
 	HANDEXTEND_NONE = 0,
 	HANDEXTEND_FORCEPUSH,
 	HANDEXTEND_FORCEPULL,
@@ -239,14 +239,14 @@ enum forceHandAnims_t {
 	HANDEXTEND_JEDITAUNT,
 };
 
-enum brokenLimb_t : int32_t {
+enum brokenLimb_e : int32_t {
 	BROKENLIMB_NONE = 0,
 	BROKENLIMB_LARM,
 	BROKENLIMB_RARM,
 	NUM_BROKENLIMBS
 };
 
-enum gametype_t : int32_t {
+enum gametype_e : int32_t {
 	GT_FFA,        // free for all
 	GT_HOLOCRON,   // holocron ffa
 	GT_JEDIMASTER, // jedi master
@@ -277,7 +277,7 @@ enum gametypeBits_e : uint32_t {
 	GTB_ALL =           0x1FF, // all
 };
 
-enum flagStatus_t : int32_t {
+enum flagStatus_e : int32_t {
 	FLAG_INVALID = -1,
 	FLAG_ATBASE = 0,
 	FLAG_TAKEN,        // CTF
@@ -286,13 +286,13 @@ enum flagStatus_t : int32_t {
 	FLAG_DROPPED
 };
 
-enum gender_t : int32_t {
+enum gender_e : int32_t {
 	GENDER_MALE,
 	GENDER_FEMALE,
 	GENDER_NEUTER
 };
 
-enum saberLockType_t {
+enum saberLockType_e {
 	SABERLOCK_TOP,
 	SABERLOCK_SIDE,
 	SABERLOCK_LOCK,
@@ -302,14 +302,14 @@ enum saberLockType_t {
 	SABERLOCK_LOSE
 };
 
-enum direction_t {
+enum direction_e {
 	DIR_RIGHT,
 	DIR_LEFT,
 	DIR_FRONT,
 	DIR_BACK
 };
 
-enum footstepType_t {
+enum footstepType_e {
 	FOOTSTEP_R,
 	FOOTSTEP_L,
 	FOOTSTEP_HEAVY_R,
@@ -317,7 +317,7 @@ enum footstepType_t {
 	NUM_FOOTSTEP_TYPES
 };
 
-enum animEventType_t {
+enum animEventType_e {
 	//NOTENOTE:  Be sure to update animEventTypeTable and ParseAnimationEvtBlock(...) if you change this enum list!
 	AEV_NONE,
 	AEV_SOUND,       // # animID AEV_SOUND framenum soundpath randomlow randomhi chancetoplay
@@ -331,7 +331,7 @@ enum animEventType_t {
 	AEV_NUM_AEV
 };
 
-enum pmtype_t {
+enum pmtype_e {
 	PM_NORMAL,       // can accelerate and turn
 	PM_JETPACK,      // special jetpack movement
 	PM_FLOAT,        // float with no gravity in general direction of velocity (intended for gripping)
@@ -342,7 +342,7 @@ enum pmtype_t {
 	PM_INTERMISSION, // no movement or status bar
 };
 
-enum weaponstate_t {
+enum weaponstate_e {
 	WEAPON_READY,
 	WEAPON_RAISING,
 	WEAPON_DROPPING,
@@ -352,7 +352,7 @@ enum weaponstate_t {
 	WEAPON_IDLE,         // lowered
 };
 
-enum forceMasteries_t {
+enum forceMasteries_e {
 	FORCE_MASTERY_UNINITIATED,
 	FORCE_MASTERY_INITIATE,
 	FORCE_MASTERY_PADAWAN,
@@ -382,7 +382,7 @@ enum pmoveFlag_e : uint32_t {
 	PMF_STUCK_TO_WALL =  0x00004000, // grabbing a wall
 };
 
-enum statIndex_t {
+enum statIndex_e {
 	// NOTE: may not have more than 16
 	STAT_HEALTH,
 	STAT_HOLDABLE_ITEM,
@@ -396,7 +396,7 @@ enum statIndex_t {
 	STAT_MAX_HEALTH          // health / armor limit
 };
 
-enum persEnum_t {
+enum persEnum_e {
 	// these fields are the only part of playerState_t that isn't cleared on respawn
 	// NOTE: may not have more than 16
 	PERS_SCORE,               // !!! MUST NOT CHANGE, SERVER AND GAME BOTH REFERENCE !!!
@@ -458,7 +458,7 @@ enum entityFlag2_e : uint32_t {
 	EF2__DEPRECATED_SHIP_DEATH =      0x0080, // "died in ship" mode
 };
 
-enum effectTypes_t {
+enum effectTypes_e {
 	EFFECT_NONE = 0,
 	EFFECT_SMOKE,
 	EFFECT_EXPLOSION,
@@ -482,7 +482,7 @@ enum effectTypes_t {
 	EFFECT_MAX
 };
 
-enum powerup_t {
+enum powerup_e {
 	// NOTE: may not have more than 16
 	PW_NONE,
 	PW_QUAD,
@@ -503,7 +503,7 @@ enum powerup_t {
 	PW_NUM_POWERUPS
 };
 
-enum holdable_t {
+enum holdable_e {
 	HI_NONE,
 	HI_SEEKER,
 	HI_SHIELD,
@@ -519,7 +519,7 @@ enum holdable_t {
 	HI_NUM_HOLDABLE
 };
 
-enum ctfMsg_t {
+enum ctfMsg_e {
 	CTFMESSAGE_FRAGGED_FLAG_CARRIER,
 	CTFMESSAGE_FLAG_RETURNED,
 	CTFMESSAGE_PLAYER_RETURNED_FLAG,
@@ -527,7 +527,7 @@ enum ctfMsg_t {
 	CTFMESSAGE_PLAYER_GOT_FLAG
 };
 
-enum pdSounds_t {
+enum pdSounds_e {
 	PDSOUND_NONE,
 	PDSOUND_PROTECTHIT,
 	PDSOUND_PROTECT,
@@ -537,7 +537,7 @@ enum pdSounds_t {
 	PDSOUND_FORCEGRIP
 };
 
-enum entity_event_t : int32_t {
+enum entity_event_e : int32_t {
 	EV_NONE,
 	EV_CLIENTJOIN,
 	EV_FOOTSTEP,
@@ -731,7 +731,7 @@ enum entity_event_t : int32_t {
 	EV_NUM_ENTITY_EVENTS
 }; // There is a maximum of 256 events (8 bits transmission, 2 high bits for uniqueness)
 
-enum global_team_sound_t {
+enum global_team_sound_e {
 	GTS_RED_CAPTURE,
 	GTS_BLUE_CAPTURE,
 	GTS_RED_RETURN,
@@ -745,7 +745,7 @@ enum global_team_sound_t {
 	GTS_TEAMS_ARE_TIED
 };
 
-enum team_t : int32_t {
+enum team_e : int32_t {
 	TEAM_FREE,
 	TEAM_RED,
 	TEAM_BLUE,
@@ -753,14 +753,14 @@ enum team_t : int32_t {
 	TEAM_NUM_TEAMS
 };
 
-enum duelTeam_t {
+enum duelTeam_e {
 	DUELTEAM_FREE,
 	DUELTEAM_LONE,
 	DUELTEAM_DOUBLE,
 	DUELTEAM_SINGLE, // for regular duel matches (not power duel)
 };
 
-enum teamtask_t {
+enum teamtask_e {
 	TEAMTASK_NONE,
 	TEAMTASK_OFFENSE,
 	TEAMTASK_DEFENSE,
@@ -771,7 +771,7 @@ enum teamtask_t {
 	TEAMTASK_CAMP
 };
 
-enum meansOfDeath_t {
+enum meansOfDeath_e {
 	MOD_UNKNOWN,
 	MOD_STUN_BATON,
 	MOD_MELEE,
@@ -817,7 +817,7 @@ enum meansOfDeath_t {
 	MOD_MAX
 };
 
-enum itemType_t {
+enum itemType_e {
 	IT_BAD,
 	IT_WEAPON,             // EFX: rotate + upscale + minlight
 	IT_AMMO,               // EFX: rotate
@@ -835,7 +835,7 @@ enum dmFlags_e : uint32_t {
 	DF_NO_FOOTSTEPS = 0x0004,
 };
 
-enum entityType_t {
+enum entityType_e {
 	ET_GENERAL,
 	ET_PLAYER,
 	ET_ITEM,
@@ -860,7 +860,7 @@ enum entityType_t {
 #undef LS_NONE
 #endif
 
-enum saberMoveName_t {
+enum saberMoveName_e {
 	//totally invalid
 	LS_INVALID	= -1,
 	// Invalid, or saber not armed
@@ -1042,7 +1042,7 @@ enum saberMoveName_t {
 	LS_MOVE_MAX//
 };
 
-enum saberQuadrant_t {
+enum saberQuadrant_e {
 	Q_BR,
 	Q_R,
 	Q_TR,
@@ -1054,7 +1054,7 @@ enum saberQuadrant_t {
 	Q_NUM_QUADS
 };
 
-enum saberType_t {
+enum saberType_e {
 	SABER_NONE = 0,
 	SABER_SINGLE,
 	SABER_STAFF,
@@ -1071,7 +1071,7 @@ enum saberType_t {
 	NUM_SABERS
 };
 
-enum saber_styles_t {
+enum saber_styles_e {
 	SS_NONE = 0,
 	SS_FAST,
 	SS_MEDIUM,
@@ -1082,7 +1082,7 @@ enum saber_styles_t {
 };
 
 // cjk_saberSpecialMoves bit-field
-enum saberSpecialMove_t : uint32_t {
+enum saberSpecialMove_e : uint32_t {
 	SSM_ROLL =      0x0001,
 	SSM_ROLLSTAB =  0x0002,
 	SSM_CARTWHEEL = 0x0004,
@@ -1095,7 +1095,7 @@ enum saberSpecialMove_t : uint32_t {
 };
 
 // cjk_saberTweaks bit-fields
-enum saberTweaks_t : uint32_t {
+enum saberTweaks_e : uint32_t {
 	ST_TRANSITION_DAMAGE = 0x0001,
 	ST_RETURN_DAMAGE =     0x0002,
 	ST_NO_DEACTIVATE =     0x0004,
@@ -1116,7 +1116,7 @@ struct animation_t {
 #pragma pack(pop)
 
 struct animevent_t {
-	animEventType_t  eventType;
+	animEventType_e  eventType;
 	unsigned short   keyFrame;                  // Frame to play event on
 	signed short     eventData[AED_ARRAY_SIZE];	// Unique IDs, can be soundIndex of sound file to play OR effect index or footstep type, etc.
 	char            *stringData;                // we allow storage of one string, temporarily (in case we have to look up an index later, then make sure to set stringData to nullptr so we only do the look-up once)
@@ -1191,7 +1191,7 @@ struct gitem_t {
 	char       *view_model;
 	char       *icon;
 	int         quantity;		// for ammo how much, or duration of powerup
-	itemType_t  giType;			// IT_* flags
+	itemType_e  giType;			// IT_* flags
 	int         giTag;
 	char       *precaches;		// string of all models and images this item will use
 	char       *sounds;		// string of all sounds this item will use
@@ -1206,8 +1206,8 @@ struct saberMoveData_t {
 	unsigned         animSetFlags;
 	int              blendTime;
 	int              blocking;
-	saberMoveName_t chain_idle;   // What move to call if the attack button is not pressed at the end of this anim
-	saberMoveName_t chain_attack; // What move to call if the attack button (and nothing else) is pressed
+	saberMoveName_e chain_idle;   // What move to call if the attack button is not pressed at the end of this anim
+	saberMoveName_e chain_attack; // What move to call if the attack button (and nothing else) is pressed
 	int				trailLength;
 };
 
@@ -1224,7 +1224,7 @@ struct saberTrail_t {
 
 struct bladeInfo_t {
 	bool       active;
-	saber_colors_t color;
+	saber_colors_e color;
 	float          radius;
 	float          length, lengthMax, lengthOld;
 	float          desiredLength;
@@ -1239,7 +1239,7 @@ struct bladeInfo_t {
 struct saberInfo_t {
 	char           name[SABER_NAME_LENGTH];                // entry in sabers.cfg, if any
 	char           fullName[SABER_NAME_LENGTH];            // the "Proper Name" of the saber, shown in UI
-	saberType_t    type;                                   // none, single or staff
+	saberType_e    type;                                   // none, single or staff
 	char           model[MAX_QPATH];                       // hilt model
 	qhandle_t      skin;                                   // registered skin id
 	int            soundOn;                                // game soundindex for turning on sound
@@ -1255,7 +1255,7 @@ struct saberInfo_t {
 	int            parryBonus;                             // added to strength of parry with this saber
 	int            breakParryBonus, breakParryBonus2;      // added to strength when hit a parry
 	int            disarmBonus, disarmBonus2;              // added to disarm chance when win saberlock or have a good parry (knockaway)
-	saber_styles_t singleBladeStyle;                       // makes it so that you use a different style if you only have the first blade active
+	saber_styles_e singleBladeStyle;                       // makes it so that you use a different style if you only have the first blade active
 	qhandle_t      spinSound;                              // none - if set, plays this sound as it spins when thrown
 	qhandle_t      swingSound[3];                          // none - if set, plays one of these 3 sounds when swung during an attack - NOTE: must provide all 3!!!
 	float          moveSpeedScale;                         // 1.0 - you move faster/slower when using this saber
@@ -1334,7 +1334,7 @@ int BG_ParseAnimationEvtFile(const char* as_filename, int animFileIndex, int eve
 
 bgEntity_t* PM_BGEntForNum(int num);
 bool BG_CanItemBeGrabbed(int gametype, const entityState_t* ent, const playerState_t* ps);
-bool BG_CanUseFPNow(int gametype, playerState_t* ps, int time, forcePowers_t power);
+bool BG_CanUseFPNow(int gametype, playerState_t* ps, int time, forcePowers_e power);
 bool BG_CheckIncrementLockAnim(int anim, int winOrLose);
 bool BG_DirectFlippingAnim(int anim);
 bool BG_FlippingAnim(int anim);
@@ -1393,15 +1393,15 @@ bool WP_SaberStyleValidForSaber(saberInfo_t* saber1, saberInfo_t* saber2, int sa
 bool WP_UseFirstValidSaberStyle(saberInfo_t* saber1, saberInfo_t* saber2, int saberHolstered, int* saberAnimLevel);
 char* BG_StringAlloc(const char* source);
 const char* BG_GetGametypeString(int gametype);
-const char* SaberColorToString(saber_colors_t color);
+const char* SaberColorToString(saber_colors_e color);
 float BG_SI_Length(saberInfo_t* saber);
 float BG_SI_LengthMax(saberInfo_t* saber);
 float vectoyaw(const vec3_t vec);
 gitem_t* BG_FindItem(const char* classname);
-gitem_t* BG_FindItemForHoldable(holdable_t pw);
-gitem_t* BG_FindItemForPowerup(powerup_t pw);
-gitem_t* BG_FindItemForWeapon(weapon_t weapon);
-int BG_AnimLength(int index, animNumber_t anim);
+gitem_t* BG_FindItemForHoldable(holdable_e pw);
+gitem_t* BG_FindItemForPowerup(powerup_e pw);
+gitem_t* BG_FindItemForWeapon(weapon_e weapon);
+int BG_AnimLength(int index, animNumber_e anim);
 int BG_BrokenParryForAttack(int move);
 int BG_BrokenParryForParry(int move);
 int BG_EmplacedView(vec3_t baseAngles, vec3_t angles, float* newYaw, float constraint);
@@ -1413,8 +1413,8 @@ int BG_ParseAnimationFile(const char* filename, animation_t* animSet, bool isHum
 int BG_PickAnim(int animIndex, int minAnim, int maxAnim);
 int PM_SaberBounceForAttack(int move);
 int PM_SaberDeflectionForQuad(int quad);
-saber_colors_t TranslateSaberColor(const char* name);
-saberType_t TranslateSaberType(const char* name);
+saber_colors_e TranslateSaberColor(const char* name);
+saberType_e TranslateSaberType(const char* name);
 void BG_AddPredictableEventToPlayerstate(int newEvent, int eventParm, playerState_t* ps);
 void BG_BLADE_ActivateTrail(bladeInfo_t* blade, float duration);
 void BG_BLADE_DeactivateTrail(bladeInfo_t* blade, float duration);
@@ -1423,7 +1423,7 @@ void BG_ClearRocketLock(playerState_t* ps);
 void BG_CycleInven(playerState_t* ps, int direction);
 void BG_EvaluateTrajectory(const trajectory_t* tr, int atTime, vec3_t result);
 void BG_EvaluateTrajectoryDelta(const trajectory_t* tr, int atTime, vec3_t result);
-void BG_ForcePowerDrain(playerState_t* ps, forcePowers_t forcePower, int overrideAmt);
+void BG_ForcePowerDrain(playerState_t* ps, forcePowers_e forcePower, int overrideAmt);
 void BG_G2ATSTAngles(void* ghoul2, int time, vec3_t cent_lerpAngles);
 void BG_G2PlayerAngles(void* ghoul2, int motionBolt, entityState_t* cent, int time, vec3_t cent_lerpOrigin, vec3_t cent_lerpAngles, matrix3_t legs, vec3_t legsAngles, bool* tYawing, bool* tPitching, bool* lYawing, float* tYawAngle, float* tPitchAngle, float* lYawAngle, int frametime, vec3_t turAngles, vec3_t modelScale, int ciLegs, int ciTorso, int* corrTime, vec3_t lookAngles, vec3_t lastHeadAngles, int lookTime, entityState_t* emplaced, int* crazySmoothFactor);
 void BG_GiveMeVectorFromMatrix(mdxaBone_t* boltMatrix, int flags, vec3_t vec);

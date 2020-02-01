@@ -836,7 +836,7 @@ bool CROFFSystem::ClearLerp( SROFFEntity *roff_ent )
 //	type	the interpolation type
 //	origin	the base origin
 //	time	the interpolation start time
-void CROFFSystem::SetLerp( trajectory_t *tr, trType_t type, vec3_t origin, vec3_t delta, int time, int rate)
+void CROFFSystem::SetLerp( trajectory_t *tr, trType_e type, vec3_t origin, vec3_t delta, int time, int rate)
 {
 	tr->trType = type;
 	tr->trTime = time;

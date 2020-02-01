@@ -259,7 +259,7 @@ void RE_RenderAutoMap(void)
 }
 
 // If running in stereo, RE_BeginFrame will be called twice for each RE_EndFrame
-void RE_BeginFrame( stereoFrame_t stereoFrame ) {
+void RE_BeginFrame( stereoFrame_e stereoFrame ) {
 	drawBufferCommand_t	*cmd;
 
 	if ( !tr.registered ) {

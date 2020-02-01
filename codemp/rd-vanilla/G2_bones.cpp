@@ -233,7 +233,7 @@ bool G2_Stop_Bone_Index( boneInfo_v &blist, int index, int flags)
 
 // generate a matrix for a given bone given some new angles for it.
 void G2_Generate_Matrix(const model_t *mod, boneInfo_v &blist, int index, const float *angles, int flags,
-						const Eorientations up, const Eorientations left, const Eorientations forward)
+						const Eorientations_e up, const Eorientations_e left, const Eorientations_e forward)
 {
 	mdxaSkel_t		*skel;
 	mdxaSkelOffsets_t *offsets;
@@ -449,8 +449,8 @@ bool G2_Remove_Bone (CGhoul2Info *ghlInfo, boneInfo_v &blist, const char *boneNa
 
 // Given a model handle, and a bone name, we want to set angles specifically for overriding
 bool G2_Set_Bone_Angles_Index( boneInfo_v &blist, const int index,
-							const float *angles, const int flags, const Eorientations yaw,
-							const Eorientations pitch, const Eorientations roll, qhandle_t *modelList,
+							const float *angles, const int flags, const Eorientations_e yaw,
+							const Eorientations_e pitch, const Eorientations_e roll, qhandle_t *modelList,
 							const int modelIndex, const int blendTime, const int currentTime)
 {
 	if ((index >= (int)blist.size()) || (blist[index].boneNumber == -1))
@@ -491,7 +491,7 @@ bool G2_Set_Bone_Angles_Index( boneInfo_v &blist, const int index,
 
 // Given a model handle, and a bone name, we want to set angles specifically for overriding
 bool G2_Set_Bone_Angles(CGhoul2Info *ghlInfo, boneInfo_v &blist, const char *boneName, const float *angles,
-							const int flags, const Eorientations up, const Eorientations left, const Eorientations forward,
+							const int flags, const Eorientations_e up, const Eorientations_e left, const Eorientations_e forward,
 							qhandle_t *modelList, const int modelIndex, const int blendTime, const int currentTime)
 {
 	model_t		*mod_a;
@@ -1215,7 +1215,7 @@ static vec3_t			desiredPelvisOffset; // this is for the root
 static float			ragOriginChange=0.0f;
 static vec3_t			ragOriginChangeDir;
 
-enum ERagState
+enum ERagState_e
 {
 	ERS_DYNAMIC,
 	ERS_SETTLING,
@@ -2410,7 +2410,7 @@ int ragSSCount = 0;
 int ragTraceCount = 0;
 #endif
 
-void Rag_Trace( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, const int passEntityNum, const int contentmask, const EG2_Collision eG2TraceType, const int useLod )
+void Rag_Trace( trace_t *results, const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, const int passEntityNum, const int contentmask, const EG2_Collision_e eG2TraceType, const int useLod )
 {
 #ifdef _DEBUG
 	int ragPreTrace = ri.Milliseconds();

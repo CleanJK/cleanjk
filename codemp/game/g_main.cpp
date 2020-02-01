@@ -110,7 +110,7 @@ void G_CacheGametype( void )
 			level.gametype = GT_FFA;
 		}
 		else
-			level.gametype = (gametype_t)gt;
+			level.gametype = (gametype_e)gt;
 	}
 	else if ( g_gametype.integer < 0 || g_gametype.integer >= GT_MAX_GAME_TYPE )
 	{
@@ -118,7 +118,7 @@ void G_CacheGametype( void )
 		level.gametype = GT_FFA;
 	}
 	else
-		level.gametype = (gametype_t)atoi( g_gametype.string );
+		level.gametype = (gametype_e)atoi( g_gametype.string );
 
 	trap->Cvar_Set( "g_gametype", va( "%i", level.gametype ) );
 	trap->Cvar_Update( &g_gametype );

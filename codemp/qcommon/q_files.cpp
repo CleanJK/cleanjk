@@ -3392,7 +3392,7 @@ bool FS_ConditionalRestart( int checksumFeed ) {
 
 // Handle based file calls for virtual machines
 // opens a file for reading, writing, or appending depending on the value of mode
-int		FS_FOpenFileByMode( const char *qpath, fileHandle_t *f, fsMode_t mode ) {
+int		FS_FOpenFileByMode( const char *qpath, fileHandle_t *f, fsMode_e mode ) {
 	int		r;
 	bool	sync;
 

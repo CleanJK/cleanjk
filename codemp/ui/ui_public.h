@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define UI_API_VERSION 4
 #define UI_LEGACY_API_VERSION 7
 
-enum uiMenuCommand_t {
+enum uiMenuCommand_e {
 	UIMENU_NONE,
 	UIMENU_MAIN,
 	UIMENU_INGAME,
@@ -39,7 +39,7 @@ enum uiMenuCommand_t {
 	UIMENU_CLOSEALL
 };
 
-enum serverSort_t {
+enum serverSort_e {
 	SORT_HOST,
 	SORT_MAP,
 	SORT_CLIENTS,
@@ -48,7 +48,7 @@ enum serverSort_t {
 };
 
 struct uiClientState_t {
-	connstate_t connState;
+	connstate_e connState;
 	int         connectPacketCount;
 	int         clientNum;
 	char        servername[MAX_STRING_CHARS];
@@ -77,7 +77,7 @@ struct uiImport_t {
 	void              (*Cmd_ExecuteText)                  ( int exec_when, const char *text );
 	void              (*FS_Close)                         ( fileHandle_t f );
 	int               (*FS_GetFileList)                   ( const char *path, const char *extension, char *listbuf, int bufsize );
-	int               (*FS_Open)                          ( const char *qpath, fileHandle_t *f, fsMode_t mode );
+	int               (*FS_Open)                          ( const char *qpath, fileHandle_t *f, fsMode_e mode );
 	int               (*FS_Read)                          ( void *buffer, int len, fileHandle_t f );
 	int               (*FS_Write)                         ( const void *buffer, int len, fileHandle_t f );
 	void              (*GetClientState)                   ( uiClientState_t *state );
@@ -104,9 +104,9 @@ struct uiImport_t {
 	int               (*PC_SourceFileAndLine)             ( int handle, char *filename, int *line );
 	void              (*CIN_DrawCinematic)                ( int handle );
 	int               (*CIN_PlayCinematic)                ( const char *arg0, int xpos, int ypos, int width, int height, int bits );
-	e_status          (*CIN_RunCinematic)                 ( int handle );
+	status_e          (*CIN_RunCinematic)                 ( int handle );
 	void              (*CIN_SetExtents)                   ( int handle, int x, int y, int w, int h );
-	e_status          (*CIN_StopCinematic)                ( int handle );
+	status_e          (*CIN_StopCinematic)                ( int handle );
 	int               (*LAN_AddServer)                    ( int source, const char *name, const char *addr );
 	void              (*LAN_ClearPing)                    ( int n );
 	int               (*LAN_CompareServers)               ( int source, int sortKey, int sortDir, int s1, int s2 );
@@ -204,7 +204,7 @@ struct uiExport_t {
 	void (*MouseEvent)       ( int dx, int dy );
 	void (*Refresh)          ( int realtime );
 	bool (*IsFullscreen)     ( void );
-	void (*SetActiveMenu)    ( uiMenuCommand_t menu );
+	void (*SetActiveMenu)    ( uiMenuCommand_e menu );
 	bool (*ConsoleCommand)   ( int realTime );
 	void (*DrawConnectScreen)( bool overlay );
 	void (*MenuReset)        ( void );

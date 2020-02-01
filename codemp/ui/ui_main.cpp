@@ -701,7 +701,7 @@ static void UI_BuildPlayerList() {
 	}
 }
 
-void UI_SetActiveMenu( uiMenuCommand_t menu ) {
+void UI_SetActiveMenu( uiMenuCommand_e menu ) {
 	char buf[256];
 
 	// this should be the ONLY way the menu system is brought up
@@ -4581,7 +4581,7 @@ static void UI_GetCharacterCvars ( void )
 
 static void UI_UpdateSaberCvars ( void )
 {
-	saber_colors_t colorI;
+	saber_colors_e colorI;
 
 	trap->Cvar_Set ( "saber1", UI_Cvar_VariableString ( "ui_saber" ) );
 	trap->Cvar_Set ( "saber2", UI_Cvar_VariableString ( "ui_saber2" ) );
@@ -4751,8 +4751,8 @@ static void UI_GetSaberCvars ( void )
 	trap->Cvar_Set ( "ui_saber", UI_Cvar_VariableString ( "saber1" ) );
 	trap->Cvar_Set ( "ui_saber2", UI_Cvar_VariableString ( "saber2" ));
 
-	trap->Cvar_Set("g_saber_color", SaberColorToString((saber_colors_t)trap->Cvar_VariableIntegerValue("color1")));
-	trap->Cvar_Set("g_saber2_color", SaberColorToString((saber_colors_t)trap->Cvar_VariableIntegerValue("color2")));
+	trap->Cvar_Set("g_saber_color", SaberColorToString((saber_colors_e)trap->Cvar_VariableIntegerValue("color1")));
+	trap->Cvar_Set("g_saber2_color", SaberColorToString((saber_colors_e)trap->Cvar_VariableIntegerValue("color2")));
 
 	trap->Cvar_Set ( "ui_saber_color", UI_Cvar_VariableString ( "g_saber_color" ) );
 	trap->Cvar_Set ( "ui_saber2_color", UI_Cvar_VariableString ( "g_saber2_color" ) );

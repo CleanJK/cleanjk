@@ -359,7 +359,7 @@ int CFxScheduler::RegisterEffect( const char *file, bool bHasCorrectPath /*= fal
 // Returns handle of the effect
 constexpr struct primitiveType_t {
 	const char *name;
-	EPrimType type;
+	EPrimType_e type;
 } primitiveTypes[] = {
 	{ "particle",         Particle },
 	{ "line",             Line },
@@ -383,7 +383,7 @@ int CFxScheduler::ParseEffect( const char *file, CGPGroup *base )
 	CPrimitiveTemplate	*prim;
 	const char			*grpName;
 	SEffectTemplate		*effect = 0;
-	EPrimType			type;
+	EPrimType_e			type;
 	int					handle;
 	CGPValue			*pair;
 
@@ -577,7 +577,7 @@ CPrimitiveTemplate *CFxScheduler::GetPrimitiveCopy( SEffectTemplate *effectCopy,
 
 void	CFxScheduler::MaterialImpact(trace_t *tr, CEffect *effect)
 {
-/*	EMatImpactEffect matImpactEffect = effect->GetMatImpactFX();
+/*	EMatImpactEffect_e matImpactEffect = effect->GetMatImpactFX();
 	int impactParm = effect->GetMatImpactParm();
 
 	if (matImpactEffect == MATIMPACTFX_NONE)

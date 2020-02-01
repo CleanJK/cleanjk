@@ -441,7 +441,7 @@ void TossClientWeapon(gentity_t *self, vec3_t direction, float speed)
 	vec3_t vel;
 	gitem_t *item;
 	gentity_t *launched;
-	weapon_t weapon = (weapon_t)self->s.weapon;
+	weapon_e weapon = (weapon_e)self->s.weapon;
 	int ammoSub;
 
 	if (weapon <= WP_BRYAR_PISTOL)
@@ -526,13 +526,13 @@ void TossClientWeapon(gentity_t *self, vec3_t direction, float speed)
 // Toss the weapon and powerups for the killed player
 void TossClientItems( gentity_t *self ) {
 	gitem_t		*item;
-	weapon_t	weapon;
+	weapon_e	weapon;
 	float		angle;
 	int			i;
 	gentity_t	*drop;
 
 	// drop the weapon if not a gauntlet or machinegun
-	weapon = (weapon_t)self->s.weapon;
+	weapon = (weapon_e)self->s.weapon;
 
 	// make a special check to see if they are changing to a new
 	// weapon that isn't the mg or gauntlet.  Without this, a client
@@ -540,7 +540,7 @@ void TossClientItems( gentity_t *self ) {
 	// their weapon change hasn't completed yet and they are still holding the MG.
 	if ( weapon == WP_BRYAR_PISTOL) {
 		if ( self->client->ps.weaponstate == WEAPON_DROPPING ) {
-			weapon = (weapon_t)self->client->pers.cmd.weapon;
+			weapon = (weapon_e)self->client->pers.cmd.weapon;
 		}
 		if ( !( self->client->ps.stats[STAT_WEAPONS] & ( 1 << weapon ) ) ) {
 			weapon = WP_NONE;
@@ -572,7 +572,7 @@ void TossClientItems( gentity_t *self ) {
 		angle = 45;
 		for ( i = 1 ; i < PW_NUM_POWERUPS ; i++ ) {
 			if ( self->client->ps.powerups[ i ] > level.time ) {
-				item = BG_FindItemForPowerup( (powerup_t)i );
+				item = BG_FindItemForPowerup( (powerup_e)i );
 				if ( !item ) {
 					continue;
 				}

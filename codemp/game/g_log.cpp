@@ -1336,7 +1336,7 @@ bool CalculateTeamRedShirt(gentity_t *ent)
 	return false;
 }
 
-enum awardType_t {
+enum awardType_e {
 	AWARD_EFFICIENCY,		// Accuracy
 	AWARD_SHARPSHOOTER,		// Most compression rifle frags
 	AWARD_UNTOUCHABLE,		// Perfect (no deaths)

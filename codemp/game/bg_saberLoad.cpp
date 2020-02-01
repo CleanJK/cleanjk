@@ -157,7 +157,7 @@ bool BG_ParseLiteralSilent( const char **data, const char *string ) {
 	return false;
 }
 
-saber_colors_t TranslateSaberColor( const char *name ) {
+saber_colors_e TranslateSaberColor( const char *name ) {
 	if ( !Q_stricmp( name, "red" ) )
 		return SABER_RED;
 	if ( !Q_stricmp( name, "orange" ) )
@@ -171,12 +171,12 @@ saber_colors_t TranslateSaberColor( const char *name ) {
 	if ( !Q_stricmp( name, "purple" ) )
 		return SABER_PURPLE;
 	if ( !Q_stricmp( name, "random" ) )
-		return (saber_colors_t)Q_irand( SABER_ORANGE, SABER_PURPLE );
+		return (saber_colors_e)Q_irand( SABER_ORANGE, SABER_PURPLE );
 
 	return SABER_BLUE;
 }
 
-const char *SaberColorToString( saber_colors_t color ) {
+const char *SaberColorToString( saber_colors_e color ) {
 	if ( color == SABER_RED )		return "red";
 	if ( color == SABER_ORANGE )	return "orange";
 	if ( color == SABER_YELLOW )	return "yellow";
@@ -187,7 +187,7 @@ const char *SaberColorToString( saber_colors_t color ) {
 	return nullptr;
 }
 
-saber_styles_t TranslateSaberStyle( const char *name ) {
+saber_styles_e TranslateSaberStyle( const char *name ) {
 	if ( !Q_stricmp( name, "fast" ) )		return SS_FAST;
 	if ( !Q_stricmp( name, "medium" ) ) 	return SS_MEDIUM;
 	if ( !Q_stricmp( name, "strong" ) ) 	return SS_STRONG;
@@ -197,7 +197,7 @@ saber_styles_t TranslateSaberStyle( const char *name ) {
 	return SS_NONE;
 }
 
-saberType_t TranslateSaberType( const char *name ) {
+saberType_e TranslateSaberType( const char *name ) {
 	if ( !Q_stricmp( name, "SABER_SINGLE" ) )		return SABER_SINGLE;
 	if ( !Q_stricmp( name, "SABER_STAFF" ) ) 		return SABER_STAFF;
 	if ( !Q_stricmp( name, "SABER_DAGGER" ) ) 		return SABER_DAGGER;
@@ -484,7 +484,7 @@ static void Saber_ParseSaberType( saberInfo_t *saber, const char **p ) {
 		return;
 	saberType = GetIDForString( saberTable, value );
 	if ( saberType >= SABER_SINGLE && saberType <= NUM_SABERS )
-		saber->type = (saberType_t)saberType;
+		saber->type = (saberType_e)saberType;
 }
 static void Saber_ParseSaberModel( saberInfo_t *saber, const char **p ) {
 	const char *value;
@@ -531,7 +531,7 @@ static void Saber_ParseNumBlades( saberInfo_t *saber, const char **p ) {
 static void Saber_ParseSaberColor( saberInfo_t *saber, const char **p ) {
 	const char *value;
 	int i=0;
-	saber_colors_t color;
+	saber_colors_e color;
 
 	if ( COM_ParseString( p, &value ) )
 		return;
@@ -542,7 +542,7 @@ static void Saber_ParseSaberColor( saberInfo_t *saber, const char **p ) {
 }
 static void Saber_ParseSaberColor2( saberInfo_t *saber, const char **p ) {
 	const char *value;
-	saber_colors_t color;
+	saber_colors_e color;
 
 	if ( COM_ParseString( p, &value ) )
 		return;
@@ -552,7 +552,7 @@ static void Saber_ParseSaberColor2( saberInfo_t *saber, const char **p ) {
 }
 static void Saber_ParseSaberColor3( saberInfo_t *saber, const char **p ) {
 	const char *value;
-	saber_colors_t color;
+	saber_colors_e color;
 
 	if ( COM_ParseString( p, &value ) )
 		return;
@@ -562,7 +562,7 @@ static void Saber_ParseSaberColor3( saberInfo_t *saber, const char **p ) {
 }
 static void Saber_ParseSaberColor4( saberInfo_t *saber, const char **p ) {
 	const char *value;
-	saber_colors_t color;
+	saber_colors_e color;
 
 	if ( COM_ParseString( p, &value ) )
 		return;
@@ -572,7 +572,7 @@ static void Saber_ParseSaberColor4( saberInfo_t *saber, const char **p ) {
 }
 static void Saber_ParseSaberColor5( saberInfo_t *saber, const char **p ) {
 	const char *value;
-	saber_colors_t color;
+	saber_colors_e color;
 
 	if ( COM_ParseString( p, &value ) )
 		return;
@@ -582,7 +582,7 @@ static void Saber_ParseSaberColor5( saberInfo_t *saber, const char **p ) {
 }
 static void Saber_ParseSaberColor6( saberInfo_t *saber, const char **p ) {
 	const char *value;
-	saber_colors_t color;
+	saber_colors_e color;
 
 	if ( COM_ParseString( p, &value ) )
 		return;
@@ -592,7 +592,7 @@ static void Saber_ParseSaberColor6( saberInfo_t *saber, const char **p ) {
 }
 static void Saber_ParseSaberColor7( saberInfo_t *saber, const char **p ) {
 	const char *value;
-	saber_colors_t color;
+	saber_colors_e color;
 
 	if ( COM_ParseString( p, &value ) )
 		return;

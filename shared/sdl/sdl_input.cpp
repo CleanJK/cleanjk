@@ -54,7 +54,7 @@ static SDL_Window *SDL_window = nullptr;
 IN_PrintKey
 ===============
 */
-static void IN_PrintKey( const SDL_Keysym *keysym, fakeAscii_t key, bool down )
+static void IN_PrintKey( const SDL_Keysym *keysym, fakeAscii_e key, bool down )
 {
 	if( down )
 		Com_Printf( "+ " );
@@ -91,7 +91,7 @@ TODO: If the SDL_Scancode situation improves, use it instead of
       both of these methods
 ===============
 */
-static bool IN_IsConsoleKey( fakeAscii_t key, int character )
+static bool IN_IsConsoleKey( fakeAscii_e key, int character )
 {
 	struct consoleKey_t {
 		enum
@@ -102,7 +102,7 @@ static bool IN_IsConsoleKey( fakeAscii_t key, int character )
 
 		union
 		{
-			fakeAscii_t key;
+			fakeAscii_e key;
 			int character;
 		} u;
 	};
@@ -142,7 +142,7 @@ static bool IN_IsConsoleKey( fakeAscii_t key, int character )
 			else
 			{
 				c->type = consoleKey_t::QUAKE_KEY;
-				c->u.key = (fakeAscii_t)Key_StringToKeynum( token );
+				c->u.key = (fakeAscii_e)Key_StringToKeynum( token );
 
 				// 0 isn't a key
 				if( c->u.key <= 0 )
@@ -193,7 +193,7 @@ static bool IN_NumLockEnabled( void )
 #endif
 }
 
-static void IN_TranslateNumpad( SDL_Keysym *keysym, fakeAscii_t *key )
+static void IN_TranslateNumpad( SDL_Keysym *keysym, fakeAscii_e *key )
 {
 	if ( IN_NumLockEnabled() )
 	{
@@ -260,15 +260,15 @@ static void IN_TranslateNumpad( SDL_Keysym *keysym, fakeAscii_t *key )
 IN_TranslateSDLToJKKey
 ===============
 */
-static fakeAscii_t IN_TranslateSDLToJKKey( SDL_Keysym *keysym, bool down ) {
-	fakeAscii_t key = A_NULL;
+static fakeAscii_e IN_TranslateSDLToJKKey( SDL_Keysym *keysym, bool down ) {
+	fakeAscii_e key = A_NULL;
 
 	if ( keysym->sym >= A_LOW_A && keysym->sym <= A_LOW_Z )
-		key = (fakeAscii_t)(A_CAP_A + (keysym->sym - A_LOW_A));
+		key = (fakeAscii_e)(A_CAP_A + (keysym->sym - A_LOW_A));
 	else if ( keysym->sym >= A_LOW_AGRAVE && keysym->sym <= A_LOW_THORN && keysym->sym != A_DIVIDE )
-		key = (fakeAscii_t)(A_CAP_AGRAVE + (keysym->sym - A_LOW_AGRAVE));
+		key = (fakeAscii_e)(A_CAP_AGRAVE + (keysym->sym - A_LOW_AGRAVE));
 	else if ( keysym->sym >= SDLK_SPACE && keysym->sym < SDLK_DELETE )
-		key = (fakeAscii_t)keysym->sym;
+		key = (fakeAscii_e)keysym->sym;
 	else
 	{
 		IN_TranslateNumpad( keysym, &key );
@@ -795,8 +795,8 @@ IN_ProcessEvents
 static void IN_ProcessEvents( void )
 {
 	SDL_Event e;
-	fakeAscii_t key = A_NULL;
-	static fakeAscii_t lastKeyDown = A_NULL;
+	fakeAscii_e key = A_NULL;
+	static fakeAscii_e lastKeyDown = A_NULL;
 
 	if( !SDL_WasInit( SDL_INIT_VIDEO ) )
 			return;

@@ -59,7 +59,7 @@ bool CGVM_ConsoleCommand( void ) {
 	return cge->ConsoleCommand();
 }
 
-void CGVM_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, bool demoPlayback ) {
+void CGVM_DrawActiveFrame( int serverTime, stereoFrame_e stereoView, bool demoPlayback ) {
 	VMSwap v( cgvm );
 	cge->DrawActiveFrame( serverTime, stereoView, demoPlayback );
 }
@@ -238,7 +238,7 @@ static void _CL_SetUserCmdValue( int stateValue, float sensitivityScale, float m
 }
 
 static void CL_OpenUIMenu( int menuID ) {
-	UIVM_SetActiveMenu( (uiMenuCommand_t)menuID );
+	UIVM_SetActiveMenu( (uiMenuCommand_e)menuID );
 }
 
 static void CGFX_AddLine( vec3_t start, vec3_t end, float size1, float size2, float sizeParm, float alpha1, float alpha2, float alphaParm, const vec3_t sRGB,
@@ -411,7 +411,7 @@ static void CL_G2API_CleanGhoul2Models( void **ghoul2Ptr ) {
 
 static bool CL_G2API_SetBoneAngles( void *ghoul2, int modelIndex, const char *boneName, const vec3_t angles, const int flags, const int up, const int right, const int forward, qhandle_t *modelList, int blendTime , int currentTime ) {
 	if ( !ghoul2 ) return false;
-	return re->G2API_SetBoneAngles( *((CGhoul2Info_v *)ghoul2), modelIndex, boneName, angles, flags, (const Eorientations)up, (const Eorientations)right, (const Eorientations)forward, modelList, blendTime , currentTime );
+	return re->G2API_SetBoneAngles( *((CGhoul2Info_v *)ghoul2), modelIndex, boneName, angles, flags, (const Eorientations_e)up, (const Eorientations_e)right, (const Eorientations_e)forward, modelList, blendTime , currentTime );
 }
 
 static bool CL_G2API_SetBoneAnim( void *ghoul2, const int modelIndex, const char *boneName, const int startFrame, const int endFrame, const int flags, const float animSpeed, const int currentTime, const float setFrame, const int blendTime ) {
@@ -596,8 +596,8 @@ static void CL_G2API_SetRagDoll( void *ghoul2, sharedRagDollParams_t *params ) {
 	rdParams.collisionType = params->collisionType;
 	rdParams.CallRagDollBegin = params->CallRagDollBegin;
 
-	rdParams.RagPhase = (CRagDollParams::ERagPhase)params->RagPhase;
-	rdParams.effectorsToTurnOff = (CRagDollParams::ERagEffector)params->effectorsToTurnOff;
+	rdParams.RagPhase = (CRagDollParams::ERagPhase_e)params->RagPhase;
+	rdParams.effectorsToTurnOff = (CRagDollParams::ERagEffector_e)params->effectorsToTurnOff;
 
 	re->G2API_SetRagDoll( *((CGhoul2Info_v *)ghoul2), &rdParams );
 }

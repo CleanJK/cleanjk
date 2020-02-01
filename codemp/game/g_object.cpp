@@ -259,7 +259,7 @@ void G_RunObject( gentity_t *ent )
 	ent->touch( ent, &g_entities[tr.entityNum], &tr );
 }
 
-void G_StartObjectMoving( gentity_t *object, vec3_t dir, float speed, trType_t trType )
+void G_StartObjectMoving( gentity_t *object, vec3_t dir, float speed, trType_e trType )
 {
 	VectorNormalize (dir);
 

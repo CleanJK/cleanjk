@@ -182,7 +182,7 @@ struct botlib_import_t {
 	int			(*AvailableMemory)(void);		// available Zone memory
 	void		*(*HunkAlloc)(int size);		// allocate from hunk
 	//file system access
-	int			(*FS_FOpenFile)( const char *qpath, fileHandle_t *file, fsMode_t mode );
+	int			(*FS_FOpenFile)( const char *qpath, fileHandle_t *file, fsMode_e mode );
 	int			(*FS_Read)( void *buffer, int len, fileHandle_t f );
 	int			(*FS_Write)( const void *buffer, int len, fileHandle_t f );
 	void		(*FS_FCloseFile)( fileHandle_t f );

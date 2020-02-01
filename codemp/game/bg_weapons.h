@@ -35,7 +35,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define DEFAULT_SHOTGUN_COUNT	11
 #define LIGHTNING_RANGE			768
 
-enum weapon_t : int32_t {
+enum weapon_e : int32_t {
 	WP_NONE,
 
 	WP_STUN_BATON,
@@ -68,7 +68,7 @@ enum weapon_t : int32_t {
 	WP_NUM_WEAPONS
 };
 
-enum ammo_t {
+enum ammo_e {
 	AMMO_NONE,
 	AMMO_FORCE,		// AMMO_PHASER
 	AMMO_BLASTER,	// AMMO_STARFLEET,

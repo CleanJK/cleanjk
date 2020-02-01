@@ -314,7 +314,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 
 // enums
-enum lumps_t {
+enum lumps_e {
 	LUMP_ENTITIES =     0,
 	LUMP_SHADERS =      1,
 	LUMP_PLANES =       2,
@@ -336,7 +336,7 @@ enum lumps_t {
 	HEADER_LUMPS =      18,
 };
 
-enum contentsFlags_t : uint32_t {
+enum contentsFlags_e : uint32_t {
 	CONTENTS_NONE =           (0x00000000u),
 	CONTENTS_SOLID =          (0x00000001u), // Default setting. An eye is never valid in a solid
 	CONTENTS_LAVA =           (0x00000002u), //
@@ -373,7 +373,7 @@ enum contentsFlags_t : uint32_t {
 	CONTENTS_ALL =            (0xFFFFFFFFu),
 };
 
-enum surfaceFlags_t : uint32_t {
+enum surfaceFlags_e : uint32_t {
 	SURF_NONE =           (0x00000000u),
 	SURF_UNUSED00000001 = (0x00000001u), //
 	SURF_UNUSED00000002 = (0x00000002u), //
@@ -409,7 +409,7 @@ enum surfaceFlags_t : uint32_t {
 	SURF_UNUSED80000000 = (0x80000000u), //
 };
 
-enum surfaceMaterial_t {
+enum surfaceMaterial_e {
 	MATERIAL_NONE, // for when the artist hasn't set anything up =)
 	MATERIAL_SOLIDWOOD, // freshly cut timber
 	MATERIAL_HOLLOWWOOD, // termite infested creaky wood
@@ -445,19 +445,19 @@ enum surfaceMaterial_t {
 	MATERIAL_LAST, // number of materials
 };
 
-enum serverSource_t {
+enum serverSource_e {
 	AS_LOCAL,
 	AS_GLOBAL,
 	AS_FAVORITES,
 };
 
-enum snapshotFlag_t : uint32_t {
+enum snapshotFlag_e : uint32_t {
 	SNAPFLAG_RATE_DELAYED = 0x01,
 	SNAPFLAG_NOT_ACTIVE =   0x02, // snapshot used during connection and for zombies
 	SNAPFLAG_SERVERCOUNT =  0x04, // toggled every map_restart so transitions can be detected
 };
 
-enum cinematicFlag_t : uint32_t {
+enum cinematicFlag_e : uint32_t {
 	CIN_system = 1,
 	CIN_loop =   2,
 	CIN_hold =   4,
@@ -465,20 +465,20 @@ enum cinematicFlag_t : uint32_t {
 	CIN_shader = 16,
 };
 
-enum fsMode_t {
+enum fsMode_e {
 	FS_READ,
 	FS_WRITE,
 	FS_APPEND,
 	FS_APPEND_SYNC
 };
 
-enum fsOrigin_t {
+enum fsOrigin_e {
 	FS_SEEK_CUR,
 	FS_SEEK_END,
 	FS_SEEK_SET
 };
 
-enum cvarFlag_t : uint32_t {
+enum cvarFlag_e : uint32_t {
 	CVAR_NONE =           0x00000000u,
 	CVAR_ARCHIVE =        0x00000001u, // set to cause it to be saved to configuration file. used for system variables, not for player specific configurations
 	CVAR_USERINFO =       0x00000002u, // sent to server on connect or change
@@ -502,7 +502,7 @@ enum cvarFlag_t : uint32_t {
 	CVAR_ARCHIVE_ND =     CVAR_ARCHIVE | CVAR_NODEFAULT,
 };
 
-enum cbufExec_t {
+enum cbufExec_e {
 	EXEC_NOW,			// don't return until completed, a VM should NEVER use this, because some commands might cause the VM to be unloaded...
 	EXEC_INSERT,		// insert at current position, but don't run yet
 	EXEC_APPEND			// add to end of the command buffer (normal case)
@@ -517,7 +517,7 @@ enum WL_e {
 };
 
 // print levels from renderer (FIXME: set up for game / cgame?)
-enum printParm_t {
+enum printParm_e {
 	PRINT_ALL,
 	PRINT_DEVELOPER,		// only print when "developer 1"
 	PRINT_WARNING,
@@ -525,7 +525,7 @@ enum printParm_t {
 };
 
 // parameters to the main Error routine
-enum errorParm_t {
+enum errorParm_e {
 	ERR_FATAL,					// exit the entire game with a popup window
 	ERR_DROP,					// print to console and disconnect from game
 	ERR_SERVERDISCONNECT,		// don't kill server
@@ -533,19 +533,19 @@ enum errorParm_t {
 	ERR_NEED_CD					// pop up the need-cd dialog
 };
 
-enum ha_pref {
+enum ha_pref_e {
 	h_high,
 	h_low,
 	h_dontcare
 };
 
-enum saberBlockType_t : int32_t {
+enum saberBlockType_e : int32_t {
 	BLK_NO,
 	BLK_TIGHT,		// Block only attacks and shots around the saber itself, a bbox of around 12x12x12
 	BLK_WIDE		// Block all attacks in an area around the player in a rough arc of 180 degrees
 };
 
-enum saberBlockedType_t : int32_t {
+enum saberBlockedType_e : int32_t {
 	BLOCKED_NONE,
 	BLOCKED_BOUNCE_MOVE,
 	BLOCKED_PARRY_BROKEN,
@@ -562,7 +562,7 @@ enum saberBlockedType_t : int32_t {
 	BLOCKED_TOP_PROJ
 };
 
-enum saber_colors_t : int32_t {
+enum saber_colors_e : int32_t {
 	SABER_RED,
 	SABER_ORANGE,
 	SABER_YELLOW,
@@ -572,7 +572,7 @@ enum saber_colors_t : int32_t {
 	NUM_SABER_COLORS
 };
 
-enum forcePowers_t : int32_t {
+enum forcePowers_e : int32_t {
 	FP_INVALID = -1,
 	FP_FIRST = 0,//marker
 	FP_HEAL = 0,//instant
@@ -596,7 +596,7 @@ enum forcePowers_t : int32_t {
 	NUM_FORCE_POWERS
 };
 
-enum forcePowerLevels_t : int32_t {
+enum forcePowerLevels_e : int32_t {
 	FORCE_LEVEL_0,
 	FORCE_LEVEL_1,
 	FORCE_LEVEL_2,
@@ -605,7 +605,7 @@ enum forcePowerLevels_t : int32_t {
 	FORCE_LEVEL_5,
 };
 
-enum sharedERagPhase {
+enum sharedERagPhase_e {
 	RP_START_DEATH_ANIM,
 	RP_END_DEATH_ANIM,
 	RP_DEATH_COLLISION,
@@ -615,7 +615,7 @@ enum sharedERagPhase {
 	RP_DISABLE_EFFECTORS  // this removes effectors given by the effectorsToTurnOff member
 };
 
-enum sharedERagEffector {
+enum sharedERagEffector_e {
 	RE_MODEL_ROOT =   0x00000001, //"model_root"
 	RE_PELVIS =       0x00000002, //"pelvis"
 	RE_LOWER_LUMBAR = 0x00000004, //"lower_lumbar"
@@ -643,13 +643,13 @@ enum sharedERagEffector {
 	RE_CEYEBROW =     0x01000000 //"ceyebrow"
 };
 
-enum sharedEIKMoveState {
+enum sharedEIKMoveState_e {
 	IKS_NONE = 0,
 	IKS_DYNAMIC
 };
 
 //material stuff needs to be shared
-enum chunkMaterial_t : int32_t {
+enum chunkMaterial_e : int32_t {
 	MAT_METAL = 0,	// scorched blue-grey metal
 	MAT_GLASS,		// not a real chunk type, just plays an effect with glass sprites
 	MAT_ELECTRICAL,	// sparks only
@@ -671,7 +671,7 @@ enum chunkMaterial_t : int32_t {
 	NUM_MATERIALS
 };
 
-enum tokenType_t {
+enum tokenType_e {
 	TT_STRING =      1, // string
 	TT_LITERAL =     2, // literal
 	TT_NUMBER =      3, // number
@@ -679,14 +679,14 @@ enum tokenType_t {
 	TT_PUNCTUATION = 5, // punctuation
 };
 
-enum keyCatcher_t : uint32_t {
+enum keyCatcher_e : uint32_t {
 	KEYCATCH_CONSOLE = 0x0001,
 	KEYCATCH_UI =      0x0002,
 	KEYCATCH_MESSAGE = 0x0004,
 	KEYCATCH_CGAME =   0x0008,
 };
 
-enum soundChannel_t {
+enum soundChannel_e {
 	CHAN_AUTO,	//## %s !!"W:\game\base\!!sound\*.wav;*.mp3" # Auto-picks an empty channel to play sound on
 	CHAN_LOCAL,	//## %s !!"W:\game\base\!!sound\*.wav;*.mp3" # menu sounds, etc
 	CHAN_WEAPON,//## %s !!"W:\game\base\!!sound\*.wav;*.mp3"
@@ -703,7 +703,7 @@ enum soundChannel_t {
 	CHAN_MUSIC,	//## %s !!"W:\game\base\!!sound\*.wav;*.mp3" #music played as a looping sound - added by BTO (VV)
 };
 
-enum trackchan_t {
+enum trackchan_e {
 	TRACK_CHANNEL_NONE = 50,
 	TRACK_CHANNEL_1,
 	TRACK_CHANNEL_2, // force speed
@@ -713,14 +713,14 @@ enum trackchan_t {
 	NUM_TRACK_CHANNELS
 };
 
-enum itemUseFail_t {
+enum itemUseFail_e {
 	SENTRY_NOROOM = 1,
 	SENTRY_ALREADYPLACED,
 	SHIELD_NOROOM,
 	SEEKER_ALREADYDEPLOYED
 };
 
-enum genButtons_t : uint32_t {
+enum genButtons_e : uint32_t {
 	BUTTON_ATTACK =          1,
 	BUTTON_TALK =            2,		// displays talk balloon and disables actions
 	BUTTON_USE_HOLDABLE =    4,
@@ -735,7 +735,7 @@ enum genButtons_t : uint32_t {
 	BUTTON_FORCE_DRAIN =     2048,
 };
 
-enum genCmds_t {
+enum genCmds_e {
 	GENCMD_SABERSWITCH = 1,
 	GENCMD_ENGAGE_DUEL,
 	GENCMD_FORCE_HEAL,
@@ -769,7 +769,7 @@ enum genCmds_t {
 	GENCMD_GLOAT
 };
 
-enum solid_t {
+enum solid_e {
 	SOLID_NOT,					// no interaction with other objects
 	SOLID_TRIGGER,				// only touch when inside, after moving
 	SOLID_BBOX,					// touch on edge
@@ -777,7 +777,7 @@ enum solid_t {
 	SOLID_BMODEL	= 0xffffff,	// if entityState->solid == SOLID_BMODEL, modelindex is an inline model number
 };
 
-enum trType_t {
+enum trType_e {
 	TR_STATIONARY,
 	TR_INTERPOLATE,				// non-parametric, but interpolate between snapshots
 	TR_LINEAR,
@@ -787,7 +787,7 @@ enum trType_t {
 	TR_GRAVITY
 };
 
-enum connstate_t {
+enum connstate_e {
 	CA_UNINITIALIZED,
 	CA_DISCONNECTED, 	// not talking to a server
 	CA_AUTHORIZING,		// not used any more, was checking cd key
@@ -800,7 +800,7 @@ enum connstate_t {
 	CA_CINEMATIC		// playing a cinematic or a static pic, not connected to a server
 };
 
-enum e_status {
+enum status_e {
 	FMV_IDLE,
 	FMV_PLAY,		// play
 	FMV_EOF,		// all other conditions, i.e. stop/EOF/abort
@@ -810,13 +810,13 @@ enum e_status {
 	FMV_ID_WAIT
 };
 
-enum sayType_t {
+enum sayType_e {
 	SAY_ALL,
 	SAY_TEAM,
 	SAY_TELL,
 };
 
-enum Eorientations {
+enum Eorientations_e {
 	ORIGIN = 0,
 	POSITIVE_X,
 	POSITIVE_Z,
@@ -826,7 +826,7 @@ enum Eorientations {
 	NEGATIVE_Y
 };
 
-enum memtag {
+enum memtag_e {
 	#include "qcommon/tags.h"
 };
 
@@ -836,7 +836,7 @@ enum ForceReload_e {
 	eForceReload_ALL
 };
 
-enum {
+enum fontSize_e {
 	FONT_NONE,
 	FONT_SMALL=1,
 	FONT_MEDIUM,
@@ -844,7 +844,7 @@ enum {
 	FONT_SMALL2
 };
 
-enum mapSurfaceType_t {
+enum mapSurfaceType_e {
    MST_BAD,
    MST_PLANAR,
    MST_PATCH,
@@ -1017,7 +1017,7 @@ struct forcedata_t {
 	int           forcePowerDebounce[NUM_FORCE_POWERS];	//for effects that must have an interval
 	int           forcePowersKnown;
 	int           forcePowersActive;
-	forcePowers_t forcePowerSelected;
+	forcePowers_e forcePowerSelected;
 	int           forceButtonNeedRelease;
 	int           forcePowerDuration[NUM_FORCE_POWERS];
 	int           forcePower;
@@ -1336,7 +1336,7 @@ struct addElectricityArgStruct_t {
 };
 
 struct trajectory_t {
-	trType_t trType;
+	trType_e trType;
 	int      trTime;
 	int      trDuration; // if non 0, trTime + trDuration = stop time
 	vec3_t   trBase;
@@ -1345,7 +1345,7 @@ struct trajectory_t {
 
 struct entityState_t {
 	int          number;			// entity index
-	int          eType;			// entityType_t
+	int          eType;			// entityType_e
 	int          eFlags;
 	int          eFlags2;		// EF2_??? used much less frequently
 	trajectory_t pos;	// for calculating position
@@ -1643,7 +1643,7 @@ void        Com_TruncateLongString ( char *buffer, const char *s );
 int         FloatAsInt             ( float f );
 int         GetIDForString         ( const stringID_table_t *table, const char *string );
 const char *GetStringForID         ( stringID_table_t *table, int id );
-void       *Hunk_Alloc             ( int size, ha_pref preference );
+void       *Hunk_Alloc             ( int size, ha_pref_e preference );
 bool        Info_NextPair          ( const char **s, char *key, char *value );
 bool        Info_Validate          ( const char *s );
 char       *Info_ValueForKey       ( const char *s, const char *key );

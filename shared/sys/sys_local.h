@@ -52,7 +52,7 @@ void IN_Restart(void);
 void IN_Shutdown(void);
 void Sys_PlatformExit(void);
 void Sys_PlatformInit(void);
-void Sys_QueEvent(int time, sysEventType_t type, int value, int value2, int ptrLength, void* ptr);
+void Sys_QueEvent(int time, sysEventType_e type, int value, int value2, int ptrLength, void* ptr);
 void Sys_SigHandler(int signal);
 
 #ifndef _WIN32

@@ -92,6 +92,6 @@ void Cvar_SetCheatState( void );
 void Cvar_Update( vmCvar_t *vmCvar );
 void Cvar_User_SetValue( const char *var_name, float value );
 void Cvar_VariableStringBuffer( const char *var_name, char *buffer, int bufsize );
-void Cvar_VM_Set( const char *var_name, const char *value, vmSlots_t vmslot );
-void Cvar_VM_SetValue( const char *var_name, float value, vmSlots_t vmslot );
+void Cvar_VM_Set( const char *var_name, const char *value, vmSlots_e vmslot );
+void Cvar_VM_SetValue( const char *var_name, float value, vmSlots_e vmslot );
 void Cvar_WriteVariables( fileHandle_t f );

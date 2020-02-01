@@ -7,7 +7,7 @@
 
 // these are the key numbers that should be passed to KeyEvent
 
-enum fakeAscii_t {
+enum fakeAscii_e {
 	A_NULL = 0,
 	A_SHIFT,
 	A_CTRL,

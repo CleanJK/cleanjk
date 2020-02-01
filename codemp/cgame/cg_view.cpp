@@ -435,7 +435,7 @@ static void CG_UpdateThirdPersonCameraDamp(void)
 				CG_Trace(&trace, cameraCurTarget, cameramins, cameramaxs, cameraCurLoc, cg.snap->ps.clientNum, MASK_CAMERACLIP);
 
 				//copy old data back in
-				mover->currentState.pos.trType = (trType_t) curTr;
+				mover->currentState.pos.trType = (trType_e) curTr;
 				VectorCopy(curTrB, mover->currentState.pos.trBase);
 			}
 			if (trace.fraction < 1.0f)
@@ -1741,7 +1741,7 @@ float cg_linearFogOverride = 0.0f; //designer-specified override for linear fogg
 
 extern bool cgQueueLoad;
 
-void CG_DrawActiveFrame( int serverTime, stereoFrame_t stereoView, bool demoPlayback ) {
+void CG_DrawActiveFrame( int serverTime, stereoFrame_e stereoView, bool demoPlayback ) {
 	int		inwater;
 	const char *cstr;
 	float mSensitivity = cg.zoomSensitivity;

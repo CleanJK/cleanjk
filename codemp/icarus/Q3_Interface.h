@@ -25,7 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 //NOTENOTE: The enums and tables in this file will obviously bitch if they are included multiple times, don't do that
 
-enum setType_t {
+enum setType_e {
 	//# #sep Parm strings
 	SET_PARM1 = 0,//## %s="" # Set entity parm1
 	SET_PARM2,//## %s="" # Set entity parm2
@@ -230,7 +230,7 @@ constexpr int Q3_TIME_SCALE = 1;	//MILLISECONDS
 
 // this enum isn't used directly by the game, it's mainly for BehavEd to scan for...
 
-enum playType_t {
+enum playType_e {
 	//# #sep Types of file to play
 	PLAY_ROFF = 0,//## %s="filename" !!"W:\game\base\scripts\!!#*.rof" # Play a ROFF file
 
@@ -253,8 +253,8 @@ void     Q3_SetAnimBoth    ( int entID, const char *anim_name );
 void     Q3_SetVar         ( int taskID, int entID, const char *type_name, const char *data );
 void     Q3_SetVelocity    ( int entID, vec3_t angles );
 void     Q3_TaskIDClear    ( int *taskID );
-void     Q3_TaskIDComplete ( sharedEntity_t *ent, taskID_t taskType );
-bool     Q3_TaskIDPending  ( sharedEntity_t *ent, taskID_t taskType );
-void     Q3_TaskIDSet      ( sharedEntity_t *ent, taskID_t taskType, int taskID );
+void     Q3_TaskIDComplete ( sharedEntity_t *ent, taskID_e taskType );
+bool     Q3_TaskIDPending  ( sharedEntity_t *ent, taskID_e taskType );
+void     Q3_TaskIDSet      ( sharedEntity_t *ent, taskID_e taskType, int taskID );
 
 #endif

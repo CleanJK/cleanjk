@@ -59,7 +59,7 @@ class CGhoul2Info_v;
 #define	G2_BACKFACE	 0
 
 // calling defines for the trace function
-enum EG2_Collision
+enum EG2_Collision_e
 {
 	G2_NOCOLLIDE,
 	G2_COLLIDE,
@@ -212,7 +212,7 @@ struct boltInfo_t{
 };
 
 #ifdef _SOF2
-enum goreEnum_t {
+enum goreEnum_e {
 	PGORE_NONE,
 	PGORE_ARMOR,
 	PGORE_BULLETSMALL,
@@ -224,7 +224,7 @@ enum goreEnum_t {
 
 struct goreEnumShader_t
 {
-	goreEnum_t		shaderEnum;
+	goreEnum_e		shaderEnum;
 	char			shaderName[MAX_QPATH];
 };
 
@@ -243,7 +243,7 @@ struct SSkinGoreData
 
 //	qhandle_t		shader;			// handle to shader for gore, this better be rendered after the shader of the underlying surface
 									// this shader should also have "clamp" mode, not tiled.
-	goreEnum_t		shaderEnum;		// enum that'll get switched over to the shader's actual handle
+	goreEnum_e		shaderEnum;		// enum that'll get switched over to the shader's actual handle
 };
 #endif // _SOF2
 

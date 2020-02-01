@@ -103,8 +103,8 @@ extern vec3_t cl_windVec;
 // FUNCTION
 // ======================================================================
 
-e_status CIN_RunCinematic(int handle);
-e_status CIN_StopCinematic(int handle);
+status_e CIN_RunCinematic(int handle);
+status_e CIN_StopCinematic(int handle);
 float CL_KeyState(kbutton_t* key);
 int CIN_PlayCinematic(const char* arg0, int xpos, int ypos, int width, int height, int bits);
 int CL_GetPingQueueCount(void);
@@ -125,7 +125,7 @@ void CIN_SetExtents(int handle, int x, int y, int w, int h);
 void CIN_SetLooping(int handle, bool loop);
 void CIN_UploadCinematic(int handle);
 void CL_AddReliableCommand(const char* cmd, bool isDisconnectCmd);
-void CL_CGameRendering(stereoFrame_t stereo);
+void CL_CGameRendering(stereoFrame_e stereo);
 void CL_ClearPing(int n);
 void CL_ClearState(void);
 void CL_Disconnect_f(void);

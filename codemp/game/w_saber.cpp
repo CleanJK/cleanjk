@@ -738,7 +738,7 @@ static QINLINE bool SaberAttacking( gentity_t *self )
 	return false;
 }
 
-enum sabersLockMode_t {
+enum sabersLockMode_e {
 	LOCK_FIRST = 0,
 	LOCK_TOP = LOCK_FIRST,
 	LOCK_DIAG_TR,
@@ -882,7 +882,7 @@ int G_SaberLockAnim( int attackerSaberStyle, int defenderSaberStyle, int topOrSi
 
 #define LOCK_IDEAL_DIST_JKA 46.0f//all of the new saberlocks are 46.08 from each other because Richard Lico is da MAN
 
-static QINLINE bool WP_SabersCheckLock2( gentity_t *attacker, gentity_t *defender, sabersLockMode_t lockMode )
+static QINLINE bool WP_SabersCheckLock2( gentity_t *attacker, gentity_t *defender, sabersLockMode_e lockMode )
 {
 	int		attAnim, defAnim = 0;
 	float	attStart = 0.5f, defStart = 0.5f;
@@ -896,7 +896,7 @@ static QINLINE bool WP_SabersCheckLock2( gentity_t *attacker, gentity_t *defende
 	//MATCH ANIMS
 	if ( lockMode == LOCK_RANDOM )
 	{
-		lockMode = (sabersLockMode_t)Q_irand( (int)LOCK_FIRST, (int)(LOCK_RANDOM)-1 );
+		lockMode = (sabersLockMode_e)Q_irand( (int)LOCK_FIRST, (int)(LOCK_RANDOM)-1 );
 	}
 	if ( attacker->client->ps.fd.saberAnimLevel >= SS_FAST
 		&& attacker->client->ps.fd.saberAnimLevel <= SS_STRONG
@@ -2391,7 +2391,7 @@ float WP_SaberLength( gentity_t *ent )
 		return bestLen;
 	}
 }
-int WPDEBUG_SaberColor( saber_colors_t saberColor )
+int WPDEBUG_SaberColor( saber_colors_e saberColor )
 {
 	switch( (int)(saberColor) )
 	{
@@ -2573,7 +2573,7 @@ static QINLINE int G_PowerLevelForSaberAnim( gentity_t *ent, int saberNum, bool 
 	{
 		int anim = ent->client->ps.torsoAnim;
 		int	animTimer = ent->client->ps.torsoTimer;
-		int	animTimeElapsed = BG_AnimLength( ent->localAnimIndex, (animNumber_t)anim ) - animTimer;
+		int	animTimeElapsed = BG_AnimLength( ent->localAnimIndex, (animNumber_e)anim ) - animTimer;
 		saberInfo_t *saber = &ent->client->saber[saberNum];
 		if ( anim >= BOTH_A1_T__B_ && anim <= BOTH_D1_B____ )
 		{
@@ -6858,7 +6858,7 @@ static gentity_t *G_KickTrace( gentity_t *ent, vec3_t kickDir, float kickDist, v
 static void G_KickSomeMofos(gentity_t *ent)
 {
 	vec3_t	kickDir, kickEnd, fwdAngs;
-	float animLength = BG_AnimLength( ent->localAnimIndex, (animNumber_t)ent->client->ps.legsAnim );
+	float animLength = BG_AnimLength( ent->localAnimIndex, (animNumber_e)ent->client->ps.legsAnim );
 	float elapsedTime = (float)(animLength-ent->client->ps.legsTimer);
 	float remainingTime = (animLength-elapsedTime);
 	float kickDist = (ent->r.maxs[0]*1.5f)+STAFF_KICK_RANGE+8.0f;//fudge factor of 8

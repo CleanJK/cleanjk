@@ -28,7 +28,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 
 
-enum netadrtype_t {
+enum netadrtype_e {
 	NA_BAD = 0, // an address lookup failed
 	NA_BOT,
 	NA_LOOPBACK,
@@ -36,7 +36,7 @@ enum netadrtype_t {
 	NA_IP
 };
 
-enum joystickAxis_t {
+enum joystickAxis_e {
 	AXIS_SIDE,
 	AXIS_FORWARD,
 	AXIS_UP,
@@ -46,7 +46,7 @@ enum joystickAxis_t {
 	MAX_JOYSTICK_AXIS
 };
 
-enum sysEventType_t {
+enum sysEventType_e {
   // bk001129 - make sure SE_NONE is zero
 	SE_NONE = 0, // evTime is still valid
 	SE_KEY, // evValue is a key code, evValue2 is the down flag
@@ -57,34 +57,34 @@ enum sysEventType_t {
 	SE_MAX
 };
 
-enum graphicsApi_t {
+enum graphicsApi_e {
 	GRAPHICS_API_GENERIC,
 
 	// Only OpenGL needs special treatment..
 	GRAPHICS_API_OPENGL,
 };
 
-enum glProfile_t {
+enum glProfile_e {
 	GLPROFILE_COMPATIBILITY,
 	GLPROFILE_CORE,
 	GLPROFILE_ES,
 };
 
-enum glContextFlag_t : uint32_t {
+enum glContextFlag_e : uint32_t {
 	GLCONTEXT_DEBUG = (1 << 1),
 };
 
 
 
 struct netadr_t {
-	netadrtype_t type;
+	netadrtype_e type;
 	byte         ip[4];
 	uint16_t     port;
 };
 
 struct sysEvent_t {
 	int             evTime;
-	sysEventType_t  evType;
+	sysEventType_e  evType;
 	int             evValue, evValue2;
 	int             evPtrLength;	// bytes of data pointed to by evPtr, for journaling
 	void           *evPtr;			// this must be manually freed if not nullptr
@@ -93,16 +93,16 @@ struct sysEvent_t {
 // Graphics API
 struct window_t {
 	void          *handle; // OS-dependent window handle
-	graphicsApi_t  api;
+	graphicsApi_e  api;
 };
 
 struct windowDesc_t {
-	graphicsApi_t api;
+	graphicsApi_e api;
 	// Only used if api == GRAPHICS_API_OPENGL
 	struct gl_ {
 		int         majorVersion;
 		int         minorVersion;
-		glProfile_t profile;
+		glProfile_e profile;
 		uint32_t    contextFlags;
 	} gl;
 };

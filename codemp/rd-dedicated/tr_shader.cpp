@@ -309,7 +309,7 @@ static int NameToDstBlendMode( const char *name )
 	return GLS_DSTBLEND_ONE;
 }
 
-static genFunc_t NameToGenFunc( const char *funcname )
+static genFunc_e NameToGenFunc( const char *funcname )
 {
 	if ( !Q_stricmp( funcname, "sin" ) )
 	{
@@ -1647,7 +1647,7 @@ static void ParseDeform( const char **text ) {
 		if ( n < 0 || n > 7 ) {
 			n = 0;
 		}
-		ds->deformation = (deform_t)(DEFORM_TEXT0 + n);
+		ds->deformation = (deform_e)(DEFORM_TEXT0 + n);
 		return;
 	}
 
@@ -2369,7 +2369,7 @@ static shader_t *FinishShader( void ) {
 				else
 				{
 					stages[lmStage+i+1].bundle[0].image = tr.lightmaps[shader.lightmapIndex[i+1]];
-					stages[lmStage+i+1].bundle[0].tcGen = (texCoordGen_t)(TCGEN_LIGHTMAP+i+1);
+					stages[lmStage+i+1].bundle[0].tcGen = (texCoordGen_e)(TCGEN_LIGHTMAP+i+1);
 				}
 				stages[lmStage+i+1].rgbGen = CGEN_LIGHTMAPSTYLE;
 				stages[lmStage+i+1].stateBits &= ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS);

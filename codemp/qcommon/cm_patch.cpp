@@ -836,7 +836,7 @@ static inline void CM_AddFacetBevels( facet_t *facet ) {
 	facet->numBorders++;
 }
 
-enum edgeName_t {
+enum edgeName_e {
 	EN_TOP,
 	EN_RIGHT,
 	EN_BOTTOM,

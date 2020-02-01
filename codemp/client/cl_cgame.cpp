@@ -519,7 +519,7 @@ bool CL_GameCommand( void ) {
 	return CGVM_ConsoleCommand();
 }
 
-void CL_CGameRendering( stereoFrame_t stereo ) {
+void CL_CGameRendering( stereoFrame_e stereo ) {
 	//rww - RAGDOLL_BEGIN
 	if (!sv_running->integer)
 	{ //set the server time to match the client time, if we don't have a server going.

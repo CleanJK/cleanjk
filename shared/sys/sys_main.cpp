@@ -369,7 +369,7 @@ void *Sys_LoadMachOBundle( const char *name )
 }
 #endif
 
-enum SearchPathFlag
+enum SearchPathFlag_e
 {
 	SEARCH_PATH_MOD		= 1 << 0,
 	SEARCH_PATH_BASE	= 1 << 1,

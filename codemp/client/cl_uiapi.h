@@ -38,7 +38,7 @@ void		UIVM_Init				( bool inGameLoad );
 void		UIVM_KeyEvent			( int key, bool down );
 void		UIVM_MouseEvent			( int dx, int dy );
 void		UIVM_Refresh			( int realtime );
-void		UIVM_SetActiveMenu		( uiMenuCommand_t menu );
+void		UIVM_SetActiveMenu		( uiMenuCommand_e menu );
 void		UIVM_Shutdown			( void );
 
 void CL_BindUI( void );

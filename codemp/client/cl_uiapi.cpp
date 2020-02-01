@@ -73,7 +73,7 @@ bool UIVM_IsFullscreen( void ) {
 	return uie->IsFullscreen();
 }
 
-void UIVM_SetActiveMenu( uiMenuCommand_t menu ) {
+void UIVM_SetActiveMenu( uiMenuCommand_e menu ) {
 	VMSwap v( uivm );
 	uie->SetActiveMenu( menu );
 }
@@ -372,9 +372,9 @@ static bool CL_G2API_SetBoneAngles(
 		boneName,
 		angles,
 		flags,
-		(const Eorientations)up,
-		(const Eorientations)right,
-		(const Eorientations)forward,
+		(const Eorientations_e)up,
+		(const Eorientations_e)right,
+		(const Eorientations_e)forward,
 		modelList,
 		blendTime,
 		currentTime);
@@ -604,8 +604,8 @@ static void CL_G2API_SetRagDoll( void *ghoul2, sharedRagDollParams_t *params ) {
 	rdParams.collisionType = params->collisionType;
 	rdParams.CallRagDollBegin = params->CallRagDollBegin;
 
-	rdParams.RagPhase = (CRagDollParams::ERagPhase)params->RagPhase;
-	rdParams.effectorsToTurnOff = (CRagDollParams::ERagEffector)params->effectorsToTurnOff;
+	rdParams.RagPhase = (CRagDollParams::ERagPhase_e)params->RagPhase;
+	rdParams.effectorsToTurnOff = (CRagDollParams::ERagEffector_e)params->effectorsToTurnOff;
 
 	re->G2API_SetRagDoll( *((CGhoul2Info_v *)ghoul2), &rdParams );
 }

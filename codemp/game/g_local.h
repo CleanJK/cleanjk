@@ -126,14 +126,14 @@ enum spawnFlags_e : int32_t {
 };
 
 // movers are things like doors, plats, buttons, etc
-enum moverState_t : int32_t {
+enum moverState_e : int32_t {
 	MOVER_POS1,
 	MOVER_POS2,
 	MOVER_1TO2,
 	MOVER_2TO1,
 };
 
-enum hitLocation_t : int32_t {
+enum hitLocation_e : int32_t {
 	HL_NONE = 0,
 	HL_FOOT_RT,
 	HL_FOOT_LT,
@@ -160,20 +160,20 @@ enum hitLocation_t : int32_t {
 	HL_MAX,
 };
 
-enum clientConnected_t : int32_t {
+enum clientConnected_e : int32_t {
 	CON_DISCONNECTED,
 	CON_CONNECTING,
 	CON_CONNECTED,
 };
 
-enum spectatorState_t : int32_t {
+enum spectatorState_e : int32_t {
 	SPECTATOR_NOT,
 	SPECTATOR_FREE,
 	SPECTATOR_FOLLOW,
 	SPECTATOR_SCOREBOARD,
 };
 
-enum playerTeamStateState_t : int32_t {
+enum playerTeamStateState_e : int32_t {
 	TEAM_BEGIN,  // Beginning a team game, spawn at base
 	TEAM_ACTIVE, // Now actively playing
 };
@@ -181,7 +181,7 @@ enum playerTeamStateState_t : int32_t {
 // userinfo validation bitflags
 // default is all except extended ascii
 // numUserinfoFields + USERINFO_VALIDATION_MAX should not exceed 31
-enum userinfoValidationBits_t : int32_t {
+enum userinfoValidationBits_e : int32_t {
 	// validation & (1<<(numUserinfoFields+USERINFO_VALIDATION_BLAH))
 	USERINFO_VALIDATION_SIZE=0,
 	USERINFO_VALIDATION_SLASH,
@@ -190,7 +190,7 @@ enum userinfoValidationBits_t : int32_t {
 	USERINFO_VALIDATION_MAX,
 };
 
-enum votedFlags : int32_t {
+enum votedFlags_e : int32_t {
 	PSG_VOTED =     0x00000001, // already cast a vote
 	PSG_TEAMVOTED = 0x00000002, // already cast a team vote
 };
@@ -217,7 +217,7 @@ union sharedBuffer_t {
 };
 
 struct playerTeamState_t {
-	playerTeamStateState_t state;
+	playerTeamStateState_e state;
 	int                    location;
 	int                    captures;
 	int                    basedefense;
@@ -233,7 +233,7 @@ struct playerTeamState_t {
 
 // client data that stays across multiple respawns, but is cleared on each level change or team change at ClientBegin()
 struct clientPersistant_t {
-	clientConnected_t connected;
+	clientConnected_e connected;
 	usercmd_t         cmd;               // we would lose angles if not persistant
 	bool              localClient;       // true if "ip" info key is "localhost"
 	bool              initialSpawn;      // the first spawn should be at a cool location
@@ -257,12 +257,12 @@ struct clientPersistant_t {
 // this is achieved by writing all the data to cvar strings at game shutdown time and reading them back at connection time.
 // Anything added here MUST be dealt with in G_InitSessionData() / G_ReadSessionData() / G_WriteSessionData()
 struct clientSession_t {
-	team_t           sessionTeam;
+	team_e           sessionTeam;
 	int              spectatorNum;    // for determining next-in-line to play
-	spectatorState_t spectatorState;
+	spectatorState_e spectatorState;
 	int              spectatorClient; // for chasecam and follow mode
 	int              wins, losses;    // tournament stats
-	forcePowers_t    selectedFP;      // check against this, if doesn't match value in playerstate then update userinfo
+	forcePowers_e    selectedFP;      // check against this, if doesn't match value in playerstate then update userinfo
 	int              saberLevel;      // similar to above method, but for current saber attack level
 	int              setForce;        // set to true once player is given the chance to set force powers
 	int              updateUITime;    // only update userinfo for FP/SL if < level.time
@@ -501,7 +501,7 @@ struct gentity_t {
 	bool             physicsObject;                 // if true, it can be pushed by movers and fall off edges. all game items are physicsObjects,
 	float            physicsBounce;                 // 1.0 = continuous bounce, 0.0 = no bounce
 	int              clipmask;                      // brushes with this content value will be collided against when moving.  items and corpses do not collide against players, for instance
-	moverState_t     moverState;
+	moverState_e     moverState;
 	int              soundPos1;
 	int              sound1to2;
 	int              sound2to1;
@@ -549,7 +549,7 @@ struct gentity_t {
 	int              last_move_time;
 	int              health;
 	bool             takedamage;
-	chunkMaterial_t       material;
+	chunkMaterial_e       material;
 	int              damage;
 	int              dflags;
 	int              splashDamage;                  // quad will increase this without increasing radius
@@ -688,7 +688,7 @@ struct level_locals_t {
 	float        mRotationAdjust;
 	char         *mTargetAdjust;
 	char         mTeamFilter[MAX_QPATH];
-	gametype_t   gametype;
+	gametype_e   gametype;
 	char         mapname[MAX_QPATH];
 	char         rawmapname[MAX_QPATH];
 };
@@ -782,7 +782,7 @@ void             FireWeapon                          ( gentity_t *ent, bool altF
 void             ForceAbsorb                         ( gentity_t *self );
 void             ForceGrip                           ( gentity_t *self );
 void             ForceHeal                           ( gentity_t *self );
-int              ForcePowerUsableOn                  ( gentity_t *attacker, gentity_t *other, forcePowers_t forcePower );
+int              ForcePowerUsableOn                  ( gentity_t *attacker, gentity_t *other, forcePowers_e forcePower );
 void             ForceProtect                        ( gentity_t *self );
 void             ForceRage                           ( gentity_t *self );
 void             ForceSeeing                         ( gentity_t *self );
@@ -912,7 +912,7 @@ bool             G_SpawnInt                          ( const char *key, const ch
 bool             G_SpawnString                       ( const char *key, const char *defaultString, char **out );
 bool             G_SpawnVector                       ( const char *key, const char *defaultString, float *out );
 void             G_SpawnItem                         ( gentity_t *ent, gitem_t *item );
-void             G_TeamCommand                       ( team_t team, char *cmd );
+void             G_TeamCommand                       ( team_e team, char *cmd );
 gentity_t       *G_TempEntity                        ( vec3_t origin, int event );
 void             G_TestLine                          ( vec3_t start, vec3_t end, int color, int time );
 bool             G_ThereIsAMaster                    ( void );
@@ -958,7 +958,7 @@ void             MoveClientToIntermission            ( gentity_t *client );
 void             ObjectDie                           ( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath );
 bool             OnSameTeam                          ( gentity_t *ent1, gentity_t *ent2 );
 int              OrgVisible                          ( vec3_t org1, vec3_t org2, int ignore );
-team_t           PickTeam                            ( int ignoreClientNum );
+team_e           PickTeam                            ( int ignoreClientNum );
 void             player_die                          ( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod );
 float            RandFloat                           ( float min, float max );
 void             RegisterItem                        ( gitem_t *item );
@@ -971,12 +971,12 @@ void             saberReactivate                     ( gentity_t *saberent, gent
 void             SaveRegisteredItems                 ( void );
 void             scriptrunner_run                    ( gentity_t *self );
 gentity_t       *SelectRandomDeathmatchSpawnPoint    ( bool isbot );
-gentity_t       *SelectSpawnPoint                    ( vec3_t avoidPoint, vec3_t origin, vec3_t angles, team_t team, bool isbot );
+gentity_t       *SelectSpawnPoint                    ( vec3_t avoidPoint, vec3_t origin, vec3_t angles, team_e team, bool isbot );
 void             SendScoreboardMessageToAllClients   ( void );
 void             SetClientViewAngle                  ( gentity_t *ent, vec3_t angle );
 void             SetLeader                           ( int team, int client );
 void             SetTeam                             ( gentity_t *ent, char *s );
-void             SetTeamQuick                        ( gentity_t *ent, team_t team, bool doBegin );
+void             SetTeamQuick                        ( gentity_t *ent, team_e team, bool doBegin );
 void             SnapVectorTowards                   ( vec3_t v, vec3_t to );
 void             SP_CreateRain                       ( gentity_t *self );
 void             SP_CreateSnow                       ( gentity_t *self );
@@ -1102,7 +1102,7 @@ int              TAG_GetOrigin2                      ( const char *owner, const 
 int              TAG_GetRadius                       ( const char *owner, const char *name );
 void             TAG_Init                            ( void );
 void             Team_CheckDroppedItem               ( gentity_t *dropped );
-int              TeamCount                           ( int ignoreClientNum, team_t team );
+int              TeamCount                           ( int ignoreClientNum, team_e team );
 int              TeamLeader                          ( int team );
 void             TeleportPlayer                      ( gentity_t *player, vec3_t origin, vec3_t angles );
 void             ThrowSaberToAttacker                ( gentity_t *self, gentity_t *attacker );
@@ -1134,7 +1134,7 @@ void             WP_FireGenericBlasterMissile        ( gentity_t *ent, vec3_t st
 void             WP_FireTurboLaserMissile            ( gentity_t *ent, vec3_t start, vec3_t dir );
 void             WP_FireTurretMissile                ( gentity_t *ent, vec3_t start, vec3_t dir, bool altFire, int damage, int velocity, int mod, gentity_t *ignore );
 void             WP_flechette_alt_blow               ( gentity_t *ent );
-void             WP_ForcePowerStop                   ( gentity_t *self, forcePowers_t forcePower );
+void             WP_ForcePowerStop                   ( gentity_t *self, forcePowers_e forcePower );
 void             WP_ForcePowersUpdate                ( gentity_t *self, usercmd_t *ucmd );
 bool             WP_HasForcePowers                   ( const playerState_t *ps );
 void             WP_InitForcePowers                  ( gentity_t *ent );

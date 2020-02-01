@@ -1440,7 +1440,7 @@ static void RB_SurfaceAxis( void ) {
 }
 
 // Entities that have a single procedurally generated surface
-void RB_SurfaceEntity( surfaceType_t *surfType ) {
+void RB_SurfaceEntity( surfaceType_e *surfType ) {
 	switch( backEnd.currentEntity->e.reType ) {
 	case RT_SPRITE:
 		RB_SurfaceSprite();
@@ -1498,7 +1498,7 @@ void RB_SurfaceEntity( surfaceType_t *surfType ) {
 	return;
 }
 
-void RB_SurfaceBad( surfaceType_t *surfType ) {
+void RB_SurfaceBad( surfaceType_e *surfType ) {
 	ri.Printf( PRINT_ALL, "Bad surface tesselated.\n" );
 }
 

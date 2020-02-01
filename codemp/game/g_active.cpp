@@ -881,7 +881,7 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 			ent->client->invulnerableTimer = 0;
 			break;
 
-		//rww - Note that these must be in the same order (ITEM#-wise) as they are in holdable_t
+		//rww - Note that these must be in the same order (ITEM#-wise) as they are in holdable_e
 		case EV_USE_ITEM1: //seeker droid
 			ItemUse_Seeker(ent);
 			break;
@@ -1229,7 +1229,7 @@ void G_CheckClientIdle( gentity_t *ent, usercmd_t *ucmd )
 			G_SetAnim(ent, ucmd, SETANIM_BOTH, idleAnim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD, 0);
 
 			//don't idle again after this anim for a while
-			//ent->client->idleTime = level.time + PM_AnimLength( ent->client->clientInfo.animFileIndex, (animNumber_t)idleAnim ) + Q_irand( 0, 2000 );
+			//ent->client->idleTime = level.time + PM_AnimLength( ent->client->clientInfo.animFileIndex, (animNumber_e)idleAnim ) + Q_irand( 0, 2000 );
 			ent->client->idleTime = level.time + ent->client->ps.legsTimer + Q_irand( 0, 2000 );
 		}
 	}
@@ -1240,7 +1240,7 @@ void G_CheckMovingLoopingSounds( gentity_t *ent, usercmd_t *ucmd ) {
 	//CJKNOTE: if not moving then ent->s.loopSound = 0;
 }
 
-enum tauntTypes_t {
+enum tauntTypes_e {
 	TAUNT_TAUNT = 0,
 	TAUNT_BOW,
 	TAUNT_MEDITATE,
@@ -1489,7 +1489,7 @@ void G_SetTauntAnim( gentity_t *ent, int taunt )
 			{
 				ent->client->ps.forceHandExtend = HANDEXTEND_TAUNT;
 				ent->client->ps.forceDodgeAnim = anim;
-				ent->client->ps.forceHandExtendTime = level.time + BG_AnimLength(ent->localAnimIndex, (animNumber_t)anim);
+				ent->client->ps.forceHandExtendTime = level.time + BG_AnimLength(ent->localAnimIndex, (animNumber_e)anim);
 			}
 			if ( taunt != TAUNT_MEDITATE
 				&& taunt != TAUNT_BOW )

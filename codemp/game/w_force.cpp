@@ -147,7 +147,7 @@ const int mindTrickTime[NUM_FORCE_POWER_LEVELS] =
 
 void WP_InitForcePowers( gentity_t *ent ) {
 	int i, i_r;
-	forcePowers_t lastFPKnown = FP_INVALID;
+	forcePowers_e lastFPKnown = FP_INVALID;
 	bool warnClient = false, warnClientLimit = false, didEvent = false;
 	char userinfo[MAX_INFO_STRING], forcePowers[DEFAULT_FORCEPOWERS_LEN+1], readBuf[DEFAULT_FORCEPOWERS_LEN+1];
 
@@ -354,7 +354,7 @@ void WP_InitForcePowers( gentity_t *ent ) {
 		if ( (ent->client->ps.fd.forcePowersKnown & (1 << i)) && !ent->client->ps.fd.forcePowerLevel[i] )
 			ent->client->ps.fd.forcePowersKnown &= ~(1 << i);
 		else if ( i != FP_LEVITATION && i != FP_SABER_OFFENSE && i != FP_SABER_DEFENSE && i != FP_SABERTHROW )
-			lastFPKnown = (forcePowers_t)i;
+			lastFPKnown = (forcePowers_e)i;
 	}
 
 	if ( ent->client->ps.fd.forcePowersKnown & ent->client->sess.selectedFP )
@@ -384,7 +384,7 @@ void WP_SpawnInitForcePowers( gentity_t *ent )
 	{
 		if (ent->client->ps.fd.forcePowersActive & (1 << i))
 		{
-			WP_ForcePowerStop(ent, (forcePowers_t)i);
+			WP_ForcePowerStop(ent, (forcePowers_e)i);
 		}
 
 		i++;
@@ -469,7 +469,7 @@ void WP_SpawnInitForcePowers( gentity_t *ent )
 	}
 }
 
-int ForcePowerUsableOn(gentity_t *attacker, gentity_t *other, forcePowers_t forcePower)
+int ForcePowerUsableOn(gentity_t *attacker, gentity_t *other, forcePowers_e forcePower)
 {
 	if (other && other->client && BG_HasYsalamiri(level.gametype, &other->client->ps))
 	{
@@ -527,7 +527,7 @@ int ForcePowerUsableOn(gentity_t *attacker, gentity_t *other, forcePowers_t forc
 	return 1;
 }
 
-bool WP_ForcePowerAvailable( gentity_t *self, forcePowers_t forcePower, int overrideAmt )
+bool WP_ForcePowerAvailable( gentity_t *self, forcePowers_e forcePower, int overrideAmt )
 {
 	int	drain = overrideAmt ? overrideAmt :
 				forcePowerNeeded[self->client->ps.fd.forcePowerLevel[forcePower]][forcePower];
@@ -556,7 +556,7 @@ bool WP_ForcePowerAvailable( gentity_t *self, forcePowers_t forcePower, int over
 	return true;
 }
 
-bool WP_ForcePowerInUse( gentity_t *self, forcePowers_t forcePower )
+bool WP_ForcePowerInUse( gentity_t *self, forcePowers_e forcePower )
 {
 	if ( (self->client->ps.fd.forcePowersActive & ( 1 << forcePower )) )
 	{//already using this power
@@ -566,7 +566,7 @@ bool WP_ForcePowerInUse( gentity_t *self, forcePowers_t forcePower )
 	return false;
 }
 
-bool WP_ForcePowerUsable( gentity_t *self, forcePowers_t forcePower )
+bool WP_ForcePowerUsable( gentity_t *self, forcePowers_e forcePower )
 {
 	if (BG_HasYsalamiri(level.gametype, &self->client->ps))
 	{
@@ -775,7 +775,7 @@ void WP_ForcePowerRegenerate( gentity_t *self, int overrideAmt )
 	}
 }
 
-void WP_ForcePowerStart( gentity_t *self, forcePowers_t forcePower, int overrideAmt )
+void WP_ForcePowerStart( gentity_t *self, forcePowers_e forcePower, int overrideAmt )
 { //activate the given force power
 	int	duration = 0;
 	bool hearable = false;
@@ -2414,7 +2414,7 @@ void GEntity_UseFunc( gentity_t *self, gentity_t *other, gentity_t *activator )
 }
 
 bool CanCounterThrow(gentity_t *self, gentity_t *thrower, bool pull) {
-	const forcePowers_t powerUse = pull ? FP_PULL : FP_PUSH;
+	const forcePowers_e powerUse = pull ? FP_PULL : FP_PUSH;
 
 	if (self->client->ps.forceHandExtend != HANDEXTEND_NONE)
 	{
@@ -2552,7 +2552,7 @@ void ForceThrow( gentity_t *self, bool pull )
 	vec3_t		pushDir;
 	vec3_t		thispush_org;
 	vec3_t		tfrom, tto, fwd, a;
-	const forcePowers_t powerUse = pull ? FP_PULL : FP_PUSH;
+	const forcePowers_e powerUse = pull ? FP_PULL : FP_PUSH;
 
 	visionArc = 0;
 
@@ -3241,7 +3241,7 @@ void ForceThrow( gentity_t *self, bool pull )
 	}
 }
 
-void WP_ForcePowerStop( gentity_t *self, forcePowers_t forcePower )
+void WP_ForcePowerStop( gentity_t *self, forcePowers_e forcePower )
 {
 	int wasActive = self->client->ps.fd.forcePowersActive;
 
@@ -3367,7 +3367,7 @@ void WP_ForcePowerStop( gentity_t *self, forcePowers_t forcePower )
 	}
 }
 
-void DoGripAction(gentity_t *self, forcePowers_t forcePower)
+void DoGripAction(gentity_t *self, forcePowers_e forcePower)
 {
 	gentity_t *gripEnt;
 	int gripLevel = 0;
@@ -3697,7 +3697,7 @@ static void WP_UpdateMindtrickEnts(gentity_t *self)
 
 #define FORCE_DEBOUNCE_TIME 50 // sv_fps 20 = 50msec frametime, basejka balance/timing
 
-static void WP_ForcePowerRun( gentity_t *self, forcePowers_t forcePower, usercmd_t *cmd )
+static void WP_ForcePowerRun( gentity_t *self, forcePowers_e forcePower, usercmd_t *cmd )
 {
 //	extern usercmd_t	ucmd;
 
@@ -3914,7 +3914,7 @@ static void WP_ForcePowerRun( gentity_t *self, forcePowers_t forcePower, usercmd
 	}
 }
 
-int WP_DoSpecificPower( gentity_t *self, usercmd_t *ucmd, forcePowers_t forcepower)
+int WP_DoSpecificPower( gentity_t *self, usercmd_t *ucmd, forcePowers_e forcepower)
 {
 	int powerSucceeded;
 
@@ -4315,7 +4315,7 @@ void HolocronUpdate(gentity_t *self)
 
 			if ((self->client->ps.fd.forcePowersActive & (1 << i)) && i != FP_LEVITATION && i != FP_SABER_OFFENSE)
 			{
-				WP_ForcePowerStop(self, (forcePowers_t)i);
+				WP_ForcePowerStop(self, (forcePowers_e)i);
 			}
 
 			if (i == FP_LEVITATION)
@@ -4416,7 +4416,7 @@ void JediMasterUpdate(gentity_t *self)
 
 			if ((self->client->ps.fd.forcePowersActive & (1 << i)) && i != FP_LEVITATION)
 			{
-				WP_ForcePowerStop(self, (forcePowers_t)i);
+				WP_ForcePowerStop(self, (forcePowers_e)i);
 			}
 
 			if (i == FP_LEVITATION)
@@ -4700,7 +4700,7 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 		{
 			if ((self->client->ps.fd.forcePowersActive & (1 << i)) && i != FP_LEVITATION)
 			{
-				WP_ForcePowerStop(self, (forcePowers_t)i);
+				WP_ForcePowerStop(self, (forcePowers_e)i);
 			}
 
 			i++;
@@ -4727,9 +4727,9 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 		while (i < NUM_FORCE_POWERS)
 		{
 			if ((self->client->ps.fd.forcePowersActive & (1 << i)) && i != FP_LEVITATION &&
-				!BG_CanUseFPNow(level.gametype, &self->client->ps, level.time, (forcePowers_t)i))
+				!BG_CanUseFPNow(level.gametype, &self->client->ps, level.time, (forcePowers_e)i))
 			{
-				WP_ForcePowerStop(self, (forcePowers_t)i);
+				WP_ForcePowerStop(self, (forcePowers_e)i);
 			}
 
 			i++;
@@ -4772,7 +4772,7 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 			{
 				if (self->client->ps.fd.forcePowersActive & (1 << i))
 				{
-					WP_ForcePowerStop(self, (forcePowers_t)i);
+					WP_ForcePowerStop(self, (forcePowers_e)i);
 				}
 				self->client->ps.fd.forcePowersKnown &= ~(1 << i);
 			}
@@ -4839,7 +4839,7 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 		{
 			if ( self->client->ps.fd.forcePowerDuration[i] || (self->client->ps.fd.forcePowersActive&( 1 << i )) )
 			{
-				WP_ForcePowerStop( self, (forcePowers_t)i );
+				WP_ForcePowerStop( self, (forcePowers_e)i );
 				self->client->ps.fd.forcePowerDuration[i] = 0;
 			}
 		}
@@ -4946,14 +4946,14 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 			{
 				if ( (self->client->ps.fd.forcePowersActive&( 1 << i )) )
 				{//turn it off
-					WP_ForcePowerStop( self, (forcePowers_t)i );
+					WP_ForcePowerStop( self, (forcePowers_e)i );
 				}
 				self->client->ps.fd.forcePowerDuration[i] = 0;
 			}
 		}
 		if ( (self->client->ps.fd.forcePowersActive&( 1 << i )) )
 		{
-			WP_ForcePowerRun( self, (forcePowers_t)i, ucmd );
+			WP_ForcePowerRun( self, (forcePowers_e)i, ucmd );
 		}
 	}
 

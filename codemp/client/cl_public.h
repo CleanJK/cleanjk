@@ -219,7 +219,7 @@ struct serverInfo_t {
 };
 
 struct clientStatic_t {
-	connstate_t	state;				// connection status
+	connstate_e	state;				// connection status
 
 	char		servername[MAX_OSPATH];		// name of server from original connect (used by reconnect)
 
