@@ -26,10 +26,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // DEFINE
 // ======================================================================
 
-#ifndef FINAL_BUILD
-	#define DEBUG_SABER_BOX
-#endif
-
 #ifdef XCVAR_PROTO
 	#define XCVAR_DEF( name, defVal, update, flags, announce ) extern vmCvar_t name;
 #endif
