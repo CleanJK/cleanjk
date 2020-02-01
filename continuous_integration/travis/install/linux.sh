@@ -7,11 +7,12 @@ set -x
 ARCH="$1"
 COMPILER="$2"
 CPU_ARCH="$3"
+CMAKE_VERSION="$4"
 
 APT_GET_INSTALL='sudo -E apt-get -yq --no-install-suggests --no-install-recommends install'
 
 if [ "${CPU_ARCH}" = "amd64" ]; then
-	sudo mkdir -p cmake-3.16.3 && sudo wget -qO- "https://cmake.org/files/v3.16/cmake-3.16.3-Linux-x86_64.tar.gz"  | sudo tar --strip-components=1 -xz -C cmake-3.16.3 ;
+	sudo mkdir -p ${CMAKE_VERSION} && sudo wget -qO- "https://cmake.org/files/v3.16/${CMAKE_VERSION}-Linux-x86_64.tar.gz"  | sudo tar --strip-components=1 -xz -C ${CMAKE_VERSION} ;
 fi
 
 case "${COMPILER}" in
