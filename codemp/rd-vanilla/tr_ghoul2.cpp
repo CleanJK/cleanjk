@@ -2369,7 +2369,7 @@ void RenderSurfaces(CRenderSurface &RS) //also ended up just ripping right from 
 				newSurf->surfaceData = surface;
 			}
 			newSurf->boneCache = RS.boneCache;
-			R_AddDrawSurf( (surfaceType_t *)newSurf, tr.shadowShader, 0, false );
+			R_AddDrawSurf( (surfaceType_e *)newSurf, tr.shadowShader, 0, false );
 		}
 
 		// projection shadows work fine with personal models
@@ -2381,7 +2381,7 @@ void RenderSurfaces(CRenderSurface &RS) //also ended up just ripping right from 
 			CRenderableSurface *newSurf = new CRenderableSurface;
 			newSurf->surfaceData = surface;
 			newSurf->boneCache = RS.boneCache;
-			R_AddDrawSurf( (surfaceType_t *)newSurf, tr.projectionShadowShader, 0, false );
+			R_AddDrawSurf( (surfaceType_e *)newSurf, tr.projectionShadowShader, 0, false );
 		}
 
 		// don't add third_person objects if not viewing through a portal
@@ -2390,7 +2390,7 @@ void RenderSurfaces(CRenderSurface &RS) //also ended up just ripping right from 
 			CRenderableSurface *newSurf = new CRenderableSurface;
 			newSurf->surfaceData = surface;
 			newSurf->boneCache = RS.boneCache;
-			R_AddDrawSurf( (surfaceType_t *)newSurf, (shader_t *)shader, RS.fogNum, false );
+			R_AddDrawSurf( (surfaceType_e *)newSurf, (shader_t *)shader, RS.fogNum, false );
 
 #ifdef _G2_GORE
 			if (RS.gore_set && drawGore)
@@ -2470,7 +2470,7 @@ void RenderSurfaces(CRenderSurface &RS) //also ended up just ripping right from 
 
 						last->goreChain=newSurf2;
 						last=newSurf2;
-						R_AddDrawSurf( (surfaceType_t *)newSurf2,gshader, RS.fogNum, false );
+						R_AddDrawSurf( (surfaceType_e *)newSurf2,gshader, RS.fogNum, false );
 					}
 				}
 			}

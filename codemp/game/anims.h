@@ -25,7 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // playerAnimations
 
-enum animNumber_t {
+enum animNumber_e {
 	//HEAD ANIMS
 	//# #sep Head-only anims
 	FACE_TALK0,			//# silent

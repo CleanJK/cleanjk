@@ -96,7 +96,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define	MAX_RENDER_STRINGS			8
 #define	MAX_RENDER_STRING_LENGTH	32
 
-enum refEntityType_t {
+enum refEntityType_e {
 	RT_MODEL,
 	RT_POLY,
 	RT_SPRITE,
@@ -113,7 +113,7 @@ enum refEntityType_t {
 	RT_MAX_REF_ENTITY_TYPE
 };
 
-enum modtype_t {
+enum modtype_e {
 	MOD_BAD,
 	MOD_BRUSH,
 	MOD_MESH,
@@ -121,7 +121,7 @@ enum modtype_t {
 	MOD_MDXA
 };
 
-enum stereoFrame_t : int32_t {
+enum stereoFrame_e : int32_t {
 	STEREO_CENTER,
 	STEREO_LEFT,
 	STEREO_RIGHT
@@ -129,7 +129,7 @@ enum stereoFrame_t : int32_t {
 
 // Contains variables specific to the OpenGL configuration being run right now.
 // These are constant once the OpenGL subsystem is initialized.
-enum textureCompression_t { // r_ext_preferred_tc_method
+enum textureCompression_e { // r_ext_preferred_tc_method
 	TC_NONE,
 	TC_S3TC,
 	TC_S3TC_DXT
@@ -148,7 +148,7 @@ struct poly_t {
 };
 
 struct miniRefEntity_t {
-	refEntityType_t		reType;
+	refEntityType_e		reType;
 	int					renderfx;
 
 	qhandle_t			hModel;				// opaque type outside refresh
@@ -181,7 +181,7 @@ struct miniRefEntity_t {
 struct refEntity_t {
 	// this stucture must remain identical as the miniRefEntity_t
 
-	refEntityType_t		reType;
+	refEntityType_e		reType;
 	int					renderfx;
 
 	qhandle_t			hModel;				// opaque type outside refresh
@@ -323,7 +323,7 @@ struct md3Header_t {
 
 struct model_t {
 	char		name[MAX_QPATH];
-	modtype_t	type;
+	modtype_e	type;
 	int			index;				// model = tr.models[model->index]
 
 	int			dataSize;			// just for listing purposes
@@ -368,7 +368,7 @@ struct glconfig_t {
 	int						colorBits, depthBits, stencilBits;
 
 	bool				deviceSupportsGamma;
-	textureCompression_t	textureCompression;
+	textureCompression_e	textureCompression;
 	bool				textureEnvAddAvailable;
 	bool				clampToEdgeAvailable;
 

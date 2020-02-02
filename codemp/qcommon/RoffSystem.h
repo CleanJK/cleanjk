@@ -153,7 +153,7 @@ private:
 	void	ProcessNote(SROFFEntity *roff_ent, char *note);
 
 	void	SetLerp( trajectory_t *tr,
-					trType_t, vec3_t origin,
+					trType_e, vec3_t origin,
 					vec3_t delta, int time, int rate );
 
 	bool	ClearLerp( SROFFEntity *roff_ent );				// Clears out the angular and position lerp fields

@@ -1676,7 +1676,7 @@ bool BG_HasYsalamiri(int gametype, playerState_t *ps)
 	return false;
 }
 
-bool BG_CanUseFPNow(int gametype, playerState_t *ps, int time, forcePowers_t power)
+bool BG_CanUseFPNow(int gametype, playerState_t *ps, int time, forcePowers_e power)
 {
 	if (BG_HasYsalamiri(gametype, ps))
 	{
@@ -1737,7 +1737,7 @@ bool BG_CanUseFPNow(int gametype, playerState_t *ps, int time, forcePowers_t pow
 	return true;
 }
 
-gitem_t	*BG_FindItemForPowerup( powerup_t pw ) {
+gitem_t	*BG_FindItemForPowerup( powerup_e pw ) {
 	int		i;
 
 	for ( i = 0 ; i < bg_numItems ; i++ ) {
@@ -1751,7 +1751,7 @@ gitem_t	*BG_FindItemForPowerup( powerup_t pw ) {
 	return nullptr;
 }
 
-gitem_t	*BG_FindItemForHoldable( holdable_t pw ) {
+gitem_t	*BG_FindItemForHoldable( holdable_e pw ) {
 	int		i;
 
 	for ( i = 0 ; i < bg_numItems ; i++ ) {
@@ -1765,7 +1765,7 @@ gitem_t	*BG_FindItemForHoldable( holdable_t pw ) {
 	return nullptr;
 }
 
-gitem_t	*BG_FindItemForWeapon( weapon_t weapon ) {
+gitem_t	*BG_FindItemForWeapon( weapon_e weapon ) {
 	gitem_t	*it;
 
 	for ( it = bg_itemlist + 1 ; it->classname ; it++) {
@@ -1778,7 +1778,7 @@ gitem_t	*BG_FindItemForWeapon( weapon_t weapon ) {
 	return nullptr;
 }
 
-gitem_t	*BG_FindItemForAmmo( ammo_t ammo ) {
+gitem_t	*BG_FindItemForAmmo( ammo_e ammo ) {
 	gitem_t	*it;
 
 	for ( it = bg_itemlist + 1 ; it->classname ; it++) {
@@ -1874,7 +1874,7 @@ void BG_CycleForce( playerState_t *ps, int direction ) {
 
 	// if we found one, select it
 	if ( foundnext != -1 )
-		ps->fd.forcePowerSelected = (forcePowers_t)foundnext;
+		ps->fd.forcePowerSelected = (forcePowers_e)foundnext;
 }
 
 int BG_GetItemIndexByTag(int tag, int type)

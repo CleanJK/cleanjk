@@ -180,7 +180,7 @@ static void CG_DrawClientScore( int y, score_t *score, float *color, float fade,
 	}
 }
 
-static int CG_TeamScoreboard( int y, team_t team, float fade, int maxClients, int lineHeight, bool countOnly )
+static int CG_TeamScoreboard( int y, team_e team, float fade, int maxClients, int lineHeight, bool countOnly )
 {
 	int		i;
 	score_t	*score;
@@ -211,7 +211,7 @@ static int CG_TeamScoreboard( int y, team_t team, float fade, int maxClients, in
 	return count;
 }
 
-int CG_GetTeamNonScoreCount(team_t team)
+int CG_GetTeamNonScoreCount(team_e team)
 {
 	int i = 0,count=0;
 	clientInfo_t	*ci;
@@ -231,7 +231,7 @@ int CG_GetTeamNonScoreCount(team_t team)
  	return count;
 }
 
-int CG_GetTeamCount(team_t team, int maxClients)
+int CG_GetTeamCount(team_e team, int maxClients)
 {
 	int i = 0;
 	int count = 0;

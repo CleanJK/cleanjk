@@ -70,7 +70,7 @@ void Hunk_FreeTempMemory( void *buf ) {
 	ri.Hunk_FreeTempMemory( buf );
 }
 
-void *Hunk_Alloc( int size, ha_pref preference ) {
+void *Hunk_Alloc( int size, ha_pref_e preference ) {
 	return ri.Hunk_Alloc( size, preference );
 }
 

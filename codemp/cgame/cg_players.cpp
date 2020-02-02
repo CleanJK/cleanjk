@@ -1429,12 +1429,12 @@ void CG_NewClientInfo( int clientNum, bool entitiesInitialized ) {
 	v = Info_ValueForKey( configstring, "c1" );
 	CG_ColorFromString( v, newInfo.color1 );
 
-	newInfo.icolor1 = (saber_colors_t)atoi(v);
+	newInfo.icolor1 = (saber_colors_e)atoi(v);
 
 	v = Info_ValueForKey( configstring, "c2" );
 	CG_ColorFromString( v, newInfo.color2 );
 
-	newInfo.icolor2 = (saber_colors_t)atoi(v);
+	newInfo.icolor2 = (saber_colors_e)atoi(v);
 
 	// bot skill
 	v = Info_ValueForKey( configstring, "skill" );
@@ -1454,7 +1454,7 @@ void CG_NewClientInfo( int clientNum, bool entitiesInitialized ) {
 
 	// team
 	v = Info_ValueForKey( configstring, "t" );
-	newInfo.team = (team_t)atoi( v );
+	newInfo.team = (team_e)atoi( v );
 
 //copy team info out to menu
 	if ( clientNum == cg.clientNum)	//this is me
@@ -1788,11 +1788,11 @@ void CG_LoadDeferredPlayers( void ) {
 static void _PlayerFootStep( const vec3_t origin,
 								const float orientation,
 								const float radius,
-								centity_t *const cent, footstepType_t footStepType )
+								centity_t *const cent, footstepType_e footStepType )
 {
 	vec3_t		end, mins = {-7, -7, 0}, maxs = {7, 7, 2};
 	trace_t		trace;
-	footstep_t	soundType = FOOTSTEP_TOTAL;
+	footstep_e	soundType = FOOTSTEP_TOTAL;
 	bool	bMark = false;
 	qhandle_t footMarkShader;
 	int			effectID = -1;
@@ -1979,7 +1979,7 @@ static void _PlayerFootStep( const vec3_t origin,
 	}
 }
 
-static void CG_PlayerFootsteps( centity_t *cent, footstepType_t footStepType )
+static void CG_PlayerFootsteps( centity_t *cent, footstepType_e footStepType )
 {
 	if ( !cg_footsteps.integer )
 	{
@@ -2018,7 +2018,7 @@ static void CG_PlayerFootsteps( centity_t *cent, footstepType_t footStepType )
 
 void CG_PlayerAnimEventDo( centity_t *cent, animevent_t *animEvent )
 {
-	soundChannel_t channel = CHAN_AUTO;
+	soundChannel_e channel = CHAN_AUTO;
 	clientInfo_t *client = nullptr;
 	qhandle_t swingSound = 0;
 	qhandle_t spinSound = 0;
@@ -2031,7 +2031,7 @@ void CG_PlayerAnimEventDo( centity_t *cent, animevent_t *animEvent )
 	switch ( animEvent->eventType )
 	{
 	case AEV_SOUNDCHAN:
-		channel = (soundChannel_t)animEvent->eventData[AED_SOUNDCHANNEL];
+		channel = (soundChannel_e)animEvent->eventData[AED_SOUNDCHANNEL];
 	case AEV_SOUND:
 		{	// are there variations on the sound?
 			const int holdSnd = animEvent->eventData[ AED_SOUNDINDEX_START+Q_irand( 0, animEvent->eventData[AED_SOUND_NUMRANDOMSNDS] ) ];
@@ -2105,7 +2105,7 @@ void CG_PlayerAnimEventDo( centity_t *cent, animevent_t *animEvent )
 		}
 		break;
 	case AEV_FOOTSTEP:
-		CG_PlayerFootsteps( cent, (footstepType_t)animEvent->eventData[AED_FOOTSTEP_TYPE] );
+		CG_PlayerFootsteps( cent, (footstepType_e)animEvent->eventData[AED_FOOTSTEP_TYPE] );
 		break;
 	case AEV_EFFECT:
 		if (animEvent->stringData && animEvent->stringData[0] && cent && cent->ghoul2)
@@ -4390,7 +4390,7 @@ int CG_LightVerts( vec3_t normal, int numVerts, polyVert_t *verts )
 	return true;
 }
 
-static void CG_RGBForSaberColor( saber_colors_t color, vec3_t rgb )
+static void CG_RGBForSaberColor( saber_colors_e color, vec3_t rgb )
 {
 	switch( color )
 	{
@@ -4498,7 +4498,7 @@ static void CG_DoSaberLight( saberInfo_t *saber )
 	}
 }
 
-void CG_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax, float radius, saber_colors_t color, int rfx, bool doLight )
+void CG_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax, float radius, saber_colors_e color, int rfx, bool doLight )
 {
 	vec3_t		mid;
 	qhandle_t	blade = 0, glow = 0;
@@ -5150,7 +5150,7 @@ void CG_AddSaberBlade( centity_t *cent, centity_t *scent, refEntity_t *saber, in
 	mdxaBone_t	boltMatrix;
 	vec3_t futureAngles;
 	effectTrailArgStruct_t fx;
-	saber_colors_t scolor = SABER_RED;
+	saber_colors_e scolor = SABER_RED;
 	int	useModelIndex = 0;
 
 	client = &cgs.clientinfo[cent->currentState.number];

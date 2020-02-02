@@ -61,7 +61,7 @@ bool Team_GetLocationMsg(gentity_t* ent, char* loc, int loclen);
 const char* OtherTeamName(int team);
 const char* TeamColorString(int team);
 const char* TeamName(int team);
-gentity_t* SelectCTFSpawnPoint(team_t team, int teamstate, vec3_t origin, vec3_t angles, bool isbot);
+gentity_t* SelectCTFSpawnPoint(team_e team, int teamstate, vec3_t origin, vec3_t angles, bool isbot);
 int OtherTeam(int team);
 int Pickup_Team(gentity_t* ent, gentity_t* other);
 locationData_t* Team_GetLocation(gentity_t* ent);

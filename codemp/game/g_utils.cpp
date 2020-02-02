@@ -158,7 +158,7 @@ int G_BSPIndex( const char *name )
 }
 
 // Broadcasts a command to only a specific team
-void G_TeamCommand( team_t team, char *cmd ) {
+void G_TeamCommand( team_e team, char *cmd ) {
 	int		i;
 
 	for ( i = 0 ; i < level.maxclients ; i++ ) {

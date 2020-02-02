@@ -26,7 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "game/g_local.h"
 
 //bypass most of the normal checks in SetTeam
-void SetTeamQuick( gentity_t *ent, team_t team, bool doBegin ) {
+void SetTeamQuick( gentity_t *ent, team_e team, bool doBegin ) {
 	char userinfo[MAX_INFO_STRING];
 
 	trap->GetUserinfo( ent->s.number, userinfo, sizeof( userinfo ) );

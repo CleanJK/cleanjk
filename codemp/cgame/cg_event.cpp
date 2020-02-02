@@ -35,7 +35,7 @@ extern int cg_saberFlashTime;
 extern vec3_t cg_saberFlashPos;
 extern char *showPowersName[];
 
-enum tauntTypes_t {
+enum tauntTypes_e {
 	TAUNT_TAUNT = 0,
 	TAUNT_BOW,
 	TAUNT_MEDITATE,
@@ -103,7 +103,7 @@ static void CG_Obituary( entityState_t *ent ) {
 	const char	*attackerInfo;
 	char		targetName[32];
 	char		attackerName[32];
-	gender_t	gender;
+	gender_e	gender;
 	clientInfo_t	*ci;
 
 	target = ent->otherEntityNum;
@@ -1200,7 +1200,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	case EV_FOOTSTEP:
 		DEBUGNAME("EV_FOOTSTEP");
 		if (cg_footsteps.integer) {
-			footstep_t	soundType;
+			footstep_e	soundType;
 			switch( es->eventParm )
 			{
 			case MATERIAL_MUD:
@@ -2997,12 +2997,12 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 	case EV_DEBRIS:
 		DEBUGNAME("EV_DEBRIS");
 		CG_Chunks(es->owner, es->origin, es->angles, es->origin2, es->angles2, es->speed,
-			es->eventParm, (chunkMaterial_t)es->trickedentindex, es->modelindex, es->apos.trBase[0]);
+			es->eventParm, (chunkMaterial_e)es->trickedentindex, es->modelindex, es->apos.trBase[0]);
 		break;
 
 	case EV_MISC_MODEL_EXP:
 		DEBUGNAME("EV_MISC_MODEL_EXP");
-		CG_MiscModelExplosion(es->origin2, es->angles2, es->time, (chunkMaterial_t)es->eventParm);
+		CG_MiscModelExplosion(es->origin2, es->angles2, es->time, (chunkMaterial_e)es->eventParm);
 		break;
 
 	case EV_PAIN:

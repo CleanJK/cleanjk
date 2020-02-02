@@ -705,7 +705,7 @@ void Hunk_Clear( void ) {
 }
 
 // Allocate permanent (until the hunk is cleared) memory
-void *Hunk_Alloc( int size, ha_pref preference ) {
+void *Hunk_Alloc( int size, ha_pref_e preference ) {
 	return Z_Malloc(size, hunk_tag, true);
 }
 

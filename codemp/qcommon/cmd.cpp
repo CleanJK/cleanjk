@@ -586,7 +586,7 @@ void	Cmd_RemoveCommand( const char *cmd_name ) {
 }
 
 // Only remove commands with no associated function
-void Cmd_VM_RemoveCommand( const char *cmd_name, vmSlots_t vmslot ) {
+void Cmd_VM_RemoveCommand( const char *cmd_name, vmSlots_e vmslot ) {
 	cmd_function_t *cmd = Cmd_FindCommand( cmd_name );
 
 	if( !cmd )

@@ -149,7 +149,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 
 // angle indexes
-enum axis_t {
+enum axis_e {
 	PITCH, // up / down
 	YAW, // left / right
 	ROLL, // fall over
@@ -157,7 +157,7 @@ enum axis_t {
 
 // plane types are used to speed some tests
 // 0-2 are axial planes
-enum planeType_t {
+enum planeType_e {
 	PLANE_X,
 	PLANE_Y,
 	PLANE_Z,

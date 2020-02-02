@@ -92,7 +92,7 @@ bool	G_SpawnBoolean( const char *key, const char *defaultString, bool *out ) {
 }
 
 // fields are needed for spawning from the entity string
-enum fieldtype_t {
+enum fieldtype_e {
 	F_INT,
 	F_FLOAT,
 	F_STRING,			// string on disk, pointer in memory
@@ -119,7 +119,7 @@ enum fieldtype_t {
 struct gfield_t {
 	const char	*name;
 	size_t		ofs;
-	fieldtype_t	type;
+	fieldtype_e	type;
 };
 
 constexpr gfield_t fields[] = {

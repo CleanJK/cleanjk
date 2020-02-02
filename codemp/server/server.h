@@ -34,13 +34,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define PERS_SCORE			0 // !!! MUST NOT CHANGE, SERVER AND GAME BOTH REFERENCE !!!
 #define SERVER_MAXBANS		1024
 
-enum serverState_t {
+enum serverState_e {
 	SS_DEAD, // no map loaded
 	SS_LOADING, // spawning level entities
 	SS_GAME // actively running
 };
 
-enum clientState_t {
+enum clientState_e {
 	CS_FREE, // can be reused for a new connection
 	CS_ZOMBIE, // client has been disconnected, but don't reuse connection for a couple seconds
 	CS_CONNECTED, // has been assigned to a client_t, but no gamestate yet
@@ -60,7 +60,7 @@ struct svEntity_t {
 };
 
 struct server_t {
-	serverState_t   state;
+	serverState_e   state;
 	bool            restarting; // if true, send configstring changes during SS_LOADING
 	int             serverId; // changes each server start
 	int             restartedServerId; // serverId before a map_restart
@@ -112,7 +112,7 @@ struct demoInfo_t {
 };
 
 struct client_t {
-	clientState_t     state;
+	clientState_e     state;
 	char              userinfo[MAX_INFO_STRING]; // name, etc
 	bool              sentGamedir; // see if he has been sent an svc_setgame
 	char              reliableCommands[MAX_RELIABLE_COMMANDS][MAX_STRING_CHARS];
@@ -185,7 +185,7 @@ struct serverBan_t {
 };
 
 struct leakyBucket_t {
-	netadrtype_t   type;
+	netadrtype_e   type;
 	union {
 		byte _4[4];
 	} ipv;

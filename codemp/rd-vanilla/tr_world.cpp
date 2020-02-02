@@ -97,7 +97,7 @@ static bool	R_CullGrid( srfGridMesh_t *cv ) {
 
 // Tries to back face cull surfaces before they are lighted or added to the sorting list.
 // This will also allow mirrors on both sides of a model without recursion.
-static bool	R_CullSurface( surfaceType_t *surface, shader_t *shader ) {
+static bool	R_CullSurface( surfaceType_e *surface, shader_t *shader ) {
 	srfSurfaceFace_t *sface;
 	float			d;
 

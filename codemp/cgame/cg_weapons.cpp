@@ -359,12 +359,12 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 	refEntity_t	gun;
 	refEntity_t	barrel;
 	vec3_t		angles;
-	weapon_t	weaponNum;
+	weapon_e	weaponNum;
 	weaponInfo_t	*weapon;
 	centity_t	*nonPredictedCent;
 	refEntity_t	flash;
 
-	weaponNum = (weapon_t)cent->currentState.weapon;
+	weaponNum = (weapon_e)cent->currentState.weapon;
 
 	if (cent->currentState.weapon == WP_EMPLACED_GUN)
 	{
@@ -1751,7 +1751,7 @@ void CG_FireWeapon( centity_t *cent, bool altFire ) {
 }
 
 // Caused by an EV_MISSILE_MISS event, or directly by local bullet tracing
-void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, impactSound_t soundType, bool altFire, int charge)
+void CG_MissileHitWall(int weapon, int clientNum, vec3_t origin, vec3_t dir, impactSound_e soundType, bool altFire, int charge)
 {
 	int parm;
 	vec3_t up={0,0,1};

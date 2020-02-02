@@ -35,7 +35,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 void			CGVM_Init					( int serverMessageNum, int serverCommandSequence, int clientNum );
 void			CGVM_Shutdown				( void );
 bool		CGVM_ConsoleCommand			( void );
-void			CGVM_DrawActiveFrame		( int serverTime, stereoFrame_t stereoView, bool demoPlayback );
+void			CGVM_DrawActiveFrame		( int serverTime, stereoFrame_e stereoView, bool demoPlayback );
 int				CGVM_CrosshairPlayer		( void );
 int				CGVM_LastAttacker			( void );
 void			CGVM_KeyEvent				( int key, bool down );

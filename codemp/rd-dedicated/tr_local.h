@@ -85,7 +85,7 @@ typedef byte color4ub_t[4];
 
 
 
-enum glState_t : uint32_t {
+enum glState_e : uint32_t {
 	GLS_SRCBLEND_ZERO =                0x00000001,
 	GLS_SRCBLEND_ONE =                 0x00000002,
 	GLS_SRCBLEND_DST_COLOR =           0x00000003,
@@ -116,19 +116,19 @@ enum glState_t : uint32_t {
 	GLS_ATEST_BITS =                   0xF0000000,
 };
 
-enum cullStatus_t {
+enum cullStatus_e {
 	CULL_IN,   // completely unclipped
 	CULL_CLIP, // clipped by one or more planes
 	CULL_OUT,  // completely outside the clipping planes
 };
 
-enum surfaceSide_t {
+enum surfaceSide_e {
 	SIDE_FRONT,
 	SIDE_BACK,
 	SIDE_ON,
 };
 
-enum ssType_t {
+enum ssType_e {
 	SURFSPRITE_NONE,
 	SURFSPRITE_VERTICAL,
 	SURFSPRITE_ORIENTED,
@@ -137,19 +137,19 @@ enum ssType_t {
 	SURFSPRITE_FLATTENED,
 };
 
-enum ssFacing_t {
+enum ssFacing_e {
 	SURFSPRITE_FACING_NORMAL,
 	SURFSPRITE_FACING_UP,
 	SURFSPRITE_FACING_DOWN,
 	SURFSPRITE_FACING_ANY,
 };
 
-enum eDLightTypes {
+enum eDLightTypes_e {
 	DLIGHT_VERTICAL	= 0,
 	DLIGHT_PROJECTED
 };
 
-enum shaderSort_t {
+enum shaderSort_e {
 	SS_BAD,
 	SS_PORTAL, // mirrors, portals, viewscreens
 	SS_ENVIRONMENT, // sky box
@@ -174,7 +174,7 @@ enum shaderSort_t {
 	SS_NEAREST // blood blobs
 };
 
-enum genFunc_t {
+enum genFunc_e {
 	GF_NONE,
 	GF_SIN,
 	GF_SQUARE,
@@ -185,7 +185,7 @@ enum genFunc_t {
 	GF_RAND
 };
 
-enum deform_t {
+enum deform_e {
 	DEFORM_NONE,
 	DEFORM_WAVE,
 	DEFORM_NORMALS,
@@ -204,7 +204,7 @@ enum deform_t {
 	DEFORM_TEXT7
 };
 
-enum alphaGen_t {
+enum alphaGen_e {
 	AGEN_IDENTITY,
 	AGEN_SKIP,
 	AGEN_ENTITY,
@@ -220,7 +220,7 @@ enum alphaGen_t {
 	AGEN_ONE_MINUS_DOT
 };
 
-enum colorGen_t {
+enum colorGen_e {
 	CGEN_BAD,
 	CGEN_IDENTITY_LIGHTING, // tr.identityLight
 	CGEN_IDENTITY, // always (1,1,1,1)
@@ -237,7 +237,7 @@ enum colorGen_t {
 	CGEN_LIGHTMAPSTYLE,
 };
 
-enum texCoordGen_t {
+enum texCoordGen_e {
 	TCGEN_BAD,
 	TCGEN_IDENTITY, // clear to 0,0
 	TCGEN_LIGHTMAP,
@@ -250,21 +250,21 @@ enum texCoordGen_t {
 	TCGEN_VECTOR // S and T from world coordinates
 };
 
-enum acff_t {
+enum acff_e {
 	ACFF_NONE,
 	ACFF_MODULATE_RGB,
 	ACFF_MODULATE_RGBA,
 	ACFF_MODULATE_ALPHA
 };
 
-enum EGLFogOverride {
+enum EGLFogOverride_e {
 	GLFOGOVERRIDE_NONE = 0,
 	GLFOGOVERRIDE_BLACK,
 	GLFOGOVERRIDE_WHITE,
 	GLFOGOVERRIDE_MAX
 };
 
-enum texMod_t {
+enum texMod_e {
 	TMOD_NONE,
 	TMOD_TRANSFORM,
 	TMOD_TURBULENT,
@@ -275,13 +275,13 @@ enum texMod_t {
 	TMOD_ENTITY_TRANSLATE
 };
 
-enum cullType_t {
+enum cullType_e {
 	CT_FRONT_SIDED,
 	CT_BACK_SIDED,
 	CT_TWO_SIDED
 };
 
-enum fogPass_t {
+enum fogPass_e {
 	FP_NONE,  // surface is translucent and will just be adjusted properly
 	FP_EQUAL, // surface is opaque but possibly alpha tested
 	FP_LE,    // surface is trnaslucent, but still needs a fog pass (fog surface)
@@ -289,7 +289,7 @@ enum fogPass_t {
 };
 
 // any changes in surfaceType must be mirrored in rb_surfaceTable[]
-enum surfaceType_t {
+enum surfaceType_e {
 	SF_BAD,
 	SF_SKIP, // ignore
 	SF_FACE,
@@ -302,11 +302,11 @@ enum surfaceType_t {
 	SF_ENTITY, // beams, rails, lightning, etc that can be determined by entity
 	SF_DISPLAY_LIST,
 	SF_NUM_SURFACE_TYPES,
-	SF_MAX = 0xffffffff // ensures that sizeof( surfaceType_t ) == sizeof( int )
+	SF_MAX = 0xffffffff // ensures that sizeof( surfaceType_e ) == sizeof( int )
 };
 
-enum renderCommand_t {
-	RC_END_OF_LIST=0,
+enum renderCommand_e {
+	RC_END_OF_LIST = 0,
 	RC_SET_COLOR,
 	RC_STRETCH_PIC,
 	RC_ROTATE_PIC,
@@ -379,7 +379,7 @@ public:
 
 
 struct dlight_t {
-	eDLightTypes mType;
+	eDLightTypes_e mType;
 	vec3_t       origin;
 	vec3_t       mProjOrigin; // projected light's origin
 	vec3_t       color; // range from 0.0 to 1.0, should be color normalized
@@ -434,7 +434,7 @@ struct image_t {
 };
 
 struct waveForm_t {
-	genFunc_t func;
+	genFunc_e func;
 	float     base;
 	float     amplitude;
 	float     phase;
@@ -442,7 +442,7 @@ struct waveForm_t {
 };
 
 struct deformStage_t {
-	deform_t   deformation; // vertex coordinate modification type
+	deform_e   deformation; // vertex coordinate modification type
 	vec3_t     moveVector;
 	waveForm_t deformationWave;
 	float      deformationSpread;
@@ -452,7 +452,7 @@ struct deformStage_t {
 };
 
 struct texModInfo_t {
-	texMod_t   type;
+	texMod_e   type;
 	// used for TMOD_TURBULENT and TMOD_STRETCH
 	waveForm_t wave;
 	// used for TMOD_TRANSFORM
@@ -470,7 +470,7 @@ struct surfaceSprite_t {
 
 struct textureBundle_t {
 	image_t       *image;
-	texCoordGen_t  tcGen;
+	texCoordGen_e  tcGen;
 	vec3_t        *tcGenVectors;
 	texModInfo_t  *texMods;
 	short          numTexMods;
@@ -490,13 +490,13 @@ struct shaderStage_t {
 	byte             lightmapStyle;
 	textureBundle_t  bundle[NUM_TEXTURE_BUNDLES];
 	waveForm_t       rgbWave;
-	colorGen_t       rgbGen;
+	colorGen_e       rgbGen;
 	waveForm_t       alphaWave;
-	alphaGen_t       alphaGen;
+	alphaGen_e       alphaGen;
 	byte             constantColor[4]; // for CGEN_CONST and AGEN_CONST
 	uint32_t         stateBits; // GLS_xxxx mask
-	acff_t           adjustColorsForFog;
-	EGLFogOverride   mGLFogColorOverride;
+	acff_e           adjustColorsForFog;
+	EGLFogOverride_e   mGLFogColorOverride;
 	surfaceSprite_t *ss;
 	bool             glow;
 };
@@ -527,12 +527,12 @@ struct shader_t {
 	fogParms_t    *fogParms;
 	float          portalRange; // distance to fog out at
 	int            multitextureEnv; // 0, GL_MODULATE, GL_ADD (FIXME: put in stage)
-	cullType_t     cullType; // CT_FRONT_SIDED, CT_BACK_SIDED, or CT_TWO_SIDED
+	cullType_e     cullType; // CT_FRONT_SIDED, CT_BACK_SIDED, or CT_TWO_SIDED
 	bool           polygonOffset; // set for decals and other items that must be offset
 	bool           noMipMaps; // for console fonts, 2D elements, etc.
 	bool           noPicMip; // for images that must always be full resolution
 	bool           noTC; // for images that don't want to be texture compressed (eg skies)
-	fogPass_t      fogPass; // draw a blended pass, possibly with depth test equals
+	fogPass_e      fogPass; // draw a blended pass, possibly with depth test equals
 	deformStage_t *deforms[MAX_SHADER_DEFORMS];
 	short          numDeforms;
 	short          numUnfoggedPasses;
@@ -554,7 +554,7 @@ struct hitMatReg_t {
 
 // when cgame directly specifies a polygon, it becomes a srfPoly_t as soon as it is called
 struct srfPoly_t {
-	surfaceType_t  surfaceType;
+	surfaceType_e  surfaceType;
 	qhandle_t      hShader;
 	int            fogIndex;
 	int            numVerts;
@@ -563,7 +563,7 @@ struct srfPoly_t {
 
 struct drawSurf_t {
 	unsigned       sort; // bit combination for fast compares
-	surfaceType_t *surface; // any of surface*_t
+	surfaceType_e *surface; // any of surface*_t
 };
 
 // trRefdef_t holds everything that comes in refdef_t, as well as the locally generated scene information
@@ -624,19 +624,19 @@ struct viewParms_t {
 };
 
 struct srfDisplayList_t {
-	surfaceType_t surfaceType;
+	surfaceType_e surfaceType;
 	int           listNum;
 };
 
 struct srfFlare_t {
-	surfaceType_t surfaceType;
+	surfaceType_e surfaceType;
 	vec3_t        origin;
 	vec3_t        normal;
 	vec3_t        color;
 };
 
 struct srfGridMesh_t {
-	surfaceType_t  surfaceType;
+	surfaceType_e  surfaceType;
 	int            dlightBits;
 	vec3_t         meshBounds[2];
 	vec3_t         localOrigin;
@@ -653,7 +653,7 @@ struct srfGridMesh_t {
 };
 
 struct srfSurfaceFace_t {
-	surfaceType_t surfaceType;
+	surfaceType_e surfaceType;
 	cplane_t      plane;
 	int           dlightBits;
 	int           numPoints;
@@ -664,7 +664,7 @@ struct srfSurfaceFace_t {
 
 // misc_models in maps are turned into direct geometry by q3map
 struct srfTriangles_t {
-	surfaceType_t  surfaceType;
+	surfaceType_e  surfaceType;
 	int            dlightBits;
 	vec3_t         bounds[2];
 	int            numIndexes;
@@ -677,7 +677,7 @@ struct msurface_t {
 	int            viewCount; // if == tr.viewCount, already added
 	shader_t      *shader;
 	int            fogIndex;
-	surfaceType_t *data; // any of srf*_t
+	surfaceType_e *data; // any of srf*_t
 };
 
 struct mnode_t {
@@ -1026,7 +1026,7 @@ void           Multiply_3x4Matrix                  ( mdxaBone_t *out, mdxaBone_t
 float          ProjectRadius                       ( float r, vec3_t location );
 void           R_AddBeamSurfaces                   ( trRefEntity_t *e );
 void           R_AddBrushModelSurfaces             ( trRefEntity_t *e );
-void           R_AddDrawSurf                       ( surfaceType_t *surface, shader_t *shader, int fogIndex, int dlightMap );
+void           R_AddDrawSurf                       ( surfaceType_e *surface, shader_t *shader, int fogIndex, int dlightMap );
 void           R_AddDrawSurfCmd                    ( drawSurf_t *drawSurfs, int numDrawSurfs );
 void           R_AddGhoulSurfaces                  ( trRefEntity_t *ent );
 void           R_AddLightningBoltSurfaces          ( trRefEntity_t *e );
@@ -1152,8 +1152,8 @@ void           RE_AddLightToScene                  ( const vec3_t org, float int
 void           RE_AddMiniRefEntityToScene          ( const miniRefEntity_t *ent );
 void           RE_AddPolyToScene                   ( qhandle_t hShader , int numVerts, const polyVert_t *verts, int num );
 void           RE_AddRefEntityToScene              ( const refEntity_t *ent );
-void           RE_BeginFrame                       ( stereoFrame_t stereoFrame );
-void           RE_BeginFrame                       ( stereoFrame_t stereoFrame );
+void           RE_BeginFrame                       ( stereoFrame_e stereoFrame );
+void           RE_BeginFrame                       ( stereoFrame_e stereoFrame );
 void           RE_BeginRegistration                ( glconfig_t *glconfig );
 void           RE_ClearDecals                      ( void );
 void           RE_ClearScene                       ( void );

@@ -91,7 +91,7 @@ enum waypointFlag_e : uint32_t {
 	WPFLAG_NEVERONEWAY =      0x00800000, // never flag it as one-way
 };
 
-enum bot_ctf_state_t {
+enum bot_ctf_state_e {
 	CTFSTATE_NONE,
 	CTFSTATE_ATTACKER,
 	CTFSTATE_DEFENDER,
@@ -101,7 +101,7 @@ enum bot_ctf_state_t {
 	CTFSTATE_MAXCTFSTATES
 };
 
-enum bot_teamplay_state_t {
+enum bot_teamplay_state_e {
 	TEAMPLAYSTATE_NONE,
 	TEAMPLAYSTATE_FOLLOWING,
 	TEAMPLAYSTATE_ASSISTING,

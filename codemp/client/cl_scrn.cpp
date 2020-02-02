@@ -306,7 +306,7 @@ void SCR_Init( void ) {
 }
 
 // This will be called twice if rendering in stereo mode
-void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
+void SCR_DrawScreenField( stereoFrame_e stereoFrame ) {
 	re->BeginFrame( stereoFrame );
 
 	bool uiFullscreen = (bool)(cls.uiStarted && UIVM_IsFullscreen());

@@ -1051,7 +1051,7 @@ static void ComputeColors( shaderStage_t *pStage, int forceRGBGen )
 	int			i;
 	color4ub_t	*colors = tess.svars.colors;
 	bool killGen = false;
-	alphaGen_t forceAlphaGen = pStage->alphaGen;//set this up so we can override below
+	alphaGen_e forceAlphaGen = pStage->alphaGen;//set this up so we can override below
 
 	if ( tess.shader != tr.projectionShadowShader && tess.shader != tr.shadowShader &&
 			( backEnd.currentEntity->e.renderfx & (RF_DISINTEGRATE1|RF_DISINTEGRATE2)))

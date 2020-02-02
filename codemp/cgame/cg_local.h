@@ -92,7 +92,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 
 
-enum footstep_t {
+enum footstep_e {
 	FOOTSTEP_STONEWALK,
 	FOOTSTEP_STONERUN,
 	FOOTSTEP_METALWALK,
@@ -121,13 +121,13 @@ enum footstep_t {
 	FOOTSTEP_TOTAL
 };
 
-enum impactSound_t {
+enum impactSound_e {
 	IMPACTSOUND_DEFAULT,
 	IMPACTSOUND_METAL,
 	IMPACTSOUND_FLESH
 };
 
-enum leType_t {
+enum leType_e {
 	LE_MARK,
 	LE_EXPLOSION,
 	LE_SPRITE_EXPLOSION,
@@ -144,20 +144,20 @@ enum leType_t {
 	LE_LINE
 };
 
-enum leFlag_t : uint32_t {
+enum leFlag_e : uint32_t {
 	LEF_PUFF_DONT_SCALE =  0x0001, // do not scale size over time
 	LEF_TUMBLE =           0x0002, // tumble over time, used for ejecting shells
 	LEF_FADE_RGB =         0x0004, // explicitly fade
 	LEF_NO_RANDOM_ROTATE = 0x0008, // MakeExplosion adds random rotate which could be bad in some cases
 };
 
-enum leMarkType_t {
+enum leMarkType_e {
 	LEMT_NONE,
 	LEMT_BURN,
 	LEMT_BLOOD
 };
 
-enum leBounceSoundType_t {
+enum leBounceSoundType_e {
 	LEBS_NONE,
 	LEBS_BLOOD,
 	LEBS_BRASS,
@@ -165,7 +165,7 @@ enum leBounceSoundType_t {
 	LEBS_ROCK
 };
 
-enum chunkType_t {
+enum chunkType_e {
 	CHUNK_METAL1 = 0,
 	CHUNK_METAL2,
 	CHUNK_ROCK1,
@@ -220,14 +220,14 @@ struct clientInfo_t {
 	char           saber2Name[64];
 	char           name[MAX_QPATH];
 	char           cleanname[MAX_QPATH];
-	team_t         team;
+	team_e         team;
 	int            duelTeam;
 	int            botSkill;        // -1 = not bot, 0-5 = bot
 	int            frame;
 	vec3_t         color1;
 	vec3_t         color2;
-	saber_colors_t icolor1;
-	saber_colors_t icolor2;
+	saber_colors_e icolor1;
+	saber_colors_e icolor2;
 	int            score;           // updated by score servercmds
 	int            location;        // location index for team mode
 	int            health;          // you only get this info about your teammates
@@ -252,7 +252,7 @@ struct clientInfo_t {
 	bool           fixedlegs;       // true if legs yaw is always the same as torso yaw
 	bool           fixedtorso;      // true if torso never changes yaw
 	vec3_t         headOffset;      // move head in icon views
-	gender_t       gender;          // from model
+	gender_e       gender;          // from model
 	qhandle_t      legsModel;
 	qhandle_t      legsSkin;
 	qhandle_t      torsoModel;
@@ -372,7 +372,7 @@ struct markPoly_t {
 
 struct localEntity_t {
 	localEntity_t       *prev, *next;
-	leType_t             leType;
+	leType_e             leType;
 	int                  leFlags;
 	int                  startTime;
 	int                  endTime;
@@ -389,8 +389,8 @@ struct localEntity_t {
 	float                radius;
 	float                light;
 	vec3_t               lightColor;
-	leMarkType_t         leMarkType;   // mark to leave on fragment impact
-	leBounceSoundType_t  leBounceSoundType;
+	leMarkType_e         leMarkType;   // mark to leave on fragment impact
+	leBounceSoundType_e  leBounceSoundType;
 	refEntity_t          refEntity;
 
 	union {
@@ -773,7 +773,7 @@ struct cgs_t {
 	int               processedSnapshotNum;  // the number of snapshots cgame has requested
 	bool              localServer;           // detected on startup by checking sv_running
 	int               showDuelHealths;
-	gametype_t        gametype;
+	gametype_e        gametype;
 	int               debugMelee;
 	int               stepSlideFix;
 	int               noSpecMove;
@@ -896,7 +896,7 @@ void           CG_ChatBox_AddString             ( char *chatStr );
 void           CG_CheckChangedPredictableEvents ( playerState_t *ps );
 void           CG_CheckEvents                   ( centity_t *cent );
 void           CG_CheckPlayerG2Weapons          ( playerState_t *ps, centity_t *cent );
-void           CG_Chunks                        ( int owner, vec3_t origin, const vec3_t normal, const vec3_t mins, const vec3_t maxs, float speed, int numChunks, chunkMaterial_t chunkType, int customChunk, float baseScale );
+void           CG_Chunks                        ( int owner, vec3_t origin, const vec3_t normal, const vec3_t mins, const vec3_t maxs, float speed, int numChunks, chunkMaterial_e chunkType, int customChunk, float baseScale );
 void           CG_CleanJetpackGhoul2            ( void );
 void           CG_ClearLightStyles              ( void );
 void           CG_ColorForHealth                ( vec4_t hcolor );
@@ -911,8 +911,8 @@ bool           CG_DeferMenuScript               ( char **args );
 void           CG_Disintegration                ( centity_t *cent, refEntity_t *ent );
 void           CG_DoCameraShake                 ( vec3_t origin, float intensity, int radius, int time );
 void           CG_Draw3DModel                   ( float x, float y, float w, float h, qhandle_t model, void *ghoul2, int g2radius, qhandle_t skin, vec3_t origin, vec3_t angles );
-void           CG_DrawActive                    ( stereoFrame_t stereoView );
-void           CG_DrawActiveFrame               ( int serverTime, stereoFrame_t stereoView, bool demoPlayback );
+void           CG_DrawActive                    ( stereoFrame_e stereoView );
+void           CG_DrawActiveFrame               ( int serverTime, stereoFrame_e stereoView, bool demoPlayback );
 void           CG_DrawBigString                 ( int x, int y, const char *s, float alpha );
 void           CG_DrawBigStringColor            ( int x, int y, const char *s, vec4_t color );
 void           CG_DrawFlagModel                 ( float x, float y, float w, float h, int team, bool force2D );
@@ -977,9 +977,9 @@ void           CG_LoadingString                 ( const char *s );
 void           CG_LoadMenus                     ( const char *menuFile );
 localEntity_t *CG_MakeExplosion                 ( vec3_t origin, vec3_t dir, qhandle_t hModel, int numframes, qhandle_t shader, int msec, bool isSprite, float scale, int flags ); // Overloaded in single player
 void           CG_ManualEntityRender            ( centity_t *cent );
-void           CG_MiscModelExplosion            ( vec3_t mins, vec3_t maxs, int size, chunkMaterial_t chunkType );
+void           CG_MiscModelExplosion            ( vec3_t mins, vec3_t maxs, int size, chunkMaterial_e chunkType );
 void           CG_MissileHitPlayer              ( int weapon, vec3_t origin, vec3_t dir, int entityNum, bool alt_fire );
-void           CG_MissileHitWall                ( int weapon, int clientNum, vec3_t origin, vec3_t dir, impactSound_t soundType, bool alt_fire, int charge );
+void           CG_MissileHitWall                ( int weapon, int clientNum, vec3_t origin, vec3_t dir, impactSound_e soundType, bool alt_fire, int charge );
 void           CG_MouseEvent                    ( int x, int y );
 void           CG_NewClientInfo                 ( int clientNum, bool entitiesInitialized );
 void           CG_NextForcePower_f              ( void );

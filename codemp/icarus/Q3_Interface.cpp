@@ -89,7 +89,7 @@ void Q3_TaskIDClear( int *taskID )
 	*taskID = -1;
 }
 
-bool Q3_TaskIDPending( sharedEntity_t *ent, taskID_t taskType )
+bool Q3_TaskIDPending( sharedEntity_t *ent, taskID_e taskType )
 {
 	if ( !gSequencers[ent->s.number] || !gTaskManagers[ent->s.number] )
 	{
@@ -109,7 +109,7 @@ bool Q3_TaskIDPending( sharedEntity_t *ent, taskID_t taskType )
 	return false;
 }
 
-void Q3_TaskIDComplete( sharedEntity_t *ent, taskID_t taskType )
+void Q3_TaskIDComplete( sharedEntity_t *ent, taskID_e taskType )
 {
 	if ( taskType < TID_CHAN_VOICE || taskType >= NUM_TIDS )
 	{
@@ -136,7 +136,7 @@ void Q3_TaskIDComplete( sharedEntity_t *ent, taskID_t taskType )
 	//otherwise, wasn't waiting for a task to complete anyway
 }
 
-void Q3_TaskIDSet( sharedEntity_t *ent, taskID_t taskType, int taskID )
+void Q3_TaskIDSet( sharedEntity_t *ent, taskID_e taskType, int taskID )
 {
 	if ( taskType < TID_CHAN_VOICE || taskType >= NUM_TIDS )
 	{

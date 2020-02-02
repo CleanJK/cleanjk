@@ -74,7 +74,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #define MAX_FAILED_NODES 8
 
-enum bState_t {//These take over only if script allows them to be autonomous
+enum bState_e {//These take over only if script allows them to be autonomous
 	BS_DEFAULT = 0,//# default behavior for that NPC
 	BS_ADVANCE_FIGHT,//# Advance to captureGoal and shoot enemies if you can
 	BS_SLEEP,//# Play awake script when startled by sound
@@ -112,7 +112,7 @@ enum {
 	NODE_NAVGOAL,
 };
 
-enum taskID_t {
+enum taskID_e {
 	TID_CHAN_VOICE = 0,	// Waiting for a voice sound to complete
 	TID_ANIM_UPPER,		// Waiting to finish a lower anim holdtime
 	TID_ANIM_LOWER,		// Waiting to finish a lower anim holdtime
@@ -127,7 +127,7 @@ enum taskID_t {
 	NUM_TIDS,			// for def of taskID array
 };
 
-enum bSet_t {//This should check to matching a behavior state name first, then look for a script
+enum bSet_e {//This should check to matching a behavior state name first, then look for a script
 	BSET_INVALID = -1,
 	BSET_FIRST = 0,
 	BSET_SPAWN = 0,//# script to use when first spawned
@@ -373,7 +373,7 @@ struct gameImport_t {
 	// filesystem
 	void		(*FS_Close)								( fileHandle_t f );
 	int			(*FS_GetFileList)						( const char *path, const char *extension, char *listbuf, int bufsize );
-	int			(*FS_Open)								( const char *qpath, fileHandle_t *f, fsMode_t mode );
+	int			(*FS_Open)								( const char *qpath, fileHandle_t *f, fsMode_e mode );
 	int			(*FS_Read)								( void *buffer, int len, fileHandle_t f );
 	int			(*FS_Write)								( const void *buffer, int len, fileHandle_t f );
 

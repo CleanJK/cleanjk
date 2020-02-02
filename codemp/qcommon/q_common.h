@@ -127,14 +127,14 @@ typedef void (*completionFunc_t)( char *args, int argNum );
 
 
 // these are in loop specific order so don't change the order
-enum fsRefFlag_t : uint32_t {
+enum fsRefFlag_e : uint32_t {
 	FS_GENERAL_REF = 0x01,
 	FS_UI_REF =      0x02,
 	FS_CGAME_REF =   0x04,
 	FS_GAME_REF =    0x08,
 };
 
-enum netsrc_t {
+enum netsrc_e {
 	NS_CLIENT,
 	NS_SERVER
 };
@@ -165,7 +165,7 @@ enum clc_ops_e {
 	clc_EOF
 };
 
-enum vmSlots_t {
+enum vmSlots_e {
 	VM_GAME = 0,
 	VM_CGAME,
 	VM_UI,
@@ -186,7 +186,7 @@ struct msg_t {
 };
 
 struct netchan_t {
-	netsrc_t sock;
+	netsrc_e sock;
 	int      dropped; // between last packet and previous
 	netadr_t remoteAddress;
 	int      qport; // qport value to write when transmitting
@@ -205,7 +205,7 @@ struct netchan_t {
 };
 
 struct vm_t {
-	vmSlots_t  slot; // VM_GAME, VM_CGAME, VM_UI
+	vmSlots_e  slot; // VM_GAME, VM_CGAME, VM_UI
 	char       name[MAX_QPATH];
 	void      *dllHandle;
 	// fill the import/export tables
@@ -332,7 +332,7 @@ void            Cmd_RemoveCommandList         ( const cmdList_t *cmdList );
 void            Cmd_SetCommandCompletionFunc  ( const char *command, completionFunc_t complete );
 void            Cmd_TokenizeString            ( const char *text );
 void            Cmd_TokenizeStringIgnoreQuotes( const char *text_in );
-void            Cmd_VM_RemoveCommand          ( const char *cmd_name, vmSlots_t vmslot );
+void            Cmd_VM_RemoveCommand          ( const char *cmd_name, vmSlots_e vmslot );
 void            Com_BeginRedirect             ( char *buffer, int buffersize, void (*flush)( char * ) );
 uint32_t        Com_BlockChecksum             ( const void *buffer, int length );
 void QDECL      Com_DPrintf                   ( const char *fmt, ... );
@@ -380,7 +380,7 @@ bool            FS_FilenameCompare            ( const char *s1, const char *s2 )
 void            FS_FilenameCompletion         ( const char *dir, const char *ext, bool stripExt, completionCallback_t callback, bool allowNonPureFilesOnDisk );
 bool            FS_FindPureDLL                ( const char *name );
 void            FS_Flush                      ( fileHandle_t f );
-int             FS_FOpenFileByMode            ( const char *qpath, fileHandle_t *f, fsMode_t mode );
+int             FS_FOpenFileByMode            ( const char *qpath, fileHandle_t *f, fsMode_e mode );
 long            FS_FOpenFileRead              ( const char *qpath, fileHandle_t *file, bool uniqueFILE );
 fileHandle_t    FS_FOpenFileWrite             ( const char *qpath, bool safe = true );
 void            FS_ForceFlush                 ( fileHandle_t f );
@@ -470,19 +470,19 @@ bool            NET_CompareAdr                ( netadr_t a, netadr_t b );
 bool            NET_CompareBaseAdr            ( netadr_t a, netadr_t b );
 bool            NET_CompareBaseAdrMask        ( netadr_t a, netadr_t b, int netmask );
 void            NET_Config                    ( bool enableNetworking );
-bool            NET_GetLoopPacket             ( netsrc_t sock, netadr_t *net_from, msg_t *net_message );
+bool            NET_GetLoopPacket             ( netsrc_e sock, netadr_t *net_from, msg_t *net_message );
 void            NET_Init                      ( void );
 bool            NET_IsLocalAddress            ( netadr_t adr );
-void            NET_OutOfBandData             ( netsrc_t sock, netadr_t adr, byte *format, int len );
-void            NET_OutOfBandPrint            ( netsrc_t net_socket, netadr_t adr, const char *format, ... );
+void            NET_OutOfBandData             ( netsrc_e sock, netadr_t adr, byte *format, int len );
+void            NET_OutOfBandPrint            ( netsrc_e net_socket, netadr_t adr, const char *format, ... );
 void            NET_Restart_f                 ( void );
-void            NET_SendPacket                ( netsrc_t sock, int length, const void *data, netadr_t to );
+void            NET_SendPacket                ( netsrc_e sock, int length, const void *data, netadr_t to );
 void            NET_Shutdown                  ( void );
 void            NET_Sleep                     ( int msec );
 bool            NET_StringToAdr               ( const char *s, netadr_t *a );
 void            Netchan_Init                  ( int qport );
 bool            Netchan_Process               ( netchan_t *chan, msg_t *msg );
-void            Netchan_Setup                 ( netsrc_t sock, netchan_t *chan, netadr_t adr, int qport );
+void            Netchan_Setup                 ( netsrc_e sock, netchan_t *chan, netadr_t adr, int qport );
 void            Netchan_Transmit              ( netchan_t *chan, int length, const byte *data );
 void            Netchan_TransmitNextFragment  ( netchan_t *chan );
 const void     *PD_Load                       ( const char *name, size_t *size );
@@ -497,7 +497,7 @@ void            SV_Shutdown                   ( char *finalmsg );
 void            SV_ShutdownGameProgs          ( void );
 bool            UI_GameCommand                ( void );
 void            VM_Clear                      ( void );
-vm_t           *VM_Create                     ( vmSlots_t vmSlot );
+vm_t           *VM_Create                     ( vmSlots_e vmSlot );
 void            VM_Free                       ( vm_t *vm );
 void            VM_Init                       ( void );
 vm_t           *VM_Restart                    ( vm_t *vm );

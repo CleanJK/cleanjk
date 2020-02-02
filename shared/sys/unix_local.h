@@ -2,7 +2,7 @@
 
 // unix_local.h: Linux-specific Quake3 header file
 
-void Sys_QueEvent( int time, sysEventType_t type, int value, int value2, int ptrLength, void *ptr );
+void Sys_QueEvent( int time, sysEventType_e type, int value, int value2, int ptrLength, void *ptr );
 bool Sys_GetPacket ( netadr_t *net_from, msg_t *net_message );
 
 // Input subsystem

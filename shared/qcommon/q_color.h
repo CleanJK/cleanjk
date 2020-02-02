@@ -58,7 +58,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define S_COLOR_ORANGE	"^8"
 #define S_COLOR_GREY	"^9"
 
-enum ct_table_t {
+enum ct_table_e {
 	CT_NONE,
 	CT_BLACK,
 	CT_RED,

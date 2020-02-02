@@ -497,7 +497,7 @@ void SetTeam( gentity_t *ent, char *s ) {
 	int					team, oldTeam;
 	gclient_t			*client;
 	int					clientNum;
-	spectatorState_t	specState;
+	spectatorState_e	specState;
 	int					specClient;
 	int					teamLeader;
 
@@ -678,7 +678,7 @@ void SetTeam( gentity_t *ent, char *s ) {
 	// also clear team votes if switching red/blue or going to spec
 	G_ClearTeamVote( ent, oldTeam );
 
-	client->sess.sessionTeam = (team_t)team;
+	client->sess.sessionTeam = (team_e)team;
 	client->sess.spectatorState = specState;
 	client->sess.spectatorClient = specClient;
 
@@ -1808,7 +1808,7 @@ void Cmd_Vote_f( gentity_t *ent ) {
 	// for players entering or leaving
 }
 
-bool G_TeamVoteLeader( gentity_t *ent, int cs_offset, team_t team, int numArgs, const char *arg1, const char *arg2 ) {
+bool G_TeamVoteLeader( gentity_t *ent, int cs_offset, team_e team, int numArgs, const char *arg1, const char *arg2 ) {
 	int clientid = numArgs == 2 ? ent->s.number : ClientNumberFromString( ent, arg2, false );
 	gentity_t *target = nullptr;
 
@@ -1832,7 +1832,7 @@ bool G_TeamVoteLeader( gentity_t *ent, int cs_offset, team_t team, int numArgs, 
 }
 
 void Cmd_CallTeamVote_f( gentity_t *ent ) {
-	team_t	team = ent->client->sess.sessionTeam;
+	team_e	team = ent->client->sess.sessionTeam;
 	int		i=0, cs_offset=0, numArgs=0;
 	char	arg1[MAX_CVAR_VALUE_STRING] = {0};
 	char	arg2[MAX_CVAR_VALUE_STRING] = {0};
@@ -1917,7 +1917,7 @@ void Cmd_CallTeamVote_f( gentity_t *ent ) {
 }
 
 void Cmd_TeamVote_f( gentity_t *ent ) {
-	team_t		team = ent->client->sess.sessionTeam;
+	team_e		team = ent->client->sess.sessionTeam;
 	int			cs_offset=0;
 	char		msg[64] = {0};
 

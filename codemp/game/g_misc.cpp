@@ -844,7 +844,7 @@ void HolocronTouch(gentity_t *self, gentity_t *other, trace_t *trace)
 	{ //If the player isn't using his currently selected force power, select this one
 		if (self->count != FP_SABER_OFFENSE && self->count != FP_SABER_DEFENSE && self->count != FP_SABERTHROW && self->count != FP_LEVITATION)
 		{
-			other->client->ps.fd.forcePowerSelected = (forcePowers_t)self->count;
+			other->client->ps.fd.forcePowerSelected = (forcePowers_e)self->count;
 		}
 	}
 
@@ -1132,7 +1132,7 @@ static void InitShooter_Finish( gentity_t *ent ) {
 	ent->nextthink = 0;
 }
 
-void InitShooter( gentity_t *ent, weapon_t weapon ) {
+void InitShooter( gentity_t *ent, weapon_e weapon ) {
 	ent->use = Use_Shooter;
 	ent->s.weapon = weapon;
 
@@ -3137,7 +3137,7 @@ void SP_misc_weapon_shooter( gentity_t *self )
 		self->s.weapon = self->client->ps.weapon = GetIDForString( WPTable, s );
 	}
 
-	RegisterItem(BG_FindItemForWeapon((weapon_t)self->s.weapon));
+	RegisterItem(BG_FindItemForWeapon((weapon_e)self->s.weapon));
 
 	//set where our muzzle is
 	VectorCopy( self->s.origin, self->client->renderInfo.muzzlePoint );
