@@ -497,7 +497,7 @@ void SetTeam( gentity_t *ent, char *s ) {
 	int					team, oldTeam;
 	gclient_t			*client;
 	int					clientNum;
-	spectatorState_t	specState;
+	spectatorState_e	specState;
 	int					specClient;
 	int					teamLeader;
 
@@ -678,7 +678,7 @@ void SetTeam( gentity_t *ent, char *s ) {
 	// also clear team votes if switching red/blue or going to spec
 	G_ClearTeamVote( ent, oldTeam );
 
-	client->sess.sessionTeam = (team_t)team;
+	client->sess.sessionTeam = (team_e)team;
 	client->sess.spectatorState = specState;
 	client->sess.spectatorClient = specClient;
 
@@ -1364,7 +1364,7 @@ static void Cmd_VoiceCommand_f(gentity_t *ent)
 	te->r.svFlags |= SVF_BROADCAST;
 }
 
-static const char *gameNames[GT_MAX_GAME_TYPE] = {
+static constexpr const char *gameNames[GT_MAX_GAME_TYPE] = {
 	"Free For All",
 	"Holocron FFA",
 	"Jedi Master",
@@ -1572,17 +1572,17 @@ bool G_VoteWarmup( gentity_t *ent, int numArgs, const char *arg1, const char *ar
 	return true;
 }
 
-typedef struct voteString_s {
+struct voteString_t {
 	const char	*string;
 	const char	*aliases;	// space delimited list of aliases, will always show the real vote string
-	bool	(*func)(gentity_t *ent, int numArgs, const char *arg1, const char *arg2);
+	bool		(*func)(gentity_t *ent, int numArgs, const char *arg1, const char *arg2);
 	int			numArgs;	// number of REQUIRED arguments, not total/optional arguments
 	uint32_t	validGT;	// bit-flag of valid gametypes
-	bool	voteDelay;	// if true, will delay executing the vote string after it's accepted by g_voteDelay
+	bool		voteDelay;	// if true, will delay executing the vote string after it's accepted by g_voteDelay
 	const char	*shortHelp;	// nullptr if no arguments needed
-} voteString_t;
+};
 
-static voteString_t validVoteStrings[] = {
+static constexpr voteString_t validVoteStrings[] = {
 	//	vote string				aliases										# args	valid gametypes							exec delay		short help
 	{	"capturelimit",			"caps",				G_VoteCapturelimit,		1,		GTB_CTF|GTB_CTY,						true,			"<num>" },
 	{	"clientkick",			nullptr,				G_VoteClientkick,		1,		GTB_ALL,								false,			"<clientnum>" },
@@ -1629,7 +1629,7 @@ void Cmd_CallVote_f( gentity_t *ent ) {
 	int				i=0, numArgs=0;
 	char			arg1[MAX_CVAR_VALUE_STRING] = {0};
 	char			arg2[MAX_CVAR_VALUE_STRING] = {0};
-	voteString_t	*vote = nullptr;
+	const voteString_t	*vote = nullptr;
 
 	// not allowed to vote at all
 	if ( !g_allowVote.integer ) {
@@ -1808,7 +1808,7 @@ void Cmd_Vote_f( gentity_t *ent ) {
 	// for players entering or leaving
 }
 
-bool G_TeamVoteLeader( gentity_t *ent, int cs_offset, team_t team, int numArgs, const char *arg1, const char *arg2 ) {
+bool G_TeamVoteLeader( gentity_t *ent, int cs_offset, team_e team, int numArgs, const char *arg1, const char *arg2 ) {
 	int clientid = numArgs == 2 ? ent->s.number : ClientNumberFromString( ent, arg2, false );
 	gentity_t *target = nullptr;
 
@@ -1832,7 +1832,7 @@ bool G_TeamVoteLeader( gentity_t *ent, int cs_offset, team_t team, int numArgs, 
 }
 
 void Cmd_CallTeamVote_f( gentity_t *ent ) {
-	team_t	team = ent->client->sess.sessionTeam;
+	team_e	team = ent->client->sess.sessionTeam;
 	int		i=0, cs_offset=0, numArgs=0;
 	char	arg1[MAX_CVAR_VALUE_STRING] = {0};
 	char	arg2[MAX_CVAR_VALUE_STRING] = {0};
@@ -1917,7 +1917,7 @@ void Cmd_CallTeamVote_f( gentity_t *ent ) {
 }
 
 void Cmd_TeamVote_f( gentity_t *ent ) {
-	team_t		team = ent->client->sess.sessionTeam;
+	team_e		team = ent->client->sess.sessionTeam;
 	int			cs_offset=0;
 	char		msg[64] = {0};
 
@@ -2697,11 +2697,11 @@ void Cmd_AddBot_f( gentity_t *ent ) {
 #define CMD_CHEAT				(1<<1)
 #define CMD_ALIVE				(1<<2)
 
-typedef struct command_s {
+struct command_t {
 	const char	*name;
 	void		(*func)(gentity_t *ent);
 	int			flags;
-} command_t;
+};
 
 int cmdcmp( const void *a, const void *b ) {
 	return Q_stricmp( (const char *)a, ((command_t*)b)->name );

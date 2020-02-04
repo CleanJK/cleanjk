@@ -122,7 +122,7 @@ void CG_ParseServerinfo( void ) {
 
 	cgs.showDuelHealths = atoi( Info_ValueForKey( info, "g_showDuelHealths" ) );
 
-	cgs.gametype = (gametype_t)atoi( Info_ValueForKey( info, "g_gametype" ) );
+	cgs.gametype = (gametype_e)atoi( Info_ValueForKey( info, "g_gametype" ) );
 	trap->Cvar_Set("g_gametype", va("%i", cgs.gametype));
 	cgs.needpass = atoi( Info_ValueForKey( info, "g_needpass" ) );
 	cgs.jediVmerc = atoi( Info_ValueForKey( info, "g_jediVmerc" ) );
@@ -185,7 +185,7 @@ void CG_ParseServerinfo( void ) {
 	trap->Cvar_Set ( "ui_about_needpass", Info_ValueForKey( info, "g_needpass" ) );
 	trap->Cvar_Set ( "ui_about_botminplayers", Info_ValueForKey ( info, "bot_minplayers" ) );
 
-	Q_strncpyz( cgs.voteString, CG_ConfigString( CS_VOTE_STRING ), sizeof( cgs.voteString ) );
+	Q_strncpyz( cgs.vote.string, CG_ConfigString( CS_VOTE_STRING ), sizeof( cgs.vote.string ) );
 
 	// synchronise our expected snaps/sec with the server's framerate
 	i = atoi( Info_ValueForKey( info, "sv_fps" ) );
@@ -210,7 +210,7 @@ static void CG_ParseWarmup( void ) {
 
 // this is a reverse map of flag statuses as seen in g_team.c
 //static char ctfFlagStatusRemap[] = { '0', '1', '*', '*', '2' };
-static const char ctfFlagStatusRemap[] = {
+static constexpr char ctfFlagStatusRemap[] = {
 	FLAG_ATBASE,
 	FLAG_TAKEN,			// CTF
 	// server doesn't use FLAG_TAKEN_RED or FLAG_TAKEN_BLUE
@@ -470,27 +470,27 @@ static void CG_ConfigStringModified( void ) {
 	else if ( num == CS_LEVEL_START_TIME ) {
 		cgs.levelStartTime = atoi( str );
 	} else if ( num == CS_VOTE_TIME ) {
-		cgs.voteTime = atoi( str );
-		cgs.voteModified = true;
+		cgs.vote.time = atoi( str );
+		cgs.vote.modified = true;
 	} else if ( num == CS_VOTE_YES ) {
-		cgs.voteYes = atoi( str );
-		cgs.voteModified = true;
+		cgs.vote.yes = atoi( str );
+		cgs.vote.modified = true;
 	} else if ( num == CS_VOTE_NO ) {
-		cgs.voteNo = atoi( str );
-		cgs.voteModified = true;
+		cgs.vote.no = atoi( str );
+		cgs.vote.modified = true;
 	} else if ( num == CS_VOTE_STRING ) {
-		Q_strncpyz( cgs.voteString, str, sizeof( cgs.voteString ) );
+		Q_strncpyz( cgs.vote.string, str, sizeof( cgs.vote.string ) );
 	} else if ( num >= CS_TEAMVOTE_TIME && num <= CS_TEAMVOTE_TIME + 1) {
-		cgs.teamVoteTime[num-CS_TEAMVOTE_TIME] = atoi( str );
-		cgs.teamVoteModified[num-CS_TEAMVOTE_TIME] = true;
+		cgs.teamVote.time[num-CS_TEAMVOTE_TIME] = atoi( str );
+		cgs.teamVote.modified[num-CS_TEAMVOTE_TIME] = true;
 	} else if ( num >= CS_TEAMVOTE_YES && num <= CS_TEAMVOTE_YES + 1) {
-		cgs.teamVoteYes[num-CS_TEAMVOTE_YES] = atoi( str );
-		cgs.teamVoteModified[num-CS_TEAMVOTE_YES] = true;
+		cgs.teamVote.yes[num-CS_TEAMVOTE_YES] = atoi( str );
+		cgs.teamVote.modified[num-CS_TEAMVOTE_YES] = true;
 	} else if ( num >= CS_TEAMVOTE_NO && num <= CS_TEAMVOTE_NO + 1) {
-		cgs.teamVoteNo[num-CS_TEAMVOTE_NO] = atoi( str );
-		cgs.teamVoteModified[num-CS_TEAMVOTE_NO] = true;
+		cgs.teamVote.no[num-CS_TEAMVOTE_NO] = atoi( str );
+		cgs.teamVote.modified[num-CS_TEAMVOTE_NO] = true;
 	} else if ( num >= CS_TEAMVOTE_STRING && num <= CS_TEAMVOTE_STRING + 1) {
-		Q_strncpyz( cgs.teamVoteString[num-CS_TEAMVOTE_STRING], str, sizeof( cgs.teamVoteString ) );
+		Q_strncpyz( cgs.teamVote.string[num-CS_TEAMVOTE_STRING], str, sizeof( cgs.teamVote.string ) );
 	} else if ( num == CS_INTERMISSION ) {
 		cg.intermissionStarted = atoi( str );
 	} else if ( num >= CS_MODELS && num < CS_MODELS+MAX_MODELS ) {
@@ -680,7 +680,7 @@ static void CG_MapRestart( void ) {
 
 	cg.intermissionStarted = false;
 
-	cgs.voteTime = 0;
+	cgs.vote.time = 0;
 
 	cg.mapRestart = true;
 
@@ -1160,16 +1160,16 @@ static void CG_ClientLevelShot_f( void ) {
 	cg.levelShot = true;
 }
 
-typedef struct serverCommand_s {
+struct serverCommand_t {
 	const char	*cmd;
 	void		(*func)(void);
-} serverCommand_t;
+};
 
 int svcmdcmp( const void *a, const void *b ) {
 	return Q_stricmp( (const char *)a, ((serverCommand_t*)b)->cmd );
 }
 
-static const serverCommand_t commands[] = {
+static constexpr serverCommand_t commands[] = {
 	{ "chat",            CG_Chat_f },
 	{ "clientLevelShot", CG_ClientLevelShot_f },
 	{ "cp",              CG_CenterPrint_f },

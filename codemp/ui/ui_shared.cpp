@@ -69,7 +69,7 @@ const char *HolocronIcons[NUM_FORCE_POWERS] = {
 #define SCROLL_TIME_ADJUSTOFFSET			40
 #define SCROLL_TIME_FLOOR					20
 
-typedef struct scrollInfo_s {
+struct scrollInfo_t {
 	int nextScrollTime;
 	int nextAdjustTime;
 	int adjustValue;
@@ -78,7 +78,7 @@ typedef struct scrollInfo_s {
 	float yStart;
 	itemDef_t *item;
 	bool scrollDir;
-} scrollInfo_t;
+};
 
 static scrollInfo_t scrollInfo;
 
@@ -118,10 +118,10 @@ static char memoryPool[MEM_POOL_SIZE];
 static int allocPoint;
 static bool outOfMemory;
 
-typedef struct  itemFlagsDef_s {
+struct itemFlagsDef_t {
 	const char *string;
 	int value;
-} itemFlagsDef_t;
+};
 
 const itemFlagsDef_t itemFlags[] = {
 	{ "WINDOW_INACTIVE", WINDOW_INACTIVE },
@@ -174,10 +174,10 @@ static unsigned hashForString(const char *str) {
 	return hash;
 }
 
-typedef struct stringDef_s {
-	struct stringDef_s *next;
+struct stringDef_t {
+	stringDef_t *next;
 	const char *str;
-} stringDef_t;
+};
 
 static int strPoolIndex = 0;
 static char strPool[STRING_POOL_SIZE];
@@ -1868,7 +1868,7 @@ bool Script_playLooped(itemDef_t *item, char **args) {
 	return true;
 }
 
-commandDef_t commandList[] = {
+constexpr commandDef_t commandList[] = {
   { "close",             &Script_Close },             // menu
   { "defer",             &Script_Defer },             //
   { "disable",           &Script_Disable },           // group/name
@@ -3836,7 +3836,7 @@ bool Item_Slider_HandleKey(itemDef_t *item, int key, bool down) {
 	return false;
 }
 
-static const char *g_bindCommands[] = {
+static constexpr const char *g_bindCommands[] = {
 	"+altattack",
 	"+attack",
 	"+back",
@@ -6610,12 +6610,11 @@ void Item_ValidateTypeData(itemDef_t *item)
 
 #define KEYWORDHASH_SIZE	512
 
-typedef struct keywordHash_s
-{
+struct keywordHash_t {
 	char *keyword;
 	bool (*func)(itemDef_t *item, int handle);
-	struct keywordHash_s *next;
-} keywordHash_t;
+	keywordHash_t *next;
+};
 
 static int KeywordHash_Key(char *keyword) {
 	int hash, i;
@@ -6737,10 +6736,7 @@ bool ItemParse_group( itemDef_t *item, int handle ) {
 	return true;
 }
 
-typedef struct uiG2PtrTracker_s uiG2PtrTracker_t;
-
-struct uiG2PtrTracker_s
-{
+struct uiG2PtrTracker_t {
 	void *ghoul2;
 	uiG2PtrTracker_t *next;
 };
@@ -8507,7 +8503,7 @@ bool MenuParse_fullscreen( itemDef_t *item, int handle ) {
 	if (!PC_Int_Parse(handle, &fullscreen.i)) {
 		return false;
 	}
-	menu->fullScreen = fullscreen.qb;
+	menu->fullScreen = !!fullscreen.i;
 	return true;
 }
 
@@ -9138,3 +9134,4 @@ void String_Init() {
 		Controls_GetConfig();
 	}
 }
+

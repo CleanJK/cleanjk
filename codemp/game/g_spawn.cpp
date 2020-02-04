@@ -92,7 +92,7 @@ bool	G_SpawnBoolean( const char *key, const char *defaultString, bool *out ) {
 }
 
 // fields are needed for spawning from the entity string
-typedef enum {
+enum fieldtype_e {
 	F_INT,
 	F_FLOAT,
 	F_STRING,			// string on disk, pointer in memory
@@ -114,15 +114,15 @@ typedef enum {
 	F_PARM14,			// Special case for parms
 	F_PARM15,			// Special case for parms
 	F_PARM16			// Special case for parms
-} fieldtype_t;
+};
 
-typedef struct gfield_s {
+struct gfield_t {
 	const char	*name;
 	size_t		ofs;
-	fieldtype_t	type;
-} gfield_t;
+	fieldtype_e	type;
+};
 
-const gfield_t fields[] = {
+constexpr gfield_t fields[] = {
 	{ "alliedteam",         FOFS( alliedTeam ),                  F_INT },//for misc_turrets
 	{ "angerscript",        FOFS( behaviorSet[BSET_ANGER] ),     F_STRING },//name of script to run
 	{ "angle",              FOFS( s.angles ),                    F_ANGLEHACK },
@@ -203,10 +203,10 @@ const gfield_t fields[] = {
 	{ "wait",               FOFS( wait ),                        F_FLOAT },
 };
 
-typedef struct spawn_s {
+struct spawn_t {
 	const char	*name;
 	void		(*spawn)(gentity_t *ent);
-} spawn_t;
+};
 
 void SP_item_botroam( gentity_t *ent ) { }
 
@@ -271,7 +271,7 @@ void SP_gametype_item ( gentity_t* ent )
 	}
 }
 
-const spawn_t	spawns[] = {
+constexpr spawn_t	spawns[] = {
 	{ "emplaced_gun",                      SP_emplaced_gun },
 	{ "func_bobbing",                      SP_func_bobbing },
 	{ "func_breakable",                    SP_func_breakable },
@@ -555,8 +555,9 @@ static void Adjust_AreaPortal( gentity_t *ent ) {
 void G_SpawnGEntityFromSpawnVars( bool inSubBSP ) {
 	int			i;
 	gentity_t	*ent;
-	char		*s, *value, *gametypeName;
-	static char *gametypeNames[GT_MAX_GAME_TYPE] = {"ffa", "holocron", "jedimaster", "duel", "powerduel", "team", "ctf", "cty"};
+	char* s, * value;
+	const char *gametypeName;
+	static constexpr const char *gametypeNames[GT_MAX_GAME_TYPE] = {"ffa", "holocron", "jedimaster", "duel", "powerduel", "team", "ctf", "cty"};
 
 	// get the next free entity
 	ent = G_Spawn();

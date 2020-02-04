@@ -446,15 +446,15 @@ static bool ICARUS_IsRunning( int entID ) {
 }
 
 static bool ICARUS_TaskIDPending( sharedEntity_t *ent, int taskID ) {
-	return Q3_TaskIDPending( ent, (taskID_t)taskID );
+	return Q3_TaskIDPending( ent, (taskID_e)taskID );
 }
 
 static void SV_ICARUS_TaskIDSet( sharedEntity_t *ent, int taskType, int taskID ) {
-	Q3_TaskIDSet( ent, (taskID_t)taskType, taskID );
+	Q3_TaskIDSet( ent, (taskID_e)taskType, taskID );
 }
 
 static void SV_ICARUS_TaskIDComplete( sharedEntity_t *ent, int taskType ) {
-	Q3_TaskIDComplete( ent, (taskID_t)taskType );
+	Q3_TaskIDComplete( ent, (taskID_e)taskType );
 }
 
 static int SV_ICARUS_GetStringVariable( const char *name, const char *value ) {
@@ -579,6 +579,10 @@ static void SV_EA_MoveLeft( int client ) {
 
 static void SV_EA_MoveRight( int client ) {
 	botlib_export->ea.EA_MoveRight( client );
+}
+
+static void SV_EA_Walk( int client ) {
+	botlib_export->ea.EA_Walk( client );
 }
 
 static void SV_EA_SelectWeapon( int client, int weapon ) {
@@ -707,7 +711,7 @@ static void SV_G2API_CleanGhoul2Models( void **ghoul2Ptr ) {
 
 static bool SV_G2API_SetBoneAngles( void *ghoul2, int modelIndex, const char *boneName, const vec3_t angles, const int flags, const int up, const int right, const int forward, qhandle_t *modelList, int blendTime , int currentTime ) {
 	if ( !ghoul2 ) return false;
-	return re->G2API_SetBoneAngles( *((CGhoul2Info_v *)ghoul2), modelIndex, boneName, angles, flags, (const Eorientations)up, (const Eorientations)right, (const Eorientations)forward, modelList, blendTime , currentTime );
+	return re->G2API_SetBoneAngles( *((CGhoul2Info_v *)ghoul2), modelIndex, boneName, angles, flags, (const Eorientations_e)up, (const Eorientations_e)right, (const Eorientations_e)forward, modelList, blendTime , currentTime );
 }
 
 static bool SV_G2API_SetBoneAnim( void *ghoul2, const int modelIndex, const char *boneName, const int startFrame, const int endFrame, const int flags, const float animSpeed, const int currentTime, const float setFrame, const int blendTime ) {
@@ -845,8 +849,8 @@ static void SV_G2API_SetRagDoll( void *ghoul2, sharedRagDollParams_t *params ) {
 	rdParams.collisionType = params->collisionType;
 	rdParams.CallRagDollBegin = params->CallRagDollBegin;
 
-	rdParams.RagPhase = (CRagDollParams::ERagPhase)params->RagPhase;
-	rdParams.effectorsToTurnOff = (CRagDollParams::ERagEffector)params->effectorsToTurnOff;
+	rdParams.RagPhase = (CRagDollParams::ERagPhase_e)params->RagPhase;
+	rdParams.effectorsToTurnOff = (CRagDollParams::ERagEffector_e)params->effectorsToTurnOff;
 
 	re->G2API_SetRagDoll( *((CGhoul2Info_v *)ghoul2), &rdParams );
 }
@@ -1067,6 +1071,7 @@ void SV_BindGame( void ) {
 	gi.EA_MoveBack							= SV_EA_MoveBack;
 	gi.EA_MoveLeft							= SV_EA_MoveLeft;
 	gi.EA_MoveRight							= SV_EA_MoveRight;
+	gi.EA_Walk								= SV_EA_Walk;
 	gi.EA_SelectWeapon						= SV_EA_SelectWeapon;
 	gi.EA_Jump								= SV_EA_Jump;
 	gi.EA_DelayedJump						= SV_EA_DelayedJump;

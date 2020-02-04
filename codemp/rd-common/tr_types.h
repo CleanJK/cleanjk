@@ -25,20 +25,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-// ======================================================================
-// INCLUDE
-// ======================================================================
-
 #include "qcommon/q_shared.h"
 
 #define MDXABONEDEF
 #include "rd-common/mdx_format.h"
-
-// ======================================================================
-// DEFINE
-// ======================================================================
-
-using stereoFrame_t = int;
 
 #define	MAX_DLIGHTS		32			// can't be increased, because bit flags are used on surfaces
 #define	REFENTITYNUM_BITS	11		// can't be increased without changing drawsurf bit packing
@@ -106,12 +96,7 @@ using stereoFrame_t = int;
 #define	MAX_RENDER_STRINGS			8
 #define	MAX_RENDER_STRING_LENGTH	32
 
-// ======================================================================
-// ENUM
-// ======================================================================
-
-typedef enum
-{
+enum refEntityType_e {
 	RT_MODEL,
 	RT_POLY,
 	RT_SPRITE,
@@ -126,19 +111,17 @@ typedef enum
 	RT_ENT_CHAIN,
 
 	RT_MAX_REF_ENTITY_TYPE
-} refEntityType_t;
+};
 
-typedef enum
-{
+enum modtype_e {
 	MOD_BAD,
 	MOD_BRUSH,
 	MOD_MESH,
 	MOD_MDXM,
 	MOD_MDXA
-} modtype_t;
+};
 
-enum
-{
+enum stereoFrame_e : int32_t {
 	STEREO_CENTER,
 	STEREO_LEFT,
 	STEREO_RIGHT
@@ -146,32 +129,26 @@ enum
 
 // Contains variables specific to the OpenGL configuration being run right now.
 // These are constant once the OpenGL subsystem is initialized.
-typedef enum
-{ // r_ext_preferred_tc_method
+enum textureCompression_e { // r_ext_preferred_tc_method
 	TC_NONE,
 	TC_S3TC,
 	TC_S3TC_DXT
-} textureCompression_t;
+};
 
-// ======================================================================
-// STRUCT
-// ======================================================================
-
-typedef struct polyVert_s {
+struct polyVert_t {
 	vec3_t		xyz;
 	float		st[2];
 	byte		modulate[4];
-} polyVert_t;
+};
 
-typedef struct poly_s {
+struct poly_t {
 	qhandle_t			hShader;
 	int					numVerts;
 	polyVert_t			*verts;
-} poly_t;
+};
 
-typedef struct miniRefEntity_s
-{
-	refEntityType_t		reType;
+struct miniRefEntity_t {
+	refEntityType_e		reType;
 	int					renderfx;
 
 	qhandle_t			hModel;				// opaque type outside refresh
@@ -199,12 +176,12 @@ typedef struct miniRefEntity_s
 	float		shaderTime;			// subtracted from refdef time to control effect start times
 	int			frame;				// also used as MODEL_BEAM's diameter
 
-} miniRefEntity_t;
+};
 
-typedef struct refEntity_s {
+struct refEntity_t {
 	// this stucture must remain identical as the miniRefEntity_t
 
-	refEntityType_t		reType;
+	refEntityType_e		reType;
 	int					renderfx;
 
 	qhandle_t			hModel;				// opaque type outside refresh
@@ -246,7 +223,7 @@ typedef struct refEntity_s {
 
 	// texturing
 	int			skinNum;			// inline skin index
-	qhandle_t	customSkin;			// nullptr for default skin
+	qhandle_t	customSkin;			// NULL for default skin
 
 	// texturing
 	union
@@ -307,24 +284,23 @@ typedef struct refEntity_s {
 	vec3_t		modelScale;			// axis scale for models
 //	CGhoul2Info_v	*ghoul2;  		// has to be at the end of the ref-ent in order for it to be created properly
 	void		*ghoul2;  		// has to be at the end of the ref-ent in order for it to be created properly
-} refEntity_t;
+};
 
 // skins allow models to be retextured without modifying the model file
 //this is a mock copy, renderers may have their own implementation.
 // try not to break the ghoul2 code which is very implicit :/
-typedef struct _skinSurface_s {
+struct _skinSurface_t {
 	char		name[MAX_QPATH];
 	void	*shader;
-} _skinSurface_t;
+};
 
-typedef struct skin_s {
+struct skin_t {
 	char		name[MAX_QPATH];		// game path, including extension
 	int			numSurfaces;
 	_skinSurface_t	*surfaces[128];
-} skin_t;
+};
 
-typedef struct md3Header_s
-{
+struct md3Header_t {
 	int			ident;
 	int			version;
 
@@ -343,23 +319,23 @@ typedef struct md3Header_s
 	int			ofsSurfaces;		// first surface, others follow
 
 	int			ofsEnd;				// end of file
-} md3Header_t;
+};
 
-typedef struct model_s {
+struct model_t {
 	char		name[MAX_QPATH];
-	modtype_t	type;
+	modtype_e	type;
 	int			index;				// model = tr.models[model->index]
 
 	int			dataSize;			// just for listing purposes
-	struct bmodel_s	*bmodel;			// only if type == MOD_BRUSH
+	struct bmodel_t *bmodel;			// only if type == MOD_BRUSH
 	md3Header_t	*md3[MD3_MAX_LODS];	// only if type == MOD_MESH
 	mdxmHeader_t *mdxm;				// only if type == MOD_GL2M which is a GHOUL II Mesh file NOT a GHOUL II animation file
 	mdxaHeader_t *mdxa;				// only if type == MOD_GL2A which is a GHOUL II Animation file
 	int			 numLods;
 	bool	bspInstance;
-} model_t;
+};
 
-typedef struct refdef_s {
+struct refdef_t {
 	int			x, y, width, height;
 	float		fov_x, fov_y;
 	vec3_t		vieworg;
@@ -377,9 +353,9 @@ typedef struct refdef_s {
 
 	// text messages for deform text shaders
 	char		text[MAX_RENDER_STRINGS][MAX_RENDER_STRING_LENGTH];
-} refdef_t;
+};
 
-typedef struct glconfig_s {
+struct glconfig_t {
 	const char				*renderer_string;
 	const char				*vendor_string;
 	const char				*version_string;
@@ -392,7 +368,7 @@ typedef struct glconfig_s {
 	int						colorBits, depthBits, stencilBits;
 
 	bool				deviceSupportsGamma;
-	textureCompression_t	textureCompression;
+	textureCompression_e	textureCompression;
 	bool				textureEnvAddAvailable;
 	bool				clampToEdgeAvailable;
 
@@ -405,11 +381,8 @@ typedef struct glconfig_s {
 	// used CDS.
 	bool				isFullscreen;
 	bool				stereoEnabled;
-} glconfig_t;
-
-// ======================================================================
-// EXTERN VARIABLE
-// ======================================================================
+};
 
 extern int	skyboxportal;
 extern int	drawskyboxportal;
+

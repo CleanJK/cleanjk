@@ -225,7 +225,7 @@ CParticle *FX_AddParticle( vec3_t org, vec3_t vel, vec3_t accel, float size1, fl
 							vec3_t min, vec3_t max, float elasticity,
 							int deathID, int impactID,
 							int killTime, qhandle_t shader, int flags = 0,
-							EMatImpactEffect matImpactFX /*MATIMPACTFX_NONE*/, int fxParm /*-1*/,
+							EMatImpactEffect_e matImpactFX /*MATIMPACTFX_NONE*/, int fxParm /*-1*/,
 							CGhoul2Info_v *ghoul2/*0*/, int entNum/*-1*/, int modelNum/*-1*/, int boltNum/*-1*/ )
 {
 	if ( theFxHelper.mFrameTime < 1 )
@@ -315,7 +315,7 @@ CLine *FX_AddLine( vec3_t start, vec3_t end, float size1, float size2, float siz
 									float alpha1, float alpha2, float alphaParm,
 									const vec3_t sRGB, const vec3_t eRGB, float rgbParm,
 									int killTime, qhandle_t shader, int flags = 0,
-									EMatImpactEffect matImpactFX /*MATIMPACTFX_NONE*/, int fxParm /*-1*/,
+									EMatImpactEffect_e matImpactFX /*MATIMPACTFX_NONE*/, int fxParm /*-1*/,
 									CGhoul2Info_v *ghoul2/*0*/, int entNum/*-1*/, int modelNum/*-1*/, int boltNum/*-1*/)
 {
 	if ( theFxHelper.mFrameTime < 1 )
@@ -397,7 +397,7 @@ CElectricity *FX_AddElectricity( vec3_t start, vec3_t end, float size1, float si
 								float alpha1, float alpha2, float alphaParm,
 								vec3_t sRGB, vec3_t eRGB, float rgbParm,
 								float chaos, int killTime, qhandle_t shader, int flags = 0,
-								EMatImpactEffect matImpactFX /*MATIMPACTFX_NONE*/, int fxParm /*-1*/,
+								EMatImpactEffect_e matImpactFX /*MATIMPACTFX_NONE*/, int fxParm /*-1*/,
 								CGhoul2Info_v *ghoul2/*0*/, int entNum/*-1*/, int modelNum/*-1*/, int boltNum/*-1*/ )
 {
 	if ( theFxHelper.mFrameTime < 1 )
@@ -489,7 +489,7 @@ CTail *FX_AddTail( vec3_t org, vec3_t vel, vec3_t accel,
 							vec3_t min, vec3_t max, float elasticity,
 							int deathID, int impactID,
 							int killTime, qhandle_t shader, int flags = 0,
-							EMatImpactEffect matImpactFX /*MATIMPACTFX_NONE*/, int fxParm /*-1*/,
+							EMatImpactEffect_e matImpactFX /*MATIMPACTFX_NONE*/, int fxParm /*-1*/,
 							CGhoul2Info_v *ghoul2/*0*/, int entNum/*-1*/, int modelNum/*-1*/, int boltNum/*-1*/ )
 {
 	if ( theFxHelper.mFrameTime < 1 )
@@ -591,7 +591,7 @@ CCylinder *FX_AddCylinder( vec3_t start, vec3_t normal,
 							float alpha1, float alpha2, float alphaParm,
 							vec3_t rgb1, vec3_t rgb2, float rgbParm,
 							int killTime, qhandle_t shader, int flags,
-							EMatImpactEffect matImpactFX /*MATIMPACTFX_NONE*/, int fxParm /*-1*/,
+							EMatImpactEffect_e matImpactFX /*MATIMPACTFX_NONE*/, int fxParm /*-1*/,
 							CGhoul2Info_v *ghoul2/*0*/, int entNum/*-1*/, int modelNum/*-1*/, int boltNum/*-1*/,
 							bool traceEnd)
 {
@@ -705,7 +705,7 @@ CEmitter *FX_AddEmitter( vec3_t org, vec3_t vel, vec3_t accel,
 								int deathID, int impactID, int emitterID,
 								float density, float variance,
 								int killTime, qhandle_t model, int flags = 0,
-								EMatImpactEffect matImpactFX /*MATIMPACTFX_NONE*/, int fxParm /*-1*/,
+								EMatImpactEffect_e matImpactFX /*MATIMPACTFX_NONE*/, int fxParm /*-1*/,
 								CGhoul2Info_v *ghoul2/*0*/, int entNum/*-1*/, int modelNum/*-1*/, int boltNum/*-1*/ )
 {
 	if ( theFxHelper.mFrameTime < 1 )
@@ -794,7 +794,7 @@ CEmitter *FX_AddEmitter( vec3_t org, vec3_t vel, vec3_t accel,
 CLight *FX_AddLight( vec3_t org, float size1, float size2, float sizeParm,
 							vec3_t rgb1, vec3_t rgb2, float rgbParm,
 							int killTime, int flags = 0,
-							EMatImpactEffect matImpactFX /*MATIMPACTFX_NONE*/, int fxParm /*-1*/,
+							EMatImpactEffect_e matImpactFX /*MATIMPACTFX_NONE*/, int fxParm /*-1*/,
 							CGhoul2Info_v *ghoul2/*0*/, int entNum/*-1*/, int modelNum/*-1*/, int boltNum/*-1*/)
 {
 	if ( theFxHelper.mFrameTime < 1 )
@@ -863,7 +863,7 @@ COrientedParticle *FX_AddOrientedParticle( vec3_t org, vec3_t norm, vec3_t vel, 
 						vec3_t min, vec3_t max, float bounce,
 						int deathID, int impactID,
 						int killTime, qhandle_t shader, int flags = 0,
-						EMatImpactEffect matImpactFX /*MATIMPACTFX_NONE*/, int fxParm /*-1*/,
+						EMatImpactEffect_e matImpactFX /*MATIMPACTFX_NONE*/, int fxParm /*-1*/,
 						CGhoul2Info_v *ghoul2/*0*/, int entNum/*-1*/, int modelNum/*-1*/, int boltNum/*-1*/ )
 {
 	if ( theFxHelper.mFrameTime < 1 )
@@ -1022,7 +1022,7 @@ CFlash *FX_AddFlash( vec3_t origin,
 					float alpha1, float alpha2, float alphaParm,
 					vec3_t sRGB, vec3_t eRGB, float rgbParm,
 					int killTime, qhandle_t shader, int flags,
-					EMatImpactEffect matImpactFX /*MATIMPACTFX_NONE*/, int fxParm /*-1*/ )
+					EMatImpactEffect_e matImpactFX /*MATIMPACTFX_NONE*/, int fxParm /*-1*/ )
 {
 	if ( theFxHelper.mFrameTime < 1 )
 	{ // disallow adding new effects when the system is paused

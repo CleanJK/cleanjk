@@ -21,13 +21,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "qcommon/q_common.h"
 
-typedef struct persisentData_t
-{
+struct persisentData_t {
 	const void *data;
 	size_t size;
 
 	char name[MAX_QPATH];
-} persisentData_t;
+};
 
 #define MAX_PERSISENT_DATA_STORES (16)
 static persisentData_t persistentData[MAX_PERSISENT_DATA_STORES];

@@ -26,7 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <cstdio>
 #include <sys/stat.h>
 #define __STDC_FORMAT_MACROS
-#include <inttypes.h>
+#include <cinttypes>
 #include "qcommon/q_common.h"
 #include "qcommon/com_cvar.h"
 #include "qcommon/com_cvars.h"
@@ -369,7 +369,7 @@ void *Sys_LoadMachOBundle( const char *name )
 }
 #endif
 
-enum SearchPathFlag
+enum SearchPathFlag_e
 {
 	SEARCH_PATH_MOD		= 1 << 0,
 	SEARCH_PATH_BASE	= 1 << 1,

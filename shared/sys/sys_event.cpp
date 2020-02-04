@@ -42,9 +42,9 @@ static sysEvent_t	eventQue[MAX_QUED_EVENTS] = {};
 static sysEvent_t	*lastEvent = nullptr;
 static uint32_t		eventHead = 0, eventTail = 0;
 
-static const char *Sys_EventName( sysEventType_t evType ) {
+static const char *Sys_EventName( sysEventType_e evType ) {
 
-	static const char *evNames[SE_MAX] = {
+	static constexpr const char *evNames[SE_MAX] = {
 		"SE_NONE",
 		"SE_KEY",
 		"SE_CHAR",
@@ -105,7 +105,7 @@ Ptr should either be null, or point to a block of data that can
 be freed by the game later.
 ================
 */
-void Sys_QueEvent( int evTime, sysEventType_t evType, int value, int value2, int ptrLength, void *ptr ) {
+void Sys_QueEvent( int evTime, sysEventType_e evType, int value, int value2, int ptrLength, void *ptr ) {
 	sysEvent_t	*ev;
 
 	if ( evTime == 0 ) {

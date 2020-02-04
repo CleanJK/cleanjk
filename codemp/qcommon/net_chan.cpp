@@ -47,7 +47,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #define	FRAGMENT_BIT	(1<<31)
 
-static char *netsrcString[2] = {
+static constexpr const char *netsrcString[2] = {
 	"client",
 	"server"
 };
@@ -57,7 +57,7 @@ void Netchan_Init( int port ) {
 }
 
 // called to open a channel to a remote system
-void Netchan_Setup( netsrc_t sock, netchan_t *chan, netadr_t adr, int qport ) {
+void Netchan_Setup( netsrc_e sock, netchan_t *chan, netadr_t adr, int qport ) {
 	Com_Memset (chan, 0, sizeof(*chan));
 
 	assert( qport == (qport & 0x7fff) && "Netchan_Setup: qport overflow (qport > 0x7fff)" );
@@ -426,19 +426,19 @@ bool	NET_IsLocalAddress( netadr_t adr ) {
 // there needs to be enough loopback messages to hold a complete gamestate of maximum size
 #define	MAX_LOOPBACK	16
 
-typedef struct loopmsg_s {
+struct loopmsg_t {
 	byte	data[MAX_PACKETLEN];
 	int		datalen;
-} loopmsg_t;
+};
 
-typedef struct loopback_s {
+struct loopback_t {
 	loopmsg_t	msgs[MAX_LOOPBACK];
 	int			get, send;
-} loopback_t;
+};
 
 loopback_t	loopbacks[2];
 
-bool	NET_GetLoopPacket (netsrc_t sock, netadr_t *net_from, msg_t *net_message)
+bool	NET_GetLoopPacket (netsrc_e sock, netadr_t *net_from, msg_t *net_message)
 {
 	int		i;
 	loopback_t	*loop;
@@ -462,7 +462,7 @@ bool	NET_GetLoopPacket (netsrc_t sock, netadr_t *net_from, msg_t *net_message)
 
 }
 
-void NET_SendLoopPacket (netsrc_t sock, int length, const void *data, netadr_t to)
+void NET_SendLoopPacket (netsrc_e sock, int length, const void *data, netadr_t to)
 {
 	int		i;
 	loopback_t	*loop;
@@ -476,7 +476,7 @@ void NET_SendLoopPacket (netsrc_t sock, int length, const void *data, netadr_t t
 	loop->msgs[i].datalen = length;
 }
 
-void NET_SendPacket( netsrc_t sock, int length, const void *data, netadr_t to ) {
+void NET_SendPacket( netsrc_e sock, int length, const void *data, netadr_t to ) {
 
 	// sequenced packets are shown in netchan, so just show oob
 	if ( showpackets->integer && *(int *)data == -1 )	{
@@ -498,7 +498,7 @@ void NET_SendPacket( netsrc_t sock, int length, const void *data, netadr_t to ) 
 }
 
 // Sends a text message in an out-of-band datagram
-void QDECL NET_OutOfBandPrint( netsrc_t sock, netadr_t adr, const char *format, ... ) {
+void QDECL NET_OutOfBandPrint( netsrc_e sock, netadr_t adr, const char *format, ... ) {
 	va_list		argptr;
 	char		string[MAX_MSGLEN];
 
@@ -517,7 +517,7 @@ void QDECL NET_OutOfBandPrint( netsrc_t sock, netadr_t adr, const char *format, 
 }
 
 // Sends a data message in an out-of-band datagram (only used for "connect")
-void QDECL NET_OutOfBandData( netsrc_t sock, netadr_t adr, byte *format, int len ) {
+void QDECL NET_OutOfBandData( netsrc_e sock, netadr_t adr, byte *format, int len ) {
 	byte		string[MAX_MSGLEN*2];
 	int			i;
 	msg_t		mbuf;

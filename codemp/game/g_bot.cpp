@@ -32,7 +32,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #define BOT_SPAWN_QUEUE_DEPTH	16
 
-static struct botSpawnQueue_s {
+static struct botSpawnQueue_t {
 	int		clientNum;
 	int		spawnTime;
 } botSpawnQueue[BOT_SPAWN_QUEUE_DEPTH];
@@ -645,7 +645,7 @@ bool G_BotConnect( int clientNum, bool restart ) {
 static void G_AddBot( const char *name, float skill, const char *team, int delay, char *altname) {
 	gentity_t *bot = nullptr;
 	int       clientNum;
-	team_t    preTeam = TEAM_FREE;
+	team_e    preTeam = TEAM_FREE;
 	char      userinfo[MAX_INFO_STRING] = {0};
 	char      *botinfo = nullptr;
 	char      *key = nullptr;

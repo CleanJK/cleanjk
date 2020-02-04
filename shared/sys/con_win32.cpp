@@ -24,7 +24,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "qcommon/q_common.h"
 #include "sys/sys_local.h"
 #include "sys/con_local.h"
-#include <Windows.h>
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
 
 #define QCONSOLE_HISTORY 32
 
@@ -67,7 +68,7 @@ static WORD CON_ColorCharToAttrib( char color ) {
 	}
 	else
 	{
-		float *rgba = g_color_table[ ColorIndex( color ) ];
+		const float *rgba = g_color_table[ ColorIndex( color ) ];
 
 		// set foreground color
 		attrib = ( rgba[0] >= 0.5 ? FOREGROUND_RED		: 0 ) |

@@ -29,7 +29,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #define	WAVEVALUE( table, base, amplitude, phase, freq )  ((base) + table[ Q_ftol( ( ( (phase) + tess.shaderTime * (freq) ) * FUNCTABLE_SIZE ) ) & FUNCTABLE_MASK ] * (amplitude))
 
-static float *TableForFunc( genFunc_t func )
+static float *TableForFunc( genFunc_e func )
 {
 	switch ( func )
 	{
@@ -406,7 +406,7 @@ static void AutospriteDeform( void ) {
 }
 
 // Autosprite2 will pivot a rectangular quad along the center of its long axis
-int edgeVerts[6][2] = {
+constexpr int edgeVerts[6][2] = {
 	{ 0, 1 },
 	{ 0, 2 },
 	{ 0, 3 },
@@ -806,8 +806,8 @@ void RB_CalcFogTexCoords( float *st ) {
 			}
 		}
 
-		st[0] = Q_isnan (s) ? 0.0f : s;
-		st[1] = Q_isnan (s) ? 0.0f : t;
+		st[0] = std::isnan (s) ? 0.0f : s;
+		st[1] = std::isnan (s) ? 0.0f : t;
 		st += 2;
 	}
 }

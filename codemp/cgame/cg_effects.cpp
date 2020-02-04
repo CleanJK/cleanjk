@@ -647,7 +647,7 @@ void CG_ExplosionEffects( vec3_t origin, float intensity, int radius, int time )
 }
 
 // Adds an explosion to a misc model breakables
-void CG_MiscModelExplosion( vec3_t mins, vec3_t maxs, int size, material_t chunkType )
+void CG_MiscModelExplosion( vec3_t mins, vec3_t maxs, int size, chunkMaterial_e chunkType )
 {
 	int		ct = 13;
 	float	r;
@@ -756,14 +756,14 @@ void CG_MiscModelExplosion( vec3_t mins, vec3_t maxs, int size, material_t chunk
 // Fun chunk spewer
 
 void CG_Chunks( int owner, vec3_t origin, const vec3_t normal, const vec3_t mins, const vec3_t maxs,
-						float speed, int numChunks, material_t chunkType, int customChunk, float baseScale )
+						float speed, int numChunks, chunkMaterial_e chunkType, int customChunk, float baseScale )
 {
 	localEntity_t	*le;
 	refEntity_t		*re;
 	vec3_t			dir;
 	int				i, j, k;
 	int				chunkModel = 0;
-	leBounceSoundType_t	bounce = LEBS_NONE;
+	leBounceSoundType_e	bounce = LEBS_NONE;
 	float			r, speedMod = 1.0f;
 	bool		chunk = false;
 

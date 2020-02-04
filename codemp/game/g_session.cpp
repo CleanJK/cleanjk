@@ -88,9 +88,9 @@ void G_ReadSessionData( gclient_t *client )
 		client->sess.IP
 		);
 
-	client->sess.selectedFP     = (forcePowers_t)tempSelectedFP;
-	client->sess.sessionTeam	= (team_t)tempSessionTeam;
-	client->sess.spectatorState	= (spectatorState_t)tempSpectatorState;
+	client->sess.selectedFP     = (forcePowers_e)tempSelectedFP;
+	client->sess.sessionTeam	= (team_e)tempSessionTeam;
+	client->sess.spectatorState	= (spectatorState_e)tempSpectatorState;
 	client->sess.teamLeader		= (bool)tempTeamLeader;
 
 	// convert back to spaces from unused chars, as session data is written that way.

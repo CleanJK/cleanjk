@@ -122,7 +122,7 @@ static void R_ChopPolyBehindPlane( int numInPoints, vec3_t inPoints[MAX_VERTS_ON
 	}
 }
 
-void R_BoxSurfaces_r(mnode_t *node, vec3_t mins, vec3_t maxs, surfaceType_t **list, int listsize, int *listlength, vec3_t dir) {
+void R_BoxSurfaces_r(mnode_t *node, vec3_t mins, vec3_t maxs, surfaceType_e **list, int listsize, int *listlength, vec3_t dir) {
 
 	int			s, c;
 	msurface_t	*surf, **mark;
@@ -164,14 +164,14 @@ void R_BoxSurfaces_r(mnode_t *node, vec3_t mins, vec3_t maxs, surfaceType_t **li
 				surf->viewCount = tr.viewCount;
 			}
 		}
-		else if (*(surfaceType_t *) (surf->data) != SF_GRID &&
-			 *(surfaceType_t *) (surf->data) != SF_TRIANGLES)
+		else if (*(surfaceType_e *) (surf->data) != SF_GRID &&
+			 *(surfaceType_e *) (surf->data) != SF_TRIANGLES)
 			surf->viewCount = tr.viewCount;
 		// check the viewCount because the surface may have
 		// already been added if it spans multiple leafs
 		if (surf->viewCount != tr.viewCount) {
 			surf->viewCount = tr.viewCount;
-			list[*listlength] = (surfaceType_t *) surf->data;
+			list[*listlength] = (surfaceType_e *) surf->data;
 			(*listlength)++;
 		}
 		mark++;
@@ -235,7 +235,7 @@ int R_MarkFragments( int numPoints, const vec3_t *points, const vec3_t projectio
 				   int maxPoints, vec3_t pointBuffer, int maxFragments, markFragment_t *fragmentBuffer ) {
 	int				numsurfaces, numPlanes;
 	int				i, j, k, m, n;
-	surfaceType_t	*surfaces[64];
+	surfaceType_e	*surfaces[64];
 	vec3_t			mins, maxs;
 	int				returnedFragments;
 	int				returnedPoints;

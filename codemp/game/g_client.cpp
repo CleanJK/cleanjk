@@ -558,7 +558,7 @@ gentity_t *SelectRandomDeathmatchSpawnPoint( bool isbot ) {
 }
 
 // Chooses a player start, deathmatch start, etc
-gentity_t *SelectRandomFurthestSpawnPoint ( vec3_t avoidPoint, vec3_t origin, vec3_t angles, team_t team, bool isbot ) {
+gentity_t *SelectRandomFurthestSpawnPoint ( vec3_t avoidPoint, vec3_t origin, vec3_t angles, team_e team, bool isbot ) {
 	gentity_t	*spot;
 	vec3_t		delta;
 	float		dist;
@@ -770,12 +770,12 @@ tryAgain:
 }
 
 // Chooses a player start, deathmatch start, etc
-gentity_t *SelectSpawnPoint ( vec3_t avoidPoint, vec3_t origin, vec3_t angles, team_t team, bool isbot ) {
+gentity_t *SelectSpawnPoint ( vec3_t avoidPoint, vec3_t origin, vec3_t angles, team_e team, bool isbot ) {
 	return SelectRandomFurthestSpawnPoint( avoidPoint, origin, angles, team, isbot );
 }
 
 // Try to find a spawn point marked 'initial', otherwise use normal spawn selection.
-gentity_t *SelectInitialSpawnPoint( vec3_t origin, vec3_t angles, team_t team, bool isbot ) {
+gentity_t *SelectInitialSpawnPoint( vec3_t origin, vec3_t angles, team_e team, bool isbot ) {
 	gentity_t	*spot;
 
 	spot = nullptr;
@@ -1021,7 +1021,7 @@ void ClientRespawn( gentity_t *ent ) {
 }
 
 // Returns number of players on a team
-int TeamCount( int ignoreClientNum, team_t team ) {
+int TeamCount( int ignoreClientNum, team_e team ) {
 	int		i;
 	int		count = 0;
 
@@ -1057,7 +1057,7 @@ int TeamLeader( int team ) {
 	return -1;
 }
 
-team_t PickTeam( int ignoreClientNum ) {
+team_e PickTeam( int ignoreClientNum ) {
 	int		counts[TEAM_NUM_TEAMS];
 
 	counts[TEAM_BLUE] = TeamCount( ignoreClientNum, TEAM_BLUE );
@@ -1523,10 +1523,10 @@ void SetupGameGhoul2Model(gentity_t *ent, char *modelname, char *skinName)
 	}
 }
 
-typedef struct userinfoValidate_s {
+struct userinfoValidate_t {
 	const char		*field, *fieldClean;
 	unsigned int	minCount, maxCount;
-} userinfoValidate_t;
+};
 
 #define UIF( x, _min, _max ) { STRING(\\) #x STRING(\\), STRING( x ), _min, _max }
 static userinfoValidate_t userinfoFields[] = {
@@ -1553,7 +1553,7 @@ static userinfoValidate_t userinfoFields[] = {
 };
 static const size_t numUserinfoFields = ARRAY_LEN( userinfoFields );
 
-static const char *userinfoValidateExtra[USERINFO_VALIDATION_MAX] = {
+static constexpr const char *userinfoValidateExtra[USERINFO_VALIDATION_MAX] = {
 	"Size",					// USERINFO_VALIDATION_SIZE
 	"# of slashes",			// USERINFO_VALIDATION_SLASH
 	"Extended ascii",		// USERINFO_VALIDATION_EXTASCII
@@ -1697,7 +1697,7 @@ bool ClientUserinfoChanged( int clientNum ) {
 	char *value=nullptr, userinfo[MAX_INFO_STRING], buf[MAX_INFO_STRING], oldClientinfo[MAX_INFO_STRING], model[MAX_QPATH],
 		forcePowers[DEFAULT_FORCEPOWERS_LEN], oldname[MAX_NETNAME], color1[16], color2[16];
 	bool modelChanged = false;
-	gender_t gender = GENDER_MALE;
+	gender_e gender = GENDER_MALE;
 
 	trap->GetUserinfo( clientNum, userinfo, sizeof( userinfo ) );
 
@@ -2048,7 +2048,7 @@ void ClientBegin( int clientNum, bool allowTeamReset ) {
 		if (allowTeamReset)
 		{
 			const char *team = "Red";
-			team_t preSess;
+			team_e preSess;
 
 			//SetTeam(ent, "");
 			ent->client->sess.sessionTeam = PickTeam(-1);
@@ -2116,7 +2116,7 @@ void ClientBegin( int clientNum, bool allowTeamReset ) {
 	{
 		if (ent->client->ps.fd.forcePowersActive & (1 << i))
 		{
-			WP_ForcePowerStop(ent, (forcePowers_t)i);
+			WP_ForcePowerStop(ent, (forcePowers_e)i);
 		}
 		i++;
 	}
@@ -3019,7 +3019,7 @@ void ClientDisconnect( int clientNum ) {
 	{
 		if (ent->client->ps.fd.forcePowersActive & (1 << i))
 		{
-			WP_ForcePowerStop(ent, (forcePowers_t)i);
+			WP_ForcePowerStop(ent, (forcePowers_e)i);
 		}
 		i++;
 	}

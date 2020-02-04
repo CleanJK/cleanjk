@@ -82,19 +82,19 @@ static void CVU_GunDrift( void ) {
 
 // Cvar table
 
-typedef struct cvarTable_s {
+struct cvarTable_t {
 	vmCvar_t	*vmCvar;
 	char		*cvarName;
 	char		*defaultString;
 	void		(*update)( void );
 	uint32_t	cvarFlags;
-} cvarTable_t;
+};
 
 #define XCVAR_DECL
 	#include "cgame/cg_xcvar.h"
 #undef XCVAR_DECL
 
-static const cvarTable_t cvarTable[] = {
+static constexpr cvarTable_t cvarTable[] = {
 	#define XCVAR_LIST
 		#include "cgame/cg_xcvar.h"
 	#undef XCVAR_LIST

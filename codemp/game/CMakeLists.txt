@@ -107,11 +107,6 @@ set(MPGameCommonFiles
 source_group("common" FILES ${MPGameCommonFiles})
 set(MPGameFiles ${MPGameFiles} ${MPGameCommonFiles})
 
-set(MPGameCommonSafeFiles
-	${SharedCommonSafeFiles}
-	)
-source_group("common/safe" FILES ${MPGameCommonSafeFiles})
-set(MPGameFiles ${MPGameFiles} ${MPGameCommonSafeFiles})
 
 set(MPGameCgameFiles
 	"${MPDir}/cgame/animtable.h"

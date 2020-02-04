@@ -26,33 +26,16 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // This crosses both client and server.  It could all be crammed into bg_public, but isolation of this type of data is best.
 
-// ======================================================================
-// INCLUDE
-// ======================================================================
-
 #include <cstdint>
 
-// ======================================================================
-// DEFINE
-// ======================================================================
-
-//anything > this will be considered not player useable
-#define LAST_USEABLE_WEAPON			WP_BRYAR_OLD
-
-// Specific weapon information
-#define FIRST_WEAPON		WP_BRYAR_PISTOL		// this is the first weapon for next and prev weapon switching
-#define MAX_PLAYER_WEAPONS	WP_NUM_WEAPONS-1	// this is the max you can switch to and get with the give all.
-
+#define LAST_USEABLE_WEAPON		WP_BRYAR_OLD //anything > this will be considered not player useable
+#define FIRST_WEAPON				WP_BRYAR_PISTOL		// this is the first weapon for next and prev weapon switching
+#define MAX_PLAYER_WEAPONS		WP_NUM_WEAPONS-1	// this is the max you can switch to and get with the give all.
 #define DEFAULT_SHOTGUN_SPREAD	700
 #define DEFAULT_SHOTGUN_COUNT	11
+#define LIGHTNING_RANGE			768
 
-#define	LIGHTNING_RANGE		768
-
-// ======================================================================
-// ENUM
-// ======================================================================
-
-enum weapon_t : int32_t {
+enum weapon_e : int32_t {
 	WP_NONE,
 
 	WP_STUN_BATON,
@@ -85,8 +68,7 @@ enum weapon_t : int32_t {
 	WP_NUM_WEAPONS
 };
 
-typedef enum //# ammo_e
-{
+enum ammo_e {
 	AMMO_NONE,
 	AMMO_FORCE,		// AMMO_PHASER
 	AMMO_BLASTER,	// AMMO_STARFLEET,
@@ -98,14 +80,9 @@ typedef enum //# ammo_e
 	AMMO_TRIPMINE,
 	AMMO_DETPACK,
 	AMMO_MAX
-} ammo_t;
+};
 
-// ======================================================================
-// STRUCT
-// ======================================================================
-
-typedef struct weaponData_s
-{
+struct weaponData_t {
 //	char	classname[32];		// Spawning name
 
 	int		ammoIndex;			// Index to proper ammo slot
@@ -127,17 +104,12 @@ typedef struct weaponData_s
 
 	int		maxCharge;			// stop subtracting once charged for this many ms
 	int		altMaxCharge;		// above for secondary
-} weaponData_t;
+};
 
-typedef struct  ammoData_s
-{
-//	char	icon[32];	// Name of ammo icon file
+struct ammoData_t {
 	int		max;		// Max amount player can hold of ammo
-} ammoData_t;
+};
 
-// ======================================================================
-// EXTERN VARIABLE
-// ======================================================================
+extern ammoData_t	ammoData[AMMO_MAX];
+extern weaponData_t	weaponData[WP_NUM_WEAPONS];
 
-extern ammoData_t ammoData[AMMO_MAX];
-extern weaponData_t weaponData[WP_NUM_WEAPONS];

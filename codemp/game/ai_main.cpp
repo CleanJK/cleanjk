@@ -62,7 +62,7 @@ gentity_t *droppedRedFlag;
 gentity_t *eFlagBlue;
 gentity_t *droppedBlueFlag;
 
-const char *ctfStateNames[] = {
+constexpr const char *ctfStateNames[] = {
 	"CTFSTATE_NONE",
 	"CTFSTATE_ATTACKER",
 	"CTFSTATE_DEFENDER",
@@ -72,7 +72,7 @@ const char *ctfStateNames[] = {
 	"CTFSTATE_MAXCTFSTATES"
 };
 
-const char *ctfStateDescriptions[] = {
+constexpr const char *ctfStateDescriptions[] = {
 	"I'm not occupied",
 	"I'm attacking the enemy's base",
 	"I'm defending our base",
@@ -81,7 +81,7 @@ const char *ctfStateDescriptions[] = {
 	"I've got the enemy's flag"
 };
 
-const char *teamplayStateDescriptions[] = {
+constexpr const char *teamplayStateDescriptions[] = {
 	"I'm not occupied",
 	"I'm following my squad commander",
 	"I'm assisting my commanding",

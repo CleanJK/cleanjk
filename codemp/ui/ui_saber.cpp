@@ -229,7 +229,7 @@ void UI_SaberLoadParms( void )
 	WP_SaberLoadParms();
 }
 
-void UI_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax, float radius, saber_colors_t color )
+void UI_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax, float radius, saber_colors_e color )
 {
 	vec3_t		mid, rgb={1,1,1};
 	qhandle_t	blade = 0, glow = 0;
@@ -327,10 +327,10 @@ void UI_DoSaber( vec3_t origin, vec3_t dir, float length, float lengthMax, float
 	trap->R_AddRefEntityToScene( &saber );
 }
 
-void UI_SaberDrawBlade( itemDef_t *item, char *saberName, int saberModel, saberType_t saberType, vec3_t origin, vec3_t angles, int bladeNum )
+void UI_SaberDrawBlade( itemDef_t *item, char *saberName, int saberModel, saberType_e saberType, vec3_t origin, vec3_t angles, int bladeNum )
 {
 	char bladeColorString[MAX_QPATH];
-	saber_colors_t bladeColor;
+	saber_colors_e bladeColor;
 	float bladeLength,bladeRadius;
 	vec3_t	bladeOrigin={0};
 	matrix3_t	axis;
@@ -566,7 +566,7 @@ void UI_SaberDrawBlade( itemDef_t *item, char *saberName, int saberModel, saberT
 void UI_GetSaberForMenu( char *saber, int saberNum )
 {
 	char saberTypeString[MAX_QPATH]={0};
-	saberType_t saberType = SABER_NONE;
+	saberType_e saberType = SABER_NONE;
 
 	if ( saberNum == 0 )
 	{
@@ -667,7 +667,7 @@ void UI_SaberDrawBlades( itemDef_t *item, vec3_t origin, vec3_t angles )
 		}
 		if ( saber[0] )
 		{
-			saberType_t saberType;
+			saberType_e saberType;
 			int curBlade = 0;
 			int numBlades = UI_SaberNumBladesForSaber( saber );
 			if ( numBlades )

@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // My TGA loader...
 #pragma pack(push,1)
-typedef struct TGAHeader_s {
+struct TGAHeader_t {
 	byte	byIDFieldLength;	// must be 0
 	byte	byColourmapType;	// 0 = truecolour, 1 = paletted, else bad
 	byte	byImageType;		// 1 = colour mapped (palette), uncompressed, 2 = truecolour, uncompressed, else bad
@@ -43,7 +43,7 @@ typedef struct TGAHeader_s {
 								// bits 0-3 = # attr bits (alpha chan)
 								// bits 4-5 = pixel order/dir
 								// bits 6-7 scan line interleave (00b=none,01b=2way interleave,10b=4way)
-} TGAHeader_t;
+};
 #pragma pack(pop)
 
 // *pic == pic, else nullptr for failed.

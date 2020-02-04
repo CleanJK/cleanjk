@@ -309,7 +309,7 @@ static int NameToDstBlendMode( const char *name )
 	return GLS_DSTBLEND_ONE;
 }
 
-static genFunc_t NameToGenFunc( const char *funcname )
+static genFunc_e NameToGenFunc( const char *funcname )
 {
 	if ( !Q_stricmp( funcname, "sin" ) )
 	{
@@ -1647,7 +1647,7 @@ static void ParseDeform( const char **text ) {
 		if ( n < 0 || n > 7 ) {
 			n = 0;
 		}
-		ds->deformation = (deform_t)(DEFORM_TEXT0 + n);
+		ds->deformation = (deform_e)(DEFORM_TEXT0 + n);
 		return;
 	}
 
@@ -1749,7 +1749,7 @@ static void ParseDeform( const char **text ) {
 // skyParms <outerbox> <cloudheight> <innerbox>
 static void ParseSkyParms( const char **text ) {
 	char		*token;
-	const char	*suf[6] = {"rt", "lf", "bk", "ft", "up", "dn"};
+	constexpr const char	*suf[6] = {"rt", "lf", "bk", "ft", "up", "dn"};
 	char		pathname[MAX_QPATH];
 	int			i;
 
@@ -1857,12 +1857,12 @@ void ParseMaterial( const char **text )
 
 // this table is also present in q3map
 
-typedef struct infoParm_s {
+struct infoParm_t {
 	const char	*name;
 	uint32_t	clearSolid, surfaceFlags, contents;
-} infoParm_t;
+};
 
-infoParm_t	infoParms[] = {
+constexpr infoParm_t	infoParms[] = {
 	// Game content Flags
 	{ "nonsolid",		~CONTENTS_SOLID,					SURF_NONE,			CONTENTS_NONE },		// special hack to clear solid flag
 	{ "nonopaque",		~CONTENTS_OPAQUE,					SURF_NONE,			CONTENTS_NONE },		// special hack to clear opaque flag
@@ -2178,13 +2178,13 @@ static bool ParseShader( const char **text )
 
 // SHADER OPTIMIZATION AND FOGGING
 
-typedef struct collapse_s {
+struct collapse_t {
 	int		blendA;
 	int		blendB;
 
 	int		multitextureEnv;
 	int		multitextureBlend;
-} collapse_t;
+};
 
 //  Attempt to combine two stages into a single multitexture stage
 //FIXME: I think modulated add + modulated add collapses incorrectly
@@ -2237,7 +2237,7 @@ static shader_t *GeneratePermanentShader( void ) {
 		return tr.defaultShader;
 	}
 
-	newShader = (struct shader_s *)ri.Hunk_Alloc( sizeof( shader_t ), h_low );
+	newShader = (shader_t *)ri.Hunk_Alloc( sizeof( shader_t ), h_low );
 
 	*newShader = shader;
 
@@ -2369,7 +2369,7 @@ static shader_t *FinishShader( void ) {
 				else
 				{
 					stages[lmStage+i+1].bundle[0].image = tr.lightmaps[shader.lightmapIndex[i+1]];
-					stages[lmStage+i+1].bundle[0].tcGen = (texCoordGen_t)(TCGEN_LIGHTMAP+i+1);
+					stages[lmStage+i+1].bundle[0].tcGen = (texCoordGen_e)(TCGEN_LIGHTMAP+i+1);
 				}
 				stages[lmStage+i+1].rgbGen = CGEN_LIGHTMAPSTYLE;
 				stages[lmStage+i+1].stateBits &= ~(GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS);

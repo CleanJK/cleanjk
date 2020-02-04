@@ -58,14 +58,14 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define MUSIC_PARSE_ERROR(_string)		Music_Parse_Error(_string)	// only use during parse, not run-time use, and bear in mid that data is zapped after error message, so exit any loops immediately
 #define MUSIC_PARSE_WARNING(_string)	Music_Parse_Warning(_string)
 
-typedef struct MusicExitPoint_s {
+struct MusicExitPoint_t {
 	sstring_t	sNextFile;
 	sstring_t	sNextMark;		// blank if used for an explore piece, name of marker point to enter new file at
 
-} MusicExitPoint_t;
+};
 
-struct MusicExitTime_t	// need to declare this way for operator < below
-{
+// need to declare this way for operator < below
+struct MusicExitTime_t {
 	float		fTime;
 	int			iExitPoint;
 
@@ -78,13 +78,13 @@ typedef std::vector	<MusicExitPoint_t>	MusicExitPoints_t;
 typedef std::vector	<MusicExitTime_t>	MusicExitTimes_t;
 typedef std::map	<sstring_t, float>	MusicEntryTimes_t;	// key eg "marker1"
 
-typedef struct MusicFile_s {
+struct MusicFile_t {
 	sstring_t			sFileNameBase;
 	MusicEntryTimes_t	MusicEntryTimes;
 	MusicExitPoints_t	MusicExitPoints;
 	MusicExitTimes_t	MusicExitTimes;
 
-} MusicFile_t;
+};
 
 typedef std::map <sstring_t, MusicFile_t>	MusicData_t;			// string is "explore", "action", "boss" etc
 										MusicData_t* MusicData = nullptr;

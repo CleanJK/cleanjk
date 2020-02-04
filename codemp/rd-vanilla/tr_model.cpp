@@ -32,19 +32,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <vector>
 #include <map>
 
-#define	LL(x) x=LittleLong(x)
-#define	LS(x) x=LittleShort(x)
-#define	LF(x) x=LittleFloat(x)
-
 static bool R_LoadMD3 (model_t *mod, int lod, void *buffer, const char *name, bool &bAlreadyCached );
 
-typedef	struct modelHash_s
-{
+struct modelHash_t {
 	char		name[MAX_QPATH];
 	qhandle_t	handle;
-	struct		modelHash_s	*next;
-
-}modelHash_t;
+	modelHash_t	*next;
+};
 
 #define FILE_HASH_SIZE		1024
 static	modelHash_t 		*mhHashTable[FILE_HASH_SIZE];
@@ -54,7 +48,7 @@ static	modelHash_t 		*mhHashTable[FILE_HASH_SIZE];
 
 typedef std::pair<int,int> StringOffsetAndShaderIndexDest_t;
 typedef std::vector <StringOffsetAndShaderIndexDest_t> ShaderRegisterData_t;
-struct CachedEndianedModelBinary_s
+struct CachedEndianedModelBinary_t
 {
 	void	*pModelDiskImage;
 	int		iAllocSize;		// may be useful for mem-query, but I don't actually need it
@@ -62,7 +56,7 @@ struct CachedEndianedModelBinary_s
 	int		iLastLevelUsedOn;
 	int		iPAKFileCheckSum;	// else -1 if not from PAK
 
-	CachedEndianedModelBinary_s()
+	CachedEndianedModelBinary_t()
 	{
 		pModelDiskImage		= 0;
 		iAllocSize			= 0;
@@ -71,7 +65,6 @@ struct CachedEndianedModelBinary_s
 		iPAKFileCheckSum	= -1;
 	}
 };
-typedef struct CachedEndianedModelBinary_s CachedEndianedModelBinary_t;
 typedef std::map <sstring_t,CachedEndianedModelBinary_t>	CachedModels_t;
 CachedModels_t *CachedModels = nullptr;	// the important cache item.
 
@@ -576,7 +569,7 @@ model_t *R_AllocModel( void ) {
 		return nullptr;
 	}
 
-	mod = (struct model_s *)Hunk_Alloc( sizeof( *tr.models[tr.numModels] ), h_low );
+	mod = (model_t *)Hunk_Alloc( sizeof( *tr.models[tr.numModels] ), h_low );
 	mod->index = tr.numModels;
 	tr.models[tr.numModels] = mod;
 	tr.numModels++;

@@ -90,7 +90,7 @@ void R_AddPolygonSurfaces( void ) {
 
 	for ( i = 0, poly = tr.refdef.polys; i < tr.refdef.numPolys ; i++, poly++ ) {
 		sh = R_GetShaderByHandle( poly->hShader );
-		R_AddDrawSurf( (surfaceType_t *)poly, sh, poly->fogIndex, false );
+		R_AddDrawSurf( (surfaceType_e *)poly, sh, poly->fogIndex, false );
 	}
 }
 
@@ -180,7 +180,7 @@ void RE_AddRefEntityToScene( const refEntity_t *ent ) {
 		return;
 	}
 
-	/*if ( Q_isnan(ent->origin[0]) || Q_isnan(ent->origin[1]) || Q_isnan(ent->origin[2]) ) {
+	/*if ( std::isnan(ent->origin[0]) || std::isnan(ent->origin[1]) || std::isnan(ent->origin[2]) ) {
 		static bool firstTime = true;
 		if (firstTime) {
 			firstTime = false;

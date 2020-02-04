@@ -66,7 +66,7 @@ static	unsigned short		vq2[256*16*4];
 static	unsigned short		vq4[256*64*4];
 static	unsigned short		vq8[256*256*4];
 
-typedef struct cinematics_s {
+struct cinematics_t {
 	byte				linbuf[DEFAULT_CIN_WIDTH*DEFAULT_CIN_HEIGHT*4*2];
 	byte				file[65536];
 	short				sqrTable[256];
@@ -77,15 +77,15 @@ typedef struct cinematics_s {
 	long				oldXOff, oldYOff, oldysize, oldxsize;
 
 	int					currentHandle;
-} cinematics_t;
+};
 
-typedef struct cin_cache_s {
+struct cin_cache_t {
 	char				fileName[MAX_OSPATH];
 	int					CIN_WIDTH, CIN_HEIGHT;
 	int					xpos, ypos, width, height;
 	bool			looping, holdAtEnd, dirty, alterGameState, silent, shader;
 	fileHandle_t		iFile;
-	e_status			status;
+	status_e			status;
 	unsigned int		startTime;
 	unsigned int		lastTime;
 	long				tfps;
@@ -117,7 +117,7 @@ typedef struct cin_cache_s {
 	int					playonwalls;
 	byte*				buf;
 	long				drawX, drawY;
-} cin_cache_t;
+};
 
 static cinematics_t		cin;
 static cin_cache_t		cinTable[MAX_VIDEO_HANDLES];
@@ -1106,7 +1106,7 @@ static void RoQShutdown( void ) {
 	currentHandle = -1;
 }
 
-e_status CIN_StopCinematic(int handle) {
+status_e CIN_StopCinematic(int handle) {
 
 	if (handle < 0 || handle>= MAX_VIDEO_HANDLES || cinTable[handle].status == FMV_EOF) return FMV_EOF;
 	currentHandle = handle;
@@ -1129,7 +1129,7 @@ e_status CIN_StopCinematic(int handle) {
 }
 
 // Fetch and decompress the pending frame
-e_status CIN_RunCinematic (int handle)
+status_e CIN_RunCinematic (int handle)
 {
 	int	start = 0;
 	int     thisTime = 0;

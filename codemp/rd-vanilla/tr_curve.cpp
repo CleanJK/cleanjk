@@ -108,7 +108,7 @@ static void MakeMeshNormals( int width, int height, drawVert_t ctrl[MAX_GRID_SIZ
 	bool	good[8];
 	bool	wrapWidth, wrapHeight;
 	float		len;
-static	int	neighbors[8][2] = {
+static constexpr	int	neighbors[8][2] = {
 	{0,1}, {1,1}, {1,0}, {1,-1}, {0,-1}, {-1,-1}, {-1,0}, {-1,1}
 	};
 
@@ -260,7 +260,7 @@ srfGridMesh_t *R_CreateSurfaceGridMesh(int width, int height,
 	size = (width * height - 1) * sizeof( drawVert_t ) + sizeof( *grid );
 
 #ifdef PATCH_STITCHING
-	grid = (struct srfGridMesh_s *)/*Hunk_Alloc*/ Z_Malloc( size, TAG_GRIDMESH, false );
+	grid = (srfGridMesh_t *)/*Hunk_Alloc*/ Z_Malloc( size, TAG_GRIDMESH, false );
 	memset(grid, 0, size);
 
 	grid->widthLodError = (float *)/*Hunk_Alloc*/ Z_Malloc( width * 4, TAG_GRIDMESH, false );

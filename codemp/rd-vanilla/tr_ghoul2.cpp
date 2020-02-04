@@ -34,10 +34,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "qcommon/disablewarnings.h"
 
-#define	LL(x) x=LittleLong(x)
-#define	LS(x) x=LittleShort(x)
-#define	LF(x) x=LittleFloat(x)
-
 #ifdef G2_PERFORMANCE_ANALYSIS
 #include "qcommon/timing.h"
 
@@ -242,7 +238,7 @@ class CBoneCache
 		{
 			for ( int j = 0; j < 4; j++ )
 			{
-				assert( !Q_isnan(mSmoothBones[index].boneMatrix.matrix[i][j]));
+				assert( !std::isnan(mSmoothBones[index].boneMatrix.matrix[i][j]));
 			}
 		}
 #endif// _DEBUG
@@ -632,7 +628,7 @@ void G2_GetBoneMatrixLow(CGhoul2Info &ghoul2,int boneNum,const vec3_t scale,mdxa
 	{
 		for ( int j = 0; j < 4; j++ )
 		{
-			assert( !Q_isnan(retMatrix.matrix[i][j]));
+			assert( !std::isnan(retMatrix.matrix[i][j]));
 		}
 	}
 #endif// _DEBUG
@@ -2373,7 +2369,7 @@ void RenderSurfaces(CRenderSurface &RS) //also ended up just ripping right from 
 				newSurf->surfaceData = surface;
 			}
 			newSurf->boneCache = RS.boneCache;
-			R_AddDrawSurf( (surfaceType_t *)newSurf, tr.shadowShader, 0, false );
+			R_AddDrawSurf( (surfaceType_e *)newSurf, tr.shadowShader, 0, false );
 		}
 
 		// projection shadows work fine with personal models
@@ -2385,7 +2381,7 @@ void RenderSurfaces(CRenderSurface &RS) //also ended up just ripping right from 
 			CRenderableSurface *newSurf = new CRenderableSurface;
 			newSurf->surfaceData = surface;
 			newSurf->boneCache = RS.boneCache;
-			R_AddDrawSurf( (surfaceType_t *)newSurf, tr.projectionShadowShader, 0, false );
+			R_AddDrawSurf( (surfaceType_e *)newSurf, tr.projectionShadowShader, 0, false );
 		}
 
 		// don't add third_person objects if not viewing through a portal
@@ -2394,7 +2390,7 @@ void RenderSurfaces(CRenderSurface &RS) //also ended up just ripping right from 
 			CRenderableSurface *newSurf = new CRenderableSurface;
 			newSurf->surfaceData = surface;
 			newSurf->boneCache = RS.boneCache;
-			R_AddDrawSurf( (surfaceType_t *)newSurf, (shader_t *)shader, RS.fogNum, false );
+			R_AddDrawSurf( (surfaceType_e *)newSurf, (shader_t *)shader, RS.fogNum, false );
 
 #ifdef _G2_GORE
 			if (RS.gore_set && drawGore)
@@ -2474,7 +2470,7 @@ void RenderSurfaces(CRenderSurface &RS) //also ended up just ripping right from 
 
 						last->goreChain=newSurf2;
 						last=newSurf2;
-						R_AddDrawSurf( (surfaceType_t *)newSurf2,gshader, RS.fogNum, false );
+						R_AddDrawSurf( (surfaceType_e *)newSurf2,gshader, RS.fogNum, false );
 					}
 				}
 			}
@@ -2712,7 +2708,7 @@ static void G2_Sort_Models(CGhoul2Info_v &ghoul2, int * const modelList, int * c
 	}
 }
 
-void *G2_FindSurface_BC(const model_s *mod, int index, int lod)
+void *G2_FindSurface_BC(const model_t *mod, int index, int lod)
 {
 	assert(mod);
 	assert(mod->mdxm);
@@ -3619,7 +3615,7 @@ void RB_SurfaceGhoul( CRenderableSurface *surf )
 // These are the old bones:
 // Complete list of all 72 bones:
 
-int OldToNewRemapTable[72] = {
+constexpr int OldToNewRemapTable[72] = {
 0,// Bone 0:   "model_root":           Parent: ""  (index -1)
 1,// Bone 1:   "pelvis":               Parent: "model_root"  (index 0)
 2,// Bone 2:   "Motion":               Parent: "pelvis"  (index 1)

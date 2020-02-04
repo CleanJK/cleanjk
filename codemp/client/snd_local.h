@@ -24,9 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-// ======================================================================
-// INCLUDE
-// ======================================================================
+// snd_local.h -- private sound definations
 
 #include "client/snd_public.h"
 #include "mp3code/mp3struct.h"
@@ -45,51 +43,33 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <AL/alc.h>*/
 #endif
 
-// ======================================================================
-// DEFINE
-// ======================================================================
+#define	PAINTBUFFER_SIZE			1024
+#define	START_SAMPLE_IMMEDIATE	0x7fffffff
 
-#define	PAINTBUFFER_SIZE 1024
-#define START_SAMPLE_IMMEDIATE 0x7fffffff
-
-#define NUM_STREAMING_BUFFERS 4
-#define STREAMING_BUFFER_SIZE 4608		// 4 decoded MP3 frames
-
-#define QUEUED 1
-#define UNQUEUED 2
-
-#define	MAX_CHANNELS 32
-
-#define	MAX_RAW_SAMPLES	16384
-
-// ======================================================================
-// ENUM
-// ======================================================================
+#define	NUM_STREAMING_BUFFERS	4
+#define	STREAMING_BUFFER_SIZE	4608	// 4 decoded MP3 frames
+#define	QUEUED			1
+#define	UNQUEUED		2
+#define	MAX_CHANNELS				32
+#define	MAX_RAW_SAMPLES			16384
 
 // keep this enum in sync with the table "sSoundCompressionMethodStrings"	-ste
-typedef enum
-{
+enum SoundCompressionMethod_t {
 	ct_16 = 0,		// formerly ct_NONE in EF1, now indicates 16-bit samples (the default)
 	ct_MP3,
 	ct_NUMBEROF		// used only for array sizing
-
-} SoundCompressionMethod_t;
-
-// ======================================================================
-// STRUCT
-// ======================================================================
+};
 
 // !!! if this is changed, the asm code must change !!!
-typedef struct portable_samplepair_s
-{
+struct portable_samplepair_t {
 	int			left;	// the final values will be clamped to +/- 0x00ffff00 and shifted down
 	int			right;
-} portable_samplepair_t;
+};
 
-typedef struct sfx_s {
+struct sfx_t {
 	short			*pSoundData;
-	bool		bDefaultSound;			// couldn't be loaded, so use buzz
-	bool		bInMemory;				// not in Memory, set true when loaded, and false when its buffers are freed up because of being old, so can be reloaded
+	bool			bDefaultSound;			// couldn't be loaded, so use buzz
+	bool			bInMemory;				// not in Memory, set true when loaded, and false when its buffers are freed up because of being old, so can be reloaded
 	SoundCompressionMethod_t eSoundCompressionMethod;
 	MP3STREAM		*pMP3StreamHeader;		// nullptr ptr unless this sfx_t is an MP3. Use Z_Malloc and Z_Free
 	int 			iSoundLengthInSamples;	// length in samples, always kept as 16bit now so this is #shorts (watch for stereo later for music?)
@@ -104,19 +84,19 @@ typedef struct sfx_s {
 #endif
 	char		*lipSyncData;
 
-	struct sfx_s	*next;					// only used because of hash table when registering
-} sfx_t;
+	sfx_t *next;					// only used because of hash table when registering
+};
 
 // Open AL specific
 #ifdef USE_OPENAL
-typedef struct STREAMINGBUFFER_s {
+struct STREAMINGBUFFER_t {
 	ALuint	BufferID;
 	ALuint	Status;
 	char	*Data;
-} STREAMINGBUFFER;
+};
 #endif
 
-typedef struct channel_s {
+struct channel_t {
 // back-indented fields new in TA codebase, will re-format when MP3 code finished -ste
 // note: field missing in TA: bool	loopSound;		// from an S_AddLoopSound call, cleared each frame
 	unsigned int startSample;	// START_SAMPLE_IMMEDIATE = set immediately on next mix
@@ -128,15 +108,15 @@ typedef struct channel_s {
 
 	vec3_t		origin;			// only use if fixed_origin is set
 
-	bool	fixed_origin;	// use origin instead of fetching entnum's origin
+	bool		fixed_origin;	// use origin instead of fetching entnum's origin
 	sfx_t		*thesfx;		// sfx structure
-	bool	loopSound;		// from an S_AddLoopSound call, cleared each frame
+	bool		loopSound;		// from an S_AddLoopSound call, cleared each frame
 	MP3STREAM	MP3StreamHeader;
 	byte		MP3SlidingDecodeBuffer[50000/*12000*/];	// typical back-request = -3072, so roughly double is 6000 (safety), then doubled again so the 6K pos is in the middle of the buffer)
 	int			iMP3SlidingDecodeWritePos;
 	int			iMP3SlidingDecodeWindowPos;
 
-	bool	doppler;
+	bool		doppler;
 	float		dopplerScale;
 
 	// Open AL specific
@@ -145,35 +125,27 @@ typedef struct channel_s {
 	bool	bProcessed;	// Signifies if this channel / source has been processed
 	bool	bStreaming;	// Set to true if the data needs to be streamed (MP3 or dialogue)
 #ifdef USE_OPENAL
-	STREAMINGBUFFER	buffers[NUM_STREAMING_BUFFERS];	// AL Buffers for streaming
+	STREAMINGBUFFER_t	buffers[NUM_STREAMING_BUFFERS];	// AL Buffers for streaming
 	ALuint		alSource;		// Open AL Source
 #endif
 	bool		bPlaying;		// Set to true when a sound is playing on this channel / source
 	int			iStartTime;		// Time playback of Source begins
 	int			lSlotID;		// ID of Slot rendering Source's environment (enables a send to this FXSlot)
-} channel_t;
+};
 
-typedef struct wavinfo_s {
+struct wavinfo_t {
 	int			format;
 	int			rate;
 	int			width;
 	int			channels;
 	int			samples;
 	int			dataofs;		// chunk starts this many bytes from file start
-} wavinfo_t;
+};
 
-// ======================================================================
-// EXTERN VARIABLE
-// ======================================================================
-
-extern channel_t s_channels[MAX_CHANNELS];
-extern int s_paintedtime;
-extern portable_samplepair_t s_rawsamples[MAX_RAW_SAMPLES];
-extern vec3_t listener_origin;
-
-// ======================================================================
-// FUNCTION
-// ======================================================================
+extern	channel_t				s_channels[MAX_CHANNELS];
+extern	int						s_paintedtime;
+extern	portable_samplepair_t	s_rawsamples[MAX_RAW_SAMPLES];
+extern	vec3_t					listener_origin;
 
 byte *SND_malloc(int iSize, sfx_t *sfx);
 channel_t *S_PickChannel(int entnum, int entchannel);

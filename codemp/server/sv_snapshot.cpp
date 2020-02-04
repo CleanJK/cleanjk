@@ -248,10 +248,10 @@ void SV_UpdateServerCommandsToClient( client_t *client, msg_t *msg ) {
 }
 
 // Build a client snapshot structure
-typedef struct snapshotEntityNumbers_s {
+struct snapshotEntityNumbers_t {
 	int		numSnapshotEntities;
 	int		snapshotEntities[MAX_SNAPSHOT_ENTITIES];
-} snapshotEntityNumbers_t;
+};
 
 static int QDECL SV_QsortEntityNumbers( const void *a, const void *b ) {
 	int	*ea, *eb;

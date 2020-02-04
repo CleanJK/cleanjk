@@ -86,19 +86,19 @@ static void UI_UpdateScreenshot( void )
 
 // Cvar table
 
-typedef struct cvarTable_s {
+struct cvarTable_t {
 	vmCvar_t	*vmCvar;
 	char		*cvarName;
 	char		*defaultString;
 	void		(*update)( void );
 	uint32_t	cvarFlags;
-} cvarTable_t;
+};
 
 #define XCVAR_DECL
 	#include "ui/ui_xcvar.h"
 #undef XCVAR_DECL
 
-static const cvarTable_t uiCvarTable[] = {
+static constexpr cvarTable_t uiCvarTable[] = {
 	#define XCVAR_LIST
 		#include "ui/ui_xcvar.h"
 	#undef XCVAR_LIST

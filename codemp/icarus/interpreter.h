@@ -142,12 +142,11 @@ enum
 // ======================================================================
 
 #if !defined( _GAME ) && !defined( _CGAME ) && !defined( UI_BUILD )
-typedef struct variable_s
-{
+struct variable_t {
 	char	name[MAX_VAR_NAME];
 	int		type;
 	void	*data;
-} variable_t;
+};
 
 using variable_m = std::map<std::string, variable_t*>;
 using variable_v = std::vector <variable_t*>;

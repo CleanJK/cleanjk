@@ -209,7 +209,7 @@ void SV_Startup( void ) {
 	}
 	SV_BoundMaxClients( 1 );
 
-	svs.clients = (struct client_s *)Z_Malloc (sizeof(client_t) * sv_maxclients->integer, TAG_CLIENTS, true );
+	svs.clients = (client_t *)Z_Malloc (sizeof(client_t) * sv_maxclients->integer, TAG_CLIENTS, true );
 	if ( dedicated->integer ) {
 		svs.numSnapshotEntities = sv_maxclients->integer * PACKET_BACKUP * MAX_SNAPSHOT_ENTITIES;
 		Cvar_Set( "r_Ghoul2AnimSmooth", "0");
@@ -261,7 +261,7 @@ void SV_ChangeMaxClients( void ) {
 		return;
 	}
 
-	oldClients = (struct client_s *)Hunk_AllocateTempMemory( count * sizeof(client_t) );
+	oldClients = (client_t *)Hunk_AllocateTempMemory( count * sizeof(client_t) );
 	// copy the clients to hunk memory
 	for ( i = 0 ; i < count ; i++ ) {
 		if ( svs.clients[i].state >= CS_CONNECTED ) {
@@ -276,7 +276,7 @@ void SV_ChangeMaxClients( void ) {
 	Z_Free( svs.clients );
 
 	// allocate new clients
-	svs.clients = (struct client_s *)Z_Malloc ( sv_maxclients->integer * sizeof(client_t), TAG_CLIENTS, true );
+	svs.clients = (client_t *)Z_Malloc ( sv_maxclients->integer * sizeof(client_t), TAG_CLIENTS, true );
 	Com_Memset( svs.clients, 0, sv_maxclients->integer * sizeof(client_t) );
 
 	// copy the clients over
@@ -434,11 +434,11 @@ void SV_SpawnServer( char *server, bool killBots, ForceReload_e eForceReload ) {
 	FS_ClearPakReferences(0);
 
 	// allocate the snapshot entities on the hunk
-//	svs.snapshotEntities = (struct entityState_s *)Hunk_Alloc( sizeof(entityState_t)*svs.numSnapshotEntities, h_high );
+//	svs.snapshotEntities = (entityState_t *)Hunk_Alloc( sizeof(entityState_t)*svs.numSnapshotEntities, h_high );
 	svs.nextSnapshotEntities = 0;
 
 	// allocate the snapshot entities
-	svs.snapshotEntities = new entityState_s[svs.numSnapshotEntities];
+	svs.snapshotEntities = new entityState_t[svs.numSnapshotEntities];
 	// we CAN afford to do this here, since we know the STL vectors in Ghoul2 are empty
 	memset(svs.snapshotEntities, 0, sizeof(entityState_t)*svs.numSnapshotEntities);
 

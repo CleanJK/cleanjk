@@ -1,14 +1,14 @@
 #include "qcommon/q_shared.h"
 #include "qcommon/q_string.h"
 
-#include <assert.h>
-#include <ctype.h>
-#include <errno.h>
-#include <math.h>
-#include <stddef.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cassert>
+#include <cctype>
+#include <cerrno>
+#include <cmath>
+#include <cstddef>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
 #include "qcommon/q_color.h"
 

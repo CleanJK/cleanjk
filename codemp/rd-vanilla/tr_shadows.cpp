@@ -39,10 +39,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #define _STENCIL_REVERSE
 
-typedef struct edgeDef_s {
+struct edgeDef_t {
 	int		i2;
 	int		facing;
-} edgeDef_t;
+};
 
 #define	MAX_EDGE_DEFS	32
 

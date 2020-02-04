@@ -42,9 +42,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // Removeip will only remove an address specified exactly the same way.
 // You cannot addip a subnet, then removeip a single host.
 
-typedef struct ipFilter_s {
+struct ipFilter_t {
 	uint32_t mask, compare;
-} ipFilter_t;
+};
 
 #define	MAX_IPFILTERS (1024)
 
@@ -400,17 +400,17 @@ void Svcmd_Say_f( void ) {
 	trap->SendServerCommand( -1, va("print \"server: %s\n\"", text ) );
 }
 
-typedef struct svcmd_s {
+struct svcmd_t {
 	const char	*name;
 	void		(*func)(void);
-	bool	dedicated;
-} svcmd_t;
+	bool		dedicated;
+};
 
 int svcmdcmp( const void *a, const void *b ) {
 	return Q_stricmp( (const char *)a, ((svcmd_t*)b)->name );
 }
 
-const svcmd_t svcmds[] = {
+constexpr svcmd_t svcmds[] = {
 	{ "addbot",                   Svcmd_AddBot_f,                   false },
 	{ "addip",                    Svcmd_AddIP_f,                    false },
 	{ "botlist",                  Svcmd_BotList_f,                  false },

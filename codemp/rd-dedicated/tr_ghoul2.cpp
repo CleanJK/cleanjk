@@ -35,8 +35,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "qcommon/disablewarnings.h"
 
-#define	LL(x) x=LittleLong(x)
-
 #ifdef G2_PERFORMANCE_ANALYSIS
 #include "qcommon/timing.h"
 
@@ -242,7 +240,7 @@ class CBoneCache
 		{
 			for ( int j = 0; j < 4; j++ )
 			{
-				assert( !Q_isnan(mSmoothBones[index].boneMatrix.matrix[i][j]));
+				assert( !std::isnan(mSmoothBones[index].boneMatrix.matrix[i][j]));
 			}
 		}
 #endif// _DEBUG
@@ -632,7 +630,7 @@ void G2_GetBoneMatrixLow(CGhoul2Info &ghoul2,int boneNum,const vec3_t scale,mdxa
 	{
 		for ( int j = 0; j < 4; j++ )
 		{
-			assert( !Q_isnan(retMatrix.matrix[i][j]));
+			assert( !std::isnan(retMatrix.matrix[i][j]));
 		}
 	}
 #endif// _DEBUG
@@ -2366,7 +2364,7 @@ static void G2_Sort_Models(CGhoul2Info_v &ghoul2, int * const modelList, int * c
 	}
 }
 
-void *G2_FindSurface_BC(const model_s *mod, int index, int lod)
+void *G2_FindSurface_BC(const model_t *mod, int index, int lod)
 {
 	assert(mod);
 	assert(mod->mdxm);
@@ -2802,7 +2800,7 @@ void G2_ConstructGhoulSkeleton( CGhoul2Info_v &ghoul2,const int frameNum,bool ch
 // These are the old bones:
 
 // Complete list of all 72 bones:
-int OldToNewRemapTable[72] = {
+constexpr int OldToNewRemapTable[72] = {
 0,// Bone 0:   "model_root":           Parent: ""  (index -1)
 1,// Bone 1:   "pelvis":               Parent: "model_root"  (index 0)
 2,// Bone 2:   "Motion":               Parent: "pelvis"  (index 1)

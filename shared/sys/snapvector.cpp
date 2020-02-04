@@ -22,12 +22,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include <math.h>
+#include <cmath>
 #if _MSC_VER
-# include <float.h>
+# include <cfloat>
 # pragma fenv_access (on)
 #else
-# include <fenv.h>
+# include <cfenv>
 #endif
 
 #if _MSC_VER

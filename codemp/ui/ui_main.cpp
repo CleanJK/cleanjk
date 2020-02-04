@@ -107,15 +107,14 @@ const char *datapadMoveTitleBaseAnims[MD_MOVE_TITLE_MAX] =
 
 #define MAX_MOVES 16
 
-typedef struct datpadmovedata_s
-{
+struct datpadmovedata_t {
 	const char	*title;
 	const char	*desc;
 	const char	*anim;
 	short	sound;
-} datpadmovedata_t;
+};
 
-static datpadmovedata_t datapadMoveData[MD_MOVE_TITLE_MAX][MAX_MOVES] = {
+static constexpr datpadmovedata_t datapadMoveData[MD_MOVE_TITLE_MAX][MAX_MOVES] = {
 	{// Acrobatics
 		{ "@MENUS_FORCE_JUMP1",				"@MENUS_FORCE_JUMP1_DESC",				"BOTH_FORCEJUMP1",				MDS_FORCE_JUMP },
 		{ "@MENUS_FORCE_FLIP",				"@MENUS_FORCE_FLIP_DESC",				"BOTH_FLIP_F",					MDS_FORCE_JUMP },
@@ -467,7 +466,7 @@ static const char *UI_SelectedMap(int index, int *actual);
 int	uiSkinColor=TEAM_FREE;
 int	uiHoldSkinColor=TEAM_FREE;	// Stores the skin color so that in non-team games, the player screen remembers the team you chose, in case you're coming back from the force powers screen.
 
-static const char *skillLevels[] = {
+static constexpr const char *skillLevels[] = {
 	"SKILL1", // "Initiate"
 	"SKILL2", // "Padawan"
 	"SKILL3", // "Jedi"
@@ -476,7 +475,7 @@ static const char *skillLevels[] = {
 };
 static const size_t numSkillLevels = ARRAY_LEN( skillLevels );
 
-static const char *gameTypes[GT_MAX_GAME_TYPE] = {
+static constexpr const char *gameTypes[GT_MAX_GAME_TYPE] = {
 	"FFA",
 	"Holocron",
 	"JediMaster",
@@ -488,7 +487,7 @@ static const char *gameTypes[GT_MAX_GAME_TYPE] = {
 };
 static const int numGameTypes = ARRAY_LEN( gameTypes );
 
-static const char *netNames[] = {
+static constexpr const char *netNames[] = {
 	"???",
 	"UDP",
 	nullptr
@@ -702,7 +701,7 @@ static void UI_BuildPlayerList() {
 	}
 }
 
-void UI_SetActiveMenu( uiMenuCommand_t menu ) {
+void UI_SetActiveMenu( uiMenuCommand_e menu ) {
 	char buf[256];
 
 	// this should be the ONLY way the menu system is brought up
@@ -1260,7 +1259,7 @@ const char *UI_FilterDir( int value ) {
 	return uiInfo.modList[value - 1].modName;
 }
 
-static const char *handicapValues[] = {"None","95","90","85","80","75","70","65","60","55","50","45","40","35","30","25","20","15","10","5",nullptr};
+static constexpr const char *handicapValues[] = {"None","95","90","85","80","75","70","65","60","55","50","45","40","35","30","25","20","15","10","5",nullptr};
 
 static void UI_DrawHandicap(rectDef_t *rect, float scale, vec4_t color, int textStyle, int iMenuFont) {
 	int i, h;
@@ -4064,14 +4063,13 @@ static void UI_LoadMovies() {
 }
 
 #define MAX_DEMO_FOLDER_DEPTH (8)
-typedef struct loadDemoContext_s
-{
+struct loadDemoContext_t {
 	int depth;
 	bool warned;
 	char demoList[MAX_DEMOLIST];
 	char directoryList[MAX_DEMOLIST];
 	char *dirListHead;
-} loadDemoContext_t;
+};
 
 static void UI_LoadDemosInDirectory( loadDemoContext_t *ctx, const char *directory )
 {
@@ -4583,7 +4581,7 @@ static void UI_GetCharacterCvars ( void )
 
 static void UI_UpdateSaberCvars ( void )
 {
-	saber_colors_t colorI;
+	saber_colors_e colorI;
 
 	trap->Cvar_Set ( "saber1", UI_Cvar_VariableString ( "ui_saber" ) );
 	trap->Cvar_Set ( "saber2", UI_Cvar_VariableString ( "ui_saber2" ) );
@@ -4753,8 +4751,8 @@ static void UI_GetSaberCvars ( void )
 	trap->Cvar_Set ( "ui_saber", UI_Cvar_VariableString ( "saber1" ) );
 	trap->Cvar_Set ( "ui_saber2", UI_Cvar_VariableString ( "saber2" ));
 
-	trap->Cvar_Set("g_saber_color", SaberColorToString((saber_colors_t)trap->Cvar_VariableIntegerValue("color1")));
-	trap->Cvar_Set("g_saber2_color", SaberColorToString((saber_colors_t)trap->Cvar_VariableIntegerValue("color2")));
+	trap->Cvar_Set("g_saber_color", SaberColorToString((saber_colors_e)trap->Cvar_VariableIntegerValue("color1")));
+	trap->Cvar_Set("g_saber2_color", SaberColorToString((saber_colors_e)trap->Cvar_VariableIntegerValue("color2")));
 
 	trap->Cvar_Set ( "ui_saber_color", UI_Cvar_VariableString ( "g_saber_color" ) );
 	trap->Cvar_Set ( "ui_saber2_color", UI_Cvar_VariableString ( "g_saber2_color" ) );
@@ -6147,11 +6145,11 @@ static void UI_BuildServerDisplayList(int force) {
 //	}
 }
 
-typedef struct serverStatusCvar_s {
+struct serverStatusCvar_t {
 	char *name, *altName;
-} serverStatusCvar_t;
+};
 
-const serverStatusCvar_t serverStatusCvars[] = {
+constexpr serverStatusCvar_t serverStatusCvars[] = {
 	{ "sv_hostname", "Name" },
 	{ "Address",     "" },
 	{ "gamename",    "Game name" },

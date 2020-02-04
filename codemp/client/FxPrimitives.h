@@ -130,7 +130,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // ======================================================================
 
 // stuff that can occur when an effect is flagged with "materialImpact" and it hits something
-enum EMatImpactEffect
+enum EMatImpactEffect_e
 {
 	MATIMPACTFX_NONE = 0,
 	MATIMPACTFX_SHELLSOUND
@@ -152,7 +152,7 @@ protected:
 
 	unsigned int	mFlags;
 
-	EMatImpactEffect	mMatImpactFX;
+	EMatImpactEffect_e	mMatImpactFX;
 	int					mMatImpactParm;
 
 	// Size of our object, useful for things that have physics
@@ -195,9 +195,9 @@ public:
 	inline void	SetTimeEnd( int time )		{ mTimeEnd = time;				}
 	inline void SetImpactFxID( int id )		{ mImpactFxID = id;				}
 	inline void SetDeathFxID( int id )		{ mDeathFxID = id;				}
-	inline EMatImpactEffect GetMatImpactFX() { return mMatImpactFX; }
+	inline EMatImpactEffect_e GetMatImpactFX() { return mMatImpactFX; }
 	inline int	GetMatImpactParm() { return mMatImpactParm; }
-	inline void SetMatImpactFX(EMatImpactEffect matFX) { mMatImpactFX = matFX; }
+	inline void SetMatImpactFX(EMatImpactEffect_e matFX) { mMatImpactFX = matFX; }
 	inline void SetMatImpactParm(int matParm) { mMatImpactParm = matParm; }
 };
 
@@ -212,8 +212,7 @@ protected:
 
 public:
 
-	typedef struct
-	{
+	struct TVert {
 		vec3_t	origin;
 
 		// very specifc case, we can modulate the color and the alpha
@@ -231,7 +230,7 @@ public:
 		float	destST[2];
 		float	curST[2];
 
-	} TVert;
+	};
 
 	TVert		mVerts[4];
 	qhandle_t	mShader;

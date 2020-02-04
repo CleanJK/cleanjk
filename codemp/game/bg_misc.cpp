@@ -151,7 +151,7 @@ const char	*bg_customSiegeSoundNames[MAX_CUSTOM_SIEGE_SOUNDS] =
 //rww - not putting @ in front of these because
 //we don't need them in a cgame StringEd lookup.
 //Let me know if this causes problems, pat.
-char *forceMasteryLevels[NUM_FORCE_MASTERY_LEVELS] =
+const char *forceMasteryLevels[NUM_FORCE_MASTERY_LEVELS] =
 {
 	"MASTERY0",	//"Uninitiated",	// FORCE_MASTERY_UNINITIATED,
 	"MASTERY1",	//"Initiate",		// FORCE_MASTERY_INITIATE,
@@ -163,7 +163,7 @@ char *forceMasteryLevels[NUM_FORCE_MASTERY_LEVELS] =
 	"MASTERY7",	//"Jedi Master"		// FORCE_MASTERY_JEDI_MASTER,
 };
 
-int forceMasteryPoints[NUM_FORCE_MASTERY_LEVELS] =
+const int forceMasteryPoints[NUM_FORCE_MASTERY_LEVELS] =
 {
 	0,		// FORCE_MASTERY_UNINITIATED,
 	5,		// FORCE_MASTERY_INITIATE,
@@ -198,7 +198,7 @@ int bgForcePowerCost[NUM_FORCE_POWERS][NUM_FORCE_POWER_LEVELS] = //0 == neutral
 	//NUM_FORCE_POWERS
 };
 
-int forcePowerSorted[NUM_FORCE_POWERS] =
+const int forcePowerSorted[NUM_FORCE_POWERS] =
 { //rww - always use this order when drawing force powers for any reason
 	FP_TELEPATHY,
 	FP_HEAL,
@@ -220,7 +220,7 @@ int forcePowerSorted[NUM_FORCE_POWERS] =
 	FP_SABERTHROW
 };
 
-int forcePowerDarkLight[NUM_FORCE_POWERS] = //0 == neutral
+const int forcePowerDarkLight[NUM_FORCE_POWERS] = //0 == neutral
 { //nothing should be usable at rank 0..
 	FORCE_LIGHTSIDE,//FP_HEAL,//instant
 	0,//FP_LEVITATION,//hold/duration
@@ -243,7 +243,7 @@ int forcePowerDarkLight[NUM_FORCE_POWERS] = //0 == neutral
 		//NUM_FORCE_POWERS
 };
 
-int WeaponReadyAnim[WP_NUM_WEAPONS] =
+const int WeaponReadyAnim[WP_NUM_WEAPONS] =
 {
 	TORSO_DROPWEAP1,//WP_NONE,
 
@@ -295,7 +295,7 @@ int WeaponReadyLegsAnim[WP_NUM_WEAPONS] =
 	BOTH_STAND1//WP_TURRET,
 };
 
-int WeaponAttackAnim[WP_NUM_WEAPONS] =
+const int WeaponAttackAnim[WP_NUM_WEAPONS] =
 {
 	BOTH_ATTACK1,//WP_NONE, //(shouldn't happen)
 
@@ -1676,7 +1676,7 @@ bool BG_HasYsalamiri(int gametype, playerState_t *ps)
 	return false;
 }
 
-bool BG_CanUseFPNow(int gametype, playerState_t *ps, int time, forcePowers_t power)
+bool BG_CanUseFPNow(int gametype, playerState_t *ps, int time, forcePowers_e power)
 {
 	if (BG_HasYsalamiri(gametype, ps))
 	{
@@ -1737,7 +1737,7 @@ bool BG_CanUseFPNow(int gametype, playerState_t *ps, int time, forcePowers_t pow
 	return true;
 }
 
-gitem_t	*BG_FindItemForPowerup( powerup_t pw ) {
+gitem_t	*BG_FindItemForPowerup( powerup_e pw ) {
 	int		i;
 
 	for ( i = 0 ; i < bg_numItems ; i++ ) {
@@ -1751,7 +1751,7 @@ gitem_t	*BG_FindItemForPowerup( powerup_t pw ) {
 	return nullptr;
 }
 
-gitem_t	*BG_FindItemForHoldable( holdable_t pw ) {
+gitem_t	*BG_FindItemForHoldable( holdable_e pw ) {
 	int		i;
 
 	for ( i = 0 ; i < bg_numItems ; i++ ) {
@@ -1765,7 +1765,7 @@ gitem_t	*BG_FindItemForHoldable( holdable_t pw ) {
 	return nullptr;
 }
 
-gitem_t	*BG_FindItemForWeapon( weapon_t weapon ) {
+gitem_t	*BG_FindItemForWeapon( weapon_e weapon ) {
 	gitem_t	*it;
 
 	for ( it = bg_itemlist + 1 ; it->classname ; it++) {
@@ -1778,7 +1778,7 @@ gitem_t	*BG_FindItemForWeapon( weapon_t weapon ) {
 	return nullptr;
 }
 
-gitem_t	*BG_FindItemForAmmo( ammo_t ammo ) {
+gitem_t	*BG_FindItemForAmmo( ammo_e ammo ) {
 	gitem_t	*it;
 
 	for ( it = bg_itemlist + 1 ; it->classname ; it++) {
@@ -1874,7 +1874,7 @@ void BG_CycleForce( playerState_t *ps, int direction ) {
 
 	// if we found one, select it
 	if ( foundnext != -1 )
-		ps->fd.forcePowerSelected = (forcePowers_t)foundnext;
+		ps->fd.forcePowerSelected = (forcePowers_e)foundnext;
 }
 
 int BG_GetItemIndexByTag(int tag, int type)
@@ -2232,7 +2232,7 @@ void BG_EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vec3_t resu
 	}
 }
 
-const char *eventnames[EV_NUM_ENTITY_EVENTS] = {
+constexpr const char *eventnames[EV_NUM_ENTITY_EVENTS] = {
 	"EV_NONE",
 
 	"EV_CLIENTJOIN",

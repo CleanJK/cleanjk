@@ -206,12 +206,12 @@ void SP_misc_weather_zone( void ) {
 
 	trap->WE_AddWeatherZone( mins, maxs );
 }
-typedef struct spawn_s {
+struct spawn_t {
 	const char	*name;
 	void		(*spawn)( void );
-} spawn_t;
+};
 
-const spawn_t spawns [] = {
+constexpr spawn_t spawns [] = {
 	{ "misc_model_static",     SP_misc_model_static },
 	{ "misc_skyportal",        SP_misc_skyportal },
 	{ "misc_skyportal_orient", SP_misc_skyportal_orient },
@@ -227,8 +227,9 @@ void CG_ParseEntityFromSpawnVars( void ) {
 	spawn_t *s;
 	int i;
 	char *classname;
-	char *p, *value, *gametypeName;
-	static char *gametypeNames [GT_MAX_GAME_TYPE] = { "ffa", "holocron", "jedimaster", "duel", "powerduel", "team", "ctf", "cty" };
+	char *p, *value;
+	const char *gametypeName;
+	static constexpr const char *gametypeNames [GT_MAX_GAME_TYPE] = { "ffa", "holocron", "jedimaster", "duel", "powerduel", "team", "ctf", "cty" };
 
 	// check for "notteam" flag (GT_FFA, GT_DUEL)
 	if( cgs.gametype >= GT_TEAM ) {

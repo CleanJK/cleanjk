@@ -338,7 +338,7 @@ int BG_GetTime( void ) {
 
 extern char *forceHolocronModels[];
 
-const char *CG_GetStringEdString(char *refSection, char *refName)
+const char *CG_GetStringEdString(char *refSection, const char *refName)
 {
 	static char text[2][1024];	//just incase it's nested
 	static int		index = 0;
@@ -1288,7 +1288,7 @@ void CG_NextForcePower_f( void )
 //	BG_CycleForce(&cg.snap->ps, 1);
 	if (cg.forceSelect != -1)
 	{
-		cg.snap->ps.fd.forcePowerSelected = (forcePowers_t)cg.forceSelect;
+		cg.snap->ps.fd.forcePowerSelected = (forcePowers_e)cg.forceSelect;
 	}
 
 	BG_CycleForce(&cg.snap->ps, 1);
@@ -1330,7 +1330,7 @@ void CG_PrevForcePower_f( void )
 //	BG_CycleForce(&cg.snap->ps, -1);
 	if (cg.forceSelect != -1)
 	{
-		cg.snap->ps.fd.forcePowerSelected = (forcePowers_t)cg.forceSelect;
+		cg.snap->ps.fd.forcePowerSelected = (forcePowers_e)cg.forceSelect;
 	}
 
 	BG_CycleForce(&cg.snap->ps, -1);

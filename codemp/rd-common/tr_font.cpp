@@ -30,8 +30,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // This file is shared in the single and multiplayer codebases, so be CAREFUL WHAT YOU ADD/CHANGE!!!!!
 
-typedef enum
-{
+enum Language_e {
 	eWestern,	// ( I only care about asian languages in here at the moment )
 	eRussian,	//  .. but now I need to care about this, since it uses a different TP
 	ePolish,	// ditto
@@ -40,7 +39,7 @@ typedef enum
 	eJapanese,	// 15x15 glyphs tucked against TL of 16x16 space
 	eChinese,	// 15x15 glyphs tucked against TL of 16x16 space
 	eThai,		// 16x16 cells with glyphs against left edge, special file (tha_widths.dat) for variable widths
-} Language_e;
+};
 
 // this is to cut down on all the stupid string compares I've been doing, and convert asian stuff to switch-case
 

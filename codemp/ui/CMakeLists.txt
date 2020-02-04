@@ -57,12 +57,6 @@ set(MPUICommonFiles
 source_group("common" FILES ${MPUICommonFiles})
 set(MPUIFiles ${MPUIFiles} ${MPUICommonFiles})
 
-set(MPUICommonSafeFiles
-	${SharedCommonSafeFiles}
-	)
-source_group("common/safe" FILES ${MPUICommonSafeFiles})
-set(MPUIFiles ${MPUIFiles} ${MPUICommonSafeFiles})
-
 set(MPUIUIFiles
 	"${MPDir}/ui/ui_atoms.cpp"
 	"${MPDir}/ui/ui_cvar.cpp"

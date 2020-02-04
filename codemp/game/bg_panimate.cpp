@@ -1031,7 +1031,7 @@ bool BG_InKnockDownOnGround( playerState_t *ps )
 	case BOTH_KNOCKDOWN4:
 	case BOTH_KNOCKDOWN5:
 	case BOTH_RELEASED:
-		//if ( PM_AnimLength( g_entities[ps->clientNum].client->clientInfo.animFileIndex, (animNumber_t)ps->legsAnim ) - ps->legsAnimTimer > 300 )
+		//if ( PM_AnimLength( g_entities[ps->clientNum].client->clientInfo.animFileIndex, (animNumber_e)ps->legsAnim ) - ps->legsAnimTimer > 300 )
 		{//at end of fall down anim
 			return true;
 		}
@@ -1051,7 +1051,7 @@ bool BG_InKnockDownOnGround( playerState_t *ps )
 	case BOTH_FORCE_GETUP_B4:
 	case BOTH_FORCE_GETUP_B5:
 	case BOTH_FORCE_GETUP_B6:
-		if ( BG_AnimLength( 0, (animNumber_t)ps->legsAnim ) - ps->legsTimer < 500 )
+		if ( BG_AnimLength( 0, (animNumber_e)ps->legsAnim ) - ps->legsTimer < 500 )
 		{//at beginning of getup anim
 			return true;
 		}
@@ -1064,7 +1064,7 @@ bool BG_InKnockDownOnGround( playerState_t *ps )
 	case BOTH_GETUP_FROLL_F:
 	case BOTH_GETUP_FROLL_L:
 	case BOTH_GETUP_FROLL_R:
-		if ( BG_AnimLength( 0, (animNumber_t)ps->legsAnim ) - ps->legsTimer < 500 )
+		if ( BG_AnimLength( 0, (animNumber_e)ps->legsAnim ) - ps->legsTimer < 500 )
 		{//at beginning of getup anim
 			return true;
 		}
@@ -1575,7 +1575,7 @@ bool BG_FullBodyTauntAnim( int anim )
 // Get the "length" of an anim given the local anim index (which skeleton) and anim number.
 // Obviously does not take things like the length of the anim while force speeding (as an example) and whatnot into
 //	account.
-int BG_AnimLength( int index, animNumber_t anim ) {
+int BG_AnimLength( int index, animNumber_e anim ) {
 	if ( (int)anim < 0 || anim >= MAX_ANIMATIONS ) {
 		return 0;
 	}
@@ -1584,7 +1584,7 @@ int BG_AnimLength( int index, animNumber_t anim ) {
 }
 
 //just use whatever pm->animations is
-int PM_AnimLength( int index, animNumber_t anim ) {
+int PM_AnimLength( int index, animNumber_e anim ) {
 	if ( !pm->animations || (int)anim < 0 || anim >= MAX_ANIMATIONS ) {
 		return 0;
 	}
@@ -1717,7 +1717,7 @@ void BG_AnimsetFree(animation_t *animset)
 }
 
 #ifdef _CGAME //none of this is actually needed serverside. Could just be moved to cgame code but it's here since it used to tie in a lot with the anim loading stuff.
-stringID_table_t animEventTypeTable[MAX_ANIM_EVENTS+1] =
+const stringID_table_t animEventTypeTable[MAX_ANIM_EVENTS+1] =
 {
 	ENUM2STRING(AEV_SOUND),			//# animID AEV_SOUND framenum soundpath randomlow randomhi chancetoplay
 	ENUM2STRING(AEV_FOOTSTEP),		//# animID AEV_FOOTSTEP framenum footstepType
@@ -1731,7 +1731,7 @@ stringID_table_t animEventTypeTable[MAX_ANIM_EVENTS+1] =
 	{ nullptr,-1 }
 };
 
-stringID_table_t footstepTypeTable[NUM_FOOTSTEP_TYPES+1] =
+const stringID_table_t footstepTypeTable[NUM_FOOTSTEP_TYPES+1] =
 {
 	ENUM2STRING(FOOTSTEP_R),
 	ENUM2STRING(FOOTSTEP_L),
@@ -1741,7 +1741,7 @@ stringID_table_t footstepTypeTable[NUM_FOOTSTEP_TYPES+1] =
 	{ nullptr,-1 }
 };
 
-int CheckAnimFrameForEventType( animevent_t *animEvents, int keyFrame, animEventType_t eventType )
+int CheckAnimFrameForEventType( animevent_t *animEvents, int keyFrame, animEventType_e eventType )
 {
 	int i;
 
@@ -1763,7 +1763,7 @@ void ParseAnimationEvtBlock(const char *aeb_filename, animevent_t *animEvents, a
 {
 	const char		*token;
 	int				num, n, animNum, keyFrame, lowestVal, highestVal, curAnimEvent, lastAnimEvent = 0;
-	animEventType_t	eventType;
+	animEventType_e	eventType;
 	char			stringData[MAX_QPATH];
 
 	// get past starting bracket
@@ -1825,8 +1825,8 @@ void ParseAnimationEvtBlock(const char *aeb_filename, animevent_t *animEvents, a
 		}
 
 		token = COM_Parse( text_p );
-		eventType = (animEventType_t)GetIDForString(animEventTypeTable, token);
-		if ( eventType == AEV_NONE || eventType == (animEventType_t)-1 )
+		eventType = (animEventType_e)GetIDForString(animEventTypeTable, token);
+		if ( eventType == AEV_NONE || eventType == (animEventType_e)-1 )
 		{//Unrecognized ANIM EVENT TYOE, or we're skipping this line, keep going till you get a good one
 			//Com_Printf(S_COLOR_YELLOW"WARNING: Unknown token %s in animEvent file %s\n", token, aeb_filename );
 			continue;

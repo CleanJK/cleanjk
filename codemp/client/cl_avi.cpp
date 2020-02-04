@@ -28,8 +28,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #define MAX_RIFF_CHUNKS 16
 
-typedef struct audioFormat_s
-{
+struct audioFormat_t {
   int rate;
   int format;
   int channels;
@@ -37,11 +36,10 @@ typedef struct audioFormat_s
 
   int sampleSize;
   int totalBytes;
-} audioFormat_t;
+};
 
-typedef struct aviFileData_s
-{
-  bool      fileOpen;
+struct aviFileData_t {
+  bool          fileOpen;
   fileHandle_t  f;
   char          fileName[ MAX_QPATH ];
   int           fileSize;
@@ -56,9 +54,9 @@ typedef struct aviFileData_s
   int           width, height;
   int           numVideoFrames;
   int           maxRecordSize;
-  bool      motionJpeg;
+  bool          motionJpeg;
 
-  bool      audio;
+  bool          audio;
   audioFormat_t a;
   int           numAudioFrames;
 
@@ -66,7 +64,7 @@ typedef struct aviFileData_s
   int           chunkStackTop;
 
   byte          *cBuffer, *eBuffer;
-} aviFileData_t;
+};
 
 static aviFileData_t afd;
 

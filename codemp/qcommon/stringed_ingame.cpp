@@ -45,18 +45,17 @@ typedef std::vector<int>		vInts_t;
 #define __DEBUGOUT(_string)	Com_OPrintf("%s",_string)
 #define __ASSERT(_blah)		assert(_blah)
 
-typedef struct SE_Entry_s
-{
+struct SE_Entry_t {
 	std::string		m_strString;
 	std::string		m_strDebug;	// english and/or "#same", used for debugging only. Also prefixed by "SE:" to show which strings go through StringEd (ie aren't hardwired)
 	int			m_iFlags;
 
-	SE_Entry_s()
+	SE_Entry_t()
 	{
 		m_iFlags = 0;
 	}
 
-} SE_Entry_t;
+};
 
 typedef std::map <std::string, SE_Entry_t> mapStringEntries_t;
 

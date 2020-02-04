@@ -27,12 +27,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // PUSHMOVE
 
-typedef struct pushed_s {
+struct pushed_t {
 	gentity_t	*ent;
 	vec3_t	origin;
 	vec3_t	angles;
 	float	deltayaw;
-} pushed_t;
+};
 pushed_t	pushed[MAX_GENTITIES], *pushed_p;
 
 #define MOVER_START_ON		1
@@ -466,7 +466,7 @@ void CalcTeamDoorCenter ( gentity_t *ent, vec3_t center )
 	}
 }
 
-void SetMoverState( gentity_t *ent, moverState_t moverState, int time ) {
+void SetMoverState( gentity_t *ent, moverState_e moverState, int time ) {
 	vec3_t			delta;
 	float			f;
 
@@ -528,7 +528,7 @@ void MatchTeam( gentity_t *teamLeader, int moverState, int time ) {
 	gentity_t		*slave;
 
 	for ( slave = teamLeader ; slave ; slave = slave->teamchain ) {
-		SetMoverState( slave, (moverState_t) moverState, time );
+		SetMoverState( slave, (moverState_e) moverState, time );
 	}
 }
 
@@ -2047,7 +2047,7 @@ void SP_func_pendulum(gentity_t *ent) {
 
 // BREAKABLE BRUSH
 
-static void CacheChunkEffects( material_t material )
+static void CacheChunkEffects( chunkMaterial_e material )
 {
 	switch( material )
 	{
@@ -2089,7 +2089,7 @@ static void CacheChunkEffects( material_t material )
 	}
 }
 
-void G_MiscModelExplosion( vec3_t mins, vec3_t maxs, int size, material_t chunkType )
+void G_MiscModelExplosion( vec3_t mins, vec3_t maxs, int size, chunkMaterial_e chunkType )
 {
 	gentity_t *te;
 	vec3_t mid;
@@ -2106,7 +2106,7 @@ void G_MiscModelExplosion( vec3_t mins, vec3_t maxs, int size, material_t chunkT
 }
 
 void G_Chunks( int owner, vec3_t origin, const vec3_t normal, const vec3_t mins, const vec3_t maxs,
-						float speed, int numChunks, material_t chunkType, int customChunk, float baseScale )
+						float speed, int numChunks, chunkMaterial_e chunkType, int customChunk, float baseScale )
 {
 	gentity_t *te = G_TempEntity( origin, EV_DEBRIS );
 
@@ -2129,7 +2129,7 @@ void funcBBrushDieGo (gentity_t *self)
 	gentity_t	*attacker = self->enemy;
 	float		scale;
 	int			i, numChunks, size = 0;
-	material_t	chunkType = self->material;
+	chunkMaterial_e	chunkType = self->material;
 
 	// if a missile is stuck to us, blow it up so we don't look dumb
 	for ( i = 0; i < MAX_GENTITIES; i++ )

@@ -29,7 +29,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "sys/sys_local.h"
 #include "sdl/sdl_icon.h"
 
-enum rserr_t
+enum rserr_e
 {
 	RSERR_OK,
 
@@ -66,13 +66,12 @@ cvar_t  *r_ext_multisample;
 /*
 ** R_GetModeInfo
 */
-typedef struct vidmode_s
-{
+struct vidmode_t {
     const char *description;
     int         width, height;
-} vidmode_t;
+};
 
-const vidmode_t r_vidModes[] = {
+constexpr vidmode_t r_vidModes[] = {
     { "Mode  0: 320x240",		320,	240 },
     { "Mode  1: 400x300",		400,	300 },
     { "Mode  2: 512x384",		512,	384 },
@@ -317,7 +316,7 @@ static bool GLimp_DetectAvailableModes(void)
 GLimp_SetMode
 ===============
 */
-static rserr_t GLimp_SetMode(glconfig_t *glConfig, const windowDesc_t *windowDesc, const char *windowTitle, int mode, bool fullscreen, bool noborder)
+static rserr_e GLimp_SetMode(glconfig_t *glConfig, const windowDesc_t *windowDesc, const char *windowTitle, int mode, bool fullscreen, bool noborder)
 {
 	int perChannelColorBits;
 	int colorBits, depthBits, stencilBits;
@@ -668,7 +667,7 @@ GLimp_StartDriverAndSetMode
 */
 static bool GLimp_StartDriverAndSetMode(glconfig_t *glConfig, const windowDesc_t *windowDesc, int mode, bool fullscreen, bool noborder)
 {
-	rserr_t err;
+	rserr_e err;
 
 	if (!SDL_WasInit(SDL_INIT_VIDEO))
 	{

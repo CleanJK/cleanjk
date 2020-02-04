@@ -133,7 +133,7 @@ void SCR_DrawSmallChar( int x, int y, int ch ) {
 
 // Draws a multi-colored string with a drop shadow, optionally forcing to a fixed color.
 // Coordinates are at 640 by 480 virtual resolution
-void SCR_DrawStringExt( int x, int y, float size, const char *string, float *setColor, bool forceColor, bool noColorEscape ) {
+static void SCR_DrawStringExt( int x, int y, float size, const char *string, const float *setColor, bool forceColor, bool noColorEscape ) {
 	vec4_t		color;
 	const char	*s;
 	int			xx;
@@ -259,10 +259,10 @@ void SCR_DrawDemoRecording( void ) {
 
 // DEBUG GRAPH
 
-typedef struct graphsamp_s {
+struct graphsamp_t {
 	float	value;
 	int		color;
-} graphsamp_t;
+};
 
 static	int			current;
 static	graphsamp_t	values[1024];
@@ -306,7 +306,7 @@ void SCR_Init( void ) {
 }
 
 // This will be called twice if rendering in stereo mode
-void SCR_DrawScreenField( stereoFrame_t stereoFrame ) {
+void SCR_DrawScreenField( stereoFrame_e stereoFrame ) {
 	re->BeginFrame( stereoFrame );
 
 	bool uiFullscreen = (bool)(cls.uiStarted && UIVM_IsFullscreen());

@@ -97,7 +97,7 @@ static bool	R_CullGrid( srfGridMesh_t *cv ) {
 
 // Tries to back face cull surfaces before they are lighted or added to the sorting list.
 // This will also allow mirrors on both sides of a model without recursion.
-static bool	R_CullSurface( surfaceType_t *surface, shader_t *shader ) {
+static bool	R_CullSurface( surfaceType_e *surface, shader_t *shader ) {
 	srfSurfaceFace_t *sface;
 	float			d;
 
@@ -588,27 +588,24 @@ void RE_GetBModelVerts( int bmodelIndex, vec3_t *verts, vec3_t normal )
 
 // WIREFRAME AUTOMAP GENERATION SYSTEM - BEGIN
 #ifndef _ALT_AUTOMAP_METHOD
-typedef struct wireframeSurfPoint_s
-{
+struct wireframeSurfPoint_t {
 	vec3_t					xyz;
 	float					alpha;
 	vec3_t					color;
-} wireframeSurfPoint_t;
+};
 
-typedef struct wireframeMapSurf_s
-{
+struct wireframeMapSurf_t {
 	bool					completelyTransparent;
 
 	int						numPoints;
 	wireframeSurfPoint_t	*points;
 
-	wireframeMapSurf_s		*next;
-} wireframeMapSurf_t;
+	wireframeMapSurf_t		*next;
+};
 
-typedef struct wireframeMap_s
-{
+struct wireframeMap_t {
     wireframeMapSurf_t		*surfs;
-} wireframeMap_t;
+};
 
 static wireframeMap_t g_autoMapFrame;
 static wireframeMapSurf_t **g_autoMapNextFree = nullptr;

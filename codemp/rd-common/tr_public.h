@@ -45,7 +45,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // ======================================================================
 
 // these are the functions exported by the refresh module
-typedef struct refexport_s {
+struct refexport_t {
 	// called before the library is unloaded
 	// if the system is just reconfiguring, pass destroyWindow = false,
 	// which will keep the screen from flashing to the desktop.
@@ -94,7 +94,7 @@ typedef struct refexport_s {
 	void				(*DrawStretchRaw)						( int x, int y, int w, int h, int cols, int rows, const byte *data, int client, bool dirty );
 	void				(*UploadCinematic)						( int cols, int rows, const byte *data, int client, bool dirty );
 
-	void				(*BeginFrame)							( stereoFrame_t stereoFrame );
+	void				(*BeginFrame)							( stereoFrame_e stereoFrame );
 
 	// if the pointers are not nullptr, timing info will be returned
 	void				(*EndFrame)								( int *frontEndMsec, int *backEndMsec );
@@ -186,7 +186,7 @@ typedef struct refexport_s {
 	int					(*G2API_GetSurfaceRenderStatus)			( CGhoul2Info_v& ghoul2, int modelIndex, const char *surfaceName );
 	int					(*G2API_GetTime)						( int argTime );
 	int					(*G2API_Ghoul2Size)						( CGhoul2Info_v &ghoul2 );
-	void				(*G2API_GiveMeVectorFromMatrix)			( mdxaBone_t *boltMatrix, Eorientations flags, vec3_t vec );
+	void				(*G2API_GiveMeVectorFromMatrix)			( mdxaBone_t *boltMatrix, Eorientations_e flags, vec3_t vec );
 	bool			(*G2API_HasGhoul2ModelOnIndex)			( CGhoul2Info_v **ghlRemove, const int modelIndex );
 	bool			(*G2API_HaveWeGhoul2Models)				( CGhoul2Info_v &ghoul2 );
 	bool			(*G2API_IKMove)							( CGhoul2Info_v &ghoul2, int time, sharedIKMoveParams_t *params );
@@ -213,8 +213,8 @@ typedef struct refexport_s {
 	void				(*G2API_ResetRagDoll)					( CGhoul2Info_v &ghoul2 );
 	bool			(*G2API_SaveGhoul2Models)				( CGhoul2Info_v &ghoul2, char **buffer, int *size );
 	void				(*G2API_SetBoltInfo)					( CGhoul2Info_v &ghoul2, int modelIndex, int boltInfo );
-	bool			(*G2API_SetBoneAngles)					( CGhoul2Info_v &ghoul2, const int modelIndex, const char *boneName, const vec3_t angles, const int flags, const Eorientations up, const Eorientations left, const Eorientations forward, qhandle_t *modelList, int blendTime, int currentTime  );
-	bool			(*G2API_SetBoneAnglesIndex)				( CGhoul2Info *ghlInfo, const int index, const vec3_t angles, const int flags, const Eorientations yaw, const Eorientations pitch, const Eorientations roll, qhandle_t *modelList, int blendTime, int currentTime );
+	bool			(*G2API_SetBoneAngles)					( CGhoul2Info_v &ghoul2, const int modelIndex, const char *boneName, const vec3_t angles, const int flags, const Eorientations_e up, const Eorientations_e left, const Eorientations_e forward, qhandle_t *modelList, int blendTime, int currentTime  );
+	bool			(*G2API_SetBoneAnglesIndex)				( CGhoul2Info *ghlInfo, const int index, const vec3_t angles, const int flags, const Eorientations_e yaw, const Eorientations_e pitch, const Eorientations_e roll, qhandle_t *modelList, int blendTime, int currentTime );
 	bool			(*G2API_SetBoneAnglesMatrix)			( CGhoul2Info *ghlInfo, const char *boneName, const mdxaBone_t &matrix, const int flags, qhandle_t *modelList, int blendTime, int currentTime );
 	bool			(*G2API_SetBoneAnglesMatrixIndex)		( CGhoul2Info *ghlInfo, const int index, const mdxaBone_t &matrix, const int flags, qhandle_t *modelList, int blendTime, int currentTime );
 	bool			(*G2API_SetBoneAnim)					( CGhoul2Info_v &ghoul2, const int modelIndex, const char *boneName, const int startFrame, const int endFrame, const int flags, const float animSpeed, const int currentTime, const float setFrame /*= -1*/, const int blendTime /*= -1*/ );
@@ -246,10 +246,10 @@ typedef struct refexport_s {
 		float				(*Font_StrLenPixels)					( const char *text, const int iFontIndex, const float scale );
 	} ext;
 
-} refexport_t;
+};
 
 // these are the functions imported by the refresh module
-typedef struct refimport_s {
+struct refimport_t {
 	void			(QDECL *Printf)						( int printLevel, const char *fmt, ...) __attribute__ ((format (printf, 2, 3)));
 	void			(QDECL *Error)						( int errorLevel, const char *fmt, ...) NORETURN_PTR __attribute__ ((format (printf, 2, 3)));
 	void			(QDECL *OPrintf)					( const char *fmt, ...) __attribute__ ((format (printf, 1, 2)));
@@ -260,7 +260,7 @@ typedef struct refimport_s {
 	// memory management (can use tr_subs)
 	void *			(*Hunk_AllocateTempMemory)			( int size );
 	void			(*Hunk_FreeTempMemory)				( void *buf );
-	void *			(*Hunk_Alloc)						( int size, ha_pref preference );
+	void *			(*Hunk_Alloc)						( int size, ha_pref_e preference );
 	int				(*Hunk_MemoryRemaining)				( void );
 	void *			(*Z_Malloc)							( int iSize, memtag_t eTag, bool bZeroit /*= false*/, int iAlign /*= 4*/); // return memory NOT zero-filled by default
 	void			(*Z_Free)							( void *ptr );
@@ -292,7 +292,7 @@ typedef struct refimport_s {
 	void			(*FS_FCloseFile)					( fileHandle_t f );
 	long			(*FS_FOpenFileRead)					( const char *qpath, fileHandle_t *file, bool uniqueFILE );
 	fileHandle_t	(*FS_FOpenFileWrite)				( const char *qpath, bool safe );
-	int				(*FS_FOpenFileByMode)				( const char *qpath, fileHandle_t *f, fsMode_t mode );
+	int				(*FS_FOpenFileByMode)				( const char *qpath, fileHandle_t *f, fsMode_e mode );
 	bool		(*FS_FileExists)					( const char *file );
 	int				(*FS_FileIsInPAK)					( const char *filename, int *pChecksum );
 	char **			(*FS_ListFiles)						( const char *directory, const char *extension, int *numfiles );
@@ -309,7 +309,7 @@ typedef struct refimport_s {
 	bool		(*Com_TheHunkMarkHasBeenMade)		( void );
 	void			(*S_RestartMusic)					( void );
 	bool		(*SND_RegisterAudio_LevelLoadEnd)	( bool bDeleteEverythingNotUsedThisLevel );
-	e_status		(*CIN_RunCinematic)					( int handle );
+	status_e		(*CIN_RunCinematic)					( int handle );
 	int				(*CIN_PlayCinematic)				( const char *arg0, int xpos, int ypos, int width, int height, int bits );
 	void			(*CIN_UploadCinematic)				( int handle );
 	void			(*CL_WriteAVIVideoFrame)			( const byte *imageBuffer, int size );
@@ -345,7 +345,7 @@ typedef struct refimport_s {
 	// Persistent data store
 	bool			(*PD_Store)							( const char *name, const void *data, size_t size );
 	const void *	(*PD_Load)							( const char *name, size_t *size );
-} refimport_t;
+};
 
 // this is the only function actually exported at the linker level
 // If the module can't init to a valid rendering state, nullptr will be

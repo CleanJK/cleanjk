@@ -344,7 +344,7 @@ int Q3_PlaySound( int taskID, int entID, const char *name, const char *channel )
 {
 	gentity_t		*ent = &g_entities[entID];
 	char			finalName[MAX_QPATH];
-	soundChannel_t	voice_chan = CHAN_VOICE; // set a default so the compiler doesn't bitch
+	soundChannel_e	voice_chan = CHAN_VOICE; // set a default so the compiler doesn't bitch
 	bool		type_voice = false;
 	int				soundHandle;
 	bool		bBroadcast;
@@ -666,7 +666,7 @@ void Q3_Lerp2Pos( int taskID, int entID, vec3_t origin, vec3_t angles, float dur
 	gentity_t	*ent = &g_entities[entID];
 	vec3_t		ang;
 	int			i;
-	moverState_t moverState;
+	moverState_e moverState;
 
 	if(!ent)
 	{
@@ -1640,7 +1640,7 @@ static void Q3_SetAngles( int entID, vec3_t angles )
 void Q3_Lerp2Origin( int taskID, int entID, vec3_t origin, float duration )
 {
 	gentity_t	*ent = &g_entities[entID];
-	moverState_t moverState;
+	moverState_e moverState;
 
 	if(!ent)
 	{
@@ -2720,7 +2720,7 @@ static void Q3_SetNoImpactDamage( int entID, bool noImp )
 static bool Q3_SetBehaviorSet( int entID, int toSet, const char *scriptname)
 {
 	gentity_t	*ent  = &g_entities[entID];
-	bSet_t		bSet = BSET_INVALID;
+	bSet_e		bSet = BSET_INVALID;
 
 	if ( !ent )
 	{

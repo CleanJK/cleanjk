@@ -378,7 +378,7 @@ static void ParseFace( dsurface_t *ds, mapVert_t *verts, msurface_t *surf, int *
 	SetPlaneSignbits( &cv->plane );
 	cv->plane.type = PlaneTypeForNormal( cv->plane.normal );
 
-	surf->data = (surfaceType_t *)cv;
+	surf->data = (surfaceType_e *)cv;
 }
 
 static void ParseMesh ( dsurface_t *ds, mapVert_t *verts, msurface_t *surf, world_t &worldData, int index ) {
@@ -389,7 +389,7 @@ static void ParseMesh ( dsurface_t *ds, mapVert_t *verts, msurface_t *surf, worl
 	int						lightmapNum[MAXLIGHTMAPS];
 	vec3_t					bounds[2];
 	vec3_t					tmpVec;
-	static surfaceType_t	skipData = SF_SKIP;
+	static surfaceType_e	skipData = SF_SKIP;
 
 	for(i=0;i<MAXLIGHTMAPS;i++)
 	{
@@ -441,7 +441,7 @@ static void ParseMesh ( dsurface_t *ds, mapVert_t *verts, msurface_t *surf, worl
 
 	// pre-tesseleate
 	grid = R_SubdividePatchToGrid( width, height, points );
-	surf->data = (surfaceType_t *)grid;
+	surf->data = (surfaceType_e *)grid;
 
 	// copy the level of detail origin, which is the center
 	// of the group of all curves that must subdivide the same
@@ -492,7 +492,7 @@ static void ParseTriSurf( dsurface_t *ds, mapVert_t *verts, msurface_t *surf, in
 	tri->verts = (drawVert_t *)(tri + 1);
 	tri->indexes = (int *)(tri->verts + tri->numVerts );
 
-	surf->data = (surfaceType_t *)tri;
+	surf->data = (surfaceType_e *)tri;
 
 	// copy vertexes
 	ClearBounds( tri->bounds[0], tri->bounds[1] );
@@ -545,10 +545,10 @@ static void ParseFlare( dsurface_t *ds, mapVert_t *verts, msurface_t *surf, int 
 		surf->shader = tr.defaultShader;
 	}
 
-	flare = (struct srfFlare_s *)Hunk_Alloc( sizeof( *flare ), h_low );
+	flare = (srfFlare_t *)Hunk_Alloc( sizeof( *flare ), h_low );
 	flare->surfaceType = SF_FLARE;
 
-	surf->data = (surfaceType_t *)flare;
+	surf->data = (surfaceType_e *)flare;
 
 	for ( i = 0 ; i < 3 ; i++ ) {
 		flare->origin[i] = LittleFloat( ds->lightmapOrigin[i] );
@@ -772,7 +772,7 @@ int R_StitchPatches( int grid1num, int grid2num, world_t &worldData ) {
 					grid2 = R_GridInsertColumn( grid2, l+1, row,
 									grid1->verts[k + 1 + offset1].xyz, grid1->widthLodError[k+1]);
 					grid2->lodStitched = false;
-					worldData.surfaces[grid2num].data = (surfaceType_t *) grid2;
+					worldData.surfaces[grid2num].data = (surfaceType_e *) grid2;
 					return true;
 				}
 			}
@@ -818,7 +818,7 @@ int R_StitchPatches( int grid1num, int grid2num, world_t &worldData ) {
 					grid2 = R_GridInsertRow( grid2, l+1, column,
 										grid1->verts[k + 1 + offset1].xyz, grid1->widthLodError[k+1]);
 					grid2->lodStitched = false;
-					worldData.surfaces[grid2num].data = (surfaceType_t *) grid2;
+					worldData.surfaces[grid2num].data = (surfaceType_e *) grid2;
 					return true;
 				}
 			}
@@ -873,7 +873,7 @@ int R_StitchPatches( int grid1num, int grid2num, world_t &worldData ) {
 					grid2 = R_GridInsertColumn( grid2, l+1, row,
 									grid1->verts[grid1->width * (k + 1) + offset1].xyz, grid1->heightLodError[k+1]);
 					grid2->lodStitched = false;
-					worldData.surfaces[grid2num].data = (surfaceType_t *) grid2;
+					worldData.surfaces[grid2num].data = (surfaceType_e *) grid2;
 					return true;
 				}
 			}
@@ -919,7 +919,7 @@ int R_StitchPatches( int grid1num, int grid2num, world_t &worldData ) {
 					grid2 = R_GridInsertRow( grid2, l+1, column,
 									grid1->verts[grid1->width * (k + 1) + offset1].xyz, grid1->heightLodError[k+1]);
 					grid2->lodStitched = false;
-					worldData.surfaces[grid2num].data = (surfaceType_t *) grid2;
+					worldData.surfaces[grid2num].data = (surfaceType_e *) grid2;
 					return true;
 				}
 			}
@@ -975,7 +975,7 @@ int R_StitchPatches( int grid1num, int grid2num, world_t &worldData ) {
 					grid2 = R_GridInsertColumn( grid2, l+1, row,
 										grid1->verts[k - 1 + offset1].xyz, grid1->widthLodError[k+1]);
 					grid2->lodStitched = false;
-					worldData.surfaces[grid2num].data = (surfaceType_t *) grid2;
+					worldData.surfaces[grid2num].data = (surfaceType_e *) grid2;
 					return true;
 				}
 			}
@@ -1023,7 +1023,7 @@ int R_StitchPatches( int grid1num, int grid2num, world_t &worldData ) {
 					if (!grid2)
 						break;
 					grid2->lodStitched = false;
-					worldData.surfaces[grid2num].data = (surfaceType_t *) grid2;
+					worldData.surfaces[grid2num].data = (surfaceType_e *) grid2;
 					return true;
 				}
 			}
@@ -1078,7 +1078,7 @@ int R_StitchPatches( int grid1num, int grid2num, world_t &worldData ) {
 					grid2 = R_GridInsertColumn( grid2, l+1, row,
 										grid1->verts[grid1->width * (k - 1) + offset1].xyz, grid1->heightLodError[k+1]);
 					grid2->lodStitched = false;
-					worldData.surfaces[grid2num].data = (surfaceType_t *) grid2;
+					worldData.surfaces[grid2num].data = (surfaceType_e *) grid2;
 					return true;
 				}
 			}
@@ -1124,7 +1124,7 @@ int R_StitchPatches( int grid1num, int grid2num, world_t &worldData ) {
 					grid2 = R_GridInsertRow( grid2, l+1, column,
 										grid1->verts[grid1->width * (k - 1) + offset1].xyz, grid1->heightLodError[k+1]);
 					grid2->lodStitched = false;
-					worldData.surfaces[grid2num].data = (surfaceType_t *) grid2;
+					worldData.surfaces[grid2num].data = (surfaceType_e *) grid2;
 					return true;
 				}
 			}
@@ -1203,7 +1203,7 @@ void R_MovePatchSurfacesToHunk(world_t &worldData) {
 			continue;
 
 		size = (grid->width * grid->height - 1) * sizeof( drawVert_t ) + sizeof( *grid );
-		hunkgrid = (struct srfGridMesh_s *)Hunk_Alloc( size, h_low );
+		hunkgrid = (srfGridMesh_t *)Hunk_Alloc( size, h_low );
 		memcpy(hunkgrid, grid, size);
 
 		hunkgrid->widthLodError = (float *)Hunk_Alloc( grid->width * 4, h_low );
@@ -1214,7 +1214,7 @@ void R_MovePatchSurfacesToHunk(world_t &worldData) {
 
 		R_FreeSurfaceGridMesh( grid );
 
-		worldData.surfaces[i].data = (surfaceType_t *) hunkgrid;
+		worldData.surfaces[i].data = (surfaceType_e *) hunkgrid;
 	}
 }
 
@@ -1245,7 +1245,7 @@ static	void R_LoadSurfaces( lump_t *surfs, lump_t *verts, lump_t *indexLump, wor
 	if ( indexLump->filelen % sizeof(*indexes))
 		Com_Error (ERR_DROP, "LoadMap: funny lump size in %s",worldData.name);
 
-	out = (struct msurface_s *)Hunk_Alloc ( count * sizeof(*out), h_low );
+	out = (msurface_t *)Hunk_Alloc ( count * sizeof(*out), h_low );
 
 	worldData.surfaces = out;
 	worldData.numsurfaces = count;
@@ -1355,7 +1355,7 @@ static	void R_LoadNodesAndLeafs (lump_t *nodeLump, lump_t *leafLump, world_t &wo
 	numNodes = nodeLump->filelen / sizeof(dnode_t);
 	numLeafs = leafLump->filelen / sizeof(dleaf_t);
 
-	out = (struct mnode_s *)Hunk_Alloc ( (numNodes + numLeafs) * sizeof(*out), h_low);
+	out = (mnode_t *)Hunk_Alloc ( (numNodes + numLeafs) * sizeof(*out), h_low);
 
 	worldData.nodes = out;
 	worldData.numnodes = numNodes + numLeafs;
@@ -1442,7 +1442,7 @@ static	void R_LoadMarksurfaces (lump_t *l, world_t &worldData)
 	if (l->filelen % sizeof(*in))
 		Com_Error (ERR_DROP, "LoadMap: funny lump size in %s",worldData.name);
 	count = l->filelen / sizeof(*in);
-	out = (struct msurface_s **)Hunk_Alloc ( count*sizeof(*out), h_low);
+	out = (msurface_t **)Hunk_Alloc ( count*sizeof(*out), h_low);
 
 	worldData.marksurfaces = out;
 	worldData.nummarksurfaces = count;
@@ -1465,7 +1465,7 @@ static	void R_LoadPlanes( lump_t *l, world_t &worldData ) {
 	if (l->filelen % sizeof(*in))
 		Com_Error (ERR_DROP, "LoadMap: funny lump size in %s",worldData.name);
 	count = l->filelen / sizeof(*in);
-	out = (struct cplane_s *)Hunk_Alloc ( count*2*sizeof(*out), h_low);
+	out = (cplane_t *)Hunk_Alloc ( count*2*sizeof(*out), h_low);
 
 	worldData.planes = out;
 	worldData.numplanes = count;

@@ -78,7 +78,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // ======================================================================
 
 // Supported primitive types
-enum EPrimType
+enum EPrimType_e
 {
 	None = 0,
 	Particle,		// sprite
@@ -178,7 +178,7 @@ public:
 
 	char			mName[FX_MAX_PRIM_NAME];
 
-	EPrimType		mType;
+	EPrimType_e		mType;
 
 	CFxRange		mSpawnDelay;
 	CFxRange		mSpawnCount;
@@ -194,7 +194,7 @@ public:
 	int				mFlags;			// These need to get passed on to the primitive
 	int				mSpawnFlags;	// These are only used to control spawning, but never get passed to prims.
 
-	EMatImpactEffect	mMatImpactFX;
+	EMatImpactEffect_e	mMatImpactFX;
 
 	vec3_t			mMin;
 	vec3_t			mMax;
@@ -333,9 +333,6 @@ public:
 
 	CPrimitiveTemplate &operator=(const CPrimitiveTemplate &that);
 };
-
-// forward declaration
-struct SEffectTemplate;
 
 // Effects are built of one or more primitives
 struct SEffectTemplate

@@ -1582,7 +1582,7 @@ static bool PM_CheckJump( void )
 				{
 					if ( pm->ps->legsTimer > 400 )
 					{//not at the end of the anim
-						float animLen = PM_AnimLength( 0, (animNumber_t)BOTH_WALL_RUN_LEFT );
+						float animLen = PM_AnimLength( 0, (animNumber_e)BOTH_WALL_RUN_LEFT );
 						if ( pm->ps->legsTimer < animLen - 400 )
 						{//not at start of anim
 							VectorMA( pm->ps->origin, -16, right, traceto );
@@ -1594,7 +1594,7 @@ static bool PM_CheckJump( void )
 				{
 					if ( pm->ps->legsTimer > 400 )
 					{//not at the end of the anim
-						float animLen = PM_AnimLength( 0, (animNumber_t)BOTH_WALL_RUN_RIGHT );
+						float animLen = PM_AnimLength( 0, (animNumber_e)BOTH_WALL_RUN_RIGHT );
 						if ( pm->ps->legsTimer < animLen - 400 )
 						{//not at start of anim
 							VectorMA( pm->ps->origin, 16, right, traceto );
@@ -1918,7 +1918,7 @@ static bool PM_CheckJump( void )
 			&& ( BG_SaberInAttack( pm->ps->saberMove ) ) )
 		{//not in an anim we shouldn't interrupt
 			//see if it's not too late to start a special jump-attack
-			float animLength = PM_AnimLength( 0, (animNumber_t)pm->ps->torsoAnim );
+			float animLength = PM_AnimLength( 0, (animNumber_e)pm->ps->torsoAnim );
 			if ( animLength - pm->ps->torsoTimer < 500 )
 			{//just started the saberMove
 				//check for special-case jump attacks
@@ -6240,7 +6240,7 @@ void BG_CmdForRoll( playerState_t *ps, int anim, usercmd_t *pCmd )
 		{//end of anim
 			pCmd->forwardmove = pCmd->rightmove = 0;
 		}
-		else if ( PM_AnimLength( 0, (animNumber_t)ps->legsAnim ) - ps->torsoTimer < 350 )
+		else if ( PM_AnimLength( 0, (animNumber_e)ps->legsAnim ) - ps->torsoTimer < 350 )
 		{//beginning of anim
 			pCmd->forwardmove = pCmd->rightmove = 0;
 		}
@@ -6258,7 +6258,7 @@ void BG_CmdForRoll( playerState_t *ps, int anim, usercmd_t *pCmd )
 		{//end of anim
 			pCmd->forwardmove = pCmd->rightmove = 0;
 		}
-		else if ( PM_AnimLength( 0, (animNumber_t)ps->legsAnim ) - ps->torsoTimer < 200 )
+		else if ( PM_AnimLength( 0, (animNumber_e)ps->legsAnim ) - ps->torsoTimer < 200 )
 		{//beginning of anim
 			pCmd->forwardmove = pCmd->rightmove = 0;
 		}
@@ -6276,7 +6276,7 @@ void BG_CmdForRoll( playerState_t *ps, int anim, usercmd_t *pCmd )
 		{//end of anim
 			pCmd->forwardmove = pCmd->rightmove = 0;
 		}
-		else if ( PM_AnimLength( 0, (animNumber_t)ps->legsAnim ) - ps->torsoTimer < 150 )
+		else if ( PM_AnimLength( 0, (animNumber_e)ps->legsAnim ) - ps->torsoTimer < 150 )
 		{//beginning of anim
 			pCmd->forwardmove = pCmd->rightmove = 0;
 		}
@@ -7414,7 +7414,7 @@ static QINLINE void PM_CmdForSaberMoves(usercmd_t *ucmd)
 			float lenMin = 1700.0f;
 			float lenMax = 1800.0f;
 
-			aLen = PM_AnimLength(0, (animNumber_t)pm->ps->legsAnim);
+			aLen = PM_AnimLength(0, (animNumber_e)pm->ps->legsAnim);
 
 			if (pm->ps->legsAnim == BOTH_BUTTERFLY_LEFT)
 			{
@@ -8247,7 +8247,7 @@ void PmoveSingle (pmove_t *pmove) {
 	PM_SetWaterLevel();
 	if (pm->cmd.forcesel != (byte)-1 && (pm->ps->fd.forcePowersKnown & (1 << pm->cmd.forcesel)))
 	{
-		pm->ps->fd.forcePowerSelected = (forcePowers_t)pm->cmd.forcesel;
+		pm->ps->fd.forcePowerSelected = (forcePowers_e)pm->cmd.forcesel;
 	}
 	if (pm->cmd.invensel != (byte)-1 && (pm->ps->stats[STAT_HOLDABLE_ITEMS] & (1 << pm->cmd.invensel)))
 	{

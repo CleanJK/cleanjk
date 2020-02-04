@@ -105,12 +105,12 @@ struct playerInfo_t {
 	int				muzzleFlashTime;
 	vec3_t			viewAngles;
 	vec3_t			moveAngles;
-	weapon_t		currentWeapon;
+	weapon_e		currentWeapon;
 	int				legsAnim;
 	int				torsoAnim;
-	weapon_t		weapon;
-	weapon_t		lastWeapon;
-	weapon_t		pendingWeapon;
+	weapon_e		weapon;
+	weapon_e		lastWeapon;
+	weapon_e		pendingWeapon;
 	int				weaponTimer;
 	int				pendingLegsAnim;
 	int				torsoAnimationTimer;

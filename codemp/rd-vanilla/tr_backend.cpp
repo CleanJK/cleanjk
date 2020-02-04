@@ -42,7 +42,7 @@ bool g_bRenderGlowingObjects = false;
 // Whether the current hardware supports dynamic glows/flares.
 bool g_bDynamicGlowSupported = false;
 
-static const float s_flipMatrix[16] = {
+static constexpr float s_flipMatrix[16] = {
 	// convert from our coordinate system (looking down X)
 	// to OpenGL's coordinate system (looking down -Z)
 	0, 0, -1, 0,
@@ -570,7 +570,7 @@ static inline bool R_WorldCoordToScreenCoord( vec3_t worldCoord, int *x, int *y 
 // note that postrenders lack much of the optimization that the standard sort-render crap does, so it's slower.
 #define MAX_POST_RENDERS	128
 
-typedef struct postRender_s {
+struct postRender_t {
 	int			fogNum;
 	int			entNum;
 	int			dlighted;
@@ -578,7 +578,7 @@ typedef struct postRender_s {
 	drawSurf_t	*drawSurf;
 	shader_t	*shader;
 	bool	eValid;
-} postRender_t;
+};
 
 static postRender_t g_postRenders[MAX_POST_RENDERS];
 static int g_numPostRenders = 0;

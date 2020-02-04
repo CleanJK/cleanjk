@@ -27,11 +27,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "game/g_local.h"
 #include "qcommon/q_shared.h"
 
-typedef struct shaderRemap_s {
+struct shaderRemap_t {
   char oldShader[MAX_QPATH];
   char newShader[MAX_QPATH];
   float timeOffset;
-} shaderRemap_t;
+};
 
 #define MAX_SHADER_REMAPS 128
 
@@ -158,7 +158,7 @@ int G_BSPIndex( const char *name )
 }
 
 // Broadcasts a command to only a specific team
-void G_TeamCommand( team_t team, char *cmd ) {
+void G_TeamCommand( team_e team, char *cmd ) {
 	int		i;
 
 	for ( i = 0 ; i < level.maxclients ; i++ ) {

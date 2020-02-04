@@ -663,7 +663,9 @@ void RestoreGhoul2InfoArray()
 			singleton->Deserialize ((const char *)data, size);
 		Z_Free ((void *)data);
 
+#ifdef _DEBUG
 		assert (read == size);
+#endif
 	}
 }
 
@@ -1413,7 +1415,7 @@ bool G2API_StopBoneAnim(CGhoul2Info *ghlInfo, const char *boneName)
 }
 
 bool G2API_SetBoneAnglesIndex(CGhoul2Info *ghlInfo, const int index, const vec3_t angles, const int flags,
-							 const Eorientations yaw, const Eorientations pitch, const Eorientations roll,
+							 const Eorientations_e yaw, const Eorientations_e pitch, const Eorientations_e roll,
 							 qhandle_t *modelList, int blendTime, int currentTime)
 {
 	bool setPtrs = false;
@@ -1450,7 +1452,7 @@ bool G2API_SetBoneAnglesIndex(CGhoul2Info *ghlInfo, const int index, const vec3_
 }
 
 bool G2API_SetBoneAngles(CGhoul2Info_v &ghoul2, const int modelIndex, const char *boneName, const vec3_t angles, const int flags,
-							 const Eorientations up, const Eorientations left, const Eorientations forward,
+							 const Eorientations_e up, const Eorientations_e left, const Eorientations_e forward,
 							 qhandle_t *modelList, int blendTime, int currentTime )
 {
 	if (ghoul2.size()>modelIndex)
@@ -1991,7 +1993,7 @@ bool G2API_GetBoltMatrix(CGhoul2Info_v &ghoul2, const int modelIndex, const int 
 				{
 					for ( int j = 0; j < 4; j++ )
 					{
-						assert( !_isnan(matrix->matrix[i][j]));
+						assert( !std::isnan(matrix->matrix[i][j]));
 					}
 				}
 #endif// _DEBUG
@@ -2288,7 +2290,7 @@ int G2API_GetGhoul2ModelFlags(CGhoul2Info *ghlInfo)
 }
 
 // given a boltmatrix, return in vec a normalised vector for the axis requested in flags
-void G2API_GiveMeVectorFromMatrix(mdxaBone_t *boltMatrix, Eorientations flags, vec3_t vec)
+void G2API_GiveMeVectorFromMatrix(mdxaBone_t *boltMatrix, Eorientations_e flags, vec3_t vec)
 {
 	switch (flags)
 	{
@@ -2602,7 +2604,6 @@ bool G2API_SkinlessModel(CGhoul2Info_v& ghoul2, int modelIndex)
 	return true;
 }
 
-//#ifdef _SOF2
 #ifdef _G2_GORE
 
 //way of seeing how many marks are on a model currently -rww

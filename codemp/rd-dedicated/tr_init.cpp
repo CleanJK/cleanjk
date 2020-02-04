@@ -37,13 +37,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 int		max_polys;
 int		max_polyverts;
 
-typedef struct vidmode_s
-{
+struct vidmode_t {
     const char *description;
     int         width, height;
-} vidmode_t;
+};
 
-const vidmode_t r_vidModes[] = {
+constexpr vidmode_t r_vidModes[] = {
     { "Mode  0: 320x240",		320,	240 },
     { "Mode  1: 400x300",		400,	300 },
     { "Mode  2: 512x384",		512,	384 },
@@ -96,12 +95,12 @@ static void R_ModeList_f( void )
 	Com_Printf ("\n" );
 }
 
-typedef struct consoleCommand_s {
+struct consoleCommand_t {
 	const char	*cmd;
 	xcommand_t	func;
-} consoleCommand_t;
+};
 
-static consoleCommand_t	commands[] = {
+static constexpr consoleCommand_t	commands[] = {
 	{ "modellist",			R_Modellist_f },
 	{ "modelist",			R_ModeList_f },
 	{ "modelcacheinfo",		RE_RegisterModels_Info_f },
@@ -310,7 +309,7 @@ refexport_t *GetRefAPI ( int apiVersion, refimport_t *rimp ) {
 	re.G2API_GetNumGoreMarks				= G2API_GetNumGoreMarks;
 	re.G2API_AddSkinGore					= G2API_AddSkinGore;
 	re.G2API_ClearSkinGore					= G2API_ClearSkinGore;
-	#endif // _SOF2
+	#endif // _G2_GORE
 
 	return &re;
 }

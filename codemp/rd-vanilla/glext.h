@@ -40,7 +40,7 @@ extern "C" {
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN 1
 #endif
-#include <Windows.h>
+#include <windows.h>
 #endif
 
 #ifndef APIENTRY

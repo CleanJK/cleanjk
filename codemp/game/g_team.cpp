@@ -25,21 +25,21 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "game/g_local.h"
 #include "game/g_team.h"
 
-typedef struct teamgame_s {
+struct teamgame_t {
 	float			last_flag_capture;
 	int				last_capture_team;
-	flagStatus_t	redStatus;	// CTF
-	flagStatus_t	blueStatus;	// CTF
-	flagStatus_t	flagStatus;	// One Flag CTF
+	flagStatus_e	redStatus;	// CTF
+	flagStatus_e	blueStatus;	// CTF
+	flagStatus_e	flagStatus;	// One Flag CTF
 	int				redTakenTime;
 	int				blueTakenTime;
-} teamgame_t;
+};
 
 teamgame_t teamgame;
 
-static const char ctfFlagStatusRemap[] = { '0', '1', '*', '*', '2' };
+static constexpr const char ctfFlagStatusRemap[] = { '0', '1', '*', '*', '2' };
 
-void Team_SetFlagStatus( int team, flagStatus_t status ) {
+void Team_SetFlagStatus( int team, flagStatus_e status ) {
 	bool modified = false;
 
 	switch( team ) {
@@ -904,7 +904,7 @@ bool Team_GetLocationMsg(gentity_t *ent, char *loc, int loclen)
 
 #define	MAX_TEAM_SPAWN_POINTS	32
 // go to a random point that doesn't telefrag
-gentity_t *SelectRandomTeamSpawnPoint( int teamstate, team_t team, int siegeClass ) {
+gentity_t *SelectRandomTeamSpawnPoint( int teamstate, team_e team, int siegeClass ) {
 	gentity_t	*spot;
 	int			count;
 	int			selection;
@@ -954,7 +954,7 @@ gentity_t *SelectRandomTeamSpawnPoint( int teamstate, team_t team, int siegeClas
 	return spots[ selection ];
 }
 
-gentity_t *SelectCTFSpawnPoint ( team_t team, int teamstate, vec3_t origin, vec3_t angles, bool isbot ) {
+gentity_t *SelectCTFSpawnPoint ( team_e team, int teamstate, vec3_t origin, vec3_t angles, bool isbot ) {
 	gentity_t	*spot;
 
 	spot = SelectRandomTeamSpawnPoint ( teamstate, team, -1 );

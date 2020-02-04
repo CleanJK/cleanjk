@@ -28,7 +28,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "game/bg_local.h"
 
 // Muzzle point table...
-vec3_t WP_MuzzlePoint[WP_NUM_WEAPONS] =
+const vec3_t WP_MuzzlePoint[WP_NUM_WEAPONS] =
 {//	Fwd,	right,	up.
 	{0,		0,		0	},	// WP_NONE,
 	{0	,	8,		0	},	// WP_STUN_BATON,

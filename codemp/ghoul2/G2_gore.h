@@ -135,7 +135,7 @@ class CRagDollParams
 {
 public:
 
-	enum ERagPhase
+	enum ERagPhase_e
 	{
 		RP_START_DEATH_ANIM,
 		RP_END_DEATH_ANIM,
@@ -164,11 +164,11 @@ public:
 
 	bool CallRagDollBegin; // a return value, means that we are now begininng ragdoll and the NPC stuff needs to happen
 
-	ERagPhase RagPhase;
+	ERagPhase_e RagPhase;
 
 // effector control, used for RP_DISABLE_EFFECTORS call
 
-	enum ERagEffector
+	enum ERagEffector_e
 	{
 		RE_MODEL_ROOT=			0x00000001, //"model_root"
 		RE_PELVIS=				0x00000002, //"pelvis"
@@ -197,7 +197,7 @@ public:
 		RE_CEYEBROW=			0x01000000 //"ceyebrow"
 	};
 
-	ERagEffector effectorsToTurnOff;  // set this to an | of the above flags for a RP_DISABLE_EFFECTORS
+	ERagEffector_e effectorsToTurnOff;  // set this to an | of the above flags for a RP_DISABLE_EFFECTORS
 
 };
 //rww - RAGDOLL_END

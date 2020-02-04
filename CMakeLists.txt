@@ -42,18 +42,6 @@ option(BuildMPDed "Whether to create projects for the MP dedicated server (openj
 option(BuildMPGame "Whether to create projects for the MP server-side gamecode (jampgamex86.dll)" ON)
 option(BuildMPCGame "Whether to create projects for the MP clientside gamecode (cgamex86.dll)" ON)
 option(BuildMPUI "Whether to create projects for the MP UI code (uix86.dll)" ON)
-#option(BuildSPEngine "Whether to create projects for the SP engine (openjk_sp.exe)" ON)
-#option(BuildSPGame "Whether to create projects for the SP gamecode (jagamex86.dll)" ON)
-#option(BuildSPRdVanilla "Whether to create projects for the SP default renderer (rdsp-vanilla_x86.dll)" ON)
-
-#option(BuildJK2SPEngine "Whether to create projects for the jk2 SP engine (openjo_sp.exe)" OFF)
-#option(BuildJK2SPGame "Whether to create projects for the jk2 sp gamecode mod (jk2gamex86.dll)" OFF)
-#option(BuildJK2SPRdVanilla "Whether to create projects for the jk2 sp renderer (rdjosp-vanilla_x86.dll)" OFF)
-
-option(BuildTests "Whether to build automatic unit tests (requires Boost)" OFF)
-
-Include(CMakeDependentOption)
-CMAKE_DEPENDENT_OPTION(BuildSymbolServer "Build WIP Windows Symbol Server (experimental and unused)" OFF "NOT WIN32 OR NOT MSVC" OFF)
 
 # Configure the use of bundled libraries.  By default, we assume the user is on
 # a platform that does not require any bundling.
@@ -151,18 +139,12 @@ message(STATUS "Git revision is ${GIT_SHA1}")
 
 
 # Binary names
-set(SPEngine "${BinaryName}_sp.${Architecture}")
-set(SPGame "jagame${Architecture}")
-set(SPRDVanillaRenderer "rdsp-vanilla_${Architecture}")
 set(MPEngine "${BinaryName}.${Architecture}")
 set(MPVanillaRenderer "rd-vanilla_${Architecture}")
 set(MPDed "${BinaryName}ded.${Architecture}")
 set(MPGame "jampgame${Architecture}")
 set(MPCGame "cgame${Architecture}")
 set(MPUI "ui${Architecture}")
-set(JK2SPEngine "openjo_sp.${Architecture}")
-set(JK2SPGame "jospgame${Architecture}")
-set(JK2SPVanillaRenderer "rdjosp-vanilla_${Architecture}")
 set(AssetsPk3 "${BinaryName}-${Architecture}.pk3")
 # Library names
 set(MPBotLib "botlib")
@@ -171,16 +153,11 @@ set(SharedLib "shared")
 
 
 # Paths
-set(SPDir "${CMAKE_SOURCE_DIR}/code")
 set(MPDir "${CMAKE_SOURCE_DIR}/codemp")
-set(JK2SPDir "${CMAKE_SOURCE_DIR}/codeJK2")
 set(SharedDir ${CMAKE_SOURCE_DIR}/shared)
 set(OpenJKLibDir "${CMAKE_SOURCE_DIR}/lib")
-set(GSLIncludeDirectory "${OpenJKLibDir}/gsl-lite/include")
 
 include(InstallConfig)
-
-
 
 # Operating settings
 if(WIN64)
@@ -194,8 +171,6 @@ endif()
 if (NOT WIN32 AND NOT APPLE)
 	set(SharedDefines "ARCH_STRING=\"${Architecture}\"")
 endif()
-
-
 
 # Compiler settings
 if(MSVC)
@@ -334,13 +309,6 @@ set(SharedCommonFiles
 	"${SharedDir}/qcommon/q_string.cpp"
 	"${SharedDir}/qcommon/q_platform.h"
 	)
-set(SharedCommonSafeFiles
-	"${SharedDir}/qcommon/safe/gsl.h"
-	"${SharedDir}/qcommon/safe/string.cpp"
-	"${SharedDir}/qcommon/safe/string.h"
-	"${SharedDir}/qcommon/safe/sscanf.h"
-	"${SharedDir}/qcommon/safe/limited_vector.h"
-	)
 
 
 if(UseInternalJPEG)
@@ -365,16 +333,5 @@ endif()
 add_subdirectory(lib/minizip)
 
 # Add projects
-add_subdirectory(${SPDir})
-if(BuildJK2SPGame)
-	add_subdirectory("${JK2SPDir}/game")
-endif()
+
 add_subdirectory(${MPDir})
-# Windows Symbol Server tools
-if(BuildSymbolServer)
-	add_subdirectory("tools/WinSymbol")
-endif()
-if(BuildTests)
-	enable_testing()
-	add_subdirectory("tests")
-endif()
