@@ -23,11 +23,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // ICARUS callback file, all that can be handled within vm's is handled in here.
 
-#include "qcommon/q_shared.h"
-#include "game/bg_public.h"
-#include "game/b_local.h"
-#include "icarus/Q3_Interface.h"
-#include "icarus/Q3_Registers.h"
+#include "qcommon/q_shared.hpp"
+#include "game/bg_public.hpp"
+#include "game/b_local.hpp"
+#include "icarus/Q3_Interface.hpp"
+#include "icarus/Q3_Registers.hpp"
 
 extern stringID_table_t WPTable[];
 extern stringID_table_t BSTable[];
@@ -57,7 +57,7 @@ enum
 };
 //#endif
 
-#include "icarus/interpreter.h"
+#include "icarus/interpreter.hpp"
 
 extern stringID_table_t animTable [MAX_ANIMATIONS+1];
 

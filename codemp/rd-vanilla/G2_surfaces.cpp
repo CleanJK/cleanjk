@@ -21,10 +21,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "rd-common/tr_types.h"
-#include "ghoul2/G2.h"
-#include "ghoul2/g2_local.h"
-#include "rd-vanilla/tr_local.h"
+#include "rd-common/tr_types.hpp"
+#include "ghoul2/G2.hpp"
+#include "ghoul2/g2_local.hpp"
+#include "rd-vanilla/tr_local.hpp"
 
 class CConstructBoneList
 {

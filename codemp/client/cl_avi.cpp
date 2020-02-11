@@ -20,9 +20,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#include "client/cl_local.h"
-#include "client/snd_public.h"
-#include "qcommon/com_cvars.h"
+#include "client/cl_local.hpp"
+#include "client/snd_public.hpp"
+#include "qcommon/com_cvars.hpp"
 
 #define INDEX_FILE_EXTENSION ".index.dat"
 

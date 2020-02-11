@@ -23,9 +23,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // Ambient Sound System (ASS!)
 
-#include "client/cl_public.h"
-#include "client/snd_ambient.h"
-#include "client/snd_local.h"
+#include "client/cl_public.hpp"
+#include "client/snd_ambient.hpp"
+#include "client/snd_local.hpp"
 
 static constexpr int MAX_SET_VOLUME = 255;
 

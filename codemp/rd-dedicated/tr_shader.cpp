@@ -24,8 +24,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // tr_shader.c -- this file deals with the parsing and definition of shaders
 
-#include "rd-dedicated/tr_local.h"
-#include "rd-dedicated/tr_cvars.h"
+#include "rd-dedicated/tr_local.hpp"
+#include "rd-dedicated/tr_cvars.hpp"
 
 static char *s_shaderText;
 

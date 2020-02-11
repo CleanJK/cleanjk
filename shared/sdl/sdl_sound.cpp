@@ -25,10 +25,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <SDL.h>
 
-#include "client/snd_public.h"
-#include "qcommon/com_cvar.h"
-#include "qcommon/com_cvars.h"
-#include "qcommon/q_shared.h"
+#include "client/snd_public.hpp"
+#include "qcommon/com_cvar.hpp"
+#include "qcommon/com_cvars.hpp"
+#include "qcommon/q_shared.hpp"
 
 SDL_AudioDeviceID	dev;
 bool snd_inited = false;

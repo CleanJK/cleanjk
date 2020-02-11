@@ -24,14 +24,14 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // elementary actions
 
-#include "qcommon/q_shared.h"
-#include "botlib/l_memory.h"
-#include "botlib/l_script.h"
-#include "botlib/l_precomp.h"
-#include "botlib/l_struct.h"
-#include "botlib/botlib.h"
-#include "botlib/be_interface.h"
-#include "botlib/be_ea.h"
+#include "qcommon/q_shared.hpp"
+#include "botlib/l_memory.hpp"
+#include "botlib/l_script.hpp"
+#include "botlib/l_precomp.hpp"
+#include "botlib/l_struct.hpp"
+#include "botlib/botlib.hpp"
+#include "botlib/be_interface.hpp"
+#include "botlib/be_ea.hpp"
 
 #define MAX_USERMOVE				400
 #define MAX_COMMANDARGUMENTS		10

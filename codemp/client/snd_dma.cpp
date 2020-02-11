@@ -24,13 +24,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // main control for any streaming sound output device
 
-#include "client/snd_local.h"
-#include "client/snd_mp3.h"
-#include "client/snd_music.h"
-#include "client/cl_public.h"
-#include "qcommon/com_cvar.h"
-#include "qcommon/com_cvars.h"
-#include "sdl/sdl_sound.h"
+#include "client/snd_local.hpp"
+#include "client/snd_mp3.hpp"
+#include "client/snd_music.hpp"
+#include "client/cl_public.hpp"
+#include "qcommon/com_cvar.hpp"
+#include "qcommon/com_cvars.hpp"
+#include "sdl/sdl_sound.hpp"
 
 #define __STDC_FORMAT_MACROS
 #include <cinttypes>

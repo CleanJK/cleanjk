@@ -27,14 +27,14 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <cstdlib>
 
-#include "ghoul2/G2.h"
-#include "ui/ui_local.h"
-#include "qcommon/q_files.h"
-#include "qcommon/game_version.h"
-#include "ui/ui_force.h"
-#include "cgame/animtable.h" //we want this to be compiled into the module because we access it in the shared module.
-#include "ui/ui_shared.h"
-#include "ui/ui_fonts.h"
+#include "ghoul2/G2.hpp"
+#include "ui/ui_local.hpp"
+#include "qcommon/q_files.hpp"
+#include "qcommon/game_version.hpp"
+#include "ui/ui_force.hpp"
+#include "cgame/animtable.hpp" //we want this to be compiled into the module because we access it in the shared module.
+#include "ui/ui_shared.hpp"
+#include "ui/ui_fonts.hpp"
 #include "ui/menudef.h"
 
 NORETURN_PTR void (*Com_Error)( int level, const char *fmt, ... );

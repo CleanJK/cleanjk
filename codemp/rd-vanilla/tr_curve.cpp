@@ -22,8 +22,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "rd-vanilla/tr_local.h"
-#include "rd-vanilla/tr_cvars.h"
+#include "rd-vanilla/tr_local.hpp"
+#include "rd-vanilla/tr_cvars.hpp"
 
 // This file does all of the processing necessary to turn a raw grid of points read from the map file into a
 //	srfGridMesh_t ready for rendering.

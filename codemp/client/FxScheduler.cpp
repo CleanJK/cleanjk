@@ -21,14 +21,14 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "cgame/cg_public.h"
-#include "client/cl_cgameapi.h"
-#include "client/cl_public.h"
-#include "client/FxScheduler.h"
-#include "game/bg_public.h"
-#include "qcommon/com_cvars.h"
-#include "qcommon/q_shared.h"
-#include "qcommon/q_math.h"
+#include "cgame/cg_public.hpp"
+#include "client/cl_cgameapi.hpp"
+#include "client/cl_public.hpp"
+#include "client/FxScheduler.hpp"
+#include "game/bg_public.hpp"
+#include "qcommon/com_cvars.hpp"
+#include "qcommon/q_shared.hpp"
+#include "qcommon/q_math.hpp"
 
 #include <algorithm>
 #include <cmath>

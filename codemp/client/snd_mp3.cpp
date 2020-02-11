@@ -25,11 +25,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // Filename:-	cl_mp3.cpp
 // (The interface module between all the MP3 stuff and the game)
 
-#include "client/cl_public.h"
-#include "client/snd_mp3.h"					// only included directly by a few snd_xxxx.cpp files plus this one
+#include "client/cl_public.hpp"
+#include "client/snd_mp3.hpp"					// only included directly by a few snd_xxxx.cpp files plus this one
 #include "mp3code/mp3struct.h"	// keep this rather awful file secret from the rest of the program
-#include "qcommon/com_cvar.h"
-#include "qcommon/com_cvars.h"
+#include "qcommon/com_cvar.hpp"
+#include "qcommon/com_cvars.hpp"
 
 // expects data already loaded, filename arg is for error printing only
 // returns success/fail

@@ -20,7 +20,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "sys/con_local.h"
+#include "sys/con_local.hpp"
 #include <cassert>
 #include <cstdio>
 

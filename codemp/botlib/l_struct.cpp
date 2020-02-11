@@ -25,13 +25,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // structure reading / writing
 
 #ifdef BOTLIB
-#include "qcommon/q_shared.h"
-#include "botlib/botlib.h"				//for the include of be_interface.h
-#include "botlib/l_script.h"
-#include "botlib/l_precomp.h"
-#include "botlib/l_struct.h"
-#include "botlib/l_utils.h"
-#include "botlib/be_interface.h"
+#include "qcommon/q_shared.hpp"
+#include "botlib/botlib.hpp"				//for the include of be_interface.h
+#include "botlib/l_script.hpp"
+#include "botlib/l_precomp.hpp"
+#include "botlib/l_struct.hpp"
+#include "botlib/l_utils.hpp"
+#include "botlib/be_interface.hpp"
 #endif //BOTLIB
 
 fielddef_t *FindField(fielddef_t *defs, char *name)

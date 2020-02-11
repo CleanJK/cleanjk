@@ -35,11 +35,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // If the base part of the net address matches and the qport matches, then the channel matches even if the IP port
 //	differs. The IP port should be updated to the new value before sending out any replies.
 
-#include "qcommon/q_common.h"
-#include "qcommon/com_cvar.h"
-#include "qcommon/com_cvars.h"
-#include "qcommon/huffman.h"
-#include "sys/sys_public.h"
+#include "qcommon/q_common.hpp"
+#include "qcommon/com_cvar.hpp"
+#include "qcommon/com_cvars.hpp"
+#include "qcommon/huffman.hpp"
+#include "sys/sys_public.hpp"
 
 #define	MAX_PACKETLEN			1400		// max size of a network packet
 #define	FRAGMENT_SIZE			(MAX_PACKETLEN - 100)

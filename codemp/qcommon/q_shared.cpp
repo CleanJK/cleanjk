@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 // q_shared.c -- stateless support routines that are included in each code dll
-#include "qcommon/q_shared.h"
+#include "qcommon/q_shared.hpp"
 
 /*
 int GetIDForString ( const stringID_table_t *table, const char *string )

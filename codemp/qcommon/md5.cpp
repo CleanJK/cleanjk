@@ -18,8 +18,8 @@
  * provided, and also released into the public domain.
  */
 
-#include "qcommon/md5.h"
-#include "qcommon/q_common.h"
+#include "qcommon/md5.hpp"
+#include "qcommon/q_common.hpp"
 
 #ifndef Q3_BIG_ENDIAN
 	#define byteReverse(buf, len)	/* Nothing */

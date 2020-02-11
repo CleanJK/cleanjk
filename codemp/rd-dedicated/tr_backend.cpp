@@ -22,7 +22,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "rd-dedicated/tr_local.h"
+#include "rd-dedicated/tr_local.hpp"
 
 backEndData_t	*backEndData;
 backEndState_t	backEnd;

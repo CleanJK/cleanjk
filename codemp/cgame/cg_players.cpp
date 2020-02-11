@@ -23,9 +23,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 // cg_players.c -- handle the media and animation for player entities
-#include "cgame/cg_local.h"
-#include "ghoul2/G2.h"
-#include "cgame/cg_media.h"
+#include "cgame/cg_local.hpp"
+#include "ghoul2/G2.hpp"
+#include "cgame/cg_media.hpp"
 
 //for g2 surface routines
 #define TURN_ON				0x00000000

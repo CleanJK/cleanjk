@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // cg_marks.c -- wall marks
 
-#include "cgame/cg_local.h"
+#include "cgame/cg_local.hpp"
 
 markPoly_t	cg_activeMarkPolys;			// double linked list
 markPoly_t	*cg_freeMarkPolys;			// single linked list

@@ -24,8 +24,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // g_bot.c
 
-#include "game/g_local.h"
-#include "game/ai_main.h"
+#include "game/g_local.hpp"
+#include "game/ai_main.hpp"
 
 #define BOT_BEGIN_DELAY_BASE		2000
 #define BOT_BEGIN_DELAY_INCREMENT	1500

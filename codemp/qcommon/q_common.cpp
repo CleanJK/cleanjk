@@ -25,13 +25,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // common.c -- misc functions used in client and server
 
-#include "qcommon/cm_public.h"
-#include "qcommon/com_cvar.h"
-#include "qcommon/com_cvars.h"
-#include "qcommon/game_version.h"
-#include "qcommon/huffman.h"
-#include "qcommon/stringed_ingame.h"
-#include "sys/sys_local.h"
+#include "qcommon/cm_public.hpp"
+#include "qcommon/com_cvar.hpp"
+#include "qcommon/com_cvars.hpp"
+#include "qcommon/game_version.hpp"
+#include "qcommon/huffman.hpp"
+#include "qcommon/stringed_ingame.hpp"
+#include "sys/sys_local.hpp"
 
 #if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
@@ -1100,7 +1100,7 @@ int Com_ModifyMsec( int msec ) {
 }
 
 #ifdef G2_PERFORMANCE_ANALYSIS
-#include "qcommon/timing.h"
+#include "qcommon/timing.hpp"
 extern timing_c G2PerformanceTimer_PreciseFrame;
 extern int G2Time_PreciseFrame;
 #endif

@@ -1,6 +1,6 @@
-#include "qcommon/q_math.h"
-#include "qcommon/q_shared.h"
-#include "qcommon/q_color.h"
+#include "qcommon/q_math.hpp"
+#include "qcommon/q_shared.hpp"
+#include "qcommon/q_color.hpp"
 
 vec4_t		colorBlack	= {0, 0, 0, 1};
 vec4_t		colorRed	= {1, 0, 0, 1};

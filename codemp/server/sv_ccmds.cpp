@@ -23,12 +23,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "server/server.h"
-#include "qcommon/stringed_ingame.h"
-#include "server/sv_gameapi.h"
-#include "qcommon/game_version.h"
-#include "qcommon/com_cvar.h"
-#include "qcommon/com_cvars.h"
+#include "server/server.hpp"
+#include "qcommon/stringed_ingame.hpp"
+#include "server/sv_gameapi.hpp"
+#include "qcommon/game_version.hpp"
+#include "qcommon/com_cvar.hpp"
+#include "qcommon/com_cvars.hpp"
 
 // OPERATOR CONSOLE ONLY COMMANDS
 // These commands can only be entered from stdin or by a remote operator datagram

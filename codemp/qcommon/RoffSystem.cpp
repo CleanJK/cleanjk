@@ -22,12 +22,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "qcommon/RoffSystem.h"
+#include "qcommon/RoffSystem.hpp"
 
 #ifndef DEDICATED
-#include "client/cl_cgameapi.h"
+#include "client/cl_cgameapi.hpp"
 #endif
-#include "server/sv_gameapi.h"
+#include "server/sv_gameapi.hpp"
 
 // The one and only instance...
 CROFFSystem theROFFSystem;

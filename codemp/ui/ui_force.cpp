@@ -24,9 +24,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // FORCE INTERFACE
 
 // use this to get a demo build without an explicit demo build, i.e. to get the demo ui files to build
-#include "ui/ui_local.h"
-#include "qcommon/q_files.h"
-#include "ui/ui_force.h"
+#include "ui/ui_local.hpp"
+#include "qcommon/q_files.hpp"
+#include "ui/ui_force.hpp"
 #include "ui/menudef.h"
 
 int uiForceSide = FORCE_LIGHTSIDE;

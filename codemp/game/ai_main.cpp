@@ -24,16 +24,16 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // Quake3 bot AI
 
-#include "game/g_local.h"
-#include "qcommon/q_shared.h"
-#include "botlib/botlib.h"		//bot lib interface
-#include "botlib/be_ea.h"
-#include "game/ai_botlib.h"
-#include "game/ai_main.h"
-#include "game/w_saber.h"
+#include "game/g_local.hpp"
+#include "qcommon/q_shared.hpp"
+#include "botlib/botlib.hpp"		//bot lib interface
+#include "botlib/be_ea.hpp"
+#include "game/ai_botlib.hpp"
+#include "game/ai_main.hpp"
+#include "game/w_saber.hpp"
 
-#include "game/ai_chars.h"
-#include "game/g_inventory.h"
+#include "game/ai_chars.hpp"
+#include "game/g_inventory.hpp"
 
 /*
 #define BOT_CTF_DEBUG	1

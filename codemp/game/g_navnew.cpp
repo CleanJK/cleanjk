@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "game/b_local.h"
+#include "game/b_local.hpp"
 
 bool NAV_CheckNodeFailedForEnt( gentity_t *ent, int nodeNum )
 {

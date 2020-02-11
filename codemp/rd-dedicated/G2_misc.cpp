@@ -21,17 +21,17 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "qcommon/matcomp.h"
-#include "ghoul2/G2.h"
-#include "qcommon/MiniHeap.h"
-#include "server/server.h"
-#include "ghoul2/g2_local.h"
+#include "qcommon/matcomp.hpp"
+#include "ghoul2/G2.hpp"
+#include "qcommon/MiniHeap.hpp"
+#include "server/server.hpp"
+#include "ghoul2/g2_local.hpp"
 
 #ifdef _G2_GORE
-#include "ghoul2/G2_gore.h"
+#include "ghoul2/G2_gore.hpp"
 
-#include "rd-dedicated/tr_local.h"
-#include "rd-dedicated/tr_cvars.h"
+#include "rd-dedicated/tr_local.hpp"
+#include "rd-dedicated/tr_cvars.hpp"
 
 #define GORE_TAG_UPPER (256)
 #define GORE_TAG_MASK (~255)

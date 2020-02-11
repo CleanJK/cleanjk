@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // User interface building blocks and support functions.
 
-#include "ui/ui_local.h"
+#include "ui/ui_local.hpp"
 
 #define NUM_UI_ARGSTRS (4)
 #define UI_ARGSTR_MASK (NUM_UI_ARGSTRS-1)

@@ -31,8 +31,8 @@
  */
 
 #include <cmath>
-#include "qcommon/q_shared.h"
-#include "game/g_local.h"
+#include "qcommon/q_shared.hpp"
+#include "game/g_local.hpp"
 
 /* if USE_EPSILON_TEST is true then we do a check:
          if |dv|<EPSILON then dv=0.0;

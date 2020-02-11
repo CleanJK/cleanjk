@@ -26,15 +26,15 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //	is not directly portable from engine to engine.
 //	-- jweier
 
-#include "game/g_public.h"
-#include "server/server.h"
-#include "icarus/icarus.h"
-#include "icarus/interface.h"
-#include "icarus/GameInterface.h"
-#include "icarus/Q3_Interface.h"
-#include "icarus/Q3_Registers.h"
-#include "server/sv_gameapi.h"
-#include "qcommon/com_cvars.h"
+#include "game/g_public.hpp"
+#include "server/server.hpp"
+#include "icarus/icarus.hpp"
+#include "icarus/interface.hpp"
+#include "icarus/GameInterface.hpp"
+#include "icarus/Q3_Interface.hpp"
+#include "icarus/Q3_Registers.hpp"
+#include "server/sv_gameapi.hpp"
+#include "qcommon/com_cvars.hpp"
 
 #define stringIDExpand(str, strEnum)	str, strEnum, ENUM2STRING(strEnum)
 //#define stringIDExpand(str, strEnum)	str,strEnum

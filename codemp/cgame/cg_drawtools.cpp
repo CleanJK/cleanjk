@@ -23,11 +23,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 // cg_drawtools.c -- helper functions called by cg_draw, cg_scoreboard, cg_info, etc
-#include "cgame/cg_local.h"
-#include "qcommon/q_shared.h"
-#include "ui/ui_fonts.h"
+#include "cgame/cg_local.hpp"
+#include "qcommon/q_shared.hpp"
+#include "ui/ui_fonts.hpp"
 #include "ui/menudef.h"
-#include "cgame/cg_media.h"
+#include "cgame/cg_media.hpp"
 
 // Coordinates are 640*480 virtual values
 void CG_DrawRect( float x, float y, float width, float height, float size, const float *color ) {

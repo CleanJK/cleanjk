@@ -21,22 +21,22 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "client/cl_public.h"
-#include "rd-dedicated/tr_local.h"
-#include "qcommon/matcomp.h"
-#include "qcommon/q_common.h"
-#include "qcommon/com_cvars.h"
-#include "ghoul2/G2.h"
-#include "ghoul2/g2_local.h"
+#include "client/cl_public.hpp"
+#include "rd-dedicated/tr_local.hpp"
+#include "qcommon/matcomp.hpp"
+#include "qcommon/q_common.hpp"
+#include "qcommon/com_cvars.hpp"
+#include "ghoul2/G2.hpp"
+#include "ghoul2/g2_local.hpp"
 #ifdef _G2_GORE
-#include "ghoul2/G2_gore.h"
+#include "ghoul2/G2_gore.hpp"
 #endif
-#include "rd-dedicated/tr_cvars.h"
+#include "rd-dedicated/tr_cvars.hpp"
 
-#include "qcommon/disablewarnings.h"
+#include "qcommon/disablewarnings.hpp"
 
 #ifdef G2_PERFORMANCE_ANALYSIS
-#include "qcommon/timing.h"
+#include "qcommon/timing.hpp"
 
 timing_c G2PerformanceTimer_RenderSurfaces;
 timing_c G2PerformanceTimer_R_AddGHOULSurfaces;

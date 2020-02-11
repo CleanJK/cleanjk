@@ -20,10 +20,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ===========================================================================
 */
 
-#include "qcommon/q_shared.h"
-#include "qcommon/q_common.h"
-#include "sys/sys_local.h"
-#include "sys/con_local.h"
+#include "qcommon/q_shared.hpp"
+#include "qcommon/q_common.hpp"
+#include "sys/sys_local.hpp"
+#include "sys/con_local.hpp"
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 

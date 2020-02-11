@@ -23,7 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "rd-common/tr_common.h"
+#include "rd-common/tr_common.hpp"
 
 const int MAX_IMAGE_LOADERS = 10;
 struct ImageLoaderMap

@@ -23,15 +23,15 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "client/cl_cgameapi.h"
-#include "client/cl_keys.h"
-#include "client/cl_local.h"
-#include "client/cl_uiapi.h"
-#include "client/snd_public.h"
-#include "qcommon/com_cvar.h"
-#include "qcommon/com_cvars.h"
-#include "qcommon/q_common.h"
-#include "qcommon/stringed_ingame.h"
+#include "client/cl_cgameapi.hpp"
+#include "client/cl_keys.hpp"
+#include "client/cl_local.hpp"
+#include "client/cl_uiapi.hpp"
+#include "client/snd_public.hpp"
+#include "qcommon/com_cvar.hpp"
+#include "qcommon/com_cvars.hpp"
+#include "qcommon/q_common.hpp"
+#include "qcommon/stringed_ingame.hpp"
 
 /*
 

@@ -23,22 +23,22 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 // cl_cgame.c  -- client system interaction with client game
-#include "botlib/botlib.h"
-#include "client/cl_cgameapi.h"
-#include "client/cl_local.h"
-#include "client/FXExport.h"
-#include "client/FxUtil.h"
-#include "ghoul2/G2_gore.h"
-#include "qcommon/com_cvar.h"
-#include "qcommon/com_cvars.h"
-#include "qcommon/RoffSystem.h"
-#include "qcommon/stringed_ingame.h"
-#include "qcommon/q_math.h"
+#include "botlib/botlib.hpp"
+#include "client/cl_cgameapi.hpp"
+#include "client/cl_local.hpp"
+#include "client/FXExport.hpp"
+#include "client/FxUtil.hpp"
+#include "ghoul2/G2_gore.hpp"
+#include "qcommon/com_cvar.hpp"
+#include "qcommon/com_cvars.hpp"
+#include "qcommon/RoffSystem.hpp"
+#include "qcommon/stringed_ingame.hpp"
+#include "qcommon/q_math.hpp"
 
 extern IHeapAllocator *G2VertSpaceClient;
 
-#include "client/snd_ambient.h"
-#include "qcommon/timing.h"
+#include "client/snd_ambient.hpp"
+#include "qcommon/timing.hpp"
 
 extern	botlib_export_t	*botlib_export;
 

@@ -1,6 +1,6 @@
-#include "cgame/cg_local.h"
-#include "ui/ui_shared.h"
-#include "cgame/cg_media.h"
+#include "cgame/cg_local.hpp"
+#include "ui/ui_shared.hpp"
+#include "cgame/cg_media.hpp"
 
 extern displayContextDef_t cgDC;
 

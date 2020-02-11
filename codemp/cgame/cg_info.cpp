@@ -24,9 +24,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // cg_info.c -- display information while data is being loading
 
-#include "cgame/cg_local.h"
-#include "cgame/cg_media.h"
-#include "ui/ui_fonts.h"
+#include "cgame/cg_local.hpp"
+#include "cgame/cg_media.hpp"
+#include "ui/ui_fonts.hpp"
 
 #define MAX_LOADING_PLAYER_ICONS	16
 #define MAX_LOADING_ITEM_ICONS		26

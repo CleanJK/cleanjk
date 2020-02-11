@@ -28,11 +28,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <cstdio>
 #include <cstring>
 
-#include "qcommon/q_shared.h"
-#include "botlib/botlib.h"
-#include "botlib/be_interface.h"			//for botimport.Print
-#include "botlib/l_libvar.h"
-#include "botlib/l_log.h"
+#include "qcommon/q_shared.hpp"
+#include "botlib/botlib.hpp"
+#include "botlib/be_interface.hpp"			//for botimport.Print
+#include "botlib/l_libvar.hpp"
+#include "botlib/l_log.hpp"
 
 #define MAX_LOGFILENAMESIZE		1024
 

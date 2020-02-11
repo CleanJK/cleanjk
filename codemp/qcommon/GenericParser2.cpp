@@ -21,10 +21,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "qcommon/GenericParser2.h"
+#include "qcommon/GenericParser2.hpp"
 
 #include <cstring>
-#include "qcommon/q_common.h"
+#include "qcommon/q_common.hpp"
 
 #define MAX_TOKEN_SIZE	1024
 static char	token[MAX_TOKEN_SIZE];

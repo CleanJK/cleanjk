@@ -25,13 +25,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // cl_parse.c  -- parse a message received from the server
 
-#include "client/cl_local.h"
-#include "client/cl_cgameapi.h"
-#include "qcommon/stringed_ingame.h"
-#include "qcommon/com_cvar.h"
+#include "client/cl_local.hpp"
+#include "client/cl_cgameapi.hpp"
+#include "qcommon/stringed_ingame.hpp"
+#include "qcommon/com_cvar.hpp"
 
 #ifdef USE_INTERNAL_ZLIB
-#include "zlib/zlib.h"
+#include "zlib/zlib.hpp"
 #else
 #include <zlib.h>
 #endif

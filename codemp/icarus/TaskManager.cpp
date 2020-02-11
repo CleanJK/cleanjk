@@ -25,10 +25,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 //	-- jweier
 
-#include "icarus/icarus.h"
+#include "icarus/icarus.hpp"
 
 #include <cassert>
-#include "server/server.h"
+#include "server/server.hpp"
 
 #define ICARUS_VALIDATE(a) if ( a == false ) return TASK_FAILED;
 

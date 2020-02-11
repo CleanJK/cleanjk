@@ -23,8 +23,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // USER INTERFACE SABER LOADING & DISPLAY CODE
 
-#include "ui/ui_local.h"
-#include "ui/ui_shared.h"
+#include "ui/ui_local.hpp"
+#include "ui/ui_shared.hpp"
 
 bool	ui_saber_parms_parsed = false;
 

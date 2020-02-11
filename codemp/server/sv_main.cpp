@@ -23,14 +23,14 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "server/server.h"
+#include "server/server.hpp"
 
-#include "ghoul2/ghoul2_shared.h"
-#include "server/sv_gameapi.h"
-#include "qcommon/com_cvar.h"
-#include "qcommon/com_cvars.h"
-#include "sys/sys_public.h"
-#include "qcommon/huffman.h"
+#include "ghoul2/ghoul2_shared.hpp"
+#include "server/sv_gameapi.hpp"
+#include "qcommon/com_cvar.hpp"
+#include "qcommon/com_cvars.hpp"
+#include "sys/sys_public.hpp"
+#include "qcommon/huffman.hpp"
 
 serverStatic_t	svs;				// persistant server info
 server_t		sv;					// local server

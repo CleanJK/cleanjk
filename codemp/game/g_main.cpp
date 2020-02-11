@@ -23,10 +23,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "game/g_local.h"
-#include "game/g_ICARUScb.h"
-#include "game/b_local.h"
-#include "game/g_team.h"
+#include "game/g_local.hpp"
+#include "game/g_ICARUScb.hpp"
+#include "game/b_local.hpp"
+#include "game/g_team.hpp"
 
 NORETURN_PTR void (*Com_Error)( int level, const char *fmt, ... );
 void (*Com_Printf)( const char *fmt, ... );

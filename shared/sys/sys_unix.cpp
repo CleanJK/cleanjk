@@ -34,10 +34,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <sched.h>
 #include <csignal>
 
-#include "qcommon/q_common.h"
-#include "qcommon/q_shared.h"
-#include "qcommon/com_cvars.h"
-#include "sys/sys_local.h"
+#include "qcommon/q_common.hpp"
+#include "qcommon/q_shared.hpp"
+#include "qcommon/com_cvars.hpp"
+#include "sys/sys_local.hpp"
 
 bool stdinIsATTY = false;
 

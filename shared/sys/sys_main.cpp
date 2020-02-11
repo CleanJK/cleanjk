@@ -27,13 +27,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <sys/stat.h>
 #define __STDC_FORMAT_MACROS
 #include <cinttypes>
-#include "qcommon/q_common.h"
-#include "qcommon/com_cvar.h"
-#include "qcommon/com_cvars.h"
-#include "sys/sys_local.h"
-#include "sys/sys_loadlib.h"
-#include "sys/sys_public.h"
-#include "sys/con_local.h"
+#include "qcommon/q_common.hpp"
+#include "qcommon/com_cvar.hpp"
+#include "qcommon/com_cvars.hpp"
+#include "sys/sys_local.hpp"
+#include "sys/sys_loadlib.hpp"
+#include "sys/sys_public.hpp"
+#include "sys/con_local.hpp"
 
 static char binaryPath[ MAX_OSPATH ] = { 0 };
 static char installPath[ MAX_OSPATH ] = { 0 };

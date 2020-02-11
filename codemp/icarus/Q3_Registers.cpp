@@ -21,10 +21,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "game/g_public.h"
-#include "icarus/icarus.h"
-#include "icarus/Q3_Interface.h"
-#include "icarus/Q3_Registers.h"
+#include "game/g_public.hpp"
+#include "icarus/icarus.hpp"
+#include "icarus/Q3_Interface.hpp"
+#include "icarus/Q3_Registers.hpp"
 
 varString_m		varStrings;
 varFloat_m		varFloats;

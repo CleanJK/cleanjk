@@ -23,11 +23,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // tr_shade.c
 
-#include "rd-vanilla/tr_local.h"
+#include "rd-vanilla/tr_local.hpp"
 
-#include "rd-vanilla/tr_quicksprite.h"
-#include "rd-vanilla/tr_WorldEffects.h"
-#include "rd-vanilla/tr_cvars.h"
+#include "rd-vanilla/tr_quicksprite.hpp"
+#include "rd-vanilla/tr_WorldEffects.hpp"
+#include "rd-vanilla/tr_cvars.hpp"
 
 // Part of the VERTIGON system
 // The surfacesprites are a simple system. When a polygon with this shader stage on it is drawn, there are randomly

@@ -24,18 +24,18 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // BG_PAnimate.c
 // game and cgame, NOT ui
 
-#include "qcommon/q_shared.h"
-#include "game/bg_public.h"
-#include "game/bg_local.h"
-#include "game/anims.h"
-#include "cgame/animtable.h"
+#include "qcommon/q_shared.hpp"
+#include "game/bg_public.hpp"
+#include "game/bg_local.hpp"
+#include "game/anims.hpp"
+#include "cgame/animtable.hpp"
 
 #ifdef _GAME
-	#include "game/g_local.h"
+	#include "game/g_local.hpp"
 #elif _CGAME
-	#include "cgame/cg_local.h"
+	#include "cgame/cg_local.hpp"
 #elif UI_BUILD
-	#include "ui/ui_local.h"
+	#include "ui/ui_local.hpp"
 #endif
 
 // BEGIN: Animation utility functions (sequence checking)

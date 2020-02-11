@@ -27,14 +27,14 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // World Effects
 
 // Includes
-#include "rd-vanilla/tr_local.h"
-#include "rd-vanilla/tr_WorldEffects.h"
+#include "rd-vanilla/tr_local.hpp"
+#include "rd-vanilla/tr_WorldEffects.hpp"
 
-#include "Ravl/CVec.h"
-#include "Ratl/vector_vs.h"
-#include "Ratl/bits_vs.h"
+#include "Ravl/CVec.hpp"
+#include "Ratl/vector_vs.hpp"
+#include "Ratl/bits_vs.hpp"
 
-#include "rd-vanilla/glext.h"
+#include "rd-vanilla/glext.hpp"
 
 // Defines
 #define GLS_ALPHA				(GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA)

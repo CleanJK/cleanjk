@@ -25,9 +25,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // cvar.c -- dynamic variable tracking
 
-#include "qcommon/q_common.h"
-#include "qcommon/com_cvar.h"
-#include "qcommon/com_cvars.h"
+#include "qcommon/q_common.hpp"
+#include "qcommon/com_cvar.hpp"
+#include "qcommon/com_cvars.hpp"
 
 cvar_t		*cvar_vars = nullptr;
 uint32_t	cvar_modifiedFlags;

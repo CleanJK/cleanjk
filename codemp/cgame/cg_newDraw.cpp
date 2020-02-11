@@ -22,11 +22,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "cgame/cg_local.h"
-#include "ui/ui_shared.h"
-#include "ui/ui_fonts.h"
+#include "cgame/cg_local.hpp"
+#include "ui/ui_shared.hpp"
+#include "ui/ui_fonts.hpp"
 #include "ui/menudef.h"
-#include "cgame/cg_media.h"
+#include "cgame/cg_media.hpp"
 
 extern displayContextDef_t cgDC;
 

@@ -24,11 +24,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // memory allocation
 
-#include "qcommon/q_shared.h"
-#include "botlib/botlib.h"
-#include "botlib/l_log.h"
-#include "botlib/l_memory.h"
-#include "botlib/be_interface.h"
+#include "qcommon/q_shared.hpp"
+#include "botlib/botlib.hpp"
+#include "botlib/l_log.hpp"
+#include "botlib/l_memory.hpp"
+#include "botlib/be_interface.hpp"
 #include <cstddef>
 
 //#define MEMDEBUG

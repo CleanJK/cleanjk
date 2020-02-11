@@ -25,20 +25,20 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // cl_main.c  -- client main loop
 
-#include "client/cl_cgameapi.h"
-#include "client/cl_keys.h"
-#include "client/cl_lan.h"
-#include "client/cl_local.h"
-#include "client/cl_uiapi.h"
-#include "client/snd_public.h"
-#include "ghoul2/G2.h"
-#include "qcommon/cm_public.h"
-#include "qcommon/com_cvar.h"
-#include "qcommon/com_cvars.h"
-#include "qcommon/MiniHeap.h"
-#include "qcommon/stringed_ingame.h"
-#include "sys/sys_loadlib.h"
-#include "ui/ui_public.h"
+#include "client/cl_cgameapi.hpp"
+#include "client/cl_keys.hpp"
+#include "client/cl_lan.hpp"
+#include "client/cl_local.hpp"
+#include "client/cl_uiapi.hpp"
+#include "client/snd_public.hpp"
+#include "ghoul2/G2.hpp"
+#include "qcommon/cm_public.hpp"
+#include "qcommon/com_cvar.hpp"
+#include "qcommon/com_cvars.hpp"
+#include "qcommon/MiniHeap.hpp"
+#include "qcommon/stringed_ingame.hpp"
+#include "sys/sys_loadlib.hpp"
+#include "ui/ui_public.hpp"
 #include <climits>
 
 vec3_t cl_windVec;

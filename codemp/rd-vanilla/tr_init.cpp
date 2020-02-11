@@ -24,14 +24,14 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // tr_init.c -- functions that are not called every frame
 
-#include "rd-vanilla/tr_local.h"
+#include "rd-vanilla/tr_local.hpp"
 
 #include <algorithm>
-#include "rd-common/tr_common.h"
-#include "rd-vanilla/tr_WorldEffects.h"
-#include "qcommon/MiniHeap.h"
-#include "ghoul2/g2_local.h"
-#include "rd-vanilla/tr_cvars.h"
+#include "rd-common/tr_common.hpp"
+#include "rd-vanilla/tr_WorldEffects.hpp"
+#include "qcommon/MiniHeap.hpp"
+#include "ghoul2/g2_local.hpp"
+#include "rd-vanilla/tr_cvars.hpp"
 
 glconfig_t	glConfig;
 glconfigExt_t glConfigExt;

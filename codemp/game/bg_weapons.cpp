@@ -23,9 +23,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // bg_weapons.c -- part of bg_pmove functionality
 
-#include "qcommon/q_shared.h"
-#include "game/bg_public.h"
-#include "game/bg_local.h"
+#include "qcommon/q_shared.hpp"
+#include "game/bg_public.hpp"
+#include "game/bg_local.hpp"
 
 // Muzzle point table...
 const vec3_t WP_MuzzlePoint[WP_NUM_WEAPONS] =

@@ -26,8 +26,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
  * Compression book.  The ranks are not actually stored, but implicitly defined
  * by the location of a node within a doubly-linked list */
 
-#include "qcommon/q_common.h"
-#include "qcommon/huffman.h"
+#include "qcommon/q_common.hpp"
+#include "qcommon/huffman.hpp"
 
 static int			bloc = 0;
 

@@ -22,8 +22,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "client/cl_local.h"
-#include "client/cl_uiapi.h"
+#include "client/cl_local.hpp"
+#include "client/cl_uiapi.hpp"
 
 void CL_ShutdownUI( void ) {
 	Key_SetCatcher( Key_GetCatcher( ) & ~KEYCATCH_UI );

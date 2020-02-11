@@ -23,9 +23,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 // tr_main.c -- main control flow for each frame
-#include "rd-dedicated/tr_local.h"
-#include "rd-dedicated/tr_cvars.h"
-#include "ghoul2/g2_local.h"
+#include "rd-dedicated/tr_local.hpp"
+#include "rd-dedicated/tr_cvars.hpp"
+#include "ghoul2/g2_local.hpp"
 
 trGlobals_t		tr;
 

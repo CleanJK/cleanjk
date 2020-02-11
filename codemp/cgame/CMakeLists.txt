@@ -40,10 +40,10 @@ set(MPCGameGameFiles
 	"${MPDir}/game/bg_saga.cpp"
 	"${MPDir}/game/bg_slidemove.cpp"
 	"${MPDir}/game/bg_weapons.cpp"
-	"${MPDir}/game/anims.h"
-	"${MPDir}/game/bg_local.h"
-	"${MPDir}/game/bg_public.h"
-	"${MPDir}/game/bg_weapons.h"
+	"${MPDir}/game/anims.hpp"
+	"${MPDir}/game/bg_local.hpp"
+	"${MPDir}/game/bg_public.hpp"
+	"${MPDir}/game/bg_weapons.hpp"
 	)
 source_group("game" FILES ${MPCGameGameFiles})
 set(MPCGameFiles ${MPCGameFiles} ${MPCGameGameFiles})
@@ -75,22 +75,22 @@ set(MPCGameCgameFiles
 	"${MPDir}/cgame/cg_weaponfx.cpp"
 	"${MPDir}/cgame/cg_weaponinit.cpp"
 	"${MPDir}/cgame/cg_weapons.cpp"
-	"${MPDir}/cgame/animtable.h"
-	"${MPDir}/cgame/cg_local.h"
-	"${MPDir}/cgame/cg_media.h"
-	"${MPDir}/cgame/cg_public.h"
-	"${MPDir}/cgame/cg_weaponfx.h"
-	"${MPDir}/cgame/cg_xcvar.h"
+	"${MPDir}/cgame/animtable.hpp"
+	"${MPDir}/cgame/cg_local.hpp"
+	"${MPDir}/cgame/cg_media.hpp"
+	"${MPDir}/cgame/cg_public.hpp"
+	"${MPDir}/cgame/cg_weaponfx.hpp"
+	"${MPDir}/cgame/cg_xcvar.hpp"
 	)
 source_group("cgame" FILES ${MPCGameCgameFiles})
 set(MPCGameFiles ${MPCGameFiles} ${MPCGameCgameFiles})
 
 set(MPCGameCommonFiles
 	"${MPDir}/qcommon/q_shared.cpp"
-	"${MPDir}/qcommon/disablewarnings.h"
-	"${MPDir}/qcommon/q_shared.h"
-	"${MPDir}/qcommon/q_files.h"
-	"${MPDir}/qcommon/tags.h"
+	"${MPDir}/qcommon/disablewarnings.hpp"
+	"${MPDir}/qcommon/q_shared.hpp"
+	"${MPDir}/qcommon/q_files.hpp"
+	"${MPDir}/qcommon/tags.hpp"
 
 	${SharedCommonFiles}
 	)
@@ -101,26 +101,26 @@ set(MPCGameUiFiles
 	"${MPDir}/ui/ui_fonts.cpp"
 	"${MPDir}/ui/ui_shared.cpp"
 	"${MPDir}/ui/menudef.h"
-	"${MPDir}/ui/ui_fonts.h"
-	"${MPDir}/ui/ui_shared.h"
+	"${MPDir}/ui/ui_fonts.hpp"
+	"${MPDir}/ui/ui_shared.hpp"
 	)
 source_group("ui" FILES ${MPCGameUiFiles})
 set(MPCGameFiles ${MPCGameFiles} ${MPCGameUiFiles})
 
 set(MPCGameClientFiles
-	"${MPDir}/client/cl_keycodes.h"
+	"${MPDir}/client/cl_keycodes.hpp"
 	)
 source_group("client" FILES ${MPCGameClientFiles})
 set(MPCGameFiles ${MPCGameFiles} ${MPCGameClientFiles})
 
 set(MPCGameRendererFiles
-	"${MPDir}/rd-common/tr_types.h"
+	"${MPDir}/rd-common/tr_types.hpp"
 	)
 source_group("rd-common" FILES ${MPCGameRendererFiles})
 set(MPCGameFiles ${MPCGameFiles} ${MPCGameRendererFiles})
 
 set(MPCGameGFiles
-	"${MPDir}/ghoul2/G2.h"
+	"${MPDir}/ghoul2/G2.hpp"
 	)
 source_group("ghoul2" FILES ${MPCGameG2Files})
 set(MPCGameFiles ${MPCGameFiles} ${MPCGameG2Files})

@@ -22,9 +22,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 // tr_image.c
-#include "rd-dedicated/tr_local.h"
-#include "rd-dedicated/tr_cvars.h"
-#include "qcommon/com_cvars.h"
+#include "rd-dedicated/tr_local.hpp"
+#include "rd-dedicated/tr_cvars.hpp"
+#include "qcommon/com_cvars.hpp"
 
 #include <map>
 

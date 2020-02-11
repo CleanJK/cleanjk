@@ -24,9 +24,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // snd_mix.c -- portable code to mix sounds for snd_dma.c
 
-#include "client/cl_public.h"
-#include "client/snd_local.h"
-#include "qcommon/com_cvars.h"
+#include "client/cl_public.hpp"
+#include "client/snd_local.hpp"
+#include "qcommon/com_cvars.hpp"
 
 portable_samplepair_t paintbuffer[PAINTBUFFER_SIZE];
 int 	*snd_p, snd_linear_count, snd_vol;

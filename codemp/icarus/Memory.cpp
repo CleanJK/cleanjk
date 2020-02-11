@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "icarus/icarus.h"
+#include "icarus/icarus.hpp"
 
 // leave these two as standard mallocs for the moment, there's something weird happening in ICARUS...
 

@@ -28,11 +28,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //		into each project.
 
 // stuff common to all qcommon files...
-#include "server/server.h"
-#include "qcommon/q_shared.h"
-#include "qcommon/q_common.h"
-#include "qcommon/stringed_interface.h"
-#include "qcommon/stringed_ingame.h"
+#include "server/server.hpp"
+#include "qcommon/q_shared.hpp"
+#include "qcommon/q_common.hpp"
+#include "qcommon/stringed_interface.hpp"
+#include "qcommon/stringed_ingame.hpp"
 
 #include <string>
 

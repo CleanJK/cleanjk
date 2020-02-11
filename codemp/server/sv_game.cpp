@@ -23,15 +23,15 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 // sv_game.c -- interface to the game dll
-#include "server/server.h"
-#include "botlib/botlib.h"
-#include "qcommon/stringed_ingame.h"
-#include "qcommon/RoffSystem.h"
-#include "ghoul2/ghoul2_shared.h"
-#include "qcommon/cm_public.h"
-#include "icarus/GameInterface.h"
-#include "qcommon/timing.h"
-#include "server/sv_gameapi.h"
+#include "server/server.hpp"
+#include "botlib/botlib.hpp"
+#include "qcommon/stringed_ingame.hpp"
+#include "qcommon/RoffSystem.hpp"
+#include "ghoul2/ghoul2_shared.hpp"
+#include "qcommon/cm_public.hpp"
+#include "icarus/GameInterface.hpp"
+#include "qcommon/timing.hpp"
+#include "server/sv_gameapi.hpp"
 
 // these functions must be used instead of pointer arithmetic, because
 // the game allocates gentities with private information after the server shared part

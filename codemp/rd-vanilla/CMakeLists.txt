@@ -33,8 +33,8 @@ set(MPVanillaRendererIncludeDirectories
 	)
 
 set(MPVanillaRendererFiles
-	"${MPDir}/rd-vanilla/glext.h"
-	"${MPDir}/rd-vanilla/qgl.h"
+	"${MPDir}/rd-vanilla/glext.hpp"
+	"${MPDir}/rd-vanilla/qgl.hpp"
 	"${MPDir}/rd-vanilla/G2_API.cpp"
 	"${MPDir}/rd-vanilla/G2_bolts.cpp"
 	"${MPDir}/rd-vanilla/G2_bones.cpp"
@@ -51,13 +51,13 @@ set(MPVanillaRendererFiles
 	"${MPDir}/rd-vanilla/tr_image.cpp"
 	"${MPDir}/rd-vanilla/tr_init.cpp"
 	"${MPDir}/rd-vanilla/tr_light.cpp"
-	"${MPDir}/rd-vanilla/tr_local.h"
+	"${MPDir}/rd-vanilla/tr_local.hpp"
 	"${MPDir}/rd-vanilla/tr_main.cpp"
 	"${MPDir}/rd-vanilla/tr_marks.cpp"
 	"${MPDir}/rd-vanilla/tr_mesh.cpp"
 	"${MPDir}/rd-vanilla/tr_model.cpp"
 	"${MPDir}/rd-vanilla/tr_quicksprite.cpp"
-	"${MPDir}/rd-vanilla/tr_quicksprite.h"
+	"${MPDir}/rd-vanilla/tr_quicksprite.hpp"
 	"${MPDir}/rd-vanilla/tr_scene.cpp"
 	"${MPDir}/rd-vanilla/tr_shade.cpp"
 	"${MPDir}/rd-vanilla/tr_shade_calc.cpp"
@@ -70,30 +70,30 @@ set(MPVanillaRendererFiles
 	"${MPDir}/rd-vanilla/tr_surfacesprites.cpp"
 	"${MPDir}/rd-vanilla/tr_world.cpp"
 	"${MPDir}/rd-vanilla/tr_WorldEffects.cpp"
-	"${MPDir}/rd-vanilla/tr_WorldEffects.h"
+	"${MPDir}/rd-vanilla/tr_WorldEffects.hpp"
 	)
 source_group("renderer" FILES ${MPVanillaRendererFiles})
 
 set(MPVanillaRendererGhoul2Files
-	"${MPDir}/ghoul2/g2_local.h"
-	"${MPDir}/ghoul2/ghoul2_shared.h"
+	"${MPDir}/ghoul2/g2_local.hpp"
+	"${MPDir}/ghoul2/ghoul2_shared.hpp"
 	"${MPDir}/ghoul2/G2_gore.cpp"
-	"${MPDir}/ghoul2/G2_gore.h")
+	"${MPDir}/ghoul2/G2_gore.hpp")
 source_group("ghoul2" FILES ${MPVanillaRendererGhoul2Files})
 set(MPVanillaRendererFiles ${MPVanillaRendererFiles} ${MPVanillaRendererGhoul2Files})
 
 set(MPVanillaRendererRdCommonFiles
-	"${MPDir}/rd-common/mdx_format.h"
-	"${MPDir}/rd-common/tr_common.h"
+	"${MPDir}/rd-common/mdx_format.hpp"
+	"${MPDir}/rd-common/tr_common.hpp"
 	"${MPDir}/rd-common/tr_font.cpp"
-	"${MPDir}/rd-common/tr_font.h"
+	"${MPDir}/rd-common/tr_font.hpp"
 	"${MPDir}/rd-common/tr_image_load.cpp"
 	"${MPDir}/rd-common/tr_image_jpg.cpp"
 	"${MPDir}/rd-common/tr_image_tga.cpp"
 	"${MPDir}/rd-common/tr_image_png.cpp"
 	"${MPDir}/rd-common/tr_noise.cpp"
-	"${MPDir}/rd-common/tr_public.h"
-	"${MPDir}/rd-common/tr_types.h")
+	"${MPDir}/rd-common/tr_public.hpp"
+	"${MPDir}/rd-common/tr_types.hpp")
 source_group("rd-common" FILES ${MPVanillaRendererRdCommonFiles})
 set(MPVanillaRendererFiles ${MPVanillaRendererFiles} ${MPVanillaRendererRdCommonFiles})
 

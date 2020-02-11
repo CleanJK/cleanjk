@@ -27,12 +27,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <algorithm>
 
-#include "cgame/cg_local.h"
-#include "ui/ui_shared.h"
-#include "ui/ui_public.h"
-#include "ui/ui_fonts.h"
+#include "cgame/cg_local.hpp"
+#include "ui/ui_shared.hpp"
+#include "ui/ui_public.hpp"
+#include "ui/ui_fonts.hpp"
 #include "ui/menudef.h"
-#include "cgame/cg_media.h"
+#include "cgame/cg_media.hpp"
 
 // used for scoreboard
 extern displayContextDef_t cgDC;

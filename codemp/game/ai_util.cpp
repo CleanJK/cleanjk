@@ -22,10 +22,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "game/g_local.h"
-#include "qcommon/q_shared.h"
-#include "botlib/botlib.h"
-#include "game/ai_main.h"
+#include "game/g_local.hpp"
+#include "qcommon/q_shared.hpp"
+#include "botlib/botlib.hpp"
+#include "game/ai_main.hpp"
 
 #ifdef BOT_ZMALLOC
 #define MAX_BALLOC 8192

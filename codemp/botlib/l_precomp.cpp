@@ -31,17 +31,17 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //#define QUAKEC
 
 #ifdef BOTLIB
-#include "qcommon/q_shared.h"
-#include "botlib/botlib.h"
-#include "botlib/be_interface.h"
-#include "botlib/l_memory.h"
-#include "botlib/l_script.h"
-#include "botlib/l_precomp.h"
-#include "botlib/l_log.h"
+#include "qcommon/q_shared.hpp"
+#include "botlib/botlib.hpp"
+#include "botlib/be_interface.hpp"
+#include "botlib/l_memory.hpp"
+#include "botlib/l_script.hpp"
+#include "botlib/l_precomp.hpp"
+#include "botlib/l_log.hpp"
 #endif //BOTLIB
 
 #if defined(QUAKE)
-#include "botlib/l_utils.h"
+#include "botlib/l_utils.hpp"
 #endif //QUAKE
 
 //#define DEBUG_EVAL

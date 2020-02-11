@@ -26,8 +26,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define __STDC_FORMAT_MACROS
 #include <cinttypes>
 
-#include "qcommon/q_common.h"
-#include "qcommon/com_cvars.h"
+#include "qcommon/q_common.hpp"
+#include "qcommon/com_cvars.hpp"
 
 vm_t *currentVM = nullptr;
 

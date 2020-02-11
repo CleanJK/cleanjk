@@ -24,8 +24,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // g_combat.c
 
-#include "game/b_local.h"
-#include "game/g_team.h"
+#include "game/b_local.hpp"
+#include "game/g_team.hpp"
 
 void ObjectDie (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int meansOfDeath )
 {

@@ -25,9 +25,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // g_weapon.c
 // perform the server side effects of a weapon firing
 
-#include "game/g_local.h"
-#include "ghoul2/G2.h"
-#include "qcommon/q_shared.h"
+#include "game/g_local.hpp"
+#include "ghoul2/G2.hpp"
+#include "qcommon/q_shared.hpp"
 
 static vec3_t forward, vright, up;
 static vec3_t muzzle;

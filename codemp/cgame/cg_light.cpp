@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "cgame/cg_local.h"
+#include "cgame/cg_local.hpp"
 
 struct clightstyle_t {
 	int				length;

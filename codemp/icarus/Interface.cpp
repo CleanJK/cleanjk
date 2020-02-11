@@ -26,9 +26,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //	is not directly portable from engine to engine.
 //	-- jweier
 
-#include "game/g_public.h"
+#include "game/g_public.hpp"
 
-#include "icarus/interface.h"
+#include "icarus/interface.hpp"
 /*
 void Interface_Init( interface_export_t *pe )
 {

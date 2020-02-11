@@ -24,14 +24,14 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // ICARUS Utility functions
 //rww - mangled to work in server exe setting.
 
-#include "game/g_public.h"
-#include "server/server.h"
-#include "icarus/interface.h"
-#include "icarus/GameInterface.h"
-#include "qcommon/RoffSystem.h"
-#include "icarus/Q3_Interface.h"
-#include "server/sv_gameapi.h"
-#include "icarus/icarus.h"
+#include "game/g_public.hpp"
+#include "server/server.hpp"
+#include "icarus/interface.hpp"
+#include "icarus/GameInterface.hpp"
+#include "qcommon/RoffSystem.hpp"
+#include "icarus/Q3_Interface.hpp"
+#include "server/sv_gameapi.hpp"
+#include "icarus/icarus.hpp"
 
 ICARUS_Instance		*iICARUS;
 bufferlist_t		ICARUS_BufferList;

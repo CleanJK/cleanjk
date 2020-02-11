@@ -22,12 +22,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <SDL.h>
 #include <SDL_syswm.h>
-#include "qcommon/q_common.h"
-#include "qcommon/com_cvar.h"
-#include "qcommon/com_cvars.h"
-#include "rd-common/tr_types.h"
-#include "sys/sys_local.h"
-#include "sdl/sdl_icon.h"
+#include "qcommon/q_common.hpp"
+#include "qcommon/com_cvar.hpp"
+#include "qcommon/com_cvars.hpp"
+#include "rd-common/tr_types.hpp"
+#include "sys/sys_local.hpp"
+#include "sdl/sdl_icon.hpp"
 
 enum rserr_e
 {

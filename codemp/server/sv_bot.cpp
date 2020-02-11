@@ -23,11 +23,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 // sv_bot.c
-#include "server/server.h"
-#include "botlib/botlib.h"
-#include "qcommon/cm_public.h"
-#include "server/sv_gameapi.h"
-#include "qcommon/com_cvars.h"
+#include "server/server.hpp"
+#include "botlib/botlib.hpp"
+#include "qcommon/cm_public.hpp"
+#include "server/sv_gameapi.hpp"
+#include "qcommon/com_cvars.hpp"
 
 struct bot_debugpoly_t {
 	int inuse;

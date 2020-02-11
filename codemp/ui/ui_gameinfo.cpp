@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // gameinfo.c
 
-#include "ui/ui_local.h"
+#include "ui/ui_local.hpp"
 
 // arena and bot info
 

@@ -25,9 +25,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // cmd.c -- Quake script command processing module
 
-#include "qcommon/q_common.h"
-#include "qcommon/com_cvar.h"
-#include "qcommon/com_cvars.h"
+#include "qcommon/q_common.hpp"
+#include "qcommon/com_cvar.hpp"
+#include "qcommon/com_cvars.hpp"
 
 #include <vector>
 #include <algorithm>
