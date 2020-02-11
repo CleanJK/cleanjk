@@ -27,14 +27,14 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <algorithm>
 #include <string>
 
-#include "qcommon/q_shared.h"
-#include "qcommon/sstring.h"
-#include "qcommon/GenericParser2.h"
-#include "qcommon/com_cvars.h"
+#include "qcommon/q_shared.hpp"
+#include "qcommon/sstring.hpp"
+#include "qcommon/GenericParser2.hpp"
+#include "qcommon/com_cvars.hpp"
 
-#include "client/snd_local.h"
-#include "client/snd_music.h"
-#include "client/snd_ambient.h"
+#include "client/snd_local.hpp"
+#include "client/snd_music.hpp"
+#include "client/snd_ambient.hpp"
 
 #define sKEY_MUSICFILES	"musicfiles"
 #define sKEY_ENTRY		"entry"

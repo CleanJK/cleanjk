@@ -23,8 +23,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 // tr_surf.c
-#include "rd-vanilla/tr_local.h"
-#include "rd-vanilla/tr_cvars.h"
+#include "rd-vanilla/tr_local.hpp"
+#include "rd-vanilla/tr_cvars.hpp"
 
 // THIS ENTIRE FILE IS BACK END
 // backEnd.currentEntity will be valid.

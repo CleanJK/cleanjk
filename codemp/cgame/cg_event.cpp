@@ -24,12 +24,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // cg_event.c -- handle entity events at snapshot or playerstate transitions
 
-#include "cgame/cg_local.h"
-#include "cgame/cg_weaponfx.h"
-#include "ui/ui_shared.h"
-#include "ui/ui_public.h"
-#include "ghoul2/G2.h"
-#include "cgame/cg_media.h"
+#include "cgame/cg_local.hpp"
+#include "cgame/cg_weaponfx.hpp"
+#include "ui/ui_shared.hpp"
+#include "ui/ui_public.hpp"
+#include "ghoul2/G2.hpp"
+#include "cgame/cg_media.hpp"
 
 extern int cg_saberFlashTime;
 extern vec3_t cg_saberFlashPos;

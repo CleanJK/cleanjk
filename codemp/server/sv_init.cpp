@@ -23,15 +23,15 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "client/cl_public.h"
-#include "ghoul2/G2.h"
-#include "qcommon/cm_public.h"
-#include "qcommon/com_cvar.h"
-#include "qcommon/com_cvars.h"
-#include "qcommon/MiniHeap.h"
-#include "qcommon/stringed_ingame.h"
-#include "server/server.h"
-#include "server/sv_gameapi.h"
+#include "client/cl_public.hpp"
+#include "ghoul2/G2.hpp"
+#include "qcommon/cm_public.hpp"
+#include "qcommon/com_cvar.hpp"
+#include "qcommon/com_cvars.hpp"
+#include "qcommon/MiniHeap.hpp"
+#include "qcommon/stringed_ingame.hpp"
+#include "server/server.hpp"
+#include "server/sv_gameapi.hpp"
 
 // Creates and sends the server command necessary to update the CS index for the given client
 static void SV_SendConfigstring(client_t *client, int index)

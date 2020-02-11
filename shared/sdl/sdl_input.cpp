@@ -21,15 +21,15 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <SDL.h>
-#include "qcommon/q_common.h"
-#include "qcommon/q_shared.h"
-#include "qcommon/com_cvar.h"
-#include "qcommon/com_cvars.h"
-#include "client/cl_public.h"
-#include "sys/sys_local.h"
-#include "sdl/sdl_sound.h"
-#include "client/cl_keycodes.h"
-#include "client/cl_keys.h"
+#include "qcommon/q_common.hpp"
+#include "qcommon/q_shared.hpp"
+#include "qcommon/com_cvar.hpp"
+#include "qcommon/com_cvars.hpp"
+#include "client/cl_public.hpp"
+#include "sys/sys_local.hpp"
+#include "sdl/sdl_sound.hpp"
+#include "client/cl_keycodes.hpp"
+#include "client/cl_keys.hpp"
 
 static cvar_t *in_keyboardDebug     = nullptr;
 

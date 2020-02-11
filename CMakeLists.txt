@@ -301,11 +301,11 @@ endif()
 
 # Files shared across all projects
 set(SharedCommonFiles
-	"${SharedDir}/qcommon/q_color.h"
+	"${SharedDir}/qcommon/q_color.hpp"
 	"${SharedDir}/qcommon/q_color.cpp"
-	"${SharedDir}/qcommon/q_math.h"
+	"${SharedDir}/qcommon/q_math.hpp"
 	"${SharedDir}/qcommon/q_math.cpp"
-	"${SharedDir}/qcommon/q_string.h"
+	"${SharedDir}/qcommon/q_string.hpp"
 	"${SharedDir}/qcommon/q_string.cpp"
 	"${SharedDir}/qcommon/q_platform.h"
 	)

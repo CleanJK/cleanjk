@@ -26,8 +26,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // cg_consolecmds.c -- text commands typed in at the local console, or
 // executed by a key binding
 
-#include "cgame/cg_local.h"
-#include "ui/ui_shared.h"
+#include "cgame/cg_local.hpp"
+#include "ui/ui_shared.hpp"
 
 void CG_TargetCommand_f( void ) {
 	int		targetNum;

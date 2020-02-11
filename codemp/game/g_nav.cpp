@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "game/b_local.h"
+#include "game/b_local.hpp"
 
 void G_Line( vec3_t start, vec3_t end, vec3_t color, float alpha ) {
 }

@@ -23,10 +23,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 // cg_scoreboard -- draw the scoreboard on top of the game screen
-#include "cgame/cg_local.h"
-#include "cgame/cg_media.h"
-#include "ui/ui_shared.h"
-#include "ui/ui_fonts.h"
+#include "cgame/cg_local.hpp"
+#include "cgame/cg_media.hpp"
+#include "ui/ui_shared.hpp"
+#include "ui/ui_fonts.hpp"
 #include "ui/menudef.h"
 
 #define	SCOREBOARD_X		(0)

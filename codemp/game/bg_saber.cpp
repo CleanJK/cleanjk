@@ -22,10 +22,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "qcommon/q_shared.h"
-#include "game/bg_public.h"
-#include "game/bg_local.h"
-#include "game/w_saber.h"
+#include "qcommon/q_shared.hpp"
+#include "game/bg_public.hpp"
+#include "game/bg_local.hpp"
+#include "game/w_saber.hpp"
 
 
 int PM_irand_timesync(int val1, int val2)
@@ -882,10 +882,10 @@ int PM_SaberLockWinAnim( bool victory, bool superBreak )
 
 // Need to avoid nesting namespaces!
 #ifdef _GAME //including game headers on cgame is FORBIDDEN ^_^
-	#include "game/g_local.h"
+	#include "game/g_local.hpp"
 	extern gentity_t g_entities[];
 #elif defined(_CGAME)
-	#include "cgame/cg_local.h" //ahahahahhahahaha@$!$!
+	#include "cgame/cg_local.hpp" //ahahahahhahahaha@$!$!
 #endif
 
 int PM_SaberLockLoseAnim( playerState_t *genemy, bool victory, bool superBreak )

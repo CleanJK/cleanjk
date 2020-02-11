@@ -21,13 +21,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "ghoul2/G2.h"
-#include "ghoul2/g2_local.h"
-#include "ghoul2/G2_gore.h"
-#include "rd-vanilla/tr_cvars.h"
+#include "ghoul2/G2.hpp"
+#include "ghoul2/g2_local.hpp"
+#include "ghoul2/G2_gore.hpp"
+#include "rd-vanilla/tr_cvars.hpp"
 
-#include "qcommon/MiniHeap.h"
-#include "rd-vanilla/tr_local.h"
+#include "qcommon/MiniHeap.hpp"
+#include "rd-vanilla/tr_local.hpp"
 
 #include <set>
 #include <list>
@@ -2744,7 +2744,7 @@ bool G2_TestModelPointers(CGhoul2Info *ghlInfo) // returns true if the model is 
 }
 
 #ifdef G2_PERFORMANCE_ANALYSIS
-#include "qcommon/timing.h"
+#include "qcommon/timing.hpp"
 extern timing_c G2PerformanceTimer_G2_SetupModelPointers;
 extern int G2Time_G2_SetupModelPointers;
 #endif

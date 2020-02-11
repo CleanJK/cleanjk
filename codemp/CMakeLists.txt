@@ -55,17 +55,17 @@ if(BuildMPEngine OR BuildMPDed)
 		"${GSLIncludeDirectory}"
 		)
 	set(MPBotlibBotlibFiles
-		"${MPDir}/botlib/be_ea.h"
-		"${MPDir}/botlib/be_interface.h"
-		"${MPDir}/botlib/botlib.h"
-		"${MPDir}/botlib/l_crc.h"
-		"${MPDir}/botlib/l_libvar.h"
-		"${MPDir}/botlib/l_log.h"
-		"${MPDir}/botlib/l_memory.h"
-		"${MPDir}/botlib/l_precomp.h"
-		"${MPDir}/botlib/l_script.h"
-		"${MPDir}/botlib/l_struct.h"
-		"${MPDir}/botlib/l_utils.h"
+		"${MPDir}/botlib/be_ea.hpp"
+		"${MPDir}/botlib/be_interface.hpp"
+		"${MPDir}/botlib/botlib.hpp"
+		"${MPDir}/botlib/l_crc.hpp"
+		"${MPDir}/botlib/l_libvar.hpp"
+		"${MPDir}/botlib/l_log.hpp"
+		"${MPDir}/botlib/l_memory.hpp"
+		"${MPDir}/botlib/l_precomp.hpp"
+		"${MPDir}/botlib/l_script.hpp"
+		"${MPDir}/botlib/l_struct.hpp"
+		"${MPDir}/botlib/l_utils.hpp"
 
 		"${MPDir}/botlib/be_ea.cpp"
 		"${MPDir}/botlib/be_interface.cpp"
@@ -81,13 +81,13 @@ if(BuildMPEngine OR BuildMPDed)
 	set(MPBotlibFiles ${MPBotlibFiles} ${MPBotlibBotlibFiles})
 
 	set(MPBotlibCommonFiles
-		"${MPDir}/qcommon/cm_public.h"
-		"${MPDir}/qcommon/disablewarnings.h"
-		"${MPDir}/qcommon/q_shared.h"
-		"${MPDir}/qcommon/q_common.h"
-		"${MPDir}/qcommon/q_files.h"
-		"${MPDir}/qcommon/q_type.h"
-		"${MPDir}/qcommon/tags.h"
+		"${MPDir}/qcommon/cm_public.hpp"
+		"${MPDir}/qcommon/disablewarnings.hpp"
+		"${MPDir}/qcommon/q_shared.hpp"
+		"${MPDir}/qcommon/q_common.hpp"
+		"${MPDir}/qcommon/q_files.hpp"
+		"${MPDir}/qcommon/q_type.hpp"
+		"${MPDir}/qcommon/tags.hpp"
 
 		${SharedCommonFiles}
 		)
@@ -95,7 +95,7 @@ if(BuildMPEngine OR BuildMPDed)
 	set(MPBotlibFiles ${MPBotlibFiles} ${MPBotlibCommonFiles})
 
 	set(MPBotlibServerFiles
-		"${MPDir}/server/server.h"
+		"${MPDir}/server/server.hpp"
 		)
 	source_group("server" FILES ${MPBotlibServerFiles})
 	set(MPBotlibFiles ${MPBotlibFiles} ${MPBotlibServerFiles})
@@ -130,78 +130,78 @@ if(BuildMPEngine OR BuildMPDed)
 	list(APPEND MPEngineAndDedLibraries          ${ZLIB_LIBRARIES})
 
 	set(MPEngineAndDedCgameFiles
-		"${MPDir}/cgame/cg_public.h"
+		"${MPDir}/cgame/cg_public.hpp"
 		)
 	source_group("cgame" FILES ${MPEngineAndDedCgameFiles})
 	set(MPEngineAndDedFiles ${MPEngineAndDedFiles} ${MPEngineAndDedCgameFiles})
 
 	set(MPEngineAndDedClientFiles
-		"${MPDir}/client/cl_keycodes.h"
-		"${MPDir}/client/cl_keys.h"
-		"${MPDir}/client/cl_public.h"
-		"${MPDir}/client/snd_public.h"
+		"${MPDir}/client/cl_keycodes.hpp"
+		"${MPDir}/client/cl_keys.hpp"
+		"${MPDir}/client/cl_public.hpp"
+		"${MPDir}/client/snd_public.hpp"
 		)
 	source_group("client" FILES ${MPEngineAndDedClientFiles})
 	set(MPEngineAndDedFiles ${MPEngineAndDedFiles} ${MPEngineAndDedClientFiles})
 
 	set(MPEngineAndDedGameFiles
-		"${MPDir}/game/anims.h"
-		"${MPDir}/game/bg_public.h"
-		"${MPDir}/game/bg_weapons.h"
-		"${MPDir}/botlib/botlib.h"
-		"${MPDir}/game/g_public.h"
+		"${MPDir}/game/anims.hpp"
+		"${MPDir}/game/bg_public.hpp"
+		"${MPDir}/game/bg_weapons.hpp"
+		"${MPDir}/botlib/botlib.hpp"
+		"${MPDir}/game/g_public.hpp"
 		)
 	source_group("game" FILES ${MPEngineAndDedGameFiles})
 	set(MPEngineAndDedFiles ${MPEngineAndDedFiles} ${MPEngineAndDedGameFiles})
 
 	set(MPEngineAndDedCommonFiles
 		"${MPDir}/qcommon/cm_load.cpp"
-		"${MPDir}/qcommon/cm_local.h"
+		"${MPDir}/qcommon/cm_local.hpp"
 		"${MPDir}/qcommon/cm_patch.cpp"
-		"${MPDir}/qcommon/cm_patch.h"
+		"${MPDir}/qcommon/cm_patch.hpp"
 		"${MPDir}/qcommon/cm_polylib.cpp"
-		"${MPDir}/qcommon/cm_polylib.h"
-		"${MPDir}/qcommon/cm_public.h"
+		"${MPDir}/qcommon/cm_polylib.hpp"
+		"${MPDir}/qcommon/cm_public.hpp"
 		"${MPDir}/qcommon/cm_test.cpp"
 		"${MPDir}/qcommon/cm_trace.cpp"
 		"${MPDir}/qcommon/cmd.cpp"
-		"${MPDir}/qcommon/com_cvar.h"
+		"${MPDir}/qcommon/com_cvar.hpp"
 		# hack until we clean up renderer/engine cvars
 		"${MPDir}/qcommon/com_cvars.cpp"
-		"${MPDir}/qcommon/com_cvars.h"
+		"${MPDir}/qcommon/com_cvars.hpp"
 		"${MPDir}/qcommon/cvar.cpp"
-		"${MPDir}/qcommon/disablewarnings.h"
-		"${MPDir}/qcommon/game_version.h"
+		"${MPDir}/qcommon/disablewarnings.hpp"
+		"${MPDir}/qcommon/game_version.hpp"
 		"${MPDir}/qcommon/GenericParser2.cpp"
-		"${MPDir}/qcommon/GenericParser2.h"
+		"${MPDir}/qcommon/GenericParser2.hpp"
 		"${MPDir}/qcommon/huffman.cpp"
-		"${MPDir}/qcommon/huffman.h"
+		"${MPDir}/qcommon/huffman.hpp"
 		"${MPDir}/qcommon/md4.cpp"
 		"${MPDir}/qcommon/md5.cpp"
-		"${MPDir}/qcommon/md5.h"
-		"${MPDir}/qcommon/MiniHeap.h"
+		"${MPDir}/qcommon/md5.hpp"
+		"${MPDir}/qcommon/MiniHeap.hpp"
 		"${MPDir}/qcommon/msg.cpp"
-		"${MPDir}/qcommon/matcomp.h"
+		"${MPDir}/qcommon/matcomp.hpp"
 		"${MPDir}/qcommon/matcomp.cpp"
 		"${MPDir}/qcommon/net_chan.cpp"
 		"${MPDir}/qcommon/net_ip.cpp"
 		"${MPDir}/qcommon/persistence.cpp"
 		"${MPDir}/qcommon/q_shared.cpp"
-		"${MPDir}/qcommon/q_shared.h"
+		"${MPDir}/qcommon/q_shared.hpp"
 		"${MPDir}/qcommon/q_common.cpp"
-		"${MPDir}/qcommon/q_common.h"
+		"${MPDir}/qcommon/q_common.hpp"
 		"${MPDir}/qcommon/q_files.cpp"
-		"${MPDir}/qcommon/q_files.h"
-		"${MPDir}/qcommon/q_type.h"
+		"${MPDir}/qcommon/q_files.hpp"
+		"${MPDir}/qcommon/q_type.hpp"
 		"${MPDir}/qcommon/RoffSystem.cpp"
-		"${MPDir}/qcommon/RoffSystem.h"
-		"${MPDir}/qcommon/sstring.h"
+		"${MPDir}/qcommon/RoffSystem.hpp"
+		"${MPDir}/qcommon/sstring.hpp"
 		"${MPDir}/qcommon/stringed_ingame.cpp"
-		"${MPDir}/qcommon/stringed_ingame.h"
+		"${MPDir}/qcommon/stringed_ingame.hpp"
 		"${MPDir}/qcommon/stringed_interface.cpp"
-		"${MPDir}/qcommon/stringed_interface.h"
-		"${MPDir}/qcommon/tags.h"
-		"${MPDir}/qcommon/timing.h"
+		"${MPDir}/qcommon/stringed_interface.hpp"
+		"${MPDir}/qcommon/tags.hpp"
+		"${MPDir}/qcommon/timing.hpp"
 		"${MPDir}/qcommon/vm.cpp"
 		"${MPDir}/qcommon/z_memman_pc.cpp"
 
@@ -214,44 +214,44 @@ if(BuildMPEngine OR BuildMPDed)
 	set(MPEngineAndDedFiles ${MPEngineAndDedFiles} ${MPEngineAndDedCommonFiles})
 
 	set(MPEngineAndDedG2Files
-		"${MPDir}/ghoul2/G2.h"
-		"${MPDir}/ghoul2/G2_gore.h"
-		"${MPDir}/ghoul2/ghoul2_shared.h"
-		"${MPDir}/ghoul2/g2_local.h"
+		"${MPDir}/ghoul2/G2.hpp"
+		"${MPDir}/ghoul2/G2_gore.hpp"
+		"${MPDir}/ghoul2/ghoul2_shared.hpp"
+		"${MPDir}/ghoul2/g2_local.hpp"
 		)
 	source_group("ghoul2" FILES ${MPEngineAndDedG2Files})
 	set(MPEngineAndDedFiles ${MPEngineAndDedFiles} ${MPEngineAndDedG2Files})
 
 	set(MPEngineAndDedIcarusFiles
 		"${MPDir}/icarus/BlockStream.cpp"
-		"${MPDir}/icarus/blockstream.h"
+		"${MPDir}/icarus/blockstream.hpp"
 		"${MPDir}/icarus/GameInterface.cpp"
-		"${MPDir}/icarus/GameInterface.h"
-		"${MPDir}/icarus/icarus.h"
+		"${MPDir}/icarus/GameInterface.hpp"
+		"${MPDir}/icarus/icarus.hpp"
 		"${MPDir}/icarus/Instance.cpp"
-		"${MPDir}/icarus/instance.h"
+		"${MPDir}/icarus/instance.hpp"
 		"${MPDir}/icarus/Interface.cpp"
-		"${MPDir}/icarus/interface.h"
-		"${MPDir}/icarus/interpreter.h"
+		"${MPDir}/icarus/interface.hpp"
+		"${MPDir}/icarus/interpreter.hpp"
 		"${MPDir}/icarus/Memory.cpp"
 		"${MPDir}/icarus/Q3_Interface.cpp"
-		"${MPDir}/icarus/Q3_Interface.h"
+		"${MPDir}/icarus/Q3_Interface.hpp"
 		"${MPDir}/icarus/Q3_Registers.cpp"
-		"${MPDir}/icarus/Q3_Registers.h"
+		"${MPDir}/icarus/Q3_Registers.hpp"
 		"${MPDir}/icarus/Sequence.cpp"
-		"${MPDir}/icarus/sequence.h"
+		"${MPDir}/icarus/sequence.hpp"
 		"${MPDir}/icarus/Sequencer.cpp"
-		"${MPDir}/icarus/sequencer.h"
+		"${MPDir}/icarus/sequencer.hpp"
 		"${MPDir}/icarus/TaskManager.cpp"
-		"${MPDir}/icarus/taskmanager.h"
-		"${MPDir}/icarus/tokenizer.h"
+		"${MPDir}/icarus/taskmanager.hpp"
+		"${MPDir}/icarus/tokenizer.hpp"
 		)
 	source_group("icarus" FILES ${MPEngineAndDedIcarusFiles})
 	set(MPEngineAndDedFiles ${MPEngineAndDedFiles} ${MPEngineAndDedIcarusFiles})
 
 	set(MPEngineAndDedServerFiles
 		# hack until we clean up renderer/engine cvars
-		"${MPDir}/server/server.h"
+		"${MPDir}/server/server.hpp"
 		"${MPDir}/server/sv_bot.cpp"
 		"${MPDir}/server/sv_ccmds.cpp"
 		"${MPDir}/server/sv_challenge.cpp"
@@ -263,13 +263,13 @@ if(BuildMPEngine OR BuildMPDed)
 		"${MPDir}/server/sv_snapshot.cpp"
 		"${MPDir}/server/sv_world.cpp"
 		"${MPDir}/server/sv_gameapi.cpp"
-		"${MPDir}/server/sv_gameapi.h"
+		"${MPDir}/server/sv_gameapi.hpp"
 		)
 	source_group("server" FILES ${MPEngineAndDedServerFiles})
 	set(MPEngineAndDedFiles ${MPEngineAndDedFiles} ${MPEngineAndDedServerFiles})
 
 	set(MPEngineAndDedUiFiles
-		"${MPDir}/ui/ui_public.h"
+		"${MPDir}/ui/ui_public.hpp"
 		)
 	source_group("ui" FILES ${MPEngineAndDedUiFiles})
 	set(MPEngineAndDedFiles ${MPEngineAndDedFiles} ${MPEngineAndDedUiFiles})
@@ -343,8 +343,8 @@ if(BuildMPEngine)
 	# EAX is Windows-Only (right?)
 	if(MSVC)
 		set(MPEngineEAXFiles
-			"${MPDir}/client/eax/eax.h"
-			"${MPDir}/client/eax/EaxMan.h"
+			"${MPDir}/client/eax/eax.hpp"
+			"${MPDir}/client/eax/EaxMan.hpp"
 			)
 		source_group("eax" FILES ${MPEngineEAXFiles})
 		set(MPEngineFiles ${MPEngineFiles} ${MPEngineEAXFiles})
@@ -356,62 +356,62 @@ if(BuildMPEngine)
 		"${MPDir}/client/cl_avi.cpp"
 		"${MPDir}/client/cl_cgame.cpp"
 		"${MPDir}/client/cl_cgameapi.cpp"
-		"${MPDir}/client/cl_cgameapi.h"
+		"${MPDir}/client/cl_cgameapi.hpp"
 		"${MPDir}/client/cl_cin.cpp"
 		"${MPDir}/client/cl_console.cpp"
 		"${MPDir}/client/cl_input.cpp"
 		"${MPDir}/client/cl_keys.cpp"
 		"${MPDir}/client/cl_lan.cpp"
-		"${MPDir}/client/cl_lan.h"
-		"${MPDir}/client/cl_local.h"
+		"${MPDir}/client/cl_lan.hpp"
+		"${MPDir}/client/cl_local.hpp"
 		"${MPDir}/client/cl_main.cpp"
 		"${MPDir}/client/cl_net_chan.cpp"
 		"${MPDir}/client/cl_parse.cpp"
 		"${MPDir}/client/cl_scrn.cpp"
 		"${MPDir}/client/cl_ui.cpp"
 		"${MPDir}/client/cl_uiapi.cpp"
-		"${MPDir}/client/cl_uiapi.h"
+		"${MPDir}/client/cl_uiapi.hpp"
 		"${MPDir}/client/FXExport.cpp"
-		"${MPDir}/client/FXExport.h"
+		"${MPDir}/client/FXExport.hpp"
 		"${MPDir}/client/FxPrimitives.cpp"
-		"${MPDir}/client/FxPrimitives.h"
+		"${MPDir}/client/FxPrimitives.hpp"
 		"${MPDir}/client/FxScheduler.cpp"
-		"${MPDir}/client/FxScheduler.h"
+		"${MPDir}/client/FxScheduler.hpp"
 		"${MPDir}/client/FxSystem.cpp"
-		"${MPDir}/client/FxSystem.h"
+		"${MPDir}/client/FxSystem.hpp"
 		"${MPDir}/client/FxTemplate.cpp"
 		"${MPDir}/client/FxUtil.cpp"
-		"${MPDir}/client/FxUtil.h"
+		"${MPDir}/client/FxUtil.hpp"
 		"${MPDir}/client/snd_ambient.cpp"
-		"${MPDir}/client/snd_ambient.h"
+		"${MPDir}/client/snd_ambient.hpp"
 		"${MPDir}/client/snd_dma.cpp"
-		"${MPDir}/client/snd_local.h"
+		"${MPDir}/client/snd_local.hpp"
 		"${MPDir}/client/snd_mem.cpp"
 		"${MPDir}/client/snd_mix.cpp"
 		"${MPDir}/client/snd_mp3.cpp"
-		"${MPDir}/client/snd_mp3.h"
+		"${MPDir}/client/snd_mp3.hpp"
 		"${MPDir}/client/snd_music.cpp"
-		"${MPDir}/client/snd_music.h"
+		"${MPDir}/client/snd_music.hpp"
 		)
 	source_group("client" FILES ${MPEngineClientFiles})
 	set(MPEngineFiles ${MPEngineFiles} ${MPEngineClientFiles})
 
 	set(MPEngineRatlFiles
-		"${MPDir}/Ratl/bits_vs.h"
-		"${MPDir}/Ratl/ratl_common.h"
-		"${MPDir}/Ratl/vector_vs.h"
+		"${MPDir}/Ratl/bits_vs.hpp"
+		"${MPDir}/Ratl/ratl_common.hpp"
+		"${MPDir}/Ratl/vector_vs.hpp"
 		)
 	source_group("ratl" FILES ${MPEngineRatlFiles})
 	set(MPEngineFiles ${MPEngineFiles} ${MPEngineRatlFiles})
 
 	set(MPEngineRavlFiles
-		"${MPDir}/Ravl/CVec.h"
+		"${MPDir}/Ravl/CVec.hpp"
 		)
 	source_group("ravl" FILES ${MPEngineRavlFiles})
 	set(MPEngineFiles ${MPEngineFiles} ${MPEngineRavlFiles})
 
 	set(MPEngineRendererFiles
-		"${MPDir}/rd-common/tr_types.h"
+		"${MPDir}/rd-common/tr_types.hpp"
 		)
 	source_group("rd-common" FILES ${MPEngineRendererFiles})
 	set(MPEngineFiles ${MPEngineFiles} ${MPEngineRendererFiles})
@@ -453,22 +453,22 @@ if(BuildMPEngine)
 
 	set(MPEngineSysFiles
 		"${SharedDir}/sdl/sdl_window.cpp"
-		"${SharedDir}/sdl/sdl_icon.h"
+		"${SharedDir}/sdl/sdl_icon.hpp"
 		"${SharedDir}/sdl/sdl_input.cpp"
 		"${SharedDir}/sdl/sdl_sound.cpp"
-		"${SharedDir}/sys/sys_loadlib.h"
-		"${SharedDir}/sys/sys_local.h"
+		"${SharedDir}/sys/sys_loadlib.hpp"
+		"${SharedDir}/sys/sys_local.hpp"
 		"${SharedDir}/sys/sys_main.cpp"
 		"${SharedDir}/sys/sys_event.cpp"
-		"${SharedDir}/sys/sys_public.h"
-		"${SharedDir}/sys/con_local.h"
+		"${SharedDir}/sys/sys_public.hpp"
+		"${SharedDir}/sys/con_local.hpp"
 		"${SharedDir}/sys/con_log.cpp"
 		)
 
 	if(WIN32)
 		set(MPEngineWin32Files
 			"${MPDir}/win32/icon.ico"
-			"${MPDir}/win32/resource.h"
+			"${MPDir}/win32/resource.hpp"
 			"${MPDir}/win32/openjk.rc"
 			"${SharedDir}/sys/win_manifest.manifest"
 			)
@@ -571,9 +571,9 @@ if(BuildMPDed)
 	# Dedicated renderer is compiled with the server.
 	set(MPDedicatedRendererFiles
 		"${MPDir}/ghoul2/G2_gore.cpp"
-		"${MPDir}/rd-common/mdx_format.h"
-		"${MPDir}/rd-common/tr_public.h"
-		"${MPDir}/rd-dedicated/tr_local.h"
+		"${MPDir}/rd-common/mdx_format.hpp"
+		"${MPDir}/rd-common/tr_public.hpp"
+		"${MPDir}/rd-dedicated/tr_local.hpp"
 		"${MPDir}/rd-dedicated/G2_API.cpp"
 		"${MPDir}/rd-dedicated/G2_bolts.cpp"
 		"${MPDir}/rd-dedicated/G2_bones.cpp"
@@ -592,7 +592,7 @@ if(BuildMPDed)
 	set(MPDedFiles ${MPDedFiles} ${MPDedicatedRendererFiles})
 
 	set(MPDedRendererComFiles
-		"${MPDir}/rd-common/tr_types.h"
+		"${MPDir}/rd-common/tr_types.hpp"
 		)
 	source_group("rd-common" FILES ${MPDedRendererComFiles})
 	set(MPDedFiles ${MPDedFiles} ${MPDedRendererComFiles})
@@ -614,13 +614,13 @@ if(BuildMPDed)
 		set(MPDedFiles ${MPDedFiles} ${MPDedWin32Files})
 
 		set(MPDedSysFiles
-			"${SharedDir}/sys/sys_loadlib.h"
-			"${SharedDir}/sys/sys_local.h"
+			"${SharedDir}/sys/sys_loadlib.hpp"
+			"${SharedDir}/sys/sys_local.hpp"
 			"${SharedDir}/sys/sys_main.cpp"
 			"${SharedDir}/sys/sys_event.cpp"
-			"${SharedDir}/sys/sys_public.h"
+			"${SharedDir}/sys/sys_public.hpp"
 			"${SharedDir}/sys/sys_win32.cpp"
-			"${SharedDir}/sys/con_local.h"
+			"${SharedDir}/sys/con_local.hpp"
 			"${SharedDir}/sys/con_log.cpp"
 			"${SharedDir}/sys/con_win32.cpp"
 			)
@@ -629,13 +629,13 @@ if(BuildMPDed)
 		set(MPDedFiles ${MPDedFiles} ${MPDedSysFiles})
 	else(WIN32)
 		set(MPDedSysFiles
-			"${SharedDir}/sys/sys_loadlib.h"
-			"${SharedDir}/sys/sys_local.h"
+			"${SharedDir}/sys/sys_loadlib.hpp"
+			"${SharedDir}/sys/sys_local.hpp"
 			"${SharedDir}/sys/sys_main.cpp"
 			"${SharedDir}/sys/sys_event.cpp"
-			"${SharedDir}/sys/sys_public.h"
+			"${SharedDir}/sys/sys_public.hpp"
 			"${SharedDir}/sys/sys_unix.cpp"
-			"${SharedDir}/sys/con_local.h"
+			"${SharedDir}/sys/con_local.hpp"
 			"${SharedDir}/sys/con_log.cpp"
 			"${SharedDir}/sys/con_tty.cpp"
 			)

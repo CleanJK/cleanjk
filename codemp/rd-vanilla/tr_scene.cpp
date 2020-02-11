@@ -22,13 +22,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "rd-vanilla/tr_local.h"
+#include "rd-vanilla/tr_local.hpp"
 
-#include "ghoul2/G2.h"
-#include "ghoul2/g2_local.h"
-#include "qcommon/matcomp.h"
-#include "qcommon/disablewarnings.h"
-#include "rd-vanilla/tr_cvars.h"
+#include "ghoul2/G2.hpp"
+#include "ghoul2/g2_local.hpp"
+#include "qcommon/matcomp.hpp"
+#include "qcommon/disablewarnings.hpp"
+#include "rd-vanilla/tr_cvars.hpp"
 
 static	int			r_firstSceneDrawSurf;
 

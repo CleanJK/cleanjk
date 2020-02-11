@@ -21,10 +21,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "qcommon/matcomp.h"
+#include "qcommon/matcomp.hpp"
 
-#include "ghoul2/G2.h"
-#include "ghoul2/g2_local.h"
+#include "ghoul2/G2.hpp"
+#include "ghoul2/g2_local.hpp"
 
 //rww - RAGDOLL_BEGIN
 #ifndef __linux__
@@ -33,15 +33,15 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <cmath>
 #endif
 
-#include "game/bg_public.h"
-#include "ghoul2/G2_gore.h"
-#include "rd-vanilla/tr_cvars.h"
-#include "rd-vanilla/tr_local.h"
+#include "game/bg_public.hpp"
+#include "ghoul2/G2_gore.hpp"
+#include "rd-vanilla/tr_cvars.hpp"
+#include "rd-vanilla/tr_local.hpp"
 
 //#define RAG_TRACE_DEBUG_LINES
 
 //while this is all "shared" code, there are some places where we want to make cgame callbacks (for ragdoll) only if the cgvm exists
-#include "client/cl_public.h" 
+#include "client/cl_public.hpp" 
 //rww - RAGDOLL_END
 
 // Bone List handling routines - so entities can override bone info on a bone by bone level, and also interrogate this info

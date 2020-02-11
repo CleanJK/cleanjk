@@ -24,9 +24,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // bot library variables
 
-#include "qcommon/q_shared.h"
-#include "botlib/l_memory.h"
-#include "botlib/l_libvar.h"
+#include "qcommon/q_shared.hpp"
+#include "botlib/l_memory.hpp"
+#include "botlib/l_libvar.hpp"
 
 //list with library variables
 libvar_t *libvarlist = nullptr;

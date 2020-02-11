@@ -25,11 +25,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // cl_scrn.c -- master for refresh, status bar, console, chat, notify, etc
 
-#include "client/cl_local.h"
-#include "client/cl_uiapi.h"
-#include "client/snd_public.h"
-#include "qcommon/com_cvars.h"
-#include "ui/ui_public.h"
+#include "client/cl_local.hpp"
+#include "client/cl_uiapi.hpp"
+#include "client/snd_public.hpp"
+#include "qcommon/com_cvars.hpp"
+#include "ui/ui_public.hpp"
 
 extern console_t con;
 bool	scr_initialized;		// ready to draw

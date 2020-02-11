@@ -24,11 +24,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // tr_models.c -- model loading and caching
 
-#include "rd-dedicated/tr_local.h"
-#include "rd-dedicated/tr_cvars.h"
-#include "qcommon/com_cvars.h"
-#include "qcommon/disablewarnings.h"
-#include "qcommon/sstring.h"	// #include <string>
+#include "rd-dedicated/tr_local.hpp"
+#include "rd-dedicated/tr_cvars.hpp"
+#include "qcommon/com_cvars.hpp"
+#include "qcommon/disablewarnings.hpp"
+#include "qcommon/sstring.hpp"	// #include <string>
 
 #include <vector>
 #include <map>

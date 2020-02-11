@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "game/g_local.h"
+#include "game/g_local.hpp"
 
 void G_BounceObject( gentity_t *ent, trace_t *trace )
 {

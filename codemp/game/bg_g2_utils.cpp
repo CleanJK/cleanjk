@@ -25,13 +25,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // bg_g2_utils.c -- both games misc functions, all completely stateless
 // only in game and cgame, NOT ui
 
-#include "qcommon/q_shared.h"
-#include "game/bg_public.h"
+#include "qcommon/q_shared.hpp"
+#include "game/bg_public.hpp"
 
 #if defined(_GAME)
-	#include "game/g_local.h"
+	#include "game/g_local.hpp"
 #elif defined(_CGAME)
-	#include "cgame/cg_local.h"
+	#include "cgame/cg_local.hpp"
 #endif
 
 #define	MAX_VARIANTS 8

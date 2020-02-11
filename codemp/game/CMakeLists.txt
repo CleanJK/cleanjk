@@ -32,7 +32,7 @@ endif(WIN32)
 set(MPGameDefines ${MPSharedDefines} "_GAME" )
 set(MPGameGameFiles
 	"${MPDir}/game/ai_botlib.cpp"
-	"${MPDir}/game/ai_chars.h"
+	"${MPDir}/game/ai_chars.hpp"
 	"${MPDir}/game/ai_main.cpp"
 	"${MPDir}/game/ai_util.cpp"
 	"${MPDir}/game/ai_wpnav.cpp"
@@ -78,29 +78,29 @@ set(MPGameGameFiles
 	"${MPDir}/game/tri_coll_test.cpp"
 	"${MPDir}/game/w_force.cpp"
 	"${MPDir}/game/w_saber.cpp"
-	"${MPDir}/game/ai_botlib.h"
-	"${MPDir}/game/ai_main.h"
-	"${MPDir}/game/anims.h"
-	"${MPDir}/game/b_local.h"
-	"${MPDir}/game/b_public.h"
-	"${MPDir}/game/bg_local.h"
-	"${MPDir}/game/bg_public.h"
-	"${MPDir}/game/bg_weapons.h"
-	"${MPDir}/game/g_ICARUScb.h"
-	"${MPDir}/game/g_inventory.h"
-	"${MPDir}/game/g_local.h"
-	"${MPDir}/game/g_public.h"
-	"${MPDir}/game/g_xcvar.h"
-	"${MPDir}/game/w_saber.h"
+	"${MPDir}/game/ai_botlib.hpp"
+	"${MPDir}/game/ai_main.hpp"
+	"${MPDir}/game/anims.hpp"
+	"${MPDir}/game/b_local.hpp"
+	"${MPDir}/game/b_public.hpp"
+	"${MPDir}/game/bg_local.hpp"
+	"${MPDir}/game/bg_public.hpp"
+	"${MPDir}/game/bg_weapons.hpp"
+	"${MPDir}/game/g_ICARUScb.hpp"
+	"${MPDir}/game/g_inventory.hpp"
+	"${MPDir}/game/g_local.hpp"
+	"${MPDir}/game/g_public.hpp"
+	"${MPDir}/game/g_xcvar.hpp"
+	"${MPDir}/game/w_saber.hpp"
 	)
 source_group("game" FILES ${MPGameGameFiles})
 set(MPGameFiles ${MPGameFiles} ${MPGameGameFiles})
 
 set(MPGameCommonFiles
 	"${MPDir}/qcommon/q_shared.cpp"
-	"${MPDir}/qcommon/disablewarnings.h"
-	"${MPDir}/qcommon/q_shared.h"
-	"${MPDir}/qcommon/tags.h"
+	"${MPDir}/qcommon/disablewarnings.hpp"
+	"${MPDir}/qcommon/q_shared.hpp"
+	"${MPDir}/qcommon/tags.hpp"
 
 	${SharedCommonFiles}
 	)
@@ -109,34 +109,34 @@ set(MPGameFiles ${MPGameFiles} ${MPGameCommonFiles})
 
 
 set(MPGameCgameFiles
-	"${MPDir}/cgame/animtable.h"
-	"${MPDir}/cgame/cg_public.h"
+	"${MPDir}/cgame/animtable.hpp"
+	"${MPDir}/cgame/cg_public.hpp"
 	)
 source_group("cgame" FILES ${MPGameCgameFiles})
 set(MPGameFiles ${MPGameFiles} ${MPGameCgameFiles})
 
 set(MPGameRendererFiles
-	"${MPDir}/rd-common/tr_types.h"
+	"${MPDir}/rd-common/tr_types.hpp"
 	)
 source_group("rd-common" FILES ${MPGameRendererFiles})
 set(MPGameFiles ${MPGameFiles} ${MPGameRendererFiles})
 
 set(MPGameBotlibFiles
-	"${MPDir}/botlib/be_ea.h"
-	"${MPDir}/botlib/botlib.h"
+	"${MPDir}/botlib/be_ea.hpp"
+	"${MPDir}/botlib/botlib.hpp"
 	)
 source_group("botlib" FILES ${MPGameBotlibFiles})
 set(MPGameFiles ${MPGameFiles} ${MPGameBotlibFiles})
 
 set(MPGameG2Files
-	"${MPDir}/ghoul2/G2.h"
+	"${MPDir}/ghoul2/G2.hpp"
 	)
 source_group("ghoul2" FILES ${MPGameG2Files})
 set(MPGameFiles ${MPGameFiles} ${MPGameG2Files})
 
 set(MPGameIcarusFiles
-	"${MPDir}/icarus/interpreter.h"
-	"${MPDir}/icarus/Q3_Interface.h"
+	"${MPDir}/icarus/interpreter.hpp"
+	"${MPDir}/icarus/Q3_Interface.hpp"
 	)
 source_group("icarus" FILES ${MPGameIcarusFiles})
 set(MPGameFiles ${MPGameFiles} ${MPGameIcarusFiles})

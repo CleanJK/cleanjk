@@ -23,10 +23,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // Created 3/13/03 by Brian Osman (VV) - Split Zone/Hunk from common
 
-#include "client/cl_public.h"
-#include "client/snd_public.h"
-#include "qcommon/com_cvars.h"
-#include "qcommon/cm_public.h"
+#include "client/cl_public.hpp"
+#include "client/snd_public.hpp"
+#include "qcommon/com_cvars.hpp"
+#include "qcommon/cm_public.hpp"
 
 #ifdef TAGDEF	// itu?
 #undef TAGDEF
@@ -34,7 +34,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define TAGDEF(blah) #blah
 const static char *psTagStrings[TAG_COUNT+1]=	// +1 because TAG_COUNT will itself become a string here. Oh well.
 {
-	#include "qcommon/tags.h"
+	#include "qcommon/tags.hpp"
 };
 
 static void Z_Details_f(void);

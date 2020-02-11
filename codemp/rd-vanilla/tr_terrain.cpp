@@ -1,7 +1,7 @@
 // this include must remain at the top of every CPP file
-#include "rd-vanilla/tr_local.h"
+#include "rd-vanilla/tr_local.hpp"
 
-#include "qcommon/GenericParser2.h"
+#include "qcommon/GenericParser2.hpp"
 
 // To do:
 // Alter variance dependent on global distance from player (colour code this for cg_terrainCollisionDebug)
@@ -9,8 +9,8 @@
 // Link to neightbouring terrains or architecture (edge conditions)
 // Post process generated light data to make sure there are no bands within a patch
 
-#include "qcommon/cm_landscape.h"
-#include "rd-vanilla/tr_landscape.h"
+#include "qcommon/cm_landscape.hpp"
+#include "rd-vanilla/tr_landscape.hpp"
 
 static int		TerrainFog = 0;
 static float	TerrainDistanceCull;

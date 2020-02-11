@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // tr_mesh.c: triangle model functions
 
-#include "rd-dedicated/tr_local.h"
+#include "rd-dedicated/tr_local.hpp"
 
 float ProjectRadius( float r, vec3_t location )
 {

@@ -22,9 +22,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "game/g_local.h"
-#include "game/g_team.h"
-#include "game/g_ICARUScb.h"
+#include "game/g_local.hpp"
+#include "game/g_team.hpp"
+#include "game/g_ICARUScb.hpp"
 
 /*QUAKED target_give (1 0 0) (-8 -8 -8) (8 8 8)
 Gives the activator all the items pointed to.

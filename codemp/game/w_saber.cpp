@@ -21,11 +21,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "game/g_local.h"
-#include "game/bg_local.h"
-#include "game/w_saber.h"
-#include "game/ai_main.h"
-#include "ghoul2/G2.h"
+#include "game/g_local.hpp"
+#include "game/bg_local.hpp"
+#include "game/w_saber.hpp"
+#include "game/ai_main.hpp"
+#include "ghoul2/G2.hpp"
 
 #define SABERINVALID (!saberent || !saberOwner || !other || !saberent->inuse || !saberOwner->inuse || !other->inuse || !saberOwner->client || !other->client || !saberOwner->client->ps.saberEntityNum || saberOwner->client->ps.saberLockTime > (level.time-100))
 #define SABER_BOX_SIZE 16.0f

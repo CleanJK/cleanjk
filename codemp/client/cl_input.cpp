@@ -24,14 +24,14 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // cl.input.c  -- builds an intended movement command to send to the server
 
-#include "client/cl_cgameapi.h"
-#include "client/cl_keys.h"
-#include "client/cl_local.h"
-#include "client/cl_uiapi.h"
-#include "qcommon/com_cvar.h"
-#include "qcommon/com_cvars.h"
-#include "ui/ui_public.h"
-#include "sys/sys_public.h"
+#include "client/cl_cgameapi.hpp"
+#include "client/cl_keys.hpp"
+#include "client/cl_local.hpp"
+#include "client/cl_uiapi.hpp"
+#include "qcommon/com_cvar.hpp"
+#include "qcommon/com_cvars.hpp"
+#include "ui/ui_public.hpp"
+#include "sys/sys_public.hpp"
 #ifndef _WIN32
 #include <cmath>
 #endif

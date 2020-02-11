@@ -24,8 +24,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // g_utils.c -- misc utility functions for game module
 
-#include "game/g_local.h"
-#include "qcommon/q_shared.h"
+#include "game/g_local.hpp"
+#include "qcommon/q_shared.hpp"
 
 struct shaderRemap_t {
   char oldShader[MAX_QPATH];

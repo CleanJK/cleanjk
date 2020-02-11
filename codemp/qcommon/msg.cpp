@@ -23,11 +23,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "qcommon/q_shared.h"
-#include "qcommon/q_common.h"
-#include "qcommon/huffman.h"
-#include "server/server.h"
-#include "qcommon/com_cvars.h"
+#include "qcommon/q_shared.hpp"
+#include "qcommon/q_common.hpp"
+#include "qcommon/huffman.hpp"
+#include "server/server.hpp"
+#include "qcommon/com_cvars.hpp"
 
 //#define _NEWHUFFTABLE_		// Build "c:\\netchan.bin"
 //#define _USINGNEWHUFFTABLE_		// Build a new frequency table to cut and paste.

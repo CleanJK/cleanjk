@@ -29,17 +29,17 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <cinttypes>
 
 #ifdef _CGAME
-	#include "cgame/cg_local.h"
+	#include "cgame/cg_local.hpp"
 #elif UI_BUILD
-	#include "ui/ui_local.h"
+	#include "ui/ui_local.hpp"
 #endif
 
-#include "ui/ui_shared.h"
-#include "ui/ui_fonts.h"
+#include "ui/ui_shared.hpp"
+#include "ui/ui_fonts.hpp"
 #include "ui/menudef.h"
-#include "game/bg_public.h"
-#include "game/anims.h"
-#include "ghoul2/G2.h"
+#include "game/bg_public.hpp"
+#include "game/anims.hpp"
+#include "ghoul2/G2.hpp"
 
 extern stringID_table_t animTable [MAX_ANIMATIONS+1];
 

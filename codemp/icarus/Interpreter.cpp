@@ -11,9 +11,9 @@
 #endif
 #include <cstdio>
 
-#include "icarus/tokenizer.h"
-#include "icarus/blockstream.h"
-#include "icarus/interpreter.h"
+#include "icarus/tokenizer.hpp"
+#include "icarus/blockstream.hpp"
+#include "icarus/interpreter.hpp"
 
 // Table Definitions
 

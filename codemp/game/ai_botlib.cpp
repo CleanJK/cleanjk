@@ -1,7 +1,7 @@
-#include "qcommon/q_common.h"
-#include "game/g_local.h"
+#include "qcommon/q_common.hpp"
+#include "game/g_local.hpp"
 #define BOTLIB_INTERNAL
-#include "game/ai_botlib.h"
+#include "game/ai_botlib.hpp"
 
 aas_t             aasworld;
 bot_goalstate_t   *botgoalstates[MAX_CLIENTS+1];

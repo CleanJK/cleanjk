@@ -23,7 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // Game-side module for Siege gametype.
 
-#include "game/g_local.h"
+#include "game/g_local.hpp"
 
 //bypass most of the normal checks in SetTeam
 void SetTeamQuick( gentity_t *ent, team_e team, bool doBegin ) {

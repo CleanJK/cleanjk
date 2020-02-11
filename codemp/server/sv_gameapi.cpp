@@ -22,19 +22,19 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // sv_gameapi.cpp  -- interface to the game dll
 //Anything above this #include will be ignored by the compiler
 
-#include "server/server.h"
-#include "botlib/botlib.h"
-#include "qcommon/stringed_ingame.h"
-#include "qcommon/RoffSystem.h"
-#include "ghoul2/ghoul2_shared.h"
-#include "qcommon/cm_public.h"
-#include "icarus/GameInterface.h"
-#include "icarus/Q3_Interface.h"
-#include "icarus/Q3_Registers.h"
-#include "icarus/icarus.h"
-#include "qcommon/timing.h"
-#include "qcommon/com_cvar.h"
-#include "qcommon/com_cvars.h"
+#include "server/server.hpp"
+#include "botlib/botlib.hpp"
+#include "qcommon/stringed_ingame.hpp"
+#include "qcommon/RoffSystem.hpp"
+#include "ghoul2/ghoul2_shared.hpp"
+#include "qcommon/cm_public.hpp"
+#include "icarus/GameInterface.hpp"
+#include "icarus/Q3_Interface.hpp"
+#include "icarus/Q3_Registers.hpp"
+#include "icarus/icarus.hpp"
+#include "qcommon/timing.hpp"
+#include "qcommon/com_cvar.hpp"
+#include "qcommon/com_cvars.hpp"
 
 botlib_export_t	*botlib_export;
 

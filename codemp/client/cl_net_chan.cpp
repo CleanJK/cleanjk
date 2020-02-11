@@ -22,8 +22,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "client/cl_local.h"
-#include "qcommon/huffman.h"
+#include "client/cl_local.hpp"
+#include "qcommon/huffman.hpp"
 
 // TTimo: unused, commenting out to make gcc happy
 

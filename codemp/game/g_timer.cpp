@@ -25,7 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //This is here only to make porting from SP easier, it's really sort of nasty (being static
 //now). Basically it's slower and takes more memory.
 
-#include "game/g_local.h"
+#include "game/g_local.hpp"
 //typedef map		< string, int >	timer_m;
 
 #define MAX_GTIMERS	16384

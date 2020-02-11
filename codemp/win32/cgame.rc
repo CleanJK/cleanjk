@@ -1,6 +1,6 @@
 // Microsoft Visual C++ generated resource script.
 
-#include "resource.h"
+#include "resource.hpp"
 
 #define APSTUDIO_READONLY_SYMBOLS
 /////////////////////////////////////////////////////////////////////////////
@@ -28,7 +28,7 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 
 1 TEXTINCLUDE
 BEGIN
-    "resource.h\0"
+    "resource.hpp\0"
 END
 
 2 TEXTINCLUDE
@@ -49,7 +49,7 @@ END
 
 // Version
 
-#include "../qcommon/game_version.h"
+#include "../qcommon/game_version.hpp"
 
 VS_VERSION_INFO VERSIONINFO
  FILEVERSION VERSION_MAJOR_RELEASE,VERSION_MINOR_RELEASE,VERSION_EXTERNAL_BUILD,VERSION_INTERNAL_BUILD

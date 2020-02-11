@@ -20,19 +20,19 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 // cl_uiapi.c  -- client system interaction with client game
-#include "botlib/botlib.h"
-#include "client/cl_keys.h"
-#include "client/cl_lan.h"
-#include "client/cl_local.h"
-#include "client/FXExport.h"
-#include "client/FxUtil.h"
-#include "client/snd_ambient.h"
-#include "client/snd_public.h"
-#include "qcommon/com_cvar.h"
-#include "qcommon/RoffSystem.h"
-#include "qcommon/stringed_ingame.h"
-#include "qcommon/timing.h"
-#include "ui/ui_public.h"
+#include "botlib/botlib.hpp"
+#include "client/cl_keys.hpp"
+#include "client/cl_lan.hpp"
+#include "client/cl_local.hpp"
+#include "client/FXExport.hpp"
+#include "client/FxUtil.hpp"
+#include "client/snd_ambient.hpp"
+#include "client/snd_public.hpp"
+#include "qcommon/com_cvar.hpp"
+#include "qcommon/RoffSystem.hpp"
+#include "qcommon/stringed_ingame.hpp"
+#include "qcommon/timing.hpp"
+#include "ui/ui_public.hpp"
 
 extern IHeapAllocator *G2VertSpaceClient;
 extern botlib_export_t *botlib_export;

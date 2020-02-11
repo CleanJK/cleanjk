@@ -24,12 +24,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 // cg_main.c -- initialization and primary entry point for cgame
-#include "cgame/cg_local.h"
+#include "cgame/cg_local.hpp"
 
-#include "ui/ui_shared.h"
-#include "ui/ui_fonts.h"
+#include "ui/ui_shared.hpp"
+#include "ui/ui_fonts.hpp"
 #include "ui/menudef.h"
-#include "cgame/cg_media.h"
+#include "cgame/cg_media.hpp"
 
 NORETURN_PTR void (*Com_Error)( int level, const char *fmt, ... );
 void (*Com_Printf)( const char *fmt, ... );

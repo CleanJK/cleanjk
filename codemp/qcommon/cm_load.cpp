@@ -23,9 +23,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 // cmodel.c -- model loading
-#include "qcommon/cm_local.h"
-#include "qcommon/q_files.h"
-#include "qcommon/com_cvars.h"
+#include "qcommon/cm_local.hpp"
+#include "qcommon/q_files.hpp"
+#include "qcommon/com_cvars.hpp"
 
 // to allow boxes to be treated as brush models, we allocate
 // some extra indexes along with those needed by the map

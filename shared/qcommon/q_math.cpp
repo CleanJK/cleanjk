@@ -22,8 +22,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "qcommon/q_shared.h"
-#include "qcommon/q_math.h"
+#include "qcommon/q_shared.hpp"
+#include "qcommon/q_math.hpp"
 #include <cassert>
 #include <cfloat>
 #include <cmath>

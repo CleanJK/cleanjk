@@ -1,5 +1,5 @@
-#include "qcommon/q_shared.h"
-#include "qcommon/q_string.h"
+#include "qcommon/q_shared.hpp"
+#include "qcommon/q_string.hpp"
 
 #include <cassert>
 #include <cctype>
@@ -10,7 +10,7 @@
 #include <cstdlib>
 #include <cstring>
 
-#include "qcommon/q_color.h"
+#include "qcommon/q_color.hpp"
 
 int Q_isprint( int c )
 {

@@ -20,15 +20,15 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "sys/sys_local.h"
+#include "sys/sys_local.hpp"
 #include <direct.h>
 #include <io.h>
 #include <shlobj.h>
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-#include "qcommon/com_cvar.h"
-#include "qcommon/com_cvars.h"
+#include "qcommon/com_cvar.hpp"
+#include "qcommon/com_cvars.hpp"
 
 #define MEM_THRESHOLD (128*1024*1024)
 

@@ -21,8 +21,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "qcommon/q_shared.h"
-#include "qcommon/matcomp.h"
+#include "qcommon/q_shared.hpp"
+#include "qcommon/matcomp.hpp"
 #include <cassert>
 #include <cmath>
 #include <cstdio>

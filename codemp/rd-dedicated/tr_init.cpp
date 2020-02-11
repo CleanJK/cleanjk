@@ -24,12 +24,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // tr_init.c -- functions that are not called every frame
 
-#include "rd-dedicated/tr_local.h"
-#include "rd-common/tr_common.h"
-#include "qcommon/MiniHeap.h"
-#include "ghoul2/g2_local.h"
+#include "rd-dedicated/tr_local.hpp"
+#include "rd-common/tr_common.hpp"
+#include "qcommon/MiniHeap.hpp"
+#include "ghoul2/g2_local.hpp"
 #include <algorithm>
-#include "rd-dedicated/tr_cvars.h"
+#include "rd-dedicated/tr_cvars.hpp"
 
 // the limits apply to the sum of all scenes in a frame - the main view, all the 3D icons, etc
 #define	DEFAULT_MAX_POLYS		600

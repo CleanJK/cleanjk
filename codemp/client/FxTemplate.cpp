@@ -21,8 +21,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "client/cl_public.h"
-#include "client/FxScheduler.h"
+#include "client/cl_public.hpp"
+#include "client/FxScheduler.hpp"
 
 // Set up our minimal default values
 CPrimitiveTemplate::CPrimitiveTemplate()

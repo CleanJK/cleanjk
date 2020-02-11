@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "client/FxScheduler.h"
+#include "client/FxScheduler.hpp"
 
 //#define __FXCHECKER
 

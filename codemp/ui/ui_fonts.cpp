@@ -1,13 +1,13 @@
 #include <algorithm>
 
 #if defined(UI_BUILD)
-	#include "ui/ui_local.h"
+	#include "ui/ui_local.hpp"
 #elif defined(_CGAME)
-	#include "cgame/cg_local.h"
+	#include "cgame/cg_local.hpp"
 #endif
-#include "ui/ui_shared.h"
-#include "qcommon/q_files.h"	// for STYLE_BLINK etc
-#include "ui/ui_fonts.h"
+#include "ui/ui_shared.hpp"
+#include "qcommon/q_files.hpp"	// for STYLE_BLINK etc
+#include "ui/ui_fonts.hpp"
 
 #if defined(_CGAME)
 	extern displayContextDef_t cgDC;

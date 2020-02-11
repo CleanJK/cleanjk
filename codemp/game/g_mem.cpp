@@ -25,7 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // g_mem.c
 // Simple linear memory allocator
 
-#include "game/g_local.h"
+#include "game/g_local.hpp"
 
 /*
   The purpose of G_Alloc is to efficiently allocate memory for objects

@@ -21,9 +21,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "client/cl_local.h"
-#include "client/FxScheduler.h"
-#include "qcommon/com_cvars.h"
+#include "client/cl_local.hpp"
+#include "client/FxScheduler.hpp"
+#include "qcommon/com_cvars.hpp"
 
 vec3_t	WHITE = {1.0f, 1.0f, 1.0f};
 

@@ -27,8 +27,8 @@
 	$Id: mdfour.c,v 1.1 2002/08/23 22:03:27 abster Exp $
 */
 
-#include "qcommon/q_shared.h"
-#include "qcommon/q_common.h"
+#include "qcommon/q_shared.hpp"
+#include "qcommon/q_common.hpp"
 
 typedef struct mdfour_t {
 	uint32_t A, B, C, D;

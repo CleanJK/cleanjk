@@ -23,7 +23,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "game/g_local.h"
+#include "game/g_local.hpp"
 
 // SESSION DATA
 // Session data is the only data that stays persistant across level loads and tournament restarts.

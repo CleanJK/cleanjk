@@ -24,10 +24,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // world.c -- world query functions
 
-#include "server/server.h"
-#include "ghoul2/ghoul2_shared.h"
-#include "qcommon/cm_public.h"
-#include "qcommon/com_cvars.h"
+#include "server/server.hpp"
+#include "ghoul2/ghoul2_shared.hpp"
+#include "qcommon/cm_public.hpp"
+#include "qcommon/com_cvars.hpp"
 
 // Returns a headnode that can be used for testing or clipping to a given entity.
 // If the entity is a bsp model, the headnode will be returned, otherwise a custom box tree will be constructed.

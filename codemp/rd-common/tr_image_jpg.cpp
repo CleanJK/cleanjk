@@ -23,12 +23,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "rd-common/tr_common.h"
+#include "rd-common/tr_common.hpp"
 
 // Include file for users of JPEG library.
 // You will need to have included system headers that define at least the typedefs FILE and size_t before you can
 //	include jpeglib.h (stdio.h is sufficient on ANSI-conforming systems)
-// You may also wish to include "jerror.h".
+// You may also wish to include "jerror.hpp".
 
 #include <jpeglib.h>
 

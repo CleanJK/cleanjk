@@ -1,6 +1,6 @@
-#include "qcommon/q_shared.h"
-#include "rd-common/tr_common.h"
-#include "rd-dedicated/tr_cvars.h"
+#include "qcommon/q_shared.hpp"
+#include "rd-common/tr_common.hpp"
+#include "rd-dedicated/tr_cvars.hpp"
 
 #ifdef _DEBUG
 cvar_t *r_noPrecacheGLA;

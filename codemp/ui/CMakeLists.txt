@@ -36,21 +36,21 @@ set(MPUIGameFiles
 	"${MPDir}/game/bg_saberLoad.cpp"
 	"${MPDir}/game/bg_saga.cpp"
 	"${MPDir}/game/bg_weapons.cpp"
-	"${MPDir}/game/anims.h"
-	"${MPDir}/game/bg_local.h"
-	"${MPDir}/game/bg_public.h"
-	"${MPDir}/game/bg_weapons.h"
+	"${MPDir}/game/anims.hpp"
+	"${MPDir}/game/bg_local.hpp"
+	"${MPDir}/game/bg_public.hpp"
+	"${MPDir}/game/bg_weapons.hpp"
 	)
 source_group("game" FILES ${MPUIGameFiles})
 set(MPUIFiles ${MPUIFiles} ${MPUIGameFiles})
 
 set(MPUICommonFiles
 	"${MPDir}/qcommon/q_shared.cpp"
-	"${MPDir}/qcommon/disablewarnings.h"
-	"${MPDir}/qcommon/game_version.h"
-	"${MPDir}/qcommon/q_shared.h"
-	"${MPDir}/qcommon/q_files.h"
-	"${MPDir}/qcommon/tags.h"
+	"${MPDir}/qcommon/disablewarnings.hpp"
+	"${MPDir}/qcommon/game_version.hpp"
+	"${MPDir}/qcommon/q_shared.hpp"
+	"${MPDir}/qcommon/q_files.hpp"
+	"${MPDir}/qcommon/tags.hpp"
 
 	${SharedCommonFiles}
 	)
@@ -67,24 +67,24 @@ set(MPUIUIFiles
 	"${MPDir}/ui/ui_saber.cpp"
 	"${MPDir}/ui/ui_shared.cpp"
 	"${MPDir}/ui/menudef.h"
-	"${MPDir}/ui/ui_fonts.h"
-	"${MPDir}/ui/ui_force.h"
-	"${MPDir}/ui/ui_local.h"
-	"${MPDir}/ui/ui_public.h"
-	"${MPDir}/ui/ui_shared.h"
-	"${MPDir}/ui/ui_xcvar.h"
+	"${MPDir}/ui/ui_fonts.hpp"
+	"${MPDir}/ui/ui_force.hpp"
+	"${MPDir}/ui/ui_local.hpp"
+	"${MPDir}/ui/ui_public.hpp"
+	"${MPDir}/ui/ui_shared.hpp"
+	"${MPDir}/ui/ui_xcvar.hpp"
 	)
 source_group("ui" FILES ${MPUIUIFiles})
 set(MPUIFiles ${MPUIFiles} ${MPUIUIFiles})
 
 set(MPUIRendererFiles
-	"${MPDir}/rd-common/tr_types.h"
+	"${MPDir}/rd-common/tr_types.hpp"
 	)
 source_group("rd-common" FILES ${MPUIRendererFiles})
 set(MPUIFiles ${MPUIFiles} ${MPUIRendererFiles})
 
 set(MPUIClientFiles
-	"${MPDir}/client/cl_keycodes.h"
+	"${MPDir}/client/cl_keycodes.hpp"
 	)
 source_group("client" FILES ${MPUIClientFiles})
 set(MPUIFiles ${MPUIFiles} ${MPUIClientFiles})

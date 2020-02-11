@@ -22,10 +22,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "rd-vanilla/tr_local.h"
-#include "rd-vanilla/glext.h"
-#include "rd-vanilla/tr_WorldEffects.h"
-#include "rd-vanilla/tr_cvars.h"
+#include "rd-vanilla/tr_local.hpp"
+#include "rd-vanilla/glext.hpp"
+#include "rd-vanilla/tr_WorldEffects.hpp"
+#include "rd-vanilla/tr_cvars.hpp"
 
 backEndData_t	*backEndData;
 backEndState_t	backEnd;

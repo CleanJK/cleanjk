@@ -25,18 +25,18 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // sv_client.c -- server code for dealing with clients
 
-#include "server/server.h"
-#include "qcommon/stringed_ingame.h"
-#include "sys/sys_public.h"
+#include "server/server.hpp"
+#include "qcommon/stringed_ingame.hpp"
+#include "sys/sys_public.hpp"
 
 #ifdef USE_INTERNAL_ZLIB
-#include "zlib/zlib.h"
+#include "zlib/zlib.hpp"
 #else
 #include <zlib.h>
 #endif
 
-#include "server/sv_gameapi.h"
-#include "qcommon/com_cvar.h"
+#include "server/sv_gameapi.hpp"
+#include "qcommon/com_cvar.hpp"
 
 static void SV_CloseDownload( client_t *cl );
 

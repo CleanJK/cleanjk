@@ -23,10 +23,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 */
 
 // tr_image.c
-#include "rd-vanilla/tr_local.h"
-#include "rd-common/tr_common.h"
-#include "rd-vanilla/glext.h"
-#include "rd-vanilla/tr_cvars.h"
+#include "rd-vanilla/tr_local.hpp"
+#include "rd-common/tr_common.hpp"
+#include "rd-vanilla/glext.hpp"
+#include "rd-vanilla/tr_cvars.hpp"
 
 #include <map>
 

@@ -23,10 +23,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // tr_QuickSprite.cpp: implementation of the CQuickSpriteSystem class.
 
-#include "rd-vanilla/tr_local.h"
+#include "rd-vanilla/tr_local.hpp"
 
-#include "rd-vanilla/tr_quicksprite.h"
-#include "rd-vanilla/tr_cvars.h"
+#include "rd-vanilla/tr_quicksprite.hpp"
+#include "rd-vanilla/tr_cvars.hpp"
 
 // Singleton System
 CQuickSpriteSystem SQuickSprite;

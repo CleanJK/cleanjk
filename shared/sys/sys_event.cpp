@@ -23,9 +23,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "qcommon/q_common.h"
-#include "sys/sys_local.h"
-#include "sys/sys_public.h"
+#include "qcommon/q_common.hpp"
+#include "sys/sys_local.hpp"
+#include "sys/sys_public.hpp"
 
 /*
 ========================================================================

@@ -22,8 +22,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "qcommon/cm_local.h"
-#include "qcommon/com_cvars.h"
+#include "qcommon/cm_local.hpp"
+#include "qcommon/com_cvars.hpp"
 
 // always use bbox vs. bbox collision and never capsule vs. bbox or vice versa
 //#define ALWAYS_BBOX_VS_BBOX
