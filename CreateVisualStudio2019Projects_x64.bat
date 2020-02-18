@@ -11,8 +11,8 @@ if not defined FOUND (
 ) else (
 	echo Found CMake!
 )
-if not exist build\nul (mkdir build)
-pushd build
+if not exist build64\nul (mkdir build64)
+pushd build64
 cmake -G "Visual Studio 16" -A x64 -T host=x64 ..
 popd
 pause

@@ -261,6 +261,11 @@ int Q_PrintStrlen( const char *string ) {
 }
 
 char *Q_CleanStr( char *string ) {
+	if (string == nullptr)
+	{
+		return nullptr;
+	}
+	
 	char*	d;
 	char*	s;
 	int		c;
@@ -378,7 +383,7 @@ int Q_vsnprintf(char *str, size_t size, const char *format, va_list ap)
 	if(retval < 0 || retval == size)
 	{
 		// Microsoft doesn't adhere to the C99 standard of vsnprintf, which states that the return value must be the number of bytes written if the output
-		//	string had sufficient length.
+		// string had sufficient length.
 		// Obviously we cannot determine that value from Microsoft's implementation, so we have no choice but to return size.
 
 		str[size - 1] = '\0';

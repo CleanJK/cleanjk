@@ -569,7 +569,7 @@ void SP_misc_bsp(gentity_t *ent)
 	strcpy(level.mFilter, out);
 	*/
 	G_SpawnString("teamfilter", "", &out);
-	strcpy(level.mTeamFilter, out);
+	Q_strncpyz(level.mTeamFilter, out, sizeof(level.mTeamFilter));
 
 	VectorCopy( ent->s.origin, ent->s.pos.trBase );
 	VectorCopy( ent->s.origin, ent->r.currentOrigin );

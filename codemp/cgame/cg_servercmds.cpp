@@ -281,9 +281,9 @@ void CG_SetConfigValues( void )
 }
 
 void CG_ShaderStateChanged(void) {
-	char originalShader[MAX_QPATH];
-	char newShader[MAX_QPATH];
-	char timeOffset[16];
+	char originalShader[MAX_QPATH] = { 0 };
+	char newShader[MAX_QPATH] = { 0 };
+	char timeOffset[16] = { 0 };
 	const char *o, *n,*t;
 
 	o = CG_ConfigString( CS_SHADERSTATE );
@@ -495,7 +495,7 @@ static void CG_ConfigStringModified( void ) {
 		cg.intermissionStarted = atoi( str );
 	} else if ( num >= CS_MODELS && num < CS_MODELS+MAX_MODELS ) {
 		char modelName[MAX_QPATH];
-		strcpy(modelName, str);
+		Q_strncpyz(modelName, str, sizeof(modelName));
 		if (strstr(modelName, ".glm") || modelName[0] == '$')
 		{ //Check to see if it has a custom skin attached.
 			CG_HandleAppendedSkin(modelName);
@@ -712,7 +712,7 @@ static void CG_RemoveChatEscapeChar( char *text ) {
 
 #define MAX_STRINGED_SV_STRING 1024	// this is an quake-engine limit, not a StringEd limit
 
-void CG_CheckSVStringEdRef(char *buf, const char *str)
+static void CG_CheckSVStringEdRef(char *buf, const char *str, int bufSize)
 { //I don't really like doing this. But it utilizes the system that was already in place.
 	int i = 0;
 	int b = 0;
@@ -723,12 +723,12 @@ void CG_CheckSVStringEdRef(char *buf, const char *str)
 	{
 		if (str)
 		{
-			strcpy(buf, str);
+			Q_strncpyz(buf, str, bufSize);
 		}
 		return;
 	}
 
-	strcpy(buf, str);
+	Q_strncpyz(buf, str, bufSize);
 
 	strLen = strlen(str);
 
@@ -1049,7 +1049,7 @@ static void CG_RestoreClientGhoul_f( void ) {
 static void CG_CenterPrint_f( void ) {
 	char strEd[MAX_STRINGED_SV_STRING] = {0};
 
-	CG_CheckSVStringEdRef( strEd, CG_Argv( 1 ) );
+	CG_CheckSVStringEdRef( strEd, CG_Argv( 1 ), sizeof(strEd) );
 	CG_CenterPrint( strEd, SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
 }
 
@@ -1067,7 +1067,7 @@ static void CG_CenterPrintSE_f( void ) {
 static void CG_Print_f( void ) {
 	char strEd[MAX_STRINGED_SV_STRING] = {0};
 
-	CG_CheckSVStringEdRef( strEd, CG_Argv( 1 ) );
+	CG_CheckSVStringEdRef( strEd, CG_Argv( 1 ), sizeof(strEd));
 	trap->Print( "%s", strEd );
 }
 

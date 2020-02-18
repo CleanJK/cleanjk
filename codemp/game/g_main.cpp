@@ -2367,7 +2367,7 @@ void CheckCvars( void ) {
 		char *c = password;
 		lastMod = g_password.modificationCount;
 
-		strcpy( password, g_password.string );
+		Q_strncpyz( password, g_password.string, sizeof(password));
 		while( *c )
 		{
 			if ( *c == '%' )
@@ -2843,7 +2843,7 @@ static int G_ICARUS_GetString( void ) {
 	int r = Q3_GetString( sharedMem->entID, sharedMem->type, sharedMem->name, morecrap );
 
 	if ( crap )
-		strcpy( sharedMem->value, crap );
+		Q_strncpyz( sharedMem->value, crap, sizeof(sharedMem->value));
 
 	return r;
 }

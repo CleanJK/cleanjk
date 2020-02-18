@@ -404,12 +404,12 @@ void CG_DrawFlagModel( float x, float y, float w, float h, int team, bool force2
 		// offset the origin y and z to center the flag
 		trap->R_ModelBounds( cm, mins, maxs );
 
-		origin[2] = -0.5 * ( mins[2] + maxs[2] );
-		origin[1] = 0.5 * ( mins[1] + maxs[1] );
+		origin[2] = -0.5f * ( mins[2] + maxs[2] );
+		origin[1] = 0.5f * ( mins[1] + maxs[1] );
 
 		// calculate distance so the flag nearly fills the box
 		// assume heads are taller than wide
-		len = 0.5 * ( maxs[2] - mins[2] );
+		len = 0.5f * ( maxs[2] - mins[2] );
 		origin[0] = len / 0.268;	// len / tan( fov/2 )
 
 		angles[YAW] = 60 * sin( cg.time / 2000.0 );;
@@ -1645,7 +1645,7 @@ void CG_DrawInvenSelect( void )
 			char	text[1024];
 			char	upperKey[1024];
 
-			strcpy(upperKey, bg_itemlist[itemNdex].classname);
+			Q_strncpyz(upperKey, bg_itemlist[itemNdex].classname, sizeof(upperKey));
 
 			if ( trap->SE_GetStringTextString( va("SP_INGAME_%s",Q_strupr(upperKey)), text, sizeof( text )))
 			{
@@ -1771,7 +1771,7 @@ static float CG_DrawMiniScoreboard ( float y )
 	else
 	{
 		/*
-		strcpy ( temp, "1st: " );
+		Q_strncpyz( temp, "1st: ", sizeof(temp));
 		Q_strcat ( temp, MAX_QPATH, cgs.scores1==SCORE_NOT_PRESENT?"-":(va("%i",cgs.scores1)) );
 
 		Q_strcat ( temp, MAX_QPATH, " 2nd: " );
@@ -2971,7 +2971,7 @@ static void CG_DrawCenterString( void ) {
 	y = cg.centerprint.y - cg.centerprint.lines * BIGCHAR_HEIGHT / 2;
 
 	while ( 1 ) {
-		char linebuffer[1024];
+		char linebuffer[1024] = { 0 };
 
 		for ( l = 0; l < 50; l++ ) {
 			if ( !start[l] || start[l] == '\n' ) {
@@ -2982,7 +2982,7 @@ static void CG_DrawCenterString( void ) {
 		linebuffer[l] = 0;
 
 		//[BugFix19]
-		if(!BG_IsWhiteSpace(start[l]) && !BG_IsWhiteSpace(linebuffer[l-1]) )
+		if(!BG_IsWhiteSpace(start[l]) && !BG_IsWhiteSpace(linebuffer[(l > 0) ? l - 1 : 0]) )
 		{//we might have cut a word off, attempt to find a spot where we won't cut words off at.
 			int savedL = l;
 			int counter = l-2;
@@ -3469,8 +3469,8 @@ static void CG_DrawCrosshair( vec3_t worldPoint, int chEntValid ) {
 		hShader = media.gfx.hud.crosshairs[Com_Clampi( 0, NUM_CROSSHAIRS-1, cg_drawCrosshair.integer-1 )];
 	}
 
-	chX = x + cg.refdef.x + 0.5 * (640 - w);
-	chY = y + cg.refdef.y + 0.5 * (480 - h);
+	chX = x + cg.refdef.x + 0.5f * (640 - w);
+	chY = y + cg.refdef.y + 0.5f * (480 - h);
 	trap->R_DrawStretchPic( chX, chY, w, h, 0, 0, 1, 1, hShader );
 
 	// draw a health bar directly under the crosshair if we're looking at something that takes damage
@@ -3503,8 +3503,8 @@ static void CG_DrawCrosshair( vec3_t worldPoint, int chEntValid ) {
 		h *= 2.0f;
 
 		trap->R_DrawStretchPic(
-			x + cg.refdef.x + 0.5 * (640 - w),
-			y + cg.refdef.y + 0.5 * (480 - h),
+			x + cg.refdef.x + 0.5f * (640 - w),
+			y + cg.refdef.y + 0.5f * (480 - h),
 			w, h, 0, 0, 1, 1, media.gfx.null
 		);
 	}
@@ -3973,7 +3973,7 @@ void CG_CalcEWebMuzzlePoint(centity_t *cent, vec3_t start, vec3_t d_f, vec3_t d_
 #define MAX_XHAIR_DIST_ACCURACY	20000.0f
 static void CG_ScanForCrosshairEntity( void ) {
 	trace_t		trace;
-	vec3_t		start, end;
+	vec3_t		start = { 0 }, end;
 	int			content;
 	int			ignore;
 
@@ -4040,7 +4040,11 @@ static void CG_ScanForCrosshairEntity( void ) {
 
 				AngleVectors( pitchConstraint, d_f, d_rt, d_up );
 			}
-			CG_CalcMuzzlePoint(cg.snap->ps.clientNum, start);
+
+			if (cg.snap)
+			{
+				CG_CalcMuzzlePoint(cg.snap->ps.clientNum, start);
+			}
 		}
 
 		VectorMA( start, cg.distanceCull, d_f, end );
@@ -4061,10 +4065,13 @@ static void CG_ScanForCrosshairEntity( void ) {
 
 	if ( trace.entityNum < MAX_CLIENTS ) {
 		const entityState_t *chES = &cg_entities[trace.entityNum].currentState;
-		const bool isMindTricked = CG_IsMindTricked(
-			chES->trickedentindex, chES->trickedentindex2, chES->trickedentindex3, chES->trickedentindex4,
-			cg.snap->ps.clientNum
-		);
+		bool isMindTricked = false; 
+		
+		if (cg.snap)
+		{
+			isMindTricked = CG_IsMindTricked(chES->trickedentindex, chES->trickedentindex2, chES->trickedentindex3, chES->trickedentindex4, cg.snap->ps.clientNum);
+		}
+
 		if ( isMindTricked ) {
 			if (cg.crosshairClientNum == trace.entityNum)
 			{
@@ -4078,7 +4085,7 @@ static void CG_ScanForCrosshairEntity( void ) {
 		}
 	}
 
-	if ( cg.snap->ps.persistant[PERS_TEAM] != TEAM_SPECTATOR ) {
+	if (cg.snap && cg.snap->ps.persistant[PERS_TEAM] != TEAM_SPECTATOR ) {
 		if ( trace.entityNum < /*MAX_CLIENTS*/ENTITYNUM_WORLD ) {
 			cg.crosshairClientNum = trace.entityNum;
 			cg.crosshairClientTime = cg.time;
@@ -4883,7 +4890,7 @@ void CG_ChatBox_AddString(char *chatStr)
 		chatStr[sizeof(chat->string)-1] = 0;
 	}
 
-	strcpy(chat->string, chatStr);
+	Q_strncpyz(chat->string, chatStr, sizeof(chat->string));
 	chat->time = cg.time + cg_chatBox.integer;
 
 	chat->lines = 1;
@@ -5058,7 +5065,7 @@ static void CG_Draw2DScreenTints( void )
 
 			rageTime = cgRageFadeVal;
 
-			cgRageFadeVal -= (cg.time - cgRageFadeTime)*0.000005;
+			cgRageFadeVal -= (float)((cg.time - cgRageFadeTime)*0.000005);
 
 			if (rageTime < 0)
 			{
@@ -5155,7 +5162,7 @@ static void CG_Draw2DScreenTints( void )
 
 			rageRecTime = cgRageRecFadeVal;
 
-			cgRageRecFadeVal -= (cg.time - cgRageRecFadeTime)*0.000005;
+			cgRageRecFadeVal -= (float)((cg.time - cgRageRecFadeTime)*0.000005);
 
 			if (rageRecTime < 0)
 			{
@@ -5293,7 +5300,7 @@ static void CG_Draw2DScreenTints( void )
 
 			protectTime = cgProtectFadeVal;
 
-			cgProtectFadeVal -= (cg.time - cgProtectFadeTime)*0.000005;
+			cgProtectFadeVal -= (float)((cg.time - cgProtectFadeTime)*0.000005);
 
 			if (protectTime < 0)
 			{
@@ -5397,7 +5404,7 @@ static void CG_Draw2DScreenTints( void )
 	if ( (cg.refdef.viewContents&CONTENTS_LAVA) )
 	{//tint screen red
 		float phase = cg.time / 1000.0 * WAVE_FREQUENCY * M_PI * 2;
-		hcolor[3] = 0.5 + (0.15f*sin( phase ));
+		hcolor[3] = 0.5f + (0.15f*sin( phase ));
 		hcolor[0] = 0.7f;
 		hcolor[1] = 0;
 		hcolor[2] = 0;
@@ -5407,7 +5414,7 @@ static void CG_Draw2DScreenTints( void )
 	else if ( (cg.refdef.viewContents&CONTENTS_SLIME) )
 	{//tint screen green
 		float phase = cg.time / 1000.0 * WAVE_FREQUENCY * M_PI * 2;
-		hcolor[3] = 0.4 + (0.1f*sin( phase ));
+		hcolor[3] = 0.4f + (0.1f*sin( phase ));
 		hcolor[0] = 0;
 		hcolor[1] = 0.7f;
 		hcolor[2] = 0;

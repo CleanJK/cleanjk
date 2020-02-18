@@ -82,14 +82,15 @@ int G_ParseInfos( char *buf, int max, char *infos[] ) {
 
 			token = COM_ParseExt( (const char **)(&buf), false );
 			if ( !token[0] ) {
-				strcpy( token, "<nullptr>" );
+				Q_strncpyz( token, "<nullptr>", MAX_TOKEN_CHARS);
 			}
 			Info_SetValueForKey( info, key, token );
 		}
 		//NOTE: extra space for arena number
-		infos[count] = (char *) G_Alloc( strlen(info) + strlen("\\num\\") + strlen(va("%d", MAX_ARENAS)) + 1);
+		size_t infoSize = strlen(info) + strlen("\\num\\") + strlen(va("%d", MAX_ARENAS)) + 1;
+		infos[count] = (char *) G_Alloc(infoSize);
 		if (infos[count]) {
-			strcpy(infos[count], info);
+			Q_strncpyz(infos[count], info, infoSize);
 			count++;
 		}
 	}
@@ -280,7 +281,6 @@ const char *G_RefreshNextMap(int gametype, bool forced)
 
 void G_LoadArenas( void ) {
 	int			numFiles;
-	char		filelist[MAPSBUFSIZE];
 	char		filename[MAX_QPATH];
 	char*		fileptr;
 	int			i, n;
@@ -288,8 +288,15 @@ void G_LoadArenas( void ) {
 
 	level.arenas.num = 0;
 
+	char* filelist = (char*)calloc(MAPSBUFSIZE, sizeof(char));
+
+	if (filelist == nullptr)
+	{
+		return;
+	}
+
 	// get all arenas from .arena files
-	numFiles = trap->FS_GetFileList("scripts", ".arena", filelist, ARRAY_LEN(filelist) );
+	numFiles = trap->FS_GetFileList("scripts", ".arena", filelist, MAPSBUFSIZE);
 
 	fileptr  = filelist;
 	i = 0;
@@ -304,6 +311,10 @@ void G_LoadArenas( void ) {
 		fileptr += len + 1;
 	}
 //	trap->Print( "%i arenas parsed\n", level.arenas.num );
+
+	free(filelist);
+	filelist = nullptr;
+	fileptr = nullptr;
 
 	for( n = 0; n < level.arenas.num; n++ ) {
 		Info_SetValueForKey( level.arenas.infos[n], "num", va( "%i", n ) );
@@ -966,12 +977,12 @@ static void G_LoadBots( void ) {
 	G_LoadBotsFromFile( g_botsFile.string[0] ? g_botsFile.string : DEFAULT_BOTFILE );
 
 	// get all bots from .bot files
-	numdirs = trap->FS_GetFileList("scripts", ".bot", dirlist, 1024 );
+	numdirs = trap->FS_GetFileList("scripts", ".bot", dirlist, sizeof(dirlist) );
 	dirptr  = dirlist;
 	for (i = 0; i < numdirs; i++, dirptr += dirlen+1) {
 		dirlen = strlen(dirptr);
-		strcpy(filename, "scripts/");
-		strcat(filename, dirptr);
+		Q_strncpyz(filename, "scripts/", sizeof(filename));
+		Q_strncpyz(filename, dirptr, sizeof(filename));
 		G_LoadBotsFromFile(filename);
 	}
 //	trap->Print( "%i bots parsed\n", level.bots.num );

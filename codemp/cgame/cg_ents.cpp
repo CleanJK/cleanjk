@@ -339,11 +339,11 @@ localEntity_t *FX_AddOrientedLine(vec3_t start, vec3_t end, vec3_t normal, float
 	le->refEntity.shaderRGBA[2] = 0xff;
 	le->refEntity.shaderRGBA[3] = 0xff;
 
-	le->color[0] = 1.0;
-	le->color[1] = 1.0;
-	le->color[2] = 1.0;
-	le->color[3] = 1.0;
-	le->lifeRate = 1.0 / ( le->endTime - le->startTime );
+	le->color[0] = 1.0f;
+	le->color[1] = 1.0f;
+	le->color[2] = 1.0f;
+	le->color[3] = 1.0f;
+	le->lifeRate = 1.0f / ( le->endTime - le->startTime );
 
 	return(le);
 }
@@ -470,6 +470,13 @@ void G2_BoltToGhoul2Model(centity_t *cent, refEntity_t *ent)
 
 	//NOTENOTE I put this here because the cgs.gamemodels array no longer gets initialized.
 	assert(0);
+
+	if (entNum < 0 && entNum >= MAX_GENTITIES)
+	{
+		Com_Error(ERR_DROP, "G2_BoltToGhoul2Model: buffer overflow");
+
+		return;
+	}
 
  	// go away and get me the bolt position for this frame please
 	trap->G2API_GetBoltMatrix(cent->ghoul2, modelNum, boltNum, &boltMatrix, cg_entities[entNum].currentState.angles, cg_entities[entNum].currentState.origin, cg.time, cgs.gameModels, cent->modelScale);
@@ -1174,7 +1181,7 @@ static void CG_General( centity_t *cent ) {
 			trap->G2API_InitGhoul2Model(&cent->ghoul2, modelName, 0, 0, 0, 0, 0);
 			if (cent->ghoul2 && trap->G2API_SkinlessModel(cent->ghoul2, 0))
 			{ //well, you'd never want a skinless model, so try to get his skin...
-				Q_strncpyz(skinName, modelName, MAX_QPATH);
+				Q_strncpyz(skinName, modelName, sizeof(skinName));
 				l = strlen(skinName);
 				while (l > 0 && skinName[l] != '/')
 				{ //parse back to first /
@@ -1184,7 +1191,7 @@ static void CG_General( centity_t *cent ) {
 				{ //got it
 					l++;
 					skinName[l] = 0;
-					Q_strcat(skinName, MAX_QPATH, "model_default.skin");
+					Q_strcat(skinName, sizeof(skinName), "model_default.skin");
 
 					skin = trap->R_RegisterSkin(skinName);
 				}
@@ -2173,12 +2180,17 @@ static void CG_Missile( centity_t *cent ) {
 //	int	col;
 
 	s1 = &cent->currentState;
-	if ( s1->weapon > WP_NUM_WEAPONS && s1->weapon != G2_MODEL_PART ) {
+	if ( s1->weapon >= WP_NUM_WEAPONS && s1->weapon != G2_MODEL_PART ) {
 		s1->weapon = 0;
 	}
 
-	if (cent->ghoul2 && s1->weapon == G2_MODEL_PART)
+	if (s1->weapon == G2_MODEL_PART)
 	{
+		if (!cent->ghoul2) // error out here?
+		{
+			return;
+		}
+
 		weapon = &cg_weapons[WP_SABER];
 	}
 	else
@@ -2932,7 +2944,7 @@ void CG_AddPacketEntities( bool isPortal ) {
 
 	// the auto-rotating items will all have the same axis
 	cg.autoAngles[0] = 0;
-	cg.autoAngles[1] = ( cg.time & 2047 ) * 360 / 2048.0;
+	cg.autoAngles[1] = ( cg.time & 2047 ) * 360 / 2048.0f;
 	cg.autoAngles[2] = 0;
 
 	cg.autoAnglesFast[0] = 0;
@@ -2983,11 +2995,11 @@ void CG_AddPacketEntities( bool isPortal ) {
 void CG_ROFF_NotetrackCallback( centity_t *cent, const char *notetrack)
 {
 	int i = 0, r = 0, objectID = 0, anglesGathered = 0, posoffsetGathered = 0;
-	char type[256];
-	char argument[512];
-	char addlArg[512];
-	char errMsg[256];
-	char t[64];
+	char type[256] = { 0 };
+	char argument[512] = { 0 };
+	char addlArg[512] = { 0 };
+	char errMsg[256] = { 0 };
+	char t[64] = { 0 };
 	int addlArgs = 0;
 	vec3_t parsedAngles, parsedOffset, useAngles, useOrigin, forward, right, up;
 
@@ -3189,13 +3201,15 @@ void CG_Cube( vec3_t mins, vec3_t maxs, vec3_t color, float alpha )
 {
 	vec3_t	rot={0,0,0};
 	int		vec[3];
-	int		axis, i;
+	int		axis;
+	//int		i;
 	addpolyArgStruct_t apArgs;
 
 	memset (&apArgs, 0, sizeof(apArgs));
 
 	for ( axis = 0, vec[0] = 0, vec[1] = 1, vec[2] = 2; axis < 3; axis++, vec[0]++, vec[1]++, vec[2]++ )
 	{
+		/*
 		for ( i = 0; i < 3; i++ )
 		{
 			if ( vec[i] > 2 )
@@ -3203,6 +3217,15 @@ void CG_Cube( vec3_t mins, vec3_t maxs, vec3_t color, float alpha )
 				vec[i] = 0;
 			}
 		}
+		*/
+
+		// For MSVC warning
+		if (vec[0] > 2)
+			vec[0] = 0;
+		if (vec[1] > 2)
+			vec[1] = 0;
+		if (vec[2] > 2)
+			vec[2] = 0;
 
 		apArgs.p[0][vec[1]] = mins[vec[1]];
 		apArgs.p[0][vec[2]] = mins[vec[2]];

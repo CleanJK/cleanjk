@@ -434,24 +434,34 @@ bool CG_Asset_Parse(int handle) {
 	pc_token_t token;
 
 	if (!trap->PC_ReadToken(handle, &token))
-		return false;
-	if (Q_stricmp(token.string, "{") != 0) {
+	{
 		return false;
 	}
 
+	if (Q_stricmp(token.string, "{") != 0)
+	{
+		return false;
+	}
+
+	bool returnVal = false;
+
 	while ( 1 ) {
 		if (!trap->PC_ReadToken(handle, &token))
-			return false;
+		{
+			break;
+		}
 
-		if (Q_stricmp(token.string, "}") == 0) {
-			return true;
+		if (Q_stricmp(token.string, "}") == 0)
+		{
+			returnVal = true;
+			break;
 		}
 
 		// font
 		if (Q_stricmp(token.string, "font") == 0) {
 			int pointSize;
 			if (!trap->PC_ReadToken(handle, &token) || !PC_Int_Parse(handle, &pointSize)) {
-				return false;
+				break;
 			}
 
 //			cgDC.registerFont(token.string, pointSize, &cgDC.Assets.textFont);
@@ -463,7 +473,7 @@ bool CG_Asset_Parse(int handle) {
 		if (Q_stricmp(token.string, "smallFont") == 0) {
 			int pointSize;
 			if (!trap->PC_ReadToken(handle, &token) || !PC_Int_Parse(handle, &pointSize)) {
-				return false;
+				break;
 			}
 //			cgDC.registerFont(token.string, pointSize, &cgDC.Assets.smallFont);
 			cgDC.Assets.qhSmallFont = cgDC.RegisterFont(token.string);
@@ -474,7 +484,7 @@ bool CG_Asset_Parse(int handle) {
 		if (Q_stricmp(token.string, "small2Font") == 0) {
 			int pointSize;
 			if (!trap->PC_ReadToken(handle, &token) || !PC_Int_Parse(handle, &pointSize)) {
-				return false;
+				break;
 			}
 //			cgDC.registerFont(token.string, pointSize, &cgDC.Assets.smallFont);
 			cgDC.Assets.qhSmall2Font = cgDC.RegisterFont(token.string);
@@ -485,7 +495,7 @@ bool CG_Asset_Parse(int handle) {
 		if (Q_stricmp(token.string, "bigfont") == 0) {
 			int pointSize;
 			if (!trap->PC_ReadToken(handle, &token) || !PC_Int_Parse(handle, &pointSize)) {
-				return false;
+				break;
 			}
 //			cgDC.registerFont(token.string, pointSize, &cgDC.Assets.bigFont);
 			cgDC.Assets.qhBigFont = cgDC.RegisterFont(token.string);
@@ -495,7 +505,7 @@ bool CG_Asset_Parse(int handle) {
 		// gradientbar
 		if (Q_stricmp(token.string, "gradientbar") == 0) {
 			if (!trap->PC_ReadToken(handle, &token)) {
-				return false;
+				break;
 			}
 			cgDC.Assets.gradientBar = trap->R_RegisterShaderNoMip(token.string);
 			continue;
@@ -504,7 +514,7 @@ bool CG_Asset_Parse(int handle) {
 		// enterMenuSound
 		if (Q_stricmp(token.string, "menuEnterSound") == 0) {
 			if (!trap->PC_ReadToken(handle, &token)) {
-				return false;
+				break;
 			}
 			cgDC.Assets.menuEnterSound = trap->S_RegisterSound( token.string );
 			continue;
@@ -513,7 +523,7 @@ bool CG_Asset_Parse(int handle) {
 		// exitMenuSound
 		if (Q_stricmp(token.string, "menuExitSound") == 0) {
 			if (!trap->PC_ReadToken(handle, &token)) {
-				return false;
+				break;
 			}
 			cgDC.Assets.menuExitSound = trap->S_RegisterSound( token.string );
 			continue;
@@ -522,7 +532,7 @@ bool CG_Asset_Parse(int handle) {
 		// itemFocusSound
 		if (Q_stricmp(token.string, "itemFocusSound") == 0) {
 			if (!trap->PC_ReadToken(handle, &token)) {
-				return false;
+				break;
 			}
 			cgDC.Assets.itemFocusSound = trap->S_RegisterSound( token.string );
 			continue;
@@ -531,7 +541,7 @@ bool CG_Asset_Parse(int handle) {
 		// menuBuzzSound
 		if (Q_stricmp(token.string, "menuBuzzSound") == 0) {
 			if (!trap->PC_ReadToken(handle, &token)) {
-				return false;
+				break;
 			}
 			cgDC.Assets.menuBuzzSound = trap->S_RegisterSound( token.string );
 			continue;
@@ -539,7 +549,7 @@ bool CG_Asset_Parse(int handle) {
 
 		if (Q_stricmp(token.string, "cursor") == 0) {
 			if (!PC_String_Parse(handle, &cgDC.Assets.cursorStr)) {
-				return false;
+				break;
 			}
 			cgDC.Assets.cursor = trap->R_RegisterShaderNoMip( cgDC.Assets.cursorStr);
 			continue;
@@ -547,48 +557,48 @@ bool CG_Asset_Parse(int handle) {
 
 		if (Q_stricmp(token.string, "fadeClamp") == 0) {
 			if (!PC_Float_Parse(handle, &cgDC.Assets.fadeClamp)) {
-				return false;
+				break;
 			}
 			continue;
 		}
 
 		if (Q_stricmp(token.string, "fadeCycle") == 0) {
 			if (!PC_Int_Parse(handle, &cgDC.Assets.fadeCycle)) {
-				return false;
+				break;
 			}
 			continue;
 		}
 
 		if (Q_stricmp(token.string, "fadeAmount") == 0) {
 			if (!PC_Float_Parse(handle, &cgDC.Assets.fadeAmount)) {
-				return false;
+				break;
 			}
 			continue;
 		}
 
 		if (Q_stricmp(token.string, "shadowX") == 0) {
 			if (!PC_Float_Parse(handle, &cgDC.Assets.shadowX)) {
-				return false;
+				break;
 			}
 			continue;
 		}
 
 		if (Q_stricmp(token.string, "shadowY") == 0) {
 			if (!PC_Float_Parse(handle, &cgDC.Assets.shadowY)) {
-				return false;
+				break;
 			}
 			continue;
 		}
 
 		if (Q_stricmp(token.string, "shadowColor") == 0) {
 			if (!PC_Color_Parse(handle, &cgDC.Assets.shadowColor)) {
-				return false;
+				break;
 			}
 			cgDC.Assets.shadowFadeClamp = cgDC.Assets.shadowColor[3];
 			continue;
 		}
 	}
-	return false; // bk001204 - why not?
+	return returnVal; // bk001204 - why not?
 }
 
 void CG_ParseMenu(const char *menuFile) {
@@ -638,30 +648,34 @@ void CG_ParseMenu(const char *menuFile) {
 
 bool CG_Load_Menu(const char **p)
 {
-
 	char *token;
 
 	token = COM_ParseExt((const char **)p, true);
 
-	if (token[0] != '{') {
+	if (token[0] != '{')
+	{
 		return false;
 	}
+
+	bool returnVal = false;
 
 	while ( 1 ) {
 
 		token = COM_ParseExt((const char **)p, true);
 
 		if (Q_stricmp(token, "}") == 0) {
-			return true;
+			returnVal = true;
+			break;
 		}
 
 		if ( !token || token[0] == 0 ) {
-			return false;
+			break;
 		}
 
 		CG_ParseMenu(token);
 	}
-	return false;
+
+	return returnVal;
 }
 
 static bool CG_OwnerDrawHandleKey(int ownerDraw, int flags, float *special, int key) {
@@ -802,19 +816,15 @@ static const char *CG_FeederItemText(float feederID, int index, int column,
 			break;
 			case 3:
 				return info->name;
-			break;
 			case 4:
 				return va("%i", info->score);
-			break;
 			case 5:
 				return va("%4i", sp->time);
-			break;
 			case 6:
 				if ( sp->ping == -1 ) {
 					return "connecting";
 				}
 				return va("%4i", sp->ping);
-			break;
 		}
 	}
 
@@ -860,16 +870,12 @@ static int CG_OwnerDrawWidth(int ownerDraw, float scale) {
 			return font.Width(BG_GetGametypeString( cgs.gametype ));
 	  case CG_GAME_STATUS:
 			return font.Width(CG_GetGameStatusText());
-			break;
 	  case CG_KILLER:
 			return font.Width(CG_GetKillerText());
-			break;
 	  case CG_RED_NAME:
 			return font.Width(DEFAULT_REDTEAM_NAME/*cg_redTeamName.string*/);
-			break;
 	  case CG_BLUE_NAME:
 			return font.Width(DEFAULT_BLUETEAM_NAME/*cg_blueTeamName.string*/);
-			break;
 	}
 	return 0;
 }

@@ -276,7 +276,7 @@ sfxHandle_t	CG_CustomSound( int clientNum, const char *soundName ) {
 			return ci->siegeSounds[i];
 		}
 		else if ( (cgs.gametype == GT_DUEL || cgs.gametype == GT_POWERDUEL || com_buildScript.integer) && i < numCDuelSounds && !strcmp( lSoundName, cg_customDuelSoundNames[i] ) )
-		{ //dyel only
+		{ //duel only
 			return ci->duelSounds[i];
 		}
 		else if ( clientNum >= MAX_CLIENTS && i < numCComSounds && !strcmp( lSoundName, cg_customCombatSoundNames[i] ) )
@@ -306,10 +306,8 @@ sfxHandle_t	CG_CustomSound( int clientNum, const char *soundName ) {
 bool CG_ParseSurfsFile( const char *modelName, const char *skinName, char *surfOff, char *surfOn )
 {
 	const char	*text_p;
-	int			len;
 	const char	*token;
 	const char	*value;
-	char		text[20000];
 	char		sfilename[MAX_QPATH];
 	fileHandle_t	f;
 	int			i = 0;
@@ -328,20 +326,43 @@ bool CG_ParseSurfsFile( const char *modelName, const char *skinName, char *surfO
 	Com_sprintf( sfilename, sizeof( sfilename ), "models/players/%s/model_%s.surf", modelName, skinName );
 
 	// load the file
-	len = trap->FS_Open( sfilename, &f, FS_READ );
-	if ( len <= 0 )
-	{//no file
+	const size_t len = trap->FS_Open( sfilename, &f, FS_READ );
+
+	if (!f)
+	{
+		Com_Printf("CG_ParseSurfsFile: error reading file: %s\n", sfilename);
+
 		return false;
 	}
+
+	// empty file, nothing to read
+	if ( len <= 0 )
+	{
+		return false;
+	}
+
+	/*
 	if ( len >= sizeof( text ) - 1 )
 	{
 		Com_Printf( "File %s too long\n", sfilename );
 		trap->FS_Close( f );
 		return false;
 	}
+	*/
+
+	char* text = (char*)calloc(len, sizeof(char));
+
+	if (text == nullptr)
+	{
+		Com_Printf("CG_ParseSurfsFile: unable to alloc memory for: %s\n", sfilename);
+
+		return false;
+	}
 
 	trap->FS_Read( text, len, f );
-	text[len] = 0;
+
+	text[len - 1] = 0;
+
 	trap->FS_Close( f );
 
 	// parse the text
@@ -399,6 +420,11 @@ bool CG_ParseSurfsFile( const char *modelName, const char *skinName, char *surfO
 			continue;
 		}
 	}
+
+	free(text);
+	text = nullptr;
+	text_p = nullptr;
+
 	return true;
 }
 
@@ -481,7 +507,7 @@ retryModel:
 
 	GLAName[0] = 0;
 
-	trap->G2API_GetGLAName( ci->ghoul2Model, 0, GLAName);
+	trap->G2API_GetGLAName( ci->ghoul2Model, 0, GLAName, sizeof(GLAName));
 	if (GLAName[0] != 0)
 	{
 		if (!strstr(GLAName, "players/_humanoid/"))
@@ -502,7 +528,7 @@ retryModel:
 		slash = Q_strrchr( afilename, '/' );
 		if ( slash )
 		{
-			strcpy(slash, "/animation.cfg");
+			Q_strncpyz(slash, "/animation.cfg", sizeof(afilename) - (slash - afilename));
 		}	// Now afilename holds just the path to the animation.cfg
 		else
 		{	// Didn't find any slashes, this is a raw filename right in base (whish isn't a good thing)
@@ -650,15 +676,18 @@ retryModel:
         int i = 0;
 		int j;
 		char iconName[1024];
-		strcpy(iconName, "icon_");
+		Q_strncpyz(iconName, "icon_", sizeof(iconName));
 		j = strlen(iconName);
-		while (skinName[i] && skinName[i] != '|' && j < 1024)
+
+		while (skinName[i] && skinName[i] != '|' && j < sizeof(iconName) - 1)
 		{
             iconName[j] = skinName[i];
 			j++;
 			i++;
 		}
+
 		iconName[j] = 0;
+
 		if (skinName[i] == '|')
 		{ //looks like it actually may be a custom model skin, let's try getting the icon...
 			ci->modelIcon = trap->R_RegisterShaderNoMip ( va ( "models/players/%s/%s", modelName, iconName ) );
@@ -698,12 +727,12 @@ int CG_G2SkelForModel(void *g2)
 	char *slash;
 
 	GLAName[0] = 0;
-	trap->G2API_GetGLAName(g2, 0, GLAName);
+	trap->G2API_GetGLAName(g2, 0, GLAName, sizeof(GLAName));
 
 	slash = Q_strrchr( GLAName, '/' );
 	if ( slash )
 	{
-		strcpy(slash, "/animation.cfg");
+		Q_strncpyz(slash, "/animation.cfg", sizeof(GLAName) - (slash - GLAName));
 
 		animIndex = BG_ParseAnimationFile(GLAName, nullptr, false);
 	}
@@ -725,7 +754,7 @@ int CG_G2EvIndexForModel(void *g2, int animIndex)
 	}
 
 	GLAName[0] = 0;
-	trap->G2API_GetGLAName(g2, 0, GLAName);
+	trap->G2API_GetGLAName(g2, 0, GLAName, sizeof(GLAName));
 
 	slash = Q_strrchr( GLAName, '/' );
 	if ( slash )
@@ -994,7 +1023,7 @@ void CG_LoadClientInfo( clientInfo_t *ci ) {
 		}
 	}
 	if( teamname[0] ) {
-		strcat( teamname, "/" );
+		Q_strcat( teamname, sizeof(teamname), "/" );
 	}
 	modelloaded = true;
 	if ( !CG_RegisterClientModelname( ci, ci->modelName, ci->skinName, teamname, clientNum ) ) {
@@ -1388,6 +1417,13 @@ static void CG_SetDeferredClientInfo( clientInfo_t *ci ) {
 }
 
 void CG_NewClientInfo( int clientNum, bool entitiesInitialized ) {
+	if (clientNum < 0 || clientNum >= MAX_CLIENTS)
+	{
+		Com_Error(ERR_DROP, "CG_NewClientInfo: buffer overflow\n");
+
+		return;
+	}
+
 	clientInfo_t *ci = &cgs.clientinfo[clientNum];
 	clientInfo_t  newInfo;
 	const char   *configstring = CG_ConfigString( clientNum + CS_PLAYERS );
@@ -2197,7 +2233,6 @@ void CG_PlayerAnimEventDo( centity_t *cent, animevent_t *animEvent )
 		*/
 	default:
 		return;
-		break;
 	}
 }
 
@@ -3785,7 +3820,7 @@ static void CG_PlayerFloatSprite( centity_t *cent, qhandle_t shader ) {
 	int				rf;
 	refEntity_t		ent;
 
-	if ( cent->currentState.number == cg.snap->ps.clientNum && !cg.renderingThirdPerson ) {
+	if ( cg.snap && cent->currentState.number == cg.snap->ps.clientNum && !cg.renderingThirdPerson ) {
 		rf = RF_THIRD_PERSON;		// only show in mirrors
 	} else {
 		rf = 0;
@@ -3925,7 +3960,7 @@ static void CG_PlayerSplash( centity_t *cent ) {
 	vec3_t		start, end;
 	trace_t		trace;
 	int			contents;
-	polyVert_t	verts[4];
+	polyVert_t	verts[4] = { 0 };
 
 	if ( !cg_shadows.integer ) {
 		return;
@@ -4320,7 +4355,8 @@ void CG_DrawPlayerShield(centity_t *cent, vec3_t origin)
 	ent.origin[2] += 10.0;
 	AnglesToAxis( cent->damageAngles, ent.axis );
 
-	alpha = 255.0 * ((cent->damageTime - cg.time) / MIN_SHIELD_TIME) + Q_flrand(0.0f, 1.0f)*16;
+	alpha = 255.0f * ((cent->damageTime - cg.time) / (float)MIN_SHIELD_TIME) + Q_flrand(0.0f, 1.0f) * 16;
+
 	if (alpha>255)
 		alpha=255;
 
@@ -4693,8 +4729,8 @@ void CG_CreateSaberMarks( vec3_t start, vec3_t end, vec3_t normal )
 			VectorScale( mid, 0.5f, mid );
 			VectorSubtract( v->xyz, mid, delta );
 
-			v->st[0] = 0.5 + DotProduct( delta, axis[1] ) * (0.05f + Q_flrand(0.0f, 1.0f) * 0.03f);
-			v->st[1] = 0.5 + DotProduct( delta, axis[2] ) * (0.15f + Q_flrand(0.0f, 1.0f) * 0.05f);
+			v->st[0] = 0.5f + DotProduct( delta, axis[1] ) * (0.05f + Q_flrand(0.0f, 1.0f) * 0.03f);
+			v->st[1] = 0.5f + DotProduct( delta, axis[2] ) * (0.15f + Q_flrand(0.0f, 1.0f) * 0.05f);
 		}
 
 		if (cg_saberDynamicMarks.integer)
@@ -5149,7 +5185,7 @@ void CG_AddSaberBlade( centity_t *cent, centity_t *scent, refEntity_t *saber, in
 	saberTrail_t *saberTrail;
 	mdxaBone_t	boltMatrix;
 	vec3_t futureAngles;
-	effectTrailArgStruct_t fx;
+	effectTrailArgStruct_t fx = { 0 };
 	saber_colors_e scolor = SABER_RED;
 	int	useModelIndex = 0;
 
@@ -5840,7 +5876,7 @@ int CG_HandleAppendedSkin(char *modelName)
 		{ //got it, register the skin under the model path.
 			char baseFolder[MAX_QPATH];
 
-			strcpy(baseFolder, modelName);
+			Q_strncpyz(baseFolder, modelName, sizeof(baseFolder));
 			p = Q_strrchr(baseFolder, '/'); //go back to the first /, should be the path point
 
 			if (p)
@@ -5888,14 +5924,14 @@ void CG_CacheG2AnimInfo(char *modelName)
 		animIndex = -1;
 
 		GLAName[0] = 0;
-		trap->G2API_GetGLAName(g2, 0, GLAName);
+		trap->G2API_GetGLAName(g2, 0, GLAName, sizeof(GLAName));
 
 		Q_strncpyz(originalModelName, useModel, sizeof( originalModelName ) );
 
 		slash = Q_strrchr( GLAName, '/' );
 		if ( slash )
 		{
-			strcpy(slash, "/animation.cfg" );
+			Q_strncpyz(slash, "/animation.cfg", sizeof(GLAName) - (slash - GLAName));
 
 			animIndex = BG_ParseAnimationFile(GLAName, nullptr, false);
 		}
@@ -6474,7 +6510,7 @@ void CG_Player( centity_t *cent ) {
 	{
 		if (cent->trickAlpha > 1)
 		{
-			cent->trickAlpha -= (cg.time - cent->trickAlphaTime)*0.5;
+			cent->trickAlpha -= (int)((cg.time - cent->trickAlphaTime) * 0.5);
 			cent->trickAlphaTime = cg.time;
 
 			if (cent->trickAlpha < 0)
@@ -7603,7 +7639,7 @@ stillDoSaber:
 				{
 					if (cent->bolt3 < 90)
 					{
-						cent->bolt3 += (cg.time - cent->bolt2)*0.5;
+						cent->bolt3 += (int)((cg.time - cent->bolt2) * 0.5);
 
 						if (cent->bolt3 > 90)
 						{
@@ -7612,7 +7648,7 @@ stillDoSaber:
 					}
 					else if (cent->bolt3 > 90)
 					{
-						cent->bolt3 -= (cg.time - cent->bolt2)*0.5;
+						cent->bolt3 -= (int)((cg.time - cent->bolt2)*0.5);
 
 						if (cent->bolt3 < 90)
 						{

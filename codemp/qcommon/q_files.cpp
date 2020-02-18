@@ -1809,6 +1809,7 @@ static pack_t *FS_LoadZipFile( const char *zipfile, const char *basename )
 	int				fs_numHeaderLongs;
 	int				*fs_headerLongs;
 	char			*namePtr;
+	char			*tmpNamePtr;
 
 	fs_numHeaderLongs = 0;
 
@@ -1830,8 +1831,11 @@ static pack_t *FS_LoadZipFile( const char *zipfile, const char *basename )
 		unzGoToNextFile(uf);
 	}
 
-	buildBuffer = (fileInPack_t *)Z_Malloc( (gi.number_entry * sizeof( fileInPack_t )) + len, TAG_FILESYS, true );
+	size_t fileInPackSize = (gi.number_entry * sizeof(fileInPack_t)) + len;
+
+	buildBuffer = (fileInPack_t *)Z_Malloc(fileInPackSize, TAG_FILESYS, true );
 	namePtr = ((char *) buildBuffer) + gi.number_entry * sizeof( fileInPack_t );
+	tmpNamePtr = namePtr;
 	fs_headerLongs = (int *)Z_Malloc( ( gi.number_entry + 1 ) * sizeof(int), TAG_FILESYS, true );
 	fs_headerLongs[ fs_numHeaderLongs++ ] = LittleLong( fs_checksumFeed );
 
@@ -1874,7 +1878,7 @@ static pack_t *FS_LoadZipFile( const char *zipfile, const char *basename )
 		Q_strlwr( filename_inzip );
 		hash = FS_HashFileName(filename_inzip, pack->hashSize);
 		buildBuffer[i].name = namePtr;
-		strcpy( buildBuffer[i].name, filename_inzip );
+		Q_strncpyz( buildBuffer[i].name, filename_inzip, len - (buildBuffer[i].name - tmpNamePtr));
 		namePtr += strlen(filename_inzip) + 1;
 		// store the file position in the zip
 		buildBuffer[i].pos = unzGetOffset(uf);
@@ -1930,7 +1934,7 @@ bool FS_CompareZipChecksum(const char *zipfile)
 
 #define	MAX_FOUND_FILES	0x1000
 
-static int FS_ReturnPath( const char *zname, char *zpath, int *depth ) {
+static int FS_ReturnPath( const char *zname, char *zpath, int zpathSize, int *depth ) {
 	int len, at, newdep;
 
 	newdep = 0;
@@ -1946,8 +1950,7 @@ static int FS_ReturnPath( const char *zname, char *zpath, int *depth ) {
 		}
 		at++;
 	}
-	strcpy(zpath, zname);
-	zpath[len] = 0;
+	Q_strncpyz(zpath, zname, zpathSize);
 	*depth = newdep;
 
 	return len;
@@ -2002,7 +2005,7 @@ char **FS_ListFilteredFiles( const char *path, const char *extension, char *filt
 	}
 	extensionLength = strlen( extension );
 	nfiles = 0;
-	FS_ReturnPath(path, zpath, &pathDepth);
+	FS_ReturnPath(path, zpath, sizeof(zpath), &pathDepth);
 
 	// search through the path, one element at a time, adding to list
 
@@ -2035,7 +2038,7 @@ char **FS_ListFilteredFiles( const char *path, const char *extension, char *filt
 				}
 				else {
 
-					zpathLen = FS_ReturnPath(name, zpath, &depth);
+					zpathLen = FS_ReturnPath(name, zpath, sizeof(zpath), &depth);
 
 					if ( (depth-pathDepth)>2 || pathLength > zpathLen || Q_stricmpn( name, path, pathLength ) ) {
 						continue;
@@ -2133,6 +2136,8 @@ int	FS_GetFileList(  const char *path, const char *extension, char *listbuf, int
 	int		nFiles, i, nTotal, nLen;
 	char **pFiles = nullptr;
 
+	char* tmpPtr = listbuf;
+
 	*listbuf = 0;
 	nFiles = 0;
 	nTotal = 0;
@@ -2146,7 +2151,7 @@ int	FS_GetFileList(  const char *path, const char *extension, char *listbuf, int
 	for (i =0; i < nFiles; i++) {
 		nLen = strlen(pFiles[i]) + 1;
 		if (nTotal + nLen + 1 < bufsize) {
-			strcpy(listbuf, pFiles[i]);
+			Q_strncpyz(listbuf, pFiles[i], bufsize - (listbuf - tmpPtr));
 			listbuf += nLen;
 			nTotal += nLen;
 		}
@@ -2235,6 +2240,7 @@ int	FS_GetModList( char *listbuf, int bufsize ) {
 	char **pFiles2 = nullptr;
 	bool bDrop = false;
 
+	char* tmpPtr = listbuf;
 	*listbuf = 0;
 	nMods = nPotential = nTotal = 0;
 
@@ -2299,8 +2305,8 @@ int	FS_GetModList( char *listbuf, int bufsize ) {
 				// nLen is the length of the mod path
 				// we need to see if there is a description available
 				descPath[0] = '\0';
-				strcpy(descPath, name);
-				strcat(descPath, "/description.txt");
+				Q_strncpyz(descPath, name, sizeof(descPath));
+				Q_strcat(descPath, sizeof(descPath), "/description.txt");
 				nDescLen = FS_SV_FOpenFileRead( descPath, &descHandle );
 				if ( nDescLen > 0 && descHandle) {
 					FILE *file;
@@ -2312,19 +2318,19 @@ int	FS_GetModList( char *listbuf, int bufsize ) {
 					}
 					FS_FCloseFile(descHandle);
 				} else if ( isBase ) {
-					strcpy(descPath, SE_GetString("MENUS_JEDI_ACADEMY"));
+					Q_strncpyz(descPath, SE_GetString("MENUS_JEDI_ACADEMY"), sizeof(descPath));
 				} else {
-					strcpy(descPath, name);
+					Q_strncpyz(descPath, name, sizeof(descPath));
 				}
 				nDescLen = strlen(descPath) + 1;
 
 				if (nTotal + nLen + 1 + nDescLen + 1 < bufsize) {
 					if ( isBase )
-						strcpy(listbuf, "");
+						Q_strncpyz(listbuf, "", bufsize - (listbuf - tmpPtr));
 					else
-						strcpy(listbuf, name);
+						Q_strncpyz(listbuf, name, bufsize - (listbuf - tmpPtr));
 					listbuf += nLen;
-					strcpy(listbuf, descPath);
+					Q_strncpyz(listbuf, descPath, bufsize - (listbuf - tmpPtr));
 					listbuf += nDescLen;
 					nTotal += nLen + nDescLen;
 					nMods++;

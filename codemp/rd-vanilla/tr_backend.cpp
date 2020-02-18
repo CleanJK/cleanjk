@@ -66,7 +66,12 @@ void GL_Bind( image_t *image ) {
 	}
 
 	if ( glState.currenttextures[glState.currenttmu] != texnum ) {
-		image->frameUsed = tr.frameCount;
+		
+		if (image)
+		{
+			image->frameUsed = tr.frameCount;
+		}
+		
 		glState.currenttextures[glState.currenttmu] = texnum;
 		qglBindTexture (GL_TEXTURE_2D, texnum);
 	}
@@ -501,10 +506,10 @@ void RB_BeginDrawingView (void) {
 		plane[2] = backEnd.viewParms.portalPlane.normal[2];
 		plane[3] = backEnd.viewParms.portalPlane.dist;
 
-		plane2[0] = DotProduct (backEnd.viewParms.ori.axis[0], plane);
-		plane2[1] = DotProduct (backEnd.viewParms.ori.axis[1], plane);
-		plane2[2] = DotProduct (backEnd.viewParms.ori.axis[2], plane);
-		plane2[3] = DotProduct (plane, backEnd.viewParms.ori.origin) - plane[3];
+		plane2[0] = DotProduct(backEnd.viewParms.ori.axis[0], plane);
+		plane2[1] = DotProduct(backEnd.viewParms.ori.axis[1], plane);
+		plane2[2] = DotProduct(backEnd.viewParms.ori.axis[2], plane);
+		plane2[3] = (double)DotProduct(plane, backEnd.viewParms.ori.origin) - plane[3];
 
 		qglLoadMatrixf( s_flipMatrix );
 		qglClipPlane (GL_CLIP_PLANE0, plane2);
@@ -1924,12 +1929,15 @@ static inline void RB_BlurGlowTexture()
 
 	for ( int iNumBlurPasses = 0; iNumBlurPasses < r_DynamicGlowPasses->integer; iNumBlurPasses++ )
 	{
-		// Load the Texel Offsets into the Vertex Program.
-		qglProgramEnvParameter4fARB( GL_VERTEX_PROGRAM_ARB, 0, -fTexelWidthOffset, -fTexelWidthOffset, 0.0f, 0.0f );
-		qglProgramEnvParameter4fARB( GL_VERTEX_PROGRAM_ARB, 1, -fTexelWidthOffset, fTexelWidthOffset, 0.0f, 0.0f );
-		qglProgramEnvParameter4fARB( GL_VERTEX_PROGRAM_ARB, 2, fTexelWidthOffset, -fTexelWidthOffset, 0.0f, 0.0f );
-		qglProgramEnvParameter4fARB( GL_VERTEX_PROGRAM_ARB, 3, fTexelWidthOffset, fTexelWidthOffset, 0.0f, 0.0f );
-
+		if (qglProgramEnvParameter4fARB)
+		{
+			// Load the Texel Offsets into the Vertex Program.
+			qglProgramEnvParameter4fARB(GL_VERTEX_PROGRAM_ARB, 0, -fTexelWidthOffset, -fTexelWidthOffset, 0.0f, 0.0f);
+			qglProgramEnvParameter4fARB(GL_VERTEX_PROGRAM_ARB, 1, -fTexelWidthOffset, fTexelWidthOffset, 0.0f, 0.0f);
+			qglProgramEnvParameter4fARB(GL_VERTEX_PROGRAM_ARB, 2, fTexelWidthOffset, -fTexelWidthOffset, 0.0f, 0.0f);
+			qglProgramEnvParameter4fARB(GL_VERTEX_PROGRAM_ARB, 3, fTexelWidthOffset, fTexelWidthOffset, 0.0f, 0.0f);
+		}
+		
 		// After first pass put the tex coords to the viewport size.
 		if ( iNumBlurPasses == 1 )
 		{

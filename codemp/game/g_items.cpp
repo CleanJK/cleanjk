@@ -91,11 +91,11 @@ int adjustRespawnTime(float preRespawnTime, int itemType, int itemTag)
 		}
 		else if (level.numPlayingClients > 12)
 		{	// From 12-32, scale from 0.5 to 0.25;
-			respawnTime *= 20.0 / (float)(level.numPlayingClients + 8);
+			respawnTime *= 20.0f / (float)(level.numPlayingClients + 8);
 		}
 		else
 		{	// From 4-12, scale from 1.0 to 0.5;
-			respawnTime *= 8.0 / (float)(level.numPlayingClients + 4);
+			respawnTime *= 8.0f / (float)(level.numPlayingClients + 4);
 		}
 	}
 
@@ -2188,6 +2188,11 @@ int Pickup_Armor( gentity_t *ent, gentity_t *other )
 }
 
 void RespawnItem( gentity_t *ent ) {
+	if (ent == nullptr)
+	{
+		return;
+	}
+
 	// randomly select from teamed entities
 	if (ent->team) {
 		gentity_t	*master;
@@ -2196,7 +2201,10 @@ void RespawnItem( gentity_t *ent ) {
 
 		if ( !ent->teammaster ) {
 			trap->Error( ERR_DROP, "RespawnItem: bad teammaster");
+			
+			return; // For MSVC warning
 		}
+
 		master = ent->teammaster;
 
 		for (count = 0, ent = master; ent; ent = ent->teamchain, count++)
@@ -2361,19 +2369,25 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 	}
 
 	// play the normal pickup sound
-	if (predict) {
-		if (other->client)
+	if (other)
+	{
+		if (predict)
 		{
-			BG_AddPredictableEventToPlayerstate( EV_ITEM_PICKUP, ent->s.number, &other->client->ps);
+			if (other->client)
+			{
+				BG_AddPredictableEventToPlayerstate(EV_ITEM_PICKUP, ent->s.number, &other->client->ps);
+			}
+			else
+			{
+				G_AddPredictableEvent(other, EV_ITEM_PICKUP, ent->s.number);
+			}
 		}
 		else
 		{
-			G_AddPredictableEvent( other, EV_ITEM_PICKUP, ent->s.number );
+			G_AddEvent(other, EV_ITEM_PICKUP, ent->s.number);
 		}
-	} else {
-		G_AddEvent( other, EV_ITEM_PICKUP, ent->s.number );
 	}
-
+	
 	// powerup pickups are global broadcasts
 	if ( /*ent->item->giType == IT_POWERUP ||*/ ent->item->giType == IT_TEAM) {
 		// if we want the global sound to play

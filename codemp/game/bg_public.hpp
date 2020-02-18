@@ -165,7 +165,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define MAX_BOTS                    1024
 #define MAX_BOTS_TEXT               8192
 #define MAX_CLIENT_SCORE_SEND       20
-#define MAX_CUSTOM_SIEGE_SOUNDS     30
+#define MAX_CUSTOM_SIEGE_SOUNDS     40
 #define MAX_ITEM_MODELS             4
 #define MAX_RANDOM_ANIM_SOUNDS      4
 #define MAX_SABERS                  2
@@ -1388,7 +1388,7 @@ bool PM_SaberInStart(int move);
 bool PM_SaberInTransition(int move);
 bool PM_WalkingAnim(int anim);
 bool WP_SaberBladeUseSecondBladeStyle(saberInfo_t* saber, int bladeNum);
-bool WP_SaberParseParm(const char* saberName, const char* parmname, char* saberData);
+bool WP_SaberParseParm(const char* saberName, const char* parmname, char* saberData, int saberDataDestSize);
 bool WP_SaberStyleValidForSaber(saberInfo_t* saber1, saberInfo_t* saber2, int saberHolstered, int saberAnimLevel);
 bool WP_UseFirstValidSaberStyle(saberInfo_t* saber1, saberInfo_t* saber2, int saberHolstered, int* saberAnimLevel);
 char* BG_StringAlloc(const char* source);

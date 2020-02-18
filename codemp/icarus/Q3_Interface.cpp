@@ -179,13 +179,12 @@ static sharedEntity_t *Q3_GetEntityByName( const char *name )
 {
 	sharedEntity_t				*ent;
 	entlist_t::iterator		ei;
-	char					temp[1024];
+	char					temp[1024] = { 0 };
 
 	if ( name == nullptr || name[0] == '\0' )
 		return nullptr;
 
-	strncpy( (char *) temp, name, sizeof(temp) );
-	temp[sizeof(temp)-1] = 0;
+	Q_strncpyz((char*)temp, name, sizeof(temp));
 
 	ei = ICARUS_EntList.find( Q_strupr( (char *) temp ) );
 
@@ -254,8 +253,8 @@ static int Q3_PlaySound( int taskID, int entID, const char *name, const char *ch
 
 	sharedMem->taskID = taskID;
 	sharedMem->entID = entID;
-	strcpy(sharedMem->name, name);
-	strcpy(sharedMem->channel, channel);
+	Q_strncpyz(sharedMem->name, name, sizeof(sharedMem->name));
+	Q_strncpyz(sharedMem->channel, channel, sizeof(sharedMem->channel));
 
 	return GVM_ICARUS_PlaySound();
 }
@@ -305,8 +304,8 @@ static void Q3_Set( int taskID, int entID, const char *type_name, const char *da
 
 	sharedMem->taskID = taskID;
 	sharedMem->entID = entID;
-	strcpy(sharedMem->type_name, type_name);
-	strcpy(sharedMem->data, data);
+	Q_strncpyz(sharedMem->type_name, type_name, sizeof(sharedMem->type_name));
+	Q_strncpyz(sharedMem->data, data,sizeof(sharedMem->data));
 
 	if ( GVM_ICARUS_Set() )
 	{
@@ -698,7 +697,7 @@ static int	Q3_GetTag( int entID, const char *name, int lookup, vec3_t info )
 	T_G_ICARUS_GETTAG *sharedMem = (T_G_ICARUS_GETTAG *)sv.mSharedMemory;
 
 	sharedMem->entID = entID;
-	strcpy(sharedMem->name, name);
+	Q_strncpyz(sharedMem->name, name, sizeof(sharedMem->name));
 	sharedMem->lookup = lookup;
 	VectorCopy(info, sharedMem->info);
 
@@ -734,7 +733,7 @@ static void Q3_Use( int entID, const char *target )
 	T_G_ICARUS_USE *sharedMem = (T_G_ICARUS_USE *)sv.mSharedMemory;
 
 	sharedMem->entID = entID;
-	strcpy(sharedMem->target, target);
+	Q_strncpyz(sharedMem->target, target, sizeof(sharedMem->target));
 
 	GVM_ICARUS_Use();
 }
@@ -744,7 +743,7 @@ static void Q3_Kill( int entID, const char *name )
 	T_G_ICARUS_KILL *sharedMem = (T_G_ICARUS_KILL *)sv.mSharedMemory;
 
 	sharedMem->entID = entID;
-	strcpy(sharedMem->name, name);
+	Q_strncpyz(sharedMem->name, name, sizeof(sharedMem->name));
 
 	GVM_ICARUS_Kill();
 }
@@ -754,7 +753,7 @@ static void Q3_Remove( int entID, const char *name )
 	T_G_ICARUS_REMOVE *sharedMem = (T_G_ICARUS_REMOVE *)sv.mSharedMemory;
 
 	sharedMem->entID = entID;
-	strcpy(sharedMem->name, name);
+	Q_strncpyz(sharedMem->name, name, sizeof(sharedMem->name));
 
 	GVM_ICARUS_Remove();
 }
@@ -765,8 +764,8 @@ static void Q3_Play( int taskID, int entID, const char *type, const char *name )
 
 	sharedMem->taskID = taskID;
 	sharedMem->entID = entID;
-	strcpy(sharedMem->type, type);
-	strcpy(sharedMem->name, name);
+	Q_strncpyz(sharedMem->type, type, sizeof(sharedMem->type));
+	Q_strncpyz(sharedMem->name, name, sizeof(sharedMem->name));
 
 	GVM_ICARUS_Play();
 }
@@ -778,7 +777,7 @@ static int Q3_GetFloat( int entID, int type, const char *name, float *value )
 
 	sharedMem->entID = entID;
 	sharedMem->type = type;
-	strcpy(sharedMem->name, name);
+	Q_strncpyz(sharedMem->name, name, sizeof(sharedMem->name));
 	sharedMem->value = 0;//*value;
 
 	r = GVM_ICARUS_GetFloat();
@@ -793,7 +792,7 @@ static int Q3_GetVector( int entID, int type, const char *name, vec3_t value )
 
 	sharedMem->entID = entID;
 	sharedMem->type = type;
-	strcpy(sharedMem->name, name);
+	Q_strncpyz(sharedMem->name, name, sizeof(sharedMem->name));
 	VectorCopy(value, sharedMem->value);
 
 	r = GVM_ICARUS_GetVector();
@@ -808,7 +807,7 @@ static int Q3_GetString( int entID, int type, const char *name, char **value )
 
 	sharedMem->entID = entID;
 	sharedMem->type = type;
-	strcpy(sharedMem->name, name);
+	Q_strncpyz(sharedMem->name, name, sizeof(sharedMem->name));
 
 	r = GVM_ICARUS_GetString();
 	//rww - careful with this, next time shared memory is altered this will get stomped

@@ -79,7 +79,7 @@ void DeathmatchScoreboardMessage( gentity_t *ent ) {
 		j = strlen(entry);
 		if (stringlength + j > 1022)
 			break;
-		strcpy (string + stringlength, entry);
+		Q_strncpyz(string + stringlength, entry, sizeof(string) - stringlength);
 		stringlength += j;
 	}
 
@@ -911,7 +911,7 @@ void Cmd_ForceChanged_f( gentity_t *ent )
 
 	buf = G_GetStringEdString("MP_SVGAME", "FORCEPOWERCHANGED");
 
-	strcpy(fpChStr, buf);
+	Q_strncpyz(fpChStr, buf, sizeof(fpChStr));
 
 	trap->SendServerCommand( ent-g_entities, va("print \"%s%s\n\"", S_COLOR_GREEN, fpChStr) );
 

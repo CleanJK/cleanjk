@@ -60,7 +60,7 @@ const char	*CG_PlaceString( int rank ) {
 	trap->SE_GetStringTextString("MP_INGAME_NUMBER_RD",sRD, sizeof(sRD) );
 	trap->SE_GetStringTextString("MP_INGAME_NUMBER_TH",sTH, sizeof(sTH) );
 	trap->SE_GetStringTextString("MP_INGAME_TIED_FOR" ,sTiedFor,sizeof(sTiedFor) );
-	strcat(sTiedFor," ");	// save worrying about translators adding spaces or not
+	Q_strcat(sTiedFor, sizeof(sTiedFor), " ");	// save worrying about translators adding spaces or not
 
 	if ( rank & RANK_TIED_FLAG ) {
 		rank &= ~RANK_TIED_FLAG;
@@ -127,7 +127,7 @@ static void CG_Obituary( entityState_t *ent ) {
 		return;
 	}
 	Q_strncpyz( targetName, Info_ValueForKey( targetInfo, "n" ), sizeof(targetName) - 2);
-	strcat( targetName, S_COLOR_WHITE );
+	Q_strcat( targetName, sizeof(targetName), S_COLOR_WHITE );
 
 	// check for single client messages
 
@@ -303,10 +303,10 @@ clientkilled:
 	// check for double client messages
 	if ( !attackerInfo ) {
 		attacker = ENTITYNUM_WORLD;
-		strcpy( attackerName, "noname" );
+		Q_strncpyz( attackerName, "noname", sizeof(attackerName));
 	} else {
 		Q_strncpyz( attackerName, Info_ValueForKey( attackerInfo, "n" ), sizeof(attackerName) - 2);
-		strcat( attackerName, S_COLOR_WHITE );
+		Q_strcat( attackerName, sizeof(attackerName), S_COLOR_WHITE );
 		// check for kill messages about the current clientNum
 		if ( target == cg.snap->ps.clientNum ) {
 			Q_strncpyz( cg.killerName, attackerName, sizeof( cg.killerName ) );
@@ -617,7 +617,7 @@ static void CG_ItemPickup( int itemNum ) {
 		char	text[1024];
 		char	upperKey[1024];
 
-		strcpy(upperKey, bg_itemlist[itemNum].classname);
+		Q_strncpyz(upperKey, bg_itemlist[itemNum].classname, sizeof(upperKey));
 
 		if ( trap->SE_GetStringTextString( va("SP_INGAME_%s",Q_strupr(upperKey)), text, sizeof( text )))
 		{

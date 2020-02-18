@@ -80,7 +80,7 @@ CPrimitiveTemplate &CPrimitiveTemplate::operator=(const CPrimitiveTemplate &that
 {
 	// I'm assuming that doing a memcpy wouldn't work here
 	// If you are looking at this and know a better way to do this, please tell me.
-	strcpy( mName, that.mName );
+	Q_strncpyz( mName, that.mName, sizeof(mName));
 
 	mType				= that.mType;
 
@@ -1739,7 +1739,7 @@ bool CPrimitiveTemplate::ParsePrimitive( CGPGroup *grp )
 			ParseSpawnFlags( val );
 		else if ( !Q_stricmp( key, "name" ) ) {
 			if ( val ) // just stash the descriptive name of the primitive
-				strcpy( mName, val );
+				Q_strncpyz( mName, val, sizeof(mName));
 		}
 		else if ( !Q_stricmp( key, "materialImpact" ) )
 			ParseMaterialImpact( val );

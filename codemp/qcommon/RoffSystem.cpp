@@ -37,7 +37,7 @@ CROFFSystem theROFFSystem;
 //	id		id of the roff object to create
 CROFFSystem::CROFF::CROFF( const char *file, int id )
 {
-	strcpy( mROFFFilePath, file );
+	Q_strncpyz(mROFFFilePath, file, sizeof(mROFFFilePath));
 
 	mID				= id;
 	mMoveRotateList = nullptr;

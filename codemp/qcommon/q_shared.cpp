@@ -868,8 +868,8 @@ void Info_SetValueForKey( char *s, const char *key, const char *value ) {
 		return;
 	}
 
-	strcat (newi, s);
-	strcpy (s, newi);
+	Q_strcat(newi, sizeof(newi), s);
+	Q_strncpyz(s, newi, MAX_INFO_STRING);
 }
 
 // Changes or adds a key/value pair
@@ -903,7 +903,7 @@ void Info_SetValueForKey_Big( char *s, const char *key, const char *value ) {
 		return;
 	}
 
-	strcat (s, newi);
+	Q_strcat(s, MAX_INFO_STRING, newi);
 }
 
 static bool Com_CharIsOneOfCharset( char c, char *set ) {

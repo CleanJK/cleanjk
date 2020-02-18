@@ -286,7 +286,7 @@ bool WP_UseFirstValidSaberStyle( saberInfo_t *saber1, saberInfo_t *saber2, int s
 		}
 	}
 
-	if ( !validStyles ) {
+	if ( !validStyles && saber1) {
 		if ( dualSabers )
 			Com_Printf( "WARNING: No valid saber styles for %s/%s", saber1->name, saber2->name );
 		else
@@ -1630,7 +1630,7 @@ bool WP_SaberParseParms( const char *saberName, saberInfo_t *saber ) {
 	return true;
 }
 
-bool WP_SaberParseParm( const char *saberName, const char *parmname, char *saberData )
+bool WP_SaberParseParm( const char *saberName, const char *parmname, char *saberData, int saberDataDestSize)
 {
 	const char	*token;
 	const char	*value;
@@ -1692,7 +1692,7 @@ bool WP_SaberParseParm( const char *saberName, const char *parmname, char *saber
 			{
 				continue;
 			}
-			strcpy( saberData, value );
+			Q_strncpyz( saberData, value, saberDataDestSize);
 			return true;
 		}
 
@@ -1706,7 +1706,7 @@ bool WP_SaberParseParm( const char *saberName, const char *parmname, char *saber
 bool WP_SaberValidForPlayerInMP( const char *saberName )
 {
 	char allowed [8]={0};
-	if ( !WP_SaberParseParm( saberName, "notInMP", allowed ) )
+	if ( !WP_SaberParseParm( saberName, "notInMP", allowed, sizeof(allowed)) )
 	{//not defined, default is yes
 		return true;
 	}
@@ -1729,7 +1729,7 @@ void WP_RemoveSaber( saberInfo_t *sabers, int saberNum )
 	//reset everything for this saber just in case
 	WP_SaberSetDefaults( &sabers[saberNum] );
 
-	strcpy(sabers[saberNum].name, "none");
+	Q_strncpyz(sabers[saberNum].name, "none", sizeof(sabers[saberNum].name));
 	sabers[saberNum].model[0] = 0;
 
 	//ent->client->ps.dualSabers = false;
@@ -1784,7 +1784,6 @@ void WP_SaberSetColor( saberInfo_t *sabers, int saberNum, int bladeNum, char *co
 #define EXT_SAB_FILENAME "ext_data/sabers.sab"
 void WP_SaberLoadParms( void ) {
 	fileHandle_t f;
-	char *scratch = nullptr;
 	size_t compressedLen = 0u;
 
 	const size_t fileLen = trap->FS_Open( EXT_SAB_FILENAME, &f, FS_READ );
@@ -1803,7 +1802,15 @@ void WP_SaberLoadParms( void ) {
 	}
 
 	// read the file raw
-	scratch = (char *)malloc( fileLen + 1 );
+	char* scratch = (char *)calloc(fileLen + 1, sizeof(char));
+
+	if (scratch == nullptr)
+	{
+		Com_Printf("WP_SaberLoadParms: unable to alloc memory for: char* scratch\n");
+
+		return;
+	}
+
 	trap->FS_Read( scratch, fileLen, f );
 	scratch[fileLen] = '\0';
 	trap->FS_Close( f );
@@ -1820,7 +1827,7 @@ bool WP_IsSaberTwoHanded( const char *saberName )
 {
 	int twoHanded;
 	char	twoHandedString[8]={0};
-	WP_SaberParseParm( saberName, "twoHanded", twoHandedString );
+	WP_SaberParseParm( saberName, "twoHanded", twoHandedString, sizeof(twoHandedString));
 	if ( !twoHandedString[0] )
 	{//not defined defaults to "no"
 		return false;

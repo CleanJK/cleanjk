@@ -1046,7 +1046,7 @@ void TeamplayInfoMessage( gentity_t *ent ) {
 			j = strlen(entry);
 			if (stringlength + j >= sizeof(string))
 				break;
-			strcpy (string + stringlength, entry);
+			Q_strncpyz(string + stringlength, entry, sizeof(string) - stringlength);
 			stringlength += j;
 			cnt++;
 		}

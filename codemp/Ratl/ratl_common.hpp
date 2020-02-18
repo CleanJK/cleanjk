@@ -72,6 +72,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define STRING_H_INC
 #endif
 
+#include "qcommon/q_string.hpp"
+
 // Forward Dec.
 class hfile;
 
@@ -181,9 +183,9 @@ namespace str
 		return strlen(src);
 	}
 
-	inline void	cpy(char *dest,const char *src)
+	inline void	Q_cpy(char *dest,const char *src, int destSize)
 	{
-		strcpy(dest,src);
+		Q_strncpyz(dest,src, destSize);
 	}
 
 	inline void	ncpy(char *dest,const char *src,int destBufferLen)
@@ -191,9 +193,9 @@ namespace str
 		strncpy(dest,src,destBufferLen);
 	}
 
-	inline void	cat(char *dest,const char *src)
+	inline void	cat(char *dest, int destSize, const char *src)
 	{
-		strcat(dest,src);
+		Q_strcat(dest, destSize, src);
 	}
 
 	inline void	ncat(char *dest,const char *src,int destBufferLen)

@@ -246,7 +246,7 @@ inline static uint32_t ComputeFinalVertexColor( const byte *colors ) {
 	// an optimization could be added here to compute the style[0] (which is always the world normal light)
 	r = g = b = 0;
 	for( k=0; k<MAXLIGHTMAPS; k++ ) {
-		if ( tess.shader->styles[k] < LS_UNUSED ) {
+		if ( tess.shader->styles[k] < MAX_LIGHT_STYLES) {
 			byte *styleColor = styleColors[tess.shader->styles[k]];
 
 			r += (uint32_t)(*colors++) * (uint32_t)(*styleColor++);

@@ -120,7 +120,19 @@ public:
 
 	// Basic Arithimitic Operators
 	const CVec4 &operator=  (const float d)									{v[0]=d;		v[1]=d;			v[2]=d;			v[3]=d;		 return *this;}
-	const CVec4 &operator=  (const CVec4& t)								{v[0]=t.v[0];	v[1]=t.v[1];	v[2]=t.v[2];	v[3]=t.v[3]; return *this;}
+	
+	const CVec4& operator=(const CVec4& t)
+	{
+		if (this != &t)
+		{
+			v[0] = t.v[0];
+			v[1] = t.v[1];
+			v[2] = t.v[2];
+			v[3] = t.v[3];
+		}
+
+		return *this;
+	}
 
 	const CVec4 &operator+= (const float d)									{v[0]+=d;		v[1]+=d;		v[2]+=d;		v[3]+=d;	 return *this;}
 	const CVec4 &operator+= (const CVec4& t)								{v[0]+=t.v[0];	v[1]+=t.v[1];	v[2]+=t.v[2];	v[3]+=t.v[3];return *this;}
@@ -489,7 +501,18 @@ public:
 
 	// Basic Arithimitic Operators
 	const CVec3 &operator=  (const float d)									{v[0]=d;		v[1]=d;			v[2]=d;		 return *this;}
-	const CVec3 &operator=  (const CVec3& t)								{v[0]=t.v[0];	v[1]=t.v[1];	v[2]=t.v[2]; return *this;}
+	
+	const CVec3& operator=(const CVec3& t)
+	{
+		if (this != &t)
+		{
+			v[0] = t.v[0];
+			v[1] = t.v[1];
+			v[2] = t.v[2];
+		}
+
+		return *this;
+	}
 
 	const CVec3 &operator+= (const float d)									{v[0]+=d;		v[1]+=d;		v[2]+=d;	 return *this;}
 	const CVec3 &operator+= (const CVec3& t)								{v[0]+=t.v[0];	v[1]+=t.v[1];	v[2]+=t.v[2];return *this;}

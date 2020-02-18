@@ -58,7 +58,7 @@ void CG_BubbleTrail( vec3_t start, vec3_t end, float spacing ) {
 		le->leType = LE_MOVE_SCALE_FADE;
 		le->startTime = cg.time;
 		le->endTime = cg.time + 1000 + Q_flrand(-250.0f, 250.0f);
-		le->lifeRate = 1.0 / ( le->endTime - le->startTime );
+		le->lifeRate = 1.0f / ( le->endTime - le->startTime );
 
 		re = &le->refEntity;
 		re->shaderTime = cg.time / 1000.0f;
@@ -113,10 +113,10 @@ localEntity_t *CG_SmokePuff( const vec3_t p, const vec3_t vel,
 	le->fadeInTime = fadeInTime;
 	le->endTime = startTime + duration;
 	if ( fadeInTime > startTime ) {
-		le->lifeRate = 1.0 / ( le->endTime - le->fadeInTime );
+		le->lifeRate = 1.0f / ( le->endTime - le->fadeInTime );
 	}
 	else {
-		le->lifeRate = 1.0 / ( le->endTime - le->startTime );
+		le->lifeRate = 1.0f / ( le->endTime - le->startTime );
 	}
 	le->color[0] = r;
 	le->color[1] = g;
@@ -142,32 +142,34 @@ localEntity_t *CG_SmokePuff( const vec3_t p, const vec3_t vel,
 	return le;
 }
 
-int CGDEBUG_SaberColor( int saberColor )
+int CGDEBUG_SaberColor(int saberColor)
 {
-	switch( (int)(saberColor) )
+	int returnVal = saberColor;
+
+	switch(saberColor)
 	{
 		case SABER_RED:
-			return 0x000000ff;
+			returnVal = 0x000000ff;
 			break;
 		case SABER_ORANGE:
-			return 0x000088ff;
+			returnVal = 0x000088ff;
 			break;
 		case SABER_YELLOW:
-			return 0x0000ffff;
+			returnVal = 0x0000ffff;
 			break;
 		case SABER_GREEN:
-			return 0x0000ff00;
+			returnVal = 0x0000ff00;
 			break;
 		case SABER_BLUE:
-			return 0x00ff0000;
+			returnVal = 0x00ff0000;
 			break;
 		case SABER_PURPLE:
-			return 0x00ff00ff;
-			break;
+			returnVal = 0x00ff00ff;
 		default:
-			return saberColor;
 			break;
 	}
+
+	return returnVal;
 }
 
 void CG_TestLine( vec3_t start, vec3_t end, int time, unsigned int color, int radius) {
@@ -178,7 +180,7 @@ void CG_TestLine( vec3_t start, vec3_t end, int time, unsigned int color, int ra
 	le->leType = LE_LINE;
 	le->startTime = cg.time;
 	le->endTime = cg.time + time;
-	le->lifeRate = 1.0 / ( le->endTime - le->startTime );
+	le->lifeRate = 1.0f / ( le->endTime - le->startTime );
 
 	re = &le->refEntity;
 	VectorCopy( start, re->origin );
@@ -774,51 +776,47 @@ void CG_Chunks( int owner, vec3_t origin, const vec3_t normal, const vec3_t mins
 	}
 
 	// Set up our chunk sound info...breaking sounds are done here so they are done once on breaking..some return instantly because the chunks are done with effects instead of models
-	switch( chunkType )
+	switch (chunkType)
 	{
-	default:
-		break;
-	case MAT_GLASS:
-		trap->S_StartSound( nullptr, owner, CHAN_BODY, media.sounds.null );
-		return;
-		break;
-	case MAT_GRATE1:
-		trap->S_StartSound( nullptr, owner, CHAN_BODY, media.sounds.null );
-		return;
-		break;
-	case MAT_ELECTRICAL:// (sparks)
-		trap->S_StartSound( nullptr, owner, CHAN_BODY, trap->S_RegisterSound (va("sound/ambience/spark%d.wav", Q_irand(1, 6))) );
-		return;
-		break;
-	case MAT_DRK_STONE:
-	case MAT_LT_STONE:
-	case MAT_GREY_STONE:
-	case MAT_WHITE_METAL:  // not quite sure what this stuff is supposed to be...it's for Stu
-	case MAT_SNOWY_ROCK:
-		trap->S_StartSound( nullptr, owner, CHAN_BODY, media.sounds.null );
-		bounce = LEBS_ROCK;
-		speedMod = 0.5f; // rock blows up less
-		break;
-	case MAT_GLASS_METAL:
-		trap->S_StartSound( nullptr, owner, CHAN_BODY, media.sounds.null ); // FIXME: should probably have a custom sound
-		bounce = LEBS_METAL;
-		break;
-	case MAT_CRATE1:
-	case MAT_CRATE2:
-		trap->S_StartSound( nullptr, owner, CHAN_BODY, media.sounds.null/* [Q_irand(0,1)] */ );
-		break;
-	case MAT_METAL:
-	case MAT_METAL2:
-	case MAT_METAL3:
-	case MAT_ELEC_METAL:// FIXME: maybe have its own sound?
-		trap->S_StartSound( nullptr, owner, CHAN_BODY, media.sounds.null );
-		bounce = LEBS_METAL;
-		speedMod = 0.8f; // metal blows up a bit more
-		break;
-	case MAT_ROPE:
-//		trap->S_StartSound( nullptr, owner, CHAN_BODY, cgi_S_RegisterSound( "" ));  FIXME:  needs a sound
-		return;
-		break;
+		default:
+			break;
+		case MAT_GLASS:
+			trap->S_StartSound(nullptr, owner, CHAN_BODY, media.sounds.null);
+			return;
+		case MAT_GRATE1:
+			trap->S_StartSound(nullptr, owner, CHAN_BODY, media.sounds.null);
+			return;
+		case MAT_ELECTRICAL:// (sparks)
+			trap->S_StartSound(nullptr, owner, CHAN_BODY, trap->S_RegisterSound(va("sound/ambience/spark%d.wav", Q_irand(1, 6))));
+			return;
+		case MAT_DRK_STONE:
+		case MAT_LT_STONE:
+		case MAT_GREY_STONE:
+		case MAT_WHITE_METAL:  // not quite sure what this stuff is supposed to be...it's for Stu
+		case MAT_SNOWY_ROCK:
+			trap->S_StartSound(nullptr, owner, CHAN_BODY, media.sounds.null);
+			bounce = LEBS_ROCK;
+			speedMod = 0.5f; // rock blows up less
+			break;
+		case MAT_GLASS_METAL:
+			trap->S_StartSound(nullptr, owner, CHAN_BODY, media.sounds.null); // FIXME: should probably have a custom sound
+			bounce = LEBS_METAL;
+			break;
+		case MAT_CRATE1:
+		case MAT_CRATE2:
+			trap->S_StartSound(nullptr, owner, CHAN_BODY, media.sounds.null/* [Q_irand(0,1)] */);
+			break;
+		case MAT_METAL:
+		case MAT_METAL2:
+		case MAT_METAL3:
+		case MAT_ELEC_METAL:// FIXME: maybe have its own sound?
+			trap->S_StartSound(nullptr, owner, CHAN_BODY, media.sounds.null);
+			bounce = LEBS_METAL;
+			speedMod = 0.8f; // metal blows up a bit more
+			break;
+		case MAT_ROPE:
+			//		trap->S_StartSound( nullptr, owner, CHAN_BODY, cgi_S_RegisterSound( "" ));  FIXME:  needs a sound
+			return;
 	}
 
 	if ( baseScale <= 0.0f )
@@ -970,7 +968,7 @@ void CG_ScorePlum( int client, vec3_t org, int score ) {
 	le->leType = LE_SCOREPLUM;
 	le->startTime = cg.time;
 	le->endTime = cg.time + 4000;
-	le->lifeRate = 1.0 / ( le->endTime - le->startTime );
+	le->lifeRate = 1.0f / ( le->endTime - le->startTime );
 
 	le->color[0] = le->color[1] = le->color[2] = le->color[3] = 1.0;
 	le->radius = score;

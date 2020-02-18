@@ -716,8 +716,6 @@ int CSequencer::Route( CSequence *sequence, bstream_t *bstream )
 			m_curSequence = m_curSequence->GetReturn();
 
 			return SEQ_OK;
-			break;
-
 		//Affect pre-processor
 		case ID_AFFECT:
 
@@ -756,6 +754,8 @@ int CSequencer::Route( CSequence *sequence, bstream_t *bstream )
 			if ( m_elseValid == 0 )
 			{
 				m_ie->I_DPrintf( WL_ERROR, "Invalid 'else' found!\n" );
+				delete block;
+				block = nullptr;
 				return SEQ_FAILED;
 			}
 
@@ -796,9 +796,9 @@ int CSequencer::Route( CSequence *sequence, bstream_t *bstream )
 
 		//Error
 		default:
-
 			m_ie->I_DPrintf( WL_ERROR, "'%d' : invalid block ID", block->GetBlockID() );
-
+			delete block;
+			block = nullptr;
 			return SEQ_FAILED;
 			break;
 		}

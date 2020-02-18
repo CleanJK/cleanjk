@@ -368,8 +368,10 @@ static char *StripTrailingWhiteSpaceOnEveryLine(char *pText)
 		strNewText += "\n";
 	}
 
-	char  *pNewText = (char *) Z_Malloc( strlen(strNewText.c_str())+1, TAG_TEMP_WORKSPACE, false);
-	strcpy(pNewText, strNewText.c_str());
+	size_t newTextSize = strlen(strNewText.c_str()) + 1;
+
+	char  *pNewText = (char *) Z_Malloc(newTextSize, TAG_TEMP_WORKSPACE, false);
+	Q_strncpyz(pNewText, strNewText.c_str(), newTextSize);
 	return pNewText;
 }
 

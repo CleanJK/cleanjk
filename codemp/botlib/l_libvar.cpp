@@ -57,7 +57,7 @@ float LibVarStringValue(char *string)
 		} //end if
 		else
 		{
-			value = value * 10.0 + (float) (*string - '0');
+			value = value * 10.0f + (float)(*string - '0');
 		} //end else
 		string++;
 	} //end while
@@ -70,8 +70,9 @@ libvar_t *LibVarAlloc(char *var_name)
 
 	v = (libvar_t *) GetMemory(sizeof(libvar_t));
 	Com_Memset(v, 0, sizeof(libvar_t));
-	v->name = (char *) GetMemory(strlen(var_name)+1);
-	strcpy(v->name, var_name);
+	size_t strSize = strlen(var_name) + 1;
+	v->name = (char *) GetMemory(strSize);
+	Q_strncpyz(v->name, var_name, strSize);
 	//add the variable in the list
 	v->next = libvarlist;
 	libvarlist = v;
@@ -154,8 +155,9 @@ libvar_t *LibVar(char *var_name, char *value)
 	//create new variable
 	v = LibVarAlloc(var_name);
 	//variable string
-	v->string = (char *) GetMemory(strlen(value) + 1);
-	strcpy(v->string, value);
+	size_t strSize = strlen(value) + 1;
+	v->string = (char*)GetMemory(strSize);
+	Q_strncpyz(v->string, value, strSize);
 	//the value
 	v->value = LibVarStringValue(v->string);
 	//variable is modified
@@ -197,8 +199,9 @@ void LibVarSet(char *var_name, char *value)
 		v = LibVarAlloc(var_name);
 	} //end else
 	//variable string
-	v->string = (char *) GetMemory(strlen(value) + 1);
-	strcpy(v->string, value);
+	size_t strSize = strlen(value) + 1;
+	v->string = (char*)GetMemory(strSize);
+	Q_strncpyz(v->string, value, strSize);
 	//the value
 	v->value = LibVarStringValue(v->string);
 	//variable is modified

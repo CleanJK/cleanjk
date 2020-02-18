@@ -62,7 +62,7 @@ void LoadTGA ( const char *name, byte **pic, int *width, int *height)
 
 	*pic = nullptr;
 
-#define TGA_FORMAT_ERROR(blah) {sprintf(sErrorString,blah); bFormatErrors = true; goto TGADone;}
+#define TGA_FORMAT_ERROR(blah) {Com_sprintf(sErrorString, sizeof(sErrorString),blah); bFormatErrors = true; goto TGADone;}
 //#define TGA_FORMAT_ERROR(blah) Com_Error( ERR_DROP, blah );
 
 	// load the file

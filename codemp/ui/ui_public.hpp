@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#define UI_API_VERSION 4
+#define UI_API_VERSION 5
 #define UI_LEGACY_API_VERSION 7
 
 enum uiMenuCommand_e {
@@ -101,7 +101,7 @@ struct uiImport_t {
 	int               (*PC_LoadSource)                    ( const char *filename );
 	int               (*PC_ReadToken)                     ( int handle, pc_token_t *pc_token );
 	void              (*PC_RemoveAllGlobalDefines)        ( void );
-	int               (*PC_SourceFileAndLine)             ( int handle, char *filename, int *line );
+	int               (*PC_SourceFileAndLine)             ( int handle, char *filename, int *line, int sizeFilename );
 	void              (*CIN_DrawCinematic)                ( int handle );
 	int               (*CIN_PlayCinematic)                ( const char *arg0, int xpos, int ypos, int width, int height, int bits );
 	status_e          (*CIN_RunCinematic)                 ( int handle );
@@ -153,7 +153,7 @@ struct uiImport_t {
 	void              (*R_RemapShader)                    ( const char *oldShader, const char *newShader, const char *timeOffset );
 	void              (*R_RenderScene)                    ( const refdef_t *fd );
 	void              (*R_SetColor)                       ( const float *rgba );
-	void              (*R_ShaderNameFromIndex)            ( char *name, int index );
+	void              (*R_ShaderNameFromIndex)            ( char *name, int index, int nameDestSize );
 	void              (*G2_ListModelSurfaces)             ( void *ghlInfo );
 	void              (*G2_ListModelBones)                ( void *ghlInfo, int frame );
 	void              (*G2_SetGhoul2ModelIndexes)         ( void *ghoul2, qhandle_t *modelList, qhandle_t *skinList );
@@ -172,8 +172,8 @@ struct uiImport_t {
 	bool              (*G2API_GetBoltMatrix)              ( void *ghoul2, const int modelIndex, const int boltIndex, mdxaBone_t *matrix, const vec3_t angles, const vec3_t position, const int frameNum, qhandle_t *modelList, vec3_t scale );
 	bool              (*G2API_GetBoneAnim)                ( void *ghoul2, const char *boneName, const int currentTime, float *currentFrame, int *startFrame, int *endFrame, int *flags, float *animSpeed, int *modelList, const int modelIndex );
 	bool              (*G2API_GetBoneFrame)               ( void *ghoul2, const char *boneName, const int currentTime, float *currentFrame, int *modelList, const int modelIndex );
-	void              (*G2API_GetGLAName)                 ( void *ghoul2, int modelIndex, char *fillBuf );
-	void              (*G2API_GetSurfaceName)             ( void *ghoul2, int surfNumber, int modelIndex, char *fillBuf );
+	void              (*G2API_GetGLAName)                 ( void *ghoul2, int modelIndex, char *fillBuf, int fillBufSize );
+	void              (*G2API_GetSurfaceName)             ( void *ghoul2, int surfNumber, int modelIndex, char *fillBuf, int fillBufSize );
 	int               (*G2API_GetTime)                    ( void );
 	bool              (*G2API_HasGhoul2ModelOnIndex)      ( void *ghlInfo, int modelIndex );
 	bool              (*G2API_IKMove)                     ( void *ghoul2, int time, sharedIKMoveParams_t *params );

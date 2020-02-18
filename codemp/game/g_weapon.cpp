@@ -1967,12 +1967,12 @@ bool WP_LobFire( gentity_t *self, vec3_t start, vec3_t target, vec3_t mins, vec3
 				float minSpeed, float maxSpeed, float idealSpeed, bool mustHit )
 { //for the galak mech NPC
 	float	targetDist, shotSpeed, speedInc = 100, travelTime, impactDist, bestImpactDist = Q3_INFINITE;//fireSpeed,
-	vec3_t	targetDir, shotVel, failCase;
+	vec3_t	targetDir = { 0 }, shotVel = { 0 }, failCase = { 0 };
 	trace_t	trace;
 	trajectory_t	tr;
 	bool	blocked;
 	int		elapsedTime, skipNum, timeStep = 500, hitCount = 0, maxHits = 7;
-	vec3_t	lastPos, testPos;
+	vec3_t	lastPos = { 0 }, testPos = { 0 };
 	gentity_t	*traceEnt;
 
 	if ( !idealSpeed )
@@ -3175,26 +3175,34 @@ void WP_FireStunBaton( gentity_t *ent, bool alt_fire )
 
 void WP_FireMelee( gentity_t *ent, bool alt_fire )
 {
+	if (ent == nullptr)
+	{
+		return;
+	}
+
 	gentity_t	*tr_ent;
 	trace_t		tr;
 	vec3_t		mins, maxs, end;
 	vec3_t		muzzlePunch;
 
-	if (ent->client && ent->client->ps.torsoAnim == BOTH_MELEE2)
-	{ //right
-		if (ent->client->ps.brokenLimbs & (1 << BROKENLIMB_RARM))
-		{
-			return;
+	if (ent->client)
+	{
+		if (ent->client->ps.torsoAnim == BOTH_MELEE2)
+		{ //right
+			if (ent->client->ps.brokenLimbs & (1 << BROKENLIMB_RARM))
+			{
+				return;
+			}
+		}
+		else
+		{ //left
+			if (ent->client->ps.brokenLimbs & (1 << BROKENLIMB_LARM))
+			{
+				return;
+			}
 		}
 	}
-	else
-	{ //left
-		if (ent->client->ps.brokenLimbs & (1 << BROKENLIMB_LARM))
-		{
-			return;
-		}
-	}
-
+	
 	if (!ent->client)
 	{
 		VectorCopy(ent->r.currentOrigin, muzzlePunch);

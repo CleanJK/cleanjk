@@ -172,8 +172,7 @@ int Export_BotLibVarGet(char *var_name, char *value, int size)
 	char *varvalue;
 
 	varvalue = LibVarGetString(var_name);
-	strncpy(value, varvalue, size-1);
-	value[size-1] = '\0';
+	Q_strncpyz(value, varvalue, size);
 	return BLERR_NOERROR;
 } //end of the function Export_BotLibVarGet
 
@@ -212,8 +211,8 @@ static void Init_EA_Export( ea_export_t *ea ) {
 
 botlib_export_t *GetBotLibAPI(int apiVersion, botlib_import_t *import) {
 	assert(import);   // bk001129 - this wasn't set for base/
-  botimport = *import;
-  assert(botimport.Print);   // bk001129 - pars pro toto
+	botimport = *import;
+	assert(botimport.Print);   // bk001129 - pars pro toto
 
 	Com_Memset( &be_botlib_export, 0, sizeof( be_botlib_export ) );
 

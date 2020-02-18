@@ -220,9 +220,11 @@ void CG_AddMarks( void ) {
 			continue;
 		}
 
+		/*
 		// fade out the energy bursts
 		//if ( mp->markShader == media.gfx.null ) {
-		if (0) {
+		if (0)
+		{
 
 			fade = 450 - 450 * ( (cg.time - mp->time ) / 3000.0 );
 			if ( fade < 255 ) {
@@ -238,6 +240,7 @@ void CG_AddMarks( void ) {
 				}
 			}
 		}
+		*/
 
 		// fade all marks out with time
 		t = mp->time + MARK_TOTAL_TIME - cg.time;

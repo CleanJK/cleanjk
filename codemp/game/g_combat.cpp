@@ -1776,7 +1776,10 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	//FIXME: this may not be enough
 	BlowDetpacks(self); //blow detpacks if they're planted
 
-	self->client->ps.fd.forceDeactivateAll = 1;
+	if (self->client != nullptr)
+	{
+		self->client->ps.fd.forceDeactivateAll = 1;
+	}
 
 	if ((self == attacker || (attacker && !attacker->client)) &&
 		(meansOfDeath == MOD_CRUSH || meansOfDeath == MOD_FALLING || meansOfDeath == MOD_TRIGGER_HURT || meansOfDeath == MOD_UNKNOWN) &&
@@ -1788,8 +1791,11 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	// check for an almost capture
 	CheckAlmostCapture( self, attacker );
 
-	self->client->ps.pm_type = PM_DEAD;
-	self->client->ps.pm_flags &= ~PMF_STUCK_TO_WALL;
+	if (self->client != nullptr)
+	{
+		self->client->ps.pm_type = PM_DEAD;
+		self->client->ps.pm_flags &= ~PMF_STUCK_TO_WALL;
+	}
 
 	if ( attacker ) {
 		killer = attacker->s.number;
@@ -1816,7 +1822,12 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 	// log the victim and attacker's names with the method of death
 	Com_sprintf( buf, sizeof( buf ), "Kill: %i %i %i: %s killed ", killer, self->s.number, meansOfDeath, killerName );
-	Q_strcat( buf, sizeof( buf ), va( "%s by %s\n", self->client->pers.netname, obit ) );
+	
+	if (self->client != nullptr)
+	{
+		Q_strcat(buf, sizeof(buf), va("%s by %s\n", self->client->pers.netname, obit));
+	}
+
 	G_LogPrintf( "%s", buf );
 
 	if ( g_austrian.integer
@@ -1854,8 +1865,10 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	ent->s.isJediMaster = wasJediMaster;
 
 	self->enemy = attacker;
-
-	self->client->ps.persistant[PERS_KILLED]++;
+	if (self->client != nullptr)
+	{
+		self->client->ps.persistant[PERS_KILLED]++;
+	}
 
 	if (self == attacker)
 	{
@@ -2011,21 +2024,29 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 		}
 	}
 
-	if (!self->client->ps.fallingToDeath) {
-		TossClientItems( self );
-	}
-	else {
-		if ( self->client->ps.powerups[PW_NEUTRALFLAG] ) {		// only happens in One Flag CTF
-			Team_ReturnFlag( TEAM_FREE );
-			self->client->ps.powerups[PW_NEUTRALFLAG] = 0;
+	if (self->client)
+	{
+		if (!self->client->ps.fallingToDeath)
+		{
+			TossClientItems(self);
 		}
-		else if ( self->client->ps.powerups[PW_REDFLAG] ) {		// only happens in standard CTF
-			Team_ReturnFlag( TEAM_RED );
-			self->client->ps.powerups[PW_REDFLAG] = 0;
-		}
-		else if ( self->client->ps.powerups[PW_BLUEFLAG] ) {	// only happens in standard CTF
-			Team_ReturnFlag( TEAM_BLUE );
-			self->client->ps.powerups[PW_BLUEFLAG] = 0;
+		else
+		{
+			if (self->client->ps.powerups[PW_NEUTRALFLAG])
+			{		// only happens in One Flag CTF
+				Team_ReturnFlag(TEAM_FREE);
+				self->client->ps.powerups[PW_NEUTRALFLAG] = 0;
+			}
+			else if (self->client->ps.powerups[PW_REDFLAG])
+			{		// only happens in standard CTF
+				Team_ReturnFlag(TEAM_RED);
+				self->client->ps.powerups[PW_REDFLAG] = 0;
+			}
+			else if (self->client->ps.powerups[PW_BLUEFLAG])
+			{	// only happens in standard CTF
+				Team_ReturnFlag(TEAM_BLUE);
+				self->client->ps.powerups[PW_BLUEFLAG] = 0;
+			}
 		}
 	}
 
@@ -2059,7 +2080,11 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 	self->s.weapon = WP_NONE;
 	self->s.powerups = 0;
 	self->r.contents = CONTENTS_CORPSE;
-	self->client->ps.zoomMode = 0;	// Turn off zooming when we die
+
+	if (self->client != nullptr)
+	{
+		self->client->ps.zoomMode = 0;	// Turn off zooming when we die
+	}
 
 	//rww - 07/19/02 - I removed this because it isn't working and it's ugly (for people on the outside)
 	/*
@@ -2077,13 +2102,16 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 
 	// don't allow respawn until the death anim is done
 	// g_forcerespawn may force spawning at some later time
-	self->client->respawnTime = level.time + 1700;
+	if (self->client != nullptr)
+	{
+		self->client->respawnTime = level.time + 1700;
 
-	// remove powerups
-	memset( self->client->ps.powerups, 0, sizeof(self->client->ps.powerups) );
+		// remove powerups
+		memset(self->client->ps.powerups, 0, sizeof(self->client->ps.powerups));
 
-	self->client->ps.stats[STAT_HOLDABLE_ITEMS] = 0;
-	self->client->ps.stats[STAT_HOLDABLE_ITEM] = 0;
+		self->client->ps.stats[STAT_HOLDABLE_ITEMS] = 0;
+		self->client->ps.stats[STAT_HOLDABLE_ITEM] = 0;
+	}
 
 	// NOTENOTE No gib deaths right now, this is star wars.
 	/*
@@ -2110,17 +2138,23 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
 				self->health = GIB_HEALTH+1;
 			}
 
-			self->client->respawnTime = level.time + 1000;//((self->client->animations[anim].numFrames*40)/(50.0f / self->client->animations[anim].frameLerp))+300;
-
-			sPMType = self->client->ps.pm_type;
-			self->client->ps.pm_type = PM_NORMAL; //don't want pm type interfering with our setanim calls.
+			if (self->client != nullptr)
+			{
+				self->client->respawnTime = level.time + 1000;//((self->client->animations[anim].numFrames*40)/(50.0f / self->client->animations[anim].frameLerp))+300;
+				
+				sPMType = self->client->ps.pm_type;
+				self->client->ps.pm_type = PM_NORMAL; //don't want pm type interfering with our setanim calls.
+			}
 
 			if (self->inuse)
 			{ //not disconnecting
 				G_SetAnim(self, nullptr, SETANIM_BOTH, anim, SETANIM_FLAG_OVERRIDE|SETANIM_FLAG_HOLD|SETANIM_FLAG_RESTART, 0);
 			}
 
-			self->client->ps.pm_type = sPMType;
+			if (self->client != nullptr)
+			{
+				self->client->ps.pm_type = sPMType;
+			}
 
 			if (meansOfDeath == MOD_SABER)//saber
 			{ //update the anim on the actual skeleton (so bolt point will reflect the correct position) and then check for dismem
@@ -2613,6 +2647,11 @@ void LimbThink( gentity_t *ent )
 
 void G_Dismember( gentity_t *ent, gentity_t *enemy, vec3_t point, int limbType, float limbRollBase, float limbPitchBase, int deathAnim, bool postDeath )
 {
+	if (ent == nullptr)
+	{
+		return;
+	}
+
 	vec3_t	newPoint, dir, vel;
 	gentity_t *limb;
 	char	limbName[MAX_QPATH];
@@ -2783,7 +2822,7 @@ void G_Dismember( gentity_t *ent, gentity_t *enemy, vec3_t point, int limbType, 
 		}
 	}
 
-	if ( level.gametype >= GT_TEAM )
+	if (ent->client && level.gametype >= GT_TEAM )
 	{//Team game
 		switch ( ent->client->sess.sessionTeam )
 		{
@@ -3346,7 +3385,7 @@ void G_CheckForDismemberment(gentity_t *ent, gentity_t *enemy, vec3_t point, int
 		{
 			char hitSurface[MAX_QPATH];
 
-			trap->G2API_GetSurfaceName(ent->ghoul2, ent->client->g2LastSurfaceHit, 0, hitSurface);
+			trap->G2API_GetSurfaceName(ent->ghoul2, ent->client->g2LastSurfaceHit, 0, hitSurface, sizeof(hitSurface));
 
 			if (hitSurface[0])
 			{
@@ -3451,7 +3490,7 @@ void G_LocationBasedDamageModifier(gentity_t *ent, vec3_t point, int mod, int df
 	{
 		char hitSurface[MAX_QPATH];
 
-		trap->G2API_GetSurfaceName(ent->ghoul2, ent->client->g2LastSurfaceHit, 0, hitSurface);
+		trap->G2API_GetSurfaceName(ent->ghoul2, ent->client->g2LastSurfaceHit, 0, hitSurface, sizeof(hitSurface));
 
 		if (hitSurface[0])
 		{
@@ -4185,7 +4224,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker, vec3_
 		{ //We updated the hit surface this frame, so it's valid.
 			char hitSurface[MAX_QPATH];
 
-			trap->G2API_GetSurfaceName(targ->ghoul2, targ->client->g2LastSurfaceHit, 0, hitSurface);
+			trap->G2API_GetSurfaceName(targ->ghoul2, targ->client->g2LastSurfaceHit, 0, hitSurface, sizeof(hitSurface));
 
 			if (hitSurface[0])
 			{

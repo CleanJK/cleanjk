@@ -1306,7 +1306,7 @@ static mnode_t *R_PointInLeaf( const vec3_t p ) {
 }
 
 static const byte *R_ClusterPVS (int cluster) {
-	if (!tr.world || !tr.world->vis || cluster < 0 || cluster >= tr.world->numClusters ) {
+	if (!tr.world->vis || cluster < 0 || cluster >= tr.world->numClusters ) {
 		return tr.world->novis;
 	}
 

@@ -950,6 +950,11 @@ static void Touch_DoorTriggerSpectator( gentity_t *ent, gentity_t *other, trace_
 
 void Touch_DoorTrigger( gentity_t *ent, gentity_t *other, trace_t *trace )
 {
+	if (ent == nullptr || other == nullptr)
+	{
+		return;
+	}
+
 	gentity_t *relockEnt = nullptr;
 
 	if ( other->client && other->client->sess.sessionTeam == TEAM_SPECTATOR )
@@ -968,7 +973,7 @@ void Touch_DoorTrigger( gentity_t *ent, gentity_t *other, trace_t *trace )
 		return;
 	}
 
-	if ( ent->parent->spawnflags & MOVER_LOCKED )
+	if (ent->parent && ent->parent->spawnflags & MOVER_LOCKED )
 	{//don't even try to use the door if it's locked
 		if ( !ent->parent->alliedTeam //we don't have a "teamallow" team
 			|| !other->client //we do have a "teamallow" team, but this isn't a client
@@ -993,7 +998,7 @@ void Touch_DoorTrigger( gentity_t *ent, gentity_t *other, trace_t *trace )
 		}
 	}
 
-	if ( ent->parent->moverState != MOVER_1TO2 )
+	if (ent->parent && ent->parent->moverState != MOVER_1TO2 )
 	{//Door is not already opening
 		//if ( ent->parent->moverState == MOVER_POS1 || ent->parent->moverState == MOVER_2TO1 )
 		//{//only check these if closed or closing
@@ -1017,6 +1022,11 @@ void Touch_DoorTrigger( gentity_t *ent, gentity_t *other, trace_t *trace )
 // All of the parts of a door have been spawned, so create a trigger that encloses all of them
 void Think_SpawnNewDoorTrigger( gentity_t *ent )
 {
+	if (ent == nullptr)
+	{
+		return;
+	}
+
 	gentity_t		*other;
 	vec3_t		mins, maxs;
 	int			i, best;
@@ -1367,11 +1377,11 @@ void SpawnPlatTrigger( gentity_t *ent ) {
 	tmax[2] = ent->pos1[2] + ent->r.maxs[2] + 8;
 
 	if ( tmax[0] <= tmin[0] ) {
-		tmin[0] = ent->pos1[0] + (ent->r.mins[0] + ent->r.maxs[0]) *0.5;
+		tmin[0] = ent->pos1[0] + (ent->r.mins[0] + ent->r.maxs[0]) *0.5f;
 		tmax[0] = tmin[0] + 1;
 	}
 	if ( tmax[1] <= tmin[1] ) {
-		tmin[1] = ent->pos1[1] + (ent->r.mins[1] + ent->r.maxs[1]) *0.5;
+		tmin[1] = ent->pos1[1] + (ent->r.mins[1] + ent->r.maxs[1]) *0.5f;
 		tmax[1] = tmin[1] + 1;
 	}
 

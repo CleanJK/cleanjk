@@ -929,7 +929,7 @@ static void RoQReset( void ) {
 static void RoQInterrupt(void)
 {
 	byte				*framedata;
-        short		sbuf[32768];
+        
         int		ssize;
 
 	if (currentHandle < 0) return;
@@ -950,6 +950,15 @@ static void RoQInterrupt(void)
 
 	framedata = cin.file;
 	// new frame is ready
+	short* sbuf = (short*)calloc(32768, sizeof(short));
+
+	if (sbuf == nullptr)
+	{
+		Com_Printf("RoQInterrupt: unable to alloc memory for: short* sbuf\n");
+
+		return;
+	}
+
 redump:
 	switch(cinTable[currentHandle].roq_id)
 	{
@@ -1011,6 +1020,7 @@ redump:
 			cinTable[currentHandle].status = FMV_EOF;
 			break;
 	}
+
 	// read in next frame data
 	if ( cinTable[currentHandle].RoQPlayed >= cinTable[currentHandle].ROQSize ) {
 		if (cinTable[currentHandle].holdAtEnd==false) {
@@ -1022,7 +1032,7 @@ redump:
 		} else {
 			cinTable[currentHandle].status = FMV_IDLE;
 		}
-		return;
+		goto freeMemory;
 	}
 
 	framedata		 += cinTable[currentHandle].RoQFrameSize;
@@ -1038,7 +1048,7 @@ redump:
 		if (cinTable[currentHandle].looping) {
 			RoQReset();
 		}
-		return;
+		goto freeMemory;
 	}
 	if (cinTable[currentHandle].inMemory && (cinTable[currentHandle].status != FMV_EOF))
 	{
@@ -1051,6 +1061,12 @@ redump:
 //	assert(cinTable[currentHandle].RoQFrameSize <= 65536);
 //	r = FS_Read( cin.file, cinTable[currentHandle].RoQFrameSize+8, cinTable[currentHandle].iFile );
 	cinTable[currentHandle].RoQPlayed	+= cinTable[currentHandle].RoQFrameSize+8;
+
+freeMemory:
+	free(sbuf);
+	sbuf = nullptr;
+
+	return;
 }
 
 static void RoQ_init( void )
@@ -1222,7 +1238,7 @@ int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, int systemBi
 
 	cin.currentHandle = currentHandle;
 
-	strcpy(cinTable[currentHandle].fileName, name);
+	Q_strncpyz(cinTable[currentHandle].fileName, name, sizeof(cinTable[currentHandle].fileName));
 
 	cinTable[currentHandle].ROQSize = 0;
 	cinTable[currentHandle].ROQSize = FS_FOpenFileRead (cinTable[currentHandle].fileName, &cinTable[currentHandle].iFile, true);

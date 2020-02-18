@@ -138,6 +138,11 @@ static void SCR_DrawStringExt( int x, int y, float size, const char *string, con
 	const char	*s;
 	int			xx;
 
+	if (string == nullptr)
+	{
+		return;
+	}
+
 	// draw the drop shadow
 	color[0] = color[1] = color[2] = 0;
 	color[3] = setColor[3];
@@ -192,6 +197,11 @@ void SCR_DrawSmallStringExt( int x, int y, const char *string, float *setColor, 
 	vec4_t		color;
 	const char	*s;
 	int			xx;
+
+	if (string == nullptr)
+	{
+		return;
+	}
 
 	// draw the colored text
 	s = string;

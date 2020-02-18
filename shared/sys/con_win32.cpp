@@ -494,11 +494,18 @@ void CON_WindowsColorPrint( const char *msg )
 	static char buffer[ MAXPRINTMSG ];
 	int         length = 0;
 
+	if (msg == nullptr)
+	{
+		Com_Printf("CON_WindowsColorPrint: nullptr parameter: const char *msg\n");
+
+		return;
+	}
+
 	while( *msg )
 	{
 		qconsole_drawinput = ( *msg == '\n' );
 
-		if( Q_IsColorString( msg ) || *msg == '\n' )
+		if(Q_IsColorString( msg ) || *msg == '\n' )
 		{
 			// First empty the buffer
 			if( length > 0 )

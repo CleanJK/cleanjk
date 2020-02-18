@@ -122,9 +122,13 @@ static void CG_TransitionSnapshot( void ) {
 
 	if ( !cg.snap ) {
 		trap->Error( ERR_DROP, "CG_TransitionSnapshot: nullptr cg.snap" );
+
+		return; // For MSVC warning
 	}
 	if ( !cg.nextSnap ) {
 		trap->Error( ERR_DROP, "CG_TransitionSnapshot: nullptr cg.nextSnap" );
+
+		return; // For MSVC warning
 	}
 
 	// execute any server string commands before transitioning entities
@@ -221,12 +225,12 @@ static void CG_SetNextSnap( snapshot_t *snap ) {
 	}
 
 	// if changing follow mode, don't interpolate
-	if ( cg.nextSnap->ps.clientNum != cg.snap->ps.clientNum ) {
+	if (cg.snap && cg.nextSnap->ps.clientNum != cg.snap->ps.clientNum ) {
 		cg.nextFrameTeleport = true;
 	}
 
 	// if changing server restarts, don't interpolate
-	if ( ( cg.nextSnap->snapFlags ^ cg.snap->snapFlags ) & SNAPFLAG_SERVERCOUNT ) {
+	if (cg.snap && ( cg.nextSnap->snapFlags ^ cg.snap->snapFlags ) & SNAPFLAG_SERVERCOUNT ) {
 		cg.nextFrameTeleport = true;
 	}
 
@@ -344,13 +348,13 @@ void CG_ProcessSnapshots( void ) {
 			CG_SetNextSnap( snap );
 
 			// if time went backwards, we have a level restart
-			if ( cg.nextSnap->serverTime < cg.snap->serverTime ) {
+			if (cg.nextSnap && cg.nextSnap->serverTime < cg.snap->serverTime ) {
 				trap->Error( ERR_DROP, "CG_ProcessSnapshots: Server time went backwards" );
 			}
 		}
 
 		// if our time is < nextFrame's, we have a nice interpolating state
-		if ( cg.time >= cg.snap->serverTime && cg.time < cg.nextSnap->serverTime ) {
+		if (cg.snap && cg.nextSnap && cg.time >= cg.snap->serverTime && cg.time < cg.nextSnap->serverTime ) {
 			break;
 		}
 
@@ -361,6 +365,8 @@ void CG_ProcessSnapshots( void ) {
 	// assert our valid conditions upon exiting
 	if ( cg.snap == nullptr ) {
 		trap->Error( ERR_DROP, "CG_ProcessSnapshots: cg.snap == nullptr" );
+
+		return; // For MSVC warning
 	}
 	if ( cg.time < cg.snap->serverTime ) {
 		// this can happen right after a vid_restart

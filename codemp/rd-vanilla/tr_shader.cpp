@@ -1574,7 +1574,7 @@ static bool ParseStage( shaderStage_t *stage, const char **text )
 		{
 			char buffer[1024] = "";
 			char param[128];
-			strcpy(param,token);
+			Q_strncpyz(param,token, sizeof(param));
 
 			while ( 1 )
 			{
@@ -3678,7 +3678,8 @@ static void ScanAndLoadShaderFiles( void )
 	}
 
 	// build single large buffer
-	s_shaderText = (char *)ri.Hunk_Alloc( sum + numShaderFiles*2, h_low );
+	int shaderTextSize = sum + numShaderFiles * 2;
+	s_shaderText = (char *)ri.Hunk_Alloc(sum + numShaderFiles * 2, h_low );
 	s_shaderText[ 0 ] = '\0';
 	textEnd = s_shaderText;
 
@@ -3688,8 +3689,8 @@ static void ScanAndLoadShaderFiles( void )
 		if ( !buffers[i] )
 			continue;
 
-		strcat( textEnd, buffers[i] );
-		strcat( textEnd, "\n" );
+		Q_strcat( textEnd, shaderTextSize - (textEnd - s_shaderText), buffers[i] );
+		Q_strcat( textEnd, shaderTextSize - (textEnd - s_shaderText), "\n" );
 		textEnd += strlen( textEnd );
 		ri.FS_FreeFile( buffers[i] );
 	}

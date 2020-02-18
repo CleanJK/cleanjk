@@ -611,7 +611,7 @@ void G_MissileImpact( gentity_t *ent, trace_t *trace ) {
 		// FIXME: wrong damage direction?
 		if ( ent->damage ) {
 			vec3_t	velocity;
-			if( LogAccuracyHit( other, &g_entities[ent->r.ownerNum] ) ) {
+			if( LogAccuracyHit( other, &g_entities[ent->r.ownerNum] ) && g_entities[ent->r.ownerNum].client) {
 				g_entities[ent->r.ownerNum].client->accuracy_hits++;
 				hitClient = true;
 			}
@@ -715,7 +715,7 @@ killProj:
 }
 
 void G_RunMissile( gentity_t *ent ) {
-	vec3_t		origin, groundSpot;
+	vec3_t		origin = { 0 }, groundSpot = { 0 };
 	trace_t		tr;
 	int			passent;
 	bool	isKnockedSaber = false;

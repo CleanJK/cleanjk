@@ -191,7 +191,6 @@ token_t *PC_CopyToken(token_t *token)
 	if (!t)
 	{
 		Com_Error(ERR_FATAL, "out of token space");
-		return nullptr;
 	} //end if
 //	freetokens = freetokens->next;
 	Com_Memcpy(t, token, sizeof(token_t));
@@ -211,7 +210,12 @@ void PC_FreeToken(token_t *token)
 
 int PC_ReadSourceToken(source_t *source, token_t *token)
 {
-	token_t *t;
+	if (source == nullptr)
+	{
+		Com_Error(ERR_FATAL, "PC_ReadSourceToken: parameter is nullptr: source_t *source\n");
+	}
+
+	token_t *tmpPtr;
 	script_t *script;
 	int type, skip;
 
@@ -238,12 +242,20 @@ int PC_ReadSourceToken(source_t *source, token_t *token)
 		source->scriptstack = source->scriptstack->next;
 		FreeScript(script);
 	} //end while
-	//copy the already available token
-	Com_Memcpy(token, source->tokens, sizeof(token_t));
+	
+
 	//free the read token
-	t = source->tokens;
-	source->tokens = source->tokens->next;
-	PC_FreeToken(t);
+	tmpPtr = source->tokens;
+
+	//copy the already available token
+	if (source->tokens != nullptr)
+	{
+		Com_Memcpy(token, source->tokens, sizeof(token_t));
+		source->tokens = source->tokens->next;
+	}
+
+	PC_FreeToken(tmpPtr);
+
 	return true;
 } //end of the function PC_ReadSourceToken
 
@@ -359,7 +371,7 @@ int PC_StringizeTokens(token_t *tokens, token_t *token)
 	token->whitespace_p = nullptr;
 	token->endwhitespace_p = nullptr;
 	token->string[0] = '\0';
-	strcat(token->string, "\"");
+	Q_strcat(token->string, sizeof(token->string), "\"");
 	for (t = tokens; t; t = t->next)
 	{
 		strncat(token->string, t->string, MAX_TOKEN - strlen(token->string) - 1);
@@ -373,7 +385,7 @@ int PC_MergeTokens(token_t *t1, token_t *t2)
 	//merging of a name with a name or number
 	if (t1->type == TT_NAME && (t2->type == TT_NAME || t2->type == TT_NUMBER))
 	{
-		strcat(t1->string, t2->string);
+		Q_strcat(t1->string, sizeof(t1->string), t2->string);
 		return true;
 	} //end if
 	//merging of two strings
@@ -382,7 +394,7 @@ int PC_MergeTokens(token_t *t1, token_t *t2)
 		//remove trailing double quote
 		t1->string[strlen(t1->string)-1] = '\0';
 		//concat without leading double quote
-		strcat(t1->string, &t2->string[1]);
+		Q_strcat(t1->string, sizeof(t1->string), &t2->string[1]);
 		return true;
 	} //end if
 	//FIXME: merging of two number of the same sub type
@@ -539,8 +551,9 @@ void PC_AddBuiltinDefines(source_t *source)
 	{
 		define = (define_t *) GetMemory(sizeof(define_t));
 		Com_Memset(define, 0, sizeof(define_t));
-		define->name = (char *) GetMemory(strlen(builtin[i].string) + 1);
-		strcpy(define->name, builtin[i].string);
+		size_t size = strlen(builtin[i].string) + 1;
+		define->name = (char *) GetMemory(size);
+		Q_strncpyz(define->name, builtin[i].string, size);
 		define->flags |= DEFINE_FIXED;
 		define->builtin = builtin[i].mBuiltin;
 		//add the define to the source
@@ -565,7 +578,7 @@ int PC_ExpandBuiltinDefine(source_t *source, token_t *deftoken, define_t *define
 	{
 		case BUILTIN_LINE:
 		{
-			sprintf(token->string, "%d", deftoken->line);
+			Com_sprintf(token->string, sizeof(token->string), "%d", deftoken->line);
 #ifdef NUMBERVALUE
 			token->intvalue = deftoken->line;
 			token->floatvalue = deftoken->line;
@@ -578,7 +591,7 @@ int PC_ExpandBuiltinDefine(source_t *source, token_t *deftoken, define_t *define
 		} //end case
 		case BUILTIN_FILE:
 		{
-			strcpy(token->string, source->scriptstack->filename);
+			Q_strncpyz(token->string, source->scriptstack->filename, sizeof(token->string));
 			token->type = TT_NAME;
 			token->subtype = strlen(token->string);
 			*firsttoken = token;
@@ -589,10 +602,10 @@ int PC_ExpandBuiltinDefine(source_t *source, token_t *deftoken, define_t *define
 		{
 			t = time(nullptr);
 			curtime = ctime(&t);
-			strcpy(token->string, "\"");
+			Q_strncpyz(token->string, "\"", sizeof(token->string));
 			strncat(token->string, curtime+4, 7);
 			strncat(token->string+7, curtime+20, 4);
-			strcat(token->string, "\"");
+			Q_strcat(token->string, sizeof(token->string), "\"");
 			free(curtime);
 			token->type = TT_NAME;
 			token->subtype = strlen(token->string);
@@ -604,9 +617,9 @@ int PC_ExpandBuiltinDefine(source_t *source, token_t *deftoken, define_t *define
 		{
 			t = time(nullptr);
 			curtime = ctime(&t);
-			strcpy(token->string, "\"");
+			Q_strncpyz(token->string, "\"", sizeof(token->string));
 			strncat(token->string, curtime+11, 8);
-			strcat(token->string, "\"");
+			Q_strcat(token->string, sizeof(token->string), "\"");
 			free(curtime);
 			token->type = TT_NAME;
 			token->subtype = strlen(token->string);
@@ -628,7 +641,7 @@ int PC_ExpandBuiltinDefine(source_t *source, token_t *deftoken, define_t *define
 int PC_ExpandDefine(source_t *source, token_t *deftoken, define_t *define,
 										token_t **firsttoken, token_t **lasttoken)
 {
-	token_t *parms[MAX_DEFINEPARMS], *dt, *pt, *t;
+	token_t* parms[MAX_DEFINEPARMS] = { nullptr }, * dt, * pt, * t;
 	token_t *t1, *t2, *first, *last, *nextpt, token;
 	int parmnum, i;
 
@@ -1026,8 +1039,9 @@ int PC_Directive_define(source_t *source)
 	//allocate define
 	define = (define_t *) GetMemory(sizeof(define_t));
 	Com_Memset(define, 0, sizeof(define_t));
-	define->name = (char *) GetMemory(strlen(token.string) + 1);
-	strcpy(define->name, token.string);
+	size_t size = strlen(token.string) + 1;
+	define->name = (char *) GetMemory(size);
+	Q_strncpyz(define->name, token.string, size);
 	//add the define to the source
 #if DEFINEHASHING
 	PC_AddDefineToHash(define, source->definehash);
@@ -1135,7 +1149,7 @@ define_t *PC_DefineFromString(char *string)
 	script = LoadScriptMemory(string, strlen(string), "*extern");
 	//create a new source
 	Com_Memset(&src, 0, sizeof(source_t));
-	strncpy(src.filename, "*extern", MAX_PATH);
+	Q_strncpyz(src.filename, "*extern", sizeof(src.filename));
 	src.scriptstack = script;
 #if DEFINEHASHING
 	src.definehash = (define_t **)GetClearedMemory(DEFINEHASHSIZE * sizeof(define_t *));
@@ -1238,7 +1252,6 @@ int PC_RemoveGlobalDefine(char *name)
 			}
 		}
 	}
-	return false;
 #else
 	define_t *define;
 
@@ -1286,9 +1299,12 @@ define_t *PC_CopyDefine(source_t *source, define_t *define)
 	token_t *token, *newtoken, *lasttoken;
 
 	newdefine = (define_t *) GetMemory(sizeof(define_t));
+	
+	size_t size = strlen(define->name) + 1;
+
 	//copy the define name
-	newdefine->name = (char *) GetMemory(strlen(define->name) + 1);
-	strcpy(newdefine->name, define->name);
+	newdefine->name = (char *) GetMemory(size);
+	Q_strncpyz(newdefine->name, define->name, size);
 	newdefine->flags = define->flags;
 	newdefine->builtin = define->builtin;
 	newdefine->numparms = define->numparms;
@@ -1491,7 +1507,7 @@ int PC_EvaluateTokens(source_t *source, token_t *tokens, signed long int *intval
 																	double *floatvalue, int integer)
 {
 	operator_t *o, *firstoperator, *lastoperator;
-	value_t *v, *firstvalue, *lastvalue, *v1, *v2;
+	value_t *v = nullptr, *firstvalue = nullptr, *lastvalue = nullptr, *v1 = nullptr, *v2 = nullptr;
 	token_t *t;
 	int brace = 0;
 	int parentheses = 0;
@@ -1893,6 +1909,11 @@ int PC_EvaluateTokens(source_t *source, token_t *tokens, signed long int *intval
 		if (o->mOperator != P_LOGIC_NOT
 				&& o->mOperator != P_BIN_NOT)
 		{
+			if (v == nullptr)
+			{
+				Com_Error(ERR_FATAL, "PC_EvaluateTokens: is nullptr: value_t *v\n");
+			}
+
 			//remove the second value if not question mark operator
 			if (o->mOperator != P_QUESTIONMARK) v = v->next;
 
@@ -2169,7 +2190,7 @@ int PC_Directive_error(source_t *source)
 {
 	token_t token;
 
-	strcpy(token.string, "");
+	Q_strncpyz(token.string, "", sizeof(token.string));
 	PC_ReadSourceToken(source, &token);
 	SourceError(source, "#error directive: %s", token.string);
 	return false;
@@ -2192,7 +2213,7 @@ void UnreadSignToken(source_t *source)
 	token.whitespace_p = source->scriptstack->script_p;
 	token.endwhitespace_p = source->scriptstack->script_p;
 	token.linescrossed = 0;
-	strcpy(token.string, "-");
+	Q_strncpyz(token.string, "-", sizeof(token.string));
 	token.type = TT_PUNCTUATION;
 	token.subtype = P_SUB;
 	PC_UnreadSourceToken(source, &token);
@@ -2209,7 +2230,7 @@ int PC_Directive_eval(source_t *source)
 	token.whitespace_p = source->scriptstack->script_p;
 	token.endwhitespace_p = source->scriptstack->script_p;
 	token.linescrossed = 0;
-	sprintf(token.string, "%ld", labs(value));
+	Com_sprintf(token.string, sizeof(token.string), "%ld", labs(value));
 	token.type = TT_NUMBER;
 	token.subtype = TT_INTEGER|TT_LONG|TT_DECIMAL;
 	PC_UnreadSourceToken(source, &token);
@@ -2227,7 +2248,7 @@ int PC_Directive_evalfloat(source_t *source)
 	token.whitespace_p = source->scriptstack->script_p;
 	token.endwhitespace_p = source->scriptstack->script_p;
 	token.linescrossed = 0;
-	sprintf(token.string, "%1.2f", fabs(value));
+	Com_sprintf(token.string, sizeof(token.string), "%1.2f", fabs(value));
 	token.type = TT_NUMBER;
 	token.subtype = TT_FLOAT|TT_LONG|TT_DECIMAL;
 	PC_UnreadSourceToken(source, &token);
@@ -2299,7 +2320,7 @@ int PC_DollarDirective_evalint(source_t *source)
 	token.whitespace_p = source->scriptstack->script_p;
 	token.endwhitespace_p = source->scriptstack->script_p;
 	token.linescrossed = 0;
-	sprintf(token.string, "%ld", labs(value));
+	Com_sprintf(token.string, sizeof(token.string), "%ld", labs(value));
 	token.type = TT_NUMBER;
 	token.subtype = TT_INTEGER|TT_LONG|TT_DECIMAL;
 
@@ -2325,7 +2346,7 @@ int PC_DollarDirective_evalfloat(source_t *source)
 	token.whitespace_p = source->scriptstack->script_p;
 	token.endwhitespace_p = source->scriptstack->script_p;
 	token.linescrossed = 0;
-	sprintf(token.string, "%1.2f", fabs(value));
+	Com_sprintf(token.string, sizeof(token.string), "%1.2f", fabs(value));
 	token.type = TT_NUMBER;
 	token.subtype = TT_FLOAT|TT_LONG|TT_DECIMAL;
 
@@ -2436,14 +2457,15 @@ int PC_ReadToken(source_t *source, token_t *token)
 	{
 		if (!PC_ReadSourceToken(source, token)) return false;
 		//check for precompiler directives
-		if (token->type == TT_PUNCTUATION && *token->string == '@')	// It is a StringEd key
+		if (token->type == TT_PUNCTUATION && token->string[0] == '@')	// It is a StringEd key
 		{
-			char *holdString,holdString2[MAX_TOKEN];
+			char* holdString;
+			char holdString2[MAX_TOKEN];
 
 			PC_ReadSourceToken(source, token);
 			holdString = &token->string[1];
-			Com_Memcpy( holdString2, token->string, sizeof(token->string));
-			Com_Memcpy( holdString, holdString2, sizeof(token->string));
+			Com_Memcpy( holdString2, token->string, sizeof(holdString2));
+			Com_Memcpy( holdString, holdString2, sizeof(token->string) - (holdString - &token->string[0]));
 			token->string[0] = '@';
 			return true;
 		}
@@ -2484,7 +2506,7 @@ int PC_ReadToken(source_t *source, token_t *token)
 						SourceError(source, "string longer than MAX_TOKEN %d", MAX_TOKEN);
 						return false;
 					}
-					strcat(token->string, newtoken.string+1);
+					Q_strcat(token->string, sizeof(token->string), newtoken.string+1);
 				}
 				else
 				{
@@ -2550,12 +2572,12 @@ int PC_ExpectTokenType(source_t *source, int type, int subtype, token_t *token)
 
 	if (token->type != type)
 	{
-		strcpy(str, "");
-		if (type == TT_STRING) strcpy(str, "string");
-		if (type == TT_LITERAL) strcpy(str, "literal");
-		if (type == TT_NUMBER) strcpy(str, "number");
-		if (type == TT_NAME) strcpy(str, "name");
-		if (type == TT_PUNCTUATION) strcpy(str, "punctuation");
+		Q_strncpyz(str, "", sizeof(str));
+		if (type == TT_STRING) Q_strncpyz(str, "string", sizeof(str));
+		if (type == TT_LITERAL) Q_strncpyz(str, "literal", sizeof(str));
+		if (type == TT_NUMBER) Q_strncpyz(str, "number", sizeof(str));
+		if (type == TT_NAME) Q_strncpyz(str, "name", sizeof(str));
+		if (type == TT_PUNCTUATION) Q_strncpyz(str, "punctuation", sizeof(str));
 		SourceError(source, "expected a %s, found %s", str, token->string);
 		return false;
 	} //end if
@@ -2563,15 +2585,15 @@ int PC_ExpectTokenType(source_t *source, int type, int subtype, token_t *token)
 	{
 		if ((token->subtype & subtype) != subtype)
 		{
-			strcpy(str, "");
-			if (subtype & TT_DECIMAL) strcpy(str, "decimal");
-			if (subtype & TT_HEX) strcpy(str, "hex");
-			if (subtype & TT_OCTAL) strcpy(str, "octal");
-			if (subtype & TT_BINARY) strcpy(str, "binary");
-			if (subtype & TT_LONG) strcat(str, " long");
-			if (subtype & TT_UNSIGNED) strcat(str, " unsigned");
-			if (subtype & TT_FLOAT) strcat(str, " float");
-			if (subtype & TT_INTEGER) strcat(str, " integer");
+			Q_strncpyz(str, "", sizeof(str));
+			if (subtype & TT_DECIMAL) Q_strncpyz(str, "decimal", sizeof(str));
+			if (subtype & TT_HEX) Q_strncpyz(str, "hex", sizeof(str));
+			if (subtype & TT_OCTAL) Q_strncpyz(str, "octal", sizeof(str));
+			if (subtype & TT_BINARY) Q_strncpyz(str, "binary", sizeof(str));
+			if (subtype & TT_LONG) Q_strncpyz(str, " long", sizeof(str));
+			if (subtype & TT_UNSIGNED) Q_strncpyz(str, " unsigned", sizeof(str));
+			if (subtype & TT_FLOAT) Q_strncpyz(str, " float", sizeof(str));
+			if (subtype & TT_INTEGER) Q_strncpyz(str, " integer", sizeof(str));
 			SourceError(source, "expected %s, found %s", str, token->string);
 			return false;
 		} //end if
@@ -2668,7 +2690,7 @@ void PC_SetIncludePath(source_t *source, char *path)
 	if (len > 0 && source->includepath[len-1] != '\\' &&
 		source->includepath[len-1] != '/')
 	{
-		strcat(source->includepath, PATHSEPERATOR_STR);
+		Q_strcat(source->includepath, sizeof(source->includepath), PATHSEPERATOR_STR);
 	} //end if
 } //end of the function PC_SetIncludePath
 
@@ -2701,7 +2723,7 @@ source_t *LoadSourceFile(const char *filename)
 	source = (source_t *) GetMemory(sizeof(source_t));
 	Com_Memset(source, 0, sizeof(source_t));
 
-	strncpy(source->filename, filename, MAX_PATH);
+	Q_strncpyz(source->filename, filename, sizeof(source->filename));
 	source->scriptstack = script;
 	source->tokens = nullptr;
 	source->defines = nullptr;
@@ -2730,7 +2752,7 @@ source_t *LoadSourceMemory(char *ptr, int length, char *name)
 	source = (source_t *) GetMemory(sizeof(source_t));
 	Com_Memset(source, 0, sizeof(source_t));
 
-	strncpy(source->filename, name, MAX_PATH);
+	Q_strncpyz(source->filename, name, sizeof(source->filename));
 	source->scriptstack = script;
 	source->tokens = nullptr;
 	source->defines = nullptr;
@@ -2881,7 +2903,7 @@ int PC_ReadTokenHandle(int handle, pc_token_t *pc_token)
 		return 0;
 
 	ret = PC_ReadToken(sourceFiles[handle], &token);
-	strcpy(pc_token->string, token.string);
+	Q_strncpyz(pc_token->string, token.string, sizeof(pc_token->string));
 	pc_token->type = token.type;
 	pc_token->subtype = token.subtype;
 	pc_token->intvalue = token.intvalue;
@@ -2892,14 +2914,14 @@ int PC_ReadTokenHandle(int handle, pc_token_t *pc_token)
 	return ret;
 } //end of the function PC_ReadTokenHandle
 
-int PC_SourceFileAndLine(int handle, char *filename, int *line)
+int PC_SourceFileAndLine(int handle, char *filename, int *line, int sizeFilename)
 {
 	if (handle < 1 || handle >= MAX_SOURCEFILES)
 		return false;
 	if (!sourceFiles[handle])
 		return false;
 
-	strcpy(filename, sourceFiles[handle]->filename);
+	Q_strncpyz(filename, sourceFiles[handle]->filename, sizeFilename);
 	if (sourceFiles[handle]->scriptstack)
 		*line = sourceFiles[handle]->scriptstack->line;
 	else

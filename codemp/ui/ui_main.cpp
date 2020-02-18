@@ -1330,7 +1330,14 @@ static void UI_DrawNetGameType(rectDef_t *rect, float scale, vec4_t color, int t
 		trap->Cvar_Update(&ui_gametype);
 	}
 	Font font( iMenuFont, scale );
-	font.Paint(rect->x, rect->y,  UI_GetGameTypeName(uiInfo.gameTypes[ui_netGametype.integer].gtEnum), color, textStyle);
+
+	if (ui_netGametype.integer < 0 || ui_netGametype.integer >= MAX_GAMETYPES)
+	{
+		Com_Error(ERR_DROP, "SV_EmitPacketEntities: buffer overflow");
+		return;
+	}
+
+	font.Paint(rect->x, rect->y, UI_GetGameTypeName(uiInfo.gameTypes[ui_netGametype.integer].gtEnum), color, textStyle);
 }
 
 static void UI_DrawAutoSwitch(rectDef_t *rect, float scale, vec4_t color, int textStyle, int iMenuFont) {
@@ -4043,7 +4050,7 @@ static void UI_LoadMovies() {
 	char	*moviename;
 	int		i, len;
 
-	uiInfo.movieCount = trap->FS_GetFileList( "video", "roq", movielist, 4096 );
+	uiInfo.movieCount = trap->FS_GetFileList( "video", "roq", movielist, sizeof(movielist) );
 
 	if (uiInfo.movieCount) {
 		if (uiInfo.movieCount > MAX_MOVIES) {
@@ -4178,13 +4185,24 @@ static void InitLoadDemoContext( loadDemoContext_t *ctx )
 
 static void UI_LoadDemos( void )
 {
-	loadDemoContext_t loadDemoContext;
-	InitLoadDemoContext( &loadDemoContext );
+	loadDemoContext_t *loadDemoContext = (loadDemoContext_t*)calloc(1, sizeof(loadDemoContext_t));
+
+	if (loadDemoContext == nullptr)
+	{
+		Com_Printf("UI_LoadDemos: unable to alloc memory for: loadDemoContext_t *loadDemoContext\n");
+
+		return;
+	}
+
+	InitLoadDemoContext( loadDemoContext );
 
 	uiInfo.demoCount = 0;
 	uiInfo.loadedDemos = 0;
 	memset( uiInfo.demoList, 0, sizeof( uiInfo.demoList ) );
-	UI_LoadDemosInDirectory( &loadDemoContext, DEMO_DIRECTORY );
+	UI_LoadDemosInDirectory( loadDemoContext, DEMO_DIRECTORY );
+
+	free(loadDemoContext);
+	loadDemoContext = nullptr;
 }
 
 static void UI_Update(const char *cvarName) {
@@ -4718,19 +4736,21 @@ static void UI_UpdateSaberHilt( bool secondSaber )
 	if(!item)
 	{
 		Com_Error( ERR_FATAL, "UI_UpdateSaberHilt: Could not find item (%s) in menu (%s)", itemName, menu->window.name);
+
+		return; // For MSVC warning
 	}
 
 	trap->Cvar_VariableStringBuffer( saberCvarName, model, sizeof(model) );
 
 	item->text = model;
 	//read this from the sabers.cfg
-	if ( UI_SaberModelForSaber( model, modelPath ) )
+	if ( UI_SaberModelForSaber( model, modelPath, sizeof(modelPath)) )
 	{//successfully found a model
 		ItemParse_asset_model_go( item, modelPath, &animRunLength );//set the model
 		//get the customSkin, if any
 		//COM_StripExtension( modelPath, skinPath );
 		//COM_DefaultExtension( skinPath, sizeof( skinPath ), ".skin" );
-		if ( UI_SaberSkinForSaber( model, skinPath ) )
+		if ( UI_SaberSkinForSaber( model, skinPath, sizeof(skinPath)) )
 		{
 			ItemParse_model_g2skin_go( item, skinPath );//apply the skin
 		}
@@ -6659,13 +6679,13 @@ static const char *UI_FeederItemText(float feederID, int index, int column,
 	if (feederID == FEEDER_SABER_SINGLE_INFO)
 	{
 		//char *saberProperName=0;
-		UI_SaberProperNameForSaber( saberSingleHiltInfo[index], info );
+		UI_SaberProperNameForSaber( saberSingleHiltInfo[index], info, sizeof(info) );
 		return info;
 	}
 	else if	(feederID == FEEDER_SABER_STAFF_INFO)
 	{
 		//char *saberProperName=0;
-		UI_SaberProperNameForSaber( saberStaffHiltInfo[index], info );
+		UI_SaberProperNameForSaber( saberStaffHiltInfo[index], info, sizeof(info));
 		return info;
 	}
 	else if (feederID == FEEDER_Q3HEADS) {
@@ -7545,12 +7565,12 @@ void UI_LoadForceConfig_List( void )
 nextSearch:
 	if (lightSearch)
 	{ //search light side folder
-		numfiles = trap->FS_GetFileList("forcecfg/light", "fcf", filelist, 2048 );
+		numfiles = trap->FS_GetFileList("forcecfg/light", "fcf", filelist, sizeof(filelist) );
 		uiInfo.forceConfigLightIndexBegin = uiInfo.forceConfigCount-1;
 	}
 	else
 	{ //search dark side folder
-		numfiles = trap->FS_GetFileList("forcecfg/dark", "fcf", filelist, 2048 );
+		numfiles = trap->FS_GetFileList("forcecfg/dark", "fcf", filelist, sizeof(filelist) );
 		uiInfo.forceConfigDarkIndexBegin = uiInfo.forceConfigCount-1;
 	}
 
@@ -7626,7 +7646,7 @@ static void UI_BuildQ3Model_List( void )
 	uiInfo.q3HeadCount = 0;
 
 	// iterate directory of all player models
-	numdirs = trap->FS_GetFileList("models/players", "/", dirlist, 2048 );
+	numdirs = trap->FS_GetFileList("models/players", "/", dirlist, sizeof(dirlist) );
 	dirptr  = dirlist;
 	for (i=0; i<numdirs && uiInfo.q3HeadCount < MAX_Q3PLAYERMODELS; i++,dirptr+=dirlen+1)
 	{
@@ -7637,7 +7657,7 @@ static void UI_BuildQ3Model_List( void )
 		if (!strcmp(dirptr,".") || !strcmp(dirptr,".."))
 			continue;
 
-		numfiles = trap->FS_GetFileList( va("models/players/%s",dirptr), "skin", filelist, 2048 );
+		numfiles = trap->FS_GetFileList( va("models/players/%s",dirptr), "skin", filelist, sizeof(filelist) );
 		fileptr  = filelist;
 		for (j=0; j<numfiles && uiInfo.q3HeadCount < MAX_Q3PLAYERMODELS;j++,fileptr+=filelen+1)
 		{
@@ -7728,6 +7748,13 @@ static bool UI_ParseColorData(char* buf, playerSpeciesInfo_t *species,char*	file
 	species->ColorMax = 16;
 	species->Color = (playerColor_t *)malloc(species->ColorMax * sizeof(playerColor_t));
 
+	if (species->Color == nullptr)
+	{
+		Com_Printf("UI_ParseColorData: unable to alloc memory for: species->Color\n");
+
+		return false;
+	}
+
 	while ( p )
 	{
 		token = COM_ParseExt( &p, true );	//looking for the shader
@@ -7738,7 +7765,20 @@ static bool UI_ParseColorData(char* buf, playerSpeciesInfo_t *species,char*	file
 		if (species->ColorCount >= species->ColorMax)
 		{
 			species->ColorMax *= 2;
-			species->Color = (playerColor_t *)realloc(species->Color, species->ColorMax * sizeof(playerColor_t));
+
+			// MSVC Warning
+			playerColor_t* tmpPtr = (playerColor_t*)realloc(species->Color, species->ColorMax * sizeof(playerColor_t));
+
+			if (tmpPtr == nullptr)
+			{
+				Com_Printf("UI_ParseColorData: unable to realloc memory for: species->Color\n");
+
+				return false;
+			}
+
+			species->Color = tmpPtr;
+
+			tmpPtr = nullptr;
 		}
 
 		memset(&species->Color[species->ColorCount], 0, sizeof(playerColor_t));

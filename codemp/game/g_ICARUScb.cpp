@@ -2324,13 +2324,15 @@ void Q3_SetParm (int entID, int parmNum, const char *parmValue)
 	else
 	{//Just copy the string
 		//copy only 16 characters
-		strncpy( ent->parms->parm[parmNum], parmValue, sizeof(ent->parms->parm[parmNum]) );
+		Q_strncpyz( ent->parms->parm[parmNum], parmValue, sizeof(ent->parms->parm[parmNum]) );
+		/*
 		//set the last character to null in case we had to truncate their passed string
 		if ( ent->parms->parm[parmNum][sizeof(ent->parms->parm[parmNum]) - 1] != 0 )
 		{//Tried to set a string that is too long
 			ent->parms->parm[parmNum][sizeof(ent->parms->parm[parmNum]) - 1] = 0;
 			G_DebugPrint( WL_WARNING, "SET_PARM: parm%d string too long, truncated to '%s'!\n", parmNum, ent->parms->parm[parmNum] );
 		}
+		*/
 	}
 }
 
@@ -2875,6 +2877,11 @@ static void Q3_SetShields( int entID, bool shields )
 
 static void Q3_SetSaberActive( int entID, bool active )
 {
+	if (entID < 0 || entID >= MAX_GENTITIES)
+	{
+		return;
+	}
+
 	gentity_t *ent = &g_entities[entID];
 
 	if (!ent || !ent->inuse)
@@ -2885,6 +2892,8 @@ static void Q3_SetSaberActive( int entID, bool active )
 	if (!ent->client)
 	{
 		G_DebugPrint( WL_WARNING, "Q3_SetSaberActive: %d is not a client\n", entID);
+
+		return;
 	}
 
 	//fixme: Take into account player being in state where saber won't toggle? For now we simply won't care.

@@ -125,7 +125,7 @@ float MP3Stream_GetPlayingTimeInSeconds( LP_MP3STREAM lpMP3Stream )
 float MP3Stream_GetRemainingTimeInSeconds( LP_MP3STREAM lpMP3Stream )
 {
 	if (lpMP3Stream->iTimeQuery_UnpackedLength)	// fields initialised?
-		return (float)(((((double)(lpMP3Stream->iTimeQuery_UnpackedLength - (lpMP3Stream->iBytesDecodedTotal * (lpMP3Stream->iTimeQuery_SampleRate / dma.speed)))) / (double)lpMP3Stream->iTimeQuery_SampleRate) / (double)lpMP3Stream->iTimeQuery_Channels) / (double)lpMP3Stream->iTimeQuery_Width);
+		return (float)(((((float)(lpMP3Stream->iTimeQuery_UnpackedLength - (lpMP3Stream->iBytesDecodedTotal * (lpMP3Stream->iTimeQuery_SampleRate / dma.speed)))) / (float)lpMP3Stream->iTimeQuery_SampleRate) / (float)lpMP3Stream->iTimeQuery_Channels) / (float)lpMP3Stream->iTimeQuery_Width);
 
 	return 0.0f;
 }

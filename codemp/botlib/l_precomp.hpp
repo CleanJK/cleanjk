@@ -122,7 +122,7 @@ int PC_ReadToken(source_t* source, token_t* token);
 int PC_ReadTokenHandle(int handle, pc_token_t* pc_token);
 int PC_RemoveGlobalDefine(char* name);
 int PC_SkipUntilString(source_t* source, char* string);
-int PC_SourceFileAndLine(int handle, char* filename, int* line);
+int PC_SourceFileAndLine(int handle, char* filename, int* line, int sizeFilename);
 int PC_WhiteSpaceBeforeToken(token_t* token);
 source_t* LoadSourceFile(const char* filename);
 source_t* LoadSourceMemory(char* ptr, int length, char* name);

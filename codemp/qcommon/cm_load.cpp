@@ -512,7 +512,7 @@ static void CM_LoadMap_Actual( const char *name, bool clientload, int *checksum,
 		return;
 	}
 
-	strcpy(origName, name);
+	Q_strncpyz(origName, name, sizeof(origName));
 
 	if (&cm == &cmg)
 	{

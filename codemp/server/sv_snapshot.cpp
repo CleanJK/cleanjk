@@ -85,7 +85,13 @@ static void SV_EmitPacketEntities( clientSnapshot_t *from, clientSnapshot_t *to,
 			continue;
 		}
 
-		if ( newnum < oldnum ) {
+		if ( newnum < oldnum) {
+			if (newnum < 0 || newnum >= MAX_GENTITIES)
+			{
+				Com_Error(ERR_DROP, "SV_EmitPacketEntities: buffer overflow");
+				return; // For MSVC Warning
+			}
+
 			// this is a new entity, send it from the baseline
 			MSG_WriteDeltaEntity (msg, &sv.svEntities[newnum].baseline, newent, true );
 			newindex++;
@@ -644,14 +650,21 @@ void SV_SendMessageToClient( msg_t *msg, client_t *client ) {
 
 // Also called by SV_FinalMessage
 void SV_SendClientSnapshot( client_t *client ) {
-	byte		msg_buf[MAX_MSGLEN];
-	msg_t		msg;
+	byte *msg_buf = (byte*)calloc(MAX_MSGLEN, sizeof(byte));
+	msg_t msg;
+
+	if (msg_buf == nullptr)
+	{
+		Com_Printf("SV_SendClientSnapshot: unable to alloc memory for: byte *msg_buf\n");
+
+		return;
+	}
 
 	if (!client->sentGamedir)
 	{ //rww - if this is the case then make sure there is an svc_setgame sent before this snap
 		int i = 0;
 
-		MSG_Init (&msg, msg_buf, sizeof(msg_buf));
+		MSG_Init (&msg, msg_buf, MAX_MSGLEN);
 
 		//have to include this for each message.
 		MSG_WriteLong( &msg, client->lastClientCommand );
@@ -701,10 +714,10 @@ void SV_SendClientSnapshot( client_t *client ) {
 	// bots need to have their snapshots built, but
 	// they query them directly without needing to be sent
 	if ( client->netchan.remoteAddress.type == NA_BOT && !client->demo.demorecording ) {
-		return;
+		goto freeMemoryAndReturn;
 	}
 
-	MSG_Init (&msg, msg_buf, sizeof(msg_buf));
+	MSG_Init (&msg, msg_buf, MAX_MSGLEN);
 	msg.allowoverflow = true;
 
 	// NOTE, MRE: all server->client messages now acknowledge
@@ -728,6 +741,12 @@ void SV_SendClientSnapshot( client_t *client ) {
 	}
 
 	SV_SendMessageToClient( &msg, client );
+
+freeMemoryAndReturn:
+	free(msg_buf);
+	msg_buf = nullptr;
+
+	return;
 }
 
 void SV_SendClientMessages( void ) {

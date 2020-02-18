@@ -154,9 +154,9 @@
   b=-(U0[i0]-U2[i0]);                       \
   c=-a*U2[i0]-b*U2[i1];                     \
   d2=a*V0[i0]+b*V0[i1]+c;                   \
-  if(d0*d1>0.0)                             \
+  if(d0*d1>0.0f)                            \
   {                                         \
-    if(d0*d2>0.0) return 1;                 \
+    if(d0*d2>0.0f) return 1.0f;             \
   }                                         \
 }
 

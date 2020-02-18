@@ -890,7 +890,7 @@ bool CTail::Update(void)
 		{	// the thing we are bolted to is no longer valid, so we may as well just die.
 			return false;
 		}
-		vec3_t	org;
+		vec3_t	org = { 0 };
 		matrix3_t	ax;
 		if (mModelNum>=0 && mBoltNum>=0)	//bolt style
 		{
@@ -1570,7 +1570,7 @@ void CLight::UpdateRGB(void)
 
 void CTrail::Draw()
 {
-	polyVert_t	verts[3];
+	polyVert_t	verts[3] = { 0 };
 //	vec3_t		color;
 
 	// build the first tri out of the new muzzle...new tip...old muzzle
@@ -1703,7 +1703,7 @@ bool CPoly::Cull(void)
 
 void CPoly::Draw(void)
 {
-	polyVert_t	verts[MAX_CPOLY_VERTS];
+	polyVert_t	verts[MAX_CPOLY_VERTS] = { 0 };
 
 	for ( int i = 0; i < mCount; i++ )
 	{
@@ -1915,7 +1915,7 @@ inline void CBezier::DrawSegment( vec3_t start, vec3_t end, float texcoord1, flo
 {
 	vec3_t			lineDir, cross, viewDir;
 	static vec3_t	lastEnd[2];
-	polyVert_t		verts[4];
+	polyVert_t		verts[4] = { 0 };
 	float			scaleBottom = 0.0f, scaleTop = 0.0f;
 
 	VectorSubtract( end, start, lineDir );

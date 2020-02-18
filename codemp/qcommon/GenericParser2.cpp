@@ -208,7 +208,7 @@ char *CTextPool::AllocText(char *text, bool addNULL, CTextPool **poolPtr)
 		return 0;
 	}
 
-	strcpy(mPool + mUsed, text);
+	Q_strncpyz(mPool + mUsed, text, mSize);
 	mUsed += length;
 	mPool[mUsed] = 0;
 
@@ -675,7 +675,7 @@ bool CGPGroup::Parse(char **dataPtr, CTextPool **textPool)
 			break;
 		}
 
-		strcpy(lastToken, token);
+		Q_strncpyz(lastToken, token, sizeof(lastToken));
 
 		// read ahead to see what we are doing
 		token = GetToken(dataPtr, true, true);
@@ -912,7 +912,7 @@ const char	*GPG_GetName(TGPGroup GPG)
 	return ((CGPGroup *)GPG)->GetName();
 }
 
-bool GPG_GetName(TGPGroup GPG, char *Value)
+bool GPG_GetName(TGPGroup GPG, char *Value, int ValueDestSize)
 {
 	if (!GPG)
 	{
@@ -920,7 +920,7 @@ bool GPG_GetName(TGPGroup GPG, char *Value)
 		return false;
 	}
 
-	strcpy(Value, ((CGPGroup *)GPG)->GetName());
+	Q_strncpyz(Value, ((CGPGroup *)GPG)->GetName(), ValueDestSize);
 	return true;
 }
 
@@ -1024,9 +1024,9 @@ const char *GPG_FindPairValue(TGPGroup GPG, const char *key, const char *default
 	return ((CGPGroup *)GPG)->FindPairValue(key, defaultVal);
 }
 
-bool GPG_FindPairValue(TGPGroup GPG, const char *key, const char *defaultVal, char *Value)
+bool GPG_FindPairValue(TGPGroup GPG, const char *key, const char *defaultVal, char *Value, int ValueDestSize)
 {
-	strcpy(Value, GPG_FindPairValue(GPG, key, defaultVal));
+	Q_strncpyz(Value, GPG_FindPairValue(GPG, key, defaultVal), ValueDestSize);
 
 	return true;
 }
@@ -1042,7 +1042,7 @@ const char	*GPV_GetName(TGPValue GPV)
 	return ((CGPValue *)GPV)->GetName();
 }
 
-bool GPV_GetName(TGPValue GPV, char *Value)
+bool GPV_GetName(TGPValue GPV, char *Value, int ValueDestSize)
 {
 	if (!GPV)
 	{
@@ -1050,7 +1050,7 @@ bool GPV_GetName(TGPValue GPV, char *Value)
 		return false;
 	}
 
-	strcpy(Value, ((CGPValue *)GPV)->GetName());
+	Q_strncpyz(Value, ((CGPValue *)GPV)->GetName(), ValueDestSize);
 	return true;
 }
 
@@ -1104,7 +1104,7 @@ const char *GPV_GetTopValue(TGPValue GPV)
 	return ((CGPValue *)GPV)->GetTopValue();
 }
 
-bool GPV_GetTopValue(TGPValue GPV, char *Value)
+bool GPV_GetTopValue(TGPValue GPV, char *Value, int ValueDestSize)
 {
 	if (!GPV)
 	{
@@ -1112,7 +1112,7 @@ bool GPV_GetTopValue(TGPValue GPV, char *Value)
 		return false;
 	}
 
-	strcpy(Value, ((CGPValue *)GPV)->GetTopValue());
+	Q_strncpyz(Value, ((CGPValue *)GPV)->GetTopValue(), ValueDestSize);
 
 	return true;
 }

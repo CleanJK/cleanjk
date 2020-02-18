@@ -206,16 +206,24 @@ void Con_ClearNotify( void ) {
 }
 
 // If the line width has changed, reformat the buffer.
-void Con_CheckResize (void)
+void Con_CheckResize(void)
 {
 	int		i, j, width, oldwidth, oldtotallines, numlines, numchars;
-	short	tbuf[CON_TEXTSIZE];
 
 //	width = (SCREEN_WIDTH / SMALLCHAR_WIDTH) - 2;
 	width = (cls.glconfig.vidWidth / SMALLCHAR_WIDTH) - 2;
 
 	if (width == con.linewidth)
 		return;
+
+	short* tbuf = (short*)calloc(CON_TEXTSIZE, sizeof(short));
+
+	if (tbuf == nullptr)
+	{
+		Com_Printf("Con_CheckResize: unable to alloc memory for: short* tbuf\n");
+
+		return;
+	}
 
 	if (width < 1)			// video hasn't been initialized yet
 	{
@@ -264,11 +272,14 @@ void Con_CheckResize (void)
 			}
 		}
 
-		Con_ClearNotify ();
+		Con_ClearNotify();
 	}
 
 	con.current = con.totallines - 1;
 	con.display = con.current;
+
+	free(tbuf);
+	tbuf = nullptr;
 }
 
 void Cmd_CompleteTxtName( char *args, int argNum ) {
@@ -400,7 +411,14 @@ void CL_ConsolePrint( const char *txt) {
 			break;
 		default:	// display character and advance
 			y = con.current % con.totallines;
-			con.text[y*con.linewidth+con.x] = (short) ((color << 8) | c);
+
+			if ((y * con.linewidth + con.x) < 0 || (y * con.linewidth + con.x) >= CON_TEXTSIZE)
+			{
+				Com_Error(ERR_DROP, "CL_ConsolePrint: buffer overflow\n");
+				return;
+			}
+
+			con.text[y * con.linewidth + con.x] = (short)((color << 8) | c);
 			con.x++;
 			if (con.x >= con.linewidth) {
 				Con_Linefeed(skipnotify);
@@ -491,9 +509,9 @@ void Con_DrawNotify (void)
 			{
 				if ( ( (text[x]>>8)&Q_COLOR_BITS ) != currentColor ) {
 					currentColor = (text[x]>>8)&Q_COLOR_BITS;
-					strcat(sTemp,va("^%i", (text[x]>>8)&Q_COLOR_BITS) );
+					Q_strcat(sTemp, sizeof(sTemp), va("^%i", (text[x]>>8)&Q_COLOR_BITS) );
 				}
-				strcat(sTemp,va("%c",text[x] & 0xFF));
+				Q_strcat(sTemp, sizeof(sTemp), va("%c",text[x] & 0xFF));
 			}
 			// and print...
 			re->Font_DrawString(cl_conXOffset->integer + con.xadjust*(con.xadjust + (1*SMALLCHAR_WIDTH/*aesthetics*/)), con.yadjust*(v), sTemp, g_color_table[currentColor], iFontIndex, -1, fFontScale);
@@ -655,9 +673,9 @@ void Con_DrawSolidConsole( float frac ) {
 			{
 				if ( ( (text[x]>>8)&Q_COLOR_BITS ) != currentColor ) {
 					currentColor = (text[x]>>8)&Q_COLOR_BITS;
-					strcat(sTemp,va("^%i", (text[x]>>8)&Q_COLOR_BITS) );
+					Q_strcat(sTemp, sizeof(sTemp), va("^%i", (text[x]>>8)&Q_COLOR_BITS) );
 				}
-				strcat(sTemp,va("%c",text[x] & 0xFF));
+				Q_strcat(sTemp, sizeof(sTemp), va("%c",text[x] & 0xFF));
 			}
 			// and print...
 			re->Font_DrawString(con.xadjust*(con.xadjust + (1*SMALLCHAR_WIDTH/*(aesthetics)*/)), con.yadjust*(y), sTemp, g_color_table[currentColor], iFontIndexForAsian, -1, fFontScaleForAsian);

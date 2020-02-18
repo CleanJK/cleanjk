@@ -365,7 +365,7 @@ static void CG_UpdateThirdPersonCameraDamp(void)
 
 		// The higher the pitch, the larger the factor, so as you look up, it damps a lot less.
 		pitch /= 115.0;
-		dampfactor = (1.0-dFactor)*(pitch*pitch);
+		dampfactor = (1.0f-dFactor)*(pitch*pitch);
 
 		dampfactor += dFactor;
 

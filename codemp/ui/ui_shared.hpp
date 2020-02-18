@@ -500,7 +500,7 @@ bool Rect_Parse(char** p, rectDef_t* r);
 bool Script_Parse(char** p, const char** out);
 bool String_Parse(char** p, const char** out);
 bool UI_OutOfMemory(void);
-bool UI_SaberSkinForSaber(const char* saberName, char* saberSkin);
+bool UI_SaberSkinForSaber(const char* saberName, char* saberSkin, int saberSkinDestSize);
 const char* String_Alloc(const char* p);
 displayContextDef_t* Display_GetContext(void);
 int Display_CursorType(int x, int y);

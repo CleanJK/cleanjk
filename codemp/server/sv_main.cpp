@@ -91,12 +91,19 @@ void SV_AddServerCommand( client_t *client, const char *cmd ) {
 // A nullptr client will broadcast to all clients
 void QDECL SV_SendServerCommand(client_t *cl, const char *fmt, ...) {
 	va_list		argptr;
-	byte		message[MAX_MSGLEN];
+	byte *message = (byte *)calloc(MAX_MSGLEN, sizeof(byte));
 	client_t	*client;
 	int			j;
 
+	if (message == nullptr)
+	{
+		Com_Printf("SV_SendServerCommand: unable to alloc memory for: byte *message\n");
+
+		return;
+	}
+
 	va_start (argptr,fmt);
-	Q_vsnprintf((char *)message, sizeof(message), fmt, argptr);
+	Q_vsnprintf((char *)message, MAX_MSGLEN, fmt, argptr);
 	va_end (argptr);
 
 	// Fix to http://aluigi.altervista.org/adv/q3msgboom-adv.txt
@@ -104,12 +111,12 @@ void QDECL SV_SendServerCommand(client_t *cl, const char *fmt, ...) {
 	// and should maybe be addressed later, but this certainly
 	// fixes the problem for now
 	if ( strlen ((char *)message) > 1022 ) {
-		return;
+		goto freeMemoryAndReturn;
 	}
 
 	if ( cl != nullptr ) {
 		SV_AddServerCommand( cl, (char *)message );
-		return;
+		goto freeMemoryAndReturn;
 	}
 
 	// hack to echo broadcast prints to console
@@ -121,6 +128,12 @@ void QDECL SV_SendServerCommand(client_t *cl, const char *fmt, ...) {
 	for (j = 0, client = svs.clients; j < sv_maxclients->integer ; j++, client++) {
 		SV_AddServerCommand( client, (char *)message );
 	}
+
+freeMemoryAndReturn:
+	free(message);
+	message = nullptr;
+
+	return;
 }
 
 // MASTER SERVER FUNCTIONS
@@ -348,7 +361,6 @@ bool SVC_RateLimitAddress( netadr_t from, int burst, int period ) {
 // Used for getting detailed information after the simple info query.
 void SVC_Status( netadr_t from ) {
 	char	player[1024];
-	char	status[MAX_MSGLEN];
 	int		i;
 	client_t	*cl;
 	playerState_t	*ps;
@@ -382,25 +394,41 @@ void SVC_Status( netadr_t from ) {
 	// to prevent timed spoofed reply packets that add ghost servers
 	Info_SetValueForKey( infostring, "challenge", Cmd_Argv(1) );
 
-	status[0] = 0;
+	char *status = (char*)calloc(MAX_MSGLEN, sizeof(char));
+
+	if (status == nullptr)
+	{
+		Com_Printf("SVC_Status: unable to alloc memory for: char *status\n");
+
+		return;
+	}
+
+	//status[0] = 0; // Done by calloc
 	statusLength = 0;
 
-	for (i=0 ; i < sv_maxclients->integer ; i++) {
+	for (i = 0; i < sv_maxclients->integer; i++)
+	{
 		cl = &svs.clients[i];
-		if ( cl->state >= CS_CONNECTED ) {
-			ps = SV_GameClientNum( i );
-			Com_sprintf (player, sizeof(player), "%i %i \"%s\"\n",
-				ps->persistant[PERS_SCORE], cl->ping, cl->name);
+		if (cl->state >= CS_CONNECTED)
+		{
+			ps = SV_GameClientNum(i);
+			Com_sprintf(player, sizeof(player), "%i %i \"%s\"\n", ps->persistant[PERS_SCORE], cl->ping, cl->name);
 			playerLength = strlen(player);
-			if (statusLength + playerLength >= (int)sizeof(status) ) {
+			
+			if (statusLength + playerLength >= MAX_MSGLEN)
+			{
 				break;		// can't hold any more
 			}
-			strcpy (status + statusLength, player);
+
+			Q_strncpyz(status + statusLength, player, MAX_MSGLEN - statusLength);
 			statusLength += playerLength;
 		}
 	}
 
 	NET_OutOfBandPrint( NS_SERVER, from, "statusResponse\n%s\n%s", infostring, status );
+
+	free(status);
+	status = nullptr;
 }
 
 // Responds with a short info message that should be enough to determine if a user is interested in a server to do a
@@ -787,7 +815,7 @@ void SV_CheckCvars( void ) {
 		char *c = hostname;
 		lastModHostname = sv_hostname->modificationCount;
 
-		strcpy( hostname, sv_hostname->string );
+		Q_strncpyz( hostname, sv_hostname->string, sizeof(hostname));
 		while( *c )
 		{
 			if ( (*c == '\\') || (*c == ';') || (*c == '"'))

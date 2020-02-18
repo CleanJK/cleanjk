@@ -460,12 +460,9 @@ bool G2_Set_Bone_Angles_Index( boneInfo_v &blist, const int index,
 		return false;
 	}
 
-	if (index != -1)
+	if (blist[index].flags & BONE_ANGLES_RAGDOLL)
 	{
-		if (blist[index].flags & BONE_ANGLES_RAGDOLL)
-		{
-			return true; // don't accept any calls on ragdoll bones
-		}
+		return true; // don't accept any calls on ragdoll bones
 	}
 
 	if (flags & (BONE_ANGLES_PREMULT | BONE_ANGLES_POSTMULT))
@@ -558,13 +555,12 @@ bool G2_Set_Bone_Angles_Matrix_Index(boneInfo_v &blist, const int index,
 		assert(0);
 		return false;
 	}
-	if (index != -1)
+
+	if (blist[index].flags & BONE_ANGLES_RAGDOLL)
 	{
-		if (blist[index].flags & BONE_ANGLES_RAGDOLL)
-		{
-			return true; // don't accept any calls on ragdoll bones
-		}
+		return true; // don't accept any calls on ragdoll bones
 	}
+	
 	// yes, so set the angles and flags correctly
 	blist[index].flags &= ~(BONE_ANGLES_TOTAL);
 	blist[index].flags |= flags;
@@ -771,7 +767,7 @@ bool G2_Set_Bone_Anim_Index(
 	// start up the animation:)
 	if (setFrame != -1)
 	{
-		blist[index].lastTime = blist[index].startTime = (currentTime - (((setFrame - (float)startFrame) * 50.0)/ animSpeed));
+		blist[index].lastTime = blist[index].startTime = (currentTime - (((setFrame - (float)startFrame) * 50.0f)/ animSpeed));
 	}
 	else
 	{
@@ -791,7 +787,7 @@ bool G2_Set_Bone_Anim_Index(
 		char mess[1000];
 		if (bone.flags&BONE_ANIM_BLEND)
 		{
-			sprintf(mess,"sab[%2d] %5d  %5d  (%5d-%5d) %4.2f %4x   bt(%5d-%5d) %7.2f %5d\n",
+			Com_sprintf(mess, sizeof(mess), "sab[%2d] %5d  %5d  (%5d-%5d) %4.2f %4x   bt(%5d-%5d) %7.2f %5d\n",
 				index,
 				currentTime,
 				bone.startTime,
@@ -807,7 +803,7 @@ bool G2_Set_Bone_Anim_Index(
 		}
 		else
 		{
-			sprintf(mess,"saa[%2d] %5d  %5d  (%5d-%5d) %4.2f %4x\n",
+			Com_sprintf(mess, sizeof(mess), "saa[%2d] %5d  %5d  (%5d-%5d) %4.2f %4x\n",
 				index,
 				currentTime,
 				bone.startTime,
@@ -3499,7 +3495,7 @@ static inline void G2_BoneSnap(CGhoul2Info_v &ghoul2V, boneInfo_t &bone, CRagDol
 	ragCallbackBoneSnap_t *callData = (ragCallbackBoneSnap_t *)ri.GetSharedMemory();
 
 	callData->entNum = params->me;
-	strcpy(callData->boneName, G2_Get_Bone_Name(&ghoul2V[0], ghoul2V[0].mBlist, bone.boneNumber));
+	Q_strncpyz(callData->boneName, G2_Get_Bone_Name(&ghoul2V[0], ghoul2V[0].mBlist, bone.boneNumber), sizeof(callData->boneName));
 
 	ri.CGVM_RagCallback( RAG_CALLBACK_BONESNAP );
 }

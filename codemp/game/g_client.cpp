@@ -559,7 +559,7 @@ gentity_t *SelectRandomDeathmatchSpawnPoint( bool isbot ) {
 
 // Chooses a player start, deathmatch start, etc
 gentity_t *SelectRandomFurthestSpawnPoint ( vec3_t avoidPoint, vec3_t origin, vec3_t angles, team_e team, bool isbot ) {
-	gentity_t	*spot;
+	gentity_t	*spot = nullptr;
 	vec3_t		delta;
 	float		dist;
 	float		list_dist[MAX_SPAWN_POINTS];
@@ -567,7 +567,6 @@ gentity_t *SelectRandomFurthestSpawnPoint ( vec3_t avoidPoint, vec3_t origin, ve
 	int			numSpots, rnd, i, j;
 
 	numSpots = 0;
-	spot = nullptr;
 
 	//in Team DM, look for a team start spot first, if any
 	if ( level.gametype == GT_TEAM
@@ -658,7 +657,9 @@ gentity_t *SelectRandomFurthestSpawnPoint ( vec3_t avoidPoint, vec3_t origin, ve
 		if (!numSpots) {
 			spot = G_Find( nullptr, FOFS(classname), "info_player_deathmatch");
 			if (!spot)
-				trap->Error( ERR_DROP, "Couldn't find a spawn point" );
+			{
+				trap->Error(ERR_DROP, "Couldn't find a spawn point");
+			}
 			VectorCopy (spot->s.origin, origin);
 			origin[2] += 9;
 			VectorCopy (spot->s.angles, angles);
@@ -846,6 +847,11 @@ void BodySink( gentity_t *ent ) {
 
 // A player is respawning, so make an entity that looks just like the existing corpse to leave behind.
 static bool CopyToBodyQue( gentity_t *ent ) {
+	if (ent == nullptr)
+	{
+		return false;
+	}
+	
 	gentity_t		*body;
 	int			contents;
 	int			islight = 0;
@@ -863,7 +869,12 @@ static bool CopyToBodyQue( gentity_t *ent ) {
 		return false;
 	}
 
-	if (ent->client && (ent->client->ps.eFlags & EF_DISINTEGRATION))
+	if (ent->client == nullptr)
+	{
+		return false;
+	}
+
+	if (ent->client->ps.eFlags & EF_DISINTEGRATION)
 	{ //for now, just don't spawn a body if you got disint'd
 		return false;
 	}
@@ -883,7 +894,7 @@ static bool CopyToBodyQue( gentity_t *ent ) {
 	body->s.eType = ET_BODY;
 	body->s.eFlags = EF_DEAD;		// clear EF_TALK, etc
 
-	if (ent->client && (ent->client->ps.eFlags & EF_DISINTEGRATION))
+	if (ent->client->ps.eFlags & EF_DISINTEGRATION)
 	{
 		body->s.eFlags |= EF_DISINTEGRATION;
 	}
@@ -915,7 +926,7 @@ static bool CopyToBodyQue( gentity_t *ent ) {
 
 	//G_AddEvent(body, EV_BODY_QUEUE_COPY, ent->s.clientNum);
 	//Now doing this through a modified version of the rcg reliable command.
-	if (ent->client && ent->client->ps.fd.forceSide == FORCE_LIGHTSIDE)
+	if (ent->client->ps.fd.forceSide == FORCE_LIGHTSIDE)
 	{
 		islight = 1;
 	}
@@ -1295,14 +1306,14 @@ void SetupGameGhoul2Model(gentity_t *ent, char *modelname, char *skinName)
 
 			if (skinName && skinName[0])
 			{
-				strcpy(skin, skinName);
-				strcpy(truncModelName, modelname);
+				Q_strncpyz(skin, skinName, sizeof(skin));
+				Q_strncpyz(truncModelName, modelname, sizeof(truncModelName));
 			}
 			else
 			{
-				strcpy(skin, "default");
+				Q_strncpyz(skin, "default", sizeof(skin));
 
-				strcpy(truncModelName, modelname);
+				Q_strncpyz(truncModelName, modelname, sizeof(truncModelName));
 				p = Q_strrchr(truncModelName, '/');
 
 				if (p)
@@ -1356,7 +1367,7 @@ void SetupGameGhoul2Model(gentity_t *ent, char *modelname, char *skinName)
 				skinHandle = trap->R_RegisterSkin(useSkinName);
 			}
 
-			strcpy(modelFullPath, va("models/players/%s/model.glm", truncModelName));
+			Q_strncpyz(modelFullPath, va("models/players/%s/model.glm", truncModelName), sizeof(modelFullPath));
 			handle = trap->G2API_InitGhoul2Model(&ent->ghoul2, modelFullPath, 0, skinHandle, -20, 0, 0);
 
 			if (handle<0)
@@ -1374,7 +1385,7 @@ void SetupGameGhoul2Model(gentity_t *ent, char *modelname, char *skinName)
 				trap->G2API_SetSkin(ent->ghoul2, 0, skinHandle, skinHandle);
 
 				GLAName[0] = 0;
-				trap->G2API_GetGLAName( ent->ghoul2, 0, GLAName);
+				trap->G2API_GetGLAName( ent->ghoul2, 0, GLAName, sizeof(GLAName));
 
 				if (!GLAName[0] || (!strstr(GLAName, "players/_humanoid/") && ent->s.number < MAX_CLIENTS))
 				{ //a bad model
@@ -1389,7 +1400,7 @@ void SetupGameGhoul2Model(gentity_t *ent, char *modelname, char *skinName)
 
 					if (skin[0])
 					{ //append it after a *
-						strcat( modelFullPath, va("*%s", skin) );
+						Q_strcat( modelFullPath, sizeof(modelFullPath), va("*%s", skin) );
 					}
 
 					ent->s.modelindex = G_ModelIndex(modelFullPath);
@@ -1428,7 +1439,7 @@ void SetupGameGhoul2Model(gentity_t *ent, char *modelname, char *skinName)
 		ent->localAnimIndex = -1;
 
 		GLAName[0] = 0;
-		trap->G2API_GetGLAName(ent->ghoul2, 0, GLAName);
+		trap->G2API_GetGLAName(ent->ghoul2, 0, GLAName, sizeof(GLAName));
 
 		if (GLAName[0] &&
 			!strstr(GLAName, "players/_humanoid/") /*&&
@@ -1437,7 +1448,7 @@ void SetupGameGhoul2Model(gentity_t *ent, char *modelname, char *skinName)
 			char *slash = Q_strrchr( GLAName, '/' );
 			if ( slash )
 			{
-				strcpy(slash, "/animation.cfg");
+				Q_strncpyz(slash, "/animation.cfg", sizeof(GLAName) - (slash - GLAName));
 
 				ent->localAnimIndex = BG_ParseAnimationFile(GLAName, nullptr, false);
 			}
@@ -1462,7 +1473,7 @@ void SetupGameGhoul2Model(gentity_t *ent, char *modelname, char *skinName)
 	else
 	{
 		GLAName[0] = 0;
-		trap->G2API_GetGLAName(ent->ghoul2, 0, GLAName);
+		trap->G2API_GetGLAName(ent->ghoul2, 0, GLAName, sizeof(GLAName));
 
 		if (strstr(GLAName, "players/rockettrooper/"))
 		{
@@ -1600,7 +1611,6 @@ char *G_ValidateUserinfo( const char *userinfo ) {
 	unsigned int		i=0, count=0;
 	size_t				length = strlen( userinfo );
 	userinfoValidate_t	*info = nullptr;
-	char				key[BIG_INFO_KEY], value[BIG_INFO_VALUE];
 	const char			*s;
 	unsigned int		fieldCount[ARRAY_LEN( userinfoFields )];
 
@@ -1659,6 +1669,23 @@ char *G_ValidateUserinfo( const char *userinfo ) {
 		}
 	}
 
+	char* key = (char*)calloc(BIG_INFO_KEY, sizeof(char));
+
+	if (key == nullptr)
+	{
+		return "Userinfo: unable to allocate memory for key";
+	}
+
+	char* value = (char*)calloc(BIG_INFO_VALUE, sizeof(char));
+
+	if (value == nullptr)
+	{
+		free(key);
+		key = nullptr;
+
+		return "Userinfo: unable to allocate memory for value";
+	}
+
 	s = userinfo;
 	while ( s ) {
 		Info_NextPair( &s, key, value );
@@ -1673,6 +1700,11 @@ char *G_ValidateUserinfo( const char *userinfo ) {
 			}
 		}
 	}
+
+	free(value);
+	value = nullptr;
+	free(key);
+	key = nullptr;
 
 	// count the number of fields
 	for ( i=0, info=userinfoFields; i<numUserinfoFields; i++, info++ ) {

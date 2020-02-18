@@ -127,7 +127,7 @@ static void UpdateIPBans( void ) {
 bool G_FilterPacket( char *from ) {
 	int i;
 	uint32_t in;
-	byteAlias_t m;
+	byteAlias_t m = { 0 };
 	char *p;
 
 	i = 0;

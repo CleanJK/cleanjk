@@ -614,6 +614,11 @@ void WP_SaberInitBladeData( gentity_t *ent )
 //NPC stuff in with the actual player stuff if possible.
 static QINLINE void G_G2PlayerAngles( gentity_t *ent, matrix3_t legs, vec3_t legsAngles)
 {
+	if (ent == nullptr)
+	{
+		return;
+	}
+
 	bool tPitching = false,
 			 tYawing = false,
 			 lYawing = false;

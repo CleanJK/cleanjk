@@ -5107,10 +5107,10 @@ bool LoadEALFile(char *szEALFilename)
 										{
 											lNumInstA = lNumInstB = 0;
 
-											sprintf(szAperture,"Aperture%da",i);
+											Com_sprintf(szAperture, sizeof(szAperture), "Aperture%da",i);
 											if ((s_lpEAXManager->GetSourceID(szAperture, &lID)==EM_OK) && (s_lpEAXManager->GetSourceNumInstances(lID, &lNumInstA)==EM_OK))
 											{
-												sprintf(szAperture,"Aperture%db",i);
+												Com_sprintf(szAperture, sizeof(szAperture),"Aperture%db",i);
 												s_lpEAXManager->GetSourceID(szAperture, &lID);
 												s_lpEAXManager->GetSourceNumInstances(lID, &lNumInstB);
 
@@ -5162,7 +5162,7 @@ bool LoadEALFile(char *szEALFilename)
 			i = 0;
 			while (true)
 			{
-				sprintf(szAperture, "Aperture%da", i);
+				Com_sprintf(szAperture, sizeof(szAperture), "Aperture%da", i);
 				if (s_lpEAXManager->GetSourceID(szAperture, &lID)==EM_OK)
 				{
 					if (s_lpEAXManager->GetSourceNumInstances(lID, &lNumInst)==EM_OK)
@@ -5217,7 +5217,7 @@ bool LoadEALFile(char *szEALFilename)
 
 				if (bValid)
 				{
-					sprintf(szAperture, "Aperture%db", i);
+					Com_sprintf(szAperture, sizeof(szAperture), "Aperture%db", i);
 					if (s_lpEAXManager->GetSourceID(szAperture, &lID)==EM_OK)
 					{
 						if (s_lpEAXManager->GetSourceNumInstances(lID, &lNumInst)==EM_OK)
@@ -5344,7 +5344,7 @@ void UpdateEAXListener()
 	long lCurTime;
 	channel_t	*ch;
 	EAXVECTOR	LR, LP1, LP2, Pan;
-	REVERBDATA_t ReverbData[3]; // Hardcoded to three (maximum no of reverbs)
+	REVERBDATA_t ReverbData[3] = { 0 }; // Hardcoded to three (maximum no of reverbs)
 #ifdef DISPLAY_CLOSEST_ENVS
 	char szEnvName[256];
 #endif

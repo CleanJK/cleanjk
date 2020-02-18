@@ -629,8 +629,8 @@ static int SV_PC_ReadToken( int handle, pc_token_t *pc_token ) {
 	return botlib_export->PC_ReadTokenHandle( handle, pc_token );
 }
 
-static int SV_PC_SourceFileAndLine( int handle, char *filename, int *line ) {
-	return botlib_export->PC_SourceFileAndLine( handle, filename, line );
+static int SV_PC_SourceFileAndLine( int handle, char *filename, int *line, int sizeFilename ) {
+	return botlib_export->PC_SourceFileAndLine( handle, filename, line, sizeFilename );
 }
 
 static qhandle_t SV_RE_RegisterSkin( const char *name ) {
@@ -725,7 +725,7 @@ static bool SV_G2API_GetBoneAnim( void *ghoul2, const char *boneName, const int 
 	return re->G2API_GetBoneAnim( g2, modelIndex, boneName, currentTime, currentFrame, startFrame, endFrame, flags, animSpeed, modelList );
 }
 
-static void SV_G2API_GetGLAName( void *ghoul2, int modelIndex, char *fillBuf ) {
+static void SV_G2API_GetGLAName( void *ghoul2, int modelIndex, char *fillBuf, int fillBufSize) {
 	if ( !ghoul2 )
 	{
 		fillBuf[0] = '\0';
@@ -734,7 +734,7 @@ static void SV_G2API_GetGLAName( void *ghoul2, int modelIndex, char *fillBuf ) {
 
 	char *tmp = re->G2API_GetGLAName( *((CGhoul2Info_v *)ghoul2), modelIndex );
 	if ( tmp )
-		strcpy( fillBuf, tmp );
+		Q_strncpyz( fillBuf, tmp, fillBufSize);
 	else
 		fillBuf[0] = '\0';
 }
@@ -926,10 +926,10 @@ static bool SV_G2API_OverrideServer( void *serverInstance ) {
 	return re->G2API_OverrideServerWithClientData( g2, 0 );
 }
 
-static void SV_G2API_GetSurfaceName( void *ghoul2, int surfNumber, int modelIndex, char *fillBuf ) {
+static void SV_G2API_GetSurfaceName( void *ghoul2, int surfNumber, int modelIndex, char *fillBuf, int fillBufSize ) {
 	CGhoul2Info_v &g2 = *((CGhoul2Info_v *)ghoul2);
 	char *tmp = re->G2API_GetSurfaceName( g2, modelIndex, surfNumber );
-	strcpy( fillBuf, tmp );
+	Q_strncpyz( fillBuf, tmp, fillBufSize );
 }
 
 static void GVM_Cvar_Set( const char *var_name, const char *value ) {

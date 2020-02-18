@@ -434,7 +434,7 @@ static bool CL_G2API_GetBoneFrame( void *ghoul2, const char *boneName, const int
 	return re->G2API_GetBoneAnim(g2, modelIndex, boneName, currentTime, currentFrame, &iDontCare1, &iDontCare2, &iDontCare3, &fDontCare1, modelList);
 }
 
-static void CL_G2API_GetGLAName( void *ghoul2, int modelIndex, char *fillBuf ) {
+static void CL_G2API_GetGLAName( void *ghoul2, int modelIndex, char *fillBuf, int fillBufSize) {
 	if ( !ghoul2 )
 	{
 		fillBuf[0] = '\0';
@@ -443,7 +443,7 @@ static void CL_G2API_GetGLAName( void *ghoul2, int modelIndex, char *fillBuf ) {
 
 	char *tmp = re->G2API_GetGLAName( *((CGhoul2Info_v *)ghoul2), modelIndex );
 	if ( tmp )
-		strcpy( fillBuf, tmp );
+		Q_strncpyz( fillBuf, tmp, fillBufSize);
 	else
 		fillBuf[0] = '\0';
 }
@@ -683,11 +683,11 @@ static bool CL_G2API_OverrideServer( void *serverInstance ) {
 	return re->G2API_OverrideServerWithClientData( g2, 0 );
 }
 
-static void CL_G2API_GetSurfaceName( void *ghoul2, int surfNumber, int modelIndex, char *fillBuf ) {
+static void CL_G2API_GetSurfaceName( void *ghoul2, int surfNumber, int modelIndex, char *fillBuf, int fillBufSize ) {
 	if ( !ghoul2 ) return;
 	CGhoul2Info_v &g2 = *((CGhoul2Info_v *)ghoul2);
 	char *tmp = re->G2API_GetSurfaceName( g2, modelIndex, surfNumber );
-	strcpy( fillBuf, tmp );
+	Q_strncpyz( fillBuf, tmp, fillBufSize );
 }
 
 static void CL_Key_SetCatcher( int catcher ) {

@@ -59,9 +59,9 @@ typedef void (*ImageLoaderFn)(const char* filename, byte** pic, int* width, int*
 #define MD3_VERSION			15
 
 // Light Style Constants
-#define LS_NORMAL		0x00
-#define LS_UNUSED		0xfe
-#define	LS_LSNONE		0xff //rww - changed name because it unhappily conflicts with a lightsaber state name and changing this is just easier
+#define LS_NORMAL		0
+#define LS_UNUSED		254
+#define	LS_LSNONE		255 //rww - changed name because it unhappily conflicts with a lightsaber state name and changing this is just easier
 
 // ======================================================================
 // STRUCT

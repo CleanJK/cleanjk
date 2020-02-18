@@ -1467,17 +1467,17 @@ void G2_TransformBone (int child,CBoneCache &BC)
 		char mess[1000];
 		if (TB.blendMode)
 		{
-			sprintf(mess,"b %2d %5d   %4d %4d %4d %4d  %f %f\n",boneListIndex,BC.incomingTime,(int)TB.newFrame,(int)TB.currentFrame,(int)TB.blendFrame,(int)TB.blendOldFrame,TB.backlerp,TB.blendLerp);
+			Com_sprintf(mess, sizeof(mess), "b %2d %5d   %4d %4d %4d %4d  %f %f\n",boneListIndex,BC.incomingTime,(int)TB.newFrame,(int)TB.currentFrame,(int)TB.blendFrame,(int)TB.blendOldFrame,TB.backlerp,TB.blendLerp);
 		}
 		else
 		{
-			sprintf(mess,"a %2d %5d   %4d %4d            %f\n",boneListIndex,BC.incomingTime,TB.newFrame,TB.currentFrame,TB.backlerp);
+			Com_sprintf(mess, sizeof(mess), "a %2d %5d   %4d %4d            %f\n",boneListIndex,BC.incomingTime,TB.newFrame,TB.currentFrame,TB.backlerp);
 		}
 		Com_OPrintf("%s",mess);
 		const boneInfo_t &bone=boneList[boneListIndex];
 		if (bone.flags&BONE_ANIM_BLEND)
 		{
-			sprintf(mess,"                                                                    bfb[%2d] %5d  %5d  (%5d-%5d) %4.2f %4x   bt(%5d-%5d) %7.2f %5d\n",
+			Com_sprintf(mess, sizeof(mess), "                                                                    bfb[%2d] %5d  %5d  (%5d-%5d) %4.2f %4x   bt(%5d-%5d) %7.2f %5d\n",
 				boneListIndex,
 				BC.incomingTime,
 				bone.startTime,
@@ -1493,7 +1493,7 @@ void G2_TransformBone (int child,CBoneCache &BC)
 		}
 		else
 		{
-			sprintf(mess,"                                                                    bfa[%2d] %5d  %5d  (%5d-%5d) %4.2f %4x\n",
+			Com_sprintf(mess, sizeof(mess), "                                                                    bfa[%2d] %5d  %5d  (%5d-%5d) %4.2f %4x\n",
 				boneListIndex,
 				BC.incomingTime,
 				bone.startTime,
@@ -2143,7 +2143,7 @@ void G2_ProcessSurfaceBolt(mdxaBone_v &bonePtr, mdxmSurface_t *surface, int bolt
 		vec3_t right;
 		vec3_t vec0, vec1;
 		// work out baryCentricK
-		float baryCentricK = 1.0 - (surfInfo->genBarycentricI + surfInfo->genBarycentricJ);
+		float baryCentricK = 1.0f - (surfInfo->genBarycentricI + surfInfo->genBarycentricJ);
 
 		// now we have the model transformed into model space, now generate an origin.
 		boltList[boltNum].position.matrix[0][3] = (pTri[0][0] * surfInfo->genBarycentricI) + (pTri[1][0] * surfInfo->genBarycentricJ) + (pTri[2][0] * baryCentricK);
@@ -2842,7 +2842,7 @@ void G2_ProcessSurfaceBolt2(CBoneCache &boneCache, const mdxmSurface_t *surface,
 		vec3_t right;
 		vec3_t vec0, vec1;
 		// work out baryCentricK
-		float baryCentricK = 1.0 - (surfInfo->genBarycentricI + surfInfo->genBarycentricJ);
+		float baryCentricK = 1.0f - (surfInfo->genBarycentricI + surfInfo->genBarycentricJ);
 
 		// now we have the model transformed into model space, now generate an origin.
 		retMatrix.matrix[0][3] = (pTri[0][0] * surfInfo->genBarycentricI) + (pTri[1][0] * surfInfo->genBarycentricJ) + (pTri[2][0] * baryCentricK);

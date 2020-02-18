@@ -160,7 +160,7 @@ int Q3_GetVectorVariable( const char *name, vec3_t value )
 	{
 		const char *str = ((*vvi).second).c_str();
 
-		sscanf( str, "%f %f %f", &value[0], &value[1], &value[2] );
+		int val = sscanf( str, "%f %f %f", &value[0], &value[1], &value[2] );
 		return true;
 	}
 

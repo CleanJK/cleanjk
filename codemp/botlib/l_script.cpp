@@ -687,7 +687,7 @@ int PS_ReadPunctuation(script_t *script, token_t *token)
 			//if the script contains the punctuation
 			if (!Q_strncmp(script->script_p, p, len))
 			{
-				strncpy(token->string, p, MAX_TOKEN);
+				Q_strncpyz(token->string, p, sizeof(token->string));
 				script->script_p += len;
 				token->type = TT_PUNCTUATION;
 				//sub type is the number of the punctuation
@@ -822,12 +822,12 @@ int PS_ExpectTokenType(script_t *script, int type, int subtype, token_t *token)
 
 	if (token->type != type)
 	{
-		strcpy(str, "");
-		if (type == TT_STRING) strcpy(str, "string");
-		if (type == TT_LITERAL) strcpy(str, "literal");
-		if (type == TT_NUMBER) strcpy(str, "number");
-		if (type == TT_NAME) strcpy(str, "name");
-		if (type == TT_PUNCTUATION) strcpy(str, "punctuation");
+		Q_strncpyz(str, "", sizeof(str));
+		if (type == TT_STRING) Q_strncpyz(str, "string", sizeof(str));
+		if (type == TT_LITERAL) Q_strncpyz(str, "literal", sizeof(str));
+		if (type == TT_NUMBER) Q_strncpyz(str, "number", sizeof(str));
+		if (type == TT_NAME) Q_strncpyz(str, "name", sizeof(str));
+		if (type == TT_PUNCTUATION) Q_strncpyz(str, "punctuation", sizeof(str));
 		ScriptError(script, "expected a %s, found %s", str, token->string);
 		return 0;
 	} //end if
@@ -835,15 +835,15 @@ int PS_ExpectTokenType(script_t *script, int type, int subtype, token_t *token)
 	{
 		if ((token->subtype & subtype) != subtype)
 		{
-			strcpy(str, "");
-			if (subtype & TT_DECIMAL) strcpy(str, "decimal");
-			if (subtype & TT_HEX) strcpy(str, "hex");
-			if (subtype & TT_OCTAL) strcpy(str, "octal");
-			if (subtype & TT_BINARY) strcpy(str, "binary");
-			if (subtype & TT_LONG) strcat(str, " long");
-			if (subtype & TT_UNSIGNED) strcat(str, " unsigned");
-			if (subtype & TT_FLOAT) strcat(str, " float");
-			if (subtype & TT_INTEGER) strcat(str, " integer");
+			Q_strncpyz(str, "", sizeof(str));
+			if (subtype & TT_DECIMAL) Q_strncpyz(str, "decimal", sizeof(str));
+			if (subtype & TT_HEX) Q_strncpyz(str, "hex", sizeof(str));
+			if (subtype & TT_OCTAL) Q_strncpyz(str, "octal", sizeof(str));
+			if (subtype & TT_BINARY) Q_strncpyz(str, "binary", sizeof(str));
+			if (subtype & TT_LONG) Q_strncpyz(str, " long", sizeof(str));
+			if (subtype & TT_UNSIGNED) Q_strncpyz(str, " unsigned", sizeof(str));
+			if (subtype & TT_FLOAT) Q_strncpyz(str, " float", sizeof(str));
+			if (subtype & TT_INTEGER) Q_strncpyz(str, " integer", sizeof(str));
 			ScriptError(script, "expected %s, found %s", str, token->string);
 			return 0;
 		} //end if

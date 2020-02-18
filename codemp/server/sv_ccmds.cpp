@@ -1443,7 +1443,6 @@ void SV_DemoFilename( char *buf, int bufSize ) {
 
 void SV_RecordDemo( client_t *cl, char *demoName ) {
 	char		name[MAX_OSPATH];
-	byte		bufData[MAX_MSGLEN];
 	msg_t		msg;
 	int			len;
 
@@ -1474,8 +1473,17 @@ void SV_RecordDemo( client_t *cl, char *demoName ) {
 	cl->demo.isBot = ( cl->netchan.remoteAddress.type == NA_BOT ) ? true : false;
 	cl->demo.botReliableAcknowledge = cl->reliableSent;
 
+	byte* bufData = (byte*)calloc(MAX_MSGLEN, sizeof(byte));
+
+	if (bufData == nullptr)
+	{
+		Com_Printf("SV_RecordDemo: unable to alloc memory for: byte* bufData\n");
+
+		return;
+	}
+
 	// write out the gamestate message
-	MSG_Init( &msg, bufData, sizeof( bufData ) );
+	MSG_Init( &msg, bufData, MAX_MSGLEN);
 
 	// NOTE, MRE: all server->client messages now acknowledge
 	int tmp = cl->reliableSent;
@@ -1494,6 +1502,8 @@ void SV_RecordDemo( client_t *cl, char *demoName ) {
 	FS_Write( msg.data, msg.cursize, cl->demo.demofile );
 
 	// the rest of the demo file will be copied from net messages
+	free(bufData);
+	bufData = nullptr;
 }
 
 void SV_AutoRecordDemo( client_t *cl ) {
@@ -1603,47 +1613,72 @@ static int SV_FindLeafFolders( const char *baseFolder, char *result, int maxResu
 }
 
 // starts demo recording on all active clients
-void SV_BeginAutoRecordDemos() {
-	if ( sv_autoDemo->integer ) {
-		for ( client_t *client = svs.clients; client - svs.clients < sv_maxclients->integer; client++ ) {
-			if ( client->state == CS_ACTIVE && !client->demo.demorecording ) {
-				if ( client->netchan.remoteAddress.type != NA_BOT || sv_autoDemoBots->integer ) {
-					SV_AutoRecordDemo( client );
+void SV_BeginAutoRecordDemos()
+{
+	if (sv_autoDemo->integer)
+	{
+		for (client_t* client = svs.clients; client - svs.clients < sv_maxclients->integer; client++)
+		{
+			if (client->state == CS_ACTIVE && !client->demo.demorecording)
+			{
+				if (client->netchan.remoteAddress.type != NA_BOT || sv_autoDemoBots->integer)
+				{
+					SV_AutoRecordDemo(client);
 				}
 			}
 		}
-		if ( sv_autoDemoMaxMaps->integer > 0 && sv.demosPruned == false ) {
-			char autorecordDirList[500 * MAX_OSPATH], tmpFileList[5 * MAX_OSPATH];
-			int autorecordDirListCount = SV_FindLeafFolders( "demos/autorecord", autorecordDirList, 500, MAX_OSPATH );
+		if (sv_autoDemoMaxMaps->integer > 0 && sv.demosPruned == false)
+		{
+			char* autorecordDirList = (char*)calloc(500 * MAX_OSPATH, sizeof(char));
+
+			if (autorecordDirList == nullptr)
+			{
+				Com_Printf("SV_BeginAutoRecordDemos: unable to alloc memory for: char* autorecordDirList\n");
+
+				return;
+			}
+
+			char tmpFileList[5 * MAX_OSPATH];
+			int autorecordDirListCount = SV_FindLeafFolders("demos/autorecord", autorecordDirList, 500, MAX_OSPATH);
 			int i;
 
-			qsort( autorecordDirList, autorecordDirListCount, MAX_OSPATH, SV_DemoFolderTimeComparator );
-			for ( i = sv_autoDemoMaxMaps->integer; i < autorecordDirListCount; i++ ) {
-				char *folder = &autorecordDirList[i * MAX_OSPATH], *slash = nullptr;
-				FS_HomeRmdir( folder, true );
+			qsort(autorecordDirList, autorecordDirListCount, MAX_OSPATH, SV_DemoFolderTimeComparator);
+			for (i = sv_autoDemoMaxMaps->integer; i < autorecordDirListCount; i++)
+			{
+				char* folder = &autorecordDirList[i * MAX_OSPATH], * slash = nullptr;
+				FS_HomeRmdir(folder, true);
 				// if this folder was the last thing in its parent folder (and its parent isn't the root folder),
 				// also delete the parent.
-				for (;;) {
-					slash = strrchr( folder, '/' );
-					if ( slash == nullptr ) {
+				for (;;)
+				{
+					slash = strrchr(folder, '/');
+					if (slash == nullptr)
+					{
 						break;
 					}
 					slash[0] = '\0';
-					if ( !strcmp( folder, "demos/autorecord" ) ) {
+					if (!strcmp(folder, "demos/autorecord"))
+					{
 						break;
 					}
-					int numFiles = FS_GetFileList( folder, "", tmpFileList, sizeof( tmpFileList ) );
-					int numFolders = FS_GetFileList( folder, "/", tmpFileList, sizeof( tmpFileList ) );
+					int numFiles = FS_GetFileList(folder, "", tmpFileList, sizeof(tmpFileList));
+					int numFolders = FS_GetFileList(folder, "/", tmpFileList, sizeof(tmpFileList));
 					// numFolders will include . and ..
-					if ( numFiles == 0 && numFolders == 2 ) {
+					if (numFiles == 0 && numFolders == 2)
+					{
 						// dangling empty folder, delete
-						FS_HomeRmdir( folder, false );
-					} else {
+						FS_HomeRmdir(folder, false);
+					}
+					else
+					{
 						break;
 					}
 				}
 			}
 			sv.demosPruned = true;
+
+			free(autorecordDirList);
+			autorecordDirList = nullptr;
 		}
 	}
 }

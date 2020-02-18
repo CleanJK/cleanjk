@@ -44,14 +44,14 @@ void AddRemap(const char *oldShader, const char *newShader, float timeOffset) {
 	for (i = 0; i < remapCount; i++) {
 		if (Q_stricmp(oldShader, remappedShaders[i].oldShader) == 0) {
 			// found it, just update this one
-			strcpy(remappedShaders[i].newShader,newShader);
+			Q_strncpyz(remappedShaders[i].newShader,newShader, sizeof(remappedShaders[i].newShader));
 			remappedShaders[i].timeOffset = timeOffset;
 			return;
 		}
 	}
 	if (remapCount < MAX_SHADER_REMAPS) {
-		strcpy(remappedShaders[remapCount].newShader,newShader);
-		strcpy(remappedShaders[remapCount].oldShader,oldShader);
+		Q_strncpyz(remappedShaders[remapCount].newShader,newShader, sizeof(remappedShaders[remapCount].newShader));
+		Q_strncpyz(remappedShaders[remapCount].oldShader,oldShader, sizeof(remappedShaders[remapCount].oldShader));
 		remappedShaders[remapCount].timeOffset = timeOffset;
 		remapCount++;
 	}
@@ -521,11 +521,11 @@ static void G_SpewEntList(void)
 
 			if (ent->classname && ent->classname[0])
 			{
-				strcpy(className, ent->classname);
+				Q_strncpyz(className, ent->classname, sizeof(className));
 			}
 			else
 			{
-				strcpy(className, "Unknown");
+				Q_strncpyz(className, "Unknown", sizeof(className));
 			}
 			str = va("ENT %4i: Classname %s\n", ent->s.number, className);
 			Com_Printf(str);

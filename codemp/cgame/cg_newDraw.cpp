@@ -80,14 +80,11 @@ float CG_GetValue(int ownerDraw) {
 	case CG_SELECTEDPLAYER_ARMOR:
 		ci = cgs.clientinfo + sortedTeamPlayers[CG_GetSelectedPlayer()];
 		return ci->armor;
-		break;
 	case CG_SELECTEDPLAYER_HEALTH:
 		ci = cgs.clientinfo + sortedTeamPlayers[CG_GetSelectedPlayer()];
 		return ci->health;
-		break;
 	case CG_PLAYER_ARMOR_VALUE:
 		return ps->stats[STAT_ARMOR];
-		break;
 	case CG_PLAYER_AMMO_VALUE:
 		if ( cent->currentState.weapon )
 		{
@@ -96,19 +93,14 @@ float CG_GetValue(int ownerDraw) {
 		break;
 	case CG_PLAYER_SCORE:
 		return cg.snap->ps.persistant[PERS_SCORE];
-		break;
 	case CG_PLAYER_HEALTH:
 		return ps->stats[STAT_HEALTH];
-		break;
 	case CG_RED_SCORE:
 		return cgs.scores1;
-		break;
 	case CG_BLUE_SCORE:
 		return cgs.scores2;
-		break;
 	case CG_PLAYER_FORCE_VALUE:
 		return ps->fd.forcePower;
-		break;
 	default:
 		break;
 	}
@@ -494,6 +486,7 @@ void CG_OwnerDraw(float x, float y, float w, float h, float text_x, float text_y
 	rect.w = w;
 	rect.h = h;
 
+	/*
 	switch ( ownerDraw ) {
 
 	default: {
@@ -501,6 +494,7 @@ void CG_OwnerDraw(float x, float y, float w, float h, float text_x, float text_y
 	} break;
 
 	}
+	*/
 }
 
 void CG_MouseEvent(int x, int y) {
@@ -571,7 +565,7 @@ void CG_KeyEvent(int key, bool down) {
 		return;
 	}
 
-	if ( cg.predictedPlayerState.pm_type == PM_NORMAL || cg.predictedPlayerState.pm_type == PM_JETPACK || cg.predictedPlayerState.pm_type == PM_NORMAL || (cg.predictedPlayerState.pm_type == PM_SPECTATOR && cg.showScores == false)) {
+	if ( cg.predictedPlayerState.pm_type == PM_NORMAL || cg.predictedPlayerState.pm_type == PM_JETPACK || (cg.predictedPlayerState.pm_type == PM_SPECTATOR && cg.showScores == false)) {
 		CG_EventHandling(CGAME_EVENT_NONE);
 		trap->Key_SetCatcher(0);
 		return;

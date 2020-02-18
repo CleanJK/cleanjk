@@ -179,10 +179,10 @@ void CL_ConfigstringModified( void ) {
 	char		*old, *s;
 	int			i, index;
 	char		*dup;
-	gameState_t	oldGs;
 	int			len;
 
 	index = atoi( Cmd_Argv(1) );
+
 	if ( index < 0 || index >= MAX_CONFIGSTRINGS ) {
 		Com_Error( ERR_DROP, "CL_ConfigstringModified: bad index %i", index );
 	}
@@ -190,12 +190,22 @@ void CL_ConfigstringModified( void ) {
 	s = Cmd_ArgsFrom(2);
 
 	old = cl.gameState.stringData + cl.gameState.stringOffsets[ index ];
+
 	if ( !strcmp( old, s ) ) {
 		return;		// unchanged
 	}
 
+	gameState_t* oldGs = (gameState_t*)calloc(1, sizeof(gameState_t));
+
+	if (oldGs == nullptr)
+	{
+		Com_Printf("CL_ConfigstringModified: unable to alloc memory for: gameState_t* oldGs\n");
+
+		return;
+	}
+
 	// build the new gameState_t
-	oldGs = cl.gameState;
+	memcpy(oldGs, &cl.gameState, sizeof(gameState_t));
 
 	Com_Memset( &cl.gameState, 0, sizeof( cl.gameState ) );
 
@@ -206,7 +216,7 @@ void CL_ConfigstringModified( void ) {
 		if ( i == index ) {
 			dup = s;
 		} else {
-			dup = oldGs.stringData + oldGs.stringOffsets[ i ];
+			dup = oldGs->stringData + oldGs->stringOffsets[ i ];
 		}
 		if ( !dup[0] ) {
 			continue;		// leave with the default empty string
@@ -223,6 +233,9 @@ void CL_ConfigstringModified( void ) {
 		Com_Memcpy( cl.gameState.stringData + cl.gameState.dataCount, dup, len + 1 );
 		cl.gameState.dataCount += len + 1;
 	}
+
+	free(oldGs);
+	oldGs = nullptr;
 
 	if (cl_autolodscale && cl_autolodscale->integer)
 	{
@@ -264,7 +277,7 @@ void CL_ConfigstringModified( void ) {
 	#define MAX_STRINGED_SV_STRING 1024
 #endif
 // just copied it from CG_CheckSVStringEdRef(
-void CL_CheckSVStringEdRef(char *buf, const char *str)
+static void CL_CheckSVStringEdRef(char *buf, const char *str, int bufSize)
 { //I don't really like doing this. But it utilizes the system that was already in place.
 	int i = 0;
 	int b = 0;
@@ -275,12 +288,12 @@ void CL_CheckSVStringEdRef(char *buf, const char *str)
 	{
 		if (str)
 		{
-			strcpy(buf, str);
+			Q_strncpyz(buf, str, bufSize);
 		}
 		return;
 	}
 
-	strcpy(buf, str);
+	Q_strncpyz(buf, str, bufSize);
 
 	strLen = strlen(str);
 
@@ -337,7 +350,7 @@ void CL_CheckSVStringEdRef(char *buf, const char *str)
 bool CL_GetServerCommand( int serverCommandNumber ) {
 	char	*s;
 	char	*cmd;
-	static char bigConfigString[BIG_INFO_STRING];
+	static char bigConfigString[BIG_INFO_STRING] = { 0 };
 
 	// if we have irretrievably lost a reliable command, drop the connection
 	if ( serverCommandNumber <= clc.serverCommandSequence - MAX_RELIABLE_COMMANDS )
@@ -377,12 +390,12 @@ rescan:
 
 	if ( !strcmp( cmd, "disconnect" ) ) {
 		char strEd[MAX_STRINGED_SV_STRING];
-		CL_CheckSVStringEdRef(strEd, Cmd_Argv(1));
+		CL_CheckSVStringEdRef(strEd, Cmd_Argv(1), sizeof(strEd));
 		Com_Error (ERR_SERVERDISCONNECT, "%s: %s\n", SE_GetString("MP_SVGAME_SERVER_DISCONNECTED"), strEd );
 	}
 
 	if ( !strcmp( cmd, "bcs0" ) ) {
-		Com_sprintf( bigConfigString, BIG_INFO_STRING, "cs %s \"%s", Cmd_Argv(1), Cmd_Argv(2) );
+		Com_sprintf( bigConfigString, sizeof(bigConfigString), "cs %s \"%s", Cmd_Argv(1), Cmd_Argv(2) );
 		return false;
 	}
 
@@ -391,17 +404,19 @@ rescan:
 		if( strlen(bigConfigString) + strlen(s) >= BIG_INFO_STRING ) {
 			Com_Error( ERR_DROP, "bcs exceeded BIG_INFO_STRING" );
 		}
-		strcat( bigConfigString, s );
+		Q_strcat( bigConfigString, sizeof(bigConfigString), s );
 		return false;
 	}
 
 	if ( !strcmp( cmd, "bcs2" ) ) {
 		s = Cmd_Argv(2);
+
 		if( strlen(bigConfigString) + strlen(s) + 1 >= BIG_INFO_STRING ) {
 			Com_Error( ERR_DROP, "bcs exceeded BIG_INFO_STRING" );
 		}
-		strcat( bigConfigString, s );
-		strcat( bigConfigString, "\"" );
+
+		Q_strcat(bigConfigString, sizeof(bigConfigString), s );
+		Q_strcat(bigConfigString, sizeof(bigConfigString), "\"" );
 		s = bigConfigString;
 		goto rescan;
 	}
@@ -495,7 +510,7 @@ void CL_InitCGame( void ) {
 
 	t2 = Sys_Milliseconds();
 
-	Com_Printf( "CL_InitCGame: %5.2f seconds\n", (t2-t1)/1000.0 );
+	Com_Printf( "CL_InitCGame: %5.2f seconds\n", (t2-t1)/1000.0f );
 
 	// have the renderer touch all its images, so they are present
 	// on the card even if the driver does deferred loading

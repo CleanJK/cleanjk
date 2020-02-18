@@ -1369,12 +1369,12 @@ void Cvar_Init (void) {
 	Cmd_AddCommand( "cvar_restart", Cvar_Restart_f, "Resetart the cvar sub-system" );
 }
 
-static void Cvar_Realloc(char **string, char *memPool, int &memPoolUsed)
+static void Cvar_Realloc(char **string, char *memPool, int &memPoolUsed, int memPoolSize)
 {
 	if(string && *string)
 	{
 		char *temp = memPool + memPoolUsed;
-		strcpy(temp, *string);
+		Q_strncpyz(temp, *string, memPoolSize);
 		memPoolUsed += strlen(*string) + 1;
 		Cvar_FreeString(*string);
 		*string = temp;
@@ -1385,39 +1385,39 @@ static void Cvar_Realloc(char **string, char *memPool, int &memPoolUsed)
 void Cvar_Defrag(void)
 {
 	cvar_t	*var;
-	int totalMem = 0;
+	int memPoolSize = 0;
 	int nextMemPoolSize;
 
 	for (var = cvar_vars; var; var = var->next)
 	{
 		if (var->name) {
-			totalMem += strlen(var->name) + 1;
+			memPoolSize += strlen(var->name) + 1;
 		}
 		if (var->description) {
-			totalMem += strlen(var->description) + 1;
+			memPoolSize += strlen(var->description) + 1;
 		}
 		if (var->string) {
-			totalMem += strlen(var->string) + 1;
+			memPoolSize += strlen(var->string) + 1;
 		}
 		if (var->resetString) {
-			totalMem += strlen(var->resetString) + 1;
+			memPoolSize += strlen(var->resetString) + 1;
 		}
 		if (var->latchedString) {
-			totalMem += strlen(var->latchedString) + 1;
+			memPoolSize += strlen(var->latchedString) + 1;
 		}
 	}
 
-	char *mem = (char*)Z_Malloc(totalMem, TAG_SMALL, false);
-	nextMemPoolSize = totalMem;
-	totalMem = 0;
+	char *mem = (char*)Z_Malloc(memPoolSize, TAG_SMALL, false);
+	nextMemPoolSize = memPoolSize;
+	int memUsed = 0;
 
 	for (var = cvar_vars; var; var = var->next)
 	{
-		Cvar_Realloc(&var->name, mem, totalMem);
-		Cvar_Realloc(&var->string, mem, totalMem);
-		Cvar_Realloc(&var->resetString, mem, totalMem);
-		Cvar_Realloc(&var->latchedString, mem, totalMem);
-		Cvar_Realloc(&var->description, mem, totalMem);
+		Cvar_Realloc(&var->name, mem, memUsed, memPoolSize);
+		Cvar_Realloc(&var->string, mem, memUsed, memPoolSize);
+		Cvar_Realloc(&var->resetString, mem, memUsed, memPoolSize);
+		Cvar_Realloc(&var->latchedString, mem, memUsed, memPoolSize);
+		Cvar_Realloc(&var->description, mem, memUsed, memPoolSize);
 	}
 
 	if(lastMemPool) {

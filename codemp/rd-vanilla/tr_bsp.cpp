@@ -149,7 +149,6 @@ void R_ColorShiftLightingBytes( byte in[3] ) {
 static	void R_LoadLightmaps( lump_t *l, const char *psMapName, world_t &worldData ) {
 	byte		*buf, *buf_p;
 	int			len;
-	byte		image[LIGHTMAP_SIZE*LIGHTMAP_SIZE*4];
 	int			i, j;
 	float maxIntensity = 0;
 	double sumIntensity = 0;
@@ -183,6 +182,15 @@ static	void R_LoadLightmaps( lump_t *l, const char *psMapName, world_t &worldDat
 
 	char sMapName[MAX_QPATH];
 	COM_StripExtension(psMapName, sMapName, sizeof(sMapName));
+
+	byte* image = (byte*)calloc(LIGHTMAP_SIZE * LIGHTMAP_SIZE * 4, sizeof(byte));
+
+	if (image == nullptr)
+	{
+		Com_Printf("R_LoadLightmaps: unable to alloc memory for: byte* image\n");
+
+		return;
+	}
 
 	for ( i = 0 ; i < tr.numLightmaps ; i++ ) {
 		// expand the 24 bit on-disk to 32 bit
@@ -226,6 +234,9 @@ static	void R_LoadLightmaps( lump_t *l, const char *psMapName, world_t &worldDat
 		tr.lightmaps[i] = R_CreateImage( va("*%s/lightmap%d",sMapName,i), image,
 			LIGHTMAP_SIZE, LIGHTMAP_SIZE, GL_RGBA, false, false, (bool)r_ext_compress_lightmaps->integer, GL_CLAMP );
 	}
+
+	free(image);
+	image = nullptr;
 
 	if ( r_lightmap->integer == 2 )	{
 		ri.Printf( PRINT_ALL, "Brightest lightmap value: %d\n", ( int ) ( maxIntensity * 255 ) );
@@ -385,7 +396,6 @@ static void ParseMesh ( dsurface_t *ds, mapVert_t *verts, msurface_t *surf, worl
 	srfGridMesh_t			*grid;
 	int						i, j, k;
 	int						width, height, numPoints;
-	drawVert_t				points[MAX_PATCH_SIZE*MAX_PATCH_SIZE];
 	int						lightmapNum[MAXLIGHTMAPS];
 	vec3_t					bounds[2];
 	vec3_t					tmpVec;
@@ -421,6 +431,16 @@ static void ParseMesh ( dsurface_t *ds, mapVert_t *verts, msurface_t *surf, worl
 
 	verts += LittleLong( ds->firstVert );
 	numPoints = width * height;
+
+	drawVert_t *points = (drawVert_t*)calloc(MAX_PATCH_SIZE * MAX_PATCH_SIZE, sizeof(drawVert_t));
+
+	if (points == nullptr)
+	{
+		Com_Printf("ParseMesh: unable to alloc memory for: drawVert_t *points\n");
+
+		return;
+	}
+
 	for ( i = 0 ; i < numPoints ; i++ ) {
 		for ( j = 0 ; j < 3 ; j++ ) {
 			points[i].xyz[j] = LittleFloat( verts[i].xyz[j] );
@@ -442,6 +462,9 @@ static void ParseMesh ( dsurface_t *ds, mapVert_t *verts, msurface_t *surf, worl
 	// pre-tesseleate
 	grid = R_SubdividePatchToGrid( width, height, points );
 	surf->data = (surfaceType_e *)grid;
+
+	free(points);
+	points = nullptr;
 
 	// copy the level of detail origin, which is the center
 	// of the group of all curves that must subdivide the same
@@ -1304,12 +1327,16 @@ static	void R_LoadSubmodels( lump_t *l, world_t &worldData, int index ) {
 		model = R_AllocModel();
 
 		assert( model != nullptr );			// this should never happen
+
 		if ( model == nullptr ) {
 			ri.Error(ERR_DROP, "R_LoadSubmodels: R_AllocModel() failed");
+
+			return; // For MSVC warning
 		}
 
 		model->type = MOD_BRUSH;
 		model->bmodel = out;
+
 		if (index)
 		{
 			Com_sprintf( model->name, sizeof( model->name ), "*%d-%d", index, i );
@@ -1708,9 +1735,10 @@ void R_LoadEntities( lump_t *l, world_t &worldData ) {
 
 	p = (char *)(fileBase + l->fileofs);
 
+	int entityStringSize = l->filelen + 1;
 	// store for reference by the cgame
-	w->entityString = (char *)Hunk_Alloc( l->filelen + 1, h_low );
-	strcpy( w->entityString, p );
+	w->entityString = (char *)Hunk_Alloc(entityStringSize, h_low );
+	Q_strncpyz( w->entityString, p, entityStringSize);
 	w->entityParsePoint = w->entityString;
 
 	COM_BeginParseSession ("R_LoadEntities");
@@ -1765,21 +1793,21 @@ void R_LoadEntities( lump_t *l, world_t &worldData ) {
 			continue;
 		}
  		if (!Q_stricmp(keyname, "distanceCull")) {
-			sscanf(value, "%f", &tr.distanceCull );
+			int val = sscanf(value, "%f", &tr.distanceCull );
 			continue;
 		}
 		// check for a different grid size
 		if (!Q_stricmp(keyname, "gridsize")) {
-			sscanf(value, "%f %f %f", &w->lightGridSize[0], &w->lightGridSize[1], &w->lightGridSize[2] );
+			int val = sscanf(value, "%f %f %f", &w->lightGridSize[0], &w->lightGridSize[1], &w->lightGridSize[2] );
 			continue;
 		}
 	// find the optional world ambient for arioche
 		if (!Q_stricmp(keyname, "_color")) {
-			sscanf(value, "%f %f %f", &tr.sunAmbient[0], &tr.sunAmbient[1], &tr.sunAmbient[2] );
+			int val = sscanf(value, "%f %f %f", &tr.sunAmbient[0], &tr.sunAmbient[1], &tr.sunAmbient[2] );
 			continue;
 		}
 		if (!Q_stricmp(keyname, "ambient")) {
-			sscanf(value, "%f", &ambient);
+			int val = sscanf(value, "%f", &ambient);
 			continue;
 		}
 	}

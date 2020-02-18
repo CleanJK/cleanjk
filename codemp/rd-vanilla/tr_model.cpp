@@ -608,7 +608,7 @@ void RE_InsertModelIntoHash(const char *name, model_t *mod)
 
 	mh->next = mhHashTable[hash];
 	mh->handle = mod->index;
-	strcpy(mh->name, name);
+	Q_strncpyz(mh->name, name, sizeof(mh->name));
 	mhHashTable[hash] = mh;
 }
 
@@ -1007,7 +1007,7 @@ qhandle_t RE_RegisterServerModel( const char *name ) {
 	for ( lod = iLODStart; lod >= 0 ; lod-- ) {
 		char filename[1024];
 
-		strcpy( filename, name );
+		Q_strncpyz( filename, name, sizeof(filename));
 
 		if ( lod != 0 ) {
 			char namebuf[80];
@@ -1015,8 +1015,8 @@ qhandle_t RE_RegisterServerModel( const char *name ) {
 			if ( strrchr( filename, '.' ) ) {
 				*strrchr( filename, '.' ) = 0;
 			}
-			sprintf( namebuf, "_%d.md3", lod );
-			strcat( filename, namebuf );
+			Com_sprintf( namebuf, sizeof(namebuf), "_%d.md3", lod );
+			Q_strcat( filename, sizeof(filename), namebuf );
 		}
 
 		bool bAlreadyCached = false;
@@ -1190,7 +1190,7 @@ static qhandle_t RE_RegisterModel_Actual( const char *name ) {
 	for ( lod = iLODStart; lod >= 0 ; lod-- ) {
 		char filename[1024];
 
-		strcpy( filename, name );
+		Q_strncpyz( filename, name, sizeof(filename));
 
 		if ( lod != 0 ) {
 			char namebuf[80];
@@ -1198,8 +1198,8 @@ static qhandle_t RE_RegisterModel_Actual( const char *name ) {
 			if ( strrchr( filename, '.' ) ) {
 				*strrchr( filename, '.' ) = 0;
 			}
-			sprintf( namebuf, "_%d.md3", lod );
-			strcat( filename, namebuf );
+			Com_sprintf( namebuf, sizeof(namebuf), "_%d.md3", lod );
+			Q_strcat( filename, sizeof(filename), namebuf );
 		}
 
 		bool bAlreadyCached = false;

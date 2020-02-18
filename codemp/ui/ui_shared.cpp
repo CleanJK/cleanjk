@@ -220,7 +220,7 @@ const char *String_Alloc(const char *p) {
 	len = strlen(p);
 	if (len + strPoolIndex + 1 < STRING_POOL_SIZE) {
 		int ph = strPoolIndex;
-		strcpy(&strPool[strPoolIndex], p);
+		Q_strncpyz(&strPool[strPoolIndex], p, STRING_POOL_SIZE - strPoolIndex);
 		strPoolIndex += len + 1;
 
 		str = strHandle[hash];
@@ -276,7 +276,7 @@ void PC_SourceWarning(int handle, char *format, ...) {
 
 	filename[0] = '\0';
 	line = 0;
-	trap->PC_SourceFileAndLine(handle, filename, &line);
+	trap->PC_SourceFileAndLine(handle, filename, &line, sizeof(filename));
 
 	Com_Printf(S_COLOR_YELLOW "WARNING: %s, line %d: %s\n", filename, line, string);
 }
@@ -294,7 +294,7 @@ void PC_SourceError(int handle, char *format, ...) {
 
 	filename[0] = '\0';
 	line = 0;
-	trap->PC_SourceFileAndLine(handle, filename, &line);
+	trap->PC_SourceFileAndLine(handle, filename, &line, sizeof(filename));
 
 	Com_Printf(S_COLOR_RED "ERROR: %s, line %d: %s\n", filename, line, string);
 }
@@ -550,7 +550,7 @@ void Fade(int *flags, float *f, float clamp, int *nextTime, int offsetTime, bool
 void Window_Paint(windowDef_t *w, float fadeAmount, float fadeClamp, float fadeCycle)
 {
 	//float bordersize = 0;
-	vec4_t color;
+	vec4_t color = { 0 };
 	rectDef_t fillRect;
 
 	if ( w == nullptr )
@@ -3566,7 +3566,8 @@ static void Scroll_TextScroll_ThumbFunc(void *p)
 		r.w = SCROLLBAR_SIZE;
 		max = Item_TextScroll_MaxScroll(si->item);
 
-		pos = (DC->cursory - r.y - SCROLLBAR_SIZE/2) * max / (r.h - SCROLLBAR_SIZE);
+		pos = (DC->cursory - r.y - (float)SCROLLBAR_SIZE/2) * max / (r.h - (float)SCROLLBAR_SIZE);
+		
 		if (pos < 0)
 		{
 			pos = 0;
@@ -3633,7 +3634,7 @@ static void Scroll_ListBox_ThumbFunc(void *p) {
 		r.w = si->item->window.rect.w - (SCROLLBAR_SIZE*2) - 2;
 		max = Item_ListBox_MaxScroll(si->item);
 
-		pos = (DC->cursorx - r.x - SCROLLBAR_SIZE/2) * max / (r.w - SCROLLBAR_SIZE);
+		pos = (DC->cursorx - r.x - (float)SCROLLBAR_SIZE/2) * max / (r.w - (float)SCROLLBAR_SIZE);
 		if (pos < 0) {
 			pos = 0;
 		}
@@ -3658,12 +3659,12 @@ static void Scroll_ListBox_ThumbFunc(void *p) {
 			rowLength = si->item->window.rect.w / listPtr->elementWidth;
 			rowMax = max / rowLength;
 
-			pos = (DC->cursory - r.y - SCROLLBAR_SIZE/2) * rowMax / (r.h - SCROLLBAR_SIZE);
+			pos = (DC->cursory - r.y - (float)SCROLLBAR_SIZE/2) * rowMax / (r.h - (float)SCROLLBAR_SIZE);
 			pos *= rowLength;
 		}
 		else
 		{
-			pos = (DC->cursory - r.y - SCROLLBAR_SIZE/2) * max / (r.h - SCROLLBAR_SIZE);
+			pos = (DC->cursory - r.y - (float)SCROLLBAR_SIZE/2) * max / (r.h - (float)SCROLLBAR_SIZE);
 		}
 
 		if (pos < 0) {
@@ -5130,13 +5131,13 @@ void Item_Model_Paint(itemDef_t *item)
 		DC->modelBounds( item->asset, mins, maxs );
 	}
 
-	origin[2] = -0.5 * ( mins[2] + maxs[2] );
-	origin[1] = 0.5 * ( mins[1] + maxs[1] );
+	origin[2] = -0.5f * ( mins[2] + maxs[2] );
+	origin[1] = 0.5f * ( mins[1] + maxs[1] );
 
 	// calculate distance so the model nearly fills the box
 	if (true)
 	{
-		float len = 0.5 * ( maxs[2] - mins[2] );
+		float len = 0.5f * ( maxs[2] - mins[2] );
 		origin[0] = len / 0.268;	// len / tan( fov/2 )
 		//origin[0] = len / tan(w/2);
 	}
@@ -5732,7 +5733,7 @@ void Item_Paint(itemDef_t *item)
 
 	parent = (menuDef_t*)item->parent;
 
-	const double tAdjust = DC->frameTime / (1000.0/60.0); //(60.0 / DC->FPS);
+	const float tAdjust = DC->frameTime / (1000.0/60.0); //(60.0 / DC->FPS);
 
 	if (item->window.flags & WINDOW_ORBITING)
 	{
@@ -6838,7 +6839,7 @@ bool ItemParse_asset_model_go( itemDef_t *item, const char *name,int *runTimeLen
 				char GLAName[MAX_QPATH];
 
 				GLAName[0] = 0;
-				trap->G2API_GetGLAName(item->ghoul2, 0, GLAName);
+				trap->G2API_GetGLAName(item->ghoul2, 0, GLAName, sizeof(GLAName));
 
 				if (GLAName[0])
 				{
@@ -6849,7 +6850,7 @@ bool ItemParse_asset_model_go( itemDef_t *item, const char *name,int *runTimeLen
 
 					if ( slash )
 					{ //If this isn't true the gla path must be messed up somehow.
-						strcpy(slash, "/animation.cfg");
+						Q_strncpyz(slash, "/animation.cfg", sizeof(GLAName) - (slash - GLAName));
 
 						animIndex = UI_ParseAnimationFile(GLAName, nullptr, false);
 						if (animIndex != -1)

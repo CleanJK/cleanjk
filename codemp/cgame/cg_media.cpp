@@ -317,7 +317,7 @@ static void CG_RegisterModels( void ) {
 			numBSPInstances++;
 		}
 	}
-	for ( i = 1; i < numBSPInstances + 1; i++ ) {
+	for ( i = 1; i < numBSPInstances + 1 && breakPoint < MAX_MODELS; i++ ) {
 		const char *bspName = CG_ConfigString( CS_BSP_MODELS + i );
 		if ( !bspName[0] ) {
 			break;
@@ -338,7 +338,7 @@ static void CG_RegisterModels( void ) {
 		}
 		breakPoint++;
 
-		for ( int sub = 1; sub < MAX_MODELS; sub++ ) {
+		for ( int sub = 1; sub < MAX_MODELS && breakPoint < MAX_MODELS; sub++) {
 			char temp[MAX_QPATH];
 			Com_sprintf( temp, MAX_QPATH, "*%d-%d", i, sub );
 			cgs.inlineDrawModel[breakPoint] = trap->R_RegisterModel( temp );

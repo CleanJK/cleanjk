@@ -217,10 +217,9 @@ void ICARUS_FreeEnt( sharedEntity_t *ent )
 	//Remove them from the ICARUSE_EntList list so that when their g_entity index is reused, ICARUS doesn't try to affect the new (incorrect) ent.
 	if VALIDSTRING( ent->script_targetname )
 	{
-		char	temp[1024];
+		char	temp[1024] = { 0 };
 
-		strncpy( (char *) temp, ent->script_targetname, 1023 );
-		temp[ 1023 ] = 0;
+		Q_strncpyz( (char *) temp, ent->script_targetname, sizeof(temp));
 
 		entlist_t::iterator it = ICARUS_EntList.find( Q_strupr(temp) );
 
@@ -273,13 +272,12 @@ bool ICARUS_ValidEnt( sharedEntity_t *ent )
 // Associate the entity's id and name so that it can be referenced later
 void ICARUS_AssociateEnt( sharedEntity_t *ent )
 {
-	char	temp[1024];
+	char	temp[1024] = { 0 };
 
 	if ( VALIDSTRING( ent->script_targetname ) == false )
 		return;
 
-	strncpy( (char *) temp, ent->script_targetname, 1023 );
-	temp[ 1023 ] = 0;
+	Q_strncpyz( (char *) temp, ent->script_targetname, sizeof(temp));
 
 	ICARUS_EntList[ Q_strupr( (char *) temp ) ] = ent->s.number;
 }
@@ -341,7 +339,7 @@ void ICARUS_SoundPrecache(const char *filename)
 {
 	T_G_ICARUS_SOUNDINDEX *sharedMem = (T_G_ICARUS_SOUNDINDEX *)sv.mSharedMemory;
 
-	strcpy( sharedMem->filename, filename );
+	Q_strncpyz( sharedMem->filename, filename, sizeof(sharedMem->filename));
 
 	GVM_ICARUS_SoundIndex();
 }
@@ -350,7 +348,7 @@ int ICARUS_GetIDForString( const char *string )
 {
 	T_G_ICARUS_GETSETIDFORSTRING *sharedMem = (T_G_ICARUS_GETSETIDFORSTRING *)sv.mSharedMemory;
 
-	strcpy(sharedMem->string, string);
+	Q_strncpyz(sharedMem->string, string, sizeof(sharedMem->string));
 
 	return GVM_ICARUS_GetSetIDForString();
 }

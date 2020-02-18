@@ -781,11 +781,11 @@ static inline void CM_AddFacetBevels( facet_t *facet ) {
 				if ( l < w->numpoints )
 					continue;
 
-				//if it's the surface plane
+				// if it's the surface plane
 				if (CM_PlaneEqual(&planes[facet->surfacePlane], plane, &flipped)) {
 					continue;
 				}
-				// see if the plane is allready present
+				// see if the plane is already present
 				for ( i = 0 ; i < facet->numBorders ; i++ ) {
 					if (CM_PlaneEqual(&planes[facet->borderPlanes[i]], plane, &flipped)) {
 							break;
@@ -793,7 +793,11 @@ static inline void CM_AddFacetBevels( facet_t *facet ) {
 				}
 
 				if ( i == facet->numBorders ) {
-					if (facet->numBorders > 4 + 6 + 16) Com_Printf("ERROR: too many bevels\n");
+					if (facet->numBorders >= 26 /*4 + 6 + 16*/)
+					{
+						Com_Error(ERR_FATAL, "ERROR: too many bevels\n");
+					}
+
 					facet->borderPlanes[facet->numBorders] = CM_FindPlane2(plane, &flipped);
 
 					for ( k = 0 ; k < facet->numBorders ; k++ ) {
@@ -828,6 +832,11 @@ static inline void CM_AddFacetBevels( facet_t *facet ) {
 		}
 	}
 	FreeWinding( w );
+
+	if (facet->numBorders >= 26 /*4 + 6 + 16*/)
+	{
+		Com_Error(ERR_FATAL, "ERROR: too many bevels\n");
+	}
 
 	//add opposite plane
 	facet->borderPlanes[facet->numBorders] = facet->surfacePlane;

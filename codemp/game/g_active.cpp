@@ -786,6 +786,11 @@ void G_CheapWeaponFire(int entNum, int ev)
 
 // Events will be passed on to the clients for presentation, but any server game effects are handled here
 void ClientEvents( gentity_t *ent, int oldEventSequence ) {
+	if (ent == nullptr)
+	{
+		return;
+	}
+	
 	int		i;//, j;
 	int		event;
 	gclient_t *client;
@@ -797,6 +802,11 @@ void ClientEvents( gentity_t *ent, int oldEventSequence ) {
 //	gentity_t *drop;
 
 	client = ent->client;
+
+	if (client == nullptr)
+	{
+		return;
+	}
 
 	if ( oldEventSequence < client->ps.eventSequence - MAX_PS_EVENTS ) {
 		oldEventSequence = client->ps.eventSequence - MAX_PS_EVENTS;
@@ -1505,6 +1515,11 @@ void G_SetTauntAnim( gentity_t *ent, int taunt )
 // If "g_synchronousClients 1" is set, this will be called exactly once for each server frame, which makes for smooth
 //	demo recording.
 void ClientThink_real( gentity_t *ent ) {
+	if (ent == nullptr)
+	{
+		return;
+	}
+
 	gclient_t	*client;
 	pmove_t		pmove;
 	int			oldEventSequence;
@@ -1513,6 +1528,11 @@ void ClientThink_real( gentity_t *ent ) {
 	bool	killJetFlags = true;
 
 	client = ent->client;
+
+	if (client == nullptr)
+	{
+		return;
+	}
 
 	// don't think if the client is not yet connected (and thus not yet spawned in)
 	if (client->pers.connected != CON_CONNECTED) {

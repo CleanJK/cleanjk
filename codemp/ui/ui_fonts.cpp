@@ -116,7 +116,7 @@ void Font::Paint( float x, float y, const char *text, const vec4_t colour, int s
 
 	if ( cursorPos != -1 ) {
 		// now print the cursor as well...
-		char sTemp[1024];
+		char sTemp[1024] = { 0 };
 		int copyCount = limit
 			? std::min( (signed)strlen( text ), limit )
 			: (signed)strlen( text );

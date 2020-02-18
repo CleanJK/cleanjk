@@ -518,7 +518,7 @@ public:
 		char mess[1000];
 		if (mFreeIndecies.size()<MAX_G2_MODELS)
 		{
-			sprintf(mess,"************************\nLeaked %d ghoul2info slots\n", MAX_G2_MODELS - mFreeIndecies.size());
+			Com_sprintf(mess, sizeof(mess),"************************\nLeaked %d ghoul2info slots\n", MAX_G2_MODELS - mFreeIndecies.size());
 			OutputDebugString(mess);
 			int i;
 			for (i=0;i<MAX_G2_MODELS;i++)
@@ -531,11 +531,11 @@ public:
 				}
 				if (j==mFreeIndecies.end())
 				{
-					sprintf(mess,"Leaked Info idx=%d id=%d sz=%d\n", i, mIds[i], mInfos[i].size());
+					Com_sprintf(mess, sizeof(mess), "Leaked Info idx=%d id=%d sz=%d\n", i, mIds[i], mInfos[i].size());
 					OutputDebugString(mess);
 					if (mInfos[i].size())
 					{
-						sprintf(mess,"%s\n", mInfos[i][0].mFileName);
+						Com_sprintf(mess, sizeof(mess), "%s\n", mInfos[i][0].mFileName);
 						OutputDebugString(mess);
 					}
 				}
@@ -795,7 +795,7 @@ int G2API_InitGhoul2Model(CGhoul2Info_v **ghoul2Ptr, const char *fileName, int m
 		ghoul2.push_back(CGhoul2Info());
 	}
 
-	strcpy(ghoul2[model].mFileName, fileName);
+	Q_strncpyz(ghoul2[model].mFileName, fileName, sizeof(ghoul2[model].mFileName));
 	ghoul2[model].mModelindex = model;
 	if (!G2_TestModelPointers(&ghoul2[model]))
 	{
@@ -863,7 +863,7 @@ bool G2API_SetSurfaceOnOff(CGhoul2Info_v &ghoul2, const char *surfaceName, const
 		ghlInfo = &ghoul2[0];
 	}
 
-	if (G2_SetupModelPointers(ghlInfo))
+	if (G2_SetupModelPointers(ghlInfo) && ghlInfo)
 	{
 		// ensure we flush the cache
 		ghlInfo->mMeshFrameNum = 0;
@@ -1206,7 +1206,7 @@ bool G2API_SetBoneAnimIndex(CGhoul2Info *ghlInfo, const int index, const int Ast
 		res = G2_SetupModelPointers(ghlInfo);
 	}
 
-	if (res)
+	if (res && ghlInfo)
 	{
 		// ensure we flush the cache
 		ghlInfo->mSkelFrameNum = 0;
@@ -1281,7 +1281,7 @@ bool G2API_SetBoneAnim(CGhoul2Info_v &ghoul2, const int modelIndex, const char *
 			res = G2_SetupModelPointers(ghlInfo);
 		}
 
-		if (res)
+		if (res && ghlInfo)
 		{
 			// ensure we flush the cache
 			ghlInfo->mSkelFrameNum = 0;
@@ -1418,6 +1418,11 @@ bool G2API_SetBoneAnglesIndex(CGhoul2Info *ghlInfo, const int index, const vec3_
 							 const Eorientations_e yaw, const Eorientations_e pitch, const Eorientations_e roll,
 							 qhandle_t *modelList, int blendTime, int currentTime)
 {
+	if (index < 0)
+	{
+		return false;
+	}
+
 	bool setPtrs = false;
 	bool res = false;
 
@@ -1442,7 +1447,7 @@ bool G2API_SetBoneAnglesIndex(CGhoul2Info *ghlInfo, const int index, const vec3_
 		res = G2_SetupModelPointers(ghlInfo);
 	}
 
-	if (res)
+	if (res && ghlInfo)
 	{
 		// ensure we flush the cache
 		ghlInfo->mSkelFrameNum = 0;
@@ -1482,7 +1487,7 @@ bool G2API_SetBoneAngles(CGhoul2Info_v &ghoul2, const int modelIndex, const char
 			res = G2_SetupModelPointers(ghoul2);
 		}
 
-		if (res)
+		if (res && ghlInfo)
 		{
 				// ensure we flush the cache
 			ghlInfo->mSkelFrameNum = 0;
@@ -1495,6 +1500,11 @@ bool G2API_SetBoneAngles(CGhoul2Info_v &ghoul2, const int modelIndex, const char
 bool G2API_SetBoneAnglesMatrixIndex(CGhoul2Info *ghlInfo, const int index, const mdxaBone_t &matrix,
 								   const int flags, qhandle_t *modelList, int blendTime, int currentTime)
 {
+	if (index < 0)
+	{
+		return false;
+	}
+	
 	if (G2_SetupModelPointers(ghlInfo))
 	{
 		// ensure we flush the cache
@@ -2511,7 +2521,7 @@ bool G2API_SetNewOrigin(CGhoul2Info_v &ghoul2, const int boltIndex)
 		ghlInfo = &ghoul2[0];
 	}
 
-	if (G2_SetupModelPointers(ghlInfo))
+	if (G2_SetupModelPointers(ghlInfo) && ghlInfo)
 	{
 		if (boltIndex < 0)
 		{
@@ -2519,11 +2529,11 @@ bool G2API_SetNewOrigin(CGhoul2Info_v &ghoul2, const int boltIndex)
 			if (ghlInfo->currentModel &&
 				ghlInfo->currentModel->name[0])
 			{
-				strcpy(modelName, ghlInfo->currentModel->name);
+				Q_strncpyz(modelName, ghlInfo->currentModel->name, sizeof(modelName));
 			}
 			else
 			{
-				strcpy(modelName, "None?!");
+				Q_strncpyz(modelName, "None?!", sizeof(modelName));
 			}
 
 			Com_Error(ERR_DROP, "Bad boltindex (%i) trying to SetNewOrigin (naughty naughty!)\nModel %s\n", boltIndex, modelName);

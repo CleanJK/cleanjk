@@ -69,8 +69,8 @@ void R_PerformanceCounters( void ) {
 		const float backBuff= glConfig.vidWidth * glConfig.vidHeight * glConfig.colorBits / (8.0f * 1024*1024);
 		const float depthBuff= glConfig.vidWidth * glConfig.vidHeight * glConfig.depthBits / (8.0f * 1024*1024);
 		const float stencilBuff= glConfig.vidWidth * glConfig.vidHeight * glConfig.stencilBits / (8.0f * 1024*1024);
-		ri.Printf( PRINT_ALL,  "Tex MB %.2f + buffers %.2f MB = Total %.2fMB\n",
-			texSize, backBuff*2+depthBuff+stencilBuff, texSize+backBuff*2+depthBuff+stencilBuff);
+		
+		ri.Printf(PRINT_ALL, "Tex MB %.2f + buffers %.2f MB = Total %.2fMB\n", texSize, backBuff * 2 + depthBuff + stencilBuff, texSize + backBuff * 2 + depthBuff + stencilBuff);
 	}
 
 	memset( &tr.pc, 0, sizeof( tr.pc ) );

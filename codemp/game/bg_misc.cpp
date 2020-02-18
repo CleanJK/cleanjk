@@ -488,7 +488,7 @@ bool BG_LegalizedForcePowers( char *powerOut, size_t powerOutSize, int maxRank, 
 	i = 0;
 	while (i < NUM_FORCE_POWERS)
 	{
-		countDown = Com_Clampi( 0, NUM_FORCE_POWER_LEVELS, final_Powers[i] );
+		countDown = Com_Clampi( 0, NUM_FORCE_POWER_LEVELS - 1, final_Powers[i] );
 
 		while (countDown > 0)
 		{
@@ -2970,8 +2970,9 @@ void BG_TempFree( int size )
 
 char *BG_StringAlloc ( const char *source )
 {
+	size_t size = strlen(source) + 1;
 	char *dest = (char*)BG_Alloc( strlen ( source ) + 1 );
-	strcpy( dest, source );
+	Q_strncpyz(dest, source, size);
 	return dest;
 }
 

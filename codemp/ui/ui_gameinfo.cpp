@@ -72,14 +72,15 @@ int UI_ParseInfos( char *buf, int max, char *infos[] ) {
 
 			token = COM_ParseExt( (const char **)&buf, false );
 			if ( !token[0] ) {
-				strcpy( token, "<nullptr>" );
+				Q_strncpyz(token, "<nullptr>", MAX_TOKEN_CHARS);
 			}
 			Info_SetValueForKey( info, key, token );
 		}
 		//NOTE: extra space for arena number
-		infos[count] = (char *) UI_Alloc(strlen(info) + strlen("\\num\\") + strlen(va("%d", MAX_ARENAS)) + 1);
+		size_t infoSize = strlen(info) + strlen("\\num\\") + strlen(va("%d", MAX_ARENAS)) + 1;
+		infos[count] = (char *) UI_Alloc(infoSize);
 		if (infos[count]) {
-			strcpy(infos[count], info);
+			Q_strncpyz(infos[count], info, infoSize);
 #ifndef FINAL_BUILD
 			if (com_buildScript.value)
 			{
@@ -126,7 +127,6 @@ static void UI_LoadArenasFromFile( char *filename ) {
 void UI_LoadArenas( void ) {
 	int			numdirs;
 	char		filename[MAX_QPATH];
-	char		dirlist[MAPSBUFSIZE];
 	char*		dirptr;
 	int			i, n;
 	int			dirlen;
@@ -135,13 +135,22 @@ void UI_LoadArenas( void ) {
 	ui_numArenas = 0;
 	uiInfo.mapCount = 0;
 
+	char *dirlist = (char *)calloc(MAPSBUFSIZE, sizeof(char));
+
+	if (dirlist == nullptr)
+	{
+		Com_Printf("UI_LoadArenas: unable to alloc memory for: char *dirlist\n");
+
+		return;
+	}
+
 	// get all arenas from .arena files
-	numdirs = trap->FS_GetFileList( "scripts", ".arena", dirlist, ARRAY_LEN( dirlist ) );
+	numdirs = trap->FS_GetFileList( "scripts", ".arena", dirlist, MAPSBUFSIZE);
 	dirptr  = dirlist;
 	for (i = 0; i < numdirs; i++, dirptr += dirlen+1) {
 		dirlen = strlen(dirptr);
-		strcpy(filename, "scripts/");
-		strcat(filename, dirptr);
+		Q_strncpyz(filename, "scripts/", sizeof(filename));
+		Q_strncpyz(filename, dirptr, sizeof(filename));
 		UI_LoadArenasFromFile(filename);
 	}
 //	trap->Print( "%i arenas parsed\n", ui_numArenas );
@@ -198,6 +207,9 @@ void UI_LoadArenas( void ) {
 			break;
 		}
 	}
+
+	free(dirlist);
+	dirlist = nullptr;
 }
 
 static void UI_LoadBotsFromFile( char *filename ) {
@@ -265,12 +277,12 @@ void UI_LoadBots( void ) {
 	}
 
 	// get all bots from .bot files
-	numdirs = trap->FS_GetFileList("scripts", ".bot", dirlist, 1024 );
+	numdirs = trap->FS_GetFileList("scripts", ".bot", dirlist, sizeof(dirlist) );
 	dirptr  = dirlist;
 	for (i = 0; i < numdirs; i++, dirptr += dirlen+1) {
 		dirlen = strlen(dirptr);
-		strcpy(filename, "scripts/");
-		strcat(filename, dirptr);
+		Q_strncpyz(filename, "scripts/", sizeof(filename));
+		Q_strcat(filename, sizeof(filename), dirptr);
 		UI_LoadBotsFromFile(filename);
 	}
 //	trap->Print( "%i bots parsed\n", ui_numBots );

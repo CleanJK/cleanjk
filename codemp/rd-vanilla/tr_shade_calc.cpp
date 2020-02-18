@@ -796,7 +796,7 @@ void RB_CalcFogTexCoords( float *st ) {
 			if ( t < 1.0 ) {
 				t = 1.0/32;	// point is outside, so no fogging
 			} else {
-				t = 1.0/32 + 30.0/32 * t / ( t - eyeT );	// cut the distance at the fog plane
+				t = 1.0f/32 + 30.0f/32 * t / ( t - eyeT );	// cut the distance at the fog plane
 			}
 		} else {
 			if ( t < 0 ) {
@@ -850,8 +850,8 @@ void RB_CalcTurbulentTexCoords( const waveForm_t *wf, float *st )
 		float s = st[0];
 		float t = st[1];
 
-		st[0] = s + tr.sinTable[ ( ( int ) ( ( ( tess.xyz[i][0] + tess.xyz[i][2] )* 1.0/128 * 0.125 + now ) * FUNCTABLE_SIZE ) ) & ( FUNCTABLE_MASK ) ] * wf->amplitude;
-		st[1] = t + tr.sinTable[ ( ( int ) ( ( tess.xyz[i][1] * 1.0/128 * 0.125 + now ) * FUNCTABLE_SIZE ) ) & ( FUNCTABLE_MASK ) ] * wf->amplitude;
+		st[0] = s + tr.sinTable[ ( ( int ) ( ( ( tess.xyz[i][0] + tess.xyz[i][2] )* 1.0f/128 * 0.125f + now ) * FUNCTABLE_SIZE ) ) & ( FUNCTABLE_MASK ) ] * wf->amplitude;
+		st[1] = t + tr.sinTable[ ( ( int ) ( ( tess.xyz[i][1] * 1.0f/128 * 0.125f + now ) * FUNCTABLE_SIZE ) ) & ( FUNCTABLE_MASK ) ] * wf->amplitude;
 	}
 }
 
@@ -1042,31 +1042,42 @@ void RB_CalcDiffuseEntityColor( unsigned char *colors )
 	float			*v, *normal;
 	float			incoming;
 	trRefEntity_t	*ent;
-	int				ambientLightInt;
-	vec3_t			ambientLight;
-	vec3_t			lightDir;
-	vec3_t			directedLight;
+	int				ambientLightInt = 0;
+	vec3_t			ambientLight = { 0 };
+	vec3_t			lightDir = { 0 };
+	vec3_t			directedLight = { 0 };
 	int				numVertexes;
-	float			j,r,g,b;
+	float			j = 1.0f,r = 1.0f,g = 1.0f,b = 1.0f;
 
 	if ( !backEnd.currentEntity )
 	{//error, use the normal lighting
 		RB_CalcDiffuseColor(colors);
+
+		//return; ?
 	}
 
 	ent = backEnd.currentEntity;
-	VectorCopy( ent->ambientLight, ambientLight );
-	VectorCopy( ent->directedLight, directedLight );
-	VectorCopy( ent->lightDir, lightDir );
 
-	r = backEnd.currentEntity->e.shaderRGBA[0]/255.0f;
-	g = backEnd.currentEntity->e.shaderRGBA[1]/255.0f;
-	b = backEnd.currentEntity->e.shaderRGBA[2]/255.0f;
+	if (!ent)
+	{
+		Com_Error(ERR_DROP, "RB_CalcDiffuseEntityColor: invalid ent\n");
 
-	((byte *)&ambientLightInt)[0] = Q_ftol( r*ent->ambientLight[0] );
-	((byte *)&ambientLightInt)[1] = Q_ftol( g*ent->ambientLight[1] );
-	((byte *)&ambientLightInt)[2] = Q_ftol( b*ent->ambientLight[2] );
-	((byte *)&ambientLightInt)[3] = backEnd.currentEntity->e.shaderRGBA[3];
+		return;
+	}
+
+	VectorCopy(ent->ambientLight, ambientLight);
+	VectorCopy(ent->directedLight, directedLight);
+	VectorCopy(ent->lightDir, lightDir);
+
+	r = backEnd.currentEntity->e.shaderRGBA[0] / 255.0f;
+	g = backEnd.currentEntity->e.shaderRGBA[1] / 255.0f;
+	b = backEnd.currentEntity->e.shaderRGBA[2] / 255.0f;
+
+	((byte*)&ambientLightInt)[0] = Q_ftol(r * ent->ambientLight[0]);
+	((byte*)&ambientLightInt)[1] = Q_ftol(g * ent->ambientLight[1]);
+	((byte*)&ambientLightInt)[2] = Q_ftol(b * ent->ambientLight[2]);
+	((byte*)&ambientLightInt)[3] = backEnd.currentEntity->e.shaderRGBA[3];
+	
 
 	v = tess.xyz[0];
 	normal = tess.normal[0];
@@ -1097,8 +1108,7 @@ void RB_CalcDiffuseEntityColor( unsigned char *colors )
 			j = 255;
 		}
 		colors[i*4+2] = Q_ftol(j*b);
-
-		colors[i*4+3] = backEnd.currentEntity->e.shaderRGBA[3];
+		colors[i * 4 + 3] = backEnd.currentEntity->e.shaderRGBA[3];
 	}
 }
 

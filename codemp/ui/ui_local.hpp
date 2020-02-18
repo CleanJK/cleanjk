@@ -344,9 +344,9 @@ extern uiInfo_t uiInfo;
 
 bool UI_ConsoleCommand(int realTime);
 bool UI_FeederSelection(float feederID, int index, itemDef_t* item);
-bool UI_SaberModelForSaber(const char* saberName, char* saberModel);
-bool UI_SaberProperNameForSaber(const char* saberName, char* saberProperName);
-bool UI_SaberTypeForSaber(const char* saberName, char* saberType);
+bool UI_SaberModelForSaber(const char* saberName, char* saberModel, int saberModelDestSize);
+bool UI_SaberProperNameForSaber(const char* saberName, char* saberProperName, int saberProperNameDestSize);
+bool UI_SaberTypeForSaber(const char* saberName, char* saberType, int saberTypeDestSize);
 bool UI_TrueJediEnabled(void);
 char* UI_Cvar_VariableString(const char* var_name);
 char* UI_GetBotNameByNumber(int num);

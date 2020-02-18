@@ -42,17 +42,19 @@ int nodenum; //so we can connect broken trails
 
 int gLevelFlags = 0;
 
+#define FLAG_STR_SIZE 128
+
 char *GetFlagStr( int flags )
 {
 	char *flagstr;
 	int i;
 
-	flagstr = (char *)B_TempAlloc(128);
+	flagstr = (char *)B_TempAlloc(FLAG_STR_SIZE);
 	i = 0;
 
 	if (!flags)
 	{
-		strcpy(flagstr, "none\0");
+		Q_strncpyz(flagstr, "none\0", FLAG_STR_SIZE);
 		goto fend;
 	}
 
@@ -172,7 +174,7 @@ char *GetFlagStr( int flags )
 
 	if (i == 0)
 	{
-		strcpy(flagstr, "unknown\0");
+		Q_strncpyz(flagstr, "unknown\0", FLAG_STR_SIZE);
 	}
 
 fend:
@@ -325,7 +327,7 @@ void TransferWPData(int from, int to)
 
 	if (!gWPArray[to])
 	{
-		trap->Print(S_COLOR_RED "FATAL ERROR: Could not allocated memory for waypoint\n");
+		trap->Error(ERR_DROP, "FATAL ERROR: Could not allocated memory for waypoint\n");
 	}
 
 	gWPArray[to]->flags = gWPArray[from]->flags;
@@ -356,7 +358,7 @@ void CreateNewWP(vec3_t origin, int flags)
 
 	if (!gWPArray[gWPNum])
 	{
-		trap->Print(S_COLOR_RED "ERROR: Could not allocated memory for waypoint\n");
+		trap->Error(ERR_DROP, "FATAL ERROR: Could not allocated memory for waypoint\n");
 	}
 
 	gWPArray[gWPNum]->flags = flags;
@@ -386,7 +388,7 @@ void CreateNewWP_FromObject(wpobject_t *wp)
 
 	if (!gWPArray[gWPNum])
 	{
-		trap->Print(S_COLOR_RED "ERROR: Could not allocated memory for waypoint\n");
+		trap->Error(ERR_DROP, "FATAL ERROR: Could not allocated memory for waypoint\n");
 	}
 
 	gWPArray[gWPNum]->flags = wp->flags;
@@ -529,11 +531,11 @@ void RemoveWP_InTrail(int afterindex)
 int CreateNewWP_InTrail(vec3_t origin, int flags, int afterindex)
 {
 	int foundindex;
-	int foundanindex;
+	bool foundanindex;
 	int i;
 
 	foundindex = 0;
-	foundanindex = 0;
+	foundanindex = false;
 	i = 0;
 
 	if (gWPNum >= MAX_WPARRAY_SIZE)
@@ -556,7 +558,7 @@ int CreateNewWP_InTrail(vec3_t origin, int flags, int afterindex)
 		if (gWPArray[i] && gWPArray[i]->inuse && gWPArray[i]->index == afterindex)
 		{
 			foundindex = i;
-			foundanindex = 1;
+			foundanindex = true;
 			break;
 		}
 
@@ -579,7 +581,7 @@ int CreateNewWP_InTrail(vec3_t origin, int flags, int afterindex)
 		}
 		else if (gWPArray[i] && gWPArray[i]->inuse && gWPArray[i]->index == foundindex)
 		{
-			i++;
+			//i++;
 
 			if (!gWPArray[i])
 			{
@@ -1273,7 +1275,7 @@ int ConnectTrail(int startindex, int endindex, bool behindTheScenes)
 	failsafe = 0;
 	VectorCopy(gWPArray[startindex]->origin, validspotpos);
 
-	while (failsafe < MAX_NODETABLE_SIZE && i < MAX_NODETABLE_SIZE && i >= 0)
+	while (failsafe < MAX_NODETABLE_SIZE && i >= 0 && i < MAX_NODETABLE_SIZE )
 	{
 		VectorSubtract(validspotpos, nodetable[i].origin, a);
 		if (!nodetable[nodetable[i].neighbornum].inuse || !CanGetToVectorTravel(validspotpos, /*nodetable[nodetable[i].neighbornum].origin*/nodetable[i].origin, mins, maxs) || VectorLength(a) > maxDistFactor || (!CanGetToVectorTravel(validspotpos, gWPArray[endindex]->origin, mins, maxs) && CanGetToVectorTravel(nodetable[i].origin, gWPArray[endindex]->origin, mins, maxs)) )
@@ -1805,9 +1807,9 @@ void CalculateJumpRoutes(void)
 
 				gWPArray[i]->forceJumpTo = 0;
 
-				if (gWPArray[i-1] && gWPArray[i-1]->inuse && (gWPArray[i-1]->origin[2]+16) < gWPArray[i]->origin[2])
+				if (gWPArray[(i == 0) ? i : i-1] && gWPArray[(i == 0) ? i : i - 1]->inuse && (gWPArray[(i == 0) ? i : i - 1]->origin[2]+16) < gWPArray[i]->origin[2])
 				{
-					nheightdif = (gWPArray[i]->origin[2] - gWPArray[i-1]->origin[2]);
+					nheightdif = (gWPArray[i]->origin[2] - gWPArray[(i == 0) ? i : i - 1]->origin[2]);
 				}
 
 				if (gWPArray[i+1] && gWPArray[i+1]->inuse && (gWPArray[i+1]->origin[2]+16) < gWPArray[i]->origin[2])
@@ -2202,6 +2204,9 @@ void FlagObjects(void)
 	}
 }
 
+#define FILE_STRING_SIZE 524288
+#define STORE_STRING_SIZE 4096
+#define ROUTE_STRING_SIZE 1024
 int SavePathData(const char *filename)
 {
 	fileHandle_t f;
@@ -2220,13 +2225,13 @@ int SavePathData(const char *filename)
 		return 0;
 	}
 
-	routePath = (char *)B_TempAlloc(1024);
+	routePath = (char *)B_TempAlloc(ROUTE_STRING_SIZE);
 
-	Com_sprintf(routePath, 1024, "botroutes/%s.wnt\0", filename);
+	Com_sprintf(routePath, ROUTE_STRING_SIZE, "botroutes/%s.wnt\0", filename);
 
 	trap->FS_Open(routePath, &f, FS_WRITE);
 
-	B_TempFree(1024); //routePath
+	B_TempFree(ROUTE_STRING_SIZE); //routePath
 
 	if (!f)
 	{
@@ -2244,10 +2249,10 @@ int SavePathData(const char *filename)
 
 	FlagObjects(); //currently only used for flagging waypoints nearest CTF flags
 
-	fileString = (char *)B_TempAlloc(524288);
-	storeString = (char *)B_TempAlloc(4096);
+	fileString = (char *)B_TempAlloc(FILE_STRING_SIZE);
+	storeString = (char *)B_TempAlloc(STORE_STRING_SIZE);
 
-	Com_sprintf(fileString, 524288, "%i %i %f (%f %f %f) { ", gWPArray[i]->index, gWPArray[i]->flags, gWPArray[i]->weight, gWPArray[i]->origin[0], gWPArray[i]->origin[1], gWPArray[i]->origin[2]);
+	Com_sprintf(fileString, FILE_STRING_SIZE, "%i %i %f (%f %f %f) { ", gWPArray[i]->index, gWPArray[i]->flags, gWPArray[i]->weight, gWPArray[i]->origin[0], gWPArray[i]->origin[1], gWPArray[i]->origin[2]);
 
 	n = 0;
 
@@ -2255,11 +2260,11 @@ int SavePathData(const char *filename)
 	{
 		if (gWPArray[i]->neighbors[n].forceJumpTo)
 		{
-			Com_sprintf(storeString, 4096, "%s%i-%i ", storeString, gWPArray[i]->neighbors[n].num, gWPArray[i]->neighbors[n].forceJumpTo);
+			Com_sprintf(storeString, STORE_STRING_SIZE, "%s%i-%i ", storeString, gWPArray[i]->neighbors[n].num, gWPArray[i]->neighbors[n].forceJumpTo);
 		}
 		else
 		{
-			Com_sprintf(storeString, 4096, "%s%i ", storeString, gWPArray[i]->neighbors[n].num);
+			Com_sprintf(storeString, STORE_STRING_SIZE, "%s%i ", storeString, gWPArray[i]->neighbors[n].num);
 		}
 		n++;
 	}
@@ -2276,14 +2281,14 @@ int SavePathData(const char *filename)
 
 	gWPArray[i]->disttonext = flLen;
 
-	Com_sprintf(fileString, 524288, "%s} %f\n", fileString, flLen);
+	Com_sprintf(fileString, FILE_STRING_SIZE, "%s} %f\n", fileString, flLen);
 
 	i++;
 
 	while (i < gWPNum)
 	{
 		//sprintf(fileString, "%s%i %i %f (%f %f %f) { ", fileString, gWPArray[i]->index, gWPArray[i]->flags, gWPArray[i]->weight, gWPArray[i]->origin[0], gWPArray[i]->origin[1], gWPArray[i]->origin[2]);
-		Com_sprintf(storeString, 4096, "%i %i %f (%f %f %f) { ", gWPArray[i]->index, gWPArray[i]->flags, gWPArray[i]->weight, gWPArray[i]->origin[0], gWPArray[i]->origin[1], gWPArray[i]->origin[2]);
+		Com_sprintf(storeString, STORE_STRING_SIZE, "%i %i %f (%f %f %f) { ", gWPArray[i]->index, gWPArray[i]->flags, gWPArray[i]->weight, gWPArray[i]->origin[0], gWPArray[i]->origin[1], gWPArray[i]->origin[2]);
 
 		n = 0;
 
@@ -2291,11 +2296,11 @@ int SavePathData(const char *filename)
 		{
 			if (gWPArray[i]->neighbors[n].forceJumpTo)
 			{
-				Com_sprintf(storeString, 4096, "%s%i-%i ", storeString, gWPArray[i]->neighbors[n].num, gWPArray[i]->neighbors[n].forceJumpTo);
+				Com_sprintf(storeString, STORE_STRING_SIZE, "%s%i-%i ", storeString, gWPArray[i]->neighbors[n].num, gWPArray[i]->neighbors[n].forceJumpTo);
 			}
 			else
 			{
-				Com_sprintf(storeString, 4096, "%s%i ", storeString, gWPArray[i]->neighbors[n].num);
+				Com_sprintf(storeString, STORE_STRING_SIZE, "%s%i ", storeString, gWPArray[i]->neighbors[n].num);
 			}
 			n++;
 		}
@@ -2312,17 +2317,17 @@ int SavePathData(const char *filename)
 
 		gWPArray[i]->disttonext = flLen;
 
-		Com_sprintf(storeString, 4096, "%s} %f\n", storeString, flLen);
+		Com_sprintf(storeString, STORE_STRING_SIZE, "%s} %f\n", storeString, flLen);
 
-		strcat(fileString, storeString);
+		Q_strcat(fileString, FILE_STRING_SIZE, storeString);
 
 		i++;
 	}
 
 	trap->FS_Write(fileString, strlen(fileString), f);
 
-	B_TempFree(524288); //fileString
-	B_TempFree(4096); //storeString
+	B_TempFree(FILE_STRING_SIZE); //fileString
+	B_TempFree(STORE_STRING_SIZE); //storeString
 
 	trap->FS_Close(f);
 

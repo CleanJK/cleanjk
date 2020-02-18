@@ -200,7 +200,7 @@ void S_TransferPaintBuffer(int endtime)
 		// write a fixed sine wave
 		count = (endtime - s_paintedtime);
 		for (i=0 ; i<count ; i++)
-			paintbuffer[i].left = paintbuffer[i].right = (int)(sin((s_paintedtime+i)*0.1)*20000*256);
+			paintbuffer[i].left = paintbuffer[i].right = (int)(sin((s_paintedtime+i)*0.1f)*20000*256);
 	}
 
 	if (dma.samplebits == 16 && dma.channels == 2)

@@ -65,7 +65,7 @@ void CG_GetColorForHealth( int health, int armor, vec4_t hcolor ) {
 	} else if ( health < 66 ) {
 		hcolor[2] = 0;
 	} else {
-		hcolor[2] = ( health - 66 ) / 33.0;
+		hcolor[2] = ( health - 66 ) / 33.0f;
 	}
 
 	if ( health > 60 ) {
@@ -73,7 +73,7 @@ void CG_GetColorForHealth( int health, int armor, vec4_t hcolor ) {
 	} else if ( health < 30 ) {
 		hcolor[1] = 0;
 	} else {
-		hcolor[1] = ( health - 30 ) / 30.0;
+		hcolor[1] = ( health - 30 ) / 30.0f;
 	}
 }
 
@@ -159,6 +159,11 @@ void CG_DrawChar( int x, int y, int width, int height, int ch ) {
 // Coordinates are at 640 by 480 virtual resolution
 void CG_DrawStringExt( int x, int y, const char *string, const float *setColor, bool forceColor, bool shadow, int charWidth, int charHeight, int maxChars )
 {
+	if (string == nullptr)
+	{
+		return;
+	}
+
 	if (trap->R_Language_IsAsian())
 	{
 		// hack-a-doodle-do (post-release quick fix code)...
@@ -206,7 +211,9 @@ void CG_DrawStringExt( int x, int y, const char *string, const float *setColor, 
 				s += 2;
 				continue;
 			}
+
 			CG_DrawChar( xx, y, charWidth, charHeight, *s );
+
 			xx += charWidth;
 			s++;
 		}
@@ -261,8 +268,8 @@ static void CG_TileClearBox( int x, int y, int w, int h, qhandle_t hShader ) {
 
 	s1 = x/64.0;
 	t1 = y/64.0;
-	s2 = (x+w)/64.0;
-	t2 = (y+h)/64.0;
+	s2 = (x+w)/64.0f;
+	t2 = (y+h)/64.0f;
 	trap->R_DrawStretchPic( x, y, w, h, s1, t1, s2, t2, hShader );
 }
 
@@ -318,7 +325,7 @@ float *CG_FadeColor( int startMsec, int totalMsec ) {
 
 	// fade out
 	if ( totalMsec - t < FADE_TIME ) {
-		color[3] = ( totalMsec - t ) * 1.0/FADE_TIME;
+		color[3] = ( totalMsec - t ) * 1.0f/FADE_TIME;
 	} else {
 		color[3] = 1.0;
 	}
@@ -341,7 +348,7 @@ void CG_ColorForGivenHealth( vec4_t hcolor, int health )
 	}
 	else
 	{
-		hcolor[2] = ( health - 66 ) / 33.0;
+		hcolor[2] = ( health - 66 ) / 33.0f;
 	}
 
 	if ( health > 60 )
@@ -354,7 +361,7 @@ void CG_ColorForGivenHealth( vec4_t hcolor, int health )
 	}
 	else
 	{
-		hcolor[1] = ( health - 30 ) / 30.0;
+		hcolor[1] = ( health - 30 ) / 30.0f;
 	}
 }
 

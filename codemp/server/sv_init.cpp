@@ -354,7 +354,6 @@ void SV_SpawnServer( char *server, bool killBots, ForceReload_e eForceReload ) {
 	int			i;
 	int			checksum;
 	bool	isBot;
-	char		systemInfo[16384];
 	const char	*p;
 
 	SV_StopAutoRecordDemos();
@@ -608,8 +607,17 @@ void SV_SpawnServer( char *server, bool killBots, ForceReload_e eForceReload ) {
 	p = FS_ReferencedPakNames();
 	Cvar_Set( "sv_referencedPakNames", p );
 
+	char* systemInfo = (char*)calloc(16384, sizeof(char));
+
+	if (systemInfo == nullptr)
+	{
+		Com_Printf("SV_SpawnServer: unable to alloc memory for: char* systemInfo\n");
+
+		return;
+	}
+
 	// save systeminfo and serverinfo strings
-	Q_strncpyz( systemInfo, Cvar_InfoString_Big( CVAR_SYSTEMINFO ), sizeof( systemInfo ) );
+	Q_strncpyz( systemInfo, Cvar_InfoString_Big( CVAR_SYSTEMINFO ), 16384);
 	cvar_modifiedFlags &= ~CVAR_SYSTEMINFO;
 	SV_SetConfigstring( CS_SYSTEMINFO, systemInfo );
 
@@ -643,6 +651,9 @@ void SV_SpawnServer( char *server, bool killBots, ForceReload_e eForceReload ) {
 	}
 
 	SV_BeginAutoRecordDemos();
+
+	free(systemInfo);
+	systemInfo = nullptr;
 }
 
 #ifdef DEDICATED

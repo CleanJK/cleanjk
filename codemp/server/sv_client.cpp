@@ -105,8 +105,8 @@ static bool SV_IsBanned( netadr_t *from, bool isexception )
 void SV_DirectConnect( netadr_t from ) {
 	char		userinfo[MAX_INFO_STRING];
 	int			i;
-	client_t	*cl, *newcl;
-	client_t	temp;
+	client_t	*cl;
+	client_t	*newcl;
 	sharedEntity_t *ent;
 	int			clientNum;
 	int			version;
@@ -189,8 +189,17 @@ void SV_DirectConnect( netadr_t from ) {
 		}
 	}
 
-	newcl = &temp;
-	Com_Memset (newcl, 0, sizeof(client_t));
+	client_t* temp = (client_t*)calloc(1, sizeof(client_t));
+
+	if (temp == nullptr)
+	{
+		Com_Printf("SV_DirectConnect: unable to alloc memory for: client_t* temp\n");
+
+		return;
+	}
+
+	newcl = temp;
+	//Com_Memset (newcl, 0, sizeof(client_t)); // Done by calloc
 
 	// if there is already a slot for this ip, reuse it
 	for (i=0,cl=svs.clients ; i < sv_maxclients->integer ; i++,cl++) {
@@ -255,14 +264,14 @@ void SV_DirectConnect( netadr_t from ) {
 			}
 			else {
 				Com_Error( ERR_FATAL, "server is full on local connect\n" );
-				return;
+				goto freeMemoryAndReturn;
 			}
 		}
 		else {
 			const char *SV_GetStringEdString(char *refSection, char *refName);
 			NET_OutOfBandPrint( NS_SERVER, from, va("print\n%s\n", SV_GetStringEdString("MP_SVGAME","SERVER_IS_FULL")));
 			Com_DPrintf ("Rejected a connection.\n");
-			return;
+			goto freeMemoryAndReturn;
 		}
 	}
 
@@ -275,7 +284,7 @@ gotnewcl:
 	// build a new connection
 	// accept the new client
 	// this is the only place a client_t is ever initialized
-	*newcl = temp;
+	*newcl = *temp;
 	clientNum = newcl - svs.clients;
 	ent = SV_GentityNum( clientNum );
 	newcl->gentity = ent;
@@ -294,7 +303,7 @@ gotnewcl:
 	if ( denied ) {
 		NET_OutOfBandPrint( NS_SERVER, from, "print\n%s\n", denied );
 		Com_DPrintf ("Game rejected a connection: %s.\n", denied);
-		return;
+		goto freeMemoryAndReturn;
 	}
 
 	SV_UserinfoChanged( newcl );
@@ -328,6 +337,12 @@ gotnewcl:
 	if ( count == 1 || count == sv_maxclients->integer ) {
 		SV_Heartbeat_f();
 	}
+
+freeMemoryAndReturn:
+	free(temp);
+	temp = nullptr;
+
+	return;
 }
 
 // Called when the player is totally leaving the server, either willingly or unwillingly.
@@ -439,10 +454,17 @@ void SV_CreateClientGameStateMessage( client_t *client, msg_t *msg ) {
 // This will be sent on the initial connection and upon each new map load.
 // It will be resent if the client acknowledges a later message but has the wrong gamestate.
 void SV_SendClientGameState( client_t *client ) {
-	msg_t		msg;
-	byte		msgBuffer[MAX_MSGLEN];
+	msg_t msg;
+	byte *msgBuffer = (byte *)calloc(MAX_MSGLEN, sizeof(byte));
 
-	MSG_Init( &msg, msgBuffer, sizeof( msgBuffer ) );
+	if (msgBuffer == nullptr)
+	{
+		Com_Printf("SV_SendClientGameState: unable to alloc memory for: byte *msgBuffer\n");
+
+		return;
+	}
+
+	MSG_Init( &msg, msgBuffer, MAX_MSGLEN);
 
 	// MW - my attempt to fix illegible server message errors caused by
 	// packet fragmentation of initial snapshot.
@@ -471,14 +493,24 @@ void SV_SendClientGameState( client_t *client ) {
 
 	// deliver this to the client
 	SV_SendMessageToClient( &msg, client );
+
+	free(msgBuffer);
+	msgBuffer = nullptr;
 }
 
 void SV_SendClientMapChange( client_t *client )
 {
 	msg_t		msg;
-	byte		msgBuffer[MAX_MSGLEN];
+	byte* msgBuffer = (byte*)calloc(MAX_MSGLEN, sizeof(byte));
 
-	MSG_Init( &msg, msgBuffer, sizeof( msgBuffer ) );
+	if (msgBuffer == nullptr)
+	{
+		Com_Printf("SV_SendClientGameState: unable to alloc memory for: byte *msgBuffer\n");
+
+		return;
+	}
+
+	MSG_Init( &msg, msgBuffer, MAX_MSGLEN);
 
 	// NOTE, MRE: all server->client messages now acknowledge
 	// let the client know which reliable clientCommands we have received
@@ -495,6 +527,9 @@ void SV_SendClientMapChange( client_t *client )
 
 	// deliver this to the client
 	SV_SendMessageToClient( &msg, client );
+
+	free(msgBuffer);
+	msgBuffer = nullptr;
 }
 
 void SV_ClientEnterWorld( client_t *client, usercmd_t *cmd ) {

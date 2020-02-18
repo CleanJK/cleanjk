@@ -207,8 +207,8 @@ void GP_Clean(TGenericParser2 GP2);
 void GP_Delete(TGenericParser2 *GP2);
 
 // CGPGroup (void *) routines
-bool GPG_FindPairValue(TGPGroup GPG, const char *key, const char *defaultVal, char *Value);
-bool GPG_GetName(TGPGroup GPG, char *Value);
+bool GPG_FindPairValue(TGPGroup GPG, const char *key, const char *defaultVal, char *Value, int ValueDestSize);
+bool GPG_GetName(TGPGroup GPG, char *Value, int ValueDestSize);
 const char *GPG_FindPairValue(TGPGroup GPG, const char *key, const char *defaultVal);
 const char*GPG_GetName(TGPGroup GPG);
 TGPGroup GPG_FindSubGroup(TGPGroup GPG, const char *name);
@@ -222,8 +222,8 @@ TGPGroup GPG_GetSubGroups(TGPGroup GPG);
 TGPValue GPG_FindPair(TGPGroup GPG, const char *key);
 
 // CGPValue (void *) routines
-bool GPV_GetName(TGPValue GPV, char *Value);
-bool GPV_GetTopValue(TGPValue GPV, char *Value);
+bool GPV_GetName(TGPValue GPV, char *Value, int ValueDestSize);
+bool GPV_GetTopValue(TGPValue GPV, char *Value, int ValueDestSize);
 bool GPV_IsList(TGPValue GPV);
 const char *GPV_GetName(TGPValue GPV);
 const char *GPV_GetTopValue(TGPValue GPV);

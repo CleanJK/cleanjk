@@ -143,11 +143,11 @@ char *Sys_GetCurrentUser( void )
 	DWORD size = sizeof( s_userName );
 
 	if ( !GetUserName( s_userName, &size ) )
-		strcpy( s_userName, "player" );
+		Q_strncpyz( s_userName, "player", sizeof(s_userName) );
 
 	if ( !s_userName[0] )
 	{
-		strcpy( s_userName, "player" );
+		Q_strncpyz(s_userName, "player", sizeof(s_userName));
 	}
 
 	return s_userName;
@@ -268,8 +268,12 @@ Sys_Cwd
 char *Sys_Cwd( void ) {
 	static char cwd[MAX_OSPATH];
 
-	_getcwd( cwd, sizeof( cwd ) - 1 );
-	cwd[MAX_OSPATH-1] = 0;
+	char *ptr = _getcwd( cwd, sizeof( cwd ) - 1 );
+
+	if (ptr)
+	{
+		cwd[MAX_OSPATH - 1] = 0;
+	}
 
 	return cwd;
 }
@@ -303,7 +307,7 @@ DIRECTORY SCANNING
 ==============================================================
 */
 
-#define	MAX_FOUND_FILES	0x1000
+#define	MAX_FOUND_FILES	4096
 
 void Sys_ListFilteredFiles( const char *basedir, char *subdirs, char *filter, char **psList, int *numfiles ) {
 	char		search[MAX_OSPATH], newsubdirs[MAX_OSPATH];
@@ -377,12 +381,20 @@ char **Sys_ListFiles( const char *directory, const char *extension, char *filter
 	char		search[MAX_OSPATH];
 	int			nfiles;
 	char		**listCopy;
-	char		*list[MAX_FOUND_FILES];
 	struct _finddata_t findinfo;
 	intptr_t	findhandle;
 	int			flag;
 	int			i;
 	int			extLen;
+
+	char** list = (char**)calloc(MAX_FOUND_FILES, sizeof(char *));
+
+	if (list == nullptr)
+	{
+		Com_Printf("Sys_ListFiles: unable to alloc memory for: char** list\n");
+
+		return nullptr;
+	}
 
 	if (filter) {
 
@@ -393,7 +405,7 @@ char **Sys_ListFiles( const char *directory, const char *extension, char *filter
 		*numfiles = nfiles;
 
 		if (!nfiles)
-			return nullptr;
+			goto freeMemoryAndReturnNullptr;
 
 		listCopy = (char **)Z_Malloc( ( nfiles + 1 ) * sizeof( *listCopy ), TAG_LISTFILES );
 		for ( i = 0 ; i < nfiles ; i++ ) {
@@ -401,7 +413,7 @@ char **Sys_ListFiles( const char *directory, const char *extension, char *filter
 		}
 		listCopy[i] = nullptr;
 
-		return listCopy;
+		goto freeMemoryAndReturnListCopy;
 	}
 
 	if ( !extension) {
@@ -426,7 +438,7 @@ char **Sys_ListFiles( const char *directory, const char *extension, char *filter
 	findhandle = _findfirst (search, &findinfo);
 	if (findhandle == -1) {
 		*numfiles = 0;
-		return nullptr;
+		goto freeMemoryAndReturnNullptr;
 	}
 
 	do {
@@ -455,7 +467,7 @@ char **Sys_ListFiles( const char *directory, const char *extension, char *filter
 	*numfiles = nfiles;
 
 	if ( !nfiles ) {
-		return nullptr;
+		goto freeMemoryAndReturnNullptr;
 	}
 
 	listCopy = (char **)Z_Malloc( ( nfiles + 1 ) * sizeof( *listCopy ), TAG_LISTFILES );
@@ -476,7 +488,15 @@ char **Sys_ListFiles( const char *directory, const char *extension, char *filter
 		}
 	} while(flag);
 
+freeMemoryAndReturnListCopy:
+	free(list);
+	list = nullptr;
 	return listCopy;
+
+freeMemoryAndReturnNullptr:
+	free(list);
+	list = nullptr;
+	return nullptr;
 }
 
 //rwwRMG - changed to fileList to not conflict with list type

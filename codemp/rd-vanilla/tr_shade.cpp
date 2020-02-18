@@ -689,7 +689,7 @@ static void ProjectDlightTexture( void ) {
 	vec3_t	origin;
 	float	*texCoords;
 	byte	*colors;
-	byte	clipBits[SHADER_MAX_VERTEXES];
+	byte	clipBits[SHADER_MAX_VERTEXES] = { 0 };
 	float	texCoordsArray[SHADER_MAX_VERTEXES][2];
 	byte	colorArray[SHADER_MAX_VERTEXES][4];
 	glIndex_t	hitIndexes[SHADER_MAX_INDEXES];
@@ -1795,9 +1795,7 @@ void RB_StageIteratorGeneric( void )
 	}
 
 	//don't disable the hardware fog til after we do surface sprites
-	if (r_drawfog->value == 2 &&
-		tess.fogNum && tess.shader->fogPass &&
-		(tess.fogNum == tr.world->globalFog || tess.fogNum == tr.world->numfogs))
+	if (r_drawfog->value == 2 && tess.fogNum && tess.shader->fogPass && (tr.world && (tess.fogNum == tr.world->globalFog || tess.fogNum == tr.world->numfogs)))
 	{
 		qglDisable(GL_FOG);
 	}

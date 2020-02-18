@@ -1393,7 +1393,7 @@ void CL_ServersResponsePacket( const netadr_t *from, msg_t *msg ) {
 #ifndef MAX_STRINGED_SV_STRING
 #define MAX_STRINGED_SV_STRING 1024
 #endif
-static void CL_CheckSVStringEdRef(char *buf, const char *str)
+static void CL_CheckSVStringEdRef(char *buf, const char *str, int bufSize)
 { //I don't really like doing this. But it utilizes the system that was already in place.
 	int i = 0;
 	int b = 0;
@@ -1404,12 +1404,12 @@ static void CL_CheckSVStringEdRef(char *buf, const char *str)
 	{
 		if (str)
 		{
-			strcpy(buf, str);
+			Q_strncpyz(buf, str, bufSize);
 		}
 		return;
 	}
 
-	strcpy(buf, str);
+	Q_strncpyz(buf, str, bufSize);
 
 	strLen = strlen(str);
 
@@ -1530,7 +1530,7 @@ static void CL_ServerStatusResponse( netadr_t from, msg_t *msg ) {
 
 		if (serverStatus->print) {
 			score = ping = 0;
-			sscanf(s, "%d %d", &score, &ping);
+			int val = sscanf(s, "%d %d", &score, &ping);
 			s = strchr(s, ' ');
 			if (s)
 				s = strchr(s+1, ' ');
@@ -1676,7 +1676,7 @@ void CL_ConnectionlessPacket( netadr_t from, msg_t *msg ) {
 			char sTemp[MAX_STRINGED_SV_STRING];
 
 			s = MSG_ReadString( msg );
-			CL_CheckSVStringEdRef(sTemp, s);
+			CL_CheckSVStringEdRef(sTemp, s, sizeof(sTemp));
 			Q_strncpyz( clc.serverMessage, sTemp, sizeof( clc.serverMessage ) );
 			Com_Printf( "%s", sTemp );
 		}

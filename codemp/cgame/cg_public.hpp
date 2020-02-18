@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "qcommon/q_shared.hpp"
 #include "rd-common/tr_types.hpp"
 
-#define	CGAME_API_VERSION		2
+#define	CGAME_API_VERSION		3
 
 #define	CMD_BACKUP			64
 #define	CMD_MASK			(CMD_BACKUP - 1)
@@ -351,7 +351,7 @@ struct cgameImport_t {
 	int				(*PC_LoadSource)						( const char *filename );
 	int				(*PC_ReadToken)							( int handle, pc_token_t *pc_token );
 	void			(*PC_RemoveAllGlobalDefines)			( void );
-	int				(*PC_SourceFileAndLine)					( int handle, char *filename, int *line );
+	int				(*PC_SourceFileAndLine)					( int handle, char *filename, int *line, int sizeFilename );
 
 	// cinematics
 	void			(*CIN_DrawCinematic)					( int handle );
@@ -406,7 +406,7 @@ struct cgameImport_t {
 	bool			(*G2API_SetBoneAnim)					( void *ghoul2, const int modelIndex, const char *boneName, const int startFrame, const int endFrame, const int flags, const float animSpeed, const int currentTime, const float setFrame, const int blendTime );
 	bool			(*G2API_GetBoneAnim)					( void *ghoul2, const char *boneName, const int currentTime, float *currentFrame, int *startFrame, int *endFrame, int *flags, float *animSpeed, int *modelList, const int modelIndex );
 	bool			(*G2API_GetBoneFrame)					( void *ghoul2, const char *boneName, const int currentTime, float *currentFrame, int *modelList, const int modelIndex );
-	void			(*G2API_GetGLAName)						( void *ghoul2, int modelIndex, char *fillBuf );
+	void			(*G2API_GetGLAName)						( void *ghoul2, int modelIndex, char *fillBuf, int fillBufSize );
 	int				(*G2API_CopyGhoul2Instance)				( void *g2From, void *g2To, int modelIndex );
 	void			(*G2API_CopySpecificGhoul2Model)		( void *g2From, int modelFrom, void *g2To, int modelTo );
 	void			(*G2API_DuplicateGhoul2Instance)		( void *g2From, void **g2To );
@@ -443,7 +443,7 @@ struct cgameImport_t {
 	void			(*G2API_ClearAttachedInstance)			( int entityNum );
 	void			(*G2API_CleanEntAttachments)			( void );
 	bool			(*G2API_OverrideServer)					( void *serverInstance );
-	void			(*G2API_GetSurfaceName)					( void *ghoul2, int surfNumber, int modelIndex, char *fillBuf );
+	void			(*G2API_GetSurfaceName)					( void *ghoul2, int surfNumber, int modelIndex, char *fillBuf, int fillBufSize );
 
 	struct {
 		float			(*R_Font_StrLenPixels)					( const char *text, const int iFontIndex, const float scale );
