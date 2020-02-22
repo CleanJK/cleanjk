@@ -8225,7 +8225,7 @@ void UI_Refresh( int realtime )
 			int p = 0;
 			int linecount = 0;
 
-			while (printMessage[i] && p < 1024)
+			while (printMessage[i] && p < sizeof(parsedFPMessage) - 1)
 			{
 				parsedFPMessage[p] = printMessage[i];
 				p++;

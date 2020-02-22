@@ -653,16 +653,13 @@ bool G2_Set_Bone_Anim_Index(
 		return false;
 	}
 
-	if (index != -1)
+	if (blist[index].flags & BONE_ANGLES_RAGDOLL)
 	{
-		if (blist[index].flags & BONE_ANGLES_RAGDOLL)
-		{
-			return true; // don't accept any calls on ragdoll bones
-		}
-
-		//mark it for needing a transform for the cached trace transform stuff
-		blist[index].flags |= BONE_NEED_TRANSFORM;
+		return true; // don't accept any calls on ragdoll bones
 	}
+
+	//mark it for needing a transform for the cached trace transform stuff
+	blist[index].flags |= BONE_NEED_TRANSFORM;
 
 	if (setFrame != -1)
 	{

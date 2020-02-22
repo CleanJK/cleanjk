@@ -138,11 +138,10 @@ void CG_BuildSolidList( void ) {
 	{
 		cent = cg_permanents[i];
 		VectorSubtract(cent->lerpOrigin, snap->ps.origin, difference);
-		if (cent->currentState.eType == ET_TERRAIN ||
-			((difference[0]*difference[0]) + (difference[1]*difference[1]) + (difference[2]*difference[2])) <= dsquared)
+		if (cent->currentState.eType == ET_TERRAIN || ((difference[0] * difference[0]) + (difference[1] * difference[1]) + (difference[2] * difference[2])) <= dsquared)
 		{
 			cent->currentValid = true;
-			if ( cent->nextState.solid )
+			if ( cent->nextState.solid && cg_numSolidEntities < MAX_ENTITIES_IN_SNAPSHOT)
 			{
 				cg_solidEntities[cg_numSolidEntities] = cent;
 				cg_numSolidEntities++;

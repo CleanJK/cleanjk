@@ -490,7 +490,7 @@ static void CG_ConfigStringModified( void ) {
 		cgs.teamVote.no[num-CS_TEAMVOTE_NO] = atoi( str );
 		cgs.teamVote.modified[num-CS_TEAMVOTE_NO] = true;
 	} else if ( num >= CS_TEAMVOTE_STRING && num <= CS_TEAMVOTE_STRING + 1) {
-		Q_strncpyz( cgs.teamVote.string[num-CS_TEAMVOTE_STRING], str, sizeof( cgs.teamVote.string ) );
+		Q_strncpyz(cgs.teamVote.string[num - CS_TEAMVOTE_STRING], str, sizeof(cgs.teamVote.string[num - CS_TEAMVOTE_STRING]));
 	} else if ( num == CS_INTERMISSION ) {
 		cg.intermissionStarted = atoi( str );
 	} else if ( num >= CS_MODELS && num < CS_MODELS+MAX_MODELS ) {

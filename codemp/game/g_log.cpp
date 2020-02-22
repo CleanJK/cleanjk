@@ -1035,10 +1035,10 @@ bool CalculateTactician(gentity_t *ent, int *kills)
 
 		weapon=WP_STUN_BATON;		// Start At Stun Baton
 		//   keep looking through weapons if weapon is not on map, or if it is and we used it
-		while( weapon<WP_NUM_WEAPONS && (!wasPickedUpBySomeone[weapon] || killsWithWeapon[weapon]>0) )
+		while( weapon < WP_NUM_WEAPONS && (!wasPickedUpBySomeone[weapon] || killsWithWeapon[weapon]>0) )
 		{
-			weapon++;
 			nKills+=killsWithWeapon[weapon];							//  Update the number of kills
+			weapon++;
 		}
 
 		// At this point we have either successfully gone through every weapon on the map and saw it had

@@ -663,6 +663,7 @@ bool CROFFSystem::ApplyROFF( SROFFEntity *roff_ent, CROFFSystem::CROFF *roff )
 	sharedEntity_t	*ent = nullptr;
 	trajectory_t	*originTrajectory = nullptr, *angleTrajectory = nullptr;
 	float			*origin = nullptr, *angle = nullptr;
+	vec3_t			originTemp, angleTemp;
 
 	if ( svs.time < roff_ent->mNextROFFTime )
 	{ // Not time to roff yet
@@ -672,7 +673,6 @@ bool CROFFSystem::ApplyROFF( SROFFEntity *roff_ent, CROFFSystem::CROFF *roff )
 	if (roff_ent->mIsClient)
 	{
 #ifndef DEDICATED
-		vec3_t		originTemp, angleTemp;
 		originTrajectory = CGVM_GetOriginTrajectory( roff_ent->mEntID );
 		angleTrajectory = CGVM_GetAngleTrajectory( roff_ent->mEntID );
 		CGVM_GetOrigin( roff_ent->mEntID, originTemp );

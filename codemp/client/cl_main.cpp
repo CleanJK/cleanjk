@@ -2928,6 +2928,12 @@ bool CL_UpdateVisiblePings_f(int source) {
 								break;
 							}
 						}
+
+						if (j >= MAX_PINGREQUESTS)
+						{
+							return false;
+						}
+
 						memcpy(&cl_pinglist[j].adr, &server[i].adr, sizeof(netadr_t));
 						cl_pinglist[j].start = Sys_Milliseconds();
 						cl_pinglist[j].time = 0;

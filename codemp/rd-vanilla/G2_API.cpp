@@ -1152,6 +1152,11 @@ bool G2API_SetBoneAnimIndex(CGhoul2Info *ghlInfo, const int index, const int Ast
 	bool setPtrs = false;
 	bool res = false;
 
+	if (index < 0)
+	{
+		return false;
+	}
+
 	//rww - RAGDOLL_BEGIN
 	if (ghlInfo)
 	{

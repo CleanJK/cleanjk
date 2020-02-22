@@ -40,9 +40,9 @@ void ObjectDie (gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int 
 
 int G_GetHitLocation(gentity_t *target, vec3_t ppoint)
 {
-	vec3_t			point, point_dir;
-	vec3_t			forward, right, up;
-	vec3_t			tangles, tcenter;
+	vec3_t			point = { 0 }, point_dir = { 0 };
+	vec3_t			forward = { 0 }, right = { 0 }, up = { 0 };
+	vec3_t			tangles = { 0 }, tcenter = { 0 };
 //	float			tradius;
 	float			udot, fdot, rdot;
 	int				Vertical, Forward, Lateral;
