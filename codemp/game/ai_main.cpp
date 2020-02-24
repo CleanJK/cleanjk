@@ -6058,11 +6058,7 @@ void StandardBotAI(bot_state_t *bs, float thinktime)
 				desiredIndex = bs->wpCurrent->index-1;
 			}
 
-			if (gWPArray[desiredIndex] &&
-				gWPArray[desiredIndex]->inuse &&
-				desiredIndex < gWPNum &&
-				desiredIndex >= 0 &&
-				PassWayCheck(bs, desiredIndex))
+			if (desiredIndex >= 0 && gWPArray[desiredIndex] && gWPArray[desiredIndex]->inuse && desiredIndex < gWPNum && PassWayCheck(bs, desiredIndex))
 			{
 				bs->wpCurrent = gWPArray[desiredIndex];
 			}

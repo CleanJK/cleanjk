@@ -389,11 +389,15 @@ static bool turret_find_enemies( gentity_t *self )
 	vec3_t		enemyDir, org, org2;
 	gentity_t	*entity_list[MAX_GENTITIES], *target;
 	trace_t		tr;
-	gentity_t *top = &g_entities[self->r.ownerNum];
-	if ( !top )
+
+	if (self->r.ownerNum < 0 || self->r.ownerNum >= MAX_GENTITIES)
 	{
+		Com_Printf("turret_find_enemies: invalid self->r.ownerNum %d\n", self->r.ownerNum);
+
 		return false;
 	}
+
+	gentity_t *top = &g_entities[self->r.ownerNum];
 
 	if ( self->aimDebounceTime > level.time ) // time since we've been shut off
 	{

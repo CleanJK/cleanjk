@@ -577,7 +577,7 @@ int CreateNewWP_InTrail(vec3_t origin, int flags, int afterindex)
 	{
 		if (gWPArray[i] && gWPArray[i]->inuse && gWPArray[i]->index != foundindex)
 		{
-			TransferWPData(i, i+1);
+			TransferWPData(i, i + 1);
 		}
 		else if (gWPArray[i] && gWPArray[i]->inuse && gWPArray[i]->index == foundindex)
 		{
@@ -1807,9 +1807,9 @@ void CalculateJumpRoutes(void)
 
 				gWPArray[i]->forceJumpTo = 0;
 
-				if (gWPArray[(i == 0) ? i : i-1] && gWPArray[(i == 0) ? i : i - 1]->inuse && (gWPArray[(i == 0) ? i : i - 1]->origin[2]+16) < gWPArray[i]->origin[2])
+				if (i > 0 && gWPArray[i - 1] && gWPArray[i - 1]->inuse && (gWPArray[i - 1]->origin[2]+16) < gWPArray[i]->origin[2])
 				{
-					nheightdif = (gWPArray[i]->origin[2] - gWPArray[(i == 0) ? i : i - 1]->origin[2]);
+					nheightdif = (gWPArray[i]->origin[2] - gWPArray[i - 1]->origin[2]);
 				}
 
 				if (gWPArray[i+1] && gWPArray[i+1]->inuse && (gWPArray[i+1]->origin[2]+16) < gWPArray[i]->origin[2])

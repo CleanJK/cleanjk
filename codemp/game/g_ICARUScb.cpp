@@ -842,19 +842,20 @@ int	Q3_GetTag( int entID, const char *name, int lookup, vec3_t info )
 // Uses an entity
 void Q3_Use( int entID, const char *target )
 {
-	gentity_t	*ent  = &g_entities[entID];
-
-	if ( !ent )
+	if (entID < 0 || entID >= MAX_GENTITIES)
 	{
-		G_DebugPrint( WL_WARNING, "Q3_Use: invalid entID %d\n", entID);
+		G_DebugPrint(WL_WARNING, "Q3_Use: invalid entID %d\n", entID);
+
 		return;
 	}
 
-	if( !target || !target[0] )
+	if (!target || !target[0])
 	{
-		G_DebugPrint( WL_WARNING, "Q3_Use: string is nullptr!\n" );
+		G_DebugPrint(WL_WARNING, "Q3_Use: target is nullptr!\n");
 		return;
 	}
+
+	gentity_t *ent  = &g_entities[entID];
 
 	G_UseTargets2(ent, ent, target);
 }
@@ -1307,12 +1308,15 @@ int Q3_GetVector( int entID, int type, const char *name, vec3_t value )
 
 int Q3_GetString( int entID, int type, const char *name, char **value )
 {
-	gentity_t	*ent = &g_entities[entID];
-	int toGet = 0;
-	if ( !ent )
+	if (entID < 0 || entID >= MAX_GENTITIES)
 	{
+		G_DebugPrint(WL_WARNING, "Q3_GetString: invalid entID %d\n", entID);
+
 		return 0;
 	}
+
+	gentity_t	*ent = &g_entities[entID];
+	int toGet = 0;
 
 	toGet = GetIDForString( setTable, name );	//FIXME: May want to make a "getTable" as well
 
@@ -2295,20 +2299,21 @@ static void Q3_SetForcePowerLevel ( int entID, int forcePower, int forceLevel )
 
 void Q3_SetParm (int entID, int parmNum, const char *parmValue)
 {
+	if (entID < 0 || entID >= MAX_GENTITIES)
+	{
+		G_DebugPrint(WL_WARNING, "Q3_SetParm: invalid entID %d\n", entID);
+
+		return;
+	}
+
+	if (parmNum < 0 || parmNum >= MAX_PARMS)
+	{
+		G_DebugPrint(WL_WARNING, "Q3_SetParm: SET_PARM: parmNum %d out of range!\n", parmNum);
+		return;
+	}
+
 	gentity_t	*ent = &g_entities[entID];
 	float		val;
-
-	if ( !ent )
-	{
-		G_DebugPrint( WL_WARNING, "Q3_SetParm: invalid entID %d\n", entID);
-		return;
-	}
-
-	if ( parmNum < 0 || parmNum >= MAX_PARMS )
-	{
-		G_DebugPrint( WL_WARNING, "SET_PARM: parmNum %d out of range!\n", parmNum );
-		return;
-	}
 
 	if( !ent->parms )
 	{

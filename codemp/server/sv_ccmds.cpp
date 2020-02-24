@@ -765,9 +765,8 @@ static void SV_AddBanToList( bool isexception )
 			{
 				Q_strncpyz( addy2, NET_AdrToString( curban->ip ), sizeof( addy2 ) );
 
-				Com_Printf( "Error: %s %s/%d supersedes already existing %s %s/%d\n", isexception ? "Exception" : "Ban",
-					NET_AdrToString( ip ), mask,
-					curban->isexception ? "exception" : "ban", addy2, curban->subnet );
+				Com_Printf( "Error: %s %s/%d supersedes already existing %s %s/%d\n", "Exception",
+					NET_AdrToString( ip ), mask, "ban", addy2, curban->subnet );
 				return;
 			}
 		}

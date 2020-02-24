@@ -2755,7 +2755,7 @@ bool G2_TestModelPointers(CGhoul2Info *ghlInfo) // returns true if the model is 
 		ghlInfo->currentAnimModelSize=0;
 		ghlInfo->aHeader=0;
 	}
-	return (bool)ghlInfo->mValid;
+	return ghlInfo->mValid;
 }
 
 #ifdef G2_PERFORMANCE_ANALYSIS
@@ -2859,7 +2859,7 @@ bool G2_SetupModelPointers(CGhoul2Info *ghlInfo) // returns true if the model is
 #ifdef G2_PERFORMANCE_ANALYSIS
 	G2Time_G2_SetupModelPointers += G2PerformanceTimer_G2_SetupModelPointers.End();
 #endif
-	return (bool)ghlInfo->mValid;
+	return ghlInfo->mValid;
 }
 
 bool G2_SetupModelPointers(CGhoul2Info_v &ghoul2) // returns true if any model is properly set up

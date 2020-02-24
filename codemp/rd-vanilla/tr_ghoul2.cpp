@@ -3004,7 +3004,7 @@ void G2_GetBoltMatrixLow(CGhoul2Info &ghoul2,int boltNum,const vec3_t scale,mdxa
 				}
 			}
 		}
-		mdxmSurface_t *surface = 0;
+		mdxmSurface_t *surface = nullptr;
 		if (!surfInfo)
 		{
 			surface = (mdxmSurface_t *)G2_FindSurface_BC(boneCache.mod,boltList[boltNum].surfaceNumber, 0);
@@ -3013,6 +3013,13 @@ void G2_GetBoltMatrixLow(CGhoul2Info &ghoul2,int boltNum,const vec3_t scale,mdxa
 		{
 			surface = (mdxmSurface_t *)G2_FindSurface_BC(boneCache.mod,surfInfo->surface, 0);
 		}
+
+		if (!surface)
+		{
+			retMatrix = identityMatrix;
+			return;
+		}
+
 		G2_ProcessSurfaceBolt2(boneCache,surface,boltNum,boltList,surfInfo,(model_t *)boneCache.mod,retMatrix);
 	}
 	else
@@ -3217,7 +3224,11 @@ void R_AddGhoulSurfaces( trRefEntity_t *ent ) {
 
 bool G2_NeedsRecalc(CGhoul2Info *ghlInfo,int frameNum)
 {
-	G2_SetupModelPointers(ghlInfo);
+	if (!G2_SetupModelPointers(ghlInfo))
+	{
+		return false;
+	}
+
 	// not sure if I still need this test, probably
 	if (ghlInfo->mSkelFrameNum!=frameNum||
 		!ghlInfo->mBoneCache||

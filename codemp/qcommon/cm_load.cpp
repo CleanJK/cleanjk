@@ -551,6 +551,12 @@ static void CM_LoadMap_Actual( const char *name, bool clientload, int *checksum,
 	buf = nullptr;
 	fileHandle_t h;
 	const int iBSPLen = FS_FOpenFileRead( name, &h, false );
+
+	if (iBSPLen == -1)
+	{
+		Com_Error(ERR_DROP, "Couldn't open %s", name);
+	}
+
 	if (h)
 	{
 		newBuff = Z_Malloc( iBSPLen, TAG_BSP_DISKIMAGE );

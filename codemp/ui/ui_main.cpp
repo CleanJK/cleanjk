@@ -568,8 +568,11 @@ static const int numNetSources = 7;	// now hard-entered in StringEd file
 static const char *GetNetSourceString(int iSource)
 {
 	static char result[256] = {0};
+	const char* tmpStr = nullptr;
 
-	Q_strncpyz( result, GetCRDelineatedString( "MP_INGAME", "NET_SOURCES", UI_SourceForLAN() ), sizeof(result) );
+	tmpStr = GetCRDelineatedString("MP_INGAME", "NET_SOURCES", UI_SourceForLAN());
+
+	Q_strncpyz( result, tmpStr ? tmpStr : "", sizeof(result) );
 
 	if ( iSource >= UIAS_GLOBAL1 && iSource <= UIAS_GLOBAL5 ) {
 		Q_strcat( result, sizeof(result), va( " %d", iSource ) );

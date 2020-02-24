@@ -717,7 +717,7 @@ void WP_DisruptorAltFire( gentity_t *ent )
 			continue;
 		}
 
-		if (Jedi_DodgeEvasion(traceEnt, ent, &tr, G_GetHitLocation(traceEnt, tr.endpos)))
+		if (traceEnt && Jedi_DodgeEvasion(traceEnt, ent, &tr, G_GetHitLocation(traceEnt, tr.endpos)))
 		{
 			skip = tr.entityNum;
 			VectorCopy(tr.endpos, start);
@@ -2418,15 +2418,9 @@ void WP_PlaceLaserTrap( gentity_t *ent, bool alt_fire )
 		}
 		if ( removeMe != -1 )
 		{
-			//remove it... or blow it?
-			if ( &g_entities[foundLaserTraps[removeMe]] == nullptr )
-			{
-				break;
-			}
-			else
-			{
-				G_FreeEntity( &g_entities[foundLaserTraps[removeMe]] );
-			}
+
+			G_FreeEntity( &g_entities[foundLaserTraps[removeMe]] );
+
 			foundLaserTraps[removeMe] = ENTITYNUM_NONE;
 			trapcount--;
 		}
