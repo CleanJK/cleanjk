@@ -579,13 +579,14 @@ void moveAndRotateCallback( gentity_t *ent )
 // Lerps the origin of an entity to its starting position
 void Q3_Lerp2Start( int entID, int taskID, float duration )
 {
-	gentity_t	*ent = &g_entities[entID];
-
-	if(!ent)
+	if (entID < 0 || entID >= MAX_GENTITIES)
 	{
-		G_DebugPrint( WL_WARNING, "Q3_Lerp2Start: invalid entID %d\n", entID);
+		G_DebugPrint(WL_WARNING, "Q3_Lerp2Start: invalid entID %d\n", entID);
+
 		return;
 	}
+
+	gentity_t	*ent = &g_entities[entID];
 
 	if ( ent->client || Q_stricmp(ent->classname, "target_scriptrunner") == 0 )
 	{
@@ -621,13 +622,14 @@ void Q3_Lerp2Start( int entID, int taskID, float duration )
 // Lerps the origin of an entity to its ending position
 void Q3_Lerp2End( int entID, int taskID, float duration )
 {
-	gentity_t	*ent = &g_entities[entID];
-
-	if(!ent)
+	if (entID < 0 || entID >= MAX_GENTITIES)
 	{
-		G_DebugPrint( WL_WARNING, "Q3_Lerp2End: invalid entID %d\n", entID);
+		G_DebugPrint(WL_WARNING, "Q3_Lerp2End: invalid entID %d\n", entID);
+
 		return;
 	}
+
+	gentity_t	*ent = &g_entities[entID];
 
 	if ( ent->client || Q_stricmp(ent->classname, "target_scriptrunner") == 0 )
 	{
@@ -663,16 +665,17 @@ void Q3_Lerp2End( int entID, int taskID, float duration )
 // Lerps the origin and angles of an entity to the destination values
 void Q3_Lerp2Pos( int taskID, int entID, vec3_t origin, vec3_t angles, float duration )
 {
+	if (entID < 0 || entID >= MAX_GENTITIES)
+	{
+		G_DebugPrint(WL_WARNING, "Q3_Lerp2Pos: invalid entID %d\n", entID);
+
+		return;
+	}
+
 	gentity_t	*ent = &g_entities[entID];
 	vec3_t		ang;
 	int			i;
 	moverState_e moverState;
-
-	if(!ent)
-	{
-		G_DebugPrint( WL_WARNING, "Q3_Lerp2Pos: invalid entID %d\n", entID);
-		return;
-	}
 
 	if ( ent->client || Q_stricmp(ent->classname, "target_scriptrunner") == 0 )
 	{
@@ -767,15 +770,16 @@ void Q3_Lerp2Pos( int taskID, int entID, vec3_t origin, vec3_t angles, float dur
 // Lerps the angles to the destination value
 void Q3_Lerp2Angles( int taskID, int entID, vec3_t angles, float duration )
 {
+	if (entID < 0 || entID >= MAX_GENTITIES)
+	{
+		G_DebugPrint(WL_WARNING, "Q3_Lerp2Angles: invalid entID %d\n", entID);
+
+		return;
+	}
+
 	gentity_t	*ent = &g_entities[entID];
 	vec3_t		ang;
 	int			i;
-
-	if(!ent)
-	{
-		G_DebugPrint( WL_WARNING, "Q3_Lerp2Angles: invalid entID %d\n", entID);
-		return;
-	}
 
 	if ( ent->client || Q_stricmp(ent->classname, "target_scriptrunner") == 0 )
 	{
@@ -817,6 +821,13 @@ void Q3_Lerp2Angles( int taskID, int entID, vec3_t angles, float duration )
 // Gets the value of a tag by the give name
 int	Q3_GetTag( int entID, const char *name, int lookup, vec3_t info )
 {
+	if (entID < 0 || entID >= MAX_GENTITIES)
+	{
+		G_DebugPrint(WL_WARNING, "Q3_GetTag: invalid entID %d\n", entID);
+
+		return 0;
+	}
+
 	gentity_t	*ent = &g_entities[entID];
 
 	if (!ent->inuse)
@@ -988,13 +999,15 @@ void Q3_Remove( int entID, const char *name )
 
 int Q3_GetFloat( int entID, int type, const char *name, float *value )
 {
-	gentity_t	*ent = &g_entities[entID];
-	int toGet = 0;
-
-	if ( !ent )
+	if (entID < 0 || entID >= MAX_GENTITIES)
 	{
+		G_DebugPrint(WL_WARNING, "Q3_GetFloat: invalid entID %d\n", entID);
+
 		return 0;
 	}
+
+	gentity_t	*ent = &g_entities[entID];
+	int toGet = 0;
 
 	toGet = GetIDForString( setTable, name );	//FIXME: May want to make a "getTable" as well
 	//FIXME: I'm getting really sick of these huge switch statements!
@@ -1247,12 +1260,15 @@ int Q3_GetFloat( int entID, int type, const char *name, float *value )
 
 int Q3_GetVector( int entID, int type, const char *name, vec3_t value )
 {
-	gentity_t	*ent = &g_entities[entID];
-	int toGet = 0;
-	if ( !ent )
+	if (entID < 0 || entID >= MAX_GENTITIES)
 	{
+		G_DebugPrint(WL_WARNING, "Q3_GetVector: invalid entID %d\n", entID);
+
 		return 0;
 	}
+
+	gentity_t	*ent = &g_entities[entID];
+	int toGet = 0;
 
 	toGet = GetIDForString( setTable, name );	//FIXME: May want to make a "getTable" as well
 	//FIXME: I'm getting really sick of these huge switch statements!
@@ -1518,6 +1534,13 @@ void MoveOwner( gentity_t *self )
 // Copies passed origin to ent running script once there is nothing there blocking the spot
 static bool Q3_SetTeleportDest( int entID, vec3_t org )
 {
+	if (entID < 0 || entID >= MAX_GENTITIES)
+	{
+		G_DebugPrint(WL_WARNING, "Q3_SetTeleportDest: invalid entID %d\n", entID);
+
+		return true;
+	}
+
 	gentity_t	*teleEnt = &g_entities[entID];
 
 	if ( teleEnt )
@@ -1546,13 +1569,14 @@ static bool Q3_SetTeleportDest( int entID, vec3_t org )
 // Sets the origin of an entity directly
 static void Q3_SetOrigin( int entID, vec3_t origin )
 {
-	gentity_t	*ent = &g_entities[entID];
-
-	if ( !ent )
+	if (entID < 0 || entID >= MAX_GENTITIES)
 	{
-		G_DebugPrint( WL_WARNING, "Q3_SetOrigin: bad ent %d\n", entID);
+		G_DebugPrint(WL_WARNING, "Q3_SetOrigin: invalid entID %d\n", entID);
+
 		return;
 	}
+
+	gentity_t	*ent = &g_entities[entID];
 
 	trap->UnlinkEntity ((sharedEntity_t *)ent);
 
@@ -1597,13 +1621,14 @@ static void Q3_SetCopyOrigin( int entID, const char *name )
 // Set the velocity of an entity directly
 static void Q3_SetVelocity( int entID, int axis, float speed )
 {
-	gentity_t	*found = &g_entities[entID];
-	//FIXME: Not supported
-	if(!found)
+	if (entID < 0 || entID >= MAX_GENTITIES)
 	{
-		G_DebugPrint( WL_WARNING, "Q3_SetVelocity invalid entID %d\n", entID);
+		G_DebugPrint(WL_WARNING, "Q3_SetVelocity: invalid entID %d\n", entID);
+
 		return;
 	}
+
+	gentity_t	*found = &g_entities[entID];
 
 	if(!found->client)
 	{
@@ -1621,13 +1646,14 @@ static void Q3_SetVelocity( int entID, int axis, float speed )
 // Sets the angles of an entity directly
 static void Q3_SetAngles( int entID, vec3_t angles )
 {
-	gentity_t	*ent = &g_entities[entID];
-
-	if ( !ent )
+	if (entID < 0 || entID >= MAX_GENTITIES)
 	{
-		G_DebugPrint( WL_WARNING, "Q3_SetAngles: bad ent %d\n", entID);
+		G_DebugPrint(WL_WARNING, "Q3_SetAngles: invalid entID %d\n", entID);
+
 		return;
 	}
+
+	gentity_t	*ent = &g_entities[entID];
 
 	if (ent->client)
 	{
@@ -1643,14 +1669,15 @@ static void Q3_SetAngles( int entID, vec3_t angles )
 // Lerps the origin to the destination value
 void Q3_Lerp2Origin( int taskID, int entID, vec3_t origin, float duration )
 {
-	gentity_t	*ent = &g_entities[entID];
-	moverState_e moverState;
-
-	if(!ent)
+	if (entID < 0 || entID >= MAX_GENTITIES)
 	{
-		G_DebugPrint( WL_WARNING, "Q3_Lerp2Origin: invalid entID %d\n", entID);
+		G_DebugPrint(WL_WARNING, "Q3_Lerp2Origin: invalid entID %d\n", entID);
+
 		return;
 	}
+
+	gentity_t	*ent = &g_entities[entID];
+	moverState_e moverState;
 
 	if ( ent->client || Q_stricmp(ent->classname, "target_scriptrunner") == 0 )
 	{
@@ -1706,15 +1733,16 @@ void Q3_Lerp2Origin( int taskID, int entID, vec3_t origin, float duration )
 
 static void Q3_SetOriginOffset( int entID, int axis, float offset )
 {
+	if (entID < 0 || entID >= MAX_GENTITIES)
+	{
+		G_DebugPrint(WL_WARNING, "Q3_SetOriginOffset: invalid entID %d\n", entID);
+
+		return;
+	}
+
 	gentity_t	*ent = &g_entities[entID];
 	vec3_t origin;
 	float duration;
-
-	if(!ent)
-	{
-		G_DebugPrint( WL_WARNING, "Q3_SetOriginOffset: invalid entID %d\n", entID);
-		return;
-	}
 
 	if ( ent->client || Q_stricmp(ent->classname, "target_scriptrunner") == 0 )
 	{
@@ -1734,13 +1762,14 @@ static void Q3_SetOriginOffset( int entID, int axis, float offset )
 
 static void SetLowerAnim( int entID, int animID)
 {
-	gentity_t	*ent  = &g_entities[entID];
-
-	if ( !ent )
+	if (entID < 0 || entID >= MAX_GENTITIES)
 	{
-		G_DebugPrint( WL_WARNING, "SetLowerAnim: invalid entID %d\n", entID);
+		G_DebugPrint(WL_WARNING, "SetLowerAnim: invalid entID %d\n", entID);
+
 		return;
 	}
+
+	gentity_t	*ent  = &g_entities[entID];
 
 	if ( !ent->client )
 	{
@@ -1753,13 +1782,14 @@ static void SetLowerAnim( int entID, int animID)
 
 static void SetUpperAnim ( int entID, int animID)
 {
-	gentity_t	*ent  = &g_entities[entID];
-
-	if ( !ent )
+	if (entID < 0 || entID >= MAX_GENTITIES)
 	{
-		G_DebugPrint( WL_WARNING, "SetUpperAnim: invalid entID %d\n", entID);
+		G_DebugPrint(WL_WARNING, "SetUpperAnim: invalid entID %d\n", entID);
+
 		return;
 	}
+
+	gentity_t	*ent  = &g_entities[entID];
 
 	if ( !ent->client )
 	{
@@ -1851,13 +1881,14 @@ static void Q3_SetAnimHoldTime( int entID, int int_data, bool lower )
 
 static void Q3_SetHealth( int entID, int data )
 {
-	gentity_t	*ent  = &g_entities[entID];
-
-	if ( !ent )
+	if (entID < 0 || entID >= MAX_GENTITIES)
 	{
-		G_DebugPrint( WL_WARNING, "Q3_SetHealth: invalid entID %d\n", entID);
+		G_DebugPrint(WL_WARNING, "Q3_SetHealth: invalid entID %d\n", entID);
+
 		return;
 	}
+
+	gentity_t	*ent  = &g_entities[entID];
 
 	if ( data < 0 )
 	{
@@ -1898,13 +1929,14 @@ static void Q3_SetHealth( int entID, int data )
 
 static void Q3_SetArmor( int entID, int data )
 {
-	gentity_t	*ent  = &g_entities[entID];
-
-	if ( !ent )
+	if (entID < 0 || entID >= MAX_GENTITIES)
 	{
-		G_DebugPrint( WL_WARNING, "Q3_SetArmor: invalid entID %d\n", entID);
+		G_DebugPrint(WL_WARNING, "Q3_SetArmor: invalid entID %d\n", entID);
+
 		return;
 	}
+
+	gentity_t	*ent  = &g_entities[entID];
 
 	if(!ent->client)
 	{
@@ -1931,13 +1963,14 @@ static void Q3_SetTimeScale( int entID, const char *data )
 
 static void Q3_SetInvisible( int entID, bool invisible )
 {
-	gentity_t	*self  = &g_entities[entID];
-
-	if ( !self )
+	if (entID < 0 || entID >= MAX_GENTITIES)
 	{
-		G_DebugPrint( WL_WARNING, "Q3_SetInvisible: invalid entID %d\n", entID);
+		G_DebugPrint(WL_WARNING, "Q3_SetInvisible: invalid entID %d\n", entID);
+
 		return;
 	}
+
+	gentity_t	*self  = &g_entities[entID];
 
 	if ( invisible )
 	{
@@ -1966,6 +1999,13 @@ static void Q3_SetVampire( int entID, bool vampire )
 
 void Q3_SetLoopSound(int entID, const char *name)
 {
+	if (entID < 0 || entID >= MAX_GENTITIES)
+	{
+		G_DebugPrint(WL_WARNING, "Q3_SetLoopSound: invalid entID %d\n", entID);
+
+		return;
+	}
+
 	sfxHandle_t	index;
 	gentity_t	*self  = &g_entities[entID];
 
@@ -2026,13 +2066,14 @@ static void Q3_SetItem (int entID, const char *item_name)
 
 static void Q3_SetFriction(int entID, int int_data)
 {
-	gentity_t	*self  = &g_entities[entID];
-
-	if ( !self )
+	if (entID < 0 || entID >= MAX_GENTITIES)
 	{
-		G_DebugPrint( WL_WARNING, "Q3_SetFriction: invalid entID %d\n", entID);
+		G_DebugPrint(WL_WARNING, "Q3_SetFriction: invalid entID %d\n", entID);
+
 		return;
 	}
+
+	gentity_t	*self  = &g_entities[entID];
 
 	if ( !self->client )
 	{
@@ -2046,13 +2087,14 @@ static void Q3_SetFriction(int entID, int int_data)
 
 static void Q3_SetGravity(int entID, float float_data)
 {
-	gentity_t	*self  = &g_entities[entID];
-
-	if ( !self )
+	if (entID < 0 || entID >= MAX_GENTITIES)
 	{
-		G_DebugPrint( WL_WARNING, "Q3_SetGravity: invalid entID %d\n", entID);
+		G_DebugPrint(WL_WARNING, "Q3_SetGravity: invalid entID %d\n", entID);
+
 		return;
 	}
+
+	gentity_t	*self  = &g_entities[entID];
 
 	if ( !self->client )
 	{
@@ -2065,26 +2107,28 @@ static void Q3_SetGravity(int entID, float float_data)
 
 static void Q3_SetWait(int entID, float float_data)
 {
-	gentity_t	*self  = &g_entities[entID];
-
-	if ( !self )
+	if (entID < 0 || entID >= MAX_GENTITIES)
 	{
-		G_DebugPrint( WL_WARNING, "Q3_SetWait: invalid entID %d\n", entID);
+		G_DebugPrint(WL_WARNING, "Q3_SetWait: invalid entID %d\n", entID);
+
 		return;
 	}
+
+	gentity_t	*self  = &g_entities[entID];
 
 	self->wait = float_data;
 }
 
 static void Q3_SetScale(int entID, float float_data)
 {
-	gentity_t	*self  = &g_entities[entID];
-
-	if ( !self )
+	if (entID < 0 || entID >= MAX_GENTITIES)
 	{
-		G_DebugPrint( WL_WARNING, "Q3_SetScale: invalid entID %d\n", entID);
+		G_DebugPrint(WL_WARNING, "Q3_SetScale: invalid entID %d\n", entID);
+
 		return;
 	}
+
+	gentity_t	*self  = &g_entities[entID];
 
 	if (self->client)
 	{
@@ -2123,15 +2167,17 @@ static float Q3_GameSideCheckStringCounterIncrement( const char *string )
 
 static void Q3_SetCount(int entID, const char *data)
 {
+	if (entID < 0 || entID >= MAX_GENTITIES)
+	{
+		G_DebugPrint(WL_WARNING, "Q3_SetCount: invalid entID %d\n", entID);
+
+		return;
+	}
+
 	gentity_t	*self  = &g_entities[entID];
 	float		val = 0.0f;
 
 	//FIXME: use FOFS() stuff here to make a generic entity field setting?
-	if ( !self )
-	{
-		G_DebugPrint( WL_WARNING, "Q3_SetCount: invalid entID %d\n", entID);
-		return;
-	}
 
 	if ( (val = Q3_GameSideCheckStringCounterIncrement( data )) )
 	{
@@ -2145,13 +2191,14 @@ static void Q3_SetCount(int entID, const char *data)
 
 static void Q3_SetTargetName (int entID, const char *targetname)
 {
-	gentity_t	*self  = &g_entities[entID];
-
-	if ( !self )
+	if (entID < 0 || entID >= MAX_GENTITIES)
 	{
-		G_DebugPrint( WL_WARNING, "Q3_SetTargetName: invalid entID %d\n", entID);
+		G_DebugPrint(WL_WARNING, "Q3_SetTargetName: invalid entID %d\n", entID);
+
 		return;
 	}
+
+	gentity_t	*self  = &g_entities[entID];
 
 	if(!Q_stricmp("NULL", ((char *)targetname)))
 	{
@@ -2165,13 +2212,14 @@ static void Q3_SetTargetName (int entID, const char *targetname)
 
 static void Q3_SetTarget (int entID, const char *target)
 {
-	gentity_t	*self  = &g_entities[entID];
-
-	if ( !self )
+	if (entID < 0 || entID >= MAX_GENTITIES)
 	{
-		G_DebugPrint( WL_WARNING, "Q3_SetTarget: invalid entID %d\n", entID);
+		G_DebugPrint(WL_WARNING, "Q3_SetTarget: invalid entID %d\n", entID);
+
 		return;
 	}
+
+	gentity_t	*self  = &g_entities[entID];
 
 	if(!Q_stricmp("NULL", ((char *)target)))
 	{
@@ -2231,13 +2279,15 @@ static void Q3_SetPainTarget (int entID, const char *targetname)
 
 static void Q3_SetFullName (int entID, const char *fullName)
 {
-	gentity_t	*self  = &g_entities[entID];
-
-	if ( !self )
+	if (entID < 0 || entID >= MAX_GENTITIES)
 	{
-		G_DebugPrint( WL_WARNING, "Q3_SetFullName: invalid entID %d\n", entID);
+		G_DebugPrint(WL_WARNING, "Q3_SetFullName: invalid entID %d\n", entID);
+
 		return;
 	}
+
+	gentity_t	*self  = &g_entities[entID];
+
 
 	if(!Q_stricmp("NULL", ((char *)fullName)))
 	{
@@ -2257,6 +2307,13 @@ static void Q3_SetMusicState( const char *dms )
 
 static void Q3_SetForcePowerLevel ( int entID, int forcePower, int forceLevel )
 {
+	if (entID < 0 || entID >= MAX_GENTITIES)
+	{
+		G_DebugPrint(WL_WARNING, "Q3_SetForcePowerLevel: invalid entID %d\n", entID);
+
+		return;
+	}
+
 	gentity_t	*self  = &g_entities[entID];
 
 	if ( forcePower < FP_FIRST || forceLevel >= NUM_FORCE_POWERS )
@@ -2272,12 +2329,6 @@ static void Q3_SetForcePowerLevel ( int entID, int forcePower, int forceLevel )
 			G_DebugPrint( WL_ERROR, "Q3_SetForcePowerLevel: Force power setting %d out of range (0-3)\n", forceLevel );
 			return;
 		}
-	}
-
-	if ( !self )
-	{
-		G_DebugPrint( WL_ERROR, "Q3_SetForcePowerLevel: invalid entID %d\n", entID);
-		return;
 	}
 
 	if ( !self->client )
@@ -2349,20 +2400,20 @@ static void Q3_SetEvent( int entID, const char *event_name )
 
 static void Q3_SetIgnoreEnemies( int entID, bool data)
 {
-
 	G_DebugPrint( WL_WARNING, "Q3_SetIgnoreEnemies: NOT SUPPORTED IN MP");
 	return;
 }
 
 static void Q3_SetNoTarget( int entID, bool data)
 {
-	gentity_t	*ent  = &g_entities[entID];
-
-	if ( !ent )
+	if (entID < 0 || entID >= MAX_GENTITIES)
 	{
-		G_DebugPrint( WL_WARNING, "Q3_SetNoTarget: invalid entID %d\n", entID);
+		G_DebugPrint(WL_WARNING, "Q3_SetNoTarget: invalid entID %d\n", entID);
+
 		return;
 	}
+
+	gentity_t	*ent  = &g_entities[entID];
 
 	if(data)
 		ent->flags |= FL_NOTARGET;
@@ -2372,13 +2423,14 @@ static void Q3_SetNoTarget( int entID, bool data)
 
 static void Q3_SetDontShoot( int entID, bool add)
 {
-	gentity_t	*ent  = &g_entities[entID];
-
-	if ( !ent )
+	if (entID < 0 || entID >= MAX_GENTITIES)
 	{
-		G_DebugPrint( WL_WARNING, "Q3_SetDontShoot: invalid entID %d\n", entID);
+		G_DebugPrint(WL_WARNING, "Q3_SetDontShoot: invalid entID %d\n", entID);
+
 		return;
 	}
+
+	gentity_t	*ent  = &g_entities[entID];
 
 	if(add)
 	{
@@ -2392,13 +2444,14 @@ static void Q3_SetDontShoot( int entID, bool add)
 
 static void Q3_SetInactive(int entID, bool add)
 {
-	gentity_t	*ent  = &g_entities[entID];
-
-	if ( !ent )
+	if (entID < 0 || entID >= MAX_GENTITIES)
 	{
-		G_DebugPrint( WL_WARNING, "Q3_SetInactive: invalid entID %d\n", entID);
+		G_DebugPrint(WL_WARNING, "Q3_SetDontShoot: invalid entID %d\n", entID);
+
 		return;
 	}
+
+	gentity_t	*ent  = &g_entities[entID];
 
 	if(add)
 	{
@@ -2412,13 +2465,14 @@ static void Q3_SetInactive(int entID, bool add)
 
 static void Q3_SetFuncUsableVisible(int entID, bool visible )
 {
-	gentity_t	*ent  = &g_entities[entID];
-
-	if ( !ent )
+	if (entID < 0 || entID >= MAX_GENTITIES)
 	{
-		G_DebugPrint( WL_WARNING, "Q3_SetFuncUsableVisible: invalid entID %d\n", entID);
+		G_DebugPrint(WL_WARNING, "Q3_SetDontShoot: invalid entID %d\n", entID);
+
 		return;
 	}
+
+	gentity_t	*ent  = &g_entities[entID];
 
 	// Yeah, I know that this doesn't even do half of what the func_usable use code does, but if I've got two things on top of each other...and only
 	//	one is visible at a time....and neither can ever be used......and finally, the shader on it has the shader_anim stuff going on....It doesn't seem
@@ -2475,13 +2529,14 @@ static void Q3_SetMoreLight( int entID, bool add )
 
 static void Q3_SetUndying( int entID, bool undying)
 {
-	gentity_t	*ent  = &g_entities[entID];
-
-	if ( !ent )
+	if (entID < 0 || entID >= MAX_GENTITIES)
 	{
-		G_DebugPrint( WL_WARNING, "Q3_SetUndying: invalid entID %d\n", entID);
+		G_DebugPrint(WL_WARNING, "Q3_SetUndying: invalid entID %d\n", entID);
+
 		return;
 	}
+
+	gentity_t	*ent  = &g_entities[entID];
 
 	if(undying)
 	{
@@ -2495,13 +2550,14 @@ static void Q3_SetUndying( int entID, bool undying)
 
 static void Q3_SetInvincible( int entID, bool invincible)
 {
-	gentity_t	*ent  = &g_entities[entID];
-
-	if ( !ent )
+	if (entID < 0 || entID >= MAX_GENTITIES)
 	{
-		G_DebugPrint( WL_WARNING, "Q3_SetInvincible: invalid entID %d\n", entID);
+		G_DebugPrint(WL_WARNING, "Q3_SetInvincible: invalid entID %d\n", entID);
+
 		return;
 	}
+
+	gentity_t	*ent  = &g_entities[entID];
 
 	if ( !Q_stricmp( "func_breakable", ent->classname ) )
 	{
@@ -2560,6 +2616,13 @@ void SolidifyOwner( gentity_t *self )
 
 static bool Q3_SetSolid( int entID, bool solid)
 {
+	if (entID < 0 || entID >= MAX_GENTITIES)
+	{
+		G_DebugPrint(WL_WARNING, "Q3_SetSolid: invalid entID %d\n", entID);
+
+		return true;
+	}
+
 	gentity_t	*ent  = &g_entities[entID];
 
 	if ( !ent || !ent->inuse )
@@ -2602,13 +2665,14 @@ static bool Q3_SetSolid( int entID, bool solid)
 
 static void Q3_SetForwardMove( int entID, int fmoveVal)
 {
-	gentity_t	*ent  = &g_entities[entID];
-
-	if ( !ent )
+	if (entID < 0 || entID >= MAX_GENTITIES)
 	{
-		G_DebugPrint( WL_WARNING, "Q3_SetForwardMove: invalid entID %d\n", entID);
+		G_DebugPrint(WL_WARNING, "Q3_SetForwardMove: invalid entID %d\n", entID);
+
 		return;
 	}
+
+	gentity_t	*ent  = &g_entities[entID];
 
 	if ( !ent->client )
 	{
@@ -2622,13 +2686,14 @@ static void Q3_SetForwardMove( int entID, int fmoveVal)
 
 static void Q3_SetRightMove( int entID, int rmoveVal)
 {
-	gentity_t	*ent  = &g_entities[entID];
-
-	if ( !ent )
+	if (entID < 0 || entID >= MAX_GENTITIES)
 	{
-		G_DebugPrint( WL_WARNING, "Q3_SetRightMove: invalid entID %d\n", entID);
+		G_DebugPrint(WL_WARNING, "Q3_SetRightMove: invalid entID %d\n", entID);
+
 		return;
 	}
+
+	gentity_t	*ent  = &g_entities[entID];
 
 	if ( !ent->client )
 	{
@@ -2642,13 +2707,14 @@ static void Q3_SetRightMove( int entID, int rmoveVal)
 
 static void Q3_SetLockAngle( int entID, const char *lockAngle)
 {
-	gentity_t	*ent  = &g_entities[entID];
-
-	if ( !ent )
+	if (entID < 0 || entID >= MAX_GENTITIES)
 	{
-		G_DebugPrint( WL_WARNING, "Q3_SetLockAngle: invalid entID %d\n", entID);
+		G_DebugPrint(WL_WARNING, "Q3_SetLockAngle: invalid entID %d\n", entID);
+
 		return;
 	}
+
+	gentity_t	*ent  = &g_entities[entID];
 
 	if ( !ent->client )
 	{
@@ -2726,14 +2792,15 @@ static void Q3_SetNoImpactDamage( int entID, bool noImp )
 
 static bool Q3_SetBehaviorSet( int entID, int toSet, const char *scriptname)
 {
-	gentity_t	*ent  = &g_entities[entID];
-	bSet_e		bSet = BSET_INVALID;
-
-	if ( !ent )
+	if (entID < 0 || entID >= MAX_GENTITIES)
 	{
-		G_DebugPrint( WL_WARNING, "Q3_SetBehaviorSet: invalid entID %d\n", entID);
+		G_DebugPrint(WL_WARNING, "Q3_SetBehaviorSet: invalid entID %d\n", entID);
+
 		return false;
 	}
+
+	gentity_t	*ent  = &g_entities[entID];
+	bSet_e		bSet = BSET_INVALID;
 
 	switch(toSet)
 	{
@@ -2824,13 +2891,14 @@ static void Q3_SetDelayScriptTime(int entID, int delayTime)
 
 static void Q3_SetPlayerUsable( int entID, bool usable )
 {
-	gentity_t	*ent  = &g_entities[entID];
-
-	if ( !ent )
+	if (entID < 0 || entID >= MAX_GENTITIES)
 	{
-		G_DebugPrint( WL_WARNING, "Q3_SetPlayerUsable: invalid entID %d\n", entID);
+		G_DebugPrint(WL_WARNING, "Q3_SetPlayerUsable: invalid entID %d\n", entID);
+
 		return;
 	}
+
+	gentity_t	*ent  = &g_entities[entID];
 
 	if(usable)
 	{
@@ -2884,12 +2952,14 @@ static void Q3_SetSaberActive( int entID, bool active )
 {
 	if (entID < 0 || entID >= MAX_GENTITIES)
 	{
+		G_DebugPrint(WL_WARNING, "Q3_SetSaberActive: invalid entID %d\n", entID);
+
 		return;
 	}
 
 	gentity_t *ent = &g_entities[entID];
 
-	if (!ent || !ent->inuse)
+	if (!ent->inuse)
 	{
 		return;
 	}
@@ -2914,13 +2984,14 @@ static void Q3_SetSaberActive( int entID, bool active )
 
 static void Q3_SetNoKnockback( int entID, bool noKnockback )
 {
-	gentity_t	*ent  = &g_entities[entID];
-
-	if ( !ent )
+	if (entID < 0 || entID >= MAX_GENTITIES)
 	{
-		G_DebugPrint( WL_WARNING, "Q3_SetNoKnockback: invalid entID %d\n", entID);
+		G_DebugPrint(WL_WARNING, "Q3_SetNoKnockback: invalid entID %d\n", entID);
+
 		return;
 	}
+
+	gentity_t	*ent  = &g_entities[entID];
 
 	if ( noKnockback )
 	{
@@ -2987,6 +3058,13 @@ static void Q3_LCARSText ( const char *id)
 //returns true if it got to the end, otherwise false.
 bool Q3_Set( int taskID, int entID, const char *type_name, const char *data )
 {
+	if (entID < 0 || entID >= MAX_GENTITIES)
+	{
+		G_DebugPrint(WL_WARNING, "Q3_Set: invalid entID %d\n", entID);
+
+		return true;
+	}
+
 	gentity_t	*ent = &g_entities[entID];
 	float		float_data;
 	int			int_data, toSet;
