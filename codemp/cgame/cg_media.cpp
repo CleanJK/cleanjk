@@ -324,7 +324,7 @@ static void CG_RegisterModels( void ) {
 		}
 
 		char loadingStr[1024];
-		Com_sprintf( loadingStr, sizeof(loadingStr), "Loading BSP instance %i/%i: %s",
+		Com_sprintf( loadingStr, sizeof(loadingStr), "Loading BSP instance %lu/%lu: %s",
 			i, numBSPInstances, bspName+1
 		);
 		CG_LoadingString( loadingStr );

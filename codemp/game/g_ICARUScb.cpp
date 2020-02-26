@@ -1331,6 +1331,13 @@ int Q3_GetString( int entID, int type, const char *name, char **value )
 		return 0;
 	}
 
+	if (!value)
+	{
+		G_DebugPrint(WL_WARNING, "Q3_GetString: nullptr value\n");
+
+		return 0;
+	}
+
 	gentity_t	*ent = &g_entities[entID];
 	int toGet = 0;
 
@@ -1341,7 +1348,7 @@ int Q3_GetString( int entID, int type, const char *name, char **value )
 	case SET_ANIM_BOTH:
 		*value = (char *) Q3_GetAnimBoth( ent );
 
-		if ( !value || !value[0] )
+		if ( !value[0] )
 			return 0;
 
 		break;

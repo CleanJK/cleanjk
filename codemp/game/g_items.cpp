@@ -626,6 +626,16 @@ void pas_adjust_enemy( gentity_t *ent )
 	trace_t	tr;
 	bool keep = true;
 
+	if (ent == nullptr)
+	{
+		return;
+	}
+
+	if (ent->enemy == nullptr)
+	{
+		return;
+	}
+
 	if ( ent->enemy->health <= 0 )
 	{
 		keep = false;
@@ -662,7 +672,7 @@ void pas_adjust_enemy( gentity_t *ent )
 	{
 		//ent->bounceCount = level.time + 500 + Q_flrand(0.0f, 1.0f) * 150;
 	}
-	else if ( ent->bounceCount < level.time && ent->enemy ) // don't ping pong on and off
+	else if ( ent->bounceCount < level.time ) // don't ping pong on and off
 	{
 		ent->enemy = nullptr;
 		// shut-down sound
@@ -2272,6 +2282,8 @@ void Touch_Item (gentity_t *ent, gentity_t *other, trace_t *trace) {
 		ent->s.powerups = 0;
 	}
 
+	if (other == nullptr)
+		return;
 	if (!other->client)
 		return;
 	if (other->health < 1)

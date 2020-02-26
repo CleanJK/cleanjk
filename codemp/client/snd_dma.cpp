@@ -331,7 +331,7 @@ void S_SoundInfo_f(void) {
 			Com_Printf("%5d samplebits\n", dma.samplebits);
 			Com_Printf("%5d submission_chunk\n", dma.submission_chunk);
 			Com_Printf("%5d speed\n", dma.speed);
-			Com_Printf( "0x%" PRIxPTR " dma buffer\n", dma.buffer );
+			Com_Printf( "0x%" PRIxPTR " dma buffer\n", (unsigned long *)dma.buffer );
 #ifdef USE_OPENAL
 		}
 #endif

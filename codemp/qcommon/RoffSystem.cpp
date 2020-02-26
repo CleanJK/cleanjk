@@ -423,7 +423,7 @@ void CROFFSystem::List()
 		Com_Printf( S_COLOR_GREEN"%2i - %s\n", (*itr).first, ((CROFF *)((*itr).second))->mROFFFilePath );
 	}
 
-	Com_Printf( S_COLOR_GREEN"\nFiles: %i\n", mROFFList.size() );
+	Com_Printf( S_COLOR_GREEN"\nFiles: %lu\n", mROFFList.size() );
 }
 
 // Overloaded version of List, dumps the specified roff data to the console

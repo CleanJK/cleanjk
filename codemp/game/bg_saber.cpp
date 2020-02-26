@@ -986,12 +986,14 @@ int PM_SaberLockLoseAnim( playerState_t *genemy, bool victory, bool superBreak )
 		}
 		else
 		{
+			/*
 			if ( !victory )
 			{//no-one won
 				loseAnim = BOTH_CWCIRCLEBREAK;
 			}
 			else
 			{
+			*/
 				genemy->saberMove = LS_V1_BR;//genemy->saberBounceMove =
 				genemy->saberBlocked = BLOCKED_PARRY_BROKEN;
 				loseAnim = BOTH_V1_BR_S1;
@@ -1000,7 +1002,9 @@ int PM_SaberLockLoseAnim( playerState_t *genemy, bool victory, bool superBreak )
 				genemy->client->ps.saberBlocked = BLOCKED_PARRY_BROKEN;
 				loseAnim = BOTH_H1_S1_BR;
 				*/
+			/*
 			}
+			*/
 		}
 		break;
 	}
@@ -1151,14 +1155,6 @@ void PM_SaberLockBreak( playerState_t *genemy, bool victory, int strength )
 
 			VectorSubtract(genemy->origin, pm->ps->origin, oppDir);
 			VectorNormalize(oppDir);
-
-			if (noKnockdown)
-			{
-				if (!genemy->saberEntityNum)
-				{ //if he has already lost his saber then just knock him down
-					noKnockdown = false;
-				}
-			}
 
 			if (!noKnockdown && BG_KnockDownable(genemy))
 			{

@@ -2838,6 +2838,11 @@ static inline void G2_RagGetPelvisLumbarOffsets(CGhoul2Info &ghoul2, CRagDollUpd
 	int boneIndex = G2_Find_Bone(ghoul2.animModel, ghoul2.mBlist, "pelvis");
 	assert(boneIndex != -1);
 
+	if (boneIndex == -1)
+	{
+		return;
+	}
+
 	G2_RagGetWorldAnimMatrix(ghoul2, ghoul2.mBlist[boneIndex], params, final);
 	G2API_GiveMeVectorFromMatrix(&final, ORIGIN, animPos);
 	G2API_GiveMeVectorFromMatrix(&final, POSITIVE_X, animDir);

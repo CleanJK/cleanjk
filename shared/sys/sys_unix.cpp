@@ -115,6 +115,7 @@ Sys_RandomBytes
 bool Sys_RandomBytes( byte *string, int len )
 {
 	FILE *fp;
+	bool read = false;
 
 	fp = fopen( "/dev/urandom", "r" );
 	if( !fp )
@@ -122,14 +123,13 @@ bool Sys_RandomBytes( byte *string, int len )
 
 	setvbuf( fp, nullptr, _IONBF, 0 ); // don't buffer reads from /dev/urandom
 
-	if( !fread( string, sizeof( byte ), len, fp ) )
+	if (fread( string, sizeof( byte ), len, fp ) > 0)
 	{
-		fclose( fp );
-		return false;
+		read = true;
 	}
 
 	fclose( fp );
-	return true;
+	return read;
 }
 
 /*

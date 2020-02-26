@@ -619,6 +619,11 @@ static QINLINE void G_G2PlayerAngles( gentity_t *ent, matrix3_t legs, vec3_t leg
 		return;
 	}
 
+	if (ent->client == nullptr)
+	{
+		return;
+	}
+
 	bool tPitching = false,
 			 tYawing = false,
 			 lYawing = false;
@@ -701,7 +706,7 @@ static QINLINE void G_G2PlayerAngles( gentity_t *ent, matrix3_t legs, vec3_t leg
 		{ //make sure we aren't IKing if we don't have anyone to hold onto us.
 			int lHandBolt = 0;
 
-			if (ent && ent->inuse && ent->client && ent->ghoul2)
+			if (ent->inuse && ent->ghoul2)
 			{
 				lHandBolt = trap->G2API_AddBolt(ent->ghoul2, 0, "*l_hand");
 			}

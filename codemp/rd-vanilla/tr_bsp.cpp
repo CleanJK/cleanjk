@@ -1230,10 +1230,10 @@ void R_MovePatchSurfacesToHunk(world_t &worldData) {
 		memcpy(hunkgrid, grid, size);
 
 		hunkgrid->widthLodError = (float *)Hunk_Alloc( grid->width * 4, h_low );
-		memcpy( hunkgrid->widthLodError, grid->widthLodError, grid->width * 4 );
+		memmove( hunkgrid->widthLodError, grid->widthLodError, (size_t)grid->width * 4 );
 
 		hunkgrid->heightLodError = (float *)Hunk_Alloc( grid->height * 4, h_low );
-		memcpy( grid->heightLodError, grid->heightLodError, grid->height * 4 );
+		memmove( grid->heightLodError, grid->heightLodError, (size_t)grid->height * 4 );
 
 		R_FreeSurfaceGridMesh( grid );
 
@@ -1454,8 +1454,11 @@ static	void R_LoadShaders( lump_t *l, world_t &worldData ) {
 	memcpy( out, in, count*sizeof(*out) );
 
 	for ( i=0 ; i<count ; i++ ) {
-		out[i].surfaceFlags = LittleLong( out[i].surfaceFlags );
-		out[i].contentFlags = LittleLong( out[i].contentFlags );
+		int tmpSurfaceFlags = LittleLong(out[i].surfaceFlags);
+		int tmpContentFlags = LittleLong(out[i].contentFlags);
+
+		out[i].surfaceFlags = tmpSurfaceFlags;
+		out[i].contentFlags = tmpContentFlags;
 	}
 }
 
@@ -1901,7 +1904,8 @@ void RE_LoadWorldMap_Actual( const char *name, world_t &worldData, int index )
 
 	// swap all the lumps
 	for (size_t i=0 ; i<sizeof(dheader_t)/4 ; i++) {
-		((int *)header)[i] = LittleLong ( ((int *)header)[i]);
+		int tmpHeader = LittleLong(((int*)header)[i]);
+		((int *)header)[i] = tmpHeader;
 	}
 
 	// load into heap

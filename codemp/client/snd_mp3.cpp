@@ -215,7 +215,7 @@ bool MP3_ReadSpecialTagInfo(byte *pbLoadedFile, int iLoadedFileLen,
 
 void MP3_InitCvars(void)
 {
-	Cvar_Set( "s_mp3overhead", va( "%d", sizeof(MP3STREAM) + FUZZY_AMOUNT ) );
+	Cvar_Set( "s_mp3overhead", va( "%lu", sizeof(MP3STREAM) + FUZZY_AMOUNT ) );
 }
 
 // a file has been loaded in memory, see if we want to keep it as MP3, else as normal WAV...

@@ -3088,12 +3088,6 @@ void CG_ROFF_NotetrackCallback( centity_t *cent, const char *notetrack)
 			posoffsetGathered++;
 		}
 
-		if (posoffsetGathered < 3)
-		{
-			Com_sprintf(errMsg, sizeof(errMsg), "Offset position argument for 'effect' type is invalid.");
-			goto functionend;
-		}
-
 		i--;
 
 		if (addlArg[i] != ' ')
@@ -3190,10 +3184,6 @@ defaultoffsetposition:
 		}
 	}
 
-	return;
-
-functionend:
-	Com_Printf("^3Type-specific notetrack error: %s\n", errMsg);
 	return;
 }
 

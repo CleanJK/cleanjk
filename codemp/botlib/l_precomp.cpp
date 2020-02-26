@@ -2462,7 +2462,11 @@ int PC_ReadToken(source_t *source, token_t *token)
 			char* holdString;
 			char holdString2[MAX_TOKEN];
 
-			PC_ReadSourceToken(source, token);
+			if (!PC_ReadSourceToken(source, token))
+			{
+				return false;
+			}
+
 			holdString = &token->string[1];
 			Com_Memcpy( holdString2, token->string, sizeof(holdString2));
 			Com_Memcpy( holdString, holdString2, sizeof(token->string) - (holdString - &token->string[0]));

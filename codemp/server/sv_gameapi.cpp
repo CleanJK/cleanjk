@@ -344,6 +344,12 @@ static void SV_GetUsercmd( int clientNum, usercmd_t *cmd ) {
 static const char *SV_SetActiveSubBSP( int index ) {
 	if ( index >= 0 ) {
 		sv.mLocalSubBSPIndex = CM_FindSubBSP( index );
+
+		if (sv.mLocalSubBSPIndex == -1)
+		{
+			return nullptr;
+		}
+
 		sv.mLocalSubBSPModelOffset = index;
 		sv.mLocalSubBSPEntityParsePoint = CM_SubBSPEntityString( sv.mLocalSubBSPIndex );
 		return sv.mLocalSubBSPEntityParsePoint;

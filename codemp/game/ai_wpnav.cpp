@@ -1345,12 +1345,14 @@ int DoorBlockingSection(int start, int end)
 		return 0;
 	}
 
-	testdoor = &g_entities[tr.entityNum];
-
-	if (!testdoor)
+	if (tr.entityNum < 0 || tr.entityNum >= MAX_GENTITIES)
 	{
+		Com_Printf("DoorBlockingSection: invalid tr.entityNum %d\n", tr.entityNum);
+
 		return 0;
 	}
+
+	testdoor = &g_entities[tr.entityNum];
 
 	if (!strstr(testdoor->classname, "func_"))
 	{

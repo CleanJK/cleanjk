@@ -2479,6 +2479,20 @@ void G_GetDismemberLoc(gentity_t *self, vec3_t boltPoint, int limbType)
 
 void G_GetDismemberBolt(gentity_t *self, vec3_t boltPoint, int limbType)
 {
+	if (self == nullptr)
+	{
+		Com_Printf("G_GetDismemberBolt: nullptr: gentity_t *self\n");
+
+		return;
+	}
+
+	if (self->client == nullptr)
+	{
+		Com_Printf("G_GetDismemberBolt: nullptr: self->client\n");
+
+		return;
+	}
+
 	int useBolt = self->genericValue5;
 	vec3_t properOrigin, properAngles, addVel;
 	//matrix3_t legAxis;
@@ -2573,7 +2587,7 @@ void G_GetDismemberBolt(gentity_t *self, vec3_t boltPoint, int limbType)
 
 	trap->G2API_GetBoltMatrix(self->ghoul2, 1, 0, &boltMatrix, properAngles, properOrigin, level.time, nullptr, self->modelScale);
 
-	if (self->client && limbType == G2_MODELPART_RHAND)
+	if (limbType == G2_MODELPART_RHAND)
 	{ //Make some saber hit sparks over the severed wrist area
 		vec3_t boltAngles;
 		gentity_t *te;

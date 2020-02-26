@@ -1722,8 +1722,24 @@ char *G_ValidateUserinfo( const char *userinfo ) {
 }
 
 bool ClientUserinfoChanged( int clientNum ) {
+	
+	if (clientNum < 0 || clientNum >= MAX_GENTITIES)
+	{
+		Com_Printf("ClientUserinfoChanged: invalid clientNum %d\n", clientNum);
+
+		return false;
+	}
+	
 	gentity_t *ent = g_entities + clientNum;
 	gclient_t *client = ent->client;
+
+	if (client == nullptr)
+	{
+		Com_Printf("ClientUserinfoChanged: nullptr client\n");
+
+		return false;
+	}
+
 	int teamLeader;
 	const char *s=nullptr;
 	char *value=nullptr, userinfo[MAX_INFO_STRING], buf[MAX_INFO_STRING], oldClientinfo[MAX_INFO_STRING], model[MAX_QPATH],
@@ -1886,7 +1902,7 @@ bool ClientUserinfoChanged( int clientNum ) {
 		char *modelname = Info_ValueForKey( userinfo, "model" );
 		SetupGameGhoul2Model( ent, modelname, nullptr );
 
-		if ( ent->ghoul2 && ent->client )
+		if ( ent->ghoul2 )
 			ent->client->renderInfo.lastG2 = nullptr; //update the renderinfo bolts next update.
 
 		client->torsoAnimExecute = client->legsAnimExecute = -1;

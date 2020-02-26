@@ -530,7 +530,14 @@ void FS_CopyFile( char *fromOSPath, char *toOSPath ) {
 
 	// we are using direct malloc instead of Z_Malloc here, so it
 	// probably won't work on a mac... Its only for developers anyway...
-	buf = (unsigned char *)malloc( len );
+	buf = (byte *)malloc( len );
+
+	if (buf == nullptr)
+	{
+		fclose(f);
+		Com_Error(ERR_FATAL, "Unable to allocate memory in FS_CopyFile()");
+	}
+
 	if (fread( buf, 1, len, f ) != (unsigned)len)
 	{
 		fclose( f );
@@ -1711,7 +1718,8 @@ long FS_ReadFile( const char *qpath, void **buffer ) {
 
 	// look for it in the filesystem or pack files
 	len = FS_FOpenFileRead( qpath, &h, false );
-	if ( h == 0 ) {
+
+	if ( h == 0 || len == -1) {
 		if ( buffer ) {
 			*buffer = nullptr;
 		}
@@ -1890,8 +1898,12 @@ static pack_t *FS_LoadZipFile( const char *zipfile, const char *basename )
 
 	pack->checksum = Com_BlockChecksum( &fs_headerLongs[ 1 ], sizeof(*fs_headerLongs) * ( fs_numHeaderLongs - 1 ) );
 	pack->pure_checksum = Com_BlockChecksum( fs_headerLongs, sizeof(*fs_headerLongs) * fs_numHeaderLongs );
-	pack->checksum = LittleLong( pack->checksum );
-	pack->pure_checksum = LittleLong( pack->pure_checksum );
+	
+	int tmpChecksum = LittleLong(pack->checksum);
+	int tmpPure_checksum = LittleLong(pack->pure_checksum);
+	
+	pack->checksum = tmpChecksum;
+	pack->pure_checksum = tmpPure_checksum;
 
 	Z_Free(fs_headerLongs);
 
@@ -2968,7 +2980,11 @@ void FS_Startup( const char *gameName ) {
 	// fs_homepath is somewhat particular to *nix systems, only add if relevant
 	// NOTE: same filtering below for mods and basegame
 	if (fs_homepath->string[0] && !Sys_PathCmp(fs_homepath->string, fs_basepath->string)) {
-		FS_CreatePath ( fs_homepath->string );
+		if (FS_CreatePath(fs_homepath->string))
+		{
+			return;
+		}
+
 		FS_AddGameDirectory ( fs_homepath->string, gameName );
 	}
 

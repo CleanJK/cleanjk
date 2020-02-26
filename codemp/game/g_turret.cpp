@@ -182,11 +182,15 @@ static void turret_fire ( gentity_t *ent, vec3_t start, vec3_t dir )
 
 void turret_head_think( gentity_t *self )
 {
-	gentity_t *top = &g_entities[self->r.ownerNum];
-	if ( !top )
+	if (self->r.ownerNum < 0 || self->r.ownerNum >= MAX_GENTITIES)
 	{
+		Com_Printf("turret_head_think: invalid ownerNum %d\n", self->r.ownerNum);
+
 		return;
 	}
+
+	gentity_t *top = &g_entities[self->r.ownerNum];
+
 	if ( self->painDebounceTime > level.time )
 	{
 		vec3_t	v_up;

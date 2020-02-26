@@ -2507,7 +2507,7 @@ int BotGuardFlagCarrier(bot_state_t *bs)
 	{
 		ent = &g_entities[i];
 
-		if (ent && ent->client && ent->client->ps.powerups[enemyFlag] && OnSameTeam(&g_entities[bs->client], ent))
+		if (ent->client && ent->client->ps.powerups[enemyFlag] && OnSameTeam(&g_entities[bs->client], ent))
 		{
 			foundCarrier = 1;
 			break;
@@ -2517,11 +2517,6 @@ int BotGuardFlagCarrier(bot_state_t *bs)
 	}
 
 	if (!foundCarrier)
-	{
-		return 0;
-	}
-
-	if (!ent)
 	{
 		return 0;
 	}

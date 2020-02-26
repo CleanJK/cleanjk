@@ -976,7 +976,8 @@ void SV_Frame( int msec ) {
 	if ( sv_fps->integer < 1 ) {
 		Cvar_Set( "sv_fps", "10" );
 	}
-	frameMsec = 1000 / sv_fps->integer * timescale->value;
+	frameMsec = (int)((1000 / (float)sv_fps->integer) * timescale->value);
+
 	// don't let it scale below 1ms
 	if(frameMsec < 1)
 	{

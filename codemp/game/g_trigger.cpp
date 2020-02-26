@@ -1075,7 +1075,7 @@ void hurt_touch( gentity_t *self, gentity_t *other, trace_t *trace ) {
 		return;
 	}
 
-	if ( !other->takedamage ) {
+	if (other && !other->takedamage ) {
 		return;
 	}
 

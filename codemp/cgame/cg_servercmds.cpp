@@ -800,11 +800,6 @@ static void CG_BodyQueueCopy(centity_t *cent, int clientNum, int knownWeapon)
 
 	source = &cg_entities[ clientNum ];
 
-	if (!source)
-	{
-		return;
-	}
-
 	if (!source->ghoul2)
 	{
 		return;

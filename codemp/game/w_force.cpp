@@ -4119,6 +4119,20 @@ void FindGenericEnemyIndex(gentity_t *self)
 
 void SeekerDroneUpdate(gentity_t *self)
 {
+	if (self == nullptr)
+	{
+		Com_Printf("SeekerDroneUpdate: nullptr self\n");
+
+		return;
+	}
+
+	if (self->client == nullptr)
+	{
+		Com_Printf("SeekerDroneUpdate: nullptr self->client\n");
+
+		return;
+	}
+
 	vec3_t org, elevated, dir, a, endir;
 	gentity_t *en;
 	float angle;
@@ -4691,7 +4705,7 @@ void WP_ForcePowersUpdate( gentity_t *self, usercmd_t *ucmd )
 		prepower = self->client->ps.fd.forcePower;
 	}
 
-	if (self && self->client && (BG_HasYsalamiri(level.gametype, &self->client->ps) ||
+	if (self->client && (BG_HasYsalamiri(level.gametype, &self->client->ps) ||
 		self->client->ps.fd.forceDeactivateAll || self->client->tempSpectate >= level.time))
 	{ //has ysalamiri.. or we want to forcefully stop all his active powers
 		i = 0;
