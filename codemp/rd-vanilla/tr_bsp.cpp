@@ -1230,10 +1230,10 @@ void R_MovePatchSurfacesToHunk(world_t &worldData) {
 		memcpy(hunkgrid, grid, size);
 
 		hunkgrid->widthLodError = (float *)Hunk_Alloc( grid->width * 4, h_low );
-		memmove( hunkgrid->widthLodError, grid->widthLodError, (size_t)grid->width * 4 );
+		memcpy( hunkgrid->widthLodError, grid->widthLodError, (size_t)grid->width * 4 );
 
 		hunkgrid->heightLodError = (float *)Hunk_Alloc( grid->height * 4, h_low );
-		memmove( grid->heightLodError, grid->heightLodError, (size_t)grid->height * 4 );
+		memcpy(hunkgrid->heightLodError, grid->heightLodError, (size_t)grid->height * 4 );
 
 		R_FreeSurfaceGridMesh( grid );
 
