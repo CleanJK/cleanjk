@@ -24,9 +24,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-// ======================================================================
-// EXTERN VARIABLE
-// ======================================================================
+#include "qcommon/com_cvar.hpp"
+
 
 #ifdef _DEBUG
 extern cvar_t *fx_freeze;
@@ -121,6 +120,7 @@ extern cvar_t *cl_noprint;
 extern cvar_t *cl_packetdup;
 extern cvar_t *cl_paused;
 extern cvar_t *cl_pitchspeed;
+extern cvar_t *cl_preciseFonts;
 extern cvar_t *cl_renderer;
 extern cvar_t *cl_recordSPDemo;
 extern cvar_t *cl_run;
@@ -145,11 +145,13 @@ extern cvar_t *com_affinity;
 extern cvar_t *com_buildScript;
 extern cvar_t *com_busyWait;
 extern cvar_t *com_cameraMode;
+extern cvar_t *com_fontHandles;
 extern cvar_t *com_journal;
 extern cvar_t *com_showtrace;
 extern cvar_t *com_speeds;
 extern cvar_t *com_validateZone;
 extern cvar_t *con_autoclear;
+extern cvar_t *con_fontScale;
 extern cvar_t *con_notifytime;
 extern cvar_t *con_opacity;
 extern cvar_t *d_saberStanceDebug;
@@ -243,7 +245,6 @@ extern cvar_t *s_volume;
 extern cvar_t *s_volumeVoice;
 extern cvar_t *saber1;
 extern cvar_t *saber2;
-extern cvar_t *scr_conspeed;
 extern cvar_t *se_debug;
 extern cvar_t *se_language;
 extern cvar_t *sensitivity;
@@ -303,8 +304,6 @@ extern cvar_t *timelimit;
 extern cvar_t *timescale;
 extern cvar_t *version;
 
-// ======================================================================
-// FUNCTION
-// ======================================================================
+
 
 void Com_InitCvars( void );

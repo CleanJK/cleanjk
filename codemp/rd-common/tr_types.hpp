@@ -282,8 +282,8 @@ struct refEntity_t {
 	vec3_t		angles;				// rotation angles - used for Ghoul2
 
 	vec3_t		modelScale;			// axis scale for models
-//	CGhoul2Info_v	*ghoul2;  		// has to be at the end of the ref-ent in order for it to be created properly
-	void		*ghoul2;  		// has to be at the end of the ref-ent in order for it to be created properly
+//	CGhoul2Info_v	*ghoul2;		// has to be at the end of the ref-ent in order for it to be created properly
+	void		*ghoul2;		// has to be at the end of the ref-ent in order for it to be created properly
 };
 
 // skins allow models to be retextured without modifying the model file

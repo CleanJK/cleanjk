@@ -769,7 +769,7 @@ bool UI_SkinColor_HandleKey(int flags, float *special, int key, int num, int min
 {
   if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_ENTER || key == A_KP_ENTER)
   {
-  	int i = num;
+	int i = num;
 
 	if (key == A_MOUSE2)
 	{
@@ -951,7 +951,7 @@ bool UI_ForceMaxRank_HandleKey(int flags, float *special, int key, int num, int 
 {
   if (key == A_MOUSE1 || key == A_MOUSE2 || key == A_ENTER || key == A_KP_ENTER)
   {
-  	int i = num;
+	int i = num;
 
 	if (key == A_MOUSE2)
 	{

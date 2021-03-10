@@ -30,6 +30,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "client/cl_keycodes.hpp"
 #include "qcommon/q_common.hpp"
+#include "qcommon/com_inputField.hpp"
 
 // ======================================================================
 // DEFINE
@@ -49,7 +50,7 @@ struct qkey_t {
 
 struct keyGlobals_t {
 	bool   anykeydown;
-	bool   key_overstrikeMode;
+	bool   overstrikeMode;
 	int    keyDownCount;
 	qkey_t keys[MAX_KEYS];
 };
@@ -65,29 +66,21 @@ struct keyname_t {
 // EXTERN VARIABLE
 // ======================================================================
 
-extern field_t		chatField;
-extern field_t		g_consoleField;
-extern field_t		historyEditLines[COMMAND_HISTORY];
-extern int			chat_playerNum;
-extern int			historyLine;
-extern int			nextHistoryLine;
-extern keyGlobals_t	kg;
-extern keyname_t	keynames[MAX_KEYS];
-extern bool		chat_team;
+extern InputField         chatField;
+extern int             chat_playerNum;
+extern keyGlobals_t    kg;
+extern const keyname_t keynames[MAX_KEYS];
+extern bool            chat_team;
 
 // ======================================================================
 // FUNCTION
 // ======================================================================
 
-char *		Key_GetBinding			( int keynum );
-int			Key_GetKey				( const char *binding );
-int			Key_StringToKeynum		( char *str );
-bool	Key_GetOverstrikeMode	( void );
-bool	Key_IsDown				( int keynum );
-void		Key_ClearStates			( void );
-void		Key_SetBinding			( int keynum, const char *binding );
-void		Key_SetOverstrikeMode	( bool state );
-void	Field_BigDraw		( field_t *edit, int x, int y, int width, bool showCursor, bool noColorEscape );
-void	Field_CharEvent		( field_t *edit, int ch );
-void	Field_Draw			( field_t *edit, int x, int y, int width, bool showCursor, bool noColorEscape );
-void	Field_KeyDownEvent	( field_t *edit, int key );
+void  Key_ClearStates       ( void );
+char *Key_GetBinding        ( int keynum );
+int   Key_GetKey            ( const char *binding );
+bool  Key_GetOverstrikeMode ( void );
+bool  Key_IsDown            ( int keynum );
+void  Key_SetBinding        ( int keynum, const char *binding );
+void  Key_SetOverstrikeMode ( bool state );
+int   Key_StringToKeynum    ( char *str );

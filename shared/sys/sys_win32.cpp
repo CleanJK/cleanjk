@@ -581,7 +581,7 @@ void Sys_Sleep( int msec )
 	if ( msec == 0 )
 		return;
 
-#ifdef DEDICATED
+#ifdef BUILD_DEDICATED
 	if ( msec < 0 )
 		WaitForSingleObject( GetStdHandle( STD_INPUT_HANDLE ), INFINITE );
 	else

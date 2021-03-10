@@ -214,7 +214,7 @@ ALAPI ALvoid	ALAPIENTRY alSourceRewind( ALuint source );
  */
 
 /** Buffer object generation. */
-ALAPI ALvoid 	ALAPIENTRY alGenBuffers( ALsizei n, ALuint* buffers );
+ALAPI ALvoid	ALAPIENTRY alGenBuffers( ALsizei n, ALuint* buffers );
 ALAPI ALvoid	ALAPIENTRY alDeleteBuffers( ALsizei n, ALuint* buffers );
 ALAPI ALboolean ALAPIENTRY alIsBuffer( ALuint buffer );
 
@@ -401,7 +401,7 @@ ALAPI ALvoid	ALAPIENTRY (*alSourceStop)( ALuint source );
  */
 
 /** Buffer object generation. */
-ALAPI ALvoid 	ALAPIENTRY (*alGenBuffers)( ALsizei n, ALuint* buffers );
+ALAPI ALvoid	ALAPIENTRY (*alGenBuffers)( ALsizei n, ALuint* buffers );
 ALAPI ALvoid	ALAPIENTRY (*alDeleteBuffers)( ALsizei n, ALuint* buffers );
 ALAPI ALboolean ALAPIENTRY (*alIsBuffer)( ALuint buffer );
 

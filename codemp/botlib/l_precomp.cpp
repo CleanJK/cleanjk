@@ -26,11 +26,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 //Notes:			fix: PC_StringizeTokens
 
-//#define BOTLIB
+//#define BUILD_BOTLIB
 //#define QUAKE
 //#define QUAKEC
 
-#ifdef BOTLIB
+#ifdef BUILD_BOTLIB
 #include "qcommon/q_shared.hpp"
 #include "botlib/botlib.hpp"
 #include "botlib/be_interface.hpp"
@@ -38,7 +38,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "botlib/l_script.hpp"
 #include "botlib/l_precomp.hpp"
 #include "botlib/l_log.hpp"
-#endif //BOTLIB
+#endif //BUILD_BOTLIB
 
 #if defined(QUAKE)
 #include "botlib/l_utils.hpp"
@@ -84,9 +84,9 @@ void QDECL SourceError(source_t *source, char *str, ...)
 	va_start(ap, str);
 	Q_vsnprintf(text, sizeof(text), str, ap);
 	va_end(ap);
-#ifdef BOTLIB
+#ifdef BUILD_BOTLIB
 	botimport.Print(PRT_ERROR, "file %s, line %d: %s\n", source->scriptstack->filename, source->scriptstack->line, text);
-#endif	//BOTLIB
+#endif	//BUILD_BOTLIB
 } //end of the function SourceError
 
 //print a source warning
@@ -98,9 +98,9 @@ void QDECL SourceWarning(source_t *source, char *str, ...)
 	va_start(ap, str);
 	Q_vsnprintf(text, sizeof(text), str, ap);
 	va_end(ap);
-#ifdef BOTLIB
+#ifdef BUILD_BOTLIB
 	botimport.Print(PRT_WARNING, "file %s, line %d: %s\n", source->scriptstack->filename, source->scriptstack->line, text);
-#endif //BOTLIB
+#endif //BUILD_BOTLIB
 } //end of the function ScriptWarning
 
 //initialise the precompiler
@@ -2921,9 +2921,9 @@ void PC_CheckOpenSourceHandles(void)
 	{
 		if (sourceFiles[i])
 		{
-#ifdef BOTLIB
+#ifdef BUILD_BOTLIB
 			botimport.Print(PRT_ERROR, "file %s still open in precompiler\n", sourceFiles[i]->scriptstack->filename);
-#endif	//BOTLIB
+#endif	//BUILD_BOTLIB
 		} //end if
 	} //end for
 } //end of the function PC_CheckOpenSourceHandles

@@ -25,9 +25,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // cg_drawtools.c -- helper functions called by cg_draw, cg_scoreboard, cg_info, etc
 #include "cgame/cg_local.hpp"
 #include "qcommon/q_shared.hpp"
-#include "ui/ui_fonts.hpp"
 #include "ui/menudef.h"
 #include "cgame/cg_media.hpp"
+#include "client/cl_fonts.hpp"
 
 // Coordinates are 640*480 virtual values
 void CG_DrawRect( float x, float y, float width, float height, float size, const float *color ) {
@@ -165,8 +165,8 @@ void CG_DrawStringExt( int x, int y, const char *string, const float *setColor, 
 
 		vec4_t color;
 		memcpy(color,setColor, sizeof(color));	// de-const it
-		Font font( FONT_MEDIUM, 1.0f );
-		font.Paint( x, y, string, color, shadow ? ITEM_TEXTSTYLE_SHADOWED : 0 );
+		Text text{ JKFont::Medium, 1.0f };
+		Text_Paint( text, x, y, string, color, shadow ? ITEM_TEXTSTYLE_SHADOWED : 0 );
 	}
 	else
 	{

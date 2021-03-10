@@ -28,18 +28,18 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "qcommon/q_shared.hpp"
 #include "game/bg_public.hpp"
 
-#if defined(_GAME)
+#if defined(BUILD_GAME)
 	#include "game/g_local.hpp"
-#elif defined(_CGAME)
+#elif defined(BUILD_CGAME)
 	#include "cgame/cg_local.hpp"
 #endif
 
 #define	MAX_VARIANTS 8
 bool BG_GetRootSurfNameWithVariant( void *ghoul2, const char *rootSurfName, char *returnSurfName, int returnSize )
 {
-#if defined(_GAME)
+#if defined(BUILD_GAME)
 	if ( !ghoul2 || !trap->G2API_GetSurfaceRenderStatus( ghoul2, 0, rootSurfName ) )
-#elif defined(_CGAME)
+#elif defined(BUILD_CGAME)
 	if ( !ghoul2 || !trap->G2API_GetSurfaceRenderStatus( ghoul2, 0, rootSurfName ) )
 #endif
 	{//see if the basic name without variants is on
@@ -52,9 +52,9 @@ bool BG_GetRootSurfNameWithVariant( void *ghoul2, const char *rootSurfName, char
 		for ( i = 0; i < MAX_VARIANTS; i++ )
 		{
 			Com_sprintf( returnSurfName, returnSize, "%s%c", rootSurfName, 'a'+i );
-		#if defined(_GAME)
+		#if defined(BUILD_GAME)
 			if ( !trap->G2API_GetSurfaceRenderStatus( ghoul2, 0, returnSurfName ) )
-		#elif defined(_CGAME)
+		#elif defined(BUILD_CGAME)
 			if ( !trap->G2API_GetSurfaceRenderStatus( ghoul2, 0, returnSurfName ) )
 		#endif
 			{

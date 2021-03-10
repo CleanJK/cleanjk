@@ -78,7 +78,7 @@ handles packet fragmentation and out of order / duplicate suppression
 	#define DEBUG_ZONE_ALLOCS
 #endif
 
-#ifdef DEDICATED
+#ifdef BUILD_DEDICATED
 	#define Q3CONFIG_CFG PRODUCT_NAME "_server.cfg"
 #else
 	#define Q3CONFIG_CFG PRODUCT_NAME ".cfg"
@@ -87,7 +87,6 @@ handles packet fragmentation and out of order / duplicate suppression
 
 
 #define	CL_ENCODE_START          12
-#define	MAX_EDIT_LINE            256 // Edit fields and command line history/completion
 #define	MAX_FILE_HANDLES         64
 #define	MAX_MSGLEN               49152 // max length of a message, which may be fragmented into multiple packets
 #define	MAX_PACKET_USERCMDS      32 // max number of usercmd_t in a packet
@@ -106,7 +105,7 @@ handles packet fragmentation and out of order / duplicate suppression
 #define AVI_LINE_PADDING         4 // AVI files have the start of pixel lines 4 byte-aligned
 #define BSP_VERSION              1
 #define CL_DECODE_START          4
-#define CONSOLE_PROMPT_CHAR      ']'
+#define CONSOLE_PROMPT_STR       "]"
 #define DEFAULT_CFG              "default.cfg"
 #define DEFAULT_RENDER_LIBRARY   "rd-vanilla"
 #define JKHUB_MASTER_SERVER_NAME "master.jkhub.org"
@@ -121,8 +120,6 @@ handles packet fragmentation and out of order / duplicate suppression
 
 
 typedef void (*xcommand_t)( void );
-typedef void (*completionCallback_t)( const char *s );
-typedef void (*completionFunc_t)( char *args, int argNum );
 
 
 
@@ -216,14 +213,13 @@ struct cmdList_t {
 	const char* name;
 	const char* description;
 	xcommand_t func;
-	completionFunc_t complete;
 };
 
-struct field_t {
-	int		cursor;
-	int		scroll;
-	int		widthInChars;
-	char	buffer[MAX_EDIT_LINE];
+struct cmd_function_t {
+	cmd_function_t   *next;
+	char             *name;
+	char             *description;
+	xcommand_t        function;
 };
 
 
@@ -244,15 +240,16 @@ public:
 
 
 
-extern bool          com_errorEntered;
-extern int           com_frameTime;
-extern fileHandle_t  com_journalDataFile;
-extern fileHandle_t  com_journalFile;
-extern fileHandle_t  com_logfile;
-extern int           time_backend; // renderer backend time
-extern int           time_frontend;
-extern int           time_game;
-extern const char   *vmStrs[MAX_VM];
+extern cmd_function_t *cmd_functions;
+extern bool            com_errorEntered;
+extern int             com_frameTime;
+extern fileHandle_t    com_journalDataFile;
+extern fileHandle_t    com_journalFile;
+extern fileHandle_t    com_logfile;
+extern int             time_backend; // renderer backend time
+extern int             time_frontend;
+extern int             time_game;
+extern const char     *vmStrs[MAX_VM];
 
 
 
@@ -266,7 +263,7 @@ extern const char   *vmStrs[MAX_VM];
 	void MSG_ReportChangeVectors_f(void);
 #endif
 
-#if defined( _GAME ) || defined( _CGAME ) || defined( UI_BUILD )
+#if defined( BUILD_GAME ) || defined( BUILD_CGAME ) || defined( BUILD_UI )
 	extern NORETURN_PTR void (*Com_Error) ( int level, const char *fmt, ... );
 	extern void              (*Com_Printf)( const char *fmt, ... );
 #else
@@ -321,7 +318,6 @@ void            Cmd_ArgsFromBuffer            ( int arg, char *buffer, int buffe
 char           *Cmd_Argv                      ( int arg );
 void            Cmd_ArgvBuffer                ( int arg, char *buffer, int bufferLength );
 char           *Cmd_Cmd                       ( void );
-void            Cmd_CommandCompletion         ( completionCallback_t callback );
 void            Cmd_CompleteArgument          ( const char *command, char *args, int argNum );
 void            Cmd_CompleteCfgName           ( char *args, int argNum );
 char           *Cmd_DescriptionString         ( const char *cmd_name );
@@ -329,7 +325,6 @@ void            Cmd_ExecuteString             ( const char *text );
 void            Cmd_Init                      ( void );
 void            Cmd_RemoveCommand             ( const char *cmd_name );
 void            Cmd_RemoveCommandList         ( const cmdList_t *cmdList );
-void            Cmd_SetCommandCompletionFunc  ( const char *command, completionFunc_t complete );
 void            Cmd_TokenizeString            ( const char *text );
 void            Cmd_TokenizeStringIgnoreQuotes( const char *text_in );
 void            Cmd_VM_RemoveCommand          ( const char *cmd_name, vmSlots_e vmslot );
@@ -361,11 +356,6 @@ bool            Com_TheHunkMarkHasBeenMade    ( void );
 void            Com_TouchMemory               ( void );
 uint32_t        ConvertUTF8ToUTF32            ( char *utf8CurrentChar, char **utf8NextChar );
 char           *CopyString                    ( const char *in );
-void            Field_AutoComplete            ( field_t *edit );
-void            Field_Clear                   ( field_t *edit );
-void            Field_CompleteCommand         ( char *cmd, bool doCommands, bool doCvars );
-void            Field_CompleteFilename        ( const char *dir, const char *ext, bool stripExt, bool allowNonPureFilesOnDisk );
-void            Field_CompleteKeyname         ( void );
 char           *FS_BuildOSPath                ( const char *base, const char *game, const char *qpath );
 bool            FS_CheckDirTraversal          ( const char *checkdir );
 void            FS_ClearPakReferences         ( int flags );
@@ -377,7 +367,7 @@ bool            FS_FileExists                 ( const char *file );
 int             FS_FileIsInPAK                ( const char *filename, int *pChecksum );
 int             FS_filelength                 ( fileHandle_t f );
 bool            FS_FilenameCompare            ( const char *s1, const char *s2 );
-void            FS_FilenameCompletion         ( const char *dir, const char *ext, bool stripExt, completionCallback_t callback, bool allowNonPureFilesOnDisk );
+void            FS_FilenameCompletion         ( const char *dir, const char *ext, bool stripExt, bool allowNonPureFilesOnDisk );
 bool            FS_FindPureDLL                ( const char *name );
 void            FS_Flush                      ( fileHandle_t f );
 int             FS_FOpenFileByMode            ( const char *qpath, fileHandle_t *f, fsMode_e mode );

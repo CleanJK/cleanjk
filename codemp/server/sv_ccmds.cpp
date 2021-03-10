@@ -144,42 +144,44 @@ static client_t *SV_GetPlayerByNum( void ) {
 
 // Restart the server on a different map
 static void SV_Map_f( void ) {
-	char		*cmd = nullptr, *map = nullptr;
-	bool	killBots=false, cheat=false;
-	char		expanded[MAX_QPATH] = {0}, mapname[MAX_QPATH] = {0};
+	char *map = Cmd_Argv( 1 );
 
-	map = Cmd_Argv(1);
-	if ( !map )
-		return;
-
-	// make sure the level exists before trying to change, so that
-	// a typo at the server console won't end the game
-	if (strchr (map, '\\') ) {
-		Com_Printf ("Can't have mapnames with a \\\n");
+	if ( !map ) {
 		return;
 	}
 
-	Com_sprintf (expanded, sizeof(expanded), "maps/%s.bsp", map);
-	if ( FS_ReadFile (expanded, nullptr) == -1 ) {
-		Com_Printf ("Can't find map %s\n", expanded);
+	// make sure the level exists before trying to change, so that
+	// a typo at the server console won't end the game
+	if ( strchr( map, '\\' ) ) {
+		Com_Printf( "Can't have mapnames with a \\\n" );
+		return;
+	}
+
+	char expanded[MAX_QPATH] = {0};
+	Com_sprintf( expanded, sizeof(expanded), "maps/%s.bsp", map );
+	if ( FS_ReadFile( expanded, nullptr ) == -1 ) {
+		Com_Printf( S_COLOR_YELLOW "Can't find map %s\n", expanded );
 		return;
 	}
 
 	// force latched values to get set
 	g_gametype = Cvar_Get( "g_gametype", "0", CVAR_SERVERINFO | CVAR_LATCH );
 
-	cmd = Cmd_Argv(0);
+	char *cmd = Cmd_Argv( 0 );
+	bool killBots = false;
+	bool cheat = false;
 	if ( !Q_stricmpn( cmd, "devmap", 6 ) ) {
 		cheat = true;
 		killBots = true;
-	} else {
+	}
+	else {
 		cheat = false;
 		killBots = false;
 	}
 
-	// save the map name here cause on a map restart we reload the jampconfig.cfg
-	// and thus nuke the arguments of the map command
-	Q_strncpyz(mapname, map, sizeof(mapname));
+	// save the map name here cause on a map restart we reload the jampconfig.cfg and thus nuke the arguments of the map command
+	char mapname[MAX_QPATH] = {0};
+	Q_strncpyz( mapname, map, sizeof(mapname) );
 
 	ForceReload_e eForceReload = eForceReload_NOTHING;	// default for normal load
 
@@ -190,8 +192,7 @@ static void SV_Map_f( void ) {
 	if ( !Q_stricmp( cmd, "devmapmdl") ) {
 		eForceReload = eForceReload_MODELS;
 	}
-	else
-	if ( !Q_stricmp( cmd, "devmapall") ) {
+	else if ( !Q_stricmp( cmd, "devmapall") ) {
 		eForceReload = eForceReload_ALL;
 	}
 
@@ -835,7 +836,7 @@ static void SV_DelBanFromList( bool isexception )
 			curban = &serverBans[index];
 
 			if ( curban->isexception == isexception		&&
-				curban->subnet >= mask 			&&
+				curban->subnet >= mask			&&
 				NET_CompareBaseAdrMask( curban->ip, ip, mask ) )
 			{
 				Com_Printf( "Deleting %s %s/%d\n",
@@ -1721,15 +1722,10 @@ static void SV_Record_f( void ) {
 		if ( FS_FileExists( name ) ) {
 			Com_Printf( "Record: Couldn't create a file\n");
 			return;
- 		}
+		}
 	}
 
 	SV_RecordDemo( cl, demoName );
-}
-
-static void SV_CompleteMapName( char *args, int argNum ) {
-	if ( argNum == 2 )
-		Field_CompleteFilename( "maps", "bsp", true, false );
 }
 
 void SV_AddOperatorCommands( void ) {
@@ -1740,41 +1736,36 @@ void SV_AddOperatorCommands( void ) {
 	}
 	initialized = true;
 
-	Cmd_AddCommand ("heartbeat", SV_Heartbeat_f, "Sends a heartbeat to the masterserver" );
-	Cmd_AddCommand ("kick", SV_Kick_f, "Kick a user from the server" );
-	Cmd_AddCommand ("kickbots", SV_KickBots_f, "Kick all bots from the server" );
-	Cmd_AddCommand ("kickall", SV_KickAll_f, "Kick all users from the server" );
-	Cmd_AddCommand ("kicknum", SV_KickNum_f, "Kick a user from the server by userid" );
-	Cmd_AddCommand ("clientkick", SV_KickNum_f, "Kick a user from the server by userid" );
-	Cmd_AddCommand ("status", SV_Status_f, "Prints status of server and connected clients" );
-	Cmd_AddCommand ("serverinfo", SV_Serverinfo_f, "Prints the serverinfo that is visible in the server browsers" );
-	Cmd_AddCommand ("systeminfo", SV_Systeminfo_f, "Prints the systeminfo variables that are replicated to clients" );
-	Cmd_AddCommand ("dumpuser", SV_DumpUser_f, "Prints the userinfo for a given userid" );
-	Cmd_AddCommand ("map_restart", SV_MapRestart_f, "Restart the current map" );
-	Cmd_AddCommand ("sectorlist", SV_SectorList_f);
-	Cmd_AddCommand ("map", SV_Map_f, "Load a new map with cheats disabled" );
-	Cmd_SetCommandCompletionFunc( "map", SV_CompleteMapName );
-	Cmd_AddCommand ("devmap", SV_Map_f, "Load a new map with cheats enabled" );
-	Cmd_SetCommandCompletionFunc( "devmap", SV_CompleteMapName );
-//	Cmd_AddCommand ("devmapbsp", SV_Map_f);	// not used in MP codebase, no server BSP_cacheing
-	Cmd_AddCommand ("devmapmdl", SV_Map_f, "Load a new map with cheats enabled" );
-	Cmd_SetCommandCompletionFunc( "devmapmdl", SV_CompleteMapName );
-	Cmd_AddCommand ("devmapall", SV_Map_f, "Load a new map with cheats enabled" );
-	Cmd_SetCommandCompletionFunc( "devmapall", SV_CompleteMapName );
-	Cmd_AddCommand ("killserver", SV_KillServer_f, "Shuts the server down and disconnects all clients" );
-	Cmd_AddCommand ("svsay", SV_ConSay_f, "Broadcast server messages to clients" );
-	Cmd_AddCommand ("svtell", SV_ConTell_f, "Private message from the server to a user" );
-	Cmd_AddCommand ("forcetoggle", SV_ForceToggle_f, "Toggle g_forcePowerDisable bits" );
-	Cmd_AddCommand ("weapontoggle", SV_WeaponToggle_f, "Toggle g_weaponDisable bits" );
-	Cmd_AddCommand ("svrecord", SV_Record_f, "Record a server-side demo" );
-	Cmd_AddCommand ("svstoprecord", SV_StopRecord_f, "Stop recording a server-side demo" );
-	Cmd_AddCommand ("sv_rehashbans", SV_RehashBans_f, "Reloads banlist from file" );
-	Cmd_AddCommand ("sv_listbans", SV_ListBans_f, "Lists bans" );
-	Cmd_AddCommand ("sv_banaddr", SV_BanAddr_f, "Bans a user" );
-	Cmd_AddCommand ("sv_exceptaddr", SV_ExceptAddr_f, "Adds a ban exception for a user" );
-	Cmd_AddCommand ("sv_bandel", SV_BanDel_f, "Removes a ban" );
-	Cmd_AddCommand ("sv_exceptdel", SV_ExceptDel_f, "Removes a ban exception" );
-	Cmd_AddCommand ("sv_flushbans", SV_FlushBans_f, "Removes all bans and exceptions" );
+	Cmd_AddCommand( "clientkick",    SV_KickNum_f,       "Kick a user from the server by userid" );
+	Cmd_AddCommand( "devmap",        SV_Map_f,           "Load a new map with cheats enabled" );
+	Cmd_AddCommand( "devmapall",     SV_Map_f,           "Load a new map with cheats enabled" );
+	Cmd_AddCommand( "devmapmdl",     SV_Map_f,           "Load a new map with cheats enabled" );
+	Cmd_AddCommand( "dumpuser",      SV_DumpUser_f,      "Prints the userinfo for a given userid" );
+	Cmd_AddCommand( "forcetoggle",   SV_ForceToggle_f,   "Toggle g_forcePowerDisable bits" );
+	Cmd_AddCommand( "heartbeat",     SV_Heartbeat_f,     "Sends a heartbeat to the masterserver" );
+	Cmd_AddCommand( "kick",          SV_Kick_f,          "Kick a user from the server" );
+	Cmd_AddCommand( "kickall",       SV_KickAll_f,       "Kick all users from the server" );
+	Cmd_AddCommand( "kickbots",      SV_KickBots_f,      "Kick all bots from the server" );
+	Cmd_AddCommand( "kicknum",       SV_KickNum_f,       "Kick a user from the server by userid" );
+	Cmd_AddCommand( "killserver",    SV_KillServer_f,    "Shuts the server down and disconnects all clients" );
+	Cmd_AddCommand( "map_restart",   SV_MapRestart_f,    "Restart the current map" );
+	Cmd_AddCommand( "map",           SV_Map_f,           "Load a new map with cheats disabled" );
+	Cmd_AddCommand( "sectorlist",    SV_SectorList_f );
+	Cmd_AddCommand( "serverinfo",    SV_Serverinfo_f,    "Prints the serverinfo that is visible in the server browsers" );
+	Cmd_AddCommand( "status",        SV_Status_f,        "Prints status of server and connected clients" );
+	Cmd_AddCommand( "sv_banaddr",    SV_BanAddr_f,       "Bans a user" );
+	Cmd_AddCommand( "sv_bandel",     SV_BanDel_f,        "Removes a ban" );
+	Cmd_AddCommand( "sv_exceptaddr", SV_ExceptAddr_f,    "Adds a ban exception for a user" );
+	Cmd_AddCommand( "sv_exceptdel",  SV_ExceptDel_f,     "Removes a ban exception" );
+	Cmd_AddCommand( "sv_flushbans",  SV_FlushBans_f,     "Removes all bans and exceptions" );
+	Cmd_AddCommand( "sv_listbans",   SV_ListBans_f,      "Lists bans" );
+	Cmd_AddCommand( "sv_rehashbans", SV_RehashBans_f,    "Reloads banlist from file" );
+	Cmd_AddCommand( "svrecord",      SV_Record_f,        "Record a server-side demo" );
+	Cmd_AddCommand( "svsay",         SV_ConSay_f,        "Broadcast server messages to clients" );
+	Cmd_AddCommand( "svstoprecord",  SV_StopRecord_f,    "Stop recording a server-side demo" );
+	Cmd_AddCommand( "svtell",        SV_ConTell_f,       "Private message from the server to a user" );
+	Cmd_AddCommand( "systeminfo",    SV_Systeminfo_f,    "Prints the systeminfo variables that are replicated to clients" );
+	Cmd_AddCommand( "weapontoggle",  SV_WeaponToggle_f,  "Toggle g_weaponDisable bits" );
 }
 
 void SV_RemoveOperatorCommands( void ) {

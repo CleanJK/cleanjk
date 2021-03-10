@@ -27,298 +27,90 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "cgame/cg_local.hpp"
 
 #include "ui/ui_shared.hpp"
-#include "ui/ui_fonts.hpp"
 #include "ui/menudef.h"
 #include "cgame/cg_media.hpp"
+#include "client/cl_fonts.hpp"
 
-NORETURN_PTR void (*Com_Error)( int level, const char *fmt, ... );
-void (*Com_Printf)( const char *fmt, ... );
-
-// display context for new ui stuff
-displayContextDef_t cgDC;
-
-static int	C_PointContents(void);
-static void C_GetLerpOrigin(void);
-static void C_GetLerpData(void);
-static void C_Trace(void);
-static void C_G2Trace(void);
-static void C_G2Mark(void);
-static int	CG_RagCallback(int callType);
-
-extern autoMapInput_t cg_autoMapInput; //cg_view.c
-extern int cg_autoMapInputTime;
-extern vec3_t cg_autoMapAngle;
+displayContextDef_t cgDC; // display context for new ui stuff
+cg_t				cg;
+cgs_t				cgs;
+centity_t			cg_entities[MAX_GENTITIES];
+centity_t			*cg_permanents[MAX_GENTITIES]; //rwwRMG - added
+int					cg_numpermanents = 0;
+weaponInfo_t		cg_weapons[MAX_WEAPONS];
+itemInfo_t			cg_items[MAX_ITEMS];
 
 //do we have any force powers that we would normally need to cycle to?
-bool CG_NoUseableForce(void)
-{
-	int i = FP_HEAL;
-	while (i < NUM_FORCE_POWERS)
-	{
+bool CG_NoUseableForce( void ) {
+	for ( int i = FP_HEAL; i < NUM_FORCE_POWERS; i++ ) {
 		if (i != FP_SABERTHROW &&
 			i != FP_SABER_OFFENSE &&
 			i != FP_SABER_DEFENSE &&
-			i != FP_LEVITATION)
-		{ //valid selectable power
-			if (cg.predictedPlayerState.fd.forcePowersKnown & (1 << i))
-			{ //we have it
+			i != FP_LEVITATION )
+		{// valid selectable power
+			if ( cg.predictedPlayerState.fd.forcePowersKnown & (1 << i) ) {
 				return false;
 			}
 		}
-		i++;
 	}
 
 	//no useable force powers, I guess.
 	return true;
 }
 
-static int C_PointContents( void ) {
-	TCGPointContents *data = &cg.sharedBuffer.pointContents;
-	return CG_PointContents( data->mPoint, data->mPassEntityNum );
-}
-
-static void C_GetLerpOrigin( void ) {
-	TCGVectorData *data = &cg.sharedBuffer.vectorData;
-	VectorCopy( cg_entities[data->mEntityNum].lerpOrigin, data->mPoint );
-}
-
-// only used by FX system to pass to getboltmat
-static void C_GetLerpData( void ) {
-	TCGGetBoltData *data = &cg.sharedBuffer.getBoltData;
-
-	VectorCopy( cg_entities[data->mEntityNum].lerpOrigin, data->mOrigin );
-	VectorCopy( cg_entities[data->mEntityNum].modelScale, data->mScale );
-	VectorCopy( cg_entities[data->mEntityNum].lerpAngles, data->mAngles );
-	if ( cg_entities[data->mEntityNum].currentState.eType == ET_PLAYER ) {
-		// normal player
-		data->mAngles[PITCH] = 0.0f;
-		data->mAngles[ROLL] = 0.0f;
-	}
-}
-
-static void C_Trace( void ) {
-	TCGTrace *td = &cg.sharedBuffer.trace;
-	CG_Trace( &td->mResult, td->mStart, td->mMins, td->mMaxs, td->mEnd, td->mSkipNumber, td->mMask );
-}
-
-static void C_G2Trace( void ) {
-	TCGTrace *td = &cg.sharedBuffer.trace;
-	CG_G2Trace( &td->mResult, td->mStart, td->mMins, td->mMaxs, td->mEnd, td->mSkipNumber, td->mMask );
-}
-
-static void C_G2Mark( void ) {
-	TCGG2Mark *td = &cg.sharedBuffer.g2Mark;
-	trace_t tr;
-	vec3_t end;
-
-	VectorMA( td->start, 64.0f, td->dir, end );
-	CG_G2Trace( &tr, td->start, nullptr, nullptr, end, ENTITYNUM_NONE, MASK_PLAYERSOLID );
-
-	if ( tr.entityNum < ENTITYNUM_WORLD && cg_entities[tr.entityNum].ghoul2 ) {
-		// hit someone with a ghoul2 instance, let's project the decal on them then.
-		centity_t *cent = &cg_entities[tr.entityNum];
-
-	//	CG_TestLine( tr.endpos, end, 2000, 0x0000ff, 1 );
-
-		CG_AddGhoul2Mark( td->shader, td->size, tr.endpos, end, tr.entityNum, cent->lerpOrigin, cent->lerpAngles[YAW],
-			cent->ghoul2, cent->modelScale, Q_irand( 2000, 4000 ) );
-		// I'm making fx system decals have a very short lifetime.
-	}
-}
-
-static void CG_DebugBoxLines( vec3_t mins, vec3_t maxs, int duration ) {
-	vec3_t start, end, vert;
-	float x = maxs[0] - mins[0];
-	float y = maxs[1] - mins[1];
-
-	start[2] = maxs[2];
-	vert[2] = mins[2];
-
-	vert[0] = mins[0];
-	vert[1] = mins[1];
-	start[0] = vert[0];
-	start[1] = vert[1];
-	CG_TestLine(start, vert, duration, 0x00000ff, 1);
-
-	vert[0] = mins[0];
-	vert[1] = maxs[1];
-	start[0] = vert[0];
-	start[1] = vert[1];
-	CG_TestLine(start, vert, duration, 0x00000ff, 1);
-
-	vert[0] = maxs[0];
-	vert[1] = mins[1];
-	start[0] = vert[0];
-	start[1] = vert[1];
-	CG_TestLine(start, vert, duration, 0x00000ff, 1);
-
-	vert[0] = maxs[0];
-	vert[1] = maxs[1];
-	start[0] = vert[0];
-	start[1] = vert[1];
-	CG_TestLine(start, vert, duration, 0x00000ff, 1);
-
-	// top of box
-	VectorCopy(maxs, start);
-	VectorCopy(maxs, end);
-	start[0] -= x;
-	CG_TestLine(start, end, duration, 0x00000ff, 1);
-	end[0] = start[0];
-	end[1] -= y;
-	CG_TestLine(start, end, duration, 0x00000ff, 1);
-	start[1] = end[1];
-	start[0] += x;
-	CG_TestLine(start, end, duration, 0x00000ff, 1);
-	CG_TestLine(start, maxs, duration, 0x00000ff, 1);
-	// bottom of box
-	VectorCopy(mins, start);
-	VectorCopy(mins, end);
-	start[0] += x;
-	CG_TestLine(start, end, duration, 0x00000ff, 1);
-	end[0] = start[0];
-	end[1] += y;
-	CG_TestLine(start, end, duration, 0x00000ff, 1);
-	start[1] = end[1];
-	start[0] -= x;
-	CG_TestLine(start, end, duration, 0x00000ff, 1);
-	CG_TestLine(start, mins, duration, 0x00000ff, 1);
-}
-
-//handle ragdoll callbacks, for events and debugging -rww
-static int CG_RagCallback(int callType)
-{
-	switch(callType)
-	{
-	case RAG_CALLBACK_DEBUGBOX:
-		{
-			ragCallbackDebugBox_t *callData = &cg.sharedBuffer.rcbDebugBox;
-
-			CG_DebugBoxLines(callData->mins, callData->maxs, callData->duration);
-		}
-		break;
-	case RAG_CALLBACK_DEBUGLINE:
-		{
-			ragCallbackDebugLine_t *callData = &cg.sharedBuffer.rcbDebugLine;
-
-			CG_TestLine(callData->start, callData->end, callData->time, callData->color, callData->radius);
-		}
-		break;
-	case RAG_CALLBACK_BONESNAP:
-		{
-			ragCallbackBoneSnap_t *callData = &cg.sharedBuffer.rcbBoneSnap;
-			centity_t *cent = &cg_entities[callData->entNum];
-			int snapSound = trap->S_RegisterSound(va("sound/player/bodyfall_human%i.wav", Q_irand(1, 3)));
-
-			trap->S_StartSound(cent->lerpOrigin, callData->entNum, CHAN_AUTO, snapSound);
-		}
-	case RAG_CALLBACK_BONEIMPACT:
-		break;
-	case RAG_CALLBACK_BONEINSOLID:
-		break;
-	case RAG_CALLBACK_TRACELINE:
-		{
-			ragCallbackTraceLine_t *callData = &cg.sharedBuffer.rcbTraceLine;
-
-			CG_Trace(&callData->tr, callData->start, callData->mins, callData->maxs,
-				callData->end, callData->ignore, callData->mask);
-		}
-		break;
-	default:
-		Com_Error(ERR_DROP, "Invalid callType in CG_RagCallback");
-		break;
-	}
-
-	return 0;
-}
-
 void CG_MiscEnt( void ) {
-	int i, modelIndex;
-	TCGMiscEnt *data = &cg.sharedBuffer.miscEnt;
-	cg_staticmodel_t *staticmodel;
-
-	if( cgs.numMiscStaticModels >= MAX_STATIC_MODELS ) {
+	if ( cgs.numMiscStaticModels >= MAX_STATIC_MODELS ) {
 		trap->Error( ERR_DROP, "^1MAX_STATIC_MODELS(%i) hit", MAX_STATIC_MODELS );
 	}
 
-	modelIndex = trap->R_RegisterModel(data->mModel);
-	if (modelIndex == 0) {
+	TCGMiscEnt *data = &cg.sharedBuffer.miscEnt;
+	const int modelIndex = trap->R_RegisterModel( data->mModel );
+	if ( modelIndex == 0 ) {
 		trap->Error( ERR_DROP, "client_model failed to load model '%s'", data->mModel );
 		return;
 	}
 
-	staticmodel = &cgs.miscStaticModels[cgs.numMiscStaticModels++];
+	cg_staticmodel_t *staticmodel = &cgs.miscStaticModels[cgs.numMiscStaticModels++];
 	staticmodel->model = modelIndex;
 	AnglesToAxis( data->mAngles, staticmodel->axes );
-	for ( i = 0; i < 3; i++ ) {
+	for ( int i = 0; i < 3; i++ ) {
 		VectorScale( staticmodel->axes[i], data->mScale[i], staticmodel->axes[i] );
 	}
 
 	VectorCopy( data->mOrigin, staticmodel->org );
 	staticmodel->zoffset = 0.f;
 
-	if( staticmodel->model ) {
+	if ( staticmodel->model ) {
 		vec3_t mins, maxs;
 
 		trap->R_ModelBounds( staticmodel->model, mins, maxs );
 
-		VectorScaleVector(mins, data->mScale, mins);
-		VectorScaleVector(maxs, data->mScale, maxs);
+		VectorScaleVector( mins, data->mScale, mins );
+		VectorScaleVector( maxs, data->mScale, maxs );
 
 		staticmodel->radius = RadiusFromBounds( mins, maxs );
-	} else {
+	}
+	else {
 		staticmodel->radius = 0;
 	}
 }
 
-/*
-void CG_ResizeG2Bolt(boltInfo_v *bolt, int newCount)
-{
-	bolt->resize(newCount);
-}
-
-void CG_ResizeG2Surface(surfaceInfo_v *surface, int newCount)
-{
-	surface->resize(newCount);
-}
-
-void CG_ResizeG2Bone(boneInfo_v *bone, int newCount)
-{
-	bone->resize(newCount);
-}
-
-void CG_ResizeG2(CGhoul2Info_v *ghoul2, int newCount)
-{
-	ghoul2->resize(newCount);
-}
-
-void CG_ResizeG2TempBone(mdxaBone_v *tempBone, int newCount)
-{
-	tempBone->resize(newCount);
-}
-*/
-cg_t				cg;
-cgs_t				cgs;
-centity_t			cg_entities[MAX_GENTITIES];
-
-centity_t			*cg_permanents[MAX_GENTITIES]; //rwwRMG - added
-int					cg_numpermanents = 0;
-
-weaponInfo_t		cg_weapons[MAX_WEAPONS];
-itemInfo_t			cg_items[MAX_ITEMS];
-
 int CG_CrosshairPlayer( void ) {
-	if ( cg.time > (cg.crosshairClientTime + 1000) )
+	if ( cg.time > (cg.crosshairClientTime + 1000) ) {
 		return -1;
+	}
 
-	if ( cg.crosshairClientNum >= MAX_CLIENTS )
+	if ( cg.crosshairClientNum >= MAX_CLIENTS ) {
 		return -1;
+	}
 
 	return cg.crosshairClientNum;
 }
 
 int CG_LastAttacker( void ) {
-	if ( !cg.attackerTime )
+	if ( !cg.attackerTime ) {
 		return -1;
+	}
 
 	return cg.snap->ps.persistant[PERS_ATTACKER];
 }
@@ -336,48 +128,40 @@ int BG_GetTime( void ) {
 	return cg.time;
 }
 
-extern char *forceHolocronModels[];
-
-const char *CG_GetStringEdString(char *refSection, const char *refName)
-{
+const char *CG_GetStringEdString( char *refSection, const char *refName ) {
 	static char text[2][1024];	//just incase it's nested
 	static int		index = 0;
 
 	index ^= 1;
-	trap->SE_GetStringTextString(va("%s_%s", refSection, refName), text[index], sizeof(text[0]));
+	trap->SE_GetStringTextString( va( "%s_%s", refSection, refName ), text[index], sizeof(text[0]) );
 	return text[index];
 }
 
 void CG_BuildSpectatorString(void) {
 	int i;
 	cg.spectatorList[0] = 0;
-
-	for (i = 0; i < MAX_CLIENTS; i++) {
-		if (cgs.clientinfo[i].infoValid && cgs.clientinfo[i].team == TEAM_SPECTATOR ) {
-			Q_strcat(cg.spectatorList, sizeof(cg.spectatorList), va("%s     ", cgs.clientinfo[i].name));
+	for ( i = 0; i < MAX_CLIENTS; i++ ) {
+		if ( cgs.clientinfo[i].infoValid && cgs.clientinfo[i].team == TEAM_SPECTATOR ) {
+			Q_strcat( cg.spectatorList, sizeof(cg.spectatorList), va( "%s     ", cgs.clientinfo[i].name ) );
 		}
 	}
-	i = strlen(cg.spectatorList);
-	if (i != cg.spectatorLen) {
+	i = strlen( cg.spectatorList );
+	if ( i != cg.spectatorLen ) {
 		cg.spectatorLen = i;
 		cg.spectatorWidth = -1;
 	}
 }
 
 static void CG_RegisterClients( void ) {
-	int		i;
+	CG_LoadingClient( cg.clientNum );
+	CG_NewClientInfo( cg.clientNum, false );
 
-	CG_LoadingClient(cg.clientNum);
-	CG_NewClientInfo(cg.clientNum, false);
-
-	for (i=0 ; i<MAX_CLIENTS ; i++) {
-		const char		*clientInfo;
-
-		if (cg.clientNum == i) {
+	for ( int i = 0; i < MAX_CLIENTS; i++ ) {
+		if ( cg.clientNum == i ) {
 			continue;
 		}
 
-		clientInfo = CG_ConfigString( CS_PLAYERS+i );
+		const char *clientInfo = CG_ConfigString( CS_PLAYERS+i );
 		if ( !clientInfo[0]) {
 			continue;
 		}
@@ -395,200 +179,150 @@ const char *CG_ConfigString( int index ) {
 }
 
 void CG_StartMusic( bool bForceStart ) {
-	char	*s;
-	char	parm1[MAX_QPATH], parm2[MAX_QPATH];
-
 	// start the background music
-	s = (char *)CG_ConfigString( CS_MUSIC );
+	char *s = (char *)CG_ConfigString( CS_MUSIC );
+	char parm1[MAX_QPATH], parm2[MAX_QPATH];
 	Q_strncpyz( parm1, COM_Parse( (const char **)&s ), sizeof( parm1 ) );
 	Q_strncpyz( parm2, COM_Parse( (const char **)&s ), sizeof( parm2 ) );
 
 	trap->S_StartBackgroundTrack( parm1, parm2, !bForceStart );
 }
 
-char *CG_GetMenuBuffer(const char *filename) {
-	int	len;
-	fileHandle_t	f;
-	static char buf[MAX_MENUFILE];
-
-	len = trap->FS_Open( filename, &f, FS_READ );
+char *CG_GetMenuBuffer( const char *filename ) {
+	fileHandle_t f;
+	const int len = trap->FS_Open( filename, &f, FS_READ );
 	if ( !f ) {
 		trap->Print( S_COLOR_RED "menu file not found: %s, using default\n", filename );
 		return nullptr;
 	}
-	if ( len >= MAX_MENUFILE ) {
+
+	static char buf[MAX_MENUFILE];
+	if ( len >= sizeof(buf) ) {
 		trap->Print( S_COLOR_RED "menu file too large: %s is %i, max allowed is %i\n", filename, len, MAX_MENUFILE );
 		trap->FS_Close( f );
 		return nullptr;
 	}
 
 	trap->FS_Read( buf, len, f );
-	buf[len] = 0;
+	buf[len] = '\0';
 	trap->FS_Close( f );
 
 	return buf;
 }
 
 // new hud stuff ( mission pack )
-bool CG_Asset_Parse(int handle) {
+bool CG_Asset_Parse( int handle ) {
 	pc_token_t token;
 
-	if (!trap->PC_ReadToken(handle, &token))
+	if ( !trap->PC_ReadToken( handle, &token ) ) {
 		return false;
-	if (Q_stricmp(token.string, "{") != 0) {
+	}
+	if ( Q_stricmp( token.string, "{" ) ) {
 		return false;
 	}
 
 	while ( 1 ) {
-		if (!trap->PC_ReadToken(handle, &token))
+		if ( !trap->PC_ReadToken( handle, &token ) ) {
 			return false;
+		}
 
-		if (Q_stricmp(token.string, "}") == 0) {
+		if ( !Q_stricmp( token.string, "}" ) ) {
 			return true;
 		}
 
-		// font
-		if (Q_stricmp(token.string, "font") == 0) {
-			int pointSize;
-			if (!trap->PC_ReadToken(handle, &token) || !PC_Int_Parse(handle, &pointSize)) {
+		//TODO: keyword hash
+		else if ( !Q_stricmp( token.string, "gradientbar" ) ) {
+			if ( !trap->PC_ReadToken( handle, &token ) ) {
 				return false;
 			}
-
-//			cgDC.registerFont(token.string, pointSize, &cgDC.Assets.textFont);
-			cgDC.Assets.qhMediumFont = cgDC.RegisterFont(token.string);
+			cgDC.Assets.gradientBar = trap->R_RegisterShaderNoMip( token.string );
 			continue;
 		}
 
-		// smallFont
-		if (Q_stricmp(token.string, "smallFont") == 0) {
-			int pointSize;
-			if (!trap->PC_ReadToken(handle, &token) || !PC_Int_Parse(handle, &pointSize)) {
-				return false;
-			}
-//			cgDC.registerFont(token.string, pointSize, &cgDC.Assets.smallFont);
-			cgDC.Assets.qhSmallFont = cgDC.RegisterFont(token.string);
-			continue;
-		}
-
-		// smallFont
-		if (Q_stricmp(token.string, "small2Font") == 0) {
-			int pointSize;
-			if (!trap->PC_ReadToken(handle, &token) || !PC_Int_Parse(handle, &pointSize)) {
-				return false;
-			}
-//			cgDC.registerFont(token.string, pointSize, &cgDC.Assets.smallFont);
-			cgDC.Assets.qhSmall2Font = cgDC.RegisterFont(token.string);
-			continue;
-		}
-
-		// font
-		if (Q_stricmp(token.string, "bigfont") == 0) {
-			int pointSize;
-			if (!trap->PC_ReadToken(handle, &token) || !PC_Int_Parse(handle, &pointSize)) {
-				return false;
-			}
-//			cgDC.registerFont(token.string, pointSize, &cgDC.Assets.bigFont);
-			cgDC.Assets.qhBigFont = cgDC.RegisterFont(token.string);
-			continue;
-		}
-
-		// gradientbar
-		if (Q_stricmp(token.string, "gradientbar") == 0) {
-			if (!trap->PC_ReadToken(handle, &token)) {
-				return false;
-			}
-			cgDC.Assets.gradientBar = trap->R_RegisterShaderNoMip(token.string);
-			continue;
-		}
-
-		// enterMenuSound
-		if (Q_stricmp(token.string, "menuEnterSound") == 0) {
-			if (!trap->PC_ReadToken(handle, &token)) {
+		else if ( !Q_stricmp( token.string, "menuEnterSound" ) ) {
+			if ( !trap->PC_ReadToken( handle, &token ) ) {
 				return false;
 			}
 			cgDC.Assets.menuEnterSound = trap->S_RegisterSound( token.string );
 			continue;
 		}
 
-		// exitMenuSound
-		if (Q_stricmp(token.string, "menuExitSound") == 0) {
-			if (!trap->PC_ReadToken(handle, &token)) {
+		else if ( !Q_stricmp( token.string, "menuExitSound" ) ) {
+			if ( !trap->PC_ReadToken( handle, &token ) ) {
 				return false;
 			}
 			cgDC.Assets.menuExitSound = trap->S_RegisterSound( token.string );
 			continue;
 		}
 
-		// itemFocusSound
-		if (Q_stricmp(token.string, "itemFocusSound") == 0) {
-			if (!trap->PC_ReadToken(handle, &token)) {
+		else if ( !Q_stricmp( token.string, "itemFocusSound" ) ) {
+			if ( !trap->PC_ReadToken( handle, &token ) ) {
 				return false;
 			}
 			cgDC.Assets.itemFocusSound = trap->S_RegisterSound( token.string );
 			continue;
 		}
 
-		// menuBuzzSound
-		if (Q_stricmp(token.string, "menuBuzzSound") == 0) {
-			if (!trap->PC_ReadToken(handle, &token)) {
+		else if ( !Q_stricmp( token.string, "menuBuzzSound" ) ) {
+			if ( !trap->PC_ReadToken( handle, &token ) ) {
 				return false;
 			}
 			cgDC.Assets.menuBuzzSound = trap->S_RegisterSound( token.string );
 			continue;
 		}
 
-		if (Q_stricmp(token.string, "cursor") == 0) {
-			if (!PC_String_Parse(handle, &cgDC.Assets.cursorStr)) {
+		else if ( !Q_stricmp( token.string, "cursor" ) ) {
+			if ( !PC_String_Parse( handle, &cgDC.Assets.cursorStr ) ) {
 				return false;
 			}
-			cgDC.Assets.cursor = trap->R_RegisterShaderNoMip( cgDC.Assets.cursorStr);
+			cgDC.Assets.cursor = trap->R_RegisterShaderNoMip( cgDC.Assets.cursorStr );
 			continue;
 		}
 
-		if (Q_stricmp(token.string, "fadeClamp") == 0) {
-			if (!PC_Float_Parse(handle, &cgDC.Assets.fadeClamp)) {
-				return false;
-			}
-			continue;
-		}
-
-		if (Q_stricmp(token.string, "fadeCycle") == 0) {
-			if (!PC_Int_Parse(handle, &cgDC.Assets.fadeCycle)) {
+		else if ( !Q_stricmp( token.string, "fadeClamp" ) ) {
+			if ( !PC_Float_Parse( handle, &cgDC.Assets.fadeClamp ) ) {
 				return false;
 			}
 			continue;
 		}
 
-		if (Q_stricmp(token.string, "fadeAmount") == 0) {
-			if (!PC_Float_Parse(handle, &cgDC.Assets.fadeAmount)) {
+		else if ( !Q_stricmp( token.string, "fadeCycle" ) ) {
+			if ( !PC_Int_Parse( handle, &cgDC.Assets.fadeCycle ) ) {
 				return false;
 			}
 			continue;
 		}
 
-		if (Q_stricmp(token.string, "shadowX") == 0) {
-			if (!PC_Float_Parse(handle, &cgDC.Assets.shadowX)) {
+		else if ( !Q_stricmp( token.string, "fadeAmount" ) ) {
+			if ( !PC_Float_Parse( handle, &cgDC.Assets.fadeAmount ) ) {
 				return false;
 			}
 			continue;
 		}
 
-		if (Q_stricmp(token.string, "shadowY") == 0) {
-			if (!PC_Float_Parse(handle, &cgDC.Assets.shadowY)) {
+		else if ( !Q_stricmp( token.string, "shadowX" ) ) {
+			if ( !PC_Float_Parse( handle, &cgDC.Assets.shadowX ) ) {
 				return false;
 			}
 			continue;
 		}
 
-		if (Q_stricmp(token.string, "shadowColor") == 0) {
-			if (!PC_Color_Parse(handle, &cgDC.Assets.shadowColor)) {
+		else if ( !Q_stricmp( token.string, "shadowY" ) ) {
+			if ( !PC_Float_Parse( handle, &cgDC.Assets.shadowY ) ) {
+				return false;
+			}
+			continue;
+		}
+
+		else if ( !Q_stricmp( token.string, "shadowColor" ) ) {
+			if ( !PC_Color_Parse( handle, &cgDC.Assets.shadowColor ) ) {
 				return false;
 			}
 			cgDC.Assets.shadowFadeClamp = cgDC.Assets.shadowColor[3];
 			continue;
 		}
 	}
-	return false; // bk001204 - why not?
+	return false;
 }
 
 void CG_ParseMenu(const char *menuFile) {
@@ -854,21 +588,21 @@ static float CG_Cvar_Get(const char *cvar) {
 
 static int CG_OwnerDrawWidth(int ownerDraw, float scale) {
 	//FIXME: we don't know the actual font...
-	Font font( FONT_MEDIUM, scale );
+	Text text{ JKFont::Medium, scale };
 	switch (ownerDraw) {
 	  case CG_GAME_TYPE:
-			return font.Width(BG_GetGametypeString( cgs.gametype ));
+			return Text_Width( text, BG_GetGametypeString( cgs.gametype ));
 	  case CG_GAME_STATUS:
-			return font.Width(CG_GetGameStatusText());
+			return Text_Width( text, CG_GetGameStatusText());
 			break;
 	  case CG_KILLER:
-			return font.Width(CG_GetKillerText());
+			return Text_Width( text, CG_GetKillerText());
 			break;
 	  case CG_RED_NAME:
-			return font.Width(DEFAULT_REDTEAM_NAME/*cg_redTeamName.string*/);
+			return Text_Width( text, DEFAULT_REDTEAM_NAME/*cg_redTeamName.string*/);
 			break;
 	  case CG_BLUE_NAME:
-			return font.Width(DEFAULT_BLUETEAM_NAME/*cg_blueTeamName.string*/);
+			return Text_Width( text, DEFAULT_BLUETEAM_NAME/*cg_blueTeamName.string*/);
 			break;
 	}
 	return 0;
@@ -974,11 +708,6 @@ void CG_LoadHudMenu()
 	cgDC.clearScene						= trap->R_ClearScene;
 	cgDC.addRefEntityToScene			= trap->R_AddRefEntityToScene;
 	cgDC.renderScene					= trap->R_RenderScene;
-	cgDC.RegisterFont					= trap->R_RegisterFont;
-	cgDC.Font_StrLenPixels				= trap->R_Font_StrLenPixels;
-	cgDC.Font_StrLenChars				= trap->R_Font_StrLenChars;
-	cgDC.Font_HeightPixels				= trap->R_Font_HeightPixels;
-	cgDC.Font_DrawString				= trap->R_Font_DrawString;
 	cgDC.Language_IsAsian				= trap->R_Language_IsAsian;
 	cgDC.Language_UsesSpaces			= trap->R_Language_UsesSpaces;
 	cgDC.AnyLanguage_ReadCharFromString	= trap->R_AnyLanguage_ReadCharFromString;
@@ -991,22 +720,15 @@ void CG_LoadHudMenu()
 	cgDC.setCVar						= trap->Cvar_Set;
 	cgDC.getCVarString					= trap->Cvar_VariableStringBuffer;
 	cgDC.getCVarValue					= CG_Cvar_Get;
-	//cgDC.setOverstrikeMode			= &trap->Key_SetOverstrikeMode;
-	//cgDC.getOverstrikeMode			= &trap->Key_GetOverstrikeMode;
 	cgDC.startLocalSound				= trap->S_StartLocalSound;
 	cgDC.ownerDrawHandleKey				= &CG_OwnerDrawHandleKey;
 	cgDC.feederCount					= &CG_FeederCount;
 	cgDC.feederItemImage				= &CG_FeederItemImage;
 	cgDC.feederItemText					= &CG_FeederItemText;
 	cgDC.feederSelection				= &CG_FeederSelection;
-	//cgDC.setBinding					= &trap->Key_SetBinding;
-	//cgDC.getBindingBuf				= &trap->Key_GetBindingBuf;
-	//cgDC.keynumToStringBuf			= &trap->Key_KeynumToStringBuf;
-	//cgDC.executeText					= &trap->Cmd_ExecuteText;
 	cgDC.Error							= Com_Error;
 	cgDC.Print							= Com_Printf;
 	cgDC.ownerDrawWidth					= &CG_OwnerDrawWidth;
-	//cgDC.Pause						= &CG_Pause;
 	cgDC.registerSound					= trap->S_RegisterSound;
 	cgDC.startBackgroundTrack			= trap->S_StartBackgroundTrack;
 	cgDC.stopBackgroundTrack			= trap->S_StopBackgroundTrack;
@@ -1014,7 +736,6 @@ void CG_LoadHudMenu()
 	cgDC.stopCinematic					= &CG_StopCinematic;
 	cgDC.drawCinematic					= &CG_DrawCinematic;
 	cgDC.runCinematicFrame				= &CG_RunCinematicFrame;
-	cgDC.ext.Font_StrLenPixels			= trap->ext.R_Font_StrLenPixels;
 
 	Init_Display(&cgDC);
 
@@ -1030,9 +751,6 @@ void CG_LoadHudMenu()
 }
 
 void CG_AssetCache() {
-	//if (Assets.textFont == nullptr) {
-	//  trap->R_RegisterFont("fonts/arial.ttf", 72, &Assets.textFont);
-	//}
 	//Com_Printf("Menu Size: %i bytes\n", sizeof(Menus));
 	cgDC.Assets.gradientBar = trap->R_RegisterShaderNoMip( ASSET_GRADIENTBAR );
 	cgDC.Assets.fxBasePic = trap->R_RegisterShaderNoMip( ART_FX_BASE );
@@ -1400,111 +1118,4 @@ void CG_PrevInventory_f(void)
 		cg.itemSelect = bg_itemlist[cg.snap->ps.stats[STAT_HOLDABLE_ITEM]].giTag;
 		cg.invenSelectTime = cg.time;
 	}
-}
-
-static void _CG_MouseEvent( int x, int y ) {
-	cgDC.cursorx = cgs.cursorX;
-	cgDC.cursory = cgs.cursorY;
-	CG_MouseEvent( x, y );
-}
-
-static bool CG_IncomingConsoleCommand( void ) {
-	return true;
-}
-
-static void CG_GetOrigin( int entID, vec3_t out ) {
-	VectorCopy( cg_entities[entID].currentState.pos.trBase, out );
-}
-
-static void CG_GetAngles( int entID, vec3_t out ) {
-	VectorCopy( cg_entities[entID].currentState.apos.trBase, out );
-}
-
-static trajectory_t *CG_GetOriginTrajectory( int entID ) {
-	return &cg_entities[entID].nextState.pos;
-}
-
-static trajectory_t *CG_GetAngleTrajectory( int entID ) {
-	return &cg_entities[entID].nextState.apos;
-}
-
-static void _CG_ROFF_NotetrackCallback( int entID, const char *notetrack ) {
-	CG_ROFF_NotetrackCallback( &cg_entities[entID], notetrack );
-}
-
-static void CG_MapChange( void ) {
-	// this may be called more than once for a given map change, as the server is going to attempt to send out
-	// multiple broadcasts in hopes that the client will receive one of them
-	cg.mMapChange = true;
-}
-
-static void CG_AutomapInput( void ) {
-	autoMapInput_t *autoInput = &cg.sharedBuffer.autoMapInput;
-
-	memcpy( &cg_autoMapInput, autoInput, sizeof( autoMapInput_t ) );
-
-	if ( cg_autoMapInput.yaw ) {
-		cg_autoMapAngle[YAW] += cg_autoMapInput.yaw;
-	}
-	if ( cg_autoMapInput.pitch ) {
-		cg_autoMapAngle[PITCH] += cg_autoMapInput.pitch;
-	}
-	cg_autoMapInput.yaw = 0.0f;
-	cg_autoMapInput.pitch = 0.0f;
-}
-
-static void CG_FX_CameraShake( void ) {
-	TCGCameraShake *data = &cg.sharedBuffer.cameraShake;
-	CG_DoCameraShake( data->mOrigin, data->mIntensity, data->mRadius, data->mTime );
-}
-
-cgameImport_t *trap = nullptr;
-
-Q_CABI {
-Q_EXPORT cgameExport_t* QDECL GetModuleAPI( int apiVersion, cgameImport_t *import )
-{
-	static cgameExport_t cge = {0};
-
-	assert( import );
-	trap = import;
-	Com_Printf	= trap->Print;
-	Com_Error	= trap->Error;
-
-	memset( &cge, 0, sizeof( cge ) );
-
-	if ( apiVersion != CGAME_API_VERSION ) {
-		trap->Print( "Mismatched CGAME_API_VERSION: expected %i, got %i\n", CGAME_API_VERSION, apiVersion );
-		return nullptr;
-	}
-
-	cge.Init					= CG_Init;
-	cge.Shutdown				= CG_Shutdown;
-	cge.ConsoleCommand			= CG_ConsoleCommand;
-	cge.DrawActiveFrame			= CG_DrawActiveFrame;
-	cge.CrosshairPlayer			= CG_CrosshairPlayer;
-	cge.LastAttacker			= CG_LastAttacker;
-	cge.KeyEvent				= CG_KeyEvent;
-	cge.MouseEvent				= _CG_MouseEvent;
-	cge.EventHandling			= CG_EventHandling;
-	cge.PointContents			= C_PointContents;
-	cge.GetLerpOrigin			= C_GetLerpOrigin;
-	cge.GetLerpData				= C_GetLerpData;
-	cge.Trace					= C_Trace;
-	cge.G2Trace					= C_G2Trace;
-	cge.G2Mark					= C_G2Mark;
-	cge.RagCallback				= CG_RagCallback;
-	cge.IncomingConsoleCommand	= CG_IncomingConsoleCommand;
-	cge.NoUseableForce			= CG_NoUseableForce;
-	cge.GetOrigin				= CG_GetOrigin;
-	cge.GetAngles				= CG_GetAngles;
-	cge.GetOriginTrajectory		= CG_GetOriginTrajectory;
-	cge.GetAngleTrajectory		= CG_GetAngleTrajectory;
-	cge.ROFF_NotetrackCallback	= _CG_ROFF_NotetrackCallback;
-	cge.MapChange				= CG_MapChange;
-	cge.AutomapInput			= CG_AutomapInput;
-	cge.MiscEnt					= CG_MiscEnt;
-	cge.CameraShake				= CG_FX_CameraShake;
-
-	return &cge;
-}
 }

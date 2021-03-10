@@ -30,11 +30,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "game/anims.hpp"
 #include "cgame/animtable.hpp"
 
-#ifdef _GAME
+#ifdef BUILD_GAME
 	#include "game/g_local.hpp"
-#elif _CGAME
+#elif BUILD_CGAME
 	#include "cgame/cg_local.hpp"
-#elif UI_BUILD
+#elif BUILD_UI
 	#include "ui/ui_local.hpp"
 #endif
 
@@ -1716,7 +1716,7 @@ void BG_AnimsetFree(animation_t *animset)
 	*/
 }
 
-#ifdef _CGAME //none of this is actually needed serverside. Could just be moved to cgame code but it's here since it used to tie in a lot with the anim loading stuff.
+#ifdef BUILD_CGAME //none of this is actually needed serverside. Could just be moved to cgame code but it's here since it used to tie in a lot with the anim loading stuff.
 const stringID_table_t animEventTypeTable[MAX_ANIM_EVENTS+1] =
 {
 	ENUM2STRING(AEV_SOUND),			//# animID AEV_SOUND framenum soundpath randomlow randomhi chancetoplay
@@ -2531,7 +2531,7 @@ static void BG_StartLegsAnim( playerState_t *ps, int anim )
 	{
 		BG_FlipPart(ps, SETANIM_LEGS);
 	}
-#ifdef _GAME
+#ifdef BUILD_GAME
 	else if (g_entities[ps->clientNum].s.legsAnim == anim)
 	{ //toggled anim to one anim then back to the one we were at previously in
 		//one frame, indicating that anim should be restarted.
@@ -2590,7 +2590,7 @@ void BG_StartTorsoAnim( playerState_t *ps, int anim )
 	{
 		BG_FlipPart(ps, SETANIM_TORSO);
 	}
-#ifdef _GAME
+#ifdef BUILD_GAME
 	else if (g_entities[ps->clientNum].s.torsoAnim == anim)
 	{ //toggled anim to one anim then back to the one we were at previously in
 		//one frame, indicating that anim should be restarted.

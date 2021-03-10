@@ -42,7 +42,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "qcommon/disablewarnings.hpp"
 #include "qcommon/q_color.hpp"
 #include "qcommon/q_math.hpp"
-#include "qcommon/q_platform.h"
+#include "qcommon/q_platform.hpp"
 #include "qcommon/q_string.hpp"
 #include "qcommon/q_type.hpp"
 
@@ -104,8 +104,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define BIGCHAR_HEIGHT                       16
 #define BIGCHAR_WIDTH                        16
 #define BLINK_DIVISOR                        200
-#define CLIENT_CONSOLE_TITLE                 "CleanJoKe Console (MP)"
-#define CLIENT_WINDOW_TITLE                  "CleanJoKe (MP)"
+#define CLIENT_CONSOLE_TITLE                 "CleanJK Console (MP)"
+#define CLIENT_WINDOW_TITLE                  "CleanJK (MP)"
 #define DEFAULT_GRID_SPACING                 400
 #define ENTITYNUM_MAX_NORMAL                 (MAX_GENTITIES-2)
 #define ENTITYNUM_NONE                       (MAX_GENTITIES-1)
@@ -117,8 +117,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define GIANTCHAR_HEIGHT                     48
 #define GIANTCHAR_WIDTH                      32
 #define HOMEPATH_NAME_MACOSX                 HOMEPATH_NAME_WIN
-#define HOMEPATH_NAME_UNIX                   "cleanjoke"
-#define HOMEPATH_NAME_WIN                    "cleanjoke"
+#define HOMEPATH_NAME_UNIX                   "cleanjk"
+#define HOMEPATH_NAME_WIN                    "cleanjk"
 #define LS_NUM_STYLES                        32
 #define LS_NUM_SWITCH                        32
 #define LS_STYLES_START                      0
@@ -186,8 +186,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define NULL_SFX                             ((sfxHandle_t)0)
 #define NULL_SOUND                           ((sfxHandle_t)0)
 #define NUM_FORCE_POWER_LEVELS               4
-#define OPENJKGAME                           "cleanjoke"
-#define PRODUCT_NAME                         "cleanjoke"
+#define OPENJKGAME                           "cleanjk"
+#define PRODUCT_NAME                         "cleanjk"
 #define PROP_BIG_HEIGHT                      24
 #define PROP_BIG_SIZE_SCALE                  1
 #define PROP_GAP_BIG_WIDTH                   3
@@ -225,14 +225,14 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 	"hollowmetal",	\
 	"shortgrass",	\
 	"longgrass",	\
-	"dirt",	   		\
-	"sand",	   		\
+	"dirt",		\
+	"sand",		\
 	"gravel",		\
 	"glass",		\
 	"concrete",		\
 	"marble",		\
 	"water",		\
-	"snow",	   		\
+	"snow",		\
 	"ice",			\
 	"flesh",		\
 	"mud",			\
@@ -283,16 +283,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 	#define UNUSED_VAR
 #endif
 
-#if (defined _MSC_VER)
-	#define Q_EXPORT __declspec(dllexport)
-#elif (defined __SUNPRO_C)
-	#define Q_EXPORT __global
-#elif ((__GNUC__ >= 3) && (!__EMX__) && (!sun))
-	#define Q_EXPORT __attribute__((visibility("default")))
-#else
-	#define Q_EXPORT
-#endif
-
 #if (defined(_M_IX86) || defined(__i386__)) && !defined(__sun__)
 	#define id386	1
 #else
@@ -310,6 +300,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #else
 	#define QALIGN(x)
 #endif
+
+#define Q_NO_DEFAULT_CTOR(classname)                   \
+	classname()                              = delete; \
+	classname( const classname& )            = delete; \
+	classname& operator=( const classname& ) = delete;
 
 
 
@@ -789,7 +784,7 @@ enum trType_e {
 
 enum connstate_e {
 	CA_UNINITIALIZED,
-	CA_DISCONNECTED, 	// not talking to a server
+	CA_DISCONNECTED,	// not talking to a server
 	CA_AUTHORIZING,		// not used any more, was checking cd key
 	CA_CONNECTING,		// sending request packets to the server
 	CA_CHALLENGING,		// sending challenge packets to the server
@@ -836,14 +831,6 @@ enum ForceReload_e {
 	eForceReload_ALL
 };
 
-enum fontSize_e {
-	FONT_NONE,
-	FONT_SMALL=1,
-	FONT_MEDIUM,
-	FONT_LARGE,
-	FONT_SMALL2
-};
-
 enum mapSurfaceType_e {
    MST_BAD,
    MST_PLANAR,
@@ -852,9 +839,57 @@ enum mapSurfaceType_e {
    MST_FLARE
 };
 
+enum uiMenuCommand_e {
+	UIMENU_NONE,
+	UIMENU_MAIN,
+	UIMENU_INGAME,
+	UIMENU_PLAYERCONFIG,
+	UIMENU_TEAM,
+	UIMENU_POSTGAME,
+	UIMENU_PLAYERFORCE,
+	UIMENU_VOICECHAT,
+	UIMENU_CLOSEALL
+};
+
+enum serverSort_e {
+	SORT_HOST,
+	SORT_MAP,
+	SORT_CLIENTS,
+	SORT_GAME,
+	SORT_PING,
+};
+
+// any changes must be reflected in ui/menudef.h
+enum class JKFont : int32_t {
+	Invalid = -1,
+	None = 0,
+	Bitmap,
+	Small,
+	Small2,
+	Medium,
+	Large,
+
+	// below here are for se_language overrides only
+	Russian = 0x100,
+	Polish,
+	Korean,
+	Taiwanese,
+	Japanese,
+	Chinese,
+	Thai,
+};
+
 
 
 // structs
+struct Text {
+	// renderable text properties
+	JKFont font;
+	float  scale;
+//  bool   isBitmap; // maybe? i.e. raw fixed width glyphs
+	int    alignment;
+};
+
 struct sharedRagDollParams_t {
 	vec3_t angles;
 	vec3_t position;
@@ -1571,6 +1606,8 @@ struct dleaf_t {
 
 
 
+
+
 // unions
 union byteAlias_t {
 	float    f;
@@ -1609,7 +1646,7 @@ extern float forceSpeedLevels[4];
 // functions
 
 // this is only here so the functions in q_shared.c and bg_*.c can link
-#if defined( _GAME ) || defined( _CGAME ) || defined( UI_BUILD )
+#if defined( BUILD_GAME ) || defined( BUILD_CGAME ) || defined( BUILD_UI )
 	extern NORETURN_PTR void (*Com_Error)( int level, const char *fmt, ... );
 	extern void (*Com_Printf)( const char *fmt, ... );
 #else

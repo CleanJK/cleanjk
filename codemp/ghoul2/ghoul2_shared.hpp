@@ -256,7 +256,7 @@ using mdxaBone_v = std::vector<std::pair<int, mdxaBone_t>>;
 class CGhoul2Info
 {
 public:
-	surfaceInfo_v 	mSlist;
+	surfaceInfo_v	mSlist;
 	boltInfo_v		mBltlist;
 	boneInfo_v		mBlist;
 // save from here

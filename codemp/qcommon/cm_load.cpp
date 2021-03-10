@@ -212,7 +212,7 @@ static void CMod_LoadLeafs (const lump_t *l, clipMap_t &cm)
 {
 	int			i;
 	cLeaf_t		*out;
-	dleaf_t 	*in;
+	dleaf_t	*in;
 	int			count;
 
 	in = (dleaf_t *)(cmod_base + l->fileofs);
@@ -250,7 +250,7 @@ static void CMod_LoadPlanes (const lump_t *l, clipMap_t &cm)
 {
 	int			i, j;
 	cplane_t	*out;
-	dplane_t 	*in;
+	dplane_t	*in;
 	int			count;
 	int			bits;
 
@@ -286,7 +286,7 @@ static void CMod_LoadLeafBrushes (const lump_t *l, clipMap_t &cm)
 {
 	int			i;
 	int			*out;
-	int		 	*in;
+	int			*in;
 	int			count;
 
 	in = (int *)(cmod_base + l->fileofs);
@@ -308,7 +308,7 @@ static void CMod_LoadLeafSurfaces( const lump_t *l, clipMap_t &cm )
 {
 	int			i;
 	int			*out;
-	int		 	*in;
+	int			*in;
 	int			count;
 
 	in = (int *)(cmod_base + l->fileofs);
@@ -330,7 +330,7 @@ static void CMod_LoadBrushSides (const lump_t *l, clipMap_t &cm)
 {
 	int				i;
 	cbrushside_t	*out;
-	dbrushside_t 	*in;
+	dbrushside_t	*in;
 	int				count;
 	int				num;
 
@@ -769,7 +769,7 @@ void CM_InitBoxHull (void)
 
 		// brush sides
 		s = &cmg.brushsides[cmg.numBrushSides+i];
-		s->plane = 	cmg.planes + (cmg.numPlanes+i*2+side);
+		s->plane =	cmg.planes + (cmg.numPlanes+i*2+side);
 		s->shaderNum = cmg.numShaders;
 
 		// planes

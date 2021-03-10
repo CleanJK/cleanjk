@@ -24,9 +24,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // lexicographical parser
 
-//#define BOTLIB
+//#define BUILD_BOTLIB
 
-#ifdef BOTLIB
+#ifdef BUILD_BOTLIB
 //include files for usage in the bot library
 #include "qcommon/q_shared.hpp"
 #include "botlib/botlib.hpp"
@@ -35,7 +35,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "botlib/l_memory.hpp"
 #include "botlib/l_log.hpp"
 #include "botlib/l_libvar.hpp"
-#endif //BOTLIB
+#endif //BUILD_BOTLIB
 
 #define PUNCTABLE
 
@@ -179,9 +179,9 @@ void QDECL ScriptError(script_t *script, char *str, ...)
 	va_start(ap, str);
 	Q_vsnprintf(text, sizeof(text), str, ap);
 	va_end(ap);
-#ifdef BOTLIB
+#ifdef BUILD_BOTLIB
 	botimport.Print(PRT_ERROR, "file %s, line %d: %s\n", script->filename, script->line, text);
-#endif //BOTLIB
+#endif //BUILD_BOTLIB
 } //end of the function ScriptError
 
 //print a script warning with filename and line number
@@ -195,9 +195,9 @@ void QDECL ScriptWarning(script_t *script, char *str, ...)
 	va_start(ap, str);
 	Q_vsnprintf(text, sizeof(text), str, ap);
 	va_end(ap);
-#ifdef BOTLIB
+#ifdef BUILD_BOTLIB
 	botimport.Print(PRT_WARNING, "file %s, line %d: %s\n", script->filename, script->line, text);
-#endif //BOTLIB
+#endif //BUILD_BOTLIB
 } //end of the function ScriptWarning
 
 //set an array with punctuations, nullptr restores default C/C++ set
@@ -687,7 +687,7 @@ int PS_ReadPunctuation(script_t *script, token_t *token)
 			//if the script contains the punctuation
 			if (!Q_strncmp(script->script_p, p, len))
 			{
-				strncpy(token->string, p, MAX_TOKEN);
+				Q_strncpyz(token->string, p, MAX_TOKEN);
 				script->script_p += len;
 				token->type = TT_PUNCTUATION;
 				//sub type is the number of the punctuation
@@ -1090,7 +1090,7 @@ int ScriptSkipTo(script_t *script, char *value)
 		script->script_p++;
 	} while(1);
 } //end of the function ScriptSkipTo
-#ifndef BOTLIB
+#ifndef BUILD_BOTLIB
 
 int FileLength(FILE *fp)
 {
@@ -1109,7 +1109,7 @@ int FileLength(FILE *fp)
 //load a script from the given file at the given offset with the given length
 script_t *LoadScriptFile(const char *filename)
 {
-#ifdef BOTLIB
+#ifdef BUILD_BOTLIB
 	fileHandle_t fp;
 	char pathname[MAX_QPATH];
 #else
@@ -1119,7 +1119,7 @@ script_t *LoadScriptFile(const char *filename)
 	void *buffer;
 	script_t *script;
 
-#ifdef BOTLIB
+#ifdef BUILD_BOTLIB
 	if (strlen(basefolder))
 		Com_sprintf(pathname, sizeof(pathname), "%s/%s", basefolder, filename);
 	else
@@ -1154,7 +1154,7 @@ script_t *LoadScriptFile(const char *filename)
 
 	SetScriptPunctuations(script, nullptr);
 
-#ifdef BOTLIB
+#ifdef BUILD_BOTLIB
 	botimport.FS_Read(script->buffer, length, fp);
 	botimport.FS_FCloseFile(fp);
 #else

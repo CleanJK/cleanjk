@@ -290,7 +290,7 @@ int CSequencer::ParseRun( CBlock *block )
 	COM_StripExtension( (char*) block->GetMemberData( 0 ), (char *) newname, sizeof(newname) );
 
 	//Get the file from the game engine
-  	buffer_size = m_ie->I_LoadFile( newname, (void **) &buffer );
+	buffer_size = m_ie->I_LoadFile( newname, (void **) &buffer );
 
 	if ( buffer_size <= 0 )
 	{

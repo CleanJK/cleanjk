@@ -136,7 +136,7 @@ vec3_t		listener_origin;
 matrix3_t	listener_axis;
 
 int			s_soundtime;		// sample PAIRS
-int   		s_paintedtime; 		// sample PAIRS
+int	s_paintedtime;		// sample PAIRS
 
 // MAX_SFX may be larger than MAX_SOUNDS because
 // of custom player sounds
@@ -981,7 +981,7 @@ channel_t *S_PickChannel(int entnum, int entchannel)
 			}
 
 			// don't let anything else override local player sounds
-			if ( ch->entnum == listener_number 	&& entnum != listener_number && ch->thesfx) {
+			if ( ch->entnum == listener_number	&& entnum != listener_number && ch->thesfx) {
 				continue;
 			}
 
@@ -1687,7 +1687,7 @@ void S_StopLoopingSound( int entityNum )
 void S_AddLoopingSound( int entityNum, const vec3_t origin, const vec3_t velocity, sfxHandle_t sfxHandle ) {
 	/*const*/ sfx_t *sfx;
 
-  	if ( !s_soundStarted || s_soundMuted ) {
+	if ( !s_soundStarted || s_soundMuted ) {
 		return;
 	}
 	if ( numLoopSounds >= MAX_LOOP_SOUNDS ) {
@@ -3387,7 +3387,7 @@ void S_SetLipSyncs()
 // console functions
 
 static void S_Play_f( void ) {
-	int 	i;
+	int	i;
 	sfxHandle_t	h;
 	char name[256];
 

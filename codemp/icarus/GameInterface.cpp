@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // ICARUS Utility functions
 //rww - mangled to work in server exe setting.
 
-#include "game/g_public.hpp"
+#include "game/g_engine.hpp"
 #include "server/server.hpp"
 #include "icarus/interface.hpp"
 #include "icarus/GameInterface.hpp"

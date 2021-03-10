@@ -141,7 +141,7 @@ enum
 // STRUCT
 // ======================================================================
 
-#if !defined( _GAME ) && !defined( _CGAME ) && !defined( UI_BUILD )
+#if !defined( BUILD_GAME ) && !defined( BUILD_CGAME ) && !defined( BUILD_UI )
 struct variable_t {
 	char	name[MAX_VAR_NAME];
 	int		type;
@@ -250,4 +250,4 @@ protected:
 	static keywordArray_t	m_typeKeywords[];			//Types
 	static keywordArray_t	m_conditionalKeywords[];	//Conditional
 };
-#endif // !defined( _GAME ) && !defined( _CGAME ) && !defined( UI_BUILD )
+#endif // !defined( BUILD_GAME ) && !defined( BUILD_CGAME ) && !defined( BUILD_UI )

@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "qcommon/RoffSystem.hpp"
 
-#ifndef DEDICATED
+#ifndef BUILD_DEDICATED
 #include "client/cl_cgameapi.hpp"
 #endif
 #include "server/sv_gameapi.hpp"
@@ -671,7 +671,7 @@ bool CROFFSystem::ApplyROFF( SROFFEntity *roff_ent, CROFFSystem::CROFF *roff )
 
 	if (roff_ent->mIsClient)
 	{
-#ifndef DEDICATED
+#ifndef BUILD_DEDICATED
 		vec3_t		originTemp, angleTemp;
 		originTrajectory = CGVM_GetOriginTrajectory( roff_ent->mEntID );
 		angleTrajectory = CGVM_GetAngleTrajectory( roff_ent->mEntID );
@@ -776,7 +776,7 @@ void CROFFSystem::ProcessNote(SROFFEntity *roff_ent, char *note)
 		{
 			if (roff_ent->mIsClient)
 			{
-#ifndef DEDICATED
+#ifndef BUILD_DEDICATED
 				CGVM_ROFF_NotetrackCallback( roff_ent->mEntID, temp );
 #endif
 			}
@@ -799,7 +799,7 @@ bool CROFFSystem::ClearLerp( SROFFEntity *roff_ent )
 
 	if (roff_ent->mIsClient)
 	{
-#ifndef DEDICATED
+#ifndef BUILD_DEDICATED
 		vec3_t		originTemp, angleTemp;
 		originTrajectory = CGVM_GetOriginTrajectory( roff_ent->mEntID );
 		angleTrajectory = CGVM_GetAngleTrajectory( roff_ent->mEntID );

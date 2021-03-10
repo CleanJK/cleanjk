@@ -27,10 +27,10 @@
 /* GIMP RGBA C-Source image dump (sdl_icon.c) */
 
 static const struct {
-  uint32_t  	 width;
-  uint32_t  	 height;
-  uint32_t  	 bytes_per_pixel; /* 3:RGB, 4:RGBA */
-  uint8_t 		 pixel_data[32 * 32 * 4 + 1];
+  uint32_t	 width;
+  uint32_t	 height;
+  uint32_t	 bytes_per_pixel; /* 3:RGB, 4:RGBA */
+  uint8_t		 pixel_data[32 * 32 * 4 + 1];
 } CLIENT_WINDOW_ICON = {
   32, 32, 4,
   "\0\0\0\377\0\0\0\377\0\0\0\377\0\0\0\377\0\0\0\377\0\0\0\377\0\0\0\377\0"

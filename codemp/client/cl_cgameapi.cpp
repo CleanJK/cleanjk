@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // cl_cgameapi.cpp  -- client system interaction with client game
 #include "botlib/botlib.hpp"
-#include "cgame/cg_public.hpp"
+#include "cgame/cg_engine.hpp"
 #include "client/cl_keys.hpp"
 #include "client/cl_local.hpp"
 #include "client/cl_uiapi.hpp"
@@ -29,12 +29,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "client/FxUtil.hpp"
 #include "client/snd_ambient.hpp"
 #include "client/snd_public.hpp"
+#include "client/cl_fonts.hpp"
 #include "qcommon/cm_public.hpp"
 #include "qcommon/com_cvar.hpp"
 #include "qcommon/RoffSystem.hpp"
 #include "qcommon/stringed_ingame.hpp"
 #include "qcommon/timing.hpp"
-#include "ui/ui_public.hpp"
 
 extern IHeapAllocator *G2VertSpaceClient;
 extern botlib_export_t *botlib_export;
@@ -122,11 +122,6 @@ void CGVM_G2Mark( void ) {
 int CGVM_RagCallback( int callType ) {
 	VMSwap v( cgvm );
 	return cge->RagCallback( callType );
-}
-
-bool CGVM_IncomingConsoleCommand( void ) {
-	VMSwap v( cgvm );
-	return cge->IncomingConsoleCommand();
 }
 
 bool CGVM_NoUseableForce( void ) {
@@ -789,10 +784,6 @@ void CL_BindCGame( void ) {
 	cgi.R_DrawStretchPic					= re->DrawStretchPic;
 	cgi.R_DrawRotatePic						= re->DrawRotatePic;
 	cgi.R_DrawRotatePic2					= re->DrawRotatePic2;
-	cgi.R_Font_DrawString					= re->Font_DrawString;
-	cgi.R_Font_HeightPixels					= re->Font_HeightPixels;
-	cgi.R_Font_StrLenChars					= re->Font_StrLenChars;
-	cgi.R_Font_StrLenPixels					= re->Font_StrLenPixels;
 	cgi.R_GetBModelVerts					= re->GetBModelVerts;
 	cgi.R_GetDistanceCull					= re->GetDistanceCull;
 	cgi.R_GetEntityToken					= re->GetEntityToken;
@@ -807,7 +798,6 @@ void CL_BindCGame( void ) {
 	cgi.R_LoadWorld							= re->LoadWorld;
 	cgi.R_MarkFragments						= re->MarkFragments;
 	cgi.R_ModelBounds						= re->ModelBounds;
-	cgi.R_RegisterFont						= re->RegisterFont;
 	cgi.R_RegisterModel						= re->RegisterModel;
 	cgi.R_RegisterShader					= re->RegisterShader;
 	cgi.R_RegisterShaderNoMip				= re->RegisterShaderNoMip;
@@ -821,6 +811,7 @@ void CL_BindCGame( void ) {
 	cgi.R_WorldEffectCommand				= re->WorldEffectCommand;
 	cgi.RE_InitRendererTerrain				= RE_InitRendererTerrain;
 	cgi.WE_AddWeatherZone					= re->AddWeatherZone;
+	cgi.GetClipboardData					= CL_GetClipboardData;
 	cgi.GetCurrentSnapshotNumber			= CL_GetCurrentSnapshotNumber;
 	cgi.GetCurrentCmdNumber					= CL_GetCurrentCmdNumber;
 	cgi.GetDefaultState						= CL_GetDefaultState;
@@ -836,6 +827,8 @@ void CL_BindCGame( void ) {
 	cgi.Key_GetKey							= Key_GetKey;
 	cgi.Key_IsDown							= Key_IsDown;
 	cgi.Key_SetCatcher						= CL_Key_SetCatcher;
+	cgi.Key_GetOverstrikeMode				= Key_GetOverstrikeMode;
+	cgi.Key_SetOverstrikeMode				= Key_SetOverstrikeMode;
 	cgi.PC_Init								= botlib_export->PC_Init;
 	cgi.PC_AddGlobalDefine					= botlib_export->PC_AddGlobalDefine;
 	cgi.PC_FreeSource						= botlib_export->PC_FreeSourceHandle;
@@ -926,8 +919,11 @@ void CL_BindCGame( void ) {
 	cgi.G2API_CleanEntAttachments			= CL_G2API_CleanEntAttachments;
 	cgi.G2API_OverrideServer				= CL_G2API_OverrideServer;
 	cgi.G2API_GetSurfaceName				= CL_G2API_GetSurfaceName;
-
-	cgi.ext.R_Font_StrLenPixels				= re->ext.Font_StrLenPixels;
+	cgi.Text_Height                         = Text_Height;
+	cgi.Text_Paint                          = Text_Paint;
+	cgi.Text_Width                          = Text_Width;
+	cgi.TextHelper_Paint_Limit              = TextHelper_Paint_Limit;
+	cgi.TextHelper_Paint_Proportional       = TextHelper_Paint_Proportional;
 
 	GetCGameAPI = (GetCGameAPI_t)cgvm->GetModuleAPI;
 	ret = GetCGameAPI( CGAME_API_VERSION, &cgi );

@@ -160,7 +160,7 @@ static void CG_ClipMoveToEntities ( const vec3_t start, const vec3_t mins, const
 	int			i, x, zd, zu;
 	trace_t		trace, oldTrace;
 	entityState_t	*ent;
-	clipHandle_t 	cmodel;
+	clipHandle_t	cmodel;
 	vec3_t		bmins, bmaxs;
 	vec3_t		origin, angles;
 	centity_t	*cent;

@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "cgame/cg_public.hpp"
+#include "cgame/cg_engine.hpp"
 #include "client/cl_cgameapi.hpp"
 #include "client/cl_public.hpp"
 #include "client/FxScheduler.hpp"

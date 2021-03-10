@@ -306,11 +306,11 @@ struct itemDef_t {
 	int              cursorPos;      // cursor position in characters
 	const char      *descText;       //	Description text
 	int              appearanceSlot; // order of appearance
-	int              iMenuFont;      // FONT_SMALL,FONT_MEDIUM,FONT_LARGE	// changed from 'font' so I could see what didn't compile, and differentiate between font handles returned from RegisterFont -ste
-	bool         disabled;       // Does this item ignore mouse and keyboard focus
+	JKFont             font;      // Small, Medium, Large // changed from 'font' so I could see what didn't compile, and differentiate between font handles returned from RegisterFont -ste
+	bool             disabled;       // Does this item ignore mouse and keyboard focus
 	int              invertYesNo;
 	int              xoffset;
-	bool         disabledHidden; // hide the item when 'disabled' is true (for generic image items)
+	bool             disabledHidden; // hide the item when 'disabled' is true (for generic image items)
 };
 
 struct menuDef_t {
@@ -345,10 +345,6 @@ struct cachedAssets_t {
 	const char  *fontStr;
 	const char  *cursorStr;
 	const char  *gradientStr;
-	qhandle_t    qhSmallFont;
-	qhandle_t    qhSmall2Font;
-	qhandle_t    qhMediumFont;
-	qhandle_t    qhBigFont;
 	qhandle_t    cursor;
 	qhandle_t    gradientBar;
 	qhandle_t    scrollBarArrowUp;
@@ -373,7 +369,6 @@ struct cachedAssets_t {
 	float        shadowY;
 	vec4_t       shadowColor;
 	float        shadowFadeClamp;
-	bool     fontRegistered;
 	qhandle_t    needPass;
 	qhandle_t    noForce;
 	qhandle_t    forceRestrict;
@@ -411,31 +406,26 @@ struct displayContextDef_t {
 	void               (*clearScene)                     ( void );
 	void               (*addRefEntityToScene)            ( const refEntity_t *re );
 	void               (*renderScene)                    ( const refdef_t *fd );
-	qhandle_t          (*RegisterFont)                   ( const char *fontName );
-	int                (*Font_StrLenPixels)              ( const char *text, const int iFontIndex, const float scale );
-	int                (*Font_StrLenChars)               ( const char *text );
-	int                (*Font_HeightPixels)              ( const int iFontIndex, const float scale );
-	void               (*Font_DrawString)                ( int ox, int oy, const char *text, const float *rgba, const int setIndex, int iCharLimit, const float scale );
-	bool           (*Language_IsAsian)               ( void );
-	bool           (*Language_UsesSpaces)            ( void );
+	bool               (*Language_IsAsian)               ( void );
+	bool               (*Language_UsesSpaces)            ( void );
 	unsigned int       (*AnyLanguage_ReadCharFromString) ( const char *psText, int *piAdvanceCount, bool *pbIsTrailingPunctuation );
-	void               (*ownerDrawItem)                  ( float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, float scale, vec4_t color, qhandle_t shader, int textStyle, int iMenuFont );
+	void               (*ownerDrawItem)                  ( float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, float scale, vec4_t color, qhandle_t shader, int textStyle, JKFont font );
 	float              (*getValue)                       ( int ownerDraw );
-	bool           (*ownerDrawVisible)               ( int flags );
+	bool               (*ownerDrawVisible)               ( int flags );
 	void               (*runScript)                      ( char **p );
-	bool           (*deferScript)                    ( char **p );
+	bool               (*deferScript)                    ( char **p );
 	void               (*getTeamColor)                   ( vec4_t *color );
 	void               (*getCVarString)                  ( const char *cvar, char *buffer, int bufsize );
 	float              (*getCVarValue)                   ( const char *cvar );
 	void               (*setCVar)                        ( const char *cvar, const char *value );
 	void               (*setOverstrikeMode)              ( bool b );
-	bool           (*getOverstrikeMode)              ( void );
+	bool               (*getOverstrikeMode)              ( void );
 	void               (*startLocalSound)                ( sfxHandle_t sfx, int channelNum );
-	bool           (*ownerDrawHandleKey)             ( int ownerDraw, int flags, float *special, int key );
+	bool               (*ownerDrawHandleKey)             ( int ownerDraw, int flags, float *special, int key );
 	int                (*feederCount)                    ( float feederID );
 	const char        *(*feederItemText)                 ( float feederID, int index, int column, qhandle_t *handle1, qhandle_t *handle2, qhandle_t *handle3 );
 	qhandle_t          (*feederItemImage)                ( float feederID, int index );
-	bool           (*feederSelection)                ( float feederID, int index, itemDef_t *item );
+	bool               (*feederSelection)                ( float feederID, int index, itemDef_t *item );
 	void               (*keynumToStringBuf)              ( int keynum, char *buf, int buflen );
 	void               (*getBindingBuf)                  ( int keynum, char *buf, int buflen );
 	void               (*setBinding)                     ( int keynum, const char *binding );
@@ -458,7 +448,7 @@ struct displayContextDef_t {
 	int                frameTime;
 	int                cursorx;
 	int                cursory;
-	bool           debug;
+	bool               debug;
 	cachedAssets_t     Assets;
 	glconfig_t         glconfig;
 	qhandle_t          whiteShader;
@@ -466,9 +456,6 @@ struct displayContextDef_t {
 	qhandle_t          cursor;
 	float              FPS;
 	int                screenshotFormat;
-	struct {
-		float (*Font_StrLenPixels)( const char *text, const int iFontIndex, const float scale );
-	} ext;
 };
 
 // ======================================================================

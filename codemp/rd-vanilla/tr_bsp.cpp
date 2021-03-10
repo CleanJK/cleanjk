@@ -1344,7 +1344,7 @@ static	void R_LoadNodesAndLeafs (lump_t *nodeLump, lump_t *leafLump, world_t &wo
 	int			i, j, p;
 	dnode_t		*in;
 	dleaf_t		*inLeaf;
-	mnode_t 	*out;
+	mnode_t	*out;
 	int			numNodes, numLeafs;
 
 	in = (dnode_t *)(fileBase + nodeLump->fileofs);
@@ -1457,7 +1457,7 @@ static	void R_LoadMarksurfaces (lump_t *l, world_t &worldData)
 static	void R_LoadPlanes( lump_t *l, world_t &worldData ) {
 	int			i, j;
 	cplane_t	*out;
-	dplane_t 	*in;
+	dplane_t	*in;
 	int			count;
 	int			bits;
 
@@ -1489,7 +1489,7 @@ static	void R_LoadFogs( lump_t *l, lump_t *brushesLump, lump_t *sidesLump, world
 	int			i;
 	fog_t		*out;
 	dfog_t		*fogs;
-	dbrush_t 	*brushes, *brush;
+	dbrush_t	*brushes, *brush;
 	dbrushside_t	*sides;
 	int			count, brushesCount, sidesCount;
 	int			sideNum;
@@ -1764,7 +1764,7 @@ void R_LoadEntities( lump_t *l, world_t &worldData ) {
 			R_RemapShader(value, s, "0");
 			continue;
 		}
- 		if (!Q_stricmp(keyname, "distanceCull")) {
+		if (!Q_stricmp(keyname, "distanceCull")) {
 			sscanf(value, "%f", &tr.distanceCull );
 			continue;
 		}

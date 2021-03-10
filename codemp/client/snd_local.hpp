@@ -72,8 +72,8 @@ struct sfx_t {
 	bool			bInMemory;				// not in Memory, set true when loaded, and false when its buffers are freed up because of being old, so can be reloaded
 	SoundCompressionMethod_t eSoundCompressionMethod;
 	MP3STREAM		*pMP3StreamHeader;		// nullptr ptr unless this sfx_t is an MP3. Use Z_Malloc and Z_Free
-	int 			iSoundLengthInSamples;	// length in samples, always kept as 16bit now so this is #shorts (watch for stereo later for music?)
-	char 			sSoundName[MAX_QPATH];
+	int			iSoundLengthInSamples;	// length in samples, always kept as 16bit now so this is #shorts (watch for stereo later for music?)
+	char			sSoundName[MAX_QPATH];
 	int				iLastTimeUsed;
 	float			fVolRange;				// used to set the highest volume this sample has at load time - used for lipsynching
 	int				iLastLevelUsedOn;		// used for cacheing purposes

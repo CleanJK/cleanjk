@@ -2770,7 +2770,7 @@ void ClientThink( int clientNum, usercmd_t *ucmd ) {
 		ent->client->pers.cmd = *ucmd;
 	}
 
-/* 	This was moved to clientthink_real, but since its sort of a risky change i left it here for
+/*	This was moved to clientthink_real, but since its sort of a risky change i left it here for
     now as a more concrete reference - BSD
 
 	if ( clientNum < MAX_CLIENTS

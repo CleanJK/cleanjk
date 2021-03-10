@@ -139,14 +139,14 @@ private:
 
 public:
 
-	CFxRange(void) 									{ mMin = 0.0f; mMax = 0.0f; }
+	CFxRange(void)									{ mMin = 0.0f; mMax = 0.0f; }
 
 	inline void		SetRange(float min,float max)	{ mMin = min; mMax = max; }
 
 	inline float	GetMax(void) const				{ return mMax; }
 	inline float	GetMin(void) const				{ return mMin; }
 	inline float	GetVal(float fraction) const	{ if(mMin != mMax) { return mMin + fraction * (mMax - mMin); } else { return mMin; } }
-	inline float	GetVal(void) const	 			{ if(mMin != mMax) { return flrand(mMin,mMax); } else { return mMin; } }
+	inline float	GetVal(void) const				{ if(mMin != mMax) { return flrand(mMin,mMax); } else { return mMin; } }
 
 	inline int		GetRoundedVal() const			{if(mMin == mMax){return (int)mMin;}
 														return (int)(flrand(mMin, mMax) + 0.5f);}

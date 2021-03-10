@@ -2,8 +2,6 @@
 #include "ui/ui_shared.hpp"
 #include "cgame/cg_media.hpp"
 
-extern displayContextDef_t cgDC;
-
 cgMedia_t media;
 
 static struct progress_t {
@@ -422,16 +420,6 @@ void CG_LoadMedia( void ) {
 }
 
 void CG_PreloadMedia( void ) {
-	//FIXME: these are registered in UI first, we can just grab the handle.
-	cgDC.Assets.qhSmallFont  = trap->R_RegisterFont( "ocr_a" );
-	cgDC.Assets.qhMediumFont = trap->R_RegisterFont( "ergoec" );
-	cgDC.Assets.qhBigFont =    trap->R_RegisterFont( "arialnb" );
-	/*
-	cgDC.Assets.qhSmallFont = CG_Cvar_Get( "font_small" );
-	cgDC.Assets.qhMediumFont = CG_Cvar_Get( "font_medium" );
-	cgDC.Assets.qhBigFont = CG_Cvar_Get( "font_big" );
-	*/
-
 	media.gfx.misc.white					= trap->R_RegisterShader( "white" );
 	media.gfx.interface.charset				= trap->R_RegisterShaderNoMip( "charset" );
 	media.gfx.interface.loading.tick		= trap->R_RegisterShaderNoMip( "gfx/interface/loading/tick" );

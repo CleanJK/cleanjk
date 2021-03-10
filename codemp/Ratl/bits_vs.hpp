@@ -29,7 +29,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // The bits class is a bit field of any length which supports all the standard bitwise operations in addition to some
 //	operators for adding & removing individual bits by their integer indicies and a string conversion method.
 // NOTES:
-// 	The SIZE template variable determines how many BITS are available in this template, not how much memory (number of
+//	The SIZE template variable determines how many BITS are available in this template, not how much memory (number of
 //		ints) were used to store it.
 
 // Includes

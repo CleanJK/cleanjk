@@ -224,7 +224,7 @@ enum setType_e {
 	SET_
 };
 
-#if !defined( _GAME ) && !defined( _CGAME ) && !defined( UI_BUILD )
+#if !defined( BUILD_GAME ) && !defined( BUILD_CGAME ) && !defined( BUILD_UI )
 
 constexpr int Q3_TIME_SCALE = 1;	//MILLISECONDS
 

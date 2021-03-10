@@ -24,24 +24,21 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-// ======================================================================
-// INCLUDE
-// ======================================================================
+
 
 #include "qcommon/q_shared.hpp"
 #include "rd-common/tr_types.hpp"
-#include "ui/ui_public.hpp"
+#include "ui/ui_engine.hpp"
 #include "client/cl_keycodes.hpp"
 #include "game/bg_public.hpp"
 #include "ui/ui_shared.hpp"
+#include "ui/ui_engine.hpp"
 
 #define XCVAR_PROTO
 #include "ui/ui_xcvar.hpp"
 #undef XCVAR_PROTO
 
-// ======================================================================
-// DEFINE
-// ======================================================================
+
 
 #define ACTION_BUFFER_SIZE		128
 #define DEMO_DIRECTORY			"demos"
@@ -71,9 +68,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #define SKIN_LENGTH				16
 #define TEAM_MEMBERS			8//5
 
-// ======================================================================
-// STRUCT
-// ======================================================================
+
 
 struct lerpFrame_t {
 	int			oldFrame;
@@ -330,40 +325,43 @@ struct uiInfo_t {
 	int						languageCountIndex;
 };
 
-// ======================================================================
-// EXTERN VARIABLE
-// ======================================================================
+
 
 extern bool ui_saber_parms_parsed;
 extern uiImport_t* trap;
 extern uiInfo_t uiInfo;
 
-// ======================================================================
-// FUNCTION
-// ======================================================================
 
-bool UI_ConsoleCommand(int realTime);
-bool UI_FeederSelection(float feederID, int index, itemDef_t* item);
-bool UI_SaberModelForSaber(const char* saberName, char* saberModel);
-bool UI_SaberProperNameForSaber(const char* saberName, char* saberProperName);
-bool UI_SaberTypeForSaber(const char* saberName, char* saberType);
-bool UI_TrueJediEnabled(void);
-char* UI_Cvar_VariableString(const char* var_name);
-char* UI_GetBotNameByNumber(int num);
-const char* UI_GetStringEdString(const char* refSection, const char* refName);
-const char* UI_TeamName(int team);
-int UI_GetNumBots(void);
-void UI_CacheSaberGlowGraphics(void);
-void UI_DrawHandlePic(float x, float y, float w, float h, qhandle_t hShader);
-void UI_FillRect(float x, float y, float width, float height, const float* color);
-void UI_Load(void);
-void UI_LoadArenas(void);
-void UI_LoadBots(void);
-void UI_LoadForceConfig_List(void);
-void UI_LoadMenus(const char* menuFile, bool reset);
-void UI_RegisterCvars(void);
-void UI_Report(void);
-void UI_SaberDrawBlades(itemDef_t* item, vec3_t origin, vec3_t angles);
-void UI_SaberLoadParms(void);
-void UI_UpdateCvars(void);
-void UpdateForceUsed(void);
+
+bool        UI_ConsoleCommand         ( int realTime );
+bool        UI_FeederSelection        ( float feederID, int index, itemDef_t *item );
+bool        UI_SaberModelForSaber     ( const char *saberName, char *saberModel );
+bool        UI_SaberProperNameForSaber( const char *saberName, char *saberProperName );
+bool        UI_SaberTypeForSaber      ( const char *saberName, char *saberType );
+bool        UI_TrueJediEnabled        ( void );
+char       *UI_Cvar_VariableString    ( const char *var_name );
+char       *UI_GetBotNameByNumber     ( int num );
+const char *UI_GetStringEdString      ( const char *refSection, const char *refName );
+const char *UI_TeamName               ( int team );
+int         UI_GetNumBots             ( void );
+void        UI_CacheSaberGlowGraphics ( void );
+void        UI_DrawConnectScreen      ( bool overlay );
+void        UI_DrawHandlePic          ( float x, float y, float w, float h, qhandle_t hShader );
+void        UI_FillRect               ( float x, float y, float width, float height, const float *color );
+void        UI_Init                   ( bool inGameLoad  );
+void        UI_KeyEvent               ( int key, bool down );
+void        UI_Load                   ( void );
+void        UI_LoadArenas             ( void );
+void        UI_LoadBots               ( void );
+void        UI_LoadForceConfig_List   ( void );
+void        UI_LoadMenus              ( const char *menuFile, bool reset );
+void        UI_MouseEvent             ( int dx, int dy );
+void        UI_Refresh                ( int realtime );
+void        UI_RegisterCvars          ( void );
+void        UI_Report                 ( void );
+void        UI_SaberDrawBlades        ( itemDef_t *item, vec3_t origin, vec3_t angles );
+void        UI_SaberLoadParms         ( void );
+void        UI_SetActiveMenu          ( uiMenuCommand_e menu );
+void        UI_Shutdown               ( void );
+void        UI_UpdateCvars            ( void );
+void        UpdateForceUsed           ( void );

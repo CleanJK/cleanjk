@@ -27,7 +27,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include <cmath>
 
 #include "qcommon/q_type.hpp"
-#include "qcommon/q_platform.h"
+#include "qcommon/q_platform.hpp"
 
 #define RoundUp( N, M ) (     \
 	(                         \

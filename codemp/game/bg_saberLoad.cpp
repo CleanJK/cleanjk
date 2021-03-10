@@ -29,20 +29,20 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "game/bg_local.hpp"
 #include "game/w_saber.hpp"
 
-#ifdef _GAME
+#ifdef BUILD_GAME
 	#include "game/g_local.hpp"
-#elif _CGAME
+#elif BUILD_CGAME
 	#include "cgame/cg_local.hpp"
-#elif UI_BUILD
+#elif BUILD_UI
 	#include "ui/ui_local.hpp"
 #endif
 
 extern stringID_table_t animTable[MAX_ANIMATIONS+1];
 
 int BG_SoundIndex( const char *sound ) {
-#ifdef _GAME
+#ifdef BUILD_GAME
 	return G_SoundIndex( sound );
-#elif defined(_CGAME) || defined(UI_BUILD)
+#elif defined(BUILD_CGAME) || defined(BUILD_UI)
 	return trap->S_RegisterSound( sound );
 #endif
 }
@@ -189,8 +189,8 @@ const char *SaberColorToString( saber_colors_e color ) {
 
 saber_styles_e TranslateSaberStyle( const char *name ) {
 	if ( !Q_stricmp( name, "fast" ) )		return SS_FAST;
-	if ( !Q_stricmp( name, "medium" ) ) 	return SS_MEDIUM;
-	if ( !Q_stricmp( name, "strong" ) ) 	return SS_STRONG;
+	if ( !Q_stricmp( name, "medium" ) )	return SS_MEDIUM;
+	if ( !Q_stricmp( name, "strong" ) )	return SS_STRONG;
 	if ( !Q_stricmp( name, "dual" ) )		return SS_DUAL;
 	if ( !Q_stricmp( name, "staff" ) )		return SS_STAFF;
 
@@ -199,10 +199,10 @@ saber_styles_e TranslateSaberStyle( const char *name ) {
 
 saberType_e TranslateSaberType( const char *name ) {
 	if ( !Q_stricmp( name, "SABER_SINGLE" ) )		return SABER_SINGLE;
-	if ( !Q_stricmp( name, "SABER_STAFF" ) ) 		return SABER_STAFF;
-	if ( !Q_stricmp( name, "SABER_DAGGER" ) ) 		return SABER_DAGGER;
-	if ( !Q_stricmp( name, "SABER_BROAD" ) ) 		return SABER_BROAD;
-	if ( !Q_stricmp( name, "SABER_PRONG" ) ) 		return SABER_PRONG;
+	if ( !Q_stricmp( name, "SABER_STAFF" ) )		return SABER_STAFF;
+	if ( !Q_stricmp( name, "SABER_DAGGER" ) )		return SABER_DAGGER;
+	if ( !Q_stricmp( name, "SABER_BROAD" ) )		return SABER_BROAD;
+	if ( !Q_stricmp( name, "SABER_PRONG" ) )		return SABER_PRONG;
 	if ( !Q_stricmp( name, "SABER_ARC" ) )			return SABER_ARC;
 	if ( !Q_stricmp( name, "SABER_SAI" ) )			return SABER_SAI;
 	if ( !Q_stricmp( name, "SABER_CLAW" ) )			return SABER_CLAW;
@@ -1069,7 +1069,7 @@ static void Saber_ParseG2MarksShader( saberInfo_t *saber, const char **p ) {
 		SkipRestOfLine( p );
 		return;
 	}
-#ifdef _CGAME
+#ifdef BUILD_CGAME
 	saber->g2MarksShader = trap->R_RegisterShader( value );
 #else
 	SkipRestOfLine( p );
@@ -1081,7 +1081,7 @@ static void Saber_ParseG2WeaponMarkShader( saberInfo_t *saber, const char **p ) 
 		SkipRestOfLine( p );
 		return;
 	}
-#ifdef _CGAME
+#ifdef BUILD_CGAME
 	saber->g2WeaponMarkShader = trap->R_RegisterShader( value );
 #else
 	SkipRestOfLine( p );
@@ -1185,7 +1185,7 @@ static void Saber_ParseBlockEffect( saberInfo_t *saber, const char **p ) {
 	const char *value;
 	if ( COM_ParseString( p, &value ) )
 		return;
-#ifdef _CGAME
+#ifdef BUILD_CGAME
 	saber->blockEffect = trap->FX_RegisterEffect( value );
 #else
 	SkipRestOfLine( p );
@@ -1195,7 +1195,7 @@ static void Saber_ParseHitPersonEffect( saberInfo_t *saber, const char **p ) {
 	const char *value;
 	if ( COM_ParseString( p, &value ) )
 		return;
-#ifdef _CGAME
+#ifdef BUILD_CGAME
 	saber->hitPersonEffect = trap->FX_RegisterEffect( value );
 #else
 	SkipRestOfLine( p );
@@ -1205,7 +1205,7 @@ static void Saber_ParseHitOtherEffect( saberInfo_t *saber, const char **p ) {
 	const char *value;
 	if ( COM_ParseString( p, &value ) )
 		return;
-#ifdef _CGAME
+#ifdef BUILD_CGAME
 	saber->hitOtherEffect = trap->FX_RegisterEffect( value );
 #else
 	SkipRestOfLine( p );
@@ -1215,7 +1215,7 @@ static void Saber_ParseBladeEffect( saberInfo_t *saber, const char **p ) {
 	const char *value;
 	if ( COM_ParseString( p, &value ) )
 		return;
-#ifdef _CGAME
+#ifdef BUILD_CGAME
 	saber->bladeEffect = trap->FX_RegisterEffect( value );
 #else
 	SkipRestOfLine( p );
@@ -1227,7 +1227,7 @@ static void Saber_ParseG2MarksShader2( saberInfo_t *saber, const char **p ) {
 		SkipRestOfLine( p );
 		return;
 	}
-#ifdef _CGAME
+#ifdef BUILD_CGAME
 	saber->g2MarksShader2 = trap->R_RegisterShader( value );
 #else
 	SkipRestOfLine( p );
@@ -1239,7 +1239,7 @@ static void Saber_ParseG2WeaponMarkShader2( saberInfo_t *saber, const char **p )
 		SkipRestOfLine( p );
 		return;
 	}
-#ifdef _CGAME
+#ifdef BUILD_CGAME
 	saber->g2WeaponMarkShader2 = trap->R_RegisterShader( value );
 #else
 	SkipRestOfLine( p );
@@ -1343,7 +1343,7 @@ static void Saber_ParseBlockEffect2( saberInfo_t *saber, const char **p ) {
 	const char *value;
 	if ( COM_ParseString( p, &value ) )
 		return;
-#ifdef _CGAME
+#ifdef BUILD_CGAME
 	saber->blockEffect2 = trap->FX_RegisterEffect( value );
 #else
 	SkipRestOfLine( p );
@@ -1353,7 +1353,7 @@ static void Saber_ParseHitPersonEffect2( saberInfo_t *saber, const char **p ) {
 	const char *value;
 	if ( COM_ParseString( p, &value ) )
 		return;
-#ifdef _CGAME
+#ifdef BUILD_CGAME
 	saber->hitPersonEffect2 = trap->FX_RegisterEffect( value );
 #else
 	SkipRestOfLine( p );
@@ -1363,7 +1363,7 @@ static void Saber_ParseHitOtherEffect2( saberInfo_t *saber, const char **p ) {
 	const char *value;
 	if ( COM_ParseString( p, &value ) )
 		return;
-#ifdef _CGAME
+#ifdef BUILD_CGAME
 	saber->hitOtherEffect2 = trap->FX_RegisterEffect( value );
 #else
 	SkipRestOfLine( p );
@@ -1373,7 +1373,7 @@ static void Saber_ParseBladeEffect2( saberInfo_t *saber, const char **p ) {
 	const char *value;
 	if ( COM_ParseString( p, &value ) )
 		return;
-#ifdef _CGAME
+#ifdef BUILD_CGAME
 	saber->bladeEffect2 = trap->FX_RegisterEffect( value );
 #else
 	SkipRestOfLine( p );
@@ -1795,7 +1795,7 @@ void WP_SaberLoadParms( void ) {
 
 	if ( (fileLen+1) >= sizeof saberParms ) {
 		trap->FS_Close( f );
-#ifdef UI_BUILD
+#ifdef BUILD_UI
 		Com_Error( ERR_FATAL, "WP_SaberLoadParms: Saber extensions (" EXT_SAB_FILENAME ") are too large!" );
 #else
 		Com_Error( ERR_DROP, "WP_SaberLoadParms: Saber extensions (" EXT_SAB_FILENAME ") are too large!" );
@@ -1815,7 +1815,7 @@ void WP_SaberLoadParms( void ) {
 	scratch = nullptr;
 }
 
-#ifdef UI_BUILD
+#ifdef BUILD_UI
 bool WP_IsSaberTwoHanded( const char *saberName )
 {
 	int twoHanded;

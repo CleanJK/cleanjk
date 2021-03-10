@@ -1596,7 +1596,7 @@ void RB_ShowImages( void ) {
 //	start = ri.Milliseconds()*timescale->value;
 
 	int i=0;
-	   				 R_Images_StartIteration();
+				 R_Images_StartIteration();
 	while ( (image = R_Images_GetNextIteration()) != nullptr)
 	{
 		w = glConfig.vidWidth / 20;

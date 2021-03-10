@@ -235,7 +235,7 @@ public:
 	rootSList(initrootSList),
 	currentModel(initcurrentModel),
 	lod(initlod),
- 	collRecMap(initcollRecMap),
+	collRecMap(initcollRecMap),
 	entNum(initentNum),
 	modelIndex(initmodelIndex),
 	skin(initskin),
@@ -266,7 +266,7 @@ public:
 void G2_List_Model_Surfaces(const char *fileName)
 {
 	int			i, x;
-  	model_t		*mod_m = R_GetModelByHandle(RE_RegisterModel(fileName));
+	model_t		*mod_m = R_GetModelByHandle(RE_RegisterModel(fileName));
 	mdxmSurfHierarchy_t	*surf;
 
 	surf = (mdxmSurfHierarchy_t *) ( (byte *)mod_m->mdxm + mod_m->mdxm->ofsSurfHierarchy );
@@ -284,8 +284,8 @@ void G2_List_Model_Surfaces(const char *fileName)
 			}
 		}
 		// find the next surface
-  		surf = (mdxmSurfHierarchy_t *)( (byte *)surf + (size_t)( &((mdxmSurfHierarchy_t *)0)->childIndexes[ surf->numChildren ] ));
-  		surface =(mdxmSurface_t *)( (byte *)surface + surface->ofsEnd );
+		surf = (mdxmSurfHierarchy_t *)( (byte *)surf + (size_t)( &((mdxmSurfHierarchy_t *)0)->childIndexes[ surf->numChildren ] ));
+		surface =(mdxmSurface_t *)( (byte *)surface + surface->ofsEnd );
 	}
 
 }
@@ -296,9 +296,9 @@ void G2_List_Model_Bones(const char *fileName, int frame)
 	int				x, i;
 	mdxaSkel_t		*skel;
 	mdxaSkelOffsets_t	*offsets;
-  	model_t			*mod_m = R_GetModelByHandle(RE_RegisterModel(fileName));
+	model_t			*mod_m = R_GetModelByHandle(RE_RegisterModel(fileName));
 	model_t			*mod_a = R_GetModelByHandle(mod_m->mdxm->animIndex);
-// 	mdxaFrame_t		*aframe=0;
+//	mdxaFrame_t		*aframe=0;
 //	int				frameSize;
 	mdxaHeader_t	*header = mod_a->mdxa;
 
@@ -351,11 +351,11 @@ int G2_DecideTraceLod(CGhoul2Info &ghoul2, int useLod)
 {
 	int returnLod = useLod;
 
-   	// if we are overriding the LOD at top level, then we can afford to only check this level of model
-   	if (ghoul2.mLodBias > returnLod)
-   	{
-   		returnLod =  ghoul2.mLodBias;
-   	}
+// if we are overriding the LOD at top level, then we can afford to only check this level of model
+if (ghoul2.mLodBias > returnLod)
+{
+	returnLod =  ghoul2.mLodBias;
+}
 //	assert(G2_MODEL_OK(&ghoul2));
 
 	assert(ghoul2.currentModel);
@@ -364,9 +364,9 @@ int G2_DecideTraceLod(CGhoul2Info &ghoul2, int useLod)
 
 	// now ensure that we haven't selected a lod that doesn't exist for this model
 	if ( returnLod >= ghoul2.currentModel->mdxm->numLODs )
- 	{
- 		returnLod = ghoul2.currentModel->mdxm->numLODs - 1;
- 	}
+	{
+		returnLod = ghoul2.currentModel->mdxm->numLODs - 1;
+	}
 
 	return returnLod;
 }
@@ -374,7 +374,7 @@ int G2_DecideTraceLod(CGhoul2Info &ghoul2, int useLod)
 void R_TransformEachSurface( const mdxmSurface_t *surface, vec3_t scale, IHeapAllocator *G2VertSpace, size_t *TransformedVertsArray,CBoneCache *boneCache)
 {
 	int				 j, k;
-	mdxmVertex_t 	*v;
+	mdxmVertex_t	*v;
 	float			*TransformedVerts;
 
 	// deform the vertexes by the lerped bones
@@ -440,7 +440,7 @@ void R_TransformEachSurface( const mdxmSurface_t *surface, vec3_t scale, IHeapAl
 	else
 	{
 		int pos = 0;
-	  	for ( j = 0; j < numVerts; j++ )
+		for ( j = 0; j < numVerts; j++ )
 		{
 			vec3_t			tempVert, tempNormal;
 //			const mdxmWeight_t	*w;
@@ -498,7 +498,7 @@ void G2_TransformSurfaces(int surfaceNum, surfaceInfo_v &rootSList,
 	// really, we should use the default flags for this surface unless it's been overriden
 	int offFlags = surfInfo->flags;
 
-  	if (surfOverride)
+	if (surfOverride)
 	{
 		offFlags = surfOverride->offFlags;
 	}
@@ -1064,8 +1064,8 @@ static bool G2_TracePolys(const mdxmSurface_t *surface, const mdxmSurfHierarchy_
 			{
 				if (TS.collRecMap[i].mEntityNum == -1)
 				{
-					CollisionRecord_t  	&newCol = TS.collRecMap[i];
-					vec3_t			  	distVect;
+					CollisionRecord_t	&newCol = TS.collRecMap[i];
+					vec3_t				distVect;
 					float				x_pos = 0, y_pos = 0;
 
 					newCol.mPolyIndex = j;
@@ -1130,7 +1130,7 @@ static bool G2_TracePolys(const mdxmSurface_t *surface, const mdxmSurfHierarchy_
 					// do we even care to decide what the hit or location area's are? If we don't have them in the shader there is little point
 					if ((shader->hitLocation) || (shader->hitMaterial))
 					{
- 						// ok, we have a floating point position. - determine location in data we need to look at
+						// ok, we have a floating point position. - determine location in data we need to look at
 						if (shader->hitLocation)
 						{
 							newCol.mLocation = *(hitMatReg[shader->hitLocation].loc +
@@ -1296,7 +1296,7 @@ static bool G2_RadiusTracePolys(
 			{
 				if (TS.collRecMap[i].mEntityNum == -1)
 				{
-					CollisionRecord_t  	&newCol = TS.collRecMap[i];
+					CollisionRecord_t	&newCol = TS.collRecMap[i];
 
 					newCol.mPolyIndex = j;
 					newCol.mEntityNum = TS.entNum;

@@ -117,7 +117,7 @@ bool CL_GetSnapshot( int snapshotNumber, snapshot_t *snapshot ) {
 	}
 	snapshot->numEntities = count;
 
- 	for ( i = 0 ; i < count ; i++ ) {
+	for ( i = 0 ; i < count ; i++ ) {
 
 		int entNum =  ( clSnap->parseEntitiesNum + i ) & (MAX_PARSE_ENTITIES-1) ;
 
@@ -416,8 +416,8 @@ rescan:
 	if ( !strcmp( cmd, "map_restart" ) ) {
 		// clear notify lines and outgoing commands before passing
 		// the restart to the cgame
-		Con_ClearNotify();
-		// reparse the string, because Con_ClearNotify() may have done another Cmd_TokenizeString()
+		Console_ClearNotify();
+		// reparse the string, because Console_ClearNotify() may have done another Cmd_TokenizeString()
 		Cmd_TokenizeString( s );
 		Com_Memset( cl.cmds, 0, sizeof( cl.cmds ) );
 		return true;
@@ -436,7 +436,7 @@ rescan:
 			return false;
 		}
 		// close the console
-		Con_Close();
+		Console_Close();
 		// take a special screenshot next frame
 		Cbuf_AddText( "wait ; wait ; wait ; wait ; screenshot levelshot\n" );
 		return true;
@@ -468,7 +468,7 @@ void CL_InitCGame( void ) {
 	t1 = Sys_Milliseconds();
 
 	// put away the console
-	Con_Close();
+	Console_Close();
 
 	// find the current mapname
 	info = cl.gameState.stringData + cl.gameState.stringOffsets[ CS_SERVERINFO ];
@@ -508,7 +508,7 @@ void CL_InitCGame( void ) {
 	}
 
 	// clear anything that got printed
-	Con_ClearNotify ();
+	Console_ClearNotify();
 }
 
 // See if the current console command is claimed by the cgame

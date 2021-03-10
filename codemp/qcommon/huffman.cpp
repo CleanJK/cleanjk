@@ -375,7 +375,7 @@ void Huff_Decompress(msg_t *mbuf, int offset) {
 	Com_Memcpy(mbuf->data + offset, seq, cch);
 }
 
-extern 	int oldsize;
+extern	int oldsize;
 
 void Huff_Compress(msg_t *mbuf, int offset) {
 	int			i, ch, size;

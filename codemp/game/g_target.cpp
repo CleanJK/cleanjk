@@ -445,7 +445,7 @@ void target_teleporter_use( gentity_t *self, gentity_t *other, gentity_t *activa
 
 	G_ActivateBehavior(self,BSET_USE);
 
-	dest = 	G_PickTarget( self->target );
+	dest =	G_PickTarget( self->target );
 	if (!dest) {
 		trap->Print ("Couldn't find teleporter destination\n");
 		return;

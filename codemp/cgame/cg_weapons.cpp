@@ -26,7 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "cgame/cg_local.hpp"
 #include "cgame/cg_weaponfx.hpp"
 #include "cgame/cg_media.hpp"
-#include "ui/ui_fonts.hpp"
+#include "client/cl_fonts.hpp"
 
 // set up the appropriate ghoul2 info to a refent
 void CG_SetGhoul2InfoRef( refEntity_t *ent, refEntity_t	*s1)
@@ -520,7 +520,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 		}
 		else
 		{
-			mdxaBone_t 		boltMatrix;
+			mdxaBone_t		boltMatrix;
 
 			if (!trap->G2API_HasGhoul2ModelOnIndex(&(cent->ghoul2), 1))
 			{ //it's quite possible that we may have have no weapon model and be in a valid state, so return here if this is the case
@@ -528,7 +528,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 			}
 
 			// go away and get me the bolt position for this frame please
- 			if (!(trap->G2API_GetBoltMatrix(cent->ghoul2, 1, 0, &boltMatrix, newAngles, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale)))
+			if (!(trap->G2API_GetBoltMatrix(cent->ghoul2, 1, 0, &boltMatrix, newAngles, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale)))
 			{	// Couldn't find bolt point.
 				return;
 			}
@@ -634,7 +634,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 		}
 		else
 		{
-			mdxaBone_t 		boltMatrix;
+			mdxaBone_t		boltMatrix;
 
 			if (!trap->G2API_HasGhoul2ModelOnIndex(&(cent->ghoul2), 1))
 			{ //it's quite possible that we may have have no weapon model and be in a valid state, so return here if this is the case
@@ -642,7 +642,7 @@ void CG_AddPlayerWeapon( refEntity_t *parent, playerState_t *ps, centity_t *cent
 			}
 
 			// go away and get me the bolt position for this frame please
- 			if (!(trap->G2API_GetBoltMatrix(cent->ghoul2, 1, 0, &boltMatrix, newAngles, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale)))
+			if (!(trap->G2API_GetBoltMatrix(cent->ghoul2, 1, 0, &boltMatrix, newAngles, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale)))
 			{	// Couldn't find bolt point.
 				return;
 			}
@@ -1196,15 +1196,13 @@ void CG_DrawWeaponSelect( void ) {
 		char	text[1024];
 		char	upperKey[1024];
 
-		strcpy(upperKey, cg_weapons[ cg.weaponSelect ].item->classname);
+		strcpy( upperKey, cg_weapons[ cg.weaponSelect ].item->classname );
 
-		if ( trap->SE_GetStringTextString( va("SP_INGAME_%s",Q_strupr(upperKey)), text, sizeof( text )))
-		{
-			Text_Paint_Proportional(320, y+45+yOffset, text, UI_CENTER, textColor, FONT_SMALL);
+		if ( trap->SE_GetStringTextString( va( "SP_INGAME_%s", Q_strupr( upperKey ) ), text, sizeof(text) ) ) {
+			TextHelper_Paint_Proportional( 320, y + 45 + yOffset, text, UI_CENTER, textColor, JKFont::Small );
 		}
-		else
-		{
-			Text_Paint_Proportional(320, y+45+yOffset, cg_weapons[ cg.weaponSelect ].item->classname, UI_CENTER, textColor, FONT_SMALL);
+		else {
+			TextHelper_Paint_Proportional( 320, y + 45 + yOffset, cg_weapons[cg.weaponSelect].item->classname, UI_CENTER, textColor, JKFont::Small );
 		}
 	}
 

@@ -26,7 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "qcommon/q_shared.hpp"
 #include "qcommon/q_common.hpp"
-#include "game/g_public.hpp"
+#include "game/g_engine.hpp"
 #include "game/bg_public.hpp"
 #include "rd-common/tr_public.hpp"
 
@@ -64,7 +64,7 @@ struct server_t {
 	bool            restarting; // if true, send configstring changes during SS_LOADING
 	int             serverId; // changes each server start
 	int             restartedServerId; // serverId before a map_restart
-	int             checksumFeed; // 
+	int             checksumFeed; //
 	int             snapshotCounter; // incremented for each snapshot built
 	int             timeResidual; // <= 1000 / sv_frame->value
 	int             nextFrameTime; // when time > nextFrameTime, process world

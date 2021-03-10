@@ -21,7 +21,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "game/g_public.hpp"
+#include "game/g_engine.hpp"
 #include "icarus/icarus.hpp"
 #include "icarus/Q3_Interface.hpp"
 #include "icarus/Q3_Registers.hpp"

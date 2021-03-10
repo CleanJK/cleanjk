@@ -29,7 +29,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "qcommon/com_cvars.hpp"
 
 portable_samplepair_t paintbuffer[PAINTBUFFER_SIZE];
-int 	*snd_p, snd_linear_count, snd_vol;
+int	*snd_p, snd_linear_count, snd_vol;
 short	*snd_out;
 
 // FIXME: proper fix for that ?
@@ -183,11 +183,11 @@ void S_TransferStereo16 (unsigned long *pbuf, int endtime)
 
 void S_TransferPaintBuffer(int endtime)
 {
-	int 	out_idx;
-	int 	count;
-	int 	out_mask;
-	int 	*p;
-	int 	step;
+	int	out_idx;
+	int	count;
+	int	out_mask;
+	int	*p;
+	int	step;
 	int		val;
 	unsigned long *pbuf;
 
@@ -344,8 +344,8 @@ void ChannelPaint(channel_t *ch, sfx_t *sc, int count, int sampleOffset, int buf
 }
 
 void S_PaintChannels( int endtime ) {
-	int 	i;
-	int 	end;
+	int	i;
+	int	end;
 	channel_t *ch;
 	sfx_t	*sc;
 	int		ltime, count;

@@ -22,6 +22,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include <SDL.h>
 #include <SDL_syswm.h>
+#undef None
+
 #include "qcommon/q_common.hpp"
 #include "qcommon/com_cvar.hpp"
 #include "qcommon/com_cvars.hpp"

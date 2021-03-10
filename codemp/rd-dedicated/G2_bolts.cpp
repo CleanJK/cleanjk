@@ -99,13 +99,13 @@ int G2_Add_Bolt_Surf_Num(CGhoul2Info *ghlInfo, boltInfo_v &bltlist, surfaceInfo_
 	for(size_t i=0; i<bltlist.size(); i++)
 	{
 		// if this surface entry has info in it, bounce over it
-	  	if (bltlist[i].boneNumber == -1 && bltlist[i].surfaceNumber == -1)
+		if (bltlist[i].boneNumber == -1 && bltlist[i].surfaceNumber == -1)
 		{
 			// if we found an entry that had a -1 for the bone / surface number, then we hit a surface / bone slot that was empty
 			bltlist[i].surfaceNumber = surfNum;
 			bltlist[i].surfaceType = G2SURFACEFLAG_GENERATED;
 			bltlist[i].boltUsed = 1;
-	 		return i;
+			return i;
 		}
 	}
 
@@ -152,13 +152,13 @@ int G2_Add_Bolt(CGhoul2Info *ghlInfo, boltInfo_v &bltlist, surfaceInfo_v &slist,
 		for(size_t i=0; i<bltlist.size(); i++)
 		{
 			// if this surface entry has info in it, bounce over it
-		  	if (bltlist[i].boneNumber == -1 && bltlist[i].surfaceNumber == -1)
+			if (bltlist[i].boneNumber == -1 && bltlist[i].surfaceNumber == -1)
 			{
 				// if we found an entry that had a -1 for the bone / surface number, then we hit a surface / bone slot that was empty
 				bltlist[i].surfaceNumber = surfNum;
 				bltlist[i].boltUsed = 1;
 				bltlist[i].surfaceType = 0;
-		 		return i;
+				return i;
 			}
 		}
 
@@ -173,14 +173,14 @@ int G2_Add_Bolt(CGhoul2Info *ghlInfo, boltInfo_v &bltlist, surfaceInfo_v &slist,
 
 	// no, check to see if it's a bone then
 
-   	offsets = (mdxaSkelOffsets_t *)((byte *)mod_a->mdxa + sizeof(mdxaHeader_t));
+offsets = (mdxaSkelOffsets_t *)((byte *)mod_a->mdxa + sizeof(mdxaHeader_t));
 
- 	// walk the entire list of bones in the gla file for this model and see if any match the name of the bone we want to find
- 	for (x=0; x< mod_a->mdxa->numBones; x++)
- 	{
- 		skel = (mdxaSkel_t *)((byte *)mod_a->mdxa + sizeof(mdxaHeader_t) + offsets->offsets[x]);
- 		// if name is the same, we found it
- 		if (!Q_stricmp(skel->name, boneName))
+	// walk the entire list of bones in the gla file for this model and see if any match the name of the bone we want to find
+	for (x=0; x< mod_a->mdxa->numBones; x++)
+	{
+		skel = (mdxaSkel_t *)((byte *)mod_a->mdxa + sizeof(mdxaHeader_t) + offsets->offsets[x]);
+		// if name is the same, we found it
+		if (!Q_stricmp(skel->name, boneName))
 		{
 			break;
 		}
@@ -219,7 +219,7 @@ int G2_Add_Bolt(CGhoul2Info *ghlInfo, boltInfo_v &bltlist, surfaceInfo_v &slist,
 			bltlist[i].boneNumber = x;
 			bltlist[i].boltUsed = 1;
 			bltlist[i].surfaceType = 0;
-	 		return i;
+			return i;
 		}
 	}
 
@@ -227,7 +227,7 @@ int G2_Add_Bolt(CGhoul2Info *ghlInfo, boltInfo_v &bltlist, surfaceInfo_v &slist,
 	tempBolt.boneNumber = x;
 	tempBolt.surfaceNumber = -1;
 	tempBolt.boltUsed = 1;
- 	tempBolt.surfaceType = 0;
+	tempBolt.surfaceType = 0;
 	bltlist.push_back(tempBolt);
 	return bltlist.size()-1;
 

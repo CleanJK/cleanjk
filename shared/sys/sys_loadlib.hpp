@@ -26,7 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // INCLUDE
 // ======================================================================
 
-#ifdef DEDICATED
+#ifdef BUILD_DEDICATED
 #	ifdef _WIN32
 #		define WIN32_LEAN_AND_MEAN
 #		include <windows.h>

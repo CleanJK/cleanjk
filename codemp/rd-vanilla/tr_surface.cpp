@@ -746,7 +746,7 @@ static void RB_SurfaceCylinder( void )
 		else
 			nextSegment = 0;
 
- 		VectorCopy( upper_points[i].xyz, verts[0].xyz );
+		VectorCopy( upper_points[i].xyz, verts[0].xyz );
 		verts[0].st[1] = 1.0f;
 		verts[0].st[0] = detail * i;
 		verts[0].modulate[0] = (byte)(e->shaderRGBA[0]);
@@ -1121,8 +1121,8 @@ static void LerpMeshVertexes (md3Surface_t *surf, float backlerp)
 
 //			VectorNormalize (outNormal);
 		}
-    	VectorArrayNormalize((vec4_t *)tess.normal[tess.numVertexes], numVerts);
-   	}
+ VectorArrayNormalize((vec4_t *)tess.normal[tess.numVertexes], numVerts);
+}
 }
 
 void RB_SurfaceMesh(md3Surface_t *surface) {

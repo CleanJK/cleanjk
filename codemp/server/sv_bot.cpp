@@ -392,7 +392,7 @@ int BotImport_DebugPolygonCreate(int color, int numPoints, vec3_t *points) {
 	if (!debugpolygons)
 		return 0;
 
-	for (i = 1; i < bot_maxdebugpolys_latch; i++) 	{
+	for (i = 1; i < bot_maxdebugpolys_latch; i++)	{
 		if (!debugpolygons[i].inuse)
 			break;
 	}

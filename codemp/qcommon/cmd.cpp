@@ -270,20 +270,12 @@ static void Cmd_Echo_f (void)
 
 // COMMAND EXECUTION
 
-struct cmd_function_t {
-	cmd_function_t *next;
-	char					*name;
-	char					*description;
-	xcommand_t				function;
-	completionFunc_t		complete;
-};
-
 static	int			cmd_argc;
 static	char		*cmd_argv[MAX_STRING_TOKENS];		// points into cmd_tokenized
 static	char		cmd_tokenized[BIG_INFO_STRING+MAX_STRING_TOKENS];	// will have 0 bytes inserted
 static	char		cmd_cmd[BIG_INFO_STRING]; // the original command we received (no token processing)
 
-static	cmd_function_t	*cmd_functions;		// possible commands to execute
+cmd_function_t *cmd_functions; // possible commands to execute
 
 int		Cmd_Argc( void ) {
 	return cmd_argc;
@@ -534,33 +526,19 @@ void	Cmd_AddCommand( const char *cmd_name, xcommand_t function, const char *cmd_
 	else
 		cmd->description = nullptr;
 	cmd->function = function;
-	cmd->complete = nullptr;
 	cmd->next = cmd_functions;
 	cmd_functions = cmd;
 }
 
-void Cmd_AddCommandList( const cmdList_t *cmdList )
-{
-	for ( const cmdList_t *cmd = cmdList; cmd && cmd->name; cmd++ )
-	{
+void Cmd_AddCommandList( const cmdList_t *cmdList ) {
+	for ( const cmdList_t *cmd = cmdList; cmd && cmd->name; cmd++ ) {
 		Cmd_AddCommand( cmd->name, cmd->func, cmd->description );
-		if ( cmd->complete )
-			Cmd_SetCommandCompletionFunc( cmd->name, cmd->complete );
 	}
 }
 
-void Cmd_RemoveCommandList( const cmdList_t *cmdList )
-{
-	for ( const cmdList_t *cmd = cmdList; cmd && cmd->name; cmd++ )
-	{
+void Cmd_RemoveCommandList( const cmdList_t *cmdList ) {
+	for ( const cmdList_t *cmd = cmdList; cmd && cmd->name; cmd++ ) {
 		Cmd_RemoveCommand( cmd->name );
-	}
-}
-
-void Cmd_SetCommandCompletionFunc( const char *command, completionFunc_t complete ) {
-	for ( cmd_function_t *cmd=cmd_functions; cmd; cmd=cmd->next ) {
-		if ( !Q_stricmp( command, cmd->name ) )
-			cmd->complete = complete;
 	}
 }
 
@@ -610,32 +588,14 @@ char *Cmd_DescriptionString( const char *cmd_name )
 	return cmd->description;
 }
 
-void Cmd_Print( const cmd_function_t *cmd )
-{
+void Cmd_Print( const cmd_function_t *cmd ) {
 	Com_Printf( S_COLOR_GREY "Cmd " S_COLOR_WHITE "%s", cmd->name );
 
-	if ( VALIDSTRING( cmd->description ) )
-	{
+	if ( VALIDSTRING( cmd->description ) ) {
 		Com_Printf( S_COLOR_GREEN " - %s" S_COLOR_WHITE, cmd->description );
 	}
 
 	Com_Printf( "\n" );
-}
-
-// callback with each valid string
-void	Cmd_CommandCompletion( completionCallback_t callback ) {
-	cmd_function_t	*cmd;
-
-	for (cmd=cmd_functions ; cmd ; cmd=cmd->next) {
-		callback( cmd->name );
-	}
-}
-
-void Cmd_CompleteArgument( const char *command, char *args, int argNum ) {
-	for ( cmd_function_t *cmd=cmd_functions; cmd; cmd=cmd->next ) {
-		if ( !Q_stricmp( command, cmd->name ) && cmd->complete )
-			cmd->complete( args, argNum );
-	}
 }
 
 // A complete command line has been parsed, so try to execute it
@@ -746,10 +706,8 @@ static void Cmd_List_f (void)
 		Com_Printf( "%i matching commands\n", j );
 }
 
-static void Cmd_PrintHelp_f( void )
-{
-	if ( Cmd_Argc() != 2 )
-	{
+static void Cmd_PrintHelp_f( void ) {
+	if ( Cmd_Argc() != 2 ) {
 		Com_Printf( "usage: help <command or alias>\n" );
 		return;
 	}
@@ -757,41 +715,21 @@ static void Cmd_PrintHelp_f( void )
 	const char *name = Cmd_Argv( 1 );
 	const cmd_function_t *cmd = Cmd_FindCommand( name );
 
-	if ( cmd )
+	if ( cmd ) {
 		Cmd_Print( cmd );
-	else
-		Com_Printf( "Command %s does not exist.\n", name );
-}
-
-void Cmd_CompleteCmdName( char *args, int argNum )
-{
-	if ( argNum == 2 )
-	{
-		// Skip "<cmd> "
-		char *p = Com_SkipTokens( args, 1, " " );
-
-		if ( p > args )
-			Field_CompleteCommand( p, true, false );
 	}
-}
-
-void Cmd_CompleteCfgName( char *args, int argNum ) {
-	if( argNum == 2 ) {
-		Field_CompleteFilename( "", "cfg", false, true );
+	else {
+		Com_Printf( "Command %s does not exist.\n", name );
 	}
 }
 
 void Cmd_Init (void) {
 	Cmd_AddCommand( "cmdlist", Cmd_List_f, "List all commands to console" );
 	Cmd_AddCommand( "help", Cmd_PrintHelp_f, "Print command help" );
-	Cmd_SetCommandCompletionFunc( "help", Cmd_CompleteCmdName );
 	Cmd_AddCommand( "echo", Cmd_Echo_f, "Print message to console" );
 	Cmd_AddCommand( "exec", Cmd_Exec_f, "Execute a script file" );
 	Cmd_AddCommand( "execq", Cmd_Exec_f, "Execute a script file without displaying a message" );
-	Cmd_SetCommandCompletionFunc( "exec", Cmd_CompleteCfgName );
-	Cmd_SetCommandCompletionFunc( "execq", Cmd_CompleteCfgName );
 	Cmd_AddCommand( "vstr", Cmd_Vstr_f, "Execute the value of a cvar" );
-	Cmd_SetCommandCompletionFunc( "vstr", Cvar_CompleteCvarName );
 	Cmd_AddCommand( "wait", Cmd_Wait_f, "Pause command buffer execution" );
 }
 

@@ -1047,13 +1047,9 @@ void CG_LoadClientInfo( clientInfo_t *ci ) {
 		cg_entities[clientNum].eventAnimIndex = CG_G2EvIndexForModel(cg_entities[clientNum].ghoul2, cg_entities[clientNum].localAnimIndex);
 	}
 
-	ci->newAnims = false;
 	if ( ci->torsoModel ) {
 		orientation_t tag;
-		// if the torso model has the "tag_flag"
-		if ( trap->R_LerpTag( &tag, ci->torsoModel, 0, 0, 1, "tag_flag" ) ) {
-			ci->newAnims = true;
-		}
+		trap->R_LerpTag( &tag, ci->torsoModel, 0, 0, 1, "tag_flag" );
 	}
 
 	// sounds
@@ -1133,8 +1129,6 @@ static void CG_CopyClientInfoModel( clientInfo_t *from, clientInfo_t *to )
 	//to->headModel = from->headModel;
 	//to->headSkin = from->headSkin;
 	to->modelIcon = from->modelIcon;
-
-	to->newAnims = from->newAnims;
 
 	//to->ghoul2Model = from->ghoul2Model;
 	//rww - Trying to use the same ghoul2 pointer for two seperate clients == DISASTER
@@ -1240,8 +1234,6 @@ static bool CG_ScanForExistingClientInfo( clientInfo_t *ci, int clientNum ) {
 					ci->torsoModel = match->torsoModel;
 					ci->torsoSkin = match->torsoSkin;
 					ci->modelIcon = match->modelIcon;
-
-					ci->newAnims = match->newAnims;
 
 					ci->bolt_head = match->bolt_head;
 					ci->bolt_lhand = match->bolt_lhand;
@@ -1926,7 +1918,7 @@ static void _PlayerFootStep( const vec3_t origin,
 	}
 	if (soundType < FOOTSTEP_TOTAL)
 	{
-	 	trap->S_StartSound( nullptr, cent->currentState.clientNum, CHAN_BODY, media.sounds.null/* [soundType][rand()&3] */ );
+		trap->S_StartSound( nullptr, cent->currentState.clientNum, CHAN_BODY, media.sounds.null/* [soundType][rand()&3] */ );
 	}
 
 	if ( cg_footsteps.integer < 4 )
@@ -5788,8 +5780,6 @@ void CG_AddRandomLightning(vec3_t start, vec3_t end)
 	CG_AddLightningBeam(inOrg, outOrg);
 }
 
-extern char *forceHolocronModels[];
-
 bool CG_ThereIsAMaster(void)
 {
 	int i = 0;
@@ -6204,7 +6194,7 @@ void CG_Player( centity_t *cent ) {
 	vec3_t			angles, dir, elevated, enang, seekorg;
 	int				iwantout = 0, successchange = 0;
 	int				team;
-	mdxaBone_t 		boltMatrix, lHandMatrix;
+	mdxaBone_t		boltMatrix, lHandMatrix;
 	int				doAlpha = 0;
 	bool		gotLHandMatrix = false;
 	bool		g2HasWeapon = false;
@@ -6918,7 +6908,7 @@ void CG_Player( centity_t *cent ) {
 		if ( cent->currentState.torsoAnim == BOTH_FORCE_2HANDEDLIGHTNING_HOLD
 			&& Q_irand( 0, 1 ) )
 		{//alternate back and forth between left and right
-			mdxaBone_t 	rHandMatrix;
+			mdxaBone_t	rHandMatrix;
 			trap->G2API_GetBoltMatrix(cent->ghoul2, 0, ci->bolt_rhand, &rHandMatrix, cent->turAngles, cent->lerpOrigin, cg.time, cgs.gameModels, cent->modelScale);
 			efOrg[0] = rHandMatrix.matrix[0][3];
 			efOrg[1] = rHandMatrix.matrix[1][3];
@@ -7153,17 +7143,17 @@ void CG_Player( centity_t *cent ) {
 			BG_GiveMeVectorFromMatrix(&boltMatrix, ORIGIN, efOrg);
 			BG_GiveMeVectorFromMatrix(&boltMatrix, NEGATIVE_Y, fxAng);
 
- 			axis[0][0] = boltMatrix.matrix[0][0];
- 			axis[0][1] = boltMatrix.matrix[1][0];
-		 	axis[0][2] = boltMatrix.matrix[2][0];
+			axis[0][0] = boltMatrix.matrix[0][0];
+			axis[0][1] = boltMatrix.matrix[1][0];
+			axis[0][2] = boltMatrix.matrix[2][0];
 
- 			axis[1][0] = boltMatrix.matrix[0][1];
- 			axis[1][1] = boltMatrix.matrix[1][1];
-		 	axis[1][2] = boltMatrix.matrix[2][1];
+			axis[1][0] = boltMatrix.matrix[0][1];
+			axis[1][1] = boltMatrix.matrix[1][1];
+			axis[1][2] = boltMatrix.matrix[2][1];
 
- 			axis[2][0] = boltMatrix.matrix[0][2];
- 			axis[2][1] = boltMatrix.matrix[1][2];
-		 	axis[2][2] = boltMatrix.matrix[2][2];
+			axis[2][0] = boltMatrix.matrix[0][2];
+			axis[2][1] = boltMatrix.matrix[1][2];
+			axis[2][2] = boltMatrix.matrix[2][2];
 
 			//trap->FX_PlayEntityEffectID(trap->FX_RegisterEffect("force/confusion.efx"), efOrg, axis, cent->boltInfo, cent->currentState.number);
 			trap->FX_PlayEntityEffectID(media.efx.null, efOrg, axis, -1, -1, -1, -1);

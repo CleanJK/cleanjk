@@ -311,7 +311,7 @@ void SV_ClearServer(void) {
 
 	// nope, can't do this anymore.. sv contains entitystates with STL in them.
 //	memset (&sv, 0, sizeof(sv));
- 	SV_InitSV();
+	SV_InitSV();
 //	Com_Memset (&sv, 0, sizeof(sv));
 }
 
@@ -370,7 +370,7 @@ void SV_SpawnServer( char *server, bool killBots, ForceReload_e eForceReload ) {
 	Com_Printf ("------ Server Initialization ------\n");
 	Com_Printf ("Server: %s\n",server);
 
- 	// de allocate the snapshot entities
+	// de allocate the snapshot entities
 	if (svs.snapshotEntities)
 	{
 		delete[] svs.snapshotEntities;
@@ -383,7 +383,7 @@ void SV_SpawnServer( char *server, bool killBots, ForceReload_e eForceReload ) {
 	// also print some status stuff
 	CL_MapLoading();
 
-#ifndef DEDICATED
+#ifndef BUILD_DEDICATED
 	// make sure all the client stuff is unloaded
 	CL_ShutdownAll( false );
 #endif
@@ -408,12 +408,12 @@ void SV_SpawnServer( char *server, bool killBots, ForceReload_e eForceReload ) {
 
 	SV_SendMapChange();
 
- 	// clear out those shaders, images and Models as long as this
+	// clear out those shaders, images and Models as long as this
 	// isnt a dedicated server.
 	/*
 	if ( !com_dedicated->integer )
 	{
-#ifndef DEDICATED
+#ifndef BUILD_DEDICATED
 		R_InitImages();
 
 		R_InitShaders();
@@ -645,7 +645,7 @@ void SV_SpawnServer( char *server, bool killBots, ForceReload_e eForceReload ) {
 	SV_BeginAutoRecordDemos();
 }
 
-#ifdef DEDICATED
+#ifdef BUILD_DEDICATED
 
 #define G2_VERT_SPACE_SERVER_SIZE 256
 IHeapAllocator *G2VertSpaceServer = nullptr;
@@ -801,7 +801,7 @@ void SV_Init (void) {
 
 	// Only allocated once, no point in moving it around and fragmenting
 	// create a heap for Ghoul2 to use for game side model vertex transforms used in collision detection
-#ifdef DEDICATED
+#ifdef BUILD_DEDICATED
 	SV_InitRef();
 #endif
 }
@@ -849,7 +849,7 @@ void SV_Shutdown( char *finalmsg )
 	SV_ChallengeShutdown();
 	SV_ShutdownGameProgs();
 	svs.gameStarted = false;
- 	// de allocate the snapshot entities
+	// de allocate the snapshot entities
 	if (svs.snapshotEntities)
 	{
 		delete[] svs.snapshotEntities;

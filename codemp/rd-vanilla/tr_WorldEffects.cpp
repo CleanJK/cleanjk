@@ -584,7 +584,7 @@ public:
 				wz.ConvertToCell(pos, x, y, z, bit);
 				if (width<POINTCACHE_CELL_SIZE || height<POINTCACHE_CELL_SIZE)
 				{
- 					return (wz.CellOutside(x, y, z, bit));
+					return (wz.CellOutside(x, y, z, bit));
 				}
 
 				mWCells = ((int)width  / POINTCACHE_CELL_SIZE);
@@ -868,7 +868,7 @@ public:
 			else
 			{
 				mCameraLeft		*= mWidth;
- 				mCameraDown		*= mHeight;
+				mCameraDown		*= mHeight;
 			}
 		}
 
@@ -916,7 +916,7 @@ public:
 			// Optimization For Quad Position Calculation
 			if (mVertexCount==4)
 			{
-		 		mCameraLeftPlusUp  = (mCameraLeft - mCameraDown);
+				mCameraLeftPlusUp  = (mCameraLeft - mCameraDown);
 				mCameraLeftMinusUp = (mCameraLeft + mCameraDown);
 			}
 			else
@@ -1095,7 +1095,7 @@ public:
 			// Render A Triangle
 			if (mVertexCount==3)
 			{
- 				qglTexCoord2f(1.0, 0.0);
+				qglTexCoord2f(1.0, 0.0);
 				qglVertex3f(part->mPosition[0],
 							part->mPosition[1],
 							part->mPosition[2]);
@@ -1518,7 +1518,7 @@ void RE_WorldEffectCommand(const char *command)
 		nCloud.Initialize(400, "gfx/effects/alpha_smoke2b.tga");
 
 		nCloud.mGravity		= 0;
- 		nCloud.mWidth		= 70;
+		nCloud.mWidth		= 70;
 		nCloud.mHeight		= 70;
 		nCloud.mColor[0]	= 0.9f;
 		nCloud.mColor[1]	= 0.6f;
@@ -1544,7 +1544,7 @@ void RE_WorldEffectCommand(const char *command)
 		nCloud.Initialize(60, "gfx/effects/alpha_smoke2b.tga");
 		nCloud.mBlendMode	= 1;
 		nCloud.mGravity		= 0;
- 		nCloud.mWidth		= 70;
+		nCloud.mWidth		= 70;
 		nCloud.mHeight		= 70;
 		nCloud.mColor		= 0.2f;
 		nCloud.mFade		= 5.0f;
@@ -1564,10 +1564,10 @@ void RE_WorldEffectCommand(const char *command)
 			return;
 		}
 		CWeatherParticleCloud& nCloud = mParticleClouds.push_back();
- 		nCloud.Initialize(70, "gfx/effects/alpha_smoke2b.tga");
+		nCloud.Initialize(70, "gfx/effects/alpha_smoke2b.tga");
 		nCloud.mBlendMode	= 1;
 		nCloud.mGravity		= 0;
- 		nCloud.mWidth		= 100;
+		nCloud.mWidth		= 100;
 		nCloud.mHeight		= 100;
 		nCloud.mColor		= 0.3f;
 		nCloud.mFade		= 1.0f;
@@ -1593,7 +1593,7 @@ void RE_WorldEffectCommand(const char *command)
 		nCloud.Initialize(40, "gfx/effects/alpha_smoke2b.tga");
 		nCloud.mBlendMode	= 1;
 		nCloud.mGravity		= 0;
- 		nCloud.mWidth		= 100;
+		nCloud.mWidth		= 100;
 		nCloud.mHeight		= 100;
 		nCloud.mColor[0]	= 0.19f;
 		nCloud.mColor[1]	= 0.6f;
@@ -1644,7 +1644,7 @@ void RE_WorldEffectCommand(const char *command)
 
 float R_GetChanceOfSaberFizz()
 {
- 	float	chance = 0.0f;
+	float	chance = 0.0f;
 	int		numWater = 0;
 	for (int i=0; i<mParticleClouds.size(); i++)
 	{

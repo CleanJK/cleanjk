@@ -326,10 +326,10 @@ size_t RE_SaveJPGToBuffer(byte *buffer, size_t bufSize, int quality,
 	jpegDest(&cinfo, buffer, bufSize);
 
 	/* Step 3: set parameters for compression */
-	cinfo.image_width = image_width; 	/* image width and height, in pixels */
+	cinfo.image_width = image_width;	/* image width and height, in pixels */
 	cinfo.image_height = image_height;
 	cinfo.input_components = 3;		/* # of color components per pixel */
-	cinfo.in_color_space = JCS_RGB; 	/* colorspace of input image */
+	cinfo.in_color_space = JCS_RGB;	/* colorspace of input image */
 	jpeg_set_defaults(&cinfo);
 	jpeg_set_quality(&cinfo, quality, TRUE /* limit to baseline-JPEG values */);
 

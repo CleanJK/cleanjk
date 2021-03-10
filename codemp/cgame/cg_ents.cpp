@@ -462,7 +462,7 @@ void G2_BoltToGhoul2Model(centity_t *cent, refEntity_t *ent)
 	int modelNum = cent->boltInfo >> MODEL_SHIFT;
 	int boltNum	= cent->boltInfo >> BOLT_SHIFT;
 	int	entNum = cent->boltInfo >> ENTITY_SHIFT;
- 	mdxaBone_t 		boltMatrix;
+	mdxaBone_t		boltMatrix;
 
 	modelNum &= MODEL_AND;
 	boltNum &= BOLT_AND;
@@ -471,25 +471,25 @@ void G2_BoltToGhoul2Model(centity_t *cent, refEntity_t *ent)
 	//NOTENOTE I put this here because the cgs.gamemodels array no longer gets initialized.
 	assert(0);
 
- 	// go away and get me the bolt position for this frame please
+	// go away and get me the bolt position for this frame please
 	trap->G2API_GetBoltMatrix(cent->ghoul2, modelNum, boltNum, &boltMatrix, cg_entities[entNum].currentState.angles, cg_entities[entNum].currentState.origin, cg.time, cgs.gameModels, cent->modelScale);
 
 	// set up the axis and origin we need for the actual effect spawning
- 	ent->origin[0] = boltMatrix.matrix[0][3];
- 	ent->origin[1] = boltMatrix.matrix[1][3];
- 	ent->origin[2] = boltMatrix.matrix[2][3];
+	ent->origin[0] = boltMatrix.matrix[0][3];
+	ent->origin[1] = boltMatrix.matrix[1][3];
+	ent->origin[2] = boltMatrix.matrix[2][3];
 
- 	ent->axis[0][0] = boltMatrix.matrix[0][0];
- 	ent->axis[0][1] = boltMatrix.matrix[1][0];
- 	ent->axis[0][2] = boltMatrix.matrix[2][0];
+	ent->axis[0][0] = boltMatrix.matrix[0][0];
+	ent->axis[0][1] = boltMatrix.matrix[1][0];
+	ent->axis[0][2] = boltMatrix.matrix[2][0];
 
- 	ent->axis[1][0] = boltMatrix.matrix[0][1];
- 	ent->axis[1][1] = boltMatrix.matrix[1][1];
- 	ent->axis[1][2] = boltMatrix.matrix[2][1];
+	ent->axis[1][0] = boltMatrix.matrix[0][1];
+	ent->axis[1][1] = boltMatrix.matrix[1][1];
+	ent->axis[1][2] = boltMatrix.matrix[2][1];
 
- 	ent->axis[2][0] = boltMatrix.matrix[0][2];
- 	ent->axis[2][1] = boltMatrix.matrix[1][2];
- 	ent->axis[2][2] = boltMatrix.matrix[2][2];
+	ent->axis[2][0] = boltMatrix.matrix[0][2];
+	ent->axis[2][1] = boltMatrix.matrix[1][2];
+	ent->axis[2][2] = boltMatrix.matrix[2][2];
 }
 
 void ScaleModelAxis(refEntity_t	*ent)
@@ -512,7 +512,7 @@ void ScaleModelAxis(refEntity_t	*ent)
 		}
 }
 
-constexpr const char *forceHolocronModels[NUM_FORCE_POWERS] = {
+static constexpr const char *forceHolocronModels[NUM_FORCE_POWERS] = {
 	"models/map_objects/mp/lt_heal.md3",		//FP_HEAL,
 	"models/map_objects/mp/force_jump.md3",		//FP_LEVITATION,
 	"models/map_objects/mp/force_speed.md3",	//FP_SPEED,

@@ -29,7 +29,7 @@ set(MPUIIncludeDirectories
 if(WIN32)
 	set(MPUILibraries "odbc32" "odbccp32") # what are these even?
 endif(WIN32)
-set(MPUIDefines ${MPSharedDefines} "UI_BUILD")
+set(MPUIDefines ${MPSharedDefines} "BUILD_UI")
 
 set(MPUIGameFiles
 	"${MPDir}/game/bg_misc.cpp"
@@ -45,6 +45,8 @@ source_group("game" FILES ${MPUIGameFiles})
 set(MPUIFiles ${MPUIFiles} ${MPUIGameFiles})
 
 set(MPUICommonFiles
+	"${MPDir}/qcommon/com_inputField.cpp"
+	"${MPDir}/qcommon/com_inputField.hpp"
 	"${MPDir}/qcommon/q_shared.cpp"
 	"${MPDir}/qcommon/disablewarnings.hpp"
 	"${MPDir}/qcommon/game_version.hpp"
@@ -60,17 +62,16 @@ set(MPUIFiles ${MPUIFiles} ${MPUICommonFiles})
 set(MPUIUIFiles
 	"${MPDir}/ui/ui_atoms.cpp"
 	"${MPDir}/ui/ui_cvar.cpp"
-	"${MPDir}/ui/ui_fonts.cpp"
 	"${MPDir}/ui/ui_force.cpp"
 	"${MPDir}/ui/ui_gameinfo.cpp"
 	"${MPDir}/ui/ui_main.cpp"
 	"${MPDir}/ui/ui_saber.cpp"
 	"${MPDir}/ui/ui_shared.cpp"
 	"${MPDir}/ui/menudef.h"
-	"${MPDir}/ui/ui_fonts.hpp"
 	"${MPDir}/ui/ui_force.hpp"
 	"${MPDir}/ui/ui_local.hpp"
-	"${MPDir}/ui/ui_public.hpp"
+	"${MPDir}/ui/ui_engine.cpp"
+	"${MPDir}/ui/ui_engine.hpp"
 	"${MPDir}/ui/ui_shared.hpp"
 	"${MPDir}/ui/ui_xcvar.hpp"
 	)

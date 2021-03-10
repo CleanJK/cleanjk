@@ -28,11 +28,12 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "client/FxUtil.hpp"
 #include "client/snd_ambient.hpp"
 #include "client/snd_public.hpp"
+#include "client/cl_fonts.hpp"
 #include "qcommon/com_cvar.hpp"
 #include "qcommon/RoffSystem.hpp"
 #include "qcommon/stringed_ingame.hpp"
 #include "qcommon/timing.hpp"
-#include "ui/ui_public.hpp"
+#include "ui/ui_engine.hpp"
 
 extern IHeapAllocator *G2VertSpaceClient;
 extern botlib_export_t *botlib_export;
@@ -111,24 +112,6 @@ static void CL_GetClientState( uiClientState_t *state ) {
 
 static void CL_GetGlconfig( glconfig_t *config ) {
 	*config = cls.glconfig;
-}
-
-static void GetClipboardData( char *buf, int buflen ) {
-	char	*cbd, *c;
-
-	c = cbd = Sys_GetClipboardData();
-	if ( !cbd ) {
-		*buf = 0;
-		return;
-	}
-
-	for ( int i = 0, end = buflen - 1; *c && i < end; i++ )
-	{
-		uint32_t utf32 = ConvertUTF8ToUTF32( c, &c );
-		buf[i] = ConvertUTF32ToExpectedCharset( utf32 );
-	}
-
-	Z_Free( cbd );
 }
 
 static int GetConfigString(int index, char *buf, int size)
@@ -731,7 +714,7 @@ void CL_BindUI( void ) {
 	uii.FS_Write							= FS_Write;
 
 	uii.GetClientState						= CL_GetClientState;
-	uii.GetClipboardData					= GetClipboardData;
+	uii.GetClipboardData					= CL_GetClipboardData;
 	uii.GetConfigString						= GetConfigString;
 	uii.GetGlconfig							= CL_GetGlconfig;
 	uii.UpdateScreen						= SCR_UpdateScreen;
@@ -798,13 +781,8 @@ void CL_BindUI( void ) {
 	uii.R_AddRefEntityToScene				= re->AddRefEntityToScene;
 	uii.R_ClearScene						= re->ClearScene;
 	uii.R_DrawStretchPic					= re->DrawStretchPic;
-	uii.R_Font_DrawString					= re->Font_DrawString;
-	uii.R_Font_HeightPixels					= re->Font_HeightPixels;
-	uii.R_Font_StrLenChars					= re->Font_StrLenChars;
-	uii.R_Font_StrLenPixels					= re->Font_StrLenPixels;
 	uii.R_LerpTag							= re->LerpTag;
 	uii.R_ModelBounds						= re->ModelBounds;
-	uii.R_RegisterFont						= re->RegisterFont;
 	uii.R_RegisterModel						= re->RegisterModel;
 	uii.R_RegisterShaderNoMip				= re->RegisterShaderNoMip;
 	uii.R_RegisterSkin						= re->RegisterSkin;
@@ -848,8 +826,12 @@ void CL_BindUI( void ) {
 	uii.G2API_IKMove						= CL_G2API_IKMove;
 	uii.G2API_GetSurfaceName				= CL_G2API_GetSurfaceName;
 	uii.G2API_AttachG2Model					= CL_G2API_AttachG2Model;
+	uii.Text_Height                         = Text_Height;
+	uii.Text_Paint                          = Text_Paint;
+	uii.Text_Width                          = Text_Width;
+	uii.TextHelper_Paint_Limit              = TextHelper_Paint_Limit;
+	uii.TextHelper_Paint_Proportional       = TextHelper_Paint_Proportional;
 
-	uii.ext.R_Font_StrLenPixels				= re->ext.Font_StrLenPixels;
 	uii.ext.AddCommand						= CL_AddUICommand;
 	uii.ext.RemoveCommand					= UIVM_Cmd_RemoveCommand;
 

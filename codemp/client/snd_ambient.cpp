@@ -66,7 +66,7 @@ static const char	*setNames[NUM_AS_SETS] =
 					};
 
 // Used for enum / function matching
-static const parseFunc_t 	parseFuncs[NUM_AS_SETS] =
+static const parseFunc_t	parseFuncs[NUM_AS_SETS] =
 							{
 								AS_GetGeneralSet,
 								AS_GetLocalSet,

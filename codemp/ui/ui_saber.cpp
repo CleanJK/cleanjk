@@ -690,7 +690,7 @@ void UI_SaberDrawBlades( itemDef_t *item, vec3_t origin, vec3_t angles )
 void UI_SaberAttachToChar( itemDef_t *item )
 {
 	int	numSabers = 1;
- 	int	saberNum = 0;
+	int	saberNum = 0;
 
 	if ( trap->G2API_HasGhoul2ModelOnIndex(&(item->ghoul2),2) )
 	{//remove any extra models

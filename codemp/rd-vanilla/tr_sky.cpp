@@ -658,7 +658,7 @@ void RB_DrawSun( void ) {
 	qglLoadMatrixf( backEnd.viewParms.world.modelMatrix );
 	qglTranslatef (backEnd.viewParms.ori.origin[0], backEnd.viewParms.ori.origin[1], backEnd.viewParms.ori.origin[2]);
 
-	dist = 	backEnd.viewParms.zFar / 1.75;		// div sqrt(3)
+	dist =	backEnd.viewParms.zFar / 1.75;		// div sqrt(3)
 	size = dist * 0.4;
 
 	VectorScale( tr.sunDirection, dist, origin );

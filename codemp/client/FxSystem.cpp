@@ -103,7 +103,7 @@ void SFxHelper::CameraShake( vec3_t origin, float intensity, int radius, int tim
 bool SFxHelper::GetOriginAxisFromBolt(CGhoul2Info_v *pGhoul2, int mEntNum, int modelNum, int boltNum, vec3_t /*out*/origin, vec3_t /*out*/axis[3])
 {
 	bool doesBoltExist;
-	mdxaBone_t 		boltMatrix;
+	mdxaBone_t		boltMatrix;
 	TCGGetBoltData	*data = (TCGGetBoltData*)cl.mSharedMemory;
 	data->mEntityNum = mEntNum;
 	CGVM_GetLerpData();//this func will zero out pitch and roll for players, and ridable vehicles
@@ -116,7 +116,7 @@ bool SFxHelper::GetOriginAxisFromBolt(CGhoul2Info_v *pGhoul2, int mEntNum, int m
 
 	if (doesBoltExist)
 	{	// set up the axis and origin we need for the actual effect spawning
-	   	origin[0] = boltMatrix.matrix[0][3];
+	origin[0] = boltMatrix.matrix[0][3];
 		origin[1] = boltMatrix.matrix[1][3];
 		origin[2] = boltMatrix.matrix[2][3];
 

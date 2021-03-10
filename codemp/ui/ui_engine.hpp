@@ -24,28 +24,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
+#include "qcommon/q_shared.hpp"
+
 #define UI_API_VERSION 4
 #define UI_LEGACY_API_VERSION 7
-
-enum uiMenuCommand_e {
-	UIMENU_NONE,
-	UIMENU_MAIN,
-	UIMENU_INGAME,
-	UIMENU_PLAYERCONFIG,
-	UIMENU_TEAM,
-	UIMENU_POSTGAME,
-	UIMENU_PLAYERFORCE,
-	UIMENU_VOICECHAT,
-	UIMENU_CLOSEALL
-};
-
-enum serverSort_e {
-	SORT_HOST,
-	SORT_MAP,
-	SORT_CLIENTS,
-	SORT_GAME,
-	SORT_PING,
-};
 
 struct uiClientState_t {
 	connstate_e connState;
@@ -140,16 +122,11 @@ struct uiImport_t {
 	void              (*R_AddRefEntityToScene)            ( const refEntity_t *re );
 	void              (*R_ClearScene)                     ( void );
 	void              (*R_DrawStretchPic)                 ( float x, float y, float w, float h, float s1, float t1, float s2, float t2, qhandle_t hShader );
-	int               (*R_Font_StrLenPixels)              ( const char *text, const int iFontIndex, const float scale );
-	int               (*R_Font_StrLenChars)               ( const char *text );
-	int               (*R_Font_HeightPixels)              ( const int iFontIndex, const float scale );
-	void              (*R_Font_DrawString)                ( int ox, int oy, const char *text, const float *rgba, const int setIndex, int iCharLimit, const float scale );
 	int               (*R_LerpTag)                        ( orientation_t *tag, clipHandle_t mod, int startFrame, int endFrame, float frac, const char *tagName );
 	void              (*R_ModelBounds)                    ( clipHandle_t model, vec3_t mins, vec3_t maxs );
 	qhandle_t         (*R_RegisterModel)                  ( const char *name );
 	qhandle_t         (*R_RegisterSkin)                   ( const char *name );
 	qhandle_t         (*R_RegisterShaderNoMip)            ( const char *name );
-	qhandle_t         (*R_RegisterFont)                   ( const char *fontName );
 	void              (*R_RemapShader)                    ( const char *oldShader, const char *newShader, const char *timeOffset );
 	void              (*R_RenderScene)                    ( const refdef_t *fd );
 	void              (*R_SetColor)                       ( const float *rgba );
@@ -189,10 +166,14 @@ struct uiImport_t {
 	bool              (*G2API_SetSkin)                    ( void *ghoul2, int modelIndex, qhandle_t customSkin, qhandle_t renderSkin );
 	bool              (*G2API_SetSurfaceOnOff)            ( void *ghoul2, const char *surfaceName, const int flags );
 	void              (*G2API_SetTime)                    ( int time, int clock );
+	float             (*Text_Height)                      ( const Text &text, const char *str );
+	void              (*Text_Paint)                       ( const Text &text, float x, float y, const char *str, const vec4_t colour, int style, int limit, float adjust, int cursorPos, bool overstrike );
+	float             (*Text_Width)                       ( const Text &text, const char *str );
+	void              (*TextHelper_Paint_Limit)           ( float *maxX, float x, float y, float scale, const vec4_t color, const char *str, float adjust, int limit, JKFont font );
+	void              (*TextHelper_Paint_Proportional)    ( int x, int y, const char *str, int style, const vec4_t color, JKFont font, float scale );
 
 	struct {
 		void			(*AddCommand)							( const char *cmd_name );
-		float			(*R_Font_StrLenPixels)					( const char *text, const int iFontIndex, const float scale );
 		void			(*RemoveCommand)						( const char *cmd_name );
 	} ext;
 };

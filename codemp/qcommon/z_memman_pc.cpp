@@ -203,7 +203,7 @@ void *Z_Malloc(int iSize, memtag_t eTag, bool bZeroit /* = false */, int iUnused
 				continue;		// we've dropped at least one sound, so try again with the malloc
 			}
 
-#ifndef DEDICATED
+#ifndef BUILD_DEDICATED
 			// ditch any image_t's (and associated GL memory) not used on this level...
 
 			if (re->RegisterImages_LevelLoadEnd())
@@ -529,7 +529,7 @@ static void Z_Details_f(void)
 
 			float	fSize		= (float)(iThisSize) / 1024.0f / 1024.0f;
 			int		iSize		= fSize;
-			int		iRemainder 	= 100.0f * (fSize - floor(fSize));
+			int		iRemainder	= 100.0f * (fSize - floor(fSize));
 			Com_Printf("%20s %9d (%2d.%02dMB) in %6d blocks (%9d average)\n",
 					    psTagStrings[i],
 							  iThisSize,
@@ -672,13 +672,13 @@ bool Hunk_CheckMark( void ) {
 // The server calls this before shutting down or loading a new map
 void Hunk_Clear( void ) {
 
-#ifndef DEDICATED
+#ifndef BUILD_DEDICATED
 	CL_ShutdownCGame();
 	CL_ShutdownUI();
 #endif
 	SV_ShutdownGameProgs();
 
-#ifndef DEDICATED
+#ifndef BUILD_DEDICATED
 	CIN_CloseAllVideos();
 #endif
 

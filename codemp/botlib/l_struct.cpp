@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 // structure reading / writing
 
-#ifdef BOTLIB
+#ifdef BUILD_BOTLIB
 #include "qcommon/q_shared.hpp"
 #include "botlib/botlib.hpp"				//for the include of be_interface.h
 #include "botlib/l_script.hpp"
@@ -32,7 +32,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "botlib/l_struct.hpp"
 #include "botlib/l_utils.hpp"
 #include "botlib/be_interface.hpp"
-#endif //BOTLIB
+#endif //BUILD_BOTLIB
 
 fielddef_t *FindField(fielddef_t *defs, char *name)
 {

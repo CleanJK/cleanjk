@@ -26,7 +26,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //	is not directly portable from engine to engine.
 //	-- jweier
 
-#include "game/g_public.hpp"
+#include "game/g_engine.hpp"
 #include "server/server.hpp"
 #include "icarus/icarus.hpp"
 #include "icarus/interface.hpp"
@@ -78,7 +78,7 @@ static void Q3_CenterPrint ( const char *format, ... )
 		SV_SendServerCommand( nullptr, "cp \"%s\"", text );
 	}
 
-	Q3_DebugPrint( WL_VERBOSE, "%s\n", text); 	// Just a developers note
+	Q3_DebugPrint( WL_VERBOSE, "%s\n", text);	// Just a developers note
 
 	return;
 }

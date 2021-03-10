@@ -29,7 +29,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "client/snd_public.hpp"
 #include "qcommon/com_cvar.hpp"
 #include "qcommon/com_cvars.hpp"
-#include "ui/ui_public.hpp"
 #ifndef _WIN32
 #include <cmath>
 #endif
@@ -125,7 +124,7 @@ static int				currentHandle = -1;
 static int				CL_handle = -1;
 
 extern int				s_soundtime;		// sample PAIRS
-extern int   			s_paintedtime; 		// sample PAIRS
+extern int		s_paintedtime;		// sample PAIRS
 
 void CIN_CloseAllVideos(void) {
 	int		i;
@@ -425,7 +424,7 @@ static void ROQ_GenYUVTables( void )
 }
 
 #define VQ2TO4(a,b,c,d) { \
-    	*c++ = a[0];	\
+ *c++ = a[0];	\
 	*d++ = a[0];	\
 	*d++ = a[0];	\
 	*c++ = a[1];	\
@@ -958,12 +957,12 @@ redump:
 				cinTable[currentHandle].normalBuffer0 = cinTable[currentHandle].t[1];
 				RoQPrepMcomp( cinTable[currentHandle].roqF0, cinTable[currentHandle].roqF1 );
 				cinTable[currentHandle].VQ1( (byte *)cin.qStatus[1], framedata);
-				cinTable[currentHandle].buf = 	cin.linbuf + cinTable[currentHandle].screenDelta;
+				cinTable[currentHandle].buf =	cin.linbuf + cinTable[currentHandle].screenDelta;
 			} else {
 				cinTable[currentHandle].normalBuffer0 = cinTable[currentHandle].t[0];
 				RoQPrepMcomp( cinTable[currentHandle].roqF0, cinTable[currentHandle].roqF1 );
 				cinTable[currentHandle].VQ0( (byte *)cin.qStatus[0], framedata );
-				cinTable[currentHandle].buf = 	cin.linbuf;
+				cinTable[currentHandle].buf =	cin.linbuf;
 			}
 			if (cinTable[currentHandle].numQuads == 0) {		// first frame
 				Com_Memcpy(cin.linbuf+cinTable[currentHandle].screenDelta, cin.linbuf, cinTable[currentHandle].samplesPerLine*cinTable[currentHandle].ysize);
@@ -1270,7 +1269,7 @@ int CIN_PlayCinematic( const char *arg, int x, int y, int w, int h, int systemBi
 			cls.state = CA_CINEMATIC;
 		}
 
-		Con_Close();
+		Console_Close();
 
 		if ( !cinTable[currentHandle].silent )
 			s_rawend = s_soundtime;

@@ -76,13 +76,13 @@ int G2_IsSurfaceLegal(void *mod, const char *surfaceName, int *flags)
 
 	for ( int i = 0 ; i < mod_m->mdxm->numSurfaces ; i++)
 	{
-	 	if (!Q_stricmp(surfaceName, surf->name))
-	 	{
+		if (!Q_stricmp(surfaceName, surf->name))
+		{
 			*flags = surf->flags;
 			return i;
 		}
 		// find the next surface
-  		surf = (mdxmSurfHierarchy_t *)( (byte *)surf + (size_t)( &((mdxmSurfHierarchy_t *)0)->childIndexes[ surf->numChildren ] ));
+		surf = (mdxmSurfHierarchy_t *)( (byte *)surf + (size_t)( &((mdxmSurfHierarchy_t *)0)->childIndexes[ surf->numChildren ] ));
 	}
 	return -1;
 }
@@ -113,7 +113,7 @@ mdxmSurface_t *G2_FindSurface(CGhoul2Info *ghlInfo, surfaceInfo_v &slist, const 
 		return 0;
 	}
 
- 	// first find if we already have this surface in the list
+	// first find if we already have this surface in the list
 	for (i = slist.size() - 1; i >= 0; i--)
 	{
 		if ((slist[i].surface != 10000) && (slist[i].surface != -1))
@@ -122,7 +122,7 @@ mdxmSurface_t *G2_FindSurface(CGhoul2Info *ghlInfo, surfaceInfo_v &slist, const 
 			// back track and get the surfinfo struct for this surface
 			surfInfo = (mdxmSurfHierarchy_t *)((byte *)surfIndexes + surfIndexes->offsets[surf->thisSurfaceIndex]);
 
-  			// are these the droids we're looking for?
+			// are these the droids we're looking for?
 			if (!Q_stricmp (surfInfo->name, surfaceName))
 			{
 				// yup
@@ -158,7 +158,7 @@ bool G2_SetSurfaceOnOff (CGhoul2Info *ghlInfo, surfaceInfo_v &slist, const char 
 		return false;
 	}
 
- 	// first find if we already have this surface in the list
+	// first find if we already have this surface in the list
 	surf = G2_FindSurface(ghlInfo, slist, surfaceName, &surfIndex);
 	if (surf)
 	{
@@ -236,7 +236,7 @@ int G2_IsSurfaceOff (CGhoul2Info *ghlInfo, surfaceInfo_v &slist, const char *sur
 		return 0;
 	}
 
- 	// first find if we already have this surface in the list
+	// first find if we already have this surface in the list
 	surf = G2_FindSurface(ghlInfo, slist, surfaceName, &surfIndex);
 	if (surf)
 	{
@@ -249,12 +249,12 @@ int G2_IsSurfaceOff (CGhoul2Info *ghlInfo, surfaceInfo_v &slist, const char *sur
 
 	for ( int i = 0 ; i < mod->mdxm->numSurfaces ; i++)
 	{
-	 	if (!Q_stricmp(surfaceName, surface->name))
-	 	{
+		if (!Q_stricmp(surfaceName, surface->name))
+		{
 			return surface->flags;
 		}
 		// find the next surface
-  		surface = (mdxmSurfHierarchy_t *)( (byte *)surface + (intptr_t)( &((mdxmSurfHierarchy_t *)0)->childIndexes[ surface->numChildren ] ));
+		surface = (mdxmSurfHierarchy_t *)( (byte *)surface + (intptr_t)( &((mdxmSurfHierarchy_t *)0)->childIndexes[ surface->numChildren ] ));
 	}
 
 	assert(0);
@@ -264,7 +264,7 @@ int G2_IsSurfaceOff (CGhoul2Info *ghlInfo, surfaceInfo_v &slist, const char *sur
 void G2_FindRecursiveSurface(model_t *currentModel, int surfaceNum, surfaceInfo_v &rootList, int *activeSurfaces)
 {
 	int						i;
- 	mdxmSurface_t			*surface = (mdxmSurface_t *)G2_FindSurface((void *)currentModel, surfaceNum, 0);
+	mdxmSurface_t			*surface = (mdxmSurface_t *)G2_FindSurface((void *)currentModel, surfaceNum, 0);
 	mdxmHierarchyOffsets_t	*surfIndexes = (mdxmHierarchyOffsets_t *)((byte *)currentModel->mdxm + sizeof(mdxmHeader_t));
 	mdxmSurfHierarchy_t		*surfInfo = (mdxmSurfHierarchy_t *)((byte *)surfIndexes + surfIndexes->offsets[surface->thisSurfaceIndex]);
 
@@ -285,7 +285,7 @@ void G2_FindRecursiveSurface(model_t *currentModel, int surfaceNum, surfaceInfo_
 	{
 		activeSurfaces[surfaceNum] = 1;
 	}
- 	else
+	else
 	// if we are turning off all descendants, then stop this recursion now
 	if (offFlags & G2SURFACEFLAG_NODESCENDANTS)
 	{
@@ -431,7 +431,7 @@ bool G2_SetRootSurface(CGhoul2Info_v &ghoul2, const int modelIndex, const char *
 			return false;
 		}
 
- 		// first find if we already have this surface in the list
+		// first find if we already have this surface in the list
 		surf = G2_IsSurfaceLegal(mod_m, surfaceName, &flags);
 		if (surf != -1)
 		{
@@ -664,7 +664,7 @@ int G2_IsSurfaceRendered(CGhoul2Info *ghlInfo, const char *surfaceName, surfaceI
 			// set descendants value
 			flags = slist[surfIndex].offFlags;
 		}
-	  	// ok, at this point in flags we have what this surface is set to, and the index of the surface itself
+		// ok, at this point in flags we have what this surface is set to, and the index of the surface itself
 	}
 	return flags;
 }

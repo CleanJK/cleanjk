@@ -31,6 +31,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "client/cl_local.hpp"
 #include "client/cl_uiapi.hpp"
 #include "client/snd_public.hpp"
+#include "client/cl_fonts.hpp"
 #include "ghoul2/G2.hpp"
 #include "qcommon/cm_public.hpp"
 #include "qcommon/com_cvar.hpp"
@@ -38,7 +39,6 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "qcommon/MiniHeap.hpp"
 #include "qcommon/stringed_ingame.hpp"
 #include "sys/sys_loadlib.hpp"
-#include "ui/ui_public.hpp"
 #include <climits>
 
 vec3_t cl_windVec;
@@ -192,7 +192,7 @@ void CL_Record_f( void ) {
 		if ( FS_FileExists( name ) ) {
 			Com_Printf( "Record: Couldn't create a file\n");
 			return;
- 		}
+		}
 	}
 
 	// open the demo file
@@ -348,17 +348,6 @@ void CL_ReadDemoMessage( void ) {
 	CL_ParseServerMessage( &buf );
 }
 
-static void CL_CompleteDemoName( char *args, int argNum )
-{
-	if( argNum == 2 )
-	{
-		char demoExt[16];
-
-		Com_sprintf(demoExt, sizeof(demoExt), ".dm_%d", PROTOCOL_VERSION);
-		Field_CompleteFilename( "demos", demoExt, true, true );
-	}
-}
-
 // demo <demoname>
 void CL_PlayDemo_f( void ) {
 	char		name[MAX_OSPATH], extension[32];
@@ -399,7 +388,7 @@ void CL_PlayDemo_f( void ) {
 	}
 	Q_strncpyz( clc.demoName, Cmd_Argv(1), sizeof( clc.demoName ) );
 
-	Con_Close();
+	Console_Close();
 
 	cls.state = CA_CONNECTED;
 	clc.demoplaying = true;
@@ -554,7 +543,7 @@ void CL_MapLoading( void ) {
 	Cvar_Set( "cl_currentServerAddress", "Localhost");
 	Cvar_Set( "cl_currentServerIP", "loopback");
 
-	Con_Close();
+	Console_Close();
 	Key_SetCatcher( 0 );
 
 	// if we are already connected to the local host, stay connected
@@ -830,7 +819,7 @@ void CL_Connect_f( void ) {
 	SV_Frame( 0 );
 
 	CL_Disconnect( true );
-	Con_Close();
+	Console_Close();
 
 	Q_strncpyz( cls.servername, server, sizeof(cls.servername) );
 
@@ -872,18 +861,6 @@ void CL_Connect_f( void ) {
 }
 
 #define MAX_RCON_MESSAGE 1024
-
-static void CL_CompleteRcon( char *args, int argNum )
-{
-	if( argNum == 2 )
-	{
-		// Skip "rcon "
-		char *p = Com_SkipTokens( args, 1, " " );
-
-		if( p > args )
-			Field_CompleteCommand( p, true, true );
-	}
-}
 
 // Send the rest of the command line over as an unconnected command.
 void CL_Rcon_f( void ) {
@@ -1871,7 +1848,7 @@ void CL_Frame ( int msec ) {
 	// advance local effects for next frame
 	SCR_RunCinematic();
 
-	Con_RunConsole();
+	Console_RunConsole();
 
 	// reset the heap for Ghoul2 vert transform space gameside
 	if (G2VertSpaceServer)
@@ -1888,28 +1865,28 @@ void CL_Frame ( int msec ) {
 }
 
 // DLL glue
-void QDECL CL_RefPrintf( int print_level, const char *fmt, ...) {
-	va_list		argptr;
-	char		msg[MAXPRINTMSG];
+void QDECL CL_RefPrintf( int print_level, const char *fmt, ... ) {
+	va_list argptr;
+	char msg[MAXPRINTMSG];
 
-	va_start (argptr,fmt);
-	Q_vsnprintf(msg, sizeof(msg), fmt, argptr);
-	va_end (argptr);
+	va_start( argptr, fmt );
+	Q_vsnprintf( msg, sizeof(msg), fmt, argptr );
+	va_end( argptr );
 
 	if ( print_level == PRINT_ALL ) {
-		Com_Printf ("%s", msg);
-	} else if ( print_level == PRINT_WARNING ) {
-		Com_Printf (S_COLOR_YELLOW "%s", msg);		// yellow
-	} else if ( print_level == PRINT_DEVELOPER ) {
-		Com_DPrintf (S_COLOR_RED "%s", msg);		// red
+		Com_Printf( "%s", msg );
+	}
+	else if ( print_level == PRINT_WARNING ) {
+		Com_Printf( S_COLOR_YELLOW "%s", msg );
+	}
+	else if ( print_level == PRINT_DEVELOPER ) {
+		Com_DPrintf( S_COLOR_RED "%s", msg );
 	}
 }
 
 static void CL_ShutdownRef( bool restarting ) {
-	if ( re )
-	{
-		if ( re->Shutdown )
-		{
+	if ( re ) {
+		if ( re->Shutdown ) {
 			re->Shutdown( true, restarting );
 		}
 	}
@@ -1917,29 +1894,46 @@ static void CL_ShutdownRef( bool restarting ) {
 	re = nullptr;
 
 	if ( rendererLib != nullptr ) {
-		Sys_UnloadDll (rendererLib);
+		Sys_UnloadDll( rendererLib );
 		rendererLib = nullptr;
 	}
+}
+
+static void CL_RegisterFonts( void ) {
+	re->RegisterFont( JKFont::Bitmap,    "fonts/bitmap" );
+	re->RegisterFont( JKFont::Small,     "fonts/small" );
+	re->RegisterFont( JKFont::Small2,    "fonts/small2" );
+	re->RegisterFont( JKFont::Medium,    "fonts/medium" );
+	re->RegisterFont( JKFont::Large,     "fonts/large" );
+
+	// special case
+	re->RegisterFont( JKFont::Russian,   "fonts/medium" );
+	re->RegisterFont( JKFont::Polish,    "fonts/medium" );
+	re->RegisterFont( JKFont::Korean,    "fonts/medium" );
+	re->RegisterFont( JKFont::Taiwanese, "fonts/medium" );
+	re->RegisterFont( JKFont::Japanese,  "fonts/medium" );
+	re->RegisterFont( JKFont::Chinese,   "fonts/medium" );
+	re->RegisterFont( JKFont::Thai,      "fonts/medium" );
+
+	// load character sets
+	cls.charSetShader = re->RegisterShader( "charset" );
 }
 
 void CL_InitRenderer( void ) {
 	// this sets up the renderer and calls R_Init
 	re->BeginRegistration( &cls.glconfig );
 
-	// load character sets
-	cls.charSetShader = re->RegisterShader("charset");
+	CL_RegisterFonts();
 
-	cls.whiteShader = re->RegisterShader( "white" );
+	cls.whiteShader   = re->RegisterShader( "white" );
 	cls.consoleShader = re->RegisterShader( "console" );
-	g_console_field_width = cls.glconfig.vidWidth / SMALLCHAR_WIDTH - 2;
-	g_consoleField.widthInChars = g_console_field_width;
 }
 
 // After the server has cleared the hunk, these will need to be restarted
 // This is the only place that any of these functions are called from
 // start all the client stuff using the hunk
 void CL_StartHunkUsers( void ) {
-	if (!cl_running) {
+	if ( !cl_running ) {
 		return;
 	}
 
@@ -1988,17 +1982,12 @@ static IHeapAllocator *GetG2VertSpaceServer( void ) {
 }
 
 void CL_InitRef( void ) {
-	static refimport_t ri;
-	refexport_t	*ret;
-	GetRefAPI_t	GetRefAPI;
-	char		dllName[MAX_OSPATH];
-
 	Com_Printf( "----- Initializing Renderer ----\n" );
 
+	char dllName[MAX_OSPATH];
 	Com_sprintf( dllName, sizeof( dllName ), "%s_" ARCH_STRING DLL_EXT, cl_renderer->string );
 
-	if( !(rendererLib = Sys_LoadDll( dllName, false )) && strcmp( cl_renderer->string, cl_renderer->resetString ) )
-	{
+	if ( !(rendererLib = Sys_LoadDll( dllName, false )) && strcmp( cl_renderer->string, cl_renderer->resetString ) ) {
 		Com_Printf( "failed: trying to load fallback renderer\n" );
 		Cvar_ForceReset( "cl_renderer" );
 
@@ -2010,102 +1999,91 @@ void CL_InitRef( void ) {
 		Com_Error( ERR_FATAL, "Failed to load renderer\n" );
 	}
 
+	GetRefAPI_t GetRefAPI = (GetRefAPI_t)Sys_LoadFunction( rendererLib, "GetRefAPI" );
+	if ( !GetRefAPI ) {
+		Com_Error( ERR_FATAL, "Can't load symbol GetRefAPI: '%s'", Sys_LibraryError() );
+	}
+
+	static refimport_t ri;
 	memset( &ri, 0, sizeof( ri ) );
 
-	GetRefAPI = (GetRefAPI_t)Sys_LoadFunction( rendererLib, "GetRefAPI" );
-	if ( !GetRefAPI )
-		Com_Error( ERR_FATAL, "Can't load symbol GetRefAPI: '%s'", Sys_LibraryError() );
+	ri.Printf =                          CL_RefPrintf;
+	ri.Error =                           Com_Error;
+	ri.OPrintf =                         Com_OPrintf;
+	ri.Milliseconds =                    Sys_Milliseconds2; //FIXME: unix+mac need this
+	ri.Hunk_AllocateTempMemory =         Hunk_AllocateTempMemory;
+	ri.Hunk_FreeTempMemory =             Hunk_FreeTempMemory;
+	ri.Hunk_Alloc =                      Hunk_Alloc;
+	ri.Hunk_MemoryRemaining =            Hunk_MemoryRemaining;
+	ri.Z_Malloc =                        Z_Malloc;
+	ri.Z_Free =                          Z_Free;
+	ri.Z_MemSize =                       Z_MemSize;
+	ri.Z_MorphMallocTag =                Z_MorphMallocTag;
+	ri.Cmd_ExecuteString =               Cmd_ExecuteString;
+	ri.Cmd_Argc =                        Cmd_Argc;
+	ri.Cmd_Argv =                        Cmd_Argv;
+	ri.Cmd_ArgsBuffer =                  Cmd_ArgsBuffer;
+	ri.Cmd_AddCommand =                  Cmd_AddCommand;
+	ri.Cmd_RemoveCommand =               Cmd_RemoveCommand;
+	ri.Cvar_Set =                        Cvar_Set;
+	ri.Cvar_Get =                        Cvar_Get;
+	ri.Cvar_SetValue =                   Cvar_SetValue;
+	ri.Cvar_CheckRange =                 Cvar_CheckRange;
+	ri.Cvar_VariableStringBuffer =       Cvar_VariableStringBuffer;
+	ri.Cvar_VariableString =             Cvar_VariableString;
+	ri.Cvar_VariableValue =              Cvar_VariableValue;
+	ri.Cvar_VariableIntegerValue =       Cvar_VariableIntegerValue;
+	ri.Sys_LowPhysicalMemory =           Sys_LowPhysicalMemory;
+	ri.SE_GetString =                    SE_GetString;
+	ri.FS_FreeFile =                     FS_FreeFile;
+	ri.FS_FreeFileList =                 FS_FreeFileList;
+	ri.FS_Read =                         FS_Read;
+	ri.FS_ReadFile =                     FS_ReadFile;
+	ri.FS_FCloseFile =                   FS_FCloseFile;
+	ri.FS_FOpenFileRead =                FS_FOpenFileRead;
+	ri.FS_FOpenFileWrite =               FS_FOpenFileWrite;
+	ri.FS_FOpenFileByMode =              FS_FOpenFileByMode;
+	ri.FS_FileExists =                   FS_FileExists;
+	ri.FS_FileIsInPAK =                  FS_FileIsInPAK;
+	ri.FS_ListFiles =                    FS_ListFiles;
+	ri.FS_Write =                        FS_Write;
+	ri.FS_WriteFile =                    FS_WriteFile;
+	ri.CM_BoxTrace =                     CM_BoxTrace;
+	ri.CM_DrawDebugSurface =             CM_DrawDebugSurface;
+	ri.CM_CullWorldBox =                 CM_CullWorldBox;
+	ri.CM_ClusterPVS =                   CM_ClusterPVS;
+	ri.CM_LeafArea =                     CM_LeafArea;
+	ri.CM_LeafCluster =                  CM_LeafCluster;
+	ri.CM_PointLeafnum =                 CM_PointLeafnum;
+	ri.CM_PointContents =                CM_PointContents;
+	ri.Com_TheHunkMarkHasBeenMade =      Com_TheHunkMarkHasBeenMade;
+	ri.S_RestartMusic =                  S_RestartMusic;
+	ri.SND_RegisterAudio_LevelLoadEnd =  SND_RegisterAudio_LevelLoadEnd;
+	ri.CIN_RunCinematic =                CIN_RunCinematic;
+	ri.CIN_PlayCinematic =               CIN_PlayCinematic;
+	ri.CIN_UploadCinematic =             CIN_UploadCinematic;
+	ri.CL_WriteAVIVideoFrame =           CL_WriteAVIVideoFrame;
+	ri.GetSharedMemory =                 GetSharedMemory;
+	ri.GetCurrentVM =                    GetCurrentVM;
+	ri.CGVMLoaded =                      CGVMLoaded;
+	ri.CGVM_RagCallback =                CGVM_RagCallback;
+    ri.WIN_Init =                        WIN_Init;
+	ri.WIN_SetGamma =                    WIN_SetGamma;
+    ri.WIN_Shutdown =                    WIN_Shutdown;
+    ri.WIN_Present =                     WIN_Present;
+	ri.GL_GetProcAddress =               WIN_GL_GetProcAddress;
+	ri.GL_ExtensionSupported =           WIN_GL_ExtensionSupported;
+	ri.CM_GetCachedMapDiskImage =        CM_GetCachedMapDiskImage;
+	ri.CM_SetCachedMapDiskImage =        CM_SetCachedMapDiskImage;
+	ri.CM_SetUsingCache =                CM_SetUsingCache;
+	ri.GetG2VertSpaceServer =            GetG2VertSpaceServer;
+	ri.PD_Store =                        PD_Store;
+	ri.PD_Load =                         PD_Load;
+	G2VertSpaceServer =                 &IHeapAllocator_singleton;
 
-	//set up the import table
-	ri.Printf = CL_RefPrintf;
-	ri.Error = Com_Error;
-	ri.OPrintf = Com_OPrintf;
-	ri.Milliseconds = Sys_Milliseconds2; //FIXME: unix+mac need this
-	ri.Hunk_AllocateTempMemory = Hunk_AllocateTempMemory;
-	ri.Hunk_FreeTempMemory = Hunk_FreeTempMemory;
-	ri.Hunk_Alloc = Hunk_Alloc;
-	ri.Hunk_MemoryRemaining = Hunk_MemoryRemaining;
-	ri.Z_Malloc = Z_Malloc;
-	ri.Z_Free = Z_Free;
-	ri.Z_MemSize = Z_MemSize;
-	ri.Z_MorphMallocTag = Z_MorphMallocTag;
-	ri.Cmd_ExecuteString = Cmd_ExecuteString;
-	ri.Cmd_Argc = Cmd_Argc;
-	ri.Cmd_Argv = Cmd_Argv;
-	ri.Cmd_ArgsBuffer = Cmd_ArgsBuffer;
-	ri.Cmd_AddCommand = Cmd_AddCommand;
-	ri.Cmd_RemoveCommand = Cmd_RemoveCommand;
-	ri.Cvar_Set = Cvar_Set;
-	ri.Cvar_Get = Cvar_Get;
-	ri.Cvar_SetValue = Cvar_SetValue;
-	ri.Cvar_CheckRange = Cvar_CheckRange;
-	ri.Cvar_VariableStringBuffer = Cvar_VariableStringBuffer;
-	ri.Cvar_VariableString = Cvar_VariableString;
-	ri.Cvar_VariableValue = Cvar_VariableValue;
-	ri.Cvar_VariableIntegerValue = Cvar_VariableIntegerValue;
-	ri.Sys_LowPhysicalMemory = Sys_LowPhysicalMemory;
-	ri.SE_GetString = SE_GetString;
-	ri.FS_FreeFile = FS_FreeFile;
-	ri.FS_FreeFileList = FS_FreeFileList;
-	ri.FS_Read = FS_Read;
-	ri.FS_ReadFile = FS_ReadFile;
-	ri.FS_FCloseFile = FS_FCloseFile;
-	ri.FS_FOpenFileRead = FS_FOpenFileRead;
-	ri.FS_FOpenFileWrite = FS_FOpenFileWrite;
-	ri.FS_FOpenFileByMode = FS_FOpenFileByMode;
-	ri.FS_FileExists = FS_FileExists;
-	ri.FS_FileIsInPAK = FS_FileIsInPAK;
-	ri.FS_ListFiles = FS_ListFiles;
-	ri.FS_Write = FS_Write;
-	ri.FS_WriteFile = FS_WriteFile;
-	ri.CM_BoxTrace = CM_BoxTrace;
-	ri.CM_DrawDebugSurface = CM_DrawDebugSurface;
-	ri.CM_CullWorldBox = CM_CullWorldBox;
-	ri.CM_ClusterPVS = CM_ClusterPVS;
-	ri.CM_LeafArea = CM_LeafArea;
-	ri.CM_LeafCluster = CM_LeafCluster;
-	ri.CM_PointLeafnum = CM_PointLeafnum;
-	ri.CM_PointContents = CM_PointContents;
-	ri.Com_TheHunkMarkHasBeenMade = Com_TheHunkMarkHasBeenMade;
-	ri.S_RestartMusic = S_RestartMusic;
-	ri.SND_RegisterAudio_LevelLoadEnd = SND_RegisterAudio_LevelLoadEnd;
-	ri.CIN_RunCinematic = CIN_RunCinematic;
-	ri.CIN_PlayCinematic = CIN_PlayCinematic;
-	ri.CIN_UploadCinematic = CIN_UploadCinematic;
-	ri.CL_WriteAVIVideoFrame = CL_WriteAVIVideoFrame;
-
-	// g2 data access
-	ri.GetSharedMemory = GetSharedMemory;
-
-	// (c)g vm callbacks
-	ri.GetCurrentVM = GetCurrentVM;
-	ri.CGVMLoaded = CGVMLoaded;
-	ri.CGVM_RagCallback = CGVM_RagCallback;
-
-    ri.WIN_Init = WIN_Init;
-	ri.WIN_SetGamma = WIN_SetGamma;
-    ri.WIN_Shutdown = WIN_Shutdown;
-    ri.WIN_Present = WIN_Present;
-	ri.GL_GetProcAddress = WIN_GL_GetProcAddress;
-	ri.GL_ExtensionSupported = WIN_GL_ExtensionSupported;
-
-	ri.CM_GetCachedMapDiskImage = CM_GetCachedMapDiskImage;
-	ri.CM_SetCachedMapDiskImage = CM_SetCachedMapDiskImage;
-	ri.CM_SetUsingCache = CM_SetUsingCache;
-
-	//FIXME: Might have to do something about this...
-	ri.GetG2VertSpaceServer = GetG2VertSpaceServer;
-	G2VertSpaceServer = &IHeapAllocator_singleton;
-
-	ri.PD_Store = PD_Store;
-	ri.PD_Load = PD_Load;
-
-	ret = GetRefAPI( REF_API_VERSION, &ri );
-
-//	Com_Printf( "-------------------------------\n");
-
+	refexport_t	*ret = GetRefAPI( REF_API_VERSION, &ri );
 	if ( !ret ) {
-		Com_Error (ERR_FATAL, "Couldn't initialize refresh" );
+		Com_Error( ERR_FATAL, "Couldn't initialize refresh" );
 	}
 
 	re = ret;
@@ -2142,37 +2120,32 @@ void CL_VideoFilename( char *buf, int bufSize ) {
 }
 
 // video [filename]
-void CL_Video_f( void )
-{
-	char  filename[ MAX_OSPATH ];
+void CL_Video_f( void ) {
+	char filename[ MAX_OSPATH ];
 
-	if( !clc.demoplaying )
-	{
+	if ( !clc.demoplaying ) {
 		Com_Printf( "The video command can only be used when playing back demos\n" );
 		return;
 	}
 
-	if( Cmd_Argc( ) == 2 )
-	{
+	if ( Cmd_Argc() == 2 ) {
 		// explicit filename
 		Com_sprintf( filename, MAX_OSPATH, "videos/%s.avi", Cmd_Argv( 1 ) );
 	}
-	else
-	{
+	else {
 		CL_VideoFilename( filename, MAX_OSPATH );
 
 		if ( FS_FileExists( filename ) ) {
 			Com_Printf( "Video: Couldn't create a file\n");
 			return;
- 		}
+		}
 	}
 
 	CL_OpenAVIForWriting( filename );
 }
 
-void CL_StopVideo_f( void )
-{
-	CL_CloseAVI( );
+void CL_StopVideo_f( void ) {
+	CL_CloseAVI();
 }
 
 static void CL_AddFavorite_f( void ) {
@@ -2186,18 +2159,20 @@ static void CL_AddFavorite_f( void ) {
 	const char *server = (argc == 2) ? Cmd_Argv( 1 ) : NET_AdrToString( clc.serverAddress );
 	const int status = LAN_AddFavAddr( server );
 	switch ( status ) {
-	case -1:
+
+	case -1: {
 		Com_Printf( "error adding favorite server: too many favorite servers\n" );
-		break;
-	case 0:
+	} break;
+	case 0: {
 		Com_Printf( "error adding favorite server: server already exists\n" );
-		break;
-	case 1:
+	} break;
+	case 1: {
 		Com_Printf( "successfully added favorite server \"%s\"\n", server );
-		break;
-	default:
+	} break;
+	default: {
 		Com_Printf( "unknown error (%i) adding favorite server\n", status );
-		break;
+	} break;
+
 	}
 }
 
@@ -2205,32 +2180,27 @@ static void CL_AddFavorite_f( void ) {
 
 // test to see if a valid QKEY_FILE exists.
 // If one does not, try to generate it by filling it with 2048 bytes of random data.
-static void CL_GenerateQKey(void)
-{
-	if (cl_enableGuid->integer) {
-		int len = 0;
-		unsigned char buff[ QKEY_SIZE ];
+static void CL_GenerateQKey( void ) {
+	if ( cl_enableGuid->integer ) {
 		fileHandle_t f;
-
-		len = FS_SV_FOpenFileRead( QKEY_FILE, &f );
+		int len = FS_SV_FOpenFileRead( QKEY_FILE, &f );
 		FS_FCloseFile( f );
-		if( len == QKEY_SIZE ) {
+		if ( len == QKEY_SIZE ) {
 			Com_Printf( "QKEY found.\n" );
 			return;
 		}
 		else {
-			if( len > 0 ) {
-				Com_Printf( "QKEY file size != %d, regenerating\n",
-					QKEY_SIZE );
+			if ( len > 0 ) {
+				Com_Printf( "QKEY file size != %d, regenerating\n", QKEY_SIZE );
 			}
 
 			Com_Printf( "QKEY building random string\n" );
+			unsigned char buff[ QKEY_SIZE ];
 			Com_RandomBytes( buff, sizeof(buff) );
 
 			f = FS_SV_FOpenFileWrite( QKEY_FILE );
 			if( !f ) {
-				Com_Printf( "QKEY could not open %s for write\n",
-					QKEY_FILE );
+				Com_Printf( "QKEY could not open %s for write\n", QKEY_FILE );
 				return;
 			}
 			FS_Write( buff, sizeof(buff), f );
@@ -2268,14 +2238,11 @@ static serverStatus_t *CL_GetServerStatus( netadr_t from ) {
 	return &cl_serverStatusList[serverStatusCount & (MAX_SERVERSTATUSREQUESTS-1)];
 }
 
-static void CL_ServerStatus_f(void) {
-	netadr_t	to, *toptr = nullptr;
-	char		*server;
-	serverStatus_t *serverStatus;
-
+static void CL_ServerStatus_f( void ) {
+	netadr_t to, *toptr = nullptr;
 	if ( Cmd_Argc() != 2 ) {
 		if ( cls.state != CA_ACTIVE || clc.demoplaying ) {
-			Com_Printf ("Not connected to a server.\n");
+			Com_Printf( "Not connected to a server.\n" );
 			Com_Printf( "Usage: serverstatus [server]\n");
 			return;
 		}
@@ -2283,20 +2250,20 @@ static void CL_ServerStatus_f(void) {
 		toptr = &clc.serverAddress;
 	}
 
-	if(!toptr)
-	{
+	if ( !toptr ) {
 		Com_Memset( &to, 0, sizeof(netadr_t) );
 
-		server = Cmd_Argv(1);
+		char *server = Cmd_Argv( 1 );
 
 		toptr = &to;
-		if ( !NET_StringToAdr( server, toptr ) )
+		if ( !NET_StringToAdr( server, toptr ) ) {
 			return;
+		}
 	}
 
 	NET_OutOfBandPrint( NS_CLIENT, *toptr, "getstatus" );
 
-	serverStatus = CL_GetServerStatus( *toptr );
+	serverStatus_t *serverStatus = CL_GetServerStatus( *toptr );
 	serverStatus->address = *toptr;
 	serverStatus->print = true;
 	serverStatus->pending = true;
@@ -2306,53 +2273,48 @@ static void CL_ShowIP_f( void ) {
 	Sys_ShowIP();
 }
 
+static void CL_RegisterCommands( void ) {
+	Cmd_AddCommand( "cmd",               CL_ForwardToServer_f,   "Forward command to server" );
+	Cmd_AddCommand( "globalservers",     CL_GlobalServers_f,     "Query the masterserver for serverlist" );
+	Cmd_AddCommand( "addFavorite",       CL_AddFavorite_f,       "Add server to favorites" );
+	Cmd_AddCommand( "record",            CL_Record_f,            "Record a demo" );
+	Cmd_AddCommand( "demo",              CL_PlayDemo_f,          "Playback a demo" );
+	Cmd_AddCommand( "stoprecord",        CL_StopRecord_f,        "Stop recording a demo" );
+	Cmd_AddCommand( "configstrings",     CL_Configstrings_f,     "Prints the configstrings list" );
+	Cmd_AddCommand( "clientinfo",        CL_Clientinfo_f,        "Prints the userinfo variables" );
+	Cmd_AddCommand( "snd_restart",       CL_Snd_Restart_f,       "Restart sound" );
+	Cmd_AddCommand( "vid_restart",       CL_Vid_Restart_f,       "Restart the renderer - or change the resolution" );
+	Cmd_AddCommand( "disconnect",        CL_Disconnect_f,        "Disconnect from current server" );
+	Cmd_AddCommand( "cinematic",         CL_PlayCinematic_f,     "Play a cinematic video" );
+	Cmd_AddCommand( "connect",           CL_Connect_f,           "Connect to a server" );
+	Cmd_AddCommand( "reconnect",         CL_Reconnect_f,         "Reconnect to current server" );
+	Cmd_AddCommand( "localservers",      CL_LocalServers_f,      "Query LAN for local servers" );
+	Cmd_AddCommand( "rcon",              CL_Rcon_f,              "Execute commands remotely to a server" );
+	Cmd_AddCommand( "ping",              CL_Ping_f,              "Ping a server for info response" );
+	Cmd_AddCommand( "serverstatus",      CL_ServerStatus_f,      "Retrieve current or specified server's status" );
+	Cmd_AddCommand( "showip",            CL_ShowIP_f,            "Shows local IP" );
+	Cmd_AddCommand( "fs_openedList",     CL_OpenedPK3List_f,     "Lists open pak files" );
+	Cmd_AddCommand( "fs_referencedList", CL_ReferencedPK3List_f, "Lists referenced pak files" );
+	Cmd_AddCommand( "model",             CL_SetModel_f,          "Set the player model" );
+	Cmd_AddCommand( "forcepowers",       CL_SetForcePowers_f,    "" );
+	Cmd_AddCommand( "video",             CL_Video_f,             "Record demo to avi" );
+	Cmd_AddCommand( "stopvideo",         CL_StopVideo_f,         "Stop avi recording" );
+}
+
 void CL_Init( void ) {
-//	Com_Printf( "----- Client Initialization -----\n" );
+	Com_Printf( "----- Client Initialization -----\n" );
 
-	Con_Init ();
-
-	CL_ClearState ();
+	Console_Init();
+	CL_ClearState();
 
 	cls.state = CA_DISCONNECTED;	// no longer CA_UNINITIALIZED
-
 	cls.realtime = 0;
 
-	CL_InitInput ();
-
-	// register our commands
-	Cmd_AddCommand ("cmd", CL_ForwardToServer_f, "Forward command to server" );
-	Cmd_AddCommand ("globalservers", CL_GlobalServers_f, "Query the masterserver for serverlist" );
-	Cmd_AddCommand( "addFavorite", CL_AddFavorite_f, "Add server to favorites" );
-	Cmd_AddCommand ("record", CL_Record_f, "Record a demo" );
-	Cmd_AddCommand ("demo", CL_PlayDemo_f, "Playback a demo" );
-	Cmd_SetCommandCompletionFunc( "demo", CL_CompleteDemoName );
-	Cmd_AddCommand ("stoprecord", CL_StopRecord_f, "Stop recording a demo" );
-	Cmd_AddCommand ("configstrings", CL_Configstrings_f, "Prints the configstrings list" );
-	Cmd_AddCommand ("clientinfo", CL_Clientinfo_f, "Prints the userinfo variables" );
-	Cmd_AddCommand ("snd_restart", CL_Snd_Restart_f, "Restart sound" );
-	Cmd_AddCommand ("vid_restart", CL_Vid_Restart_f, "Restart the renderer - or change the resolution" );
-	Cmd_AddCommand ("disconnect", CL_Disconnect_f, "Disconnect from current server" );
-	Cmd_AddCommand ("cinematic", CL_PlayCinematic_f, "Play a cinematic video" );
-	Cmd_AddCommand ("connect", CL_Connect_f, "Connect to a server" );
-	Cmd_AddCommand ("reconnect", CL_Reconnect_f, "Reconnect to current server" );
-	Cmd_AddCommand ("localservers", CL_LocalServers_f, "Query LAN for local servers" );
-	Cmd_AddCommand ("rcon", CL_Rcon_f, "Execute commands remotely to a server" );
-	Cmd_SetCommandCompletionFunc( "rcon", CL_CompleteRcon );
-	Cmd_AddCommand ("ping", CL_Ping_f, "Ping a server for info response" );
-	Cmd_AddCommand ("serverstatus", CL_ServerStatus_f, "Retrieve current or specified server's status" );
-	Cmd_AddCommand ("showip", CL_ShowIP_f, "Shows local IP" );
-	Cmd_AddCommand ("fs_openedList", CL_OpenedPK3List_f, "Lists open pak files" );
-	Cmd_AddCommand ("fs_referencedList", CL_ReferencedPK3List_f, "Lists referenced pak files" );
-	Cmd_AddCommand ("model", CL_SetModel_f, "Set the player model" );
-	Cmd_AddCommand ("forcepowers", CL_SetForcePowers_f );
-	Cmd_AddCommand ("video", CL_Video_f, "Record demo to avi" );
-	Cmd_AddCommand ("stopvideo", CL_StopVideo_f, "Stop avi recording" );
-
+	CL_InitInput();
+	CL_RegisterCommands();
 	CL_InitRef();
-
-	SCR_Init ();
-
-	Cbuf_Execute ();
+	SCR_Init();
+	Cbuf_Execute();
 
 	Cvar_Set( "cl_running", "1" );
 
@@ -2361,7 +2323,7 @@ void CL_Init( void ) {
 	CL_GenerateQKey();
 	CL_UpdateGUID( nullptr, 0 );
 
-//	Com_Printf( "----- Client Initialization Complete -----\n" );
+	Com_Printf( "----- Client Initialization Complete -----\n" );
 }
 
 void CL_Shutdown( void ) {
@@ -2389,34 +2351,34 @@ void CL_Shutdown( void ) {
 	S_Shutdown();
 	//CL_ShutdownUI();
 
-	Cmd_RemoveCommand ("cmd");
-	Cmd_RemoveCommand ("configstrings");
-	Cmd_RemoveCommand ("clientinfo");
-	Cmd_RemoveCommand ("snd_restart");
-	Cmd_RemoveCommand ("vid_restart");
-	Cmd_RemoveCommand ("disconnect");
-	Cmd_RemoveCommand ("record");
-	Cmd_RemoveCommand ("demo");
-	Cmd_RemoveCommand ("cinematic");
-	Cmd_RemoveCommand ("stoprecord");
-	Cmd_RemoveCommand ("connect");
-	Cmd_RemoveCommand ("reconnect");
-	Cmd_RemoveCommand ("localservers");
-	Cmd_RemoveCommand ("globalservers");
+	Cmd_RemoveCommand( "cmd" );
+	Cmd_RemoveCommand( "configstrings" );
+	Cmd_RemoveCommand( "clientinfo" );
+	Cmd_RemoveCommand( "snd_restart" );
+	Cmd_RemoveCommand( "vid_restart" );
+	Cmd_RemoveCommand( "disconnect" );
+	Cmd_RemoveCommand( "record" );
+	Cmd_RemoveCommand( "demo" );
+	Cmd_RemoveCommand( "cinematic" );
+	Cmd_RemoveCommand( "stoprecord" );
+	Cmd_RemoveCommand( "connect" );
+	Cmd_RemoveCommand( "reconnect" );
+	Cmd_RemoveCommand( "localservers" );
+	Cmd_RemoveCommand( "globalservers" );
 	Cmd_RemoveCommand( "addFavorite" );
-	Cmd_RemoveCommand ("rcon");
-	Cmd_RemoveCommand ("ping");
-	Cmd_RemoveCommand ("serverstatus");
-	Cmd_RemoveCommand ("showip");
-	Cmd_RemoveCommand ("fs_openedList");
-	Cmd_RemoveCommand ("fs_referencedList");
-	Cmd_RemoveCommand ("model");
-	Cmd_RemoveCommand ("forcepowers");
-	Cmd_RemoveCommand ("video");
-	Cmd_RemoveCommand ("stopvideo");
+	Cmd_RemoveCommand( "rcon" );
+	Cmd_RemoveCommand( "ping" );
+	Cmd_RemoveCommand( "serverstatus" );
+	Cmd_RemoveCommand( "showip" );
+	Cmd_RemoveCommand( "fs_openedList" );
+	Cmd_RemoveCommand( "fs_referencedList" );
+	Cmd_RemoveCommand( "model" );
+	Cmd_RemoveCommand( "forcepowers" );
+	Cmd_RemoveCommand( "video" );
+	Cmd_RemoveCommand( "stopvideo" );
 
 	CL_ShutdownInput();
-	Con_Shutdown();
+	Console_Shutdown();
 
 	Cvar_Set( "cl_running", "0" );
 
@@ -2967,4 +2929,21 @@ bool CL_UpdateVisiblePings_f(int source) {
 	}
 
 	return status;
+}
+
+void CL_GetClipboardData( char *buf, int buflen ) {
+	char *cbd, *c;
+
+	c = cbd = Sys_GetClipboardData();
+	if ( !cbd ) {
+		*buf = '\0';
+		return;
+	}
+
+	for ( int i = 0, end = buflen - 1; *c && i < end; i++ ) {
+		uint32_t utf32 = ConvertUTF8ToUTF32( c, &c );
+		buf[i] = ConvertUTF32ToExpectedCharset( utf32 );
+	}
+
+	Z_Free( cbd );
 }

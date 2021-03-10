@@ -29,11 +29,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "game/bg_public.hpp"
 #include "game/bg_local.hpp"
 
-#ifdef _GAME
+#ifdef BUILD_GAME
 	#include "game/g_local.hpp"
-#elif _CGAME
+#elif BUILD_CGAME
 	#include "cgame/cg_local.hpp"
-#elif UI_BUILD
+#elif BUILD_UI
 	#include "ui/ui_local.hpp"
 #endif
 
@@ -74,7 +74,7 @@ bool PM_GroundSlideOkay( float zNormal )
 	return true;
 }
 
-#ifdef _GAME
+#ifdef BUILD_GAME
 bool PM_ClientImpact( trace_t *trace )
 {
 	//don't try to predict this
@@ -192,7 +192,7 @@ bool	PM_SlideMove( bool gravity ) {
 		// save entity for contact
 		PM_AddTouchEnt( trace.entityNum );
 
-#ifdef _GAME
+#ifdef BUILD_GAME
 		if (pm->ps->clientNum < MAX_CLIENTS)
 		{
 			if ( PM_ClientImpact( &trace ) )

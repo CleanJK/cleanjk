@@ -1527,7 +1527,7 @@ static void WP_CreateFlechetteBouncyThing( vec3_t start, vec3_t fwd, gentity_t *
 
 static void WP_FlechetteAltFire( gentity_t *self )
 {
-	vec3_t 	dir, fwd, start, angs;
+	vec3_t	dir, fwd, start, angs;
 	int i;
 
 	vectoangles( forward, angs );

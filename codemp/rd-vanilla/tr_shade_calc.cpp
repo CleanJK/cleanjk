@@ -389,14 +389,14 @@ static void AutospriteDeform( void ) {
 		}
 
 	  // compensate for scale in the axes if necessary
-  	if ( backEnd.currentEntity->e.nonNormalizedAxes ) {
+	if ( backEnd.currentEntity->e.nonNormalizedAxes ) {
       float axisLength;
 		  axisLength = VectorLength( backEnd.currentEntity->e.axis[0] );
-  		if ( !axisLength ) {
-	  		axisLength = 0;
-  		} else {
-	  		axisLength = 1.0f / axisLength;
-  		}
+		if ( !axisLength ) {
+			axisLength = 0;
+		} else {
+			axisLength = 1.0f / axisLength;
+		}
       VectorScale(left, axisLength, left);
       VectorScale(up, axisLength, up);
     }

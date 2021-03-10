@@ -26,8 +26,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "cgame/cg_local.hpp"
 #include "cgame/cg_media.hpp"
 #include "ui/ui_shared.hpp"
-#include "ui/ui_fonts.hpp"
 #include "ui/menudef.h"
+#include "client/cl_fonts.hpp"
 
 #define	SCOREBOARD_X		(0)
 
@@ -143,8 +143,8 @@ static void CG_DrawClientScore( int y, score_t *score, float *color, float fade,
 		CG_FillRect( SB_SCORELINE_X - 5, y + 2, 640 - SB_SCORELINE_X * 2 + 10, largeFormat?SB_NORMAL_HEIGHT:SB_INTER_HEIGHT, hcolor );
 	}
 
-	Font font( FONT_MEDIUM, scale );
-	font.Paint (SB_NAME_X, y, ci->name, colorWhite, ITEM_TEXTSTYLE_OUTLINED );
+	Text text{ JKFont::Medium, scale };
+	Text_Paint( text, SB_NAME_X, y, ci->name, colorWhite, ITEM_TEXTSTYLE_OUTLINED );
 
 	if ( score->ping != -1 )
 	{
@@ -152,31 +152,31 @@ static void CG_DrawClientScore( int y, score_t *score, float *color, float fade,
 		{
 			if (cgs.gametype == GT_DUEL || cgs.gametype == GT_POWERDUEL)
 			{
-				font.Paint (SB_SCORE_X, y, va("%i/%i", ci->wins, ci->losses),colorWhite, ITEM_TEXTSTYLE_OUTLINED );
+				Text_Paint( text, SB_SCORE_X, y, va("%i/%i", ci->wins, ci->losses),colorWhite, ITEM_TEXTSTYLE_OUTLINED );
 			}
 			else
 			{
-				font.Paint (SB_SCORE_X, y, va("%i", score->score),colorWhite, ITEM_TEXTSTYLE_OUTLINED );
+				Text_Paint( text, SB_SCORE_X, y, va("%i", score->score),colorWhite, ITEM_TEXTSTYLE_OUTLINED );
 			}
 		}
 
 		if ( cg_scoreboardBots.integer && ci->botSkill != -1 )
-			font.Paint( SB_PING_X, y, "BOT", colorWhite, ITEM_TEXTSTYLE_OUTLINED );
+			Text_Paint( text, SB_PING_X, y, "BOT", colorWhite, ITEM_TEXTSTYLE_OUTLINED );
 		else
-			font.Paint (SB_PING_X, y, va("%i", score->ping),colorWhite, ITEM_TEXTSTYLE_OUTLINED );
-		font.Paint (SB_TIME_X, y, va("%i", score->time),colorWhite, ITEM_TEXTSTYLE_OUTLINED );
+			Text_Paint( text, SB_PING_X, y, va("%i", score->ping),colorWhite, ITEM_TEXTSTYLE_OUTLINED );
+		Text_Paint( text, SB_TIME_X, y, va("%i", score->time),colorWhite, ITEM_TEXTSTYLE_OUTLINED );
 	}
 	else
 	{
-		font.Paint (SB_SCORE_X, y, "-",colorWhite, ITEM_TEXTSTYLE_OUTLINED );
-		font.Paint (SB_PING_X, y, "-",colorWhite, ITEM_TEXTSTYLE_OUTLINED );
-		font.Paint (SB_TIME_X, y, "-",colorWhite, ITEM_TEXTSTYLE_OUTLINED );
+		Text_Paint( text, SB_SCORE_X, y, "-",colorWhite, ITEM_TEXTSTYLE_OUTLINED );
+		Text_Paint( text, SB_PING_X, y, "-",colorWhite, ITEM_TEXTSTYLE_OUTLINED );
+		Text_Paint( text, SB_TIME_X, y, "-",colorWhite, ITEM_TEXTSTYLE_OUTLINED );
 	}
 
 	// add the "ready" marker for intermission exiting
 	if ( cg.snap->ps.stats[ STAT_CLIENTS_READY ] & ( 1 << score->client ) )
 	{
-		font.Paint (SB_NAME_X - 64, y + 2, CG_GetStringEdString("MP_INGAME", "READY"), colorWhite, ITEM_TEXTSTYLE_OUTLINED );
+		Text_Paint( text, SB_NAME_X - 64, y + 2, CG_GetStringEdString("MP_INGAME", "READY"), colorWhite, ITEM_TEXTSTYLE_OUTLINED );
 	}
 }
 
@@ -228,7 +228,7 @@ int CG_GetTeamNonScoreCount(team_e team)
 		count++;
 	}
 
- 	return count;
+	return count;
 }
 
 int CG_GetTeamCount(team_e team, int maxClients)
@@ -292,7 +292,7 @@ bool CG_DrawOldScoreboard( void ) {
 		fade = *fadeColor;
 	}
 
-	Font font( FONT_MEDIUM, 1.0f );
+	Text text{ JKFont::Medium, 1.0f };
 
 	// fragged by ... line
 	// or if in intermission and duel, prints the winner of the duel round
@@ -307,7 +307,7 @@ bool CG_DrawOldScoreboard( void ) {
 		*/
 		x = ( SCREEN_WIDTH ) / 2;
 		y = 40;
-		font.Paint ( x - font.Width( s ) / 2, y, s, colorWhite, ITEM_TEXTSTYLE_OUTLINED );
+		Text_Paint( text, x - Text_Width( text, s ) / 2, y, s, colorWhite, ITEM_TEXTSTYLE_OUTLINED );
 	}
 	else if ((cgs.gametype == GT_DUEL || cgs.gametype == GT_POWERDUEL) && cgs.duelist1 != -1 && cgs.duelist2 != -1 &&
 		cg.predictedPlayerState.pm_type == PM_INTERMISSION)
@@ -327,7 +327,7 @@ bool CG_DrawOldScoreboard( void ) {
 		*/
 		x = ( SCREEN_WIDTH ) / 2;
 		y = 40;
-		font.Paint ( x - font.Width( s ) / 2, y, s, colorWhite, ITEM_TEXTSTYLE_OUTLINED );
+		Text_Paint( text, x - Text_Width( text, s ) / 2, y, s, colorWhite, ITEM_TEXTSTYLE_OUTLINED );
 	}
 	else if ( cg.killerName[0] ) {
 		s = va("%s %s", CG_GetStringEdString("MP_INGAME", "KILLEDBY"), cg.killerName );
@@ -338,7 +338,7 @@ bool CG_DrawOldScoreboard( void ) {
 		*/
 		x = ( SCREEN_WIDTH ) / 2;
 		y = 40;
-		font.Paint ( x - font.Width( s ) / 2, y, s, colorWhite, ITEM_TEXTSTYLE_OUTLINED );
+		Text_Paint( text, x - Text_Width( text, s ) / 2, y, s, colorWhite, ITEM_TEXTSTYLE_OUTLINED );
 	}
 
 	// current rank
@@ -367,7 +367,7 @@ bool CG_DrawOldScoreboard( void ) {
 			x = ( SCREEN_WIDTH ) / 2;
 			y = 60;
 			//CG_DrawBigString( x, y, s, fade );
-			Text_Paint_Proportional(x, y, s, UI_CENTER|UI_DROPSHADOW, colorTable[CT_WHITE]);
+			TextHelper_Paint_Proportional(x, y, s, UI_CENTER|UI_DROPSHADOW, colorTable[CT_WHITE]);
 		}
 	}
 	else
@@ -383,7 +383,7 @@ bool CG_DrawOldScoreboard( void ) {
 		x = ( SCREEN_WIDTH ) / 2;
 		y = 60;
 
-		font.Paint ( x - font.Width( s ) / 2, y, s, colorWhite, ITEM_TEXTSTYLE_OUTLINED );
+		Text_Paint( text, x - Text_Width( text, s ) / 2, y, s, colorWhite, ITEM_TEXTSTYLE_OUTLINED );
 	}
 
 	// scoreboard
@@ -391,20 +391,20 @@ bool CG_DrawOldScoreboard( void ) {
 
 	CG_DrawPic ( SB_SCORELINE_X - 40, y - 5, SB_SCORELINE_WIDTH + 80, 40, media.gfx.null/*media.gfx.interface.button.back "gfx/menus/menu_buttonback.tga"*/ );
 
-	font.Paint ( SB_NAME_X, y, CG_GetStringEdString("MP_INGAME", "NAME"),colorWhite, ITEM_TEXTSTYLE_OUTLINED );
+	Text_Paint( text, SB_NAME_X, y, CG_GetStringEdString("MP_INGAME", "NAME"),colorWhite, ITEM_TEXTSTYLE_OUTLINED );
 	if (cgs.gametype == GT_DUEL || cgs.gametype == GT_POWERDUEL)
 	{
 		char sWL[100];
 		trap->SE_GetStringTextString("MP_INGAME_W_L", sWL,	sizeof(sWL));
 
-		font.Paint ( SB_SCORE_X, y, sWL, colorWhite, ITEM_TEXTSTYLE_OUTLINED );
+		Text_Paint( text, SB_SCORE_X, y, sWL, colorWhite, ITEM_TEXTSTYLE_OUTLINED );
 	}
 	else
 	{
-		font.Paint ( SB_SCORE_X, y, CG_GetStringEdString("MP_INGAME", "SCORE"), colorWhite, ITEM_TEXTSTYLE_OUTLINED );
+		Text_Paint( text, SB_SCORE_X, y, CG_GetStringEdString("MP_INGAME", "SCORE"), colorWhite, ITEM_TEXTSTYLE_OUTLINED );
 	}
-	font.Paint ( SB_PING_X, y, CG_GetStringEdString("MP_INGAME", "PING"), colorWhite, ITEM_TEXTSTYLE_OUTLINED );
-	font.Paint ( SB_TIME_X, y, CG_GetStringEdString("MP_INGAME", "TIME"), colorWhite, ITEM_TEXTSTYLE_OUTLINED );
+	Text_Paint( text, SB_PING_X, y, CG_GetStringEdString("MP_INGAME", "PING"), colorWhite, ITEM_TEXTSTYLE_OUTLINED );
+	Text_Paint( text, SB_TIME_X, y, CG_GetStringEdString("MP_INGAME", "TIME"), colorWhite, ITEM_TEXTSTYLE_OUTLINED );
 
 	y = SB_TOP;
 

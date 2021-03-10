@@ -331,7 +331,7 @@ public:
 #else
 	const int		ident;			// ident of this surface - required so the materials renderer knows what sort of surface this refers to
 #endif
-	CBoneCache 		*boneCache;
+	CBoneCache		*boneCache;
 	mdxmSurface_t	*surfaceData;	// pointer to surface data loaded into file - only used by client renderer DO NOT USE IN GAME SIDE - if there is a vid restart this will be out of wack on the game
 #ifdef _G2_GORE
 	float			*alternateTex;		// alternate texture coordinates.

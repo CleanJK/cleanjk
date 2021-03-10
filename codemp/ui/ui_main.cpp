@@ -34,11 +34,8 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "ui/ui_force.hpp"
 #include "cgame/animtable.hpp" //we want this to be compiled into the module because we access it in the shared module.
 #include "ui/ui_shared.hpp"
-#include "ui/ui_fonts.hpp"
 #include "ui/menudef.h"
-
-NORETURN_PTR void (*Com_Error)( int level, const char *fmt, ... );
-void (*Com_Printf)( const char *fmt, ... );
+#include "client/cl_fonts.hpp"
 
 const char *forcepowerDesc[NUM_FORCE_POWERS] =
 {
@@ -863,48 +860,6 @@ bool Asset_Parse(int handle) {
 			return true;
 		}
 
-		// font
-		if (Q_stricmp(token.string, "font") == 0) {
-			int pointSize;
-			if (!trap->PC_ReadToken(handle, &token) || !PC_Int_Parse(handle,&pointSize)) {
-				return false;
-			}
-			//trap->R_RegisterFont(tempStr, pointSize, &uiInfo.uiDC.Assets.textFont);
-			uiInfo.uiDC.Assets.qhMediumFont = trap->R_RegisterFont(token.string);
-			uiInfo.uiDC.Assets.fontRegistered = true;
-			continue;
-		}
-
-		if (Q_stricmp(token.string, "smallFont") == 0) {
-			int pointSize;
-			if (!trap->PC_ReadToken(handle, &token) || !PC_Int_Parse(handle,&pointSize)) {
-				return false;
-			}
-			//trap->R_RegisterFont(token, pointSize, &uiInfo.uiDC.Assets.smallFont);
-			uiInfo.uiDC.Assets.qhSmallFont = trap->R_RegisterFont(token.string);
-			continue;
-		}
-
-		if (Q_stricmp(token.string, "small2Font") == 0) {
-			int pointSize;
-			if (!trap->PC_ReadToken(handle, &token) || !PC_Int_Parse(handle,&pointSize)) {
-				return false;
-			}
-			//trap->R_RegisterFont(token, pointSize, &uiInfo.uiDC.Assets.smallFont);
-			uiInfo.uiDC.Assets.qhSmall2Font = trap->R_RegisterFont(token.string);
-			continue;
-		}
-
-		if (Q_stricmp(token.string, "bigFont") == 0) {
-			int pointSize;
-			if (!trap->PC_ReadToken(handle, &token) || !PC_Int_Parse(handle,&pointSize)) {
-				return false;
-			}
-			//trap->R_RegisterFont(token, pointSize, &uiInfo.uiDC.Assets.bigFont);
-			uiInfo.uiDC.Assets.qhBigFont = trap->R_RegisterFont(token.string);
-			continue;
-		}
-
 		if (Q_stricmp(token.string, "cursor") == 0)
 		{
 			if (!PC_String_Parse(handle, &uiInfo.uiDC.Assets.cursorStr))
@@ -1261,19 +1216,19 @@ const char *UI_FilterDir( int value ) {
 
 static constexpr const char *handicapValues[] = {"None","95","90","85","80","75","70","65","60","55","50","45","40","35","30","25","20","15","10","5",nullptr};
 
-static void UI_DrawHandicap(rectDef_t *rect, float scale, vec4_t color, int textStyle, int iMenuFont) {
+static void UI_DrawHandicap(rectDef_t *rect, float scale, vec4_t color, int textStyle, JKFont font) {
 	int i, h;
 
 	h = Com_Clamp(5, 100, handicap.value);
 	i = 20 - h / 5;
 
-	Font font( iMenuFont, scale );
-	font.Paint(rect->x, rect->y, handicapValues[i], color, textStyle);
+	Text text{ font, scale };
+	Text_Paint( text, rect->x, rect->y, handicapValues[i], color, textStyle);
 }
 
-static void UI_DrawClanName(rectDef_t *rect, float scale, vec4_t color, int textStyle, int iMenuFont) {
-	Font font( iMenuFont, scale );
-	font.Paint(rect->x, rect->y, ui_teamName.string, color, textStyle);
+static void UI_DrawClanName(rectDef_t *rect, float scale, vec4_t color, int textStyle, JKFont font) {
+	Text text{ font, scale };
+	Text_Paint( text, rect->x, rect->y, ui_teamName.string, color, textStyle);
 }
 
 static void UI_SetCapFragLimits(bool uiVars) {
@@ -1314,13 +1269,13 @@ static const char* UI_GetGameTypeName(int gtEnum)
 }
 
 // ui_gameType assumes gametype 0 is -1 ALL and will not show
-static void UI_DrawGameType(rectDef_t *rect, float scale, vec4_t color, int textStyle, int iMenuFont)
+static void UI_DrawGameType(rectDef_t *rect, float scale, vec4_t color, int textStyle, JKFont font)
 {
-	Font font( iMenuFont, scale );
-	font.Paint(rect->x, rect->y, UI_GetGameTypeName(uiInfo.gameTypes[ui_gametype.integer].gtEnum), color, textStyle);
+	Text text{ font, scale };
+	Text_Paint( text, rect->x, rect->y, UI_GetGameTypeName(uiInfo.gameTypes[ui_gametype.integer].gtEnum), color, textStyle);
 }
 
-static void UI_DrawNetGameType(rectDef_t *rect, float scale, vec4_t color, int textStyle, int iMenuFont)
+static void UI_DrawNetGameType(rectDef_t *rect, float scale, vec4_t color, int textStyle, JKFont font)
 {
 	if (ui_netGametype.integer < 0 || ui_netGametype.integer >= uiInfo.numGameTypes)
 	{
@@ -1329,11 +1284,11 @@ static void UI_DrawNetGameType(rectDef_t *rect, float scale, vec4_t color, int t
 		trap->Cvar_Set("ui_gametype", "0");
 		trap->Cvar_Update(&ui_gametype);
 	}
-	Font font( iMenuFont, scale );
-	font.Paint(rect->x, rect->y,  UI_GetGameTypeName(uiInfo.gameTypes[ui_netGametype.integer].gtEnum), color, textStyle);
+	Text text{ font, scale };
+	Text_Paint( text, rect->x, rect->y,  UI_GetGameTypeName(uiInfo.gameTypes[ui_netGametype.integer].gtEnum), color, textStyle);
 }
 
-static void UI_DrawAutoSwitch(rectDef_t *rect, float scale, vec4_t color, int textStyle, int iMenuFont) {
+static void UI_DrawAutoSwitch(rectDef_t *rect, float scale, vec4_t color, int textStyle, JKFont font) {
 	int switchVal = cg_autoswitch.value;
 	const char *switchString = "AUTOSWITCH1";
 	const char *stripString = nullptr;
@@ -1357,8 +1312,8 @@ static void UI_DrawAutoSwitch(rectDef_t *rect, float scale, vec4_t color, int te
 
 	if (stripString)
 	{
-		Font font( iMenuFont, scale );
-		font.Paint(rect->x, rect->y, stripString, color, textStyle);
+		Text text{ font, scale };
+		Text_Paint( text, rect->x, rect->y, stripString, color, textStyle);
 	}
 }
 
@@ -1432,17 +1387,17 @@ static void UI_DrawPreviewCinematic(rectDef_t *rect, float scale, vec4_t color) 
 	}
 }
 
-static void UI_DrawSkill(rectDef_t *rect, float scale, vec4_t color, int textStyle, int iMenuFont) {
+static void UI_DrawSkill(rectDef_t *rect, float scale, vec4_t color, int textStyle, JKFont font) {
 	int i;
 	i = g_spSkill.value;
 	if (i < 1 || i > numSkillLevels) {
 		i = 1;
 	}
-	Font font( iMenuFont, scale );
-	font.Paint(rect->x, rect->y, (char *)UI_GetStringEdString("MP_INGAME", (char *)skillLevels[i-1]), color, textStyle);
+	Text text{ font, scale };
+	Text_Paint( text, rect->x, rect->y, (char *)UI_GetStringEdString("MP_INGAME", (char *)skillLevels[i-1]), color, textStyle);
 }
 
-static void UI_DrawGenericNum(rectDef_t *rect, float scale, vec4_t color, int textStyle, int val, int min, int max, int type,int iMenuFont)
+static void UI_DrawGenericNum(rectDef_t *rect, float scale, vec4_t color, int textStyle, int val, int min, int max, int type,JKFont font)
 {
 	int i;
 	char s[256];
@@ -1454,11 +1409,11 @@ static void UI_DrawGenericNum(rectDef_t *rect, float scale, vec4_t color, int te
 	}
 
 	Com_sprintf(s, sizeof(s), "%i\0", val);
-	Font font( iMenuFont, scale );
-	font.Paint(rect->x, rect->y, s, color, textStyle);
+	Text text{ font, scale };
+	Text_Paint( text, rect->x, rect->y, s, color, textStyle);
 }
 
-static void UI_DrawForceMastery(rectDef_t *rect, float scale, vec4_t color, int textStyle, int val, int min, int max, int iMenuFont)
+static void UI_DrawForceMastery(rectDef_t *rect, float scale, vec4_t color, int textStyle, int val, int min, int max, JKFont font)
 {
 	int i;
 	char *s;
@@ -1474,11 +1429,11 @@ static void UI_DrawForceMastery(rectDef_t *rect, float scale, vec4_t color, int 
 	}
 
 	s = (char *)UI_GetStringEdString("MP_INGAME", forceMasteryLevels[i]);
-	Font font( iMenuFont, scale );
-	font.Paint(rect->x, rect->y, s, color, textStyle);
+	Text text{ font, scale };
+	Text_Paint( text, rect->x, rect->y, s, color, textStyle);
 }
 
-static void UI_DrawSkinColor(rectDef_t *rect, float scale, vec4_t color, int textStyle, int val, int min, int max, int iMenuFont)
+static void UI_DrawSkinColor(rectDef_t *rect, float scale, vec4_t color, int textStyle, int val, int min, int max, JKFont font)
 {
 	char s[256];
 
@@ -1498,11 +1453,11 @@ static void UI_DrawSkinColor(rectDef_t *rect, float scale, vec4_t color, int tex
 		break;
 	}
 
-	Font font( iMenuFont, scale );
-	font.Paint(rect->x, rect->y, s, color, textStyle);
+	Text text{ font, scale };
+	Text_Paint( text, rect->x, rect->y, s, color, textStyle);
 }
 
-static void UI_DrawForceSide(rectDef_t *rect, float scale, vec4_t color, int textStyle, int val, int min, int max, int iMenuFont)
+static void UI_DrawForceSide(rectDef_t *rect, float scale, vec4_t color, int textStyle, int val, int min, int max, JKFont font)
 {
 	char s[256];
 	menuDef_t *menu;
@@ -1579,8 +1534,8 @@ static void UI_DrawForceSide(rectDef_t *rect, float scale, vec4_t color, int tex
 		}
 	}
 
-	Font font( iMenuFont, scale );
-	font.Paint(rect->x, rect->y, s, color, textStyle);
+	Text text{ font, scale };
+	Text_Paint( text, rect->x, rect->y, s, color, textStyle);
 }
 
 bool UI_HasSetSaberOnly( const char *info, const int gametype )
@@ -1666,7 +1621,7 @@ bool UI_TrueJediEnabled( void )
 	return (trueJedi != 0);
 }
 
-static void UI_DrawJediNonJedi(rectDef_t *rect, float scale, vec4_t color, int textStyle, int val, int min, int max, int iMenuFont)
+static void UI_DrawJediNonJedi(rectDef_t *rect, float scale, vec4_t color, int textStyle, int val, int min, int max, JKFont font)
 {
 	int i;
 	char s[256];
@@ -1693,44 +1648,38 @@ static void UI_DrawJediNonJedi(rectDef_t *rect, float scale, vec4_t color, int t
 	else
 		trap->SE_GetStringTextString("MENUS_YES",s, sizeof(s));
 
-	Font font( iMenuFont, scale );
-	font.Paint(rect->x, rect->y, s, color, textStyle);
+	Text text{ font, scale };
+	Text_Paint( text, rect->x, rect->y, s, color, textStyle);
 }
 
-static void UI_DrawTeamName(rectDef_t *rect, float scale, vec4_t color, bool blue, int textStyle, int iMenuFont) {
+static void UI_DrawTeamName(rectDef_t *rect, float scale, vec4_t color, bool blue, int textStyle, JKFont font) {
 	int i;
 	i = UI_TeamIndexFromName((blue) ? ui_blueteam.string : ui_redteam.string);
 	if (i >= 0 && i < uiInfo.teamCount) {
-		Font font( iMenuFont, scale );
-		font.Paint(rect->x, rect->y, va("%s: %s", (blue) ? "Blue" : "Red", uiInfo.teamList[i].teamName), color, textStyle);
+		Text text{ font, scale };
+		Text_Paint( text, rect->x, rect->y, va("%s: %s", (blue) ? "Blue" : "Red", uiInfo.teamList[i].teamName), color, textStyle);
 	}
 }
 
-static void UI_DrawTeamMember(rectDef_t *rect, float scale, vec4_t color, bool blue, int num, int textStyle, int iMenuFont)
-{
+static void UI_DrawTeamMember( rectDef_t *rect, float scale, vec4_t color, bool blue, int num, int textStyle, JKFont font ) {
 	// 0 - None
 	// 1 - Human
 	// 2..NumCharacters - Bot
-	int value = trap->Cvar_VariableValue(va(blue ? "ui_blueteam%i" : "ui_redteam%i", num));
-	const char *text;
-	int maxcl = sv_maxClients.value;
-	vec4_t finalColor;
 	int numval = num;
-
 	numval *= 2;
 
-	if (blue)
-	{
+	if ( blue ) {
 		numval -= 1;
 	}
 
+	vec4_t finalColor;
 	finalColor[0] = color[0];
 	finalColor[1] = color[1];
 	finalColor[2] = color[2];
 	finalColor[3] = color[3];
 
-	if (numval > maxcl)
-	{
+	int value = trap->Cvar_VariableValue( va( blue ? "ui_blueteam%i" : "ui_redteam%i", num ) );
+	if ( numval > sv_maxClients.value ) {
 		finalColor[0] *= 0.5;
 		finalColor[1] *= 0.5;
 		finalColor[2] *= 0.5;
@@ -1738,27 +1687,20 @@ static void UI_DrawTeamMember(rectDef_t *rect, float scale, vec4_t color, bool b
 		value = -1;
 	}
 
-	if (value <= 1) {
-		if (value == -1)
-		{
-			//text = "Closed";
-			text = UI_GetStringEdString("MENUS", "CLOSED");
-		}
-		else
-		{
-			//text = "Human";
-			text = UI_GetStringEdString("MENUS", "HUMAN");
-		}
-	} else {
+	const char *str = nullptr;
+	if ( value <= 1 ) {
+		str = UI_GetStringEdString( "MENUS", (value == -1) ? "CLOSED" : "HUMAN" );
+	}
+	else {
 		value -= 2;
-		if (value >= UI_GetNumBots()) {
+		if ( value >= UI_GetNumBots() ) {
 			value = 1;
 		}
-		text = UI_GetBotNameByNumber(value);
+		str = UI_GetBotNameByNumber( value );
 	}
 
-	Font font( iMenuFont, scale );
-	font.Paint(rect->x, rect->y, text, finalColor, textStyle);
+	Text text{ font, scale };
+	Text_Paint( text, rect->x, rect->y, str, finalColor, textStyle);
 }
 
 static void UI_DrawMapPreview(rectDef_t *rect, float scale, vec4_t color, bool net) {
@@ -2021,7 +1963,7 @@ void UpdateForceStatus()
 	}
 }
 
-static void UI_DrawNetSource(rectDef_t *rect, float scale, vec4_t color, int textStyle, int iMenuFont)
+static void UI_DrawNetSource(rectDef_t *rect, float scale, vec4_t color, int textStyle, JKFont font)
 {
 	if (ui_netSource.integer < 0 || ui_netSource.integer >= numNetSources) {
 		trap->Cvar_Set("ui_netSource", "0");
@@ -2029,8 +1971,8 @@ static void UI_DrawNetSource(rectDef_t *rect, float scale, vec4_t color, int tex
 	}
 
 	trap->SE_GetStringTextString("MENUS_SOURCE", holdSPString, sizeof(holdSPString) );
-	Font font( iMenuFont, scale );
-	font.Paint(rect->x, rect->y, va("%s %s",holdSPString,
+	Text text{ font, scale };
+	Text_Paint( text, rect->x, rect->y, va("%s %s",holdSPString,
 		GetNetSourceString(ui_netSource.integer)), color, textStyle);
 }
 
@@ -2057,22 +1999,22 @@ static void UI_DrawNetMapCinematic(rectDef_t *rect, float scale, vec4_t color) {
 	}
 }
 
-static void UI_DrawNetFilter(rectDef_t *rect, float scale, vec4_t color, int textStyle, int iMenuFont)
+static void UI_DrawNetFilter(rectDef_t *rect, float scale, vec4_t color, int textStyle, JKFont font)
 {
 	trap->SE_GetStringTextString("MENUS_GAME", holdSPString, sizeof(holdSPString));
 
-	Font font( iMenuFont, scale );
-	font.Paint(rect->x, rect->y, va("%s %s",holdSPString, UI_FilterDescription( ui_serverFilterType.integer )), color, textStyle);
+	Text text{ font, scale };
+	Text_Paint( text, rect->x, rect->y, va("%s %s",holdSPString, UI_FilterDescription( ui_serverFilterType.integer )), color, textStyle);
 }
 
-static void UI_DrawTier(rectDef_t *rect, float scale, vec4_t color, int textStyle, int iMenuFont) {
+static void UI_DrawTier(rectDef_t *rect, float scale, vec4_t color, int textStyle, JKFont font) {
 	int i;
 	i = ui_currentTier.value;
 	if (i < 0 || i >= uiInfo.tierCount) {
 		i = 0;
 	}
-	Font font( iMenuFont, scale );
-	font.Paint(rect->x, rect->y, va("Tier: %s", uiInfo.tierList[i].tierName), color, textStyle);
+	Text text{ font, scale };
+	Text_Paint( text, rect->x, rect->y, va("Tier: %s", uiInfo.tierList[i].tierName), color, textStyle);
 }
 
 static void UI_DrawTierMap(rectDef_t *rect, int index) {
@@ -2099,7 +2041,7 @@ static const char *UI_EnglishMapName(const char *map) {
 	return "";
 }
 
-static void UI_DrawTierMapName(rectDef_t *rect, float scale, vec4_t color, int textStyle, int iMenuFont) {
+static void UI_DrawTierMapName(rectDef_t *rect, float scale, vec4_t color, int textStyle, JKFont font) {
 	int i, j;
 	i = ui_currentTier.value;
 	if (i < 0 || i >= uiInfo.tierCount) {
@@ -2110,11 +2052,11 @@ static void UI_DrawTierMapName(rectDef_t *rect, float scale, vec4_t color, int t
 		j = 0;
 	}
 
-	Font font( iMenuFont, scale );
-	font.Paint(rect->x, rect->y, UI_EnglishMapName(uiInfo.tierList[i].maps[j]), color, textStyle);
+	Text text{ font, scale };
+	Text_Paint( text, rect->x, rect->y, UI_EnglishMapName(uiInfo.tierList[i].maps[j]), color, textStyle);
 }
 
-static void UI_DrawTierGameType(rectDef_t *rect, float scale, vec4_t color, int textStyle, int iMenuFont) {
+static void UI_DrawTierGameType(rectDef_t *rect, float scale, vec4_t color, int textStyle, JKFont font) {
 	int i, j;
 	i = ui_currentTier.value;
 	if (i < 0 || i >= uiInfo.tierCount) {
@@ -2125,8 +2067,8 @@ static void UI_DrawTierGameType(rectDef_t *rect, float scale, vec4_t color, int 
 		j = 0;
 	}
 
-	Font font( iMenuFont, scale );
-	font.Paint(rect->x, rect->y, uiInfo.gameTypes[uiInfo.tierList[i].gameTypes[j]].gameType, color, textStyle);
+	Text text{ font, scale };
+	Text_Paint( text, rect->x, rect->y, uiInfo.gameTypes[uiInfo.tierList[i].gameTypes[j]].gameType, color, textStyle);
 }
 
 /*
@@ -2145,11 +2087,11 @@ static void UI_DrawOpponent(rectDef_t *rect) {
 	  strcpy(headmodel, ui_opponentModel.string);
 		team[0] = '\0';
 
-  	memset( &info2, 0, sizeof(playerInfo_t) );
-  	viewangles[YAW]   = 180 - 10;
-  	viewangles[PITCH] = 0;
-  	viewangles[ROLL]  = 0;
-  	VectorClear( moveangles );
+	memset( &info2, 0, sizeof(playerInfo_t) );
+	viewangles[YAW]   = 180 - 10;
+	viewangles[PITCH] = 0;
+	viewangles[ROLL]  = 0;
+	VectorClear( moveangles );
     UI_PlayerInfo_SetModel( &info2, model, headmodel, "");
     UI_PlayerInfo_SetInfo( &info2, TORSO_WEAPONREADY3, TORSO_WEAPONREADY3, viewangles, vec3_origin, WP_BRYAR_PISTOL, false );
 		UI_RegisterClientModelname( &info2, model, headmodel, team);
@@ -2173,7 +2115,7 @@ static void UI_NextOpponent() {
 			i = 0;
 		}
 	}
- 	trap->Cvar_Set( "ui_opponentName", uiInfo.teamList[i].teamName );
+	trap->Cvar_Set( "ui_opponentName", uiInfo.teamList[i].teamName );
 }
 
 static void UI_PriorOpponent() {
@@ -2189,7 +2131,7 @@ static void UI_PriorOpponent() {
 			i = uiInfo.teamCount - 1;
 		}
 	}
- 	trap->Cvar_Set( "ui_opponentName", uiInfo.teamList[i].teamName );
+	trap->Cvar_Set( "ui_opponentName", uiInfo.teamList[i].teamName );
 }
 
 static void	UI_DrawPlayerLogo(rectDef_t *rect, vec3_t color) {
@@ -2270,17 +2212,17 @@ static void	UI_DrawOpponentLogoName(rectDef_t *rect, vec3_t color) {
 	trap->R_SetColor(nullptr);
 }
 
-static void UI_DrawAllMapsSelection(rectDef_t *rect, float scale, vec4_t color, int textStyle, bool net, int iMenuFont) {
+static void UI_DrawAllMapsSelection(rectDef_t *rect, float scale, vec4_t color, int textStyle, bool net, JKFont font) {
 	int map = (net) ? ui_currentNetMap.integer : ui_currentMap.integer;
 	if (map >= 0 && map < uiInfo.mapCount) {
-		Font font( iMenuFont, scale );
-		font.Paint(rect->x, rect->y, uiInfo.mapList[map].mapName, color, textStyle);
+		Text text{ font, scale };
+		Text_Paint( text, rect->x, rect->y, uiInfo.mapList[map].mapName, color, textStyle);
 	}
 }
 
-static void UI_DrawOpponentName(rectDef_t *rect, float scale, vec4_t color, int textStyle, int iMenuFont) {
-	Font font( iMenuFont, scale );
-	font.Paint(rect->x, rect->y, ui_opponentName.string, color, textStyle);
+static void UI_DrawOpponentName(rectDef_t *rect, float scale, vec4_t color, int textStyle, JKFont font) {
+	Text text{ font, scale };
+	Text_Paint( text, rect->x, rect->y, ui_opponentName.string, color, textStyle);
 }
 
 static int UI_OwnerDrawWidth(int ownerDraw, float scale) {
@@ -2503,64 +2445,62 @@ static int UI_OwnerDrawWidth(int ownerDraw, float scale) {
   }
 
 	if (s) {
-		Font font( FONT_SMALL2, scale );
-		return font.Width(s);
+		Text text{ JKFont::Small2, scale };
+		return Text_Width( text, s);
 	}
 	return 0;
 }
 
-static void UI_DrawBotName(rectDef_t *rect, float scale, vec4_t color, int textStyle,int iMenuFont)
-{
+static void UI_DrawBotName( rectDef_t *rect, float scale, vec4_t color, int textStyle, JKFont font ) {
 	int value = uiInfo.botIndex;
-	const char *text = "";
-	if (value >= UI_GetNumBots()) {
+	if ( value >= UI_GetNumBots() ) {
 		value = 0;
 	}
-	text = UI_GetBotNameByNumber(value);
-	Font font( iMenuFont, scale );
-	font.Paint(rect->x, rect->y, text, color, textStyle);
+	const char *str = UI_GetBotNameByNumber( value );
+	Text text{ font, scale };
+	Text_Paint( text, rect->x, rect->y, str, color, textStyle);
 }
 
-static void UI_DrawBotSkill(rectDef_t *rect, float scale, vec4_t color, int textStyle,int iMenuFont)
+static void UI_DrawBotSkill(rectDef_t *rect, float scale, vec4_t color, int textStyle,JKFont font)
 {
 	if (uiInfo.skillIndex >= 0 && uiInfo.skillIndex < numSkillLevels)
 	{
-		Font font( iMenuFont, scale );
-		font.Paint(rect->x, rect->y, (char *)UI_GetStringEdString("MP_INGAME", (char *)skillLevels[uiInfo.skillIndex]), color, textStyle);
+		Text text{ font, scale };
+		Text_Paint( text, rect->x, rect->y, (char *)UI_GetStringEdString("MP_INGAME", (char *)skillLevels[uiInfo.skillIndex]), color, textStyle);
 	}
 }
 
-static void UI_DrawRedBlue(rectDef_t *rect, float scale, vec4_t color, int textStyle,int iMenuFont)
+static void UI_DrawRedBlue(rectDef_t *rect, float scale, vec4_t color, int textStyle,JKFont font)
 {
-	Font font( iMenuFont, scale );
-	font.Paint(rect->x, rect->y, (uiInfo.redBlue == 0) ? UI_GetStringEdString("MP_INGAME","RED") : UI_GetStringEdString("MP_INGAME","BLUE"), color, textStyle);
+	Text text{ font, scale };
+	Text_Paint( text, rect->x, rect->y, (uiInfo.redBlue == 0) ? UI_GetStringEdString("MP_INGAME","RED") : UI_GetStringEdString("MP_INGAME","BLUE"), color, textStyle);
 }
 
 static void UI_DrawCrosshair(rectDef_t *rect, float scale, vec4_t color) {
 	float size = 32.0f;
 
- 	trap->R_SetColor( color );
+	trap->R_SetColor( color );
 	if (uiInfo.currentCrosshair < 0 || uiInfo.currentCrosshair >= NUM_CROSSHAIRS) {
 		uiInfo.currentCrosshair = 0;
 	}
 
 	size = Q_min( rect->w, rect->h );
 	UI_DrawHandlePic( rect->x, rect->y, size, size, uiInfo.uiDC.Assets.crosshairShader[uiInfo.currentCrosshair]);
- 	trap->R_SetColor( nullptr );
+	trap->R_SetColor( nullptr );
 }
 
-static void UI_DrawSelectedPlayer(rectDef_t *rect, float scale, vec4_t color, int textStyle, int iMenuFont) {
+static void UI_DrawSelectedPlayer(rectDef_t *rect, float scale, vec4_t color, int textStyle, JKFont font) {
 	if (uiInfo.uiDC.realTime > uiInfo.playerRefresh) {
 		uiInfo.playerRefresh = uiInfo.uiDC.realTime + 3000;
 		UI_BuildPlayerList();
 	}
-	Font font( iMenuFont, scale );
-	font.Paint(rect->x, rect->y, cg_selectedPlayerName.string, color, textStyle);
+	Text text{ font, scale };
+	Text_Paint( text, rect->x, rect->y, cg_selectedPlayerName.string, color, textStyle);
 }
 
-static void UI_DrawServerRefreshDate(rectDef_t *rect, float scale, vec4_t color, int textStyle, int iMenuFont)
+static void UI_DrawServerRefreshDate(rectDef_t *rect, float scale, vec4_t color, int textStyle, JKFont font)
 {
-	Font font( iMenuFont, scale );
+	Text text{ font, scale };
 	if (uiInfo.serverStatus.refreshActive)
 	{
 		vec4_t lowLight, newColor;
@@ -2571,7 +2511,7 @@ static void UI_DrawServerRefreshDate(rectDef_t *rect, float scale, vec4_t color,
 		LerpColor(color,lowLight,newColor,0.5+0.5*sin((float)(uiInfo.uiDC.realTime / PULSE_DIVISOR)));
 
 		trap->SE_GetStringTextString("MP_INGAME_GETTINGINFOFORSERVERS", holdSPString, sizeof(holdSPString));
-		font.Paint(rect->x, rect->y, va((char *) holdSPString, trap->LAN_GetServerCount(UI_SourceForLAN())), newColor, textStyle);
+		Text_Paint( text, rect->x, rect->y, va((char *) holdSPString, trap->LAN_GetServerCount(UI_SourceForLAN())), newColor, textStyle);
 	}
 	else
 	{
@@ -2579,11 +2519,11 @@ static void UI_DrawServerRefreshDate(rectDef_t *rect, float scale, vec4_t color,
 		Q_strncpyz(buff, UI_Cvar_VariableString(va("ui_lastServerRefresh_%i", ui_netSource.integer)), sizeof(buff));
 		trap->SE_GetStringTextString("MP_INGAME_SERVER_REFRESHTIME", holdSPString, sizeof(holdSPString));
 
-		font.Paint(rect->x, rect->y, va("%s: %s", holdSPString, buff), color, textStyle);
+		Text_Paint( text, rect->x, rect->y, va("%s: %s", holdSPString, buff), color, textStyle);
 	}
 }
 
-static void UI_DrawServerMOTD(rectDef_t *rect, float scale, vec4_t color, int iMenuFont) {
+static void UI_DrawServerMOTD(rectDef_t *rect, float scale, vec4_t color, JKFont font) {
 	if (uiInfo.serverStatus.motdLen) {
 		float maxX;
 
@@ -2603,8 +2543,8 @@ static void UI_DrawServerMOTD(rectDef_t *rect, float scale, vec4_t color, int iM
 			uiInfo.serverStatus.motdTime = uiInfo.uiDC.realTime + 10;
 			if (uiInfo.serverStatus.motdPaintX <= rect->x + 2) {
 				if (uiInfo.serverStatus.motdOffset < uiInfo.serverStatus.motdLen) {
-					Font font( iMenuFont, scale );
-					uiInfo.serverStatus.motdPaintX += font.Width(&uiInfo.serverStatus.motd[uiInfo.serverStatus.motdOffset]) - 1;
+					Text text{ font, scale };
+					uiInfo.serverStatus.motdPaintX += Text_Width( text, &uiInfo.serverStatus.motd[uiInfo.serverStatus.motdOffset]) - 1;
 					uiInfo.serverStatus.motdOffset++;
 				} else {
 					uiInfo.serverStatus.motdOffset = 0;
@@ -2626,10 +2566,10 @@ static void UI_DrawServerMOTD(rectDef_t *rect, float scale, vec4_t color, int iM
 		}
 
 		maxX = rect->x + rect->w - 2;
-		Text_Paint_Limit(&maxX, uiInfo.serverStatus.motdPaintX, rect->y + rect->h - 3, scale, color, &uiInfo.serverStatus.motd[uiInfo.serverStatus.motdOffset], 0, 0, iMenuFont);
+		TextHelper_Paint_Limit(&maxX, uiInfo.serverStatus.motdPaintX, rect->y + rect->h - 3, scale, color, &uiInfo.serverStatus.motd[uiInfo.serverStatus.motdOffset], 0, 0, font);
 		if (uiInfo.serverStatus.motdPaintX2 >= 0) {
 			float maxX2 = rect->x + rect->w - 2;
-			Text_Paint_Limit(&maxX2, uiInfo.serverStatus.motdPaintX2, rect->y + rect->h - 3, scale, color, uiInfo.serverStatus.motd, 0, uiInfo.serverStatus.motdOffset, iMenuFont);
+			TextHelper_Paint_Limit(&maxX2, uiInfo.serverStatus.motdPaintX2, rect->y + rect->h - 3, scale, color, uiInfo.serverStatus.motd, 0, uiInfo.serverStatus.motdOffset, font);
 		}
 		if (uiInfo.serverStatus.motdOffset && maxX > 0) {
 			// if we have an offset ( we are skipping the first part of the string ) and we fit the string
@@ -2642,26 +2582,26 @@ static void UI_DrawServerMOTD(rectDef_t *rect, float scale, vec4_t color, int iM
 	}
 }
 
-static void UI_DrawKeyBindStatus(rectDef_t *rect, float scale, vec4_t color, int textStyle,int iMenuFont) {
+static void UI_DrawKeyBindStatus(rectDef_t *rect, float scale, vec4_t color, int textStyle,JKFont font) {
 	if (Display_KeyBindPending()) {
-		Font font( iMenuFont, scale );
-		font.Paint(rect->x, rect->y, UI_GetStringEdString("MP_INGAME", "WAITING_FOR_NEW_KEY"), color, textStyle);
+		Text text{ font, scale };
+		Text_Paint( text, rect->x, rect->y, UI_GetStringEdString("MP_INGAME", "WAITING_FOR_NEW_KEY"), color, textStyle);
 	} else {
-//		font.Paint(rect->x, rect->y, "Press ENTER or CLICK to change, Press BACKSPACE to clear", color, textStyle);
+//		Text_Paint( text, rect->x, rect->y, "Press ENTER or CLICK to change, Press BACKSPACE to clear", color, textStyle);
 	}
 }
 
-static void UI_DrawGLInfo(rectDef_t *rect, float scale, vec4_t color, int textStyle,int iMenuFont)
+static void UI_DrawGLInfo(rectDef_t *rect, float scale, vec4_t color, int textStyle,JKFont font)
 {
 	char buff[4096] = {0};
 	char *extensionName;
 	int y, i=0;
 
-	Font font( iMenuFont, scale );
+	Text text{ font, scale };
 
-	font.Paint(rect->x + 2, rect->y, va("GL_VENDOR: %s", uiInfo.uiDC.glconfig.vendor_string), color, textStyle, rect->w);
-	font.Paint(rect->x + 2, rect->y + 15, va("GL_VERSION: %s: %s", uiInfo.uiDC.glconfig.version_string,uiInfo.uiDC.glconfig.renderer_string), color, textStyle, rect->w);
-	font.Paint(rect->x + 2, rect->y + 30, va ("GL_PIXELFORMAT: color(%d-bits) Z(%d-bits) stencil(%d-bits)", uiInfo.uiDC.glconfig.colorBits, uiInfo.uiDC.glconfig.depthBits, uiInfo.uiDC.glconfig.stencilBits), color, textStyle,rect->w);
+	Text_Paint( text, rect->x + 2, rect->y, va("GL_VENDOR: %s", uiInfo.uiDC.glconfig.vendor_string), color, textStyle, rect->w);
+	Text_Paint( text, rect->x + 2, rect->y + 15, va("GL_VERSION: %s: %s", uiInfo.uiDC.glconfig.version_string,uiInfo.uiDC.glconfig.renderer_string), color, textStyle, rect->w);
+	Text_Paint( text, rect->x + 2, rect->y + 30, va ("GL_PIXELFORMAT: color(%d-bits) Z(%d-bits) stencil(%d-bits)", uiInfo.uiDC.glconfig.colorBits, uiInfo.uiDC.glconfig.depthBits, uiInfo.uiDC.glconfig.stencilBits), color, textStyle,rect->w);
 
 	// build null terminated extension strings
 	Q_strncpyz(buff, uiInfo.uiDC.glconfig.extensions_string, sizeof(buff));
@@ -2672,11 +2612,11 @@ static void UI_DrawGLInfo(rectDef_t *rect, float scale, vec4_t color, int textSt
 	{
 		if ( (i % 2) == 0 )
 		{
-			font.Paint (rect->x + 2, y, extensionName, color, textStyle, (rect->w / 2));
+			Text_Paint( text, rect->x + 2, y, extensionName, color, textStyle, (rect->w / 2));
 		}
 		else
 		{
-			font.Paint (rect->x + rect->w / 2, y, extensionName, color, textStyle, (rect->w / 2));
+			Text_Paint( text, rect->x + rect->w / 2, y, extensionName, color, textStyle, (rect->w / 2));
 			y += 11;
 		}
 
@@ -2685,13 +2625,13 @@ static void UI_DrawGLInfo(rectDef_t *rect, float scale, vec4_t color, int textSt
 	}
 }
 
-static void UI_Version( rectDef_t *rect, float scale, vec4_t color, int iMenuFont ) {
-	Font font( iMenuFont, scale, ITEM_ALIGN_RIGHT );
-	font.Paint( rect->x, rect->y, JK_VERSION, color );
+static void UI_Version( rectDef_t *rect, float scale, vec4_t color, JKFont font ) {
+	Text text{ font, scale, ITEM_ALIGN_RIGHT };
+	Text_Paint( text, rect->x, rect->y, JK_VERSION, color );
 }
 
 // FIXME: table drive
-static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, float scale, vec4_t color, qhandle_t shader, int textStyle,int iMenuFont)
+static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, float scale, vec4_t color, qhandle_t shader, int textStyle,JKFont font)
 {
 	rectDef_t rect;
 	int findex;
@@ -2705,25 +2645,25 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
   switch (ownerDraw)
   {
     case UI_HANDICAP:
-      UI_DrawHandicap(&rect, scale, color, textStyle, iMenuFont);
+      UI_DrawHandicap(&rect, scale, color, textStyle, font );
       break;
     case UI_SKIN_COLOR:
-      UI_DrawSkinColor(&rect, scale, color, textStyle, uiSkinColor, TEAM_FREE, TEAM_BLUE, iMenuFont);
+      UI_DrawSkinColor(&rect, scale, color, textStyle, uiSkinColor, TEAM_FREE, TEAM_BLUE, font );
       break;
 	case UI_FORCE_SIDE:
-      UI_DrawForceSide(&rect, scale, color, textStyle, uiForceSide, 1, 2, iMenuFont);
+      UI_DrawForceSide(&rect, scale, color, textStyle, uiForceSide, 1, 2, font );
       break;
 	case UI_JEDI_NONJEDI:
-      UI_DrawJediNonJedi(&rect, scale, color, textStyle, uiJediNonJedi, 0, 1, iMenuFont);
+      UI_DrawJediNonJedi(&rect, scale, color, textStyle, uiJediNonJedi, 0, 1, font );
       break;
     case UI_FORCE_POINTS:
-      UI_DrawGenericNum(&rect, scale, color, textStyle, uiForceAvailable, 1, forceMasteryPoints[MAX_FORCE_RANK], ownerDraw,iMenuFont);
+      UI_DrawGenericNum(&rect, scale, color, textStyle, uiForceAvailable, 1, forceMasteryPoints[MAX_FORCE_RANK], ownerDraw,font );
       break;
 	case UI_FORCE_MASTERY_SET:
-      UI_DrawForceMastery(&rect, scale, color, textStyle, uiForceRank, 0, MAX_FORCE_RANK, iMenuFont);
+      UI_DrawForceMastery(&rect, scale, color, textStyle, uiForceRank, 0, MAX_FORCE_RANK, font );
       break;
     case UI_FORCE_RANK:
-      UI_DrawForceMastery(&rect, scale, color, textStyle, uiForceRank, 0, MAX_FORCE_RANK, iMenuFont);
+      UI_DrawForceMastery(&rect, scale, color, textStyle, uiForceRank, 0, MAX_FORCE_RANK, font );
       break;
 	case UI_FORCE_RANK_HEAL:
 	case UI_FORCE_RANK_LEVITATION:
@@ -2782,7 +2722,7 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
       //UI_DrawPlayerModel(&rect);
       break;
     case UI_CLANNAME:
-      UI_DrawClanName(&rect, scale, color, textStyle, iMenuFont);
+      UI_DrawClanName(&rect, scale, color, textStyle, font );
       break;
     case UI_CLANLOGO:
       UI_DrawClanLogo(&rect, scale, color);
@@ -2794,16 +2734,16 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
       UI_DrawPreviewCinematic(&rect, scale, color);
       break;
     case UI_GAMETYPE:
-      UI_DrawGameType(&rect, scale, color, textStyle, iMenuFont);
+      UI_DrawGameType(&rect, scale, color, textStyle, font );
       break;
     case UI_NETGAMETYPE:
-      UI_DrawNetGameType(&rect, scale, color, textStyle, iMenuFont);
+      UI_DrawNetGameType(&rect, scale, color, textStyle, font );
       break;
     case UI_AUTOSWITCHLIST:
-      UI_DrawAutoSwitch(&rect, scale, color, textStyle, iMenuFont);
+      UI_DrawAutoSwitch(&rect, scale, color, textStyle, font );
       break;
     case UI_JOINGAMETYPE:
-	  UI_DrawGameType(&rect, scale, color, textStyle, iMenuFont);
+	  UI_DrawGameType(&rect, scale, color, textStyle, font );
 	  break;
     case UI_MAPPREVIEW:
       UI_DrawMapPreview(&rect, scale, color, true);
@@ -2817,16 +2757,16 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
       UI_DrawMapCinematic(&rect, scale, color, true);
       break;
     case UI_SKILL:
-      UI_DrawSkill(&rect, scale, color, textStyle, iMenuFont);
+      UI_DrawSkill(&rect, scale, color, textStyle, font );
       break;
     case UI_TOTALFORCESTARS:
 //      UI_DrawTotalForceStars(&rect, scale, color, textStyle);
       break;
     case UI_BLUETEAMNAME:
-      UI_DrawTeamName(&rect, scale, color, true, textStyle, iMenuFont);
+      UI_DrawTeamName(&rect, scale, color, true, textStyle, font );
       break;
     case UI_REDTEAMNAME:
-      UI_DrawTeamName(&rect, scale, color, false, textStyle, iMenuFont);
+      UI_DrawTeamName(&rect, scale, color, false, textStyle, font );
       break;
     case UI_BLUETEAM1:
 		case UI_BLUETEAM2:
@@ -2844,7 +2784,7 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
 	{
 	  iUse = ownerDraw-274; //unpleasent hack because I don't want to move up all the UI_BLAHTEAM# defines
 	}
-      UI_DrawTeamMember(&rect, scale, color, true, iUse, textStyle, iMenuFont);
+      UI_DrawTeamMember(&rect, scale, color, true, iUse, textStyle, font );
       break;
     case UI_REDTEAM1:
 		case UI_REDTEAM2:
@@ -2862,10 +2802,10 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
 	{
 	  iUse = ownerDraw-277; //unpleasent hack because I don't want to move up all the UI_BLAHTEAM# defines
 	}
-      UI_DrawTeamMember(&rect, scale, color, false, iUse, textStyle, iMenuFont);
+      UI_DrawTeamMember(&rect, scale, color, false, iUse, textStyle, font );
       break;
 		case UI_NETSOURCE:
-      UI_DrawNetSource(&rect, scale, color, textStyle, iMenuFont);
+      UI_DrawNetSource(&rect, scale, color, textStyle, font );
 			break;
     case UI_NETMAPPREVIEW:
       UI_DrawNetMapPreview(&rect, scale, color);
@@ -2874,10 +2814,10 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
       UI_DrawNetMapCinematic(&rect, scale, color);
       break;
 		case UI_NETFILTER:
-      UI_DrawNetFilter(&rect, scale, color, textStyle, iMenuFont);
+      UI_DrawNetFilter(&rect, scale, color, textStyle, font );
 			break;
 		case UI_TIER:
-			UI_DrawTier(&rect, scale, color, textStyle, iMenuFont);
+			UI_DrawTier(&rect, scale, color, textStyle, font );
 			break;
 		case UI_OPPONENTMODEL:
 			//UI_DrawOpponent(&rect);
@@ -2910,49 +2850,49 @@ static void UI_OwnerDraw(float x, float y, float w, float h, float text_x, float
 			UI_DrawOpponentLogoName(&rect, color);
 			break;
 		case UI_TIER_MAPNAME:
-			UI_DrawTierMapName(&rect, scale, color, textStyle, iMenuFont);
+			UI_DrawTierMapName(&rect, scale, color, textStyle, font );
 			break;
 		case UI_TIER_GAMETYPE:
-			UI_DrawTierGameType(&rect, scale, color, textStyle, iMenuFont);
+			UI_DrawTierGameType(&rect, scale, color, textStyle, font );
 			break;
 		case UI_ALLMAPS_SELECTION:
-			UI_DrawAllMapsSelection(&rect, scale, color, textStyle, true, iMenuFont);
+			UI_DrawAllMapsSelection(&rect, scale, color, textStyle, true, font );
 			break;
 		case UI_MAPS_SELECTION:
-			UI_DrawAllMapsSelection(&rect, scale, color, textStyle, false, iMenuFont);
+			UI_DrawAllMapsSelection(&rect, scale, color, textStyle, false, font );
 			break;
 		case UI_OPPONENT_NAME:
-			UI_DrawOpponentName(&rect, scale, color, textStyle, iMenuFont);
+			UI_DrawOpponentName(&rect, scale, color, textStyle, font );
 			break;
 		case UI_BOTNAME:
-			UI_DrawBotName(&rect, scale, color, textStyle,iMenuFont);
+			UI_DrawBotName(&rect, scale, color, textStyle,font );
 			break;
 		case UI_BOTSKILL:
-			UI_DrawBotSkill(&rect, scale, color, textStyle,iMenuFont);
+			UI_DrawBotSkill(&rect, scale, color, textStyle,font );
 			break;
 		case UI_REDBLUE:
-			UI_DrawRedBlue(&rect, scale, color, textStyle,iMenuFont);
+			UI_DrawRedBlue(&rect, scale, color, textStyle,font );
 			break;
 		case UI_CROSSHAIR:
 			UI_DrawCrosshair(&rect, scale, color);
 			break;
 		case UI_SELECTEDPLAYER:
-			UI_DrawSelectedPlayer(&rect, scale, color, textStyle, iMenuFont);
+			UI_DrawSelectedPlayer(&rect, scale, color, textStyle, font );
 			break;
 		case UI_SERVERREFRESHDATE:
-			UI_DrawServerRefreshDate(&rect, scale, color, textStyle, iMenuFont);
+			UI_DrawServerRefreshDate(&rect, scale, color, textStyle, font );
 			break;
 		case UI_SERVERMOTD:
-			UI_DrawServerMOTD(&rect, scale, color, iMenuFont);
+			UI_DrawServerMOTD(&rect, scale, color, font );
 			break;
 		case UI_GLINFO:
-			UI_DrawGLInfo(&rect,scale, color, textStyle, iMenuFont);
+			UI_DrawGLInfo(&rect,scale, color, textStyle, font );
 			break;
 		case UI_KEYBINDSTATUS:
-			UI_DrawKeyBindStatus(&rect,scale, color, textStyle,iMenuFont);
+			UI_DrawKeyBindStatus(&rect,scale, color, textStyle,font );
 			break;
 		case UI_VERSION:
-			UI_Version(&rect, scale, color, iMenuFont);
+			UI_Version(&rect, scale, color, font );
 			break;
     default:
       break;
@@ -3792,11 +3732,11 @@ static bool UI_SelectedPlayer_HandleKey(int flags, float *special, int key) {
 		}
 
 		if (selected == uiInfo.myTeamCount) {
-		 	trap->Cvar_Set( "cg_selectedPlayerName", "Everyone");
+			trap->Cvar_Set( "cg_selectedPlayerName", "Everyone");
 		} else {
-		 	trap->Cvar_Set( "cg_selectedPlayerName", uiInfo.teamNames[selected]);
+			trap->Cvar_Set( "cg_selectedPlayerName", uiInfo.teamNames[selected]);
 		}
-	 	trap->Cvar_Set( "cg_selectedPlayer", va("%d", selected));
+		trap->Cvar_Set( "cg_selectedPlayer", va("%d", selected));
 	}
 	return false;
 }
@@ -4013,16 +3953,7 @@ static void UI_LoadMods() {
 
 	trap->SE_GetStringTextString("MENUS_ALL", sAll, sizeof(sAll));
 
-	// To still display base game with old engine
-	if ( strstr( version.string, "2003" ) ) {
-		trap->SE_GetStringTextString("MENUS_JEDI_ACADEMY", sJediAcademy, sizeof(sJediAcademy));
-		uiInfo.modList[0].modName = String_Alloc("");
-		uiInfo.modList[0].modDescr = String_Alloc(sJediAcademy);
-		uiInfo.modCount = 1;
-	}
-	else
-		uiInfo.modCount = 0;
-
+	uiInfo.modCount = 0;
 	numdirs = trap->FS_GetFileList( "$modlist", "", dirlist, sizeof(dirlist) );
 	dirptr  = dirlist;
 	for( i = 0; i < numdirs; i++ ) {
@@ -4327,7 +4258,7 @@ static void UI_Update(const char *cvarName) {
 	else if (Q_stricmp(cvarName, "ui_mousePitchVeh") == 0)
 	{
 		if (val == 0)	trap->Cvar_SetValue( "m_pitchVeh", 0.022f );
-		else 			trap->Cvar_SetValue( "m_pitchVeh", -0.022f );
+		else			trap->Cvar_SetValue( "m_pitchVeh", -0.022f );
 	}
 }
 
@@ -5265,8 +5196,8 @@ static void UI_RunMenuScript(char **args)
 
 				trap->LAN_GetServerInfo(UI_SourceForLAN(), uiInfo.serverStatus.displayServers[uiInfo.serverStatus.currentServer], buff, MAX_STRING_CHARS);
 				name[0] = addr[0] = '\0';
-				Q_strncpyz(name, 	Info_ValueForKey(buff, "hostname"), sizeof( name ) );
-				Q_strncpyz(addr, 	Info_ValueForKey(buff, "addr"), sizeof( addr ) );
+				Q_strncpyz(name,	Info_ValueForKey(buff, "hostname"), sizeof( name ) );
+				Q_strncpyz(addr,	Info_ValueForKey(buff, "addr"), sizeof( addr ) );
 				if (strlen(name) > 0 && strlen(addr) > 0)
 				{
 					res = trap->LAN_AddServer(AS_FAVORITES, name, addr);
@@ -5295,7 +5226,7 @@ static void UI_RunMenuScript(char **args)
 				char addr[MAX_ADDRESSLENGTH] = {0};
 				trap->LAN_GetServerInfo(AS_FAVORITES, uiInfo.serverStatus.displayServers[uiInfo.serverStatus.currentServer], buff, MAX_STRING_CHARS);
 				addr[0] = '\0';
-				Q_strncpyz(addr, 	Info_ValueForKey(buff, "addr"), sizeof( addr ) );
+				Q_strncpyz(addr,	Info_ValueForKey(buff, "addr"), sizeof( addr ) );
 				if (strlen(addr) > 0)
 				{
 					trap->LAN_RemoveServer(AS_FAVORITES, addr);
@@ -5312,8 +5243,8 @@ static void UI_RunMenuScript(char **args)
 				int res;
 
 				name[0] = addr[0] = '\0';
-				Q_strncpyz(name, 	ui_favoriteName.string, sizeof( name ) );
-				Q_strncpyz(addr, 	ui_favoriteAddress.string, sizeof( addr ) );
+				Q_strncpyz(name,	ui_favoriteName.string, sizeof( name ) );
+				Q_strncpyz(addr,	ui_favoriteAddress.string, sizeof( addr ) );
 				if (/*strlen(name) > 0 &&*/ strlen(addr) > 0) {
 					res = trap->LAN_AddServer(AS_FAVORITES, name, addr);
 					if (res == 0) {
@@ -6166,8 +6097,7 @@ static void UI_SortServerStatusInfo( serverStatusInfo_t *info ) {
 	int i, j, index, numLines;
 	char *tmp1, *tmp2;
 
-	// FIXME: if "gamename" == "base" or "missionpack" then
-	// replace the gametype number by FFA, CTF etc.
+	// FIXME: if "gamename" == "base" or then replace the gametype number by FFA, CTF etc.
 
 	index = 0;
 	numLines = Com_Clampi( 0, MAX_SERVERSTATUS_LINES, info->numLines );
@@ -7416,9 +7346,9 @@ static bool MapList_Parse(char **p) {
 			//mapList[mapCount].imageName = String_Alloc(va("levelshots/%s", mapList[mapCount].mapLoadName));
 			//if (uiInfo.mapCount == 0) {
 			  // only load the first cinematic, selection loads the others
-  			//  uiInfo.mapList[uiInfo.mapCount].cinematic = trap->CIN_PlayCinematic(va("%s.roq",uiInfo.mapList[uiInfo.mapCount].mapLoadName), false, false, true, 0, 0, 0, 0);
+			//  uiInfo.mapList[uiInfo.mapCount].cinematic = trap->CIN_PlayCinematic(va("%s.roq",uiInfo.mapList[uiInfo.mapCount].mapLoadName), false, false, true, 0, 0, 0, 0);
 			//}
-  		uiInfo.mapList[uiInfo.mapCount].cinematic = -1;
+		uiInfo.mapList[uiInfo.mapCount].cinematic = -1;
 			uiInfo.mapList[uiInfo.mapCount].levelShot = trap->R_RegisterShaderNoMip(va("levelshots/%s_small", uiInfo.mapList[uiInfo.mapCount].mapLoadName));
 
 			if (uiInfo.mapCount < MAX_MAPS) {
@@ -8027,11 +7957,6 @@ void UI_Init( bool inGameLoad ) {
 	uiInfo.uiDC.drawSides						= &_UI_DrawSides;
 	uiInfo.uiDC.addRefEntityToScene				= trap->R_AddRefEntityToScene;
 	uiInfo.uiDC.renderScene						= trap->R_RenderScene;
-	uiInfo.uiDC.RegisterFont					= trap->R_RegisterFont;
-	uiInfo.uiDC.Font_StrLenPixels				= trap->R_Font_StrLenPixels;
-	uiInfo.uiDC.Font_StrLenChars				= trap->R_Font_StrLenChars;
-	uiInfo.uiDC.Font_HeightPixels				= trap->R_Font_HeightPixels;
-	uiInfo.uiDC.Font_DrawString					= trap->R_Font_DrawString;
 	uiInfo.uiDC.Language_IsAsian				= trap->R_Language_IsAsian;
 	uiInfo.uiDC.Language_UsesSpaces				= trap->R_Language_UsesSpaces;
 	uiInfo.uiDC.AnyLanguage_ReadCharFromString	= trap->R_AnyLanguage_ReadCharFromString;
@@ -8067,7 +7992,6 @@ void UI_Init( bool inGameLoad ) {
 	uiInfo.uiDC.stopCinematic					= &UI_StopCinematic;
 	uiInfo.uiDC.drawCinematic					= &UI_DrawCinematic;
 	uiInfo.uiDC.runCinematicFrame				= &UI_RunCinematicFrame;
-	uiInfo.uiDC.ext.Font_StrLenPixels			= trap->ext.R_Font_StrLenPixels;
 
 	Init_Display(&uiInfo.uiDC);
 
@@ -8123,8 +8047,7 @@ void UI_Init( bool inGameLoad ) {
 }
 
 #define	UI_FPS_FRAMES	4
-void UI_Refresh( int realtime )
-{
+void UI_Refresh( int realtime ) {
 	static int index;
 	static int	previousTimes[UI_FPS_FRAMES];
 
@@ -8270,7 +8193,7 @@ void UI_Refresh( int realtime )
 			txtCol[3] = colorWhite[3];
 		}
 
-		font.Paint(10, 0, 1, txtCol, parsedFPMessage, 0, 1024, txtStyle, FONT_MEDIUM);
+		Text_Paint( text, 10, 0, 1, txtCol, parsedFPMessage, 0, 1024, txtStyle, JKFont::Medium);
 	}
 	*/
 	//For now, don't bother.
@@ -8349,7 +8272,7 @@ static void UI_PrintTime ( char *buf, int bufsize, int time ) {
 	}
 }
 
-static void UI_DisplayDownloadInfo( const char *downloadName, float centerPoint, float yStart, float scale, int iMenuFont) {
+static void UI_DisplayDownloadInfo( const char *downloadName, float centerPoint, float yStart, float scale, JKFont font) {
 	char sDownLoading[256];
 	char sEstimatedTimeLeft[256];
 	char sTransferRate[256];
@@ -8388,10 +8311,10 @@ static void UI_DisplayDownloadInfo( const char *downloadName, float centerPoint,
 
 	UI_SetColor(colorWhite);
 
-	Font font( iMenuFont, scale, ITEM_ALIGN_CENTER );
-	font.Paint(centerPoint, yStart + 112, sDownLoading, colorWhite );
-	font.Paint(centerPoint, yStart + 192, sEstimatedTimeLeft, colorWhite );
-	font.Paint(centerPoint, yStart + 248, sTransferRate, colorWhite );
+	Text text{ font, scale, ITEM_ALIGN_CENTER };
+	Text_Paint( text, centerPoint, yStart + 112, sDownLoading, colorWhite );
+	Text_Paint( text, centerPoint, yStart + 192, sEstimatedTimeLeft, colorWhite );
+	Text_Paint( text, centerPoint, yStart + 248, sTransferRate, colorWhite );
 
 	if (downloadSize > 0) {
 		s = va( "%s (%d%%)", downloadName, (int)( (float)downloadCount * 100.0f / downloadSize ) );
@@ -8399,14 +8322,14 @@ static void UI_DisplayDownloadInfo( const char *downloadName, float centerPoint,
 		s = downloadName;
 	}
 
-	font.Paint(centerPoint, yStart+136, s, colorWhite);
+	Text_Paint( text, centerPoint, yStart+136, s, colorWhite);
 
 	UI_ReadableSize( dlSizeBuf,		sizeof dlSizeBuf,		downloadCount );
 	UI_ReadableSize( totalSizeBuf,	sizeof totalSizeBuf,	downloadSize );
 
 	if (downloadCount < 4096 || !downloadTime) {
-		font.Paint(leftWidth, yStart+216, "estimating", colorWhite);
-		font.Paint(leftWidth, yStart+160, va("(%s %s %s %s)", dlSizeBuf, sOf, totalSizeBuf, sCopied), colorWhite);
+		Text_Paint( text, leftWidth, yStart+216, "estimating", colorWhite);
+		Text_Paint( text, leftWidth, yStart+160, va("(%s %s %s %s)", dlSizeBuf, sOf, totalSizeBuf, sCopied), colorWhite);
 	} else {
 		if ((uiInfo.uiDC.realTime - downloadTime) / 1000) {
 			xferRate = downloadCount / ((uiInfo.uiDC.realTime - downloadTime) / 1000);
@@ -8423,19 +8346,19 @@ static void UI_DisplayDownloadInfo( const char *downloadName, float centerPoint,
 			UI_PrintTime ( dlTimeBuf, sizeof dlTimeBuf,
 				(n - (((downloadCount/1024) * n) / (downloadSize/1024))) * 1000);
 
-			font.Paint(leftWidth, yStart+216, dlTimeBuf, colorWhite);
-			font.Paint(leftWidth, yStart+160, va("(%s %s %s %s)", dlSizeBuf, sOf, totalSizeBuf, sCopied), colorWhite);
+			Text_Paint( text, leftWidth, yStart+216, dlTimeBuf, colorWhite);
+			Text_Paint( text, leftWidth, yStart+160, va("(%s %s %s %s)", dlSizeBuf, sOf, totalSizeBuf, sCopied), colorWhite);
 		} else {
-			font.Paint(leftWidth, yStart+216, "estimating", colorWhite);
+			Text_Paint( text, leftWidth, yStart+216, "estimating", colorWhite);
 			if (downloadSize) {
-				font.Paint(leftWidth, yStart+160, va("(%s %s %s %s)", dlSizeBuf, sOf, totalSizeBuf, sCopied), colorWhite);
+				Text_Paint( text, leftWidth, yStart+160, va("(%s %s %s %s)", dlSizeBuf, sOf, totalSizeBuf, sCopied), colorWhite);
 			} else {
-				font.Paint(leftWidth, yStart+160, va("(%s %s)", dlSizeBuf, sCopied), colorWhite);
+				Text_Paint( text, leftWidth, yStart+160, va("(%s %s)", dlSizeBuf, sCopied), colorWhite);
 			}
 		}
 
 		if (xferRate) {
-			font.Paint(leftWidth, yStart+272, va("%s/%s", xferRateBuf,sSec), colorWhite);
+			Text_Paint( text, leftWidth, yStart+272, va("%s/%s", xferRateBuf,sSec), colorWhite);
 		}
 	}
 }
@@ -8445,7 +8368,6 @@ void UI_DrawConnectScreen( bool overlay ) {
 	const char *s;
 	uiClientState_t	cstate;
 	char			info[MAX_INFO_VALUE];
-	char text[256];
 	float centerPoint, yStart, scale;
 
 	char sStringEdTemp[256];
@@ -8470,27 +8392,28 @@ void UI_DrawConnectScreen( bool overlay ) {
 	// see what information we should display
 	trap->GetClientState( &cstate );
 
-	Font font( FONT_MEDIUM, scale, ITEM_ALIGN_CENTER );
+	Text text{ JKFont::Medium, scale, ITEM_ALIGN_CENTER };
 	info[0] = '\0';
 	if( trap->GetConfigString( CS_SERVERINFO, info, sizeof(info) ) ) {
 		trap->SE_GetStringTextString("MENUS_LOADING_MAPNAME", sStringEdTemp, sizeof(sStringEdTemp));
-		font.Paint(centerPoint, yStart, va( /*"Loading %s"*/sStringEdTemp, Info_ValueForKey( info, "mapname" )), colorWhite);
+		Text_Paint( text, centerPoint, yStart, va( /*"Loading %s"*/sStringEdTemp, Info_ValueForKey( info, "mapname" )), colorWhite);
 	}
 
+	char str[256];
 	if (!Q_stricmp(cstate.servername,"localhost")) {
 		trap->SE_GetStringTextString("MENUS_STARTING_UP", sStringEdTemp, sizeof(sStringEdTemp));
-		font.Paint(centerPoint, yStart + 48, sStringEdTemp, colorWhite, ITEM_TEXTSTYLE_SHADOWEDMORE);
+		Text_Paint( text, centerPoint, yStart + 48, sStringEdTemp, colorWhite, ITEM_TEXTSTYLE_SHADOWEDMORE);
 	} else {
 		trap->SE_GetStringTextString("MENUS_CONNECTING_TO", sStringEdTemp, sizeof(sStringEdTemp));
-		Q_strncpyz(text, va(/*"Connecting to %s"*/sStringEdTemp, cstate.servername), sizeof(text));
-		font.Paint(centerPoint, yStart + 48, text, colorWhite, ITEM_TEXTSTYLE_SHADOWEDMORE);
+		Q_strncpyz(str, va(/*"Connecting to %s"*/sStringEdTemp, cstate.servername), sizeof(str));
+		Text_Paint( text, centerPoint, yStart + 48, str, colorWhite, ITEM_TEXTSTYLE_SHADOWEDMORE);
 	}
 
 	// display global MOTD at bottom
-	font.Paint(centerPoint, 425, Info_ValueForKey( cstate.updateInfoString, "motd" ), colorWhite);
+	Text_Paint( text, centerPoint, 425, Info_ValueForKey( cstate.updateInfoString, "motd" ), colorWhite);
 	// print any server info (server full, bad version, etc)
 	if ( cstate.connState < CA_CONNECTED ) {
-		font.Paint(centerPoint, yStart + 176, cstate.messageString, colorWhite);
+		Text_Paint( text, centerPoint, yStart + 176, cstate.messageString, colorWhite);
 	}
 
 	switch ( cstate.connState ) {
@@ -8511,7 +8434,7 @@ void UI_DrawConnectScreen( bool overlay ) {
 
 			trap->Cvar_VariableStringBuffer( "cl_downloadName", downloadName, sizeof(downloadName) );
 			if (*downloadName) {
-				UI_DisplayDownloadInfo( downloadName, centerPoint, yStart, scale, FONT_MEDIUM );
+				UI_DisplayDownloadInfo( downloadName, centerPoint, yStart, scale, JKFont::Medium );
 				return;
 			}
 		}
@@ -8527,7 +8450,7 @@ void UI_DrawConnectScreen( bool overlay ) {
 	}
 
 	if (Q_stricmp(cstate.servername,"localhost")) {
-		font.Paint(centerPoint, yStart + 80, s, colorWhite);
+		Text_Paint( text, centerPoint, yStart + 80, s, colorWhite);
 	}
 	// password required / connection rejected information goes here
 }
@@ -8597,7 +8520,7 @@ static void UI_StartServerRefresh(bool full)
 
 	qtime_t q;
 	trap->RealTime(&q);
- 	trap->Cvar_Set( va("ui_lastServerRefresh_%i", ui_netSource.integer), va("%s-%i, %i @ %i:%02i", GetMonthAbbrevString(q.tm_mon),q.tm_mday, 1900+q.tm_year,q.tm_hour,q.tm_min));
+	trap->Cvar_Set( va("ui_lastServerRefresh_%i", ui_netSource.integer), va("%s-%i, %i @ %i:%02i", GetMonthAbbrevString(q.tm_mon),q.tm_mday, 1900+q.tm_year,q.tm_hour,q.tm_min));
 
 	if (!full) {
 		UI_UpdatePendingPings();
@@ -8631,38 +8554,4 @@ static void UI_StartServerRefresh(bool full)
 			trap->Cmd_ExecuteText( EXEC_NOW, va( "globalservers %d %d full empty\n", ui_netSource.integer-1, com_protocol.integer ) );
 		}
 	}
-}
-
-uiImport_t *trap = nullptr;
-
-Q_CABI {
-Q_EXPORT uiExport_t* QDECL GetModuleAPI( int apiVersion, uiImport_t *import )
-{
-	static uiExport_t uie = {0};
-
-	assert( import );
-	trap = import;
-	Com_Printf	= trap->Print;
-	Com_Error	= trap->Error;
-
-	memset( &uie, 0, sizeof( uie ) );
-
-	if ( apiVersion != UI_API_VERSION ) {
-		trap->Print( "Mismatched UI_API_VERSION: expected %i, got %i\n", UI_API_VERSION, apiVersion );
-		return nullptr;
-	}
-
-	uie.Init				= UI_Init;
-	uie.Shutdown			= UI_Shutdown;
-	uie.KeyEvent			= UI_KeyEvent;
-	uie.MouseEvent			= UI_MouseEvent;
-	uie.Refresh				= UI_Refresh;
-	uie.IsFullscreen		= Menus_AnyFullScreenVisible;
-	uie.SetActiveMenu		= UI_SetActiveMenu;
-	uie.ConsoleCommand		= UI_ConsoleCommand;
-	uie.DrawConnectScreen	= UI_DrawConnectScreen;
-	uie.MenuReset			= Menu_Reset;
-
-	return &uie;
-}
 }

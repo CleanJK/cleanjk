@@ -29,7 +29,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "qcommon/q_shared.hpp"
 #include "game/bg_public.hpp"
-#include "game/g_public.hpp"
+#include "game/g_engine.hpp"
 #include "game/b_public.hpp"
 
 // conditional compilation
@@ -836,6 +836,7 @@ int              G_GetHitLocation                    ( gentity_t *target, vec3_t
 const char      *G_GetStringEdString                 ( char *refSection, char *refName );
 int              G_IconIndex                         ( const char* name );
 void             G_InitBots                          ( void );
+void             G_InitGame                          ( int levelTime, int randomSeed, int restart );
 void             G_InitGentity                       ( gentity_t *e );
 void             G_InitMemory                        ( void );
 void             G_InitSessionData                   ( gclient_t *client, char *userinfo, bool isBot );
@@ -884,6 +885,7 @@ void             G_RemoveQueuedBotBegin              ( int clientNum );
 void             G_ROFF_NotetrackCallback            ( gentity_t *cent, const char *notetrack );
 void             G_RunClient                         ( gentity_t *ent );
 void             G_RunExPhys                         ( gentity_t *ent, float gravity, float mass, float bounce, bool autoKill, int *g2Bolts, int numG2Bolts );
+void             G_RunFrame                          ( int levelTime );
 void             G_RunItem                           ( gentity_t *ent );
 void             G_RunMissile                        ( gentity_t *ent );
 void             G_RunMover                          ( gentity_t *ent );
@@ -898,6 +900,7 @@ void             G_SetAnim                           ( gentity_t *ent, usercmd_t
 void             G_SetMovedir                        ( vec3_t angles, vec3_t movedir );
 void             G_SetOrigin                         ( gentity_t *ent, vec3_t origin );
 bool             G_SetSaber                          ( gentity_t *ent, int saberNum, char *saberName );
+void             G_ShutdownGame                      ( int restart );
 void             G_SetStats                          ( gentity_t *ent );
 void             G_Sound                             ( gentity_t *ent, int channel, int soundIndex );
 void             G_SoundAtLoc                        ( vec3_t loc, int channel, int soundIndex );

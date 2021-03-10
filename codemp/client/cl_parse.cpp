@@ -444,7 +444,7 @@ void CL_ParseGamestate( msg_t *msg ) {
 	int				cmd;
 	char			*s;
 
-	Con_Close();
+	Console_Close();
 
 	clc.connectPacketCount = 0;
 

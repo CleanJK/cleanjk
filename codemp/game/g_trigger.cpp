@@ -996,7 +996,7 @@ void trigger_teleporter_touch (gentity_t *self, gentity_t *other, trace_t *trace
 		return;
 	}
 
-	dest = 	G_PickTarget( self->target );
+	dest =	G_PickTarget( self->target );
 	if (!dest) {
 		trap->Print ("Couldn't find teleporter destination\n");
 		return;

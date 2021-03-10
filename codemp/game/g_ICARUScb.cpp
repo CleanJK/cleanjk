@@ -313,7 +313,7 @@ static char *Q3_GetAnimUpper( gentity_t *ent )
 
 static char *Q3_GetAnimBoth( gentity_t *ent )
 {
- 	char	*lowerName, *upperName;
+	char	*lowerName, *upperName;
 
 	lowerName = Q3_GetAnimLower( ent );
 	upperName = Q3_GetAnimUpper( ent );

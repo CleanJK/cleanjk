@@ -28,7 +28,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "qcommon/q_shared.hpp"
 #include "rd-common/tr_types.hpp"
 #include "game/bg_public.hpp"
-#include "cgame/cg_public.hpp"
+#include "cgame/cg_engine.hpp"
 #include "ui/ui_shared.hpp"
 
 // The entire cgame module is unloaded and reloaded on each level change, so there is NO persistant data between levels on the client side.
@@ -248,7 +248,6 @@ struct clientInfo_t {
 	int            lookTime;
 	int            brokenLimbs;
 	bool           deferred;
-	bool           newAnims;        // true if using the new mission pack animations
 	bool           fixedlegs;       // true if legs yaw is always the same as torso yaw
 	bool           fixedtorso;      // true if torso never changes yaw
 	vec3_t         headOffset;      // move head in icon views
@@ -732,7 +731,6 @@ struct cg_t {
 		ragCallbackBoneInSolid_t  rcbBoneInSolid;
 		ragCallbackTraceLine_t    rcbTraceLine;
 		TCGMiscEnt                miscEnt;
-		TCGIncomingConsoleCommand icc;
 		autoMapInput_t            autoMapInput;
 		TCGCameraShake            cameraShake;
 	} sharedBuffer;
@@ -836,26 +834,31 @@ struct cgs_t {
 
 
 
-extern forceTicPos_t   ammoTicPos[];
-extern cg_t            cg;
-extern const char      *cg_customCombatSoundNames[MAX_CUSTOM_COMBAT_SOUNDS];
-extern const char      *cg_customDuelSoundNames[MAX_CUSTOM_DUEL_SOUNDS];
-extern const char      *cg_customExtraSoundNames[MAX_CUSTOM_EXTRA_SOUNDS];
-extern const char      *cg_customJediSoundNames[MAX_CUSTOM_JEDI_SOUNDS];
-extern const char      *cg_customSoundNames[MAX_CUSTOM_SOUNDS];
-extern centity_t       cg_entities[MAX_GENTITIES];
-extern centity_t      *cg_permanents[MAX_GENTITIES];
-extern int             cg_numpermanents;
-extern weaponInfo_t    cg_weapons[MAX_WEAPONS];
-extern itemInfo_t      cg_items[MAX_ITEMS];
-extern markPoly_t      cg_markPolys[MAX_MARK_POLYS];
-extern cgs_t           cgs;
-extern cgscreffects_t  cgScreenEffects;
-extern forceTicPos_t   forceTicPos[];
-extern int             numSortedTeamPlayers;
-extern int             sortedTeamPlayers[TEAM_MAXOVERLAY];
-extern char            systemChat[256];
-extern cgameImport_t  *trap;
+extern forceTicPos_t        ammoTicPos[];
+extern cg_t                 cg;
+extern vec3_t               cg_autoMapAngle;
+extern autoMapInput_t       cg_autoMapInput;
+extern int                  cg_autoMapInputTime;
+extern const char           *cg_customCombatSoundNames[MAX_CUSTOM_COMBAT_SOUNDS];
+extern const char           *cg_customDuelSoundNames[MAX_CUSTOM_DUEL_SOUNDS];
+extern const char           *cg_customExtraSoundNames[MAX_CUSTOM_EXTRA_SOUNDS];
+extern const char           *cg_customJediSoundNames[MAX_CUSTOM_JEDI_SOUNDS];
+extern const char           *cg_customSoundNames[MAX_CUSTOM_SOUNDS];
+extern centity_t            cg_entities[MAX_GENTITIES];
+extern centity_t           *cg_permanents[MAX_GENTITIES];
+extern int                  cg_numpermanents;
+extern weaponInfo_t         cg_weapons[MAX_WEAPONS];
+extern itemInfo_t           cg_items[MAX_ITEMS];
+extern markPoly_t           cg_markPolys[MAX_MARK_POLYS];
+extern displayContextDef_t  cgDC;
+extern cgs_t                cgs;
+extern cgscreffects_t       cgScreenEffects;
+extern forceTicPos_t        forceTicPos[];
+extern int                  numSortedTeamPlayers;
+extern int                  sortedTeamPlayers[TEAM_MAXOVERLAY];
+extern char                 systemChat[256];
+extern cgameImport_t       *trap;
+
 
 
 // cg_cvar.c
@@ -956,6 +959,7 @@ float          CG_GetValue                      ( int ownerDraw );
 void           CG_GlassShatter                  ( int entnum, vec3_t dmgPt, vec3_t dmgDir, float dmgRadius, int maxShards );
 int            CG_HandleAppendedSkin            ( char *modelName );
 void           CG_ImpactMark                    ( qhandle_t markShader, const vec3_t origin, const vec3_t dir, float orientation, float r, float g, float b, float a, bool alphaFade, float radius, bool temporary );
+void           CG_Init                          ( int serverMessageNum, int serverCommandSequence, int clientNum );
 void           CG_Init_CG                       ( void );
 void           CG_Init_CGents                   ( void );
 void           CG_InitConsoleCommands           ( void );
@@ -977,6 +981,7 @@ void           CG_LoadingString                 ( const char *s );
 void           CG_LoadMenus                     ( const char *menuFile );
 localEntity_t *CG_MakeExplosion                 ( vec3_t origin, vec3_t dir, qhandle_t hModel, int numframes, qhandle_t shader, int msec, bool isSprite, float scale, int flags ); // Overloaded in single player
 void           CG_ManualEntityRender            ( centity_t *cent );
+void           CG_MiscEnt                       ( void );
 void           CG_MiscModelExplosion            ( vec3_t mins, vec3_t maxs, int size, chunkMaterial_e chunkType );
 void           CG_MissileHitPlayer              ( int weapon, vec3_t origin, vec3_t dir, int entityNum, bool alt_fire );
 void           CG_MissileHitWall                ( int weapon, int clientNum, vec3_t origin, vec3_t dir, impactSound_e soundType, bool alt_fire, int charge );
@@ -985,9 +990,10 @@ void           CG_NewClientInfo                 ( int clientNum, bool entitiesIn
 void           CG_NextForcePower_f              ( void );
 void           CG_NextInventory_f               ( void );
 void           CG_NextWeapon_f                  ( void );
+bool           CG_NoUseableForce                ( void );
 bool           CG_OtherTeamHasFlag              ( void );
 void           CG_OutOfAmmoChange               ( int oldWeapon );
-void           CG_OwnerDraw                     ( float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, float scale, vec4_t color, qhandle_t shader, int textStyle,int font );
+void           CG_OwnerDraw                     ( float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, float scale, vec4_t color, qhandle_t shader, int textStyle, JKFont font );
 bool           CG_OwnerDrawVisible              ( int flags );
 void           CG_PainEvent                     ( centity_t *cent, int health );
 void           CG_ParseEntitiesFromString       ( void );
@@ -1030,6 +1036,7 @@ void           CG_SetLightstyle                 ( int i );
 void           CG_SetScoreSelection             ( void *menu );
 void           CG_ShaderStateChanged            ( void );
 void           CG_ShowResponseHead              ( void );
+void           CG_Shutdown                      ( void );
 void           CG_ShutDownG2Weapons             ( void );
 localEntity_t *CG_SmokePuff                     ( const vec3_t p, const vec3_t vel, float radius, float r, float g, float b, float a, float duration, int startTime, int fadeInTime, int leFlags, qhandle_t hShader );
 void           CG_Spark                         ( vec3_t origin, vec3_t dir );

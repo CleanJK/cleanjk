@@ -282,7 +282,7 @@ struct mdxaHeader_t {
 
 	// ( first 3 fields are same format as MD3/MDR so we can apply easy model-format-type checks )
 
-	int			ident;				// 	"IDP3" = MD3, "RDM5" = MDR, "2LGA"(GL2 Anim) = MDXA
+	int			ident;				//	"IDP3" = MD3, "RDM5" = MDR, "2LGA"(GL2 Anim) = MDXA
 	int			version;			// 1,2,3 etc as per format revision
 
 	char		name[MAX_QPATH];	// GLA name (eg "skeletons/marine")	// note: extension missing

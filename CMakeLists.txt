@@ -25,8 +25,8 @@ set(InOpenJK TRUE)
 
 
 # Project name
-set(ProjectName "CleanJoKe" CACHE STRING "Project Name")
-set(BinaryName "cleanjoke" CACHE STRING "Binary Name")
+set(ProjectName "CleanJK" CACHE STRING "Project Name")
+set(BinaryName "cleanjk" CACHE STRING "Binary Name")
 project(${ProjectName})
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
@@ -200,15 +200,17 @@ elseif (("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU") OR ("${CMAKE_C_COMPILER_ID}" M
 	# ZLib explicitly declares symbols hidden, rather than defaulting to hidden.
 	#
 	# Note that -fvisibility=hidden is stronger than -fvisibility-inlines-hidden.
-	set(OPENJK_VISIBILITY_FLAGS "-fvisibility=hidden")
+	if(NOT CMAKE_BUILD_TYPE MATCHES "DEBUG" AND NOT CMAKE_BUILD_TYPE MATCHES "Debug")
+		set(OPENJK_VISIBILITY_FLAGS "-fvisibility=hidden")
+	endif()
 
 	# removes the -rdynamic flag at linking (which causes crashes for some reason)
 	set(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
 	set(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "")
 
 	# additional flags for debug configuration
-	set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ggdb")
-	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ggdb")
+	set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -ggdb -fsanitize=address")
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -ggdb -fsanitize=address")
 
 	if (X86)
 		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -msse2")
@@ -220,7 +222,7 @@ elseif (("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU") OR ("${CMAKE_C_COMPILER_ID}" M
 
 	# enable somewhat modern C++
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-	
+
 	if("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU")
 		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall")
 		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-comment")
@@ -307,7 +309,7 @@ set(SharedCommonFiles
 	"${SharedDir}/qcommon/q_math.cpp"
 	"${SharedDir}/qcommon/q_string.hpp"
 	"${SharedDir}/qcommon/q_string.cpp"
-	"${SharedDir}/qcommon/q_platform.h"
+	"${SharedDir}/qcommon/q_platform.hpp"
 	)
 
 

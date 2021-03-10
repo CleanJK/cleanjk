@@ -39,142 +39,143 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // DEFINE
 // ======================================================================
 
-#define	AED_ARRAY_SIZE              (MAX_RANDOM_ANIM_SOUNDS+3)
-#define	AED_BOLTINDEX               1
-#define	AED_EFFECT_PROBABILITY      2
-#define	AED_EFFECTINDEX             0
-#define	AED_FIRE_ALT                0
-#define	AED_FIRE_PROBABILITY        1
-#define	AED_FOOTSTEP_PROBABILITY    1
-#define	AED_FOOTSTEP_TYPE           0
-#define	AED_MODELINDEX              3
-#define	AED_MOVE_FWD                0
-#define	AED_MOVE_RT                 1
-#define	AED_MOVE_UP                 2
-#define	AED_SABER_SPIN_PROBABILITY  2
-#define	AED_SABER_SPIN_SABERNUM     0
-#define	AED_SABER_SPIN_TYPE         1 //0 = saberspinoff, 1 = saberspin, 2-4 = saberspin1-saberspin3
-#define	AED_SABER_SWING_PROBABILITY 2
-#define	AED_SABER_SWING_SABERNUM    0
-#define	AED_SABER_SWING_TYPE        1
-#define	AED_SOUND_NUMRANDOMSNDS     (MAX_RANDOM_ANIM_SOUNDS)
-#define	AED_SOUND_PROBABILITY       (MAX_RANDOM_ANIM_SOUNDS+1)
-#define	AED_SOUNDCHANNEL            (MAX_RANDOM_ANIM_SOUNDS+2)
-#define	AED_SOUNDINDEX_END          (MAX_RANDOM_ANIM_SOUNDS-1)
-#define	AED_SOUNDINDEX_START        0
-#define	CS_GAME_VERSION             20
-#define	CS_INTERMISSION             22 // when 1, fraglimit/timelimit has been hit and intermission will start in a second or two
-#define	CS_ITEMS                    27 // string of 0's and 1's that tell which items are present
-#define	CS_LEVEL_START_TIME         21 // so the timer only shows the current level
-#define	CS_LIGHT_STYLES             (CS_EFFECTS + MAX_FX)
-#define	CS_MESSAGE                  3 // from the map worldspawn's message field
-#define	CS_MODELS                   (CS_AMBIENT_SET+1)
-#define	CS_MOTD                     4 // g_motd string for server message of the day
-#define	CS_MUSIC                    2
-#define	CS_PLAYERS                  (CS_ICONS+MAX_ICONS)
-#define	CS_SCORES1                  6
-#define	CS_SCORES2                  7
-#define	CS_SKYBOXORG                (CS_MODELS+MAX_MODELS)		//rww - skybox info
-#define	CS_SOUNDS                   (CS_SKYBOXORG+1)
-#define	CS_TEAMVOTE_NO              18
-#define	CS_TEAMVOTE_YES             16
-#define	CS_VOTE_NO                  11
-#define	CS_VOTE_YES                 10
-#define	CS_WARMUP                   5		// server time when the match will be restarted
-#define	DEAD_VIEWHEIGHT             -16
-#define	DEFAULT_GRAVITY             800
-#define	DEFAULT_MODEL               "kyle"
-#define	DEFAULT_VIEWHEIGHT          (DEFAULT_MAXS_2+STANDARD_VIEWHEIGHT_OFFSET)//26
-#define	EVENT_VALID_MSEC            300
-#define	FX_STATE_OFF                0
-#define	GAME_VERSION                "cleanjk-1"
-#define	GIB_HEALTH                  -40
-#define	HYPERSPACE_SPEED            10000.0f//was 30000
-#define	HYPERSPACE_TELEPORT_FRAC    0.75f
-#define	HYPERSPACE_TIME             4000 //For hyperspace triggers
-#define	HYPERSPACE_TURN_RATE        45.0f
-#define	ITEM_INDEX(x)               ((x)-bg_itemlist)
-#define	ITEM_RADIUS                 15		// item sizes are needed for client side pickup detection
-#define	JUMP_VELOCITY               225//270
-#define	MASK_ALL                    (0xFFFFFFFFu)
-#define	MASK_DEADSOLID              (CONTENTS_SOLID|CONTENTS_PLAYERCLIP|CONTENTS_TERRAIN)
-#define	MASK_OPAQUE                 (CONTENTS_SOLID|CONTENTS_SLIME|CONTENTS_LAVA|CONTENTS_TERRAIN)
-#define	MASK_PLAYERSOLID            (CONTENTS_SOLID|CONTENTS_PLAYERCLIP|CONTENTS_BODY|CONTENTS_TERRAIN)
-#define	MASK_SHOT                   (CONTENTS_SOLID|CONTENTS_BODY|CONTENTS_CORPSE|CONTENTS_TERRAIN)
-#define	MASK_SOLID                  (CONTENTS_SOLID|CONTENTS_TERRAIN)
-#define	MASK_WATER                  (CONTENTS_WATER|CONTENTS_LAVA|CONTENTS_SLIME)
-#define	MAX_ARENAS_TEXT             8192
-#define	MAX_ITEMS                   256
-#define MAX_SABER_HILTS             256 //64
-#define	MAX_SPAWN_VARS              64
-#define	MAX_SPAWN_VARS_CHARS        4096
-#define	MAXTOUCH                    32
-#define	MINS_Z                      -24
-#define	PMF_ALL_TIMES               (PMF_TIME_WATERJUMP|PMF_TIME_LAND|PMF_TIME_KNOCKBACK)
-#define	RANK_TIED_FLAG              0x4000
-#define	SCORE_NOT_PRESENT           -9999	// for the CS_SCORES[12] when only one player is present
-#define	STANDARD_VIEWHEIGHT_OFFSET  -4
-#define	STEPSIZE                    18
-#define	VOTE_TIME                   30000	// 30 seconds before vote times out
+#define AED_ARRAY_SIZE              (MAX_RANDOM_ANIM_SOUNDS+3)
+#define AED_BOLTINDEX               1
+#define AED_EFFECT_PROBABILITY      2
+#define AED_EFFECTINDEX             0
+#define AED_FIRE_ALT                0
+#define AED_FIRE_PROBABILITY        1
+#define AED_FOOTSTEP_PROBABILITY    1
+#define AED_FOOTSTEP_TYPE           0
+#define AED_MODELINDEX              3
+#define AED_MOVE_FWD                0
+#define AED_MOVE_RT                 1
+#define AED_MOVE_UP                 2
+#define AED_SABER_SPIN_PROBABILITY  2
+#define AED_SABER_SPIN_SABERNUM     0
+#define AED_SABER_SPIN_TYPE         1 //0 = saberspinoff, 1 = saberspin, 2-4 = saberspin1-saberspin3
+#define AED_SABER_SWING_PROBABILITY 2
+#define AED_SABER_SWING_SABERNUM    0
+#define AED_SABER_SWING_TYPE        1
+#define AED_SOUND_NUMRANDOMSNDS     (MAX_RANDOM_ANIM_SOUNDS)
+#define AED_SOUND_PROBABILITY       (MAX_RANDOM_ANIM_SOUNDS+1)
+#define AED_SOUNDCHANNEL            (MAX_RANDOM_ANIM_SOUNDS+2)
+#define AED_SOUNDINDEX_END          (MAX_RANDOM_ANIM_SOUNDS-1)
+#define AED_SOUNDINDEX_START        0
 #define ARENAS_PER_TIER             4
 #define ARMOR_PROTECTION            0.50 // Shields only stop 50% of armor-piercing dmg
 #define ARMOR_REDUCTION_FACTOR      0.50 // Certain damage doesn't take off armor as efficiently
 #define BG_NUM_TOGGLEABLE_SURFACES  31
 #define CROUCH_MAXS_2               16
 #define CROUCH_VIEWHEIGHT           (CROUCH_MAXS_2+STANDARD_VIEWHEIGHT_OFFSET)//12
-#define CS_AMBIENT_SET              37
-#define CS_BOTINFO                  25
-#define CS_BSP_MODELS               (CS_TERRAINS + MAX_TERRAINS)
-#define CS_CLIENT_DUELHEALTHS       31		// nmckenzie: DUEL_HEALTH.  Hopefully adding this cs is safe and good?
-#define CS_CLIENT_DUELISTS          30		// client numbers for both current duelists. Needed for a number of client-side things.
-#define CS_CLIENT_DUELWINNER        29		// current duel round winner - needed for printing at top of scoreboard
-#define CS_CLIENT_JEDIMASTER        28		// current jedi master
-#define CS_EFFECTS                  (CS_PARTICLES+MAX_LOCATIONS)
-#define CS_FLAGSTATUS               23		// string indicating flag status in CTF
-#define CS_G2BONES                  (CS_PLAYERS+MAX_CLIENTS)
-#define CS_GLOBAL_AMBIENT_SET       32
-#define CS_ICONS                    (CS_SOUNDS+MAX_SOUNDS)
-#define CS_LOCATIONS                (CS_G2BONES+MAX_G2BONES)
-#define CS_MAX                      (CS_BSP_MODELS + MAX_SUB_BSP)
-#define CS_PARTICLES                (CS_LOCATIONS+MAX_LOCATIONS)
-#define CS_SHADERSTATE              24
-#define CS_TEAMVOTE_STRING          14
-#define CS_TEAMVOTE_TIME            12
-#define CS_TERRAINS                 (CS_LIGHT_STYLES + (MAX_LIGHT_STYLES*3))
-#define CS_VOTE_STRING              9
-#define CS_VOTE_TIME                8
+#define DEAD_VIEWHEIGHT             -16
 #define DEFAULT_BLUETEAM_NAME       "Noobie Blues"
 #define DEFAULT_FORCEPOWERS         "7-1-032330000000001333"
 #define DEFAULT_FORCEPOWERS_LEN     (22) // numPowers + rank + side + separators
+#define DEFAULT_GRAVITY             800
 #define DEFAULT_MAXS_2              40
 #define DEFAULT_MINS_2              -24
+#define DEFAULT_MODEL               "kyle"
 #define DEFAULT_MODEL_FEMALE        "jan"
 #define DEFAULT_REDTEAM_NAME        "Dreaded Reds"
 #define DEFAULT_SABER               "single_1"
 #define DEFAULT_SABER_MODEL         "models/weapons/saber_1/model.glm"
 #define DEFAULT_SABER_STAFF         "dual_1"
 #define DEFAULT_SABER_VIEWMODEL     "models/weapons/saber_1/model.md3"
+#define DEFAULT_VIEWHEIGHT          (DEFAULT_MAXS_2+STANDARD_VIEWHEIGHT_OFFSET)//26
+#define EVENT_VALID_MSEC            300
 #define FX_STATE_CONTINUOUS         20
+#define FX_STATE_OFF                0
 #define FX_STATE_ONE_SHOT           1
 #define FX_STATE_ONE_SHOT_LIMIT     10
 #define G2_MODEL_PART               50
+#define GAME_VERSION                "cleanjk-1"
+#define GIB_HEALTH                  -40
+#define HYPERSPACE_SPEED            10000.0f//was 30000
+#define HYPERSPACE_TELEPORT_FRAC    0.75f
+#define HYPERSPACE_TIME             4000 //For hyperspace triggers
+#define HYPERSPACE_TURN_RATE        45.0f
+#define ITEM_INDEX(x)               ((x)-bg_itemlist)
+#define ITEM_RADIUS                 15		// item sizes are needed for client side pickup detection
+#define JUMP_VELOCITY               225//270
+#define MASK_ALL                    (0xFFFFFFFFu)
+#define MASK_DEADSOLID              (CONTENTS_SOLID|CONTENTS_PLAYERCLIP|CONTENTS_TERRAIN)
+#define MASK_OPAQUE                 (CONTENTS_SOLID|CONTENTS_SLIME|CONTENTS_LAVA|CONTENTS_TERRAIN)
+#define MASK_PLAYERSOLID            (CONTENTS_SOLID|CONTENTS_PLAYERCLIP|CONTENTS_BODY|CONTENTS_TERRAIN)
+#define MASK_SHOT                   (CONTENTS_SOLID|CONTENTS_BODY|CONTENTS_CORPSE|CONTENTS_TERRAIN)
+#define MASK_SOLID                  (CONTENTS_SOLID|CONTENTS_TERRAIN)
+#define MASK_WATER                  (CONTENTS_WATER|CONTENTS_LAVA|CONTENTS_SLIME)
 #define MAX_ANIM_EVENTS             300
 #define MAX_ANIM_FILES              16
 #define MAX_ARENAS                  1024
+#define MAX_ARENAS_TEXT             8192
 #define MAX_BLADES                  8
 #define MAX_BOTS                    1024
 #define MAX_BOTS_TEXT               8192
 #define MAX_CLIENT_SCORE_SEND       20
 #define MAX_CUSTOM_SIEGE_SOUNDS     30
 #define MAX_ITEM_MODELS             4
+#define MAX_ITEMS                   256
 #define MAX_RANDOM_ANIM_SOUNDS      4
+#define MAX_SABER_HILTS             256 //64
 #define MAX_SABERS                  2
-#define PLAYEREVENT_HOLYSHIT        0x0004 //OJKFIXME: add holy shit :D
+#define MAX_SPAWN_VARS              64
+#define MAX_SPAWN_VARS_CHARS        4096
+#define MAXTOUCH                    32
+#define MINS_Z                      -24
+#define PMF_ALL_TIMES               (PMF_TIME_WATERJUMP|PMF_TIME_LAND|PMF_TIME_KNOCKBACK)
+#define RANK_TIED_FLAG              0x4000
 #define SABER_BLOCK_DUR             150 // number of milliseconds a block animation should take.
 #define SABER_NAME_LENGTH           (64)
+#define SCORE_NOT_PRESENT           -9999	// for the CS_SCORES[12] when only one player is present
+#define STANDARD_VIEWHEIGHT_OFFSET  -4
+#define STEPSIZE                    18
 #define TEAM_LOCATION_UPDATE_TIME   1000
 #define TEAM_MAXOVERLAY             32
 #define TOSS_DEBOUNCE_TIME          5000
+#define VOTE_TIME                   30000	// 30 seconds before vote times out
+
+#define CS_MUSIC                    2
+#define CS_MESSAGE                  3 // from the map worldspawn's message field
+#define CS_MOTD                     4 // g_motd string for server message of the day
+#define CS_WARMUP                   5 // server time when the match will be restarted
+#define CS_SCORES1                  6
+#define CS_SCORES2                  7
+#define CS_VOTE_TIME                8
+#define CS_VOTE_STRING              9
+#define CS_VOTE_YES                 10
+#define CS_VOTE_NO                  11
+#define CS_TEAMVOTE_TIME            12
+#define CS_TEAMVOTE_STRING          14
+#define CS_TEAMVOTE_YES             16
+#define CS_TEAMVOTE_NO              18
+#define CS_GAME_VERSION             20
+#define CS_LEVEL_START_TIME         21 // so the timer only shows the current level
+#define CS_INTERMISSION             22 // when 1, fraglimit/timelimit has been hit and intermission will start in a second or two
+#define CS_FLAGSTATUS               23 // string indicating flag status in CTF
+#define CS_SHADERSTATE              24
+#define CS_BOTINFO                  25
+#define CS_CLIENT_DUELWINNER        29 // current duel round winner - needed for printing at top of scoreboard
+#define CS_ITEMS                    27 // string of 0's and 1's that tell which items are present
+#define CS_CLIENT_JEDIMASTER        28 // current jedi master
+#define CS_CLIENT_DUELISTS          30 // client numbers for both current duelists. Needed for a number of client-side things.
+#define CS_CLIENT_DUELHEALTHS       31 // nmckenzie: DUEL_HEALTH.  Hopefully adding this cs is safe and good?
+#define CS_GLOBAL_AMBIENT_SET       32
+#define CS_AMBIENT_SET              37
+#define CS_MODELS                   (CS_AMBIENT_SET+1)
+#define CS_SKYBOXORG                (CS_MODELS+MAX_MODELS) //rww - skybox info
+#define CS_SOUNDS                   (CS_SKYBOXORG+1)
+#define CS_ICONS                    (CS_SOUNDS+MAX_SOUNDS)
+#define CS_PLAYERS                  (CS_ICONS+MAX_ICONS)
+#define CS_G2BONES                  (CS_PLAYERS+MAX_CLIENTS)
+#define CS_LOCATIONS                (CS_G2BONES+MAX_G2BONES)
+#define CS_PARTICLES                (CS_LOCATIONS+MAX_LOCATIONS)
+#define CS_EFFECTS                  (CS_PARTICLES+MAX_LOCATIONS)
+#define CS_LIGHT_STYLES             (CS_EFFECTS + MAX_FX)
+#define CS_TERRAINS                 (CS_LIGHT_STYLES + (MAX_LIGHT_STYLES*3))
+#define CS_BSP_MODELS               (CS_TERRAINS + MAX_TERRAINS)
+#define CS_MAX                      (CS_BSP_MODELS + MAX_SUB_BSP)
+
 
 #if (CS_MAX) > MAX_CONFIGSTRINGS
 #error overflow: (CS_MAX) > MAX_CONFIGSTRINGS
@@ -193,6 +194,7 @@ enum eventBits_e : uint32_t {
 enum playerEventBits_e : uint32_t {
 	PLAYEREVENT_DENIEDREWARD =   0x0001,
 	PLAYEREVENT_GAUNTLETREWARD = 0x0002,
+	PLAYEREVENT_HOLYSHIT =       0x0004,
 };
 
 enum setAnimFlags_e : uint32_t {
@@ -262,18 +264,18 @@ enum gametype_e : int32_t {
 	GT_MAX_GAME_TYPE
 };
 
+//FIXME: this is broken
 enum gametypeBits_e : uint32_t {
 	GTB_NONE =          0x000, // invalid
 	GTB_FFA =           0x001, // free for all
-	GTB_HOLOCRON =      0x002, // holocron ffa
-	GTB_JEDIMASTER =    0x004, // jedi master
-	GTB_DUEL =          0x008, // one on one tournament
-	GTB_POWERDUEL =     0x010, // two on one tournament
-	GTB_SINGLE_PLAYER = 0x020, // single player ffa
-	GTB_NOTTEAM =       0x03F, // **SPECIAL: All of the above gametypes, i.e. not team-based
-	GTB_TEAM =          0x040, // team deathmatch
-	GTB_CTF =           0x100, // capture the flag
-	GTB_CTY =           0x200, // capture the ysalimiri
+	GTB_HOLOCRON =      0x001, // holocron ffa
+	GTB_JEDIMASTER =    0x001, // jedi master
+	GTB_DUEL =          0x001, // one on one tournament
+	GTB_POWERDUEL =     0x001, // two on one tournament
+	GTB_NOTTEAM =       0x001, // **SPECIAL: All of the above gametypes, i.e. not team-based
+	GTB_TEAM =          0x001, // team deathmatch
+	GTB_CTF =           0x001, // capture the flag
+	GTB_CTY =           0x001, // capture the ysalimiri
 	GTB_ALL =           0x1FF, // all
 };
 
@@ -1297,7 +1299,7 @@ struct saberInfo_t {
 // EXTERN VARIABLE
 // ======================================================================
 
-#ifndef _GAME
+#ifndef BUILD_GAME
 extern bgLoadedEvents_t bgAllEvents[MAX_ANIM_FILES];
 extern int              bgNumAnimEvents;
 #endif
@@ -1328,7 +1330,7 @@ extern const vec3_t WP_MuzzlePoint[WP_NUM_WEAPONS];
 // FUNCTION
 // ======================================================================
 
-#ifndef _GAME
+#ifndef BUILD_GAME
 int BG_ParseAnimationEvtFile(const char* as_filename, int animFileIndex, int eventFileIndex);
 #endif
 

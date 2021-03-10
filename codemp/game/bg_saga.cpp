@@ -27,11 +27,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "game/bg_public.hpp"
 #include "game/bg_weapons.hpp"
 
-#ifdef _GAME
+#ifdef BUILD_GAME
 	#include "game/g_local.hpp"
-#elif _CGAME
+#elif BUILD_CGAME
 	#include "cgame/cg_local.hpp"
-#elif UI_BUILD
+#elif BUILD_UI
 	#include "ui/ui_local.hpp"
 #endif
 

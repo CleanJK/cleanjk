@@ -42,7 +42,7 @@ struct modelHash_t {
 };
 
 #define FILE_HASH_SIZE		1024
-static	modelHash_t 		*mhHashTable[FILE_HASH_SIZE];
+static	modelHash_t		*mhHashTable[FILE_HASH_SIZE];
 
 // This stuff looks a bit messy, but it's kept here as black box, and nothing appears in any .H files for other
 //	modules to worry about. I may make another module for this sometime.
@@ -592,7 +592,7 @@ bool ServerLoadMDXA( model_t *mod, void *buffer, const char *mod_name, bool &bAl
 	int					version;
 	int					size;
 
- 	pinmodel = (mdxaHeader_t *)buffer;
+	pinmodel = (mdxaHeader_t *)buffer;
 
 	// read some fields from the binary, but only LittleLong() them when we know this wasn't an already-cached model...
 
@@ -638,7 +638,7 @@ bool ServerLoadMDXA( model_t *mod, void *buffer, const char *mod_name, bool &bAl
 		LL(mdxa->ofsEnd);
 	}
 
- 	if ( mdxa->numFrames < 1 ) {
+	if ( mdxa->numFrames < 1 ) {
 		return false;
 	}
 
@@ -723,7 +723,7 @@ bool ServerLoadMDXM( model_t *mod, void *buffer, const char *mod_name, bool &bAl
 	}
 
 	surfInfo = (mdxmSurfHierarchy_t *)( (byte *)mdxm + mdxm->ofsSurfHierarchy);
- 	for ( i = 0 ; i < mdxm->numSurfaces ; i++)
+	for ( i = 0 ; i < mdxm->numSurfaces ; i++)
 	{
 		LL(surfInfo->numChildren);
 		LL(surfInfo->parentIndex);
@@ -744,7 +744,7 @@ bool ServerLoadMDXM( model_t *mod, void *buffer, const char *mod_name, bool &bAl
 
 		// find the next surface
 		surfInfo = (mdxmSurfHierarchy_t *)( (byte *)surfInfo + (intptr_t)( &((mdxmSurfHierarchy_t *)0)->childIndexes[ surfInfo->numChildren ] ));
-  	}
+	}
 
 	// swap all the LOD's	(we need to do the middle part of this even for intel, because of shader reg and err-check)
 	lod = (mdxmLOD_t *) ( (byte *)mdxm + mdxm->ofsLODs );

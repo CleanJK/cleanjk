@@ -35,7 +35,7 @@ enum
 	VTYPE_VECTOR,
 };
 
-#if !defined( _GAME ) && !defined( _CGAME ) && !defined( UI_BUILD )
+#if !defined( BUILD_GAME ) && !defined( BUILD_CGAME ) && !defined( BUILD_UI )
 
 // ======================================================================
 // DEFINE
@@ -69,4 +69,4 @@ void Q3_DeclareVariable(int type, const char* name);
 void Q3_FreeVariable(const char* name);
 void Q3_InitVariables(void);
 
-#endif // !defined( _GAME ) && !defined( _CGAME ) && !defined( UI_BUILD )
+#endif // !defined( BUILD_GAME ) && !defined( BUILD_CGAME ) && !defined( BUILD_UI )

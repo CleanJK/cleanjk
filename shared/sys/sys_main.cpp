@@ -99,7 +99,7 @@ char *Sys_DefaultAppPath(void)
 
 // note that this isn't journaled...
 char *Sys_GetClipboardData( void ) {
-#ifdef DEDICATED
+#ifdef BUILD_DEDICATED
 	return nullptr;
 #else
 	if ( !SDL_HasClipboardText() )
@@ -167,7 +167,7 @@ void Sys_Init( void ) {
 
 static void NORETURN Sys_Exit( int ex ) {
 	IN_Shutdown();
-#ifndef DEDICATED
+#ifndef BUILD_DEDICATED
 	SDL_Quit();
 #endif
 
@@ -183,7 +183,7 @@ static void NORETURN Sys_Exit( int ex ) {
     exit( ex );
 }
 
-#if !defined(DEDICATED)
+#if !defined(BUILD_DEDICATED)
 static void Sys_ErrorDialog( const char *error )
 {
 	time_t rawtime;
@@ -241,7 +241,7 @@ void NORETURN QDECL Sys_Error( const char *error, ... )
 	// Only print Sys_ErrorDialog for client binary. The dedicated
 	// server binary is meant to be a command line program so you would
 	// expect to see the error printed.
-#if !defined(DEDICATED)
+#if !defined(BUILD_DEDICATED)
 	Sys_ErrorDialog( string );
 #endif
 
@@ -602,7 +602,7 @@ void Sys_SigHandler( int signal )
 	{
 		signalcaught = true;
 		//VM_Forced_Unload_Start();
-#ifndef DEDICATED
+#ifndef BUILD_DEDICATED
 		CL_Shutdown();
 		//CL_Shutdown(va("Received signal %d", signal), true, true);
 #endif
@@ -689,7 +689,7 @@ int main ( int argc, char* argv[] )
 
 	Com_Init (commandLine);
 
-#ifndef DEDICATED
+#ifndef BUILD_DEDICATED
 	SDL_version compiled;
 	SDL_version linked;
 

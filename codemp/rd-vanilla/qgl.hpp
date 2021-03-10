@@ -29,30 +29,46 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // ======================================================================
 
 #if defined( __LINT__ )
-#	include <GL/gl.h>
+
+	#include <GL/gl.h>
+
 #elif defined( _WIN32 )
-#	define WIN32_LEAN_AND_MEAN
-#	include <windows.h>
-#	include <GL/gl.h>
+
+	#define WIN32_LEAN_AND_MEAN
+	#include <windows.h>
+	#include <GL/gl.h>
+
 #elif defined(MACOS_X)
-// Prevent OS X from including its own out-of-date glext.h
-#	define GL_GLEXT_LEGACY
-#	include <OpenGL/gl.h>
+
+	// Prevent OS X from including its own out-of-date glext.h
+	#define GL_GLEXT_LEGACY
+	#include <OpenGL/gl.h>
+
 #elif defined( __linux__ )
-#	include <GL/gl.h>
-#	include <GL/glx.h>
-// bk001129 - from cvs1.17 (mkv)
-#	if defined(__FX__)
-#		include <GL/fxmesa.h>
-#	endif
-#elif defined( __FreeBSD__ ) || defined(__OpenBSD__) // rb010123
-#	include <GL/gl.h>
-#	include <GL/glx.h>
-#	if defined(__FX__)
-#		include <GL/fxmesa.h>
-#	endif
+
+	#include <GL/gl.h>
+	#include <GL/glx.h>
+	#undef None
+
+	// bk001129 - from cvs1.17 (mkv)
+	#if defined(__FX__)
+		#include <GL/fxmesa.h>
+	#endif
+
+#elif defined( __FreeBSD__ ) || defined(__OpenBSD__)
+
+	#include <GL/gl.h>
+	#include <GL/glx.h>
+	#undef None
+
+	#if defined(__FX__)
+		#include <GL/fxmesa.h>
+	#endif
+
 #else
-#	include <gl.h>
+
+	#include <gl.h>
+
 #endif
 
 #include "rd-vanilla/glext.hpp"

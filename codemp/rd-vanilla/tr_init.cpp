@@ -869,7 +869,7 @@ void R_ScreenShotTGA_f (void) {
 		if ( ri.FS_FileExists( checkname ) ) {
 			ri.Printf( PRINT_ALL, "ScreenShot: Couldn't create a file\n");
 			return;
- 		}
+		}
 	}
 
 	R_TakeScreenshot( 0, 0, glConfig.vidWidth, glConfig.vidHeight, checkname );
@@ -906,7 +906,7 @@ void R_ScreenShotPNG_f (void) {
 		if ( ri.FS_FileExists( checkname ) ) {
 			ri.Printf( PRINT_ALL, "ScreenShot: Couldn't create a file\n");
 			return;
- 		}
+		}
 	}
 
 	R_TakeScreenshotPNG( 0, 0, glConfig.vidWidth, glConfig.vidHeight, checkname );
@@ -937,7 +937,7 @@ void R_ScreenShot_f (void) {
 		if ( ri.FS_FileExists( checkname ) ) {
 			ri.Printf( PRINT_ALL, "ScreenShot: Couldn't create a file\n" );
 			return;
- 		}
+		}
 	}
 
 	R_TakeScreenshotJPEG( 0, 0, glConfig.vidWidth, glConfig.vidHeight, checkname );
@@ -1479,7 +1479,9 @@ static void SetRefractionProperties( float distortionAlpha, float distortionStre
 	tr_distortionNegate = distortionNegate;
 }
 
-static float GetDistanceCull( void ) { return tr.distanceCull; }
+static float GetDistanceCull( void ) {
+	return tr.distanceCull;
+}
 
 static void GetRealRes( int *w, int *h ) {
 	*w = glConfig.vidWidth;
@@ -1487,7 +1489,7 @@ static void GetRealRes( int *w, int *h ) {
 }
 
 extern "C" {
-Q_EXPORT refexport_t* QDECL GetRefAPI( int apiVersion, refimport_t *rimp ) {
+Q_EXPORT refexport_t *QDECL GetRefAPI( int apiVersion, refimport_t *rimp ) {
 	static refexport_t re;
 
 	assert( rimp );
@@ -1674,8 +1676,6 @@ Q_EXPORT refexport_t* QDECL GetRefAPI( int apiVersion, refimport_t *rimp ) {
 
 	// this is set in R_Init
 	//re.G2VertSpaceServer	= G2VertSpaceServer;
-
-	re.ext.Font_StrLenPixels				= RE_Font_StrLenPixelsNew;
 
 	return &re;
 }

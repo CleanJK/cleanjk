@@ -24,11 +24,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "cgame/cg_local.hpp"
 #include "ui/ui_shared.hpp"
-#include "ui/ui_fonts.hpp"
 #include "ui/menudef.h"
 #include "cgame/cg_media.hpp"
-
-extern displayContextDef_t cgDC;
+#include "client/cl_fonts.hpp"
 
 int CG_GetSelectedPlayer() {
 	if (cg_currentSelectedPlayer.integer < 0 || cg_currentSelectedPlayer.integer >= numSortedTeamPlayers) {
@@ -265,7 +263,7 @@ void CG_DrawNewTeamInfo(rectDef_t *rect, float text_x, float text_y, float scale
 	gitem_t	*item;
 	qhandle_t h;
 
-	Font font( FONT_MEDIUM, scale );
+	Text text{ JKFont::Medium, scale };
 
 	// max player name width
 	pwidth = 0;
@@ -273,7 +271,7 @@ void CG_DrawNewTeamInfo(rectDef_t *rect, float text_x, float text_y, float scale
 	for (i = 0; i < count; i++) {
 		ci = cgs.clientinfo + sortedTeamPlayers[i];
 		if ( ci->infoValid && ci->team == cg.snap->ps.persistant[PERS_TEAM]) {
-			len = font.Width( ci->name );
+			len = Text_Width( text, ci->name );
 			if (len > pwidth)
 				pwidth = len;
 		}
@@ -284,7 +282,7 @@ void CG_DrawNewTeamInfo(rectDef_t *rect, float text_x, float text_y, float scale
 	for (i = 1; i < MAX_LOCATIONS; i++) {
 		p = CG_GetLocationString(CG_ConfigString(CS_LOCATIONS+i));
 		if (p && *p) {
-			len = font.Width(p);
+			len = Text_Width( text, p);
 			if (len > lwidth)
 				lwidth = len;
 		}
@@ -317,7 +315,7 @@ void CG_DrawNewTeamInfo(rectDef_t *rect, float text_x, float text_y, float scale
 			CG_DrawPic( xx, y + 1, PIC_WIDTH - 2, PIC_WIDTH - 2, media.gfx.null );
 
 			//Com_sprintf (st, sizeof(st), "%3i %3i", ci->health,	ci->armor);
-			//font.Paint(xx, y + text_y, scale, hcolor, st, 0, 0);
+			//Text_Paint( text, xx, y + text_y, scale, hcolor, st, 0, 0);
 
 			// draw weapon icon
 			xx += PIC_WIDTH + 1;
@@ -334,7 +332,7 @@ void CG_DrawNewTeamInfo(rectDef_t *rect, float text_x, float text_y, float scale
 			leftOver = rect->w - xx;
 			maxx = xx + leftOver / 3;
 
-			Text_Paint_Limit(&maxx, xx, y + text_y, scale, color, ci->name, 0, 0, FONT_MEDIUM);
+			TextHelper_Paint_Limit(&maxx, xx, y + text_y, scale, color, ci->name, 0, 0, JKFont::Medium);
 
 			p = CG_GetLocationString(CG_ConfigString(CS_LOCATIONS+ci->location));
 			if (!p || !*p) {
@@ -344,7 +342,7 @@ void CG_DrawNewTeamInfo(rectDef_t *rect, float text_x, float text_y, float scale
 			xx += leftOver / 3 + 2;
 			maxx = rect->w - 4;
 
-			Text_Paint_Limit(&maxx, xx, y + text_y, scale, color, p, 0, 0, FONT_MEDIUM);
+			TextHelper_Paint_Limit(&maxx, xx, y + text_y, scale, color, p, 0, 0, JKFont::Medium);
 			y += text_y + 2;
 			if ( y + text_y + 2 > rect->y + rect->h ) {
 				break;
@@ -374,8 +372,8 @@ void CG_DrawTeamSpectators(rectDef_t *rect, float scale, vec4_t color, qhandle_t
 			cg.spectatorTime = cg.time + 10;
 			if (cg.spectatorPaintX <= rect->x + 2) {
 				if (cg.spectatorOffset < cg.spectatorLen) {
-					Font font( FONT_MEDIUM, scale );
-					cg.spectatorPaintX += font.Width(&cg.spectatorList[cg.spectatorOffset]) - 1;
+					Text text{ JKFont::Medium, scale };
+					cg.spectatorPaintX += Text_Width( text, &cg.spectatorList[cg.spectatorOffset]) - 1;
 					cg.spectatorOffset++;
 				} else {
 					cg.spectatorOffset = 0;
@@ -395,10 +393,10 @@ void CG_DrawTeamSpectators(rectDef_t *rect, float scale, vec4_t color, qhandle_t
 		}
 
 		maxX = rect->x + rect->w - 2;
-		Text_Paint_Limit(&maxX, cg.spectatorPaintX, rect->y + rect->h - 3, scale, color, &cg.spectatorList[cg.spectatorOffset], 0, 0, FONT_MEDIUM);
+		TextHelper_Paint_Limit(&maxX, cg.spectatorPaintX, rect->y + rect->h - 3, scale, color, &cg.spectatorList[cg.spectatorOffset], 0, 0, JKFont::Medium);
 		if (cg.spectatorPaintX2 >= 0) {
 			float maxX2 = rect->x + rect->w - 2;
-			Text_Paint_Limit(&maxX2, cg.spectatorPaintX2, rect->y + rect->h - 3, scale, color, cg.spectatorList, 0, cg.spectatorOffset, FONT_MEDIUM);
+			TextHelper_Paint_Limit(&maxX2, cg.spectatorPaintX2, rect->y + rect->h - 3, scale, color, cg.spectatorList, 0, cg.spectatorOffset, JKFont::Medium);
 		}
 		if (cg.spectatorOffset && maxX > 0) {
 			// if we have an offset ( we are skipping the first part of the string ) and we fit the string
@@ -415,7 +413,7 @@ void CG_DrawTeamSpectators(rectDef_t *rect, float scale, vec4_t color, qhandle_t
 void CG_DrawMedal(int ownerDraw, rectDef_t *rect, float scale, vec4_t color, qhandle_t shader) {
 	score_t *score = &cg.scores[cg.selectedScore];
 	float value = 0;
-	char *text = nullptr;
+	char *str = nullptr;
 	color[3] = 0.25;
 
 	switch (ownerDraw) {
@@ -448,36 +446,35 @@ void CG_DrawMedal(int ownerDraw, rectDef_t *rect, float scale, vec4_t color, qha
 	if (value > 0) {
 		if (ownerDraw != CG_PERFECT) {
 			if (ownerDraw == CG_ACCURACY) {
-				text = va("%i%%", (int)value);
+				str = va("%i%%", (int)value);
 				if (value > 50) {
 					color[3] = 1.0;
 				}
 			} else {
-				text = va("%i", (int)value);
+				str = va("%i", (int)value);
 				color[3] = 1.0;
 			}
 		} else {
 			if (value) {
 				color[3] = 1.0;
 			}
-			text = "Wow";
+			str = "Wow";
 		}
 	}
 
 	trap->R_SetColor(color);
 	CG_DrawPic( rect->x, rect->y, rect->w, rect->h, shader );
 
-	if (text) {
+	if (str) {
 		color[3] = 1.0;
-		Font font( FONT_MEDIUM, scale );
-		value = font.Width(text);
-		font.Paint(rect->x + (rect->w - value) / 2, rect->y + rect->h + 10 , text, color);
+		Text text{ JKFont::Medium, scale };
+		value = Text_Width( text, str );
+		Text_Paint( text, rect->x + (rect->w - value) / 2, rect->y + rect->h + 10 , str, color );
 	}
-	trap->R_SetColor(nullptr);
-
+	trap->R_SetColor( nullptr );
 }
 
-void CG_OwnerDraw(float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, float scale, vec4_t color, qhandle_t shader, int textStyle,int font) {
+void CG_OwnerDraw(float x, float y, float w, float h, float text_x, float text_y, int ownerDraw, int ownerDrawFlags, int align, float special, float scale, vec4_t color, qhandle_t shader, int textStyle, JKFont font) {
 	//Ignore all this, at least for now. May put some stat stuff back in menu files later.
 	rectDef_t rect;
 

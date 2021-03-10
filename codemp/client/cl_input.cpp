@@ -28,23 +28,24 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "client/cl_keys.hpp"
 #include "client/cl_local.hpp"
 #include "client/cl_uiapi.hpp"
+#include "game/bg_public.hpp"
 #include "qcommon/com_cvar.hpp"
 #include "qcommon/com_cvars.hpp"
-#include "ui/ui_public.hpp"
+#include "qcommon/com_inputField.hpp"
 #include "sys/sys_public.hpp"
 #ifndef _WIN32
 #include <cmath>
 #endif
-unsigned	frame_msec;
-int			old_com_frameTime;
 
-float cl_mPitchOverride = 0.0f;
-float cl_mYawOverride = 0.0f;
-float cl_mSensitivityOverride = 0.0f;
-bool cl_bUseFighterPitch = false;
-bool cl_crazyShipControls = false;
-
-#define	OVERRIDE_MOUSE_SENSITIVITY 10.0f//20.0f = 180 degree turn in one mouse swipe across keyboard
+#define OVERRIDE_MOUSE_SENSITIVITY 10.0f //20.0f = 180 degree turn in one mouse swipe across keyboard
+#define MAX_KBUTTONS               16
+#define AUTOMAP_KEY_FORWARD        1
+#define AUTOMAP_KEY_BACK           2
+#define AUTOMAP_KEY_YAWLEFT        3
+#define AUTOMAP_KEY_YAWRIGHT       4
+#define AUTOMAP_KEY_PITCHUP        5
+#define AUTOMAP_KEY_PITCHDOWN      6
+#define AUTOMAP_KEY_DEFAULTVIEW    7
 
 // KEY BUTTONS
 // Continuous button event tracking is complicated by the fact that two different input sources (say, mouse button 1 and
@@ -55,225 +56,105 @@ bool cl_crazyShipControls = false;
 // argv(2) will be set to the time the event happened, which allows exact control even at low framerates when the down
 //	and up events may both get queued at the same time.
 
-kbutton_t	in_left, in_right, in_forward, in_back;
-kbutton_t	in_lookup, in_lookdown, in_moveleft, in_moveright;
-kbutton_t	in_strafe, in_speed;
-kbutton_t	in_up, in_down;
+static autoMapInput_t g_clAutoMapInput;
+static bool           g_clAutoMapMode = false;
 
-#define MAX_KBUTTONS 16
+static const std::string Chatbox_Complete( const char *token ) {
+	ShortestMatchFinder smf( token );
 
-kbutton_t	in_buttons[MAX_KBUTTONS];
+	char cleanName[MAX_NETNAME];
+	for ( int i = 0; i < MAX_CLIENTS; i++ ) {
+		const char *infostring = cl.gameState.stringData + cl.gameState.stringOffsets[CS_PLAYERS + i];
+		const char *name = Info_ValueForKey( infostring, "n" );
+		Q_strncpyz( cleanName, name, sizeof( cleanName ) );
+		Q_StripColor( cleanName );
+		smf.Feed( cleanName, name );
+	}
 
-bool	in_mlooking;
+	if ( !smf.IsComplete() ) {
+		smf.PrintMatches();
+	}
+
+	return smf.GetShortestMatch();
+}
+
+unsigned   frame_msec;
+int        old_com_frameTime;
+InputField chatField( nullptr, Chatbox_Complete );
+vec3_t     cl_sendAngles={0};
+vec3_t     cl_lastViewAngles={0};
+float      cl_mPitchOverride = 0.0f;
+float      cl_mYawOverride = 0.0f;
+float      cl_mSensitivityOverride = 0.0f;
+bool       cl_bUseFighterPitch = false;
+bool       cl_crazyShipControls = false;
+kbutton_t  in_buttons[MAX_KBUTTONS];
+kbutton_t  in_left;
+kbutton_t  in_right;
+kbutton_t  in_forward;
+kbutton_t  in_back;
+kbutton_t  in_lookup;
+kbutton_t  in_lookdown;
+kbutton_t  in_moveleft;
+kbutton_t  in_moveright;
+kbutton_t  in_strafe;
+kbutton_t  in_speed;
+kbutton_t  in_up;
+kbutton_t  in_down;
+bool       in_mlooking;
 
 void IN_MLookDown( void ) {
 	in_mlooking = true;
 }
 
-void IN_CenterView (void) {
-	cl.viewangles[PITCH] = -SHORT2ANGLE(cl.snap.ps.delta_angles[PITCH]);
+void IN_CenterView( void ) {
+	cl.viewangles[PITCH] = -SHORT2ANGLE( cl.snap.ps.delta_angles[PITCH] );
 }
 
 void IN_MLookUp( void ) {
 	in_mlooking = false;
 	if ( !cl_freelook->integer ) {
-		IN_CenterView ();
+		IN_CenterView();
 	}
 }
 
-void IN_GenCMD1( void )
-{
+static void GenericCommand( int value ) {
 	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_SABERSWITCH;
+	cl.gcmdValue = value;
 }
+void IN_GenCMD1 ( void ) { GenericCommand( GENCMD_SABERSWITCH ); }
+void IN_GenCMD2 ( void ) { GenericCommand( GENCMD_ENGAGE_DUEL ); }
+void IN_GenCMD3 ( void ) { GenericCommand( GENCMD_FORCE_HEAL ); }
+void IN_GenCMD4 ( void ) { GenericCommand( GENCMD_FORCE_SPEED ); }
+void IN_GenCMD5 ( void ) { GenericCommand( GENCMD_FORCE_PULL ); }
+void IN_GenCMD6 ( void ) { GenericCommand( GENCMD_FORCE_DISTRACT ); }
+void IN_GenCMD7 ( void ) { GenericCommand( GENCMD_FORCE_RAGE ); }
+void IN_GenCMD8 ( void ) { GenericCommand( GENCMD_FORCE_PROTECT ); }
+void IN_GenCMD9 ( void ) { GenericCommand( GENCMD_FORCE_ABSORB ); }
+void IN_GenCMD10( void ) { GenericCommand( GENCMD_FORCE_HEALOTHER ); }
+void IN_GenCMD11( void ) { GenericCommand( GENCMD_FORCE_FORCEPOWEROTHER ); }
+void IN_GenCMD12( void ) { GenericCommand( GENCMD_FORCE_SEEING ); }
+void IN_GenCMD13( void ) { GenericCommand( GENCMD_USE_SEEKER ); }
+void IN_GenCMD14( void ) { GenericCommand( GENCMD_USE_FIELD ); }
+void IN_GenCMD15( void ) { GenericCommand( GENCMD_USE_BACTA ); }
+void IN_GenCMD16( void ) { GenericCommand( GENCMD_USE_ELECTROBINOCULARS ); }
+void IN_GenCMD17( void ) { GenericCommand( GENCMD_ZOOM ); }
+void IN_GenCMD18( void ) { GenericCommand( GENCMD_USE_SENTRY ); }
+void IN_GenCMD19( void ) { GenericCommand( GENCMD_SABERATTACKCYCLE ); }
+void IN_GenCMD20( void ) { GenericCommand( GENCMD_FORCE_THROW ); }
+void IN_GenCMD21( void ) { GenericCommand( GENCMD_USE_JETPACK ); }
+void IN_GenCMD22( void ) { GenericCommand( GENCMD_USE_BACTABIG ); }
+void IN_GenCMD23( void ) { GenericCommand( GENCMD_USE_HEALTHDISP ); }
+void IN_GenCMD24( void ) { GenericCommand( GENCMD_USE_AMMODISP ); }
+void IN_GenCMD25( void ) { GenericCommand( GENCMD_USE_EWEB ); }
+void IN_GenCMD26( void ) { GenericCommand( GENCMD_USE_CLOAK ); }
+void IN_GenCMD27( void ) { GenericCommand( GENCMD_TAUNT ); }
+void IN_GenCMD28( void ) { GenericCommand( GENCMD_BOW ); }
+void IN_GenCMD29( void ) { GenericCommand( GENCMD_MEDITATE ); }
+void IN_GenCMD30( void ) { GenericCommand( GENCMD_FLOURISH ); }
+void IN_GenCMD31( void ) { GenericCommand( GENCMD_GLOAT ); }
 
-void IN_GenCMD2( void )
-{
-	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_ENGAGE_DUEL;
-}
-
-void IN_GenCMD3( void )
-{
-	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_FORCE_HEAL;
-}
-
-void IN_GenCMD4( void )
-{
-	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_FORCE_SPEED;
-}
-
-void IN_GenCMD5( void )
-{
-	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_FORCE_PULL;
-}
-
-void IN_GenCMD6( void )
-{
-	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_FORCE_DISTRACT;
-}
-
-void IN_GenCMD7( void )
-{
-	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_FORCE_RAGE;
-}
-
-void IN_GenCMD8( void )
-{
-	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_FORCE_PROTECT;
-}
-
-void IN_GenCMD9( void )
-{
-	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_FORCE_ABSORB;
-}
-
-void IN_GenCMD10( void )
-{
-	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_FORCE_HEALOTHER;
-}
-
-void IN_GenCMD11( void )
-{
-	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_FORCE_FORCEPOWEROTHER;
-}
-
-void IN_GenCMD12( void )
-{
-	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_FORCE_SEEING;
-}
-
-void IN_GenCMD13( void )
-{
-	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_USE_SEEKER;
-}
-
-void IN_GenCMD14( void )
-{
-	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_USE_FIELD;
-}
-
-void IN_GenCMD15( void )
-{
-	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_USE_BACTA;
-}
-
-void IN_GenCMD16( void )
-{
-	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_USE_ELECTROBINOCULARS;
-}
-
-void IN_GenCMD17( void )
-{
-	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_ZOOM;
-}
-
-void IN_GenCMD18( void )
-{
-	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_USE_SENTRY;
-}
-
-void IN_GenCMD19( void )
-{
-	if ( d_saberStanceDebug->integer ) {
-		Com_Printf("SABERSTANCEDEBUG: Gencmd on client set successfully.\n");
-	}
-	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_SABERATTACKCYCLE;
-}
-
-void IN_GenCMD20( void )
-{
-	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_FORCE_THROW;
-}
-
-void IN_GenCMD21( void )
-{
-	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_USE_JETPACK;
-}
-
-void IN_GenCMD22( void )
-{
-	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_USE_BACTABIG;
-}
-
-void IN_GenCMD23( void )
-{
-	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_USE_HEALTHDISP;
-}
-
-void IN_GenCMD24( void )
-{
-	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_USE_AMMODISP;
-}
-
-void IN_GenCMD25( void )
-{
-	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_USE_EWEB;
-}
-
-void IN_GenCMD26( void )
-{
-	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_USE_CLOAK;
-}
-
-void IN_GenCMD27( void )
-{
-	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_TAUNT;
-}
-
-void IN_GenCMD28( void )
-{
-	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_BOW;
-}
-
-void IN_GenCMD29( void )
-{
-	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_MEDITATE;
-}
-
-void IN_GenCMD30( void )
-{
-	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_FLOURISH;
-}
-
-void IN_GenCMD31( void )
-{
-	cl.gcmdSendValue = true;
-	cl.gcmdValue = GENCMD_GLOAT;
-}
-
-//toggle automap view mode
-static bool g_clAutoMapMode = false;
-void IN_AutoMapButton(void)
-{
+void IN_AutoMapButton( void ) {
 	g_clAutoMapMode = !g_clAutoMapMode;
 }
 
@@ -282,85 +163,78 @@ void IN_AutoMapToggle( void ) {
 	Cvar_User_SetValue( "cg_drawRadar", !cg_drawRadar->integer );
 }
 
-void IN_VoiceChatButton(void)
-{
-	if (!cls.uiStarted)
-	{ //ui not loaded so this command is useless
+void IN_VoiceChatButton( void ) {
+	if ( !cls.uiStarted ) {
+		// ui not loaded so this command is useless
 		return;
 	}
 	UIVM_SetActiveMenu( UIMENU_VOICECHAT );
 }
 
 void IN_KeyDown( kbutton_t *b ) {
-	int		k;
-	char	*c;
-
-	c = Cmd_Argv(1);
-	if ( c[0] ) {
-		k = atoi(c);
-	} else {
-		k = -1;		// typed manually at the console for continuous down
-	}
+	const char *c = Cmd_Argv( 1 );
+	const int k = c[0] ? atoi( c ) : -1;
 
 	if ( k == b->down[0] || k == b->down[1] ) {
-		return;		// repeating key
+		return; // repeating key
 	}
 
 	if ( !b->down[0] ) {
 		b->down[0] = k;
-	} else if ( !b->down[1] ) {
+	}
+	else if ( !b->down[1] ) {
 		b->down[1] = k;
-	} else {
-		Com_Printf ("Three keys down for a button!\n");
+	}
+	else {
+		Com_Printf( "Three keys down for a button!\n" );
 		return;
 	}
 
 	if ( b->active ) {
-		return;		// still down
+		return; // still down
 	}
 
 	// save timestamp for partial frame summing
-	c = Cmd_Argv(2);
-	b->downtime = atoi(c);
+	c = Cmd_Argv( 2 );
+	b->downtime = atoi( c );
 
 	b->active = true;
 	b->wasPressed = true;
 }
 
 void IN_KeyUp( kbutton_t *b ) {
-	int		k;
-	char	*c;
-	unsigned	uptime;
-
-	c = Cmd_Argv(1);
-	if ( c[0] ) {
-		k = atoi(c);
-	} else {
+	const char *c = Cmd_Argv( 1 );
+	if ( !c[0] ) {
 		// typed manually at the console, assume for unsticking, so clear all
 		b->down[0] = b->down[1] = 0;
 		b->active = false;
 		return;
 	}
 
+	const int k = atoi( c );
 	if ( b->down[0] == k ) {
 		b->down[0] = 0;
-	} else if ( b->down[1] == k ) {
-		b->down[1] = 0;
-	} else {
-		return;		// key up without coresponding down (menu pass through)
 	}
+	else if ( b->down[1] == k ) {
+		b->down[1] = 0;
+	}
+	else {
+		return; // key up without coresponding down (menu pass through)
+	}
+
 	if ( b->down[0] || b->down[1] ) {
-		return;		// some other key is still holding it down
+		return; // some other key is still holding it down
 	}
 
 	b->active = false;
 
 	// save timestamp for partial frame summing
-	c = Cmd_Argv(2);
-	uptime = atoi(c);
+	c = Cmd_Argv( 2 );
+	const int uptime = atoi( c );
 	if ( uptime ) {
 		b->msec += uptime - b->downtime;
-	} else {
+	}
+	else {
 		b->msec += frame_msec / 2;
 	}
 
@@ -369,23 +243,21 @@ void IN_KeyUp( kbutton_t *b ) {
 
 // Returns the fraction of the frame that the key was down
 float CL_KeyState( kbutton_t *key ) {
-	float		val;
-	int			msec;
-
-	msec = key->msec;
+	int msec = key->msec;
 	key->msec = 0;
 
 	if ( key->active ) {
 		// still down
 		if ( !key->downtime ) {
 			msec = com_frameTime;
-		} else {
+		}
+		else {
 			msec += com_frameTime - key->downtime;
 		}
 		key->downtime = com_frameTime;
 	}
 
-	val = (float)msec / frame_msec;
+	float val = (float)msec / frame_msec;
 	if ( val < 0 ) {
 		val = 0;
 	}
@@ -396,349 +268,281 @@ float CL_KeyState( kbutton_t *key ) {
 	return val;
 }
 
-#define		AUTOMAP_KEY_FORWARD			1
-#define		AUTOMAP_KEY_BACK			2
-#define		AUTOMAP_KEY_YAWLEFT			3
-#define		AUTOMAP_KEY_YAWRIGHT		4
-#define		AUTOMAP_KEY_PITCHUP			5
-#define		AUTOMAP_KEY_PITCHDOWN		6
-#define		AUTOMAP_KEY_DEFAULTVIEW		7
-static autoMapInput_t			g_clAutoMapInput;
 //intercept certain keys during automap mode
-static void CL_AutoMapKey(int autoMapKey, bool up)
-{
-	autoMapInput_t *data = (autoMapInput_t *)cl.mSharedMemory;
+static void CL_AutoMapKey( int autoMapKey, bool up ) {
+	switch ( autoMapKey ) {
 
-	switch (autoMapKey)
-	{
-	case AUTOMAP_KEY_FORWARD:
-        if (up)
-		{
-			g_clAutoMapInput.up = 0.0f;
-		}
-		else
-		{
-			g_clAutoMapInput.up = 16.0f;
-		}
-		break;
-	case AUTOMAP_KEY_BACK:
-        if (up)
-		{
-			g_clAutoMapInput.down = 0.0f;
-		}
-		else
-		{
-			g_clAutoMapInput.down = 16.0f;
-		}
-		break;
-	case AUTOMAP_KEY_YAWLEFT:
-		if (up)
-		{
-			g_clAutoMapInput.yaw = 0.0f;
-		}
-		else
-		{
-			g_clAutoMapInput.yaw = -4.0f;
-		}
-		break;
-	case AUTOMAP_KEY_YAWRIGHT:
-		if (up)
-		{
-			g_clAutoMapInput.yaw = 0.0f;
-		}
-		else
-		{
-			g_clAutoMapInput.yaw = 4.0f;
-		}
-		break;
-	case AUTOMAP_KEY_PITCHUP:
-		if (up)
-		{
-			g_clAutoMapInput.pitch = 0.0f;
-		}
-		else
-		{
-			g_clAutoMapInput.pitch = -4.0f;
-		}
-		break;
-	case AUTOMAP_KEY_PITCHDOWN:
-		if (up)
-		{
-			g_clAutoMapInput.pitch = 0.0f;
-		}
-		else
-		{
-			g_clAutoMapInput.pitch = 4.0f;
-		}
-		break;
-	case AUTOMAP_KEY_DEFAULTVIEW:
-		memset(&g_clAutoMapInput, 0, sizeof(autoMapInput_t));
+	case AUTOMAP_KEY_FORWARD: {
+		g_clAutoMapInput.up = up ? 0.0f : 16.0f;
+	} break;
+
+	case AUTOMAP_KEY_BACK: {
+		g_clAutoMapInput.down = up ? 0.0f : 16.0f;
+	} break;
+
+	case AUTOMAP_KEY_YAWLEFT: {
+		g_clAutoMapInput.yaw = up ? 0.0f : -4.0f;
+	} break;
+
+	case AUTOMAP_KEY_YAWRIGHT: {
+		g_clAutoMapInput.yaw = up ? 0.0f : 4.0f;
+	} break;
+
+	case AUTOMAP_KEY_PITCHUP: {
+		g_clAutoMapInput.pitch = up ? 0.0f : -4.0f;
+	} break;
+
+	case AUTOMAP_KEY_PITCHDOWN: {
+		g_clAutoMapInput.pitch = up ? 0.0f : 4.0f;
+	} break;
+
+	case AUTOMAP_KEY_DEFAULTVIEW: {
+		memset( &g_clAutoMapInput, 0, sizeof(autoMapInput_t) );
 		g_clAutoMapInput.goToDefaults = true;
-		break;
-	default:
-		break;
+	} break;
+
+	default: {
+		// ...
+	} break;
+
 	}
 
-	memcpy(data, &g_clAutoMapInput, sizeof(autoMapInput_t));
+	autoMapInput_t *data = (autoMapInput_t *)cl.mSharedMemory;
+	memcpy( data, &g_clAutoMapInput, sizeof(autoMapInput_t) );
 
-	if (cls.cgameStarted)
-	{
+	if ( cls.cgameStarted ) {
 		CGVM_AutomapInput();
 	}
 
 	g_clAutoMapInput.goToDefaults = false;
 }
 
-void IN_UpDown(void)
-{
-	if (g_clAutoMapMode)
-	{
-		CL_AutoMapKey(AUTOMAP_KEY_PITCHUP, false);
+void IN_UpDown( void ) {
+	if ( g_clAutoMapMode ) {
+		CL_AutoMapKey( AUTOMAP_KEY_PITCHUP, false );
 	}
-	else
-	{
-		IN_KeyDown(&in_up);
+	else {
+		IN_KeyDown( &in_up );
 	}
 }
-void IN_UpUp(void)
-{
-	if (g_clAutoMapMode)
-	{
-		CL_AutoMapKey(AUTOMAP_KEY_PITCHUP, true);
+void IN_UpUp( void ) {
+	if ( g_clAutoMapMode ) {
+		CL_AutoMapKey( AUTOMAP_KEY_PITCHUP, true );
 	}
-	else
-	{
-		IN_KeyUp(&in_up);
+	else {
+		IN_KeyUp( &in_up );
 	}
 }
-void IN_DownDown(void)
-{
-	if (g_clAutoMapMode)
-	{
-		CL_AutoMapKey(AUTOMAP_KEY_PITCHDOWN, false);
+void IN_DownDown( void ) {
+	if ( g_clAutoMapMode ) {
+		CL_AutoMapKey( AUTOMAP_KEY_PITCHDOWN, false );
 	}
-	else
-	{
-		IN_KeyDown(&in_down);
+	else {
+		IN_KeyDown( &in_down );
 	}
 }
-void IN_DownUp(void)
-{
-	if (g_clAutoMapMode)
-	{
-		CL_AutoMapKey(AUTOMAP_KEY_PITCHDOWN, true);
+void IN_DownUp( void ) {
+	if ( g_clAutoMapMode ) {
+		CL_AutoMapKey( AUTOMAP_KEY_PITCHDOWN, true );
 	}
-	else
-	{
-		IN_KeyUp(&in_down);
+	else {
+		IN_KeyUp( &in_down );
 	}
 }
-void IN_LeftDown(void) {IN_KeyDown(&in_left);}
-void IN_LeftUp(void) {IN_KeyUp(&in_left);}
-void IN_RightDown(void) {IN_KeyDown(&in_right);}
-void IN_RightUp(void) {IN_KeyUp(&in_right);}
-void IN_ForwardDown(void)
-{
-	if (g_clAutoMapMode)
-	{
-		CL_AutoMapKey(AUTOMAP_KEY_FORWARD, false);
+void IN_LeftDown( void )  { IN_KeyDown( &in_left ); }
+void IN_LeftUp( void )    { IN_KeyUp( &in_left ); }
+void IN_RightDown( void ) { IN_KeyDown( &in_right ); }
+void IN_RightUp( void )   { IN_KeyUp( &in_right ); }
+void IN_ForwardDown( void ) {
+	if ( g_clAutoMapMode ) {
+		CL_AutoMapKey( AUTOMAP_KEY_FORWARD, false );
 	}
-	else
-	{
-		IN_KeyDown(&in_forward);
+	else {
+		IN_KeyDown( &in_forward );
 	}
 }
-void IN_ForwardUp(void)
-{
-	if (g_clAutoMapMode)
-	{
-		CL_AutoMapKey(AUTOMAP_KEY_FORWARD, true);
+void IN_ForwardUp( void ) {
+	if ( g_clAutoMapMode ) {
+		CL_AutoMapKey( AUTOMAP_KEY_FORWARD, true );
 	}
-	else
-	{
-		IN_KeyUp(&in_forward);
+	else {
+		IN_KeyUp( &in_forward );
 	}
 }
-void IN_BackDown(void)
-{
-	if (g_clAutoMapMode)
-	{
-		CL_AutoMapKey(AUTOMAP_KEY_BACK, false);
+void IN_BackDown( void ) {
+	if ( g_clAutoMapMode ) {
+		CL_AutoMapKey( AUTOMAP_KEY_BACK, false );
 	}
-	else
-	{
-		IN_KeyDown(&in_back);
+	else {
+		IN_KeyDown( &in_back );
 	}
 }
-void IN_BackUp(void)
-{
-	if (g_clAutoMapMode)
-	{
-		CL_AutoMapKey(AUTOMAP_KEY_BACK, true);
+void IN_BackUp( void ) {
+	if ( g_clAutoMapMode ) {
+		CL_AutoMapKey( AUTOMAP_KEY_BACK, true );
 	}
-	else
-	{
-		IN_KeyUp(&in_back);
+	else {
+		IN_KeyUp( &in_back );
 	}
 }
-void IN_LookupDown(void) {IN_KeyDown(&in_lookup);}
-void IN_LookupUp(void) {IN_KeyUp(&in_lookup);}
-void IN_LookdownDown(void) {IN_KeyDown(&in_lookdown);}
-void IN_LookdownUp(void) {IN_KeyUp(&in_lookdown);}
-void IN_MoveleftDown(void)
-{
-	if (g_clAutoMapMode)
-	{
-		CL_AutoMapKey(AUTOMAP_KEY_YAWLEFT, false);
+void IN_LookupDown( void )   { IN_KeyDown( &in_lookup ); }
+void IN_LookupUp( void )     { IN_KeyUp( &in_lookup ); }
+void IN_LookdownDown( void ) { IN_KeyDown( &in_lookdown ); }
+void IN_LookdownUp( void )   { IN_KeyUp( &in_lookdown ); }
+void IN_MoveleftDown( void ) {
+	if ( g_clAutoMapMode ) {
+		CL_AutoMapKey( AUTOMAP_KEY_YAWLEFT, false );
 	}
-	else
-	{
-		IN_KeyDown(&in_moveleft);
+	else {
+		IN_KeyDown( &in_moveleft );
 	}
 }
-void IN_MoveleftUp(void)
-{
-	if (g_clAutoMapMode)
-	{
-		CL_AutoMapKey(AUTOMAP_KEY_YAWLEFT, true);
+void IN_MoveleftUp( void ) {
+	if ( g_clAutoMapMode ) {
+		CL_AutoMapKey( AUTOMAP_KEY_YAWLEFT, true );
 	}
-	else
-	{
-		IN_KeyUp(&in_moveleft);
+	else {
+		IN_KeyUp( &in_moveleft );
 	}
 }
-void IN_MoverightDown(void)
-{
-	if (g_clAutoMapMode)
-	{
-		CL_AutoMapKey(AUTOMAP_KEY_YAWRIGHT, false);
+void IN_MoverightDown( void ) {
+	if ( g_clAutoMapMode ) {
+		CL_AutoMapKey( AUTOMAP_KEY_YAWRIGHT, false );
 	}
-	else
-	{
-		IN_KeyDown(&in_moveright);
+	else {
+		IN_KeyDown( &in_moveright );
 	}
 }
-void IN_MoverightUp(void)
-{
-	if (g_clAutoMapMode)
-	{
-		CL_AutoMapKey(AUTOMAP_KEY_YAWRIGHT, true);
+void IN_MoverightUp( void ) {
+	if ( g_clAutoMapMode ) {
+		CL_AutoMapKey( AUTOMAP_KEY_YAWRIGHT, true );
 	}
-	else
-	{
-		IN_KeyUp(&in_moveright);
+	else {
+		IN_KeyUp( &in_moveright );
 	}
 }
 
-void IN_SpeedDown(void) {IN_KeyDown(&in_speed);}
-void IN_SpeedUp(void) {IN_KeyUp(&in_speed);}
-void IN_StrafeDown(void) {IN_KeyDown(&in_strafe);}
-void IN_StrafeUp(void) {IN_KeyUp(&in_strafe);}
-
-void IN_Button0Down(void) {IN_KeyDown(&in_buttons[0]);}
-void IN_Button0Up(void) {IN_KeyUp(&in_buttons[0]);}
-void IN_Button1Down(void) {IN_KeyDown(&in_buttons[1]);}
-void IN_Button1Up(void) {IN_KeyUp(&in_buttons[1]);}
-void IN_Button2Down(void) {IN_KeyDown(&in_buttons[2]);}
-void IN_Button2Up(void) {IN_KeyUp(&in_buttons[2]);}
-void IN_Button3Down(void) {IN_KeyDown(&in_buttons[3]);}
-void IN_Button3Up(void) {IN_KeyUp(&in_buttons[3]);}
-void IN_Button4Down(void) {IN_KeyDown(&in_buttons[4]);}
-void IN_Button4Up(void) {IN_KeyUp(&in_buttons[4]);}
-void IN_Button5Down(void) //use key
-{
-	if (g_clAutoMapMode)
-	{
-		CL_AutoMapKey(AUTOMAP_KEY_DEFAULTVIEW, false);
+void IN_SpeedDown( void )   { IN_KeyDown( &in_speed ); }
+void IN_SpeedUp( void )     { IN_KeyUp( &in_speed ); }
+void IN_StrafeDown( void )  { IN_KeyDown( &in_strafe ); }
+void IN_StrafeUp( void )    { IN_KeyUp( &in_strafe ); }
+void IN_Button0Down( void ) { IN_KeyDown( &in_buttons[0] ); }
+void IN_Button0Up( void )   { IN_KeyUp( &in_buttons[0] ); }
+void IN_Button1Down( void ) { IN_KeyDown( &in_buttons[1] ); }
+void IN_Button1Up( void )   { IN_KeyUp( &in_buttons[1] ); }
+void IN_Button2Down( void ) { IN_KeyDown( &in_buttons[2] ); }
+void IN_Button2Up( void )   { IN_KeyUp( &in_buttons[2] ); }
+void IN_Button3Down( void ) { IN_KeyDown( &in_buttons[3] ); }
+void IN_Button3Up( void )   { IN_KeyUp( &in_buttons[3] ); }
+void IN_Button4Down( void ) { IN_KeyDown( &in_buttons[4] ); }
+void IN_Button4Up( void )   { IN_KeyUp( &in_buttons[4] ); }
+void IN_Button5Down( void ) {
+	//use key
+	if ( g_clAutoMapMode ) {
+		CL_AutoMapKey( AUTOMAP_KEY_DEFAULTVIEW, false );
 	}
-	else
-	{
-		IN_KeyDown(&in_buttons[5]);
+	else {
+		IN_KeyDown( &in_buttons[5] );
 	}
 }
-void IN_Button5Up(void) {IN_KeyUp(&in_buttons[5]);}
-void IN_Button6Down(void) {IN_KeyDown(&in_buttons[6]);}
-void IN_Button6Up(void) {IN_KeyUp(&in_buttons[6]);}
-void IN_Button7Down(void) {IN_KeyDown(&in_buttons[7]);}
-void IN_Button7Up(void){IN_KeyUp(&in_buttons[7]);}
-void IN_Button8Down(void) {IN_KeyDown(&in_buttons[8]);}
-void IN_Button8Up(void) {IN_KeyUp(&in_buttons[8]);}
-void IN_Button9Down(void) {IN_KeyDown(&in_buttons[9]);}
-void IN_Button9Up(void) {IN_KeyUp(&in_buttons[9]);}
-void IN_Button10Down(void) {IN_KeyDown(&in_buttons[10]);}
-void IN_Button10Up(void) {IN_KeyUp(&in_buttons[10]);}
-void IN_Button11Down(void) {IN_KeyDown(&in_buttons[11]);}
-void IN_Button11Up(void) {IN_KeyUp(&in_buttons[11]);}
-void IN_Button12Down(void) {IN_KeyDown(&in_buttons[12]);}
-void IN_Button12Up(void) {IN_KeyUp(&in_buttons[12]);}
-void IN_Button13Down(void) {IN_KeyDown(&in_buttons[13]);}
-void IN_Button13Up(void) {IN_KeyUp(&in_buttons[13]);}
-void IN_Button14Down(void) {IN_KeyDown(&in_buttons[14]);}
-void IN_Button14Up(void) {IN_KeyUp(&in_buttons[14]);}
-void IN_Button15Down(void) {IN_KeyDown(&in_buttons[15]);}
-void IN_Button15Up(void) {IN_KeyUp(&in_buttons[15]);}
+void IN_Button5Up( void )    { IN_KeyUp( &in_buttons[5] ); }
+void IN_Button6Down( void )  { IN_KeyDown( &in_buttons[6] ); }
+void IN_Button6Up( void )    { IN_KeyUp( &in_buttons[6] ); }
+void IN_Button7Down( void )  { IN_KeyDown( &in_buttons[7] ); }
+void IN_Button7Up( void )    { IN_KeyUp( &in_buttons[7] ); }
+void IN_Button8Down( void )  { IN_KeyDown( &in_buttons[8] ); }
+void IN_Button8Up( void )    { IN_KeyUp( &in_buttons[8] ); }
+void IN_Button9Down( void )  { IN_KeyDown( &in_buttons[9] ); }
+void IN_Button9Up( void )    { IN_KeyUp( &in_buttons[9] ); }
+void IN_Button10Down( void ) { IN_KeyDown( &in_buttons[10] ); }
+void IN_Button10Up( void )   { IN_KeyUp( &in_buttons[10] ); }
+void IN_Button11Down( void ) { IN_KeyDown( &in_buttons[11] ); }
+void IN_Button11Up( void )   { IN_KeyUp( &in_buttons[11] ); }
+void IN_Button12Down( void ) { IN_KeyDown( &in_buttons[12] ); }
+void IN_Button12Up( void )   { IN_KeyUp( &in_buttons[12] ); }
+void IN_Button13Down( void ) { IN_KeyDown( &in_buttons[13] ); }
+void IN_Button13Up( void )   { IN_KeyUp( &in_buttons[13] ); }
+void IN_Button14Down( void ) { IN_KeyDown( &in_buttons[14] ); }
+void IN_Button14Up( void )   { IN_KeyUp( &in_buttons[14] ); }
+void IN_Button15Down( void ) { IN_KeyDown( &in_buttons[15] ); }
+void IN_Button15Up( void )   { IN_KeyUp( &in_buttons[15] ); }
 
-void IN_UseGivenForce(void)
-{
-	char *c = Cmd_Argv(1);
-	int forceNum =-1;
-	int genCmdNum = 0;
-
-	if(c) {
-		forceNum = atoi(c);
-	} else {
+void IN_UseGivenForce( void ) {
+	char *c = Cmd_Argv( 1 );
+	int forceNum = -1;
+	if ( c ) {
+		forceNum = atoi( c );
+	}
+	else {
 		return;
 	}
 
-	switch(forceNum) {
-	case FP_DRAIN:
+	int genCmdNum = 0;
+	switch ( forceNum ) {
+
+	case FP_DRAIN: {
 		IN_Button11Down();
 		IN_Button11Up();
-		break;
-	case FP_PUSH:
+	} break;
+
+	case FP_PUSH: {
 		genCmdNum = GENCMD_FORCE_THROW;
-		break;
-	case FP_SPEED:
+	} break;
+
+	case FP_SPEED: {
 		genCmdNum = GENCMD_FORCE_SPEED;
-		break;
-	case FP_PULL:
+	} break;
+
+	case FP_PULL: {
 		genCmdNum = GENCMD_FORCE_PULL;
-		break;
-	case FP_TELEPATHY:
+	} break;
+
+	case FP_TELEPATHY: {
 		genCmdNum = GENCMD_FORCE_DISTRACT;
-		break;
-	case FP_GRIP:
+	} break;
+
+	case FP_GRIP: {
 		IN_Button6Down();
 		IN_Button6Up();
-		break;
-	case FP_LIGHTNING:
+	} break;
+
+	case FP_LIGHTNING: {
 		IN_Button10Down();
 		IN_Button10Up();
-		break;
-	case FP_RAGE:
+	} break;
+
+	case FP_RAGE: {
 		genCmdNum = GENCMD_FORCE_RAGE;
-		break;
-	case FP_PROTECT:
+	} break;
+
+	case FP_PROTECT: {
 		genCmdNum = GENCMD_FORCE_PROTECT;
-		break;
-	case FP_ABSORB:
+	} break;
+
+	case FP_ABSORB: {
 		genCmdNum = GENCMD_FORCE_ABSORB;
-		break;
-	case FP_SEE:
+	} break;
+
+	case FP_SEE: {
 		genCmdNum = GENCMD_FORCE_SEEING;
-		break;
-	case FP_HEAL:
+	} break;
+
+	case FP_HEAL: {
 		genCmdNum = GENCMD_FORCE_HEAL;
-		break;
-	case FP_TEAM_HEAL:
+	} break;
+
+	case FP_TEAM_HEAL: {
 		genCmdNum = GENCMD_FORCE_HEALOTHER;
-		break;
-	case FP_TEAM_FORCE:
+	} break;
+
+	case FP_TEAM_FORCE: {
 		genCmdNum = GENCMD_FORCE_FORCEPOWEROTHER;
-		break;
-	default:
-		assert(0);
-		break;
+	} break;
+
+	default: {
+		assert( 0 );
+	} break;
+
 	}
 
 	if(genCmdNum != 0) {
@@ -749,52 +553,40 @@ void IN_UseGivenForce(void)
 
 // Moves the local angle positions
 void CL_AdjustAngles( void ) {
-	float	speed;
-
-	if ( in_speed.active ) {
-		speed = 0.001 * cls.frametime * cl_anglespeedkey->value;
-	} else {
-		speed = 0.001 * cls.frametime;
-	}
+	const float speed = in_speed.active ?
+		0.001 * cls.frametime * cl_anglespeedkey->value :
+		0.001 * cls.frametime;
 
 	if ( !in_strafe.active ) {
-		if ( cl_mYawOverride )
-		{
-			if ( cl_mSensitivityOverride )
-			{
-				cl.viewangles[YAW] -= cl_mYawOverride*cl_mSensitivityOverride*speed*cl_yawspeed->value*CL_KeyState (&in_right);
-				cl.viewangles[YAW] += cl_mYawOverride*cl_mSensitivityOverride*speed*cl_yawspeed->value*CL_KeyState (&in_left);
+		if ( cl_mYawOverride ) {
+			if ( cl_mSensitivityOverride ) {
+				cl.viewangles[YAW] -= cl_mYawOverride*cl_mSensitivityOverride*speed*cl_yawspeed->value*CL_KeyState( &in_right );
+				cl.viewangles[YAW] += cl_mYawOverride*cl_mSensitivityOverride*speed*cl_yawspeed->value*CL_KeyState( &in_left );
 			}
-			else
-			{
-				cl.viewangles[YAW] -= cl_mYawOverride*OVERRIDE_MOUSE_SENSITIVITY*speed*cl_yawspeed->value*CL_KeyState (&in_right);
-				cl.viewangles[YAW] += cl_mYawOverride*OVERRIDE_MOUSE_SENSITIVITY*speed*cl_yawspeed->value*CL_KeyState (&in_left);
+			else {
+				cl.viewangles[YAW] -= cl_mYawOverride*OVERRIDE_MOUSE_SENSITIVITY*speed*cl_yawspeed->value*CL_KeyState( &in_right );
+				cl.viewangles[YAW] += cl_mYawOverride*OVERRIDE_MOUSE_SENSITIVITY*speed*cl_yawspeed->value*CL_KeyState( &in_left );
 			}
 		}
-		else
-		{
-			cl.viewangles[YAW] -= speed*cl_yawspeed->value*CL_KeyState (&in_right);
-			cl.viewangles[YAW] += speed*cl_yawspeed->value*CL_KeyState (&in_left);
+		else {
+			cl.viewangles[YAW] -= speed*cl_yawspeed->value*CL_KeyState( &in_right );
+			cl.viewangles[YAW] += speed*cl_yawspeed->value*CL_KeyState( &in_left );
 		}
 	}
 
-	if ( cl_mPitchOverride )
-	{
-		if ( cl_mSensitivityOverride )
-		{
-			cl.viewangles[PITCH] -= cl_mPitchOverride*cl_mSensitivityOverride*speed*cl_pitchspeed->value * CL_KeyState (&in_lookup);
-			cl.viewangles[PITCH] += cl_mPitchOverride*cl_mSensitivityOverride*speed*cl_pitchspeed->value * CL_KeyState (&in_lookdown);
+	if ( cl_mPitchOverride ) {
+		if ( cl_mSensitivityOverride ) {
+			cl.viewangles[PITCH] -= cl_mPitchOverride*cl_mSensitivityOverride*speed*cl_pitchspeed->value * CL_KeyState( &in_lookup );
+			cl.viewangles[PITCH] += cl_mPitchOverride*cl_mSensitivityOverride*speed*cl_pitchspeed->value * CL_KeyState( &in_lookdown );
 		}
-		else
-		{
-			cl.viewangles[PITCH] -= cl_mPitchOverride*OVERRIDE_MOUSE_SENSITIVITY*speed*cl_pitchspeed->value * CL_KeyState (&in_lookup);
-			cl.viewangles[PITCH] += cl_mPitchOverride*OVERRIDE_MOUSE_SENSITIVITY*speed*cl_pitchspeed->value * CL_KeyState (&in_lookdown);
+		else {
+			cl.viewangles[PITCH] -= cl_mPitchOverride*OVERRIDE_MOUSE_SENSITIVITY*speed*cl_pitchspeed->value * CL_KeyState( &in_lookup );
+			cl.viewangles[PITCH] += cl_mPitchOverride*OVERRIDE_MOUSE_SENSITIVITY*speed*cl_pitchspeed->value * CL_KeyState( &in_lookdown );
 		}
 	}
-	else
-	{
-		cl.viewangles[PITCH] -= speed*cl_pitchspeed->value * CL_KeyState (&in_lookup);
-		cl.viewangles[PITCH] += speed*cl_pitchspeed->value * CL_KeyState (&in_lookdown);
+	else {
+		cl.viewangles[PITCH] -= speed*cl_pitchspeed->value * CL_KeyState( &in_lookup );
+		cl.viewangles[PITCH] += speed*cl_pitchspeed->value * CL_KeyState( &in_lookdown );
 	}
 }
 
@@ -804,56 +596,56 @@ void CL_KeyMove( usercmd_t *cmd ) {
 	int		forward, side, up;
 
 	// adjust for speed key / running
-	// the walking flag is to keep animations consistant
-	// even during acceleration and develeration
-	if (((in_speed.active) ? 1 : 0) ^ cl_run->integer ) {
+	// the walking flag is to keep animations consistant even during acceleration and decceleration
+	if ( (in_speed.active ? 1 : 0) ^ cl_run->integer ) {
 		movespeed = 127;
 		cmd->buttons &= ~BUTTON_WALKING;
-	} else {
+	}
+	else {
 		cmd->buttons |= BUTTON_WALKING;
 		movespeed = 46;
 	}
 
 	forward = 0;
-	side = 0;
-	up = 0;
+	side    = 0;
+	up      = 0;
 	if ( in_strafe.active ) {
-		side += movespeed * CL_KeyState (&in_right);
-		side -= movespeed * CL_KeyState (&in_left);
+		side += movespeed * CL_KeyState( &in_right );
+		side -= movespeed * CL_KeyState( &in_left );
 	}
 
-	side += movespeed * CL_KeyState (&in_moveright);
-	side -= movespeed * CL_KeyState (&in_moveleft);
-
-	up += movespeed * CL_KeyState (&in_up);
-	up -= movespeed * CL_KeyState (&in_down);
-
-	forward += movespeed * CL_KeyState (&in_forward);
-	forward -= movespeed * CL_KeyState (&in_back);
+	side    += movespeed * CL_KeyState( &in_moveright );
+	side    -= movespeed * CL_KeyState( &in_moveleft );
+	up      += movespeed * CL_KeyState( &in_up );
+	up      -= movespeed * CL_KeyState( &in_down );
+	forward += movespeed * CL_KeyState( &in_forward );
+	forward -= movespeed * CL_KeyState( &in_back );
 
 	cmd->forwardmove = ClampChar( forward );
-	cmd->rightmove = ClampChar( side );
-	cmd->upmove = ClampChar( up );
+	cmd->rightmove   = ClampChar( side );
+	cmd->upmove      = ClampChar( up );
 }
 
 void CL_MouseEvent( int dx, int dy, int time ) {
-	if (g_clAutoMapMode && cls.cgameStarted)
-	{ //automap input
-		autoMapInput_t *data = (autoMapInput_t *)cl.mSharedMemory;
-
+	if ( g_clAutoMapMode && cls.cgameStarted ) {
+		// automap input
 		g_clAutoMapInput.yaw = dx;
 		g_clAutoMapInput.pitch = dy;
-		memcpy(data, &g_clAutoMapInput, sizeof(autoMapInput_t));
+
+		autoMapInput_t *data = (autoMapInput_t *)cl.mSharedMemory;
+		memcpy( data, &g_clAutoMapInput, sizeof(autoMapInput_t) );
 		CGVM_AutomapInput();
 
 		g_clAutoMapInput.yaw = 0.0f;
 		g_clAutoMapInput.pitch = 0.0f;
 	}
-	else if ( Key_GetCatcher( ) & KEYCATCH_UI ) {
+	else if ( Key_GetCatcher() & KEYCATCH_UI ) {
 		UIVM_MouseEvent( dx, dy );
-	} else if ( Key_GetCatcher( ) & KEYCATCH_CGAME ) {
+	}
+	else if ( Key_GetCatcher() & KEYCATCH_CGAME ) {
 		CGVM_MouseEvent( dx, dy );
-	} else {
+	}
+	else {
 		cl.mouseDx[cl.mouseIndex] += dx;
 		cl.mouseDy[cl.mouseIndex] += dy;
 	}
@@ -868,8 +660,6 @@ void CL_JoystickEvent( int axis, int value, int time ) {
 }
 
 void CL_JoystickMove( usercmd_t *cmd ) {
-	float	anglespeed;
-
 	if ( !in_joystick->integer )
 	{
 		return;
@@ -879,52 +669,41 @@ void CL_JoystickMove( usercmd_t *cmd ) {
 		cmd->buttons |= BUTTON_WALKING;
 	}
 
-	if ( in_speed.active ) {
-		anglespeed = 0.001 * cls.frametime * cl_anglespeedkey->value;
-	} else {
-		anglespeed = 0.001 * cls.frametime;
-	}
+	const float anglespeed = in_speed.active ?
+		0.001 * cls.frametime * cl_anglespeedkey->value :
+		0.001 * cls.frametime;
 
 	if ( !in_strafe.active ) {
-		if ( cl_mYawOverride )
-		{
-			if ( cl_mSensitivityOverride )
-			{
+		if ( cl_mYawOverride ) {
+			if ( cl_mSensitivityOverride ) {
 				cl.viewangles[YAW] += cl_mYawOverride * cl_mSensitivityOverride * cl.joystickAxis[AXIS_SIDE]/2.0f;
 			}
-			else
-			{
+			else {
 				cl.viewangles[YAW] += cl_mYawOverride * OVERRIDE_MOUSE_SENSITIVITY * cl.joystickAxis[AXIS_SIDE]/2.0f;
 			}
 		}
-		else
-		{
+		else {
 			cl.viewangles[YAW] += anglespeed * (cl_yawspeed->value / 100.0f) * cl.joystickAxis[AXIS_SIDE];
 		}
 	}
-	else
-	{
+	else {
 		cmd->rightmove = ClampChar( cmd->rightmove + cl.joystickAxis[AXIS_SIDE] );
 	}
 
 	if ( in_mlooking || cl_freelook->integer ) {
-		if ( cl_mPitchOverride )
-		{
-			if ( cl_mSensitivityOverride )
-			{
+		if ( cl_mPitchOverride ) {
+			if ( cl_mSensitivityOverride ) {
 				cl.viewangles[PITCH] += cl_mPitchOverride * cl_mSensitivityOverride * cl.joystickAxis[AXIS_FORWARD]/2.0f;
 			}
-			else
-			{
+			else {
 				cl.viewangles[PITCH] += cl_mPitchOverride * OVERRIDE_MOUSE_SENSITIVITY * cl.joystickAxis[AXIS_FORWARD]/2.0f;
 			}
 		}
-		else
-		{
+		else {
 			cl.viewangles[PITCH] += anglespeed * (cl_pitchspeed->value / 100.0f) * cl.joystickAxis[AXIS_FORWARD];
 		}
-	} else
-	{
+	}
+	else {
 		cmd->forwardmove = ClampChar( cmd->forwardmove + cl.joystickAxis[AXIS_FORWARD] );
 	}
 
@@ -932,59 +711,40 @@ void CL_JoystickMove( usercmd_t *cmd ) {
 }
 
 void CL_MouseMove( usercmd_t *cmd ) {
-	float	mx, my;
-	const float	speed = static_cast<float>(frame_msec);
-
 	// allow mouse smoothing
-	if ( m_filter->integer ) {
-		mx = ( cl.mouseDx[0] + cl.mouseDx[1] ) * 0.5;
-		my = ( cl.mouseDy[0] + cl.mouseDy[1] ) * 0.5;
-	} else {
-		mx = cl.mouseDx[cl.mouseIndex];
-		my = cl.mouseDy[cl.mouseIndex];
-	}
+	float mx = m_filter->integer ? (cl.mouseDx[0] + cl.mouseDx[1]) * 0.5 : cl.mouseDx[cl.mouseIndex];
+	float my = m_filter->integer ? (cl.mouseDy[0] + cl.mouseDy[1]) * 0.5 : cl.mouseDy[cl.mouseIndex];
 
 	cl.mouseIndex ^= 1;
 	cl.mouseDx[cl.mouseIndex] = 0;
 	cl.mouseDy[cl.mouseIndex] = 0;
 
-	if ( mx == 0.0f && my == 0.0f )
+	if ( mx == 0.0f && my == 0.0f ) {
 		return;
+	}
 
-	if ( cl_mouseAccel->value != 0.0f )
-	{
-		if ( cl_mouseAccelStyle->integer == 0 )
-		{
+	if ( cl_mouseAccel->value != 0.0f ) {
+		const float	speed = static_cast<float>(frame_msec);
+		if ( cl_mouseAccelStyle->integer == 0 ) {
+			const float rate = SQRTFAST( mx * mx + my * my ) / speed;
+
 			float accelSensitivity;
-			float rate;
-
-			rate = SQRTFAST( mx * mx + my * my ) / speed;
-
-			if ( cl_mYawOverride || cl_mPitchOverride )
-			{//FIXME: different people have different speed mouses,
-				if ( cl_mSensitivityOverride )
-				{
-					//this will fuck things up for them, need to clamp
-					//max input?
-					accelSensitivity = cl_mSensitivityOverride;
-				}
-				else
-				{
-					accelSensitivity = sensitivity->value + rate * cl_mouseAccel->value;
-				}
+			if ( cl_mYawOverride || cl_mPitchOverride ) {
+				//FIXME: different people have different speed mouses,
+				//this will fuck things up for them, need to clamp max input?
+				accelSensitivity = cl_mSensitivityOverride ? cl_mSensitivityOverride : sensitivity->value + rate * cl_mouseAccel->value;
 			}
-			else
-			{
+			else {
 				accelSensitivity = sensitivity->value + rate * cl_mouseAccel->value;
 			}
 			mx *= accelSensitivity;
 			my *= accelSensitivity;
 
-			if ( cl_showMouseRate->integer )
+			if ( cl_showMouseRate->integer ) {
 				Com_Printf( "rate: %f, accelSensitivity: %f\n", rate, accelSensitivity );
+			}
 		}
-		else
-		{
+		else {
 			float rate[2];
 			float power[2];
 
@@ -998,50 +758,34 @@ void CL_MouseMove( usercmd_t *cmd ) {
 			power[0] = powf( rate[0] / cl_mouseAccelOffset->value, cl_mouseAccel->value );
 			power[1] = powf( rate[1] / cl_mouseAccelOffset->value, cl_mouseAccel->value );
 
-			if ( cl_mYawOverride || cl_mPitchOverride )
-			{//FIXME: different people have different speed mouses,
-				if ( cl_mSensitivityOverride )
-				{
-					//this will fuck things up for them, need to clamp
-					//max input?
-					mx = cl_mSensitivityOverride * (mx + ((mx < 0) ? -power[0] : power[0]) * cl_mouseAccelOffset->value);
-					my = cl_mSensitivityOverride * (my + ((my < 0) ? -power[1] : power[1]) * cl_mouseAccelOffset->value);
-				}
-				else
-				{
-					mx = sensitivity->value * (mx + ((mx < 0) ? -power[0] : power[0]) * cl_mouseAccelOffset->value);
-					my = sensitivity->value * (my + ((my < 0) ? -power[1] : power[1]) * cl_mouseAccelOffset->value);
-				}
+			if ( cl_mYawOverride || cl_mPitchOverride ) {
+				//FIXME: different people have different speed mouses,
+				//this will fuck things up for them, need to clamp max input?
+				mx = cl_mSensitivityOverride ?
+					cl_mSensitivityOverride * (mx + ((mx < 0) ? -power[0] : power[0]) * cl_mouseAccelOffset->value) :
+							sensitivity->value * (mx + ((mx < 0) ? -power[0] : power[0]) * cl_mouseAccelOffset->value);
+				my = cl_mSensitivityOverride ?
+					cl_mSensitivityOverride * (my + ((my < 0) ? -power[1] : power[1]) * cl_mouseAccelOffset->value) :
+							sensitivity->value * (my + ((my < 0) ? -power[1] : power[1]) * cl_mouseAccelOffset->value);
 			}
-			else
-			{
+			else {
 				mx = sensitivity->value * (mx + ((mx < 0) ? -power[0] : power[0]) * cl_mouseAccelOffset->value);
 				my = sensitivity->value * (my + ((my < 0) ? -power[1] : power[1]) * cl_mouseAccelOffset->value);
 			}
 
-			if ( cl_showMouseRate->integer )
+			if ( cl_showMouseRate->integer ) {
 				Com_Printf( "ratex: %f, ratey: %f, powx: %f, powy: %f\n", rate[0], rate[1], power[0], power[1] );
+			}
 		}
 	}
-	else
-	{
-		if ( cl_mYawOverride || cl_mPitchOverride )
-		{//FIXME: different people have different speed mouses,
-			if ( cl_mSensitivityOverride )
-			{
-				//this will fuck things up for them, need to clamp
-				//max input?
-				mx *= cl_mSensitivityOverride;
-				my *= cl_mSensitivityOverride;
-			}
-			else
-			{
-				mx *= sensitivity->value;
-				my *= sensitivity->value;
-			}
+	else {
+		if ( cl_mYawOverride || cl_mPitchOverride ) {
+			//FIXME: different people have different speed mouses,
+			//this will fuck things up for them, need to clamp max input?
+			mx *= cl_mSensitivityOverride ? cl_mSensitivityOverride : sensitivity->value;
+			my *= cl_mSensitivityOverride ? cl_mSensitivityOverride : sensitivity->value;
 		}
-		else
-		{
+		else {
 			mx *= sensitivity->value;
 			my *= sensitivity->value;
 		}
@@ -1052,13 +796,11 @@ void CL_MouseMove( usercmd_t *cmd ) {
 	my *= cl.cgameSensitivity;
 
 	// add mouse X/Y movement to cmd
-	if ( in_strafe.active )
+	if ( in_strafe.active ) {
 		cmd->rightmove = ClampChar( cmd->rightmove + m_side->value * mx );
+	}
 	else {
-		if ( cl_mYawOverride )
-			cl.viewangles[YAW] -= cl_mYawOverride * mx;
-		else
-			cl.viewangles[YAW] -= m_yaw->value * mx;
+		cl.viewangles[YAW] -= cl_mYawOverride ? cl_mYawOverride * mx  : m_yaw->value * mx;
 	}
 
 	if ( (in_mlooking || cl_freelook->integer) && !in_strafe.active ) {
@@ -1066,22 +808,25 @@ void CL_MouseMove( usercmd_t *cmd ) {
 		const float cl_pitchSensitivity = 1.0f;
 		const float pitch = cl_bUseFighterPitch ? m_pitchVeh->value : m_pitch->value;
 		if ( cl_mPitchOverride ) {
-			if ( pitch > 0 )
+			if ( pitch > 0 ) {
 				cl.viewangles[PITCH] += cl_mPitchOverride * my * cl_pitchSensitivity;
-			else
+			}
+			else {
 				cl.viewangles[PITCH] -= cl_mPitchOverride * my * cl_pitchSensitivity;
+			}
 		}
-		else
+		else {
 			cl.viewangles[PITCH] += pitch * my * cl_pitchSensitivity;
+		}
 	}
-	else
+	else {
 		cmd->forwardmove = ClampChar( cmd->forwardmove - m_forward->value * my );
+	}
 }
 
-bool CL_NoUseableForce(void)
-{
-	if (!cls.cgameStarted)
-	{ //ahh, no cgame loaded
+bool CL_NoUseableForce( void ) {
+	if ( !cls.cgameStarted ) {
+		// ahh, no cgame loaded
 		return false;
 	}
 
@@ -1089,56 +834,46 @@ bool CL_NoUseableForce(void)
 }
 
 void CL_CmdButtons( usercmd_t *cmd ) {
-	int		i;
-
 	// figure button bits
-	// send a button bit even if the key was pressed and released in
-	// less than a frame
-	for (i = 0 ; i < MAX_KBUTTONS ; i++) {
+	// send a button bit even if the key was pressed and released in less than a frame
+	for ( int i = 0; i < MAX_KBUTTONS; i++ ) {
 		if ( in_buttons[i].active || in_buttons[i].wasPressed ) {
 			cmd->buttons |= 1 << i;
 		}
 		in_buttons[i].wasPressed = false;
 	}
 
-	if (cmd->buttons & BUTTON_FORCEPOWER)
-	{ //check for transferring a use force to a use inventory...
-		if ((cmd->buttons & BUTTON_USE) || CL_NoUseableForce())
-		{ //it's pushed, remap it!
+	if ( cmd->buttons & BUTTON_FORCEPOWER ) {
+		// check for transferring a use force to a use inventory...
+		if ( (cmd->buttons & BUTTON_USE) || CL_NoUseableForce() ) {
+			// it's pushed, remap it!
 			cmd->buttons &= ~BUTTON_FORCEPOWER;
 			cmd->buttons |= BUTTON_USE_HOLDABLE;
 		}
 	}
 
-	if ( Key_GetCatcher( ) ) {
+	if ( Key_GetCatcher() ) {
 		cmd->buttons |= BUTTON_TALK;
 	}
 
-	// allow the game to know if any key at all is
-	// currently pressed, even if it isn't bound to anything
+	// allow the game to know if any key at all is currently pressed, even if it isn't bound to anything
 	if ( kg.anykeydown && Key_GetCatcher( ) == 0 ) {
 		cmd->buttons |= BUTTON_ANY;
 	}
 }
 
-vec3_t cl_sendAngles={0};
-vec3_t cl_lastViewAngles={0};
 void CL_FinishMove( usercmd_t *cmd ) {
-	int		i;
-
 	// copy the state that the cgame is currently sending
-	cmd->weapon = cl.cgameUserCmdValue;
+	cmd->weapon   = cl.cgameUserCmdValue;
 	cmd->forcesel = cl.cgameForceSelection;
 	cmd->invensel = cl.cgameInvenSelection;
 
-	if (cl.gcmdSendValue)
-	{
+	if ( cl.gcmdSendValue ) {
 		cmd->generic_cmd = cl.gcmdValue;
 		//cl.gcmdSendValue = false;
 		cl.gcmdSentValue = true;
 	}
-	else
-	{
+	else {
 		cmd->generic_cmd = 0;
 	}
 
@@ -1146,60 +881,53 @@ void CL_FinishMove( usercmd_t *cmd ) {
 	// can be determined without allowing cheating
 	cmd->serverTime = cl.serverTime;
 
-	if (cl.cgameViewAngleForceTime > cl.serverTime)
-	{
-		cl.cgameViewAngleForce[YAW] -= SHORT2ANGLE(cl.snap.ps.delta_angles[YAW]);
+	if ( cl.cgameViewAngleForceTime > cl.serverTime ) {
+		cl.cgameViewAngleForce[YAW] -= SHORT2ANGLE( cl.snap.ps.delta_angles[YAW] );
 
 		cl.viewangles[YAW] = cl.cgameViewAngleForce[YAW];
 		cl.cgameViewAngleForceTime = 0;
 	}
 
-	if ( cl_crazyShipControls )
-	{
+	if ( cl_crazyShipControls ) {
 		float pitchSubtract, pitchDelta, yawDelta;
 
-		yawDelta = AngleSubtract(cl.viewangles[YAW],cl_lastViewAngles[YAW]);
+		yawDelta = AngleSubtract( cl.viewangles[YAW],cl_lastViewAngles[YAW] );
 		//yawDelta *= (4.0f*pVeh->m_fTimeModifier);
 		cl_sendAngles[ROLL] -= yawDelta;
 
-		float nRoll = fabs(cl_sendAngles[ROLL]);
+		float nRoll = fabs( cl_sendAngles[ROLL] );
 
-		pitchDelta = AngleSubtract(cl.viewangles[PITCH],cl_lastViewAngles[PITCH]);
+		pitchDelta = AngleSubtract( cl.viewangles[PITCH], cl_lastViewAngles[PITCH]);
 		//pitchDelta *= (2.0f*pVeh->m_fTimeModifier);
 		pitchSubtract = pitchDelta * (nRoll/90.0f);
 		cl_sendAngles[PITCH] += pitchDelta-pitchSubtract;
 
 		//yaw-roll calc should be different
-		if (nRoll > 90.0f)
-		{
+		if ( nRoll > 90.0f ) {
 			nRoll -= 180.0f;
 		}
-		if (nRoll < 0.0f)
-		{
+		if ( nRoll < 0.0f ) {
 			nRoll = -nRoll;
 		}
 		pitchSubtract = pitchDelta * (nRoll/90.0f);
-		if ( cl_sendAngles[ROLL] > 0.0f )
-		{
+		if ( cl_sendAngles[ROLL] > 0.0f ) {
 			cl_sendAngles[YAW] += pitchSubtract;
 		}
-		else
-		{
+		else {
 			cl_sendAngles[YAW] -= pitchSubtract;
 		}
 
 		cl_sendAngles[PITCH] = AngleNormalize180( cl_sendAngles[PITCH] );
-		cl_sendAngles[YAW] = AngleNormalize360( cl_sendAngles[YAW] );
-		cl_sendAngles[ROLL] = AngleNormalize180( cl_sendAngles[ROLL] );
+		cl_sendAngles[YAW]   = AngleNormalize360( cl_sendAngles[YAW] );
+		cl_sendAngles[ROLL]  = AngleNormalize180( cl_sendAngles[ROLL] );
 
-		for (i=0 ; i<3 ; i++) {
-			cmd->angles[i] = ANGLE2SHORT(cl_sendAngles[i]);
+		for ( int i = 0; i < 3; i++ ) {
+			cmd->angles[i] = ANGLE2SHORT( cl_sendAngles[i] );
 		}
 	}
-	else
-	{
-		for (i=0 ; i<3 ; i++) {
-			cmd->angles[i] = ANGLE2SHORT(cl.viewangles[i]);
+	else {
+		for ( int i = 0; i < 3; i++ ) {
+			cmd->angles[i] = ANGLE2SHORT( cl.viewangles[i] );
 		}
 		//in case we switch to the cl_crazyShipControls
 		VectorCopy( cl.viewangles, cl_sendAngles );
@@ -1209,14 +937,13 @@ void CL_FinishMove( usercmd_t *cmd ) {
 }
 
 usercmd_t CL_CreateCmd( void ) {
-	usercmd_t	cmd;
-	vec3_t		oldAngles;
-
+	vec3_t oldAngles;
 	VectorCopy( cl.viewangles, oldAngles );
 
 	// keyboard angle adjustment
-	CL_AdjustAngles ();
+	CL_AdjustAngles();
 
+	usercmd_t cmd;
 	Com_Memset( &cmd, 0, sizeof( cmd ) );
 
 	CL_CmdButtons( &cmd );
@@ -1233,7 +960,8 @@ usercmd_t CL_CreateCmd( void ) {
 	// check to make sure the angles haven't wrapped
 	if ( cl.viewangles[PITCH] - oldAngles[PITCH] > 90 ) {
 		cl.viewangles[PITCH] = oldAngles[PITCH] + 90;
-	} else if ( oldAngles[PITCH] - cl.viewangles[PITCH] > 90 ) {
+	}
+	else if ( oldAngles[PITCH] - cl.viewangles[PITCH] > 90 ) {
 		cl.viewangles[PITCH] = oldAngles[PITCH] - 90;
 	}
 
@@ -1243,10 +971,10 @@ usercmd_t CL_CreateCmd( void ) {
 	// draw debug graphs of turning for mouse testing
 	if ( cl_debugMove->integer ) {
 		if ( cl_debugMove->integer == 1 ) {
-			SCR_DebugGraph( abs(cl.viewangles[YAW] - oldAngles[YAW]), 0 );
+			SCR_DebugGraph( abs( cl.viewangles[YAW] - oldAngles[YAW] ), 0 );
 		}
-		if ( cl_debugMove->integer == 2 ) {
-			SCR_DebugGraph( abs(cl.viewangles[PITCH] - oldAngles[PITCH]), 0 );
+		else if ( cl_debugMove->integer == 2 ) {
+			SCR_DebugGraph( abs( cl.viewangles[PITCH] - oldAngles[PITCH] ), 0 );
 		}
 	}
 
@@ -1255,29 +983,29 @@ usercmd_t CL_CreateCmd( void ) {
 
 // Create a new usercmd_t structure for this frame
 void CL_CreateNewCommands( void ) {
-	int			cmdNum;
-
 	// no need to create usercmds until we have a gamestate
-	if ( cls.state < CA_PRIMED )
+	if ( cls.state < CA_PRIMED ) {
 		return;
+	}
 
 	frame_msec = com_frameTime - old_com_frameTime;
 
 	// if running over 1000fps, act as if each frame is 1ms
 	// prevents divisions by zero
-	if ( frame_msec < 1 )
+	if ( frame_msec < 1 ) {
 		frame_msec = 1;
+	}
 
-	// if running less than 5fps, truncate the extra time to prevent
-	// unexpected moves after a hitch
-	if ( frame_msec > 200 )
+	// if running less than 5fps, truncate the extra time to prevent unexpected moves after a hitch
+	if ( frame_msec > 200 ) {
 		frame_msec = 200;
+	}
 
 	old_com_frameTime = com_frameTime;
 
 	// generate a command for this frame
 	cl.cmdNumber++;
-	cmdNum = cl.cmdNumber & CMD_MASK;
+	const int cmdNum = cl.cmdNumber & CMD_MASK;
 	cl.cmds[cmdNum] = CL_CreateCmd();
 }
 
@@ -1286,9 +1014,6 @@ void CL_CreateNewCommands( void ) {
 // All the commands will still get delivered in the next packet, but saving a header and getting more delta compression
 //	will reduce total bandwidth.
 bool CL_ReadyToSendPacket( void ) {
-	int		oldPacketNum;
-	int		delta;
-
 	// don't send anything if playing back a demo
 	if ( clc.demoplaying || cls.state == CA_CINEMATIC ) {
 		return false;
@@ -1305,7 +1030,8 @@ bool CL_ReadyToSendPacket( void ) {
 	if ( cls.state != CA_ACTIVE &&
 		cls.state != CA_PRIMED &&
 		!*clc.downloadTempName &&
-		cls.realtime - clc.lastPacketSentTime < 1000 ) {
+		cls.realtime - clc.lastPacketSentTime < 1000 )
+	{
 		return false;
 	}
 
@@ -1326,8 +1052,8 @@ bool CL_ReadyToSendPacket( void ) {
 	else if ( cl_maxpackets->integer > 1000 ) {
 		Cvar_Set( "cl_maxpackets", "1000" );
 	}
-	oldPacketNum = (clc.netchan.outgoingSequence - 1) & PACKET_MASK;
-	delta = cls.realtime -  cl.outPackets[ oldPacketNum ].p_realtime;
+	const int oldPacketNum = (clc.netchan.outgoingSequence - 1) & PACKET_MASK;
+	const int delta = cls.realtime -  cl.outPackets[ oldPacketNum ].p_realtime;
 	if ( delta < 1000 / cl_maxpackets->integer ) {
 		// the accumulated commands will go out in the next packet
 		return false;
@@ -1348,23 +1074,13 @@ bool CL_ReadyToSendPacket( void ) {
 //	1	command count
 //	<count * usercmds>
 void CL_WritePacket( void ) {
-	msg_t		buf;
-	byte		data[MAX_MSGLEN];
-	int			i, j;
-	usercmd_t	*cmd, *oldcmd;
-	usercmd_t	nullcmd;
-	int			packetNum;
-	int			oldPacketNum;
-	int			count, key;
-
 	// don't send anything if playing back a demo
 	if ( clc.demoplaying || cls.state == CA_CINEMATIC ) {
 		return;
 	}
 
-	Com_Memset( &nullcmd, 0, sizeof(nullcmd) );
-	oldcmd = &nullcmd;
-
+	msg_t buf;
+	byte data[MAX_MSGLEN];
 	MSG_Init( &buf, data, sizeof(data) );
 
 	MSG_Bitstream( &buf );
@@ -1381,7 +1097,7 @@ void CL_WritePacket( void ) {
 	MSG_WriteLong( &buf, clc.serverCommandSequence );
 
 	// write any unacknowledged clientCommands
-	for ( i = clc.reliableAcknowledge + 1 ; i <= clc.reliableSequence ; i++ ) {
+	for ( int i = clc.reliableAcknowledge + 1 ; i <= clc.reliableSequence ; i++ ) {
 		MSG_WriteByte( &buf, clc_clientCommand );
 		MSG_WriteLong( &buf, i );
 		MSG_WriteString( &buf, clc.reliableCommands[ i & (MAX_RELIABLE_COMMANDS-1) ] );
@@ -1392,14 +1108,19 @@ void CL_WritePacket( void ) {
 	// all the cmds will make it to the server
 	if ( cl_packetdup->integer < 0 ) {
 		Cvar_Set( "cl_packetdup", "0" );
-	} else if ( cl_packetdup->integer > 5 ) {
+	}
+	else if ( cl_packetdup->integer > 5 ) {
 		Cvar_Set( "cl_packetdup", "5" );
 	}
-	oldPacketNum = (clc.netchan.outgoingSequence - 1 - cl_packetdup->integer) & PACKET_MASK;
-	count = cl.cmdNumber - cl.outPackets[ oldPacketNum ].p_cmdNumber;
+
+	usercmd_t nullcmd, *oldcmd = &nullcmd;
+	Com_Memset( &nullcmd, 0, sizeof(nullcmd) );
+
+	const int oldPacketNum = (clc.netchan.outgoingSequence - 1 - cl_packetdup->integer) & PACKET_MASK;
+	int count = cl.cmdNumber - cl.outPackets[ oldPacketNum ].p_cmdNumber;
 	if ( count > MAX_PACKET_USERCMDS ) {
 		count = MAX_PACKET_USERCMDS;
-		Com_Printf("MAX_PACKET_USERCMDS\n");
+		Com_Printf( "MAX_PACKET_USERCMDS\n" );
 	}
 	if ( count >= 1 ) {
 		if ( cl_showSend->integer ) {
@@ -1407,34 +1128,33 @@ void CL_WritePacket( void ) {
 		}
 
 		// begin a client move command
-		if ( cl_nodelta->integer || !cl.snap.valid
-			|| clc.demowaiting
-			|| clc.serverMessageSequence != cl.snap.messageNum ) {
-			MSG_WriteByte (&buf, clc_moveNoDelta);
-		} else {
-			MSG_WriteByte (&buf, clc_move);
+		if ( cl_nodelta->integer || !cl.snap.valid || clc.demowaiting || clc.serverMessageSequence != cl.snap.messageNum ) {
+			MSG_WriteByte( &buf, clc_moveNoDelta );
+		}
+		else {
+			MSG_WriteByte( &buf, clc_move );
 		}
 
 		// write the command count
 		MSG_WriteByte( &buf, count );
 
 		// use the checksum feed in the key
-		key = clc.checksumFeed;
+		int key = clc.checksumFeed;
 		// also use the message acknowledge
 		key ^= clc.serverMessageSequence;
 		// also use the last acknowledged server command in the key
-		key ^= Com_HashKey(clc.serverCommands[ clc.serverCommandSequence & (MAX_RELIABLE_COMMANDS-1) ], 32);
+		key ^= Com_HashKey( clc.serverCommands[ clc.serverCommandSequence & (MAX_RELIABLE_COMMANDS-1) ], 32 );
 
 		// write all the commands, including the predicted command
-		for ( i = 0 ; i < count ; i++ ) {
-			j = (cl.cmdNumber - count + i + 1) & CMD_MASK;
-			cmd = &cl.cmds[j];
-			MSG_WriteDeltaUsercmdKey (&buf, key, oldcmd, cmd);
+		for ( int i = 0; i < count; i++ ) {
+			const int j = (cl.cmdNumber - count + i + 1) & CMD_MASK;
+			usercmd_t *cmd = &cl.cmds[j];
+			MSG_WriteDeltaUsercmdKey( &buf, key, oldcmd, cmd );
 			oldcmd = cmd;
 		}
 
-		if (cl.gcmdSentValue)
-		{ //hmm, just clear here, I guess.. hoping it will resolve issues with gencmd values sometimes not going through.
+		if ( cl.gcmdSentValue ) {
+			// hmm, just clear here, I guess.. hoping it will resolve issues with gencmd values sometimes not going through.
 			cl.gcmdSendValue = false;
 			cl.gcmdSentValue = false;
 			cl.gcmdValue = 0;
@@ -1442,17 +1162,17 @@ void CL_WritePacket( void ) {
 	}
 
 	// deliver the message
-	packetNum = clc.netchan.outgoingSequence & PACKET_MASK;
-	cl.outPackets[ packetNum ].p_realtime = cls.realtime;
-	cl.outPackets[ packetNum ].p_serverTime = oldcmd->serverTime;
-	cl.outPackets[ packetNum ].p_cmdNumber = cl.cmdNumber;
+	const int packetNum = clc.netchan.outgoingSequence & PACKET_MASK;
+	cl.outPackets[packetNum].p_realtime   = cls.realtime;
+	cl.outPackets[packetNum].p_serverTime = oldcmd->serverTime;
+	cl.outPackets[packetNum].p_cmdNumber  = cl.cmdNumber;
 	clc.lastPacketSentTime = cls.realtime;
 
 	if ( cl_showSend->integer ) {
 		Com_Printf( "%i ", buf.cursize );
 	}
 
-	CL_Netchan_Transmit (&clc.netchan, &buf);
+	CL_Netchan_Transmit( &clc.netchan, &buf );
 
 	// clients never really should have messages large enough
 	// to fragment, but in case they do, fire them all off
@@ -1488,123 +1208,128 @@ void CL_SendCmd( void ) {
 	CL_WritePacket();
 }
 
-static const cmdList_t inputCmds[] =
-{
-	{ "centerview", "Centers view on screen", IN_CenterView, nullptr },
-	{ "+moveup", "Jump", IN_UpDown, nullptr },
-	{ "-moveup", nullptr, IN_UpUp, nullptr },
-	{ "+movedown", "Crouch", IN_DownDown, nullptr },
-	{ "-movedown", nullptr, IN_DownUp, nullptr },
-	{ "+left", "Rotate camera left", IN_LeftDown, nullptr },
-	{ "-left", nullptr, IN_LeftUp, nullptr },
-	{ "+right", "Rotate camera right", IN_RightDown, nullptr },
-	{ "-right", nullptr, IN_RightUp, nullptr },
-	{ "+forward", "Move forward", IN_ForwardDown, nullptr },
-	{ "-forward", nullptr, IN_ForwardUp, nullptr },
-	{ "+back", "Move backward", IN_BackDown, nullptr },
-	{ "-back", nullptr, IN_BackUp, nullptr },
-	{ "+lookup", "Tilt camera up", IN_LookupDown, nullptr },
-	{ "-lookup", nullptr, IN_LookupUp, nullptr },
-	{ "+lookdown", "Tilt camera down", IN_LookdownDown, nullptr },
-	{ "-lookdown", nullptr, IN_LookdownUp, nullptr },
-	{ "+strafe", "Hold to strafe", IN_StrafeDown, nullptr },
-	{ "-strafe", nullptr, IN_StrafeUp, nullptr },
-	{ "+moveleft", "Strafe left", IN_MoveleftDown, nullptr },
-	{ "-moveleft", nullptr, IN_MoveleftUp, nullptr },
-	{ "+moveright", "Strafe right", IN_MoverightDown, nullptr },
-	{ "-moveright", nullptr, IN_MoverightUp, nullptr },
-	{ "+speed", "Walk or run", IN_SpeedDown, nullptr },
-	{ "-speed", nullptr, IN_SpeedUp, nullptr },
-	{ "+attack", "Primary Attack", IN_Button0Down, nullptr },
-	{ "-attack", nullptr, IN_Button0Up, nullptr },
-	{ "+use", "Use item", IN_Button5Down, nullptr },
-	{ "-use", nullptr, IN_Button5Up, nullptr },
-	{ "+force_grip", "Hold to use grip force power", IN_Button6Down, nullptr },
-	{ "-force_grip", nullptr, IN_Button6Up, nullptr },
-	{ "+altattack", "Alternate Attack", IN_Button7Down, nullptr },
-	{ "-altattack", nullptr, IN_Button7Up, nullptr },
-	{ "+useforce", "Use selected force power", IN_Button9Down, nullptr },
-	{ "-useforce", nullptr, IN_Button9Up, nullptr },
-	{ "+force_lightning", "Hold to use lightning force power", IN_Button10Down, nullptr },
-	{ "-force_lightning", nullptr, IN_Button10Up, nullptr },
-	{ "+force_drain", "Hold to use drain force power", IN_Button11Down, nullptr },
-	{ "-force_drain", nullptr, IN_Button11Up, nullptr },
-	{ "+button0", "Button 0", IN_Button0Down, nullptr },
-	{ "-button0", nullptr, IN_Button0Up, nullptr },
-	{ "+button1", "Button 1", IN_Button1Down, nullptr },
-	{ "-button1", nullptr, IN_Button1Up, nullptr },
-	{ "+button2", "Button 2", IN_Button2Down, nullptr },
-	{ "-button2", nullptr, IN_Button2Up, nullptr },
-	{ "+button3", "Button 3", IN_Button3Down, nullptr },
-	{ "-button3", nullptr, IN_Button3Up, nullptr },
-	{ "+button4", "Button 4", IN_Button4Down, nullptr },
-	{ "-button4", nullptr, IN_Button4Up, nullptr },
-	{ "+button5", "Button 5", IN_Button5Down, nullptr },
-	{ "-button5", nullptr, IN_Button5Up, nullptr },
-	{ "+button6", "Button 6", IN_Button6Down, nullptr },
-	{ "-button6", nullptr, IN_Button6Up, nullptr },
-	{ "+button7", "Button 7", IN_Button7Down, nullptr },
-	{ "-button7", nullptr, IN_Button7Up, nullptr },
-	{ "+button8", "Button 8", IN_Button8Down, nullptr },
-	{ "-button8", nullptr, IN_Button8Up, nullptr },
-	{ "+button9", "Button 9", IN_Button9Down, nullptr },
-	{ "-button9", nullptr, IN_Button9Up, nullptr },
-	{ "+button10", "Button 10", IN_Button10Down, nullptr },
-	{ "-button10", nullptr, IN_Button10Up, nullptr },
-	{ "+button11", "Button 11", IN_Button11Down, nullptr },
-	{ "-button11", nullptr, IN_Button11Up, nullptr },
-	{ "+button12", "Button 12", IN_Button12Down, nullptr },
-	{ "-button12", nullptr, IN_Button12Up, nullptr },
-	{ "+button13", "Button 13", IN_Button13Down, nullptr },
-	{ "-button13", nullptr, IN_Button13Up, nullptr },
-	{ "+button14", "Button 14", IN_Button14Down, nullptr },
-	{ "-button14", nullptr, IN_Button14Up, nullptr },
-	{ "+button15", "Button 15", IN_Button15Down, nullptr },
-	{ "-button15", nullptr, IN_Button15Up, nullptr },
-	{ "+mlook", "Hold to use mouse look", IN_MLookDown, nullptr },
-	{ "-mlook", nullptr, IN_MLookUp, nullptr },
-	{ "sv_saberswitch", "Holster/activate lightsaber", IN_GenCMD1, nullptr },
-	{ "engage_duel", "Engage private duel", IN_GenCMD2, nullptr },
-	{ "force_heal", "Use heal force power", IN_GenCMD3, nullptr },
-	{ "force_speed", "Activate speed force power", IN_GenCMD4, nullptr },
-	{ "force_pull", "Use pull force power", IN_GenCMD5, nullptr },
-	{ "force_distract", "Activate mind trick force power", IN_GenCMD6, nullptr },
-	{ "force_rage", "Activate rage force power", IN_GenCMD7, nullptr },
-	{ "force_protect", "Activate protect force power", IN_GenCMD8, nullptr },
-	{ "force_absorb", "Activate absorb force power", IN_GenCMD9, nullptr },
-	{ "force_healother", "Use team heal force power", IN_GenCMD10, nullptr },
-	{ "force_forcepowerother", "Use team energize force power", IN_GenCMD11, nullptr },
-	{ "force_seeing", "Activate seeing force power", IN_GenCMD12, nullptr },
-	{ "use_seeker", "Use seeker drone item", IN_GenCMD13, nullptr },
-	{ "use_field", "Use forcefield item", IN_GenCMD14, nullptr },
-	{ "use_bacta", "Use bacta item", IN_GenCMD15, nullptr },
-	{ "use_electrobinoculars", "Use electro binoculars item", IN_GenCMD16, nullptr },
-	{ "zoom", "Use binoculars item", IN_GenCMD17, nullptr },
-	{ "use_sentry", "Use sentry gun item", IN_GenCMD18, nullptr },
-	{ "saberAttackCycle", "Switch lightsaber attack styles", IN_GenCMD19, nullptr },
-	{ "force_throw", "Use push force power", IN_GenCMD20, nullptr },
-	{ "use_jetpack", "Use jetpack item", IN_GenCMD21, nullptr },
-	{ "use_bactabig", "Use big bacta item", IN_GenCMD22, nullptr },
-	{ "use_healthdisp", "Use health dispenser item", IN_GenCMD23, nullptr },
-	{ "use_ammodisp", "Use ammo dispenser item", IN_GenCMD24, nullptr },
-	{ "use_eweb", "Use e-web item", IN_GenCMD25, nullptr },
-	{ "use_cloak", "Use cloaking item", IN_GenCMD26, nullptr },
-	{ "taunt", "Taunt", IN_GenCMD27, nullptr },
-	{ "bow", "Bow", IN_GenCMD28, nullptr },
-	{ "meditate", "Meditate", IN_GenCMD29, nullptr },
-	{ "flourish", "Flourish", IN_GenCMD30, nullptr },
-	{ "gloat", "Gloat", IN_GenCMD31, nullptr },
-	{ "useGivenForce", "Use specified force power", IN_UseGivenForce, nullptr },
-	{ "automap_button", "Show/hide automap", IN_AutoMapButton, nullptr },
-	{ "automap_toggle", "Show/hide radar", IN_AutoMapToggle, nullptr },
-	{ "voicechat", "Open voice chat menu", IN_VoiceChatButton, nullptr },
-	{ nullptr, nullptr, nullptr, nullptr }
+static const cmdList_t inputCmds[] = {
+	{ "centerview",            "Centers view on screen",            IN_CenterView },
+	{ "+moveup",               "Jump",                              IN_UpDown },
+	{ "-moveup",               nullptr,                             IN_UpUp },
+	{ "+movedown",             "Crouch",                            IN_DownDown },
+	{ "-movedown",             nullptr,                             IN_DownUp },
+	{ "+forward",              "Move forward",                      IN_ForwardDown },
+	{ "-forward",              nullptr,                             IN_ForwardUp },
+	{ "+back",                 "Move backward",                     IN_BackDown },
+	{ "-back",                 nullptr,                             IN_BackUp },
+	{ "+moveleft",             "Strafe left",                       IN_MoveleftDown },
+	{ "-moveleft",             nullptr,                             IN_MoveleftUp },
+	{ "+moveright",            "Strafe right",                      IN_MoverightDown },
+	{ "-moveright",            nullptr,                             IN_MoverightUp },
+	{ "+left",                 "Rotate camera left",                IN_LeftDown },
+	{ "-left",                 nullptr,                             IN_LeftUp },
+	{ "+right",                "Rotate camera right",               IN_RightDown },
+	{ "-right",                nullptr,                             IN_RightUp },
+	{ "+lookup",               "Tilt camera up",                    IN_LookupDown },
+	{ "-lookup",               nullptr,                             IN_LookupUp },
+	{ "+lookdown",             "Tilt camera down",                  IN_LookdownDown },
+	{ "-lookdown",             nullptr,                             IN_LookdownUp },
+	{ "+strafe",               "Hold to strafe",                    IN_StrafeDown },
+	{ "-strafe",               nullptr,                             IN_StrafeUp },
+	{ "+mlook",                "Hold to use mouse look",            IN_MLookDown },
+	{ "-mlook",                nullptr,                             IN_MLookUp },
+	{ "+speed",                "Walk or run",                       IN_SpeedDown },
+	{ "-speed",                nullptr,                             IN_SpeedUp },
+
+	{ "+button0",              "Button 0",                          IN_Button0Down },
+	{ "-button0",              nullptr,                             IN_Button0Up },
+	{ "+attack",               "Primary Attack",                    IN_Button0Down },
+	{ "-attack",               nullptr,                             IN_Button0Up },
+	{ "+button1",              "Button 1",                          IN_Button1Down },
+	{ "-button1",              nullptr,                             IN_Button1Up },
+	{ "+button2",              "Button 2",                          IN_Button2Down },
+	{ "-button2",              nullptr,                             IN_Button2Up },
+	{ "+button3",              "Button 3",                          IN_Button3Down },
+	{ "-button3",              nullptr,                             IN_Button3Up },
+	{ "+button4",              "Button 4",                          IN_Button4Down },
+	{ "-button4",              nullptr,                             IN_Button4Up },
+	{ "+button5",              "Button 5",                          IN_Button5Down },
+	{ "-button5",              nullptr,                             IN_Button5Up },
+	{ "+use",                  "Use item",                          IN_Button5Down },
+	{ "-use",                  nullptr,                             IN_Button5Up },
+	{ "+button6",              "Button 6",                          IN_Button6Down },
+	{ "-button6",              nullptr,                             IN_Button6Up },
+	{ "+force_grip",           "Hold to use grip force power",      IN_Button6Down },
+	{ "-force_grip",           nullptr,                             IN_Button6Up },
+	{ "+button7",              "Button 7",                          IN_Button7Down },
+	{ "-button7",              nullptr,                             IN_Button7Up },
+	{ "+altattack",            "Alternate Attack",                  IN_Button7Down },
+	{ "-altattack",            nullptr,                             IN_Button7Up },
+	{ "+button8",              "Button 8",                          IN_Button8Down },
+	{ "-button8",              nullptr,                             IN_Button8Up },
+	{ "+button9",              "Button 9",                          IN_Button9Down },
+	{ "-button9",              nullptr,                             IN_Button9Up },
+	{ "+useforce",             "Use selected force power",          IN_Button9Down },
+	{ "-useforce",             nullptr,                             IN_Button9Up },
+	{ "+button10",             "Button 10",                         IN_Button10Down },
+	{ "-button10",             nullptr,                             IN_Button10Up },
+	{ "+force_lightning",      "Hold to use lightning force power", IN_Button10Down },
+	{ "-force_lightning",      nullptr,                             IN_Button10Up },
+	{ "+button11",             "Button 11",                         IN_Button11Down },
+	{ "-button11",             nullptr,                             IN_Button11Up },
+	{ "+force_drain",          "Hold to use drain force power",     IN_Button11Down },
+	{ "-force_drain",          nullptr,                             IN_Button11Up },
+	{ "+button12",             "Button 12",                         IN_Button12Down },
+	{ "-button12",             nullptr,                             IN_Button12Up },
+	{ "+button13",             "Button 13",                         IN_Button13Down },
+	{ "-button13",             nullptr,                             IN_Button13Up },
+	{ "+button14",             "Button 14",                         IN_Button14Down },
+	{ "-button14",             nullptr,                             IN_Button14Up },
+	{ "+button15",             "Button 15",                         IN_Button15Down },
+	{ "-button15",             nullptr,                             IN_Button15Up },
+
+	{ "automap_button",        "Show/hide automap",                 IN_AutoMapButton },
+	{ "automap_toggle",        "Show/hide radar",                   IN_AutoMapToggle },
+	{ "useGivenForce",         "Use specified force power",         IN_UseGivenForce },
+	{ "voicechat",             "Open voice chat menu",              IN_VoiceChatButton },
+
+	{ "sv_saberswitch",        "Holster/activate lightsaber",       IN_GenCMD1 },
+	{ "engage_duel",           "Engage private duel",               IN_GenCMD2 },
+	{ "force_heal",            "Use heal force power",              IN_GenCMD3 },
+	{ "force_speed",           "Activate speed force power",        IN_GenCMD4 },
+	{ "force_pull",            "Use pull force power",              IN_GenCMD5 },
+	{ "force_distract",        "Activate mind trick force power",   IN_GenCMD6 },
+	{ "force_rage",            "Activate rage force power",         IN_GenCMD7 },
+	{ "force_protect",         "Activate protect force power",      IN_GenCMD8 },
+	{ "force_absorb",          "Activate absorb force power",       IN_GenCMD9 },
+	{ "force_healother",       "Use team heal force power",         IN_GenCMD10 },
+	{ "force_forcepowerother", "Use team energize force power",     IN_GenCMD11 },
+	{ "force_seeing",          "Activate seeing force power",       IN_GenCMD12 },
+	{ "use_seeker",            "Use seeker drone item",             IN_GenCMD13 },
+	{ "use_field",             "Use forcefield item",               IN_GenCMD14 },
+	{ "use_bacta",             "Use bacta item",                    IN_GenCMD15 },
+	{ "use_electrobinoculars", "Use electro binoculars item",       IN_GenCMD16 },
+	{ "zoom",                  "Use binoculars item",               IN_GenCMD17 },
+	{ "use_sentry",            "Use sentry gun item",               IN_GenCMD18 },
+	{ "saberAttackCycle",      "Switch lightsaber attack styles",   IN_GenCMD19 },
+	{ "force_throw",           "Use push force power",              IN_GenCMD20 },
+	{ "use_jetpack",           "Use jetpack item",                  IN_GenCMD21 },
+	{ "use_bactabig",          "Use big bacta item",                IN_GenCMD22 },
+	{ "use_healthdisp",        "Use health dispenser item",         IN_GenCMD23 },
+	{ "use_ammodisp",          "Use ammo dispenser item",           IN_GenCMD24 },
+	{ "use_eweb",              "Use e-web item",                    IN_GenCMD25 },
+	{ "use_cloak",             "Use cloaking item",                 IN_GenCMD26 },
+	{ "taunt",                 "Taunt",                             IN_GenCMD27 },
+	{ "bow",                   "Bow",                               IN_GenCMD28 },
+	{ "meditate",              "Meditate",                          IN_GenCMD29 },
+	{ "flourish",              "Flourish",                          IN_GenCMD30 },
+	{ "gloat",                 "Gloat",                             IN_GenCMD31 },
+
+	{ nullptr,                 nullptr,                             nullptr }
 };
 
 void CL_InitInput( void ) {
 	Cmd_AddCommandList( inputCmds );
+	chatField.Init();
 }
 
 void CL_ShutdownInput( void ) {
 	Cmd_RemoveCommandList( inputCmds );
+	chatField.Delete();
 }

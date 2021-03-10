@@ -153,7 +153,7 @@ bool CParticle::Update(void)
 		{	//could not get bolt
 			return false;
 		}
-		vec3_t 	realVel, realAccel;
+		vec3_t	realVel, realAccel;
 
 		VectorMA( org, mOrgOffset[0], ax[0], org );
 		VectorMA( org, mOrgOffset[1], ax[1], org );
@@ -652,7 +652,7 @@ bool COrientedParticle::Update(void)
 		{	//could not get bolt
 			return false;
 		}
-		vec3_t 	realVel, realAccel;
+		vec3_t	realVel, realAccel;
 
 		VectorMA( org, mOrgOffset[0], ax[0], org );
 		VectorMA( org, mOrgOffset[1], ax[1], org );
@@ -900,7 +900,7 @@ bool CTail::Update(void)
 			}
 		}
 
-		vec3_t 	realVel, realAccel;
+		vec3_t	realVel, realAccel;
 
 		VectorMA( org, mOrgOffset[0], ax[0], org );
 		VectorMA( org, mOrgOffset[1], ax[1], org );
@@ -1231,9 +1231,9 @@ void CEmitter::Draw(void)
 
 		VectorCopy( mOrigin1, mRefEnt.origin );
 
-	 	VectorScale( mRefEnt.axis[0], mRefEnt.radius, mRefEnt.axis[0] );
-	 	VectorScale( mRefEnt.axis[1], mRefEnt.radius, mRefEnt.axis[1] );
-	 	VectorScale( mRefEnt.axis[2], mRefEnt.radius, mRefEnt.axis[2] );
+		VectorScale( mRefEnt.axis[0], mRefEnt.radius, mRefEnt.axis[0] );
+		VectorScale( mRefEnt.axis[1], mRefEnt.radius, mRefEnt.axis[1] );
+		VectorScale( mRefEnt.axis[2], mRefEnt.radius, mRefEnt.axis[2] );
 
 		theFxHelper.AddFxToScene((miniRefEntity_t*)0);// I hate having to do this, but this needs to get added as a regular refEntity
 		theFxHelper.AddFxToScene(&mRefEnt);

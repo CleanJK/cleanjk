@@ -33,7 +33,7 @@ inline void Q_CastShort2Float(float *f, const short *s)
 // Returns true if the grid is completely culled away.
 // Also sets the clipped hint bit in tess
 static bool	R_CullTriSurf( srfTriangles_t *cv ) {
-	int 	boxCull;
+	int	boxCull;
 
 	boxCull = R_CullLocalBox( cv->bounds );
 
@@ -46,8 +46,8 @@ static bool	R_CullTriSurf( srfTriangles_t *cv ) {
 // Returns true if the grid is completely culled away.
 // Also sets the clipped hint bit in tess
 static bool	R_CullGrid( srfGridMesh_t *cv ) {
-	int 	boxCull;
-	int 	sphereCull;
+	int	boxCull;
+	int	sphereCull;
 
 	if ( r_nocurves->integer ) {
 		return true;

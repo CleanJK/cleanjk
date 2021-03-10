@@ -29,10 +29,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "client/cl_uiapi.hpp"
 #include "client/snd_public.hpp"
 #include "qcommon/com_cvars.hpp"
-#include "ui/ui_public.hpp"
 
 extern console_t con;
-bool	scr_initialized;		// ready to draw
+static bool scr_initialized; // ready to draw
 
 // Coordinates are 640*480 virtual values
 void SCR_DrawNamedPic( float x, float y, float width, float height, const char *picname ) {
@@ -95,42 +94,6 @@ static void SCR_DrawChar( int x, int y, float size, int ch ) {
 					   cls.charSetShader );
 }
 
-// small chars are drawn at native screen resolution
-void SCR_DrawSmallChar( int x, int y, int ch ) {
-	int row, col;
-	float frow, fcol;
-	float size;
-
-	ch &= 255;
-
-	if ( ch == ' ' ) {
-		return;
-	}
-
-	if ( y < -SMALLCHAR_HEIGHT ) {
-		return;
-	}
-
-	row = ch>>4;
-	col = ch&15;
-
-	float size2;
-
-	frow = row*0.0625;
-	fcol = col*0.0625;
-
-	size = 0.03125;
-//	size = 0.0625;
-
-	size2 = 0.0625;
-
-	re->DrawStretchPic( x * con.xadjust, y * con.yadjust,
-						SMALLCHAR_WIDTH * con.xadjust, SMALLCHAR_HEIGHT * con.yadjust,
-					   fcol, frow,
-					   fcol + size, frow + size2,
-					   cls.charSetShader );
-}
-
 // Draws a multi-colored string with a drop shadow, optionally forcing to a fixed color.
 // Coordinates are at 640 by 480 virtual resolution
 static void SCR_DrawStringExt( int x, int y, float size, const char *string, const float *setColor, bool forceColor, bool noColorEscape ) {
@@ -177,67 +140,6 @@ static void SCR_DrawStringExt( int x, int y, float size, const char *string, con
 	re->SetColor( nullptr );
 }
 
-// draws a string with embedded color control characters with fade
-void SCR_DrawBigString( int x, int y, const char *s, float alpha, bool noColorEscape ) {
-	float	color[4];
-
-	color[0] = color[1] = color[2] = 1.0;
-	color[3] = alpha;
-	SCR_DrawStringExt( x, y, BIGCHAR_WIDTH, s, color, false, noColorEscape );
-}
-
-// Draws a multi-colored string with a drop shadow, optionally forcing to a fixed color.
-// Coordinates are at 640 by 480 virtual resolution
-void SCR_DrawSmallStringExt( int x, int y, const char *string, float *setColor, bool forceColor, bool noColorEscape ) {
-	vec4_t		color;
-	const char	*s;
-	int			xx;
-
-	// draw the colored text
-	s = string;
-	xx = x;
-	re->SetColor( setColor );
-	while ( *s ) {
-		if ( Q_IsColorString( s ) ) {
-			if ( !forceColor ) {
-				Com_Memcpy( color, g_color_table[ColorIndex(*(s+1))], sizeof( color ) );
-				color[3] = setColor[3];
-				re->SetColor( color );
-			}
-			if ( !noColorEscape ) {
-				s += 2;
-				continue;
-			}
-		}
-		SCR_DrawSmallChar( xx, y, *s );
-		xx += SMALLCHAR_WIDTH;
-		s++;
-	}
-	re->SetColor( nullptr );
-}
-
-// skips color escape codes
-static int SCR_Strlen( const char *str ) {
-	const char *s = str;
-	int count = 0;
-
-	while ( *s ) {
-		if ( Q_IsColorString( s ) ) {
-			s += 2;
-		} else {
-			count++;
-			s++;
-		}
-	}
-
-	return count;
-}
-
-// returns in virtual 640x480 coordinates
-int	SCR_GetBigStringWidth( const char *str ) {
-	return SCR_Strlen( str ) * BIGCHAR_WIDTH;
-}
-
 void SCR_DrawDemoRecording( void ) {
 	char	string[1024];
 	int		pos;
@@ -260,43 +162,37 @@ void SCR_DrawDemoRecording( void ) {
 // DEBUG GRAPH
 
 struct graphsamp_t {
-	float	value;
-	int		color;
+	float value;
+	int   color;
 };
 
 static	int			current;
 static	graphsamp_t	values[1024];
 
-void SCR_DebugGraph (float value, int color)
-{
+void SCR_DebugGraph( float value, int color ) {
 	values[current&1023].value = value;
 	values[current&1023].color = color;
 	current++;
 }
 
-void SCR_DrawDebugGraph (void)
-{
-	int		a, x, y, w, i, h;
-	float	v;
-
+void SCR_DrawDebugGraph( void ) {
 	// draw the graph
-	w = 640;
-	x = 0;
-	y = 480;
+	const int x = 0;
+	const int y = SCREEN_HEIGHT;
+	const int w = SCREEN_WIDTH;
 	re->SetColor( g_color_table[0] );
-	re->DrawStretchPic(x, y - graphheight->integer,
-		w, graphheight->integer, 0, 0, 0, 0, cls.whiteShader );
+	re->DrawStretchPic(x, y - graphheight->integer, w, graphheight->integer, 0, 0, 0, 0, cls.whiteShader );
 	re->SetColor( nullptr );
 
-	for (a=0 ; a<w ; a++)
-	{
-		i = (current-1-a+1024) & 1023;
-		v = values[i].value;
+	for ( int a = 0; a < w; a++ ) {
+		const int i = (current-1-a+1024) & 1023;
+		int v = values[i].value;
 		v = v * graphscale->integer + graphshift->integer;
 
-		if (v < 0)
+		if ( v < 0 ) {
 			v += graphheight->integer * (1+(int)(-v / graphheight->integer));
-		h = (int)v % graphheight->integer;
+		}
+		const int h = (int)v % graphheight->integer;
 		re->DrawStretchPic( x+w-1-a, y - h, 1, h, 0, 0, 0, 0, cls.whiteShader );
 	}
 }
@@ -365,7 +261,7 @@ void SCR_DrawScreenField( stereoFrame_e stereoFrame ) {
 	}
 
 	// console draws next
-	Con_DrawConsole ();
+	Console_DrawConsole ();
 
 	// debug graph can be drawn on top of anything
 	if ( debuggraph->integer || timegraph->integer || cl_debugMove->integer ) {

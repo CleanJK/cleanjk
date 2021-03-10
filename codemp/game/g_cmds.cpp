@@ -445,25 +445,26 @@ void Cmd_KillOther_f( gentity_t *ent )
 }
 
 // Let everyone know about a team change
-void BroadcastTeamChange( gclient_t *client, int oldTeam )
-{
+void BroadcastTeamChange( gclient_t *client, int oldTeam ) {
 	client->ps.fd.forceDoInit = 1; //every time we change teams make sure our force powers are set right
 
 	if ( client->sess.sessionTeam == TEAM_RED ) {
-		trap->SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " %s\n\"",
-			client->pers.netname, G_GetStringEdString("MP_SVGAME", "JOINEDTHEREDTEAM")) );
-	} else if ( client->sess.sessionTeam == TEAM_BLUE ) {
-		trap->SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " %s\n\"",
-		client->pers.netname, G_GetStringEdString("MP_SVGAME", "JOINEDTHEBLUETEAM")));
-	} else if ( client->sess.sessionTeam == TEAM_SPECTATOR && oldTeam != TEAM_SPECTATOR ) {
-		trap->SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " %s\n\"",
-		client->pers.netname, G_GetStringEdString("MP_SVGAME", "JOINEDTHESPECTATORS")));
-	} else if ( client->sess.sessionTeam == TEAM_FREE ) {
-		trap->SendServerCommand( -1, va("cp \"%s" S_COLOR_WHITE " %s\n\"",
-		client->pers.netname, G_GetStringEdString("MP_SVGAME", "JOINEDTHEBATTLE")));
+		trap->SendServerCommand( -1, va( "cp \"%s" S_COLOR_WHITE "%s\n\"", client->pers.netname, G_GetStringEdString( "MP_SVGAME", "JOINEDTHEREDTEAM" ) ) );
+	}
+	else if ( client->sess.sessionTeam == TEAM_BLUE ) {
+		trap->SendServerCommand( -1, va( "cp \"%s" S_COLOR_WHITE "%s\n\"", client->pers.netname, G_GetStringEdString( "MP_SVGAME", "JOINEDTHEBLUETEAM" ) ) );
+	}
+	else if ( client->sess.sessionTeam == TEAM_SPECTATOR && oldTeam != TEAM_SPECTATOR ) {
+		trap->SendServerCommand( -1, va( "cp \"%s" S_COLOR_WHITE "%s\n\"", client->pers.netname, G_GetStringEdString( "MP_SVGAME", "JOINEDTHESPECTATORS" ) ) );
+	}
+	else if ( client->sess.sessionTeam == TEAM_FREE ) {
+		trap->SendServerCommand( -1, va( "cp \"%s" S_COLOR_WHITE "%s\n\"", client->pers.netname, G_GetStringEdString( "MP_SVGAME", "JOINEDTHEBATTLE" ) ) );
 	}
 
-	G_LogPrintf( "ChangeTeam: %i [%s] (%s) \"%s^7\" %s -> %s\n", (int)(client - level.clients), client->sess.IP, client->pers.guid, client->pers.netname, TeamName( oldTeam ), TeamName( client->sess.sessionTeam ) );
+	G_LogPrintf(
+		"ChangeTeam: %i [%s] (%s) \"%s^7\" %s -> %s\n",
+		(int)(client - level.clients), client->sess.IP, client->pers.guid, client->pers.netname, TeamName( oldTeam ), TeamName( client->sess.sessionTeam )
+	);
 }
 
 bool G_PowerDuelCheckFail(gentity_t *ent)
@@ -1497,7 +1498,7 @@ bool G_VoteMap( gentity_t *ent, int numArgs, const char *arg1, const char *arg2 
 
 	Com_sprintf( bspName, sizeof(bspName), "maps/%s.bsp", arg2 );
 	if ( trap->FS_Open( bspName, &fp, FS_READ ) <= 0 ) {
-		trap->SendServerCommand( ent-g_entities, va( "print \"Can't find map %s on server\n\"", bspName ) );
+		trap->SendServerCommand( ent-g_entities, va( "print \"" S_COLOR_YELLOW "Can't find map %s on server\n\"", bspName ) );
 		if( fp != NULL_FILE )
 			trap->FS_Close( fp );
 		return false;

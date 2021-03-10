@@ -187,27 +187,27 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #endif
 
 #if (defined( _MSC_VER ) && (_MSC_VER < 1900)) || (defined(__GNUC__))
-// VS2013, which for some reason we still support, does not support noexcept
-// GCC GNU has the same problem: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52869
-#define NOEXCEPT
-#define NOEXCEPT_IF(x)
-#define IS_NOEXCEPT(x) false
+	// VS2013, which for some reason we still support, does not support noexcept
+	// GCC GNU has the same problem: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=52869
+	#define NOEXCEPT
+	#define NOEXCEPT_IF(x)
+	#define IS_NOEXCEPT(x) false
 #else
-#define NOEXCEPT noexcept
-#define NOEXCEPT_IF(x) noexcept(x)
-#define IS_NOEXCEPT(x) noexcept(x)
+	#define NOEXCEPT noexcept
+	#define NOEXCEPT_IF(x) noexcept(x)
+	#define IS_NOEXCEPT(x) noexcept(x)
 #endif
 
 #if defined(__GNUC__)
-#define NORETURN __attribute__((noreturn))
-#define NORETURN_PTR __attribute__((noreturn))
+	#define NORETURN __attribute__((noreturn))
+	#define NORETURN_PTR __attribute__((noreturn))
 #elif defined(_MSC_VER)
-#define NORETURN __declspec(noreturn)
-// __declspec doesn't work on function pointers
-#define NORETURN_PTR /* nothing */
+	#define NORETURN __declspec(noreturn)
+	// __declspec doesn't work on function pointers
+	#define NORETURN_PTR /* nothing */
 #else
-#define NORETURN /* nothing */
-#define NORETURN_PTR /* nothing */
+	#define NORETURN /* nothing */
+	#define NORETURN_PTR /* nothing */
 #endif
 
 #define Q_CABI extern "C"
@@ -271,6 +271,64 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #endif
 #if !defined(PATH_SEP)
 	#error "PATH_SEP not defined"
+#endif
+
+// compiler specific junk, function names etc
+#if defined(_MSC_VER)
+
+	// visual studio
+	#define Q_FUNCTION __FUNCTION__
+	#define Q_FUNCTION_VERBOSE __FUNCSIG__
+	#define Q_EXPORT __declspec(dllexport)
+	#define Q_NAKED __declspec(naked)
+	#define Q_USED
+	#define Q_UNUSED
+	#define Q_WARN_UNUSED_RESULT
+	#define Q_WARN_DEPRECATED
+	#define Q_CDECL __cdecl
+	#define Q_PURE
+	#define Q_PERF_HOT
+	#define Q_PERF_COLD
+
+#elif defined(__GNUC__) || defined(__clang__)
+
+	// gcc, clang
+	#define Q_FUNCTION __FUNCTION__
+	#define Q_FUNCTION_VERBOSE __PRETTY_FUNCTION__
+	#define Q_EXPORT __attribute__(( visibility( "default" ) ))
+	#define Q_NAKED __attribute__(( noinline ))
+	#define Q_USED __attribute__(( used ))
+	#define Q_UNUSED __attribute__(( unused ))
+	#define Q_WARN_UNUSED_RESULT __attribute__(( warn_unused_result ))
+	#define Q_WARN_DEPRECATED __attribute__(( deprecated ))
+	#if defined(_M_IX86) || defined(__i386__)
+		#define Q_CDECL __attribute__(( cdecl ))
+	#else
+		#define Q_CDECL
+	#endif
+	#define Q_PURE __attribute__(( pure ))
+	#define Q_PERF_HOT __attribute__(( hot ))
+	#define Q_PERF_COLD __attribute__(( cold ))
+
+#elif defined(__INTEL_COMPILER)
+
+	//TODO: icc / intel
+
+#else
+
+	#define Q_FUNCTION "<unknown-func>"
+	#define Q_FUNCTION_VERBOSE Q_FUNCTION
+	#define Q_EXPORT
+	#define Q_NAKED
+	#define Q_USED
+	#define Q_UNUSED
+	#define Q_WARN_UNUSED_RESULT
+	#define Q_WARN_DEPRECATED
+	#define Q_CDECL
+	#define Q_PURE
+	#define Q_PERF_HOT
+	#define Q_PERF_COLD
+
 #endif
 
 // endianness

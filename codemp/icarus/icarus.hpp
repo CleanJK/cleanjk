@@ -38,7 +38,7 @@ void* ICARUS_Malloc(int iSize);
 // ======================================================================
 
 // we never want to include an icarus file before sharedentity_t is declared.
-#include "game/g_public.hpp"
+#include "game/g_engine.hpp"
 
 // ======================================================================
 // EXTERN VARIABLE

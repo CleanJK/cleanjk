@@ -2,52 +2,59 @@
 
 #if defined( __LINT__ )
 
-#include <GL/gl.h>
+	#include <GL/gl.h>
 
 #elif defined( _WIN32 )
 
-#pragma warning (disable: 4201)
-#pragma warning (disable: 4214)
-#pragma warning (disable: 4514)
-#pragma warning (disable: 4032)
-#pragma warning (disable: 4201)
-#pragma warning (disable: 4214)
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <gl/gl.h>
+	#pragma warning (disable: 4201)
+	#pragma warning (disable: 4214)
+	#pragma warning (disable: 4514)
+	#pragma warning (disable: 4032)
+	#pragma warning (disable: 4201)
+	#pragma warning (disable: 4214)
 
-#elif defined(MACOS_X)
+	#define WIN32_LEAN_AND_MEAN
 
-#include "../macosx/macosx_glimp.hpp"
+	#include <windows.h>
+	#include <gl/gl.h>
+
+#elif defined( MACOS_X )
+
+	#include "../macosx/macosx_glimp.hpp"
 
 #elif defined( __linux__ )
 
-#include <GL/gl.h>
-#include <GL/glx.h>
-// bk001129 - from cvs1.17 (mkv)
-#if defined(__FX__)
-#include <GL/fxmesa.h>
-#endif
+	#include <GL/gl.h>
+	#include <GL/glx.h>
+	#undef None
 
-#elif defined( __FreeBSD__ ) // rb010123
+	// bk001129 - from cvs1.17 (mkv)
+	#if defined(__FX__)
+		#include <GL/fxmesa.h>
+	#endif
 
-#include <GL/gl.h>
-#include <GL/glx.h>
-#if defined(__FX__)
-#include <GL/fxmesa.h>
-#endif
+#elif defined( __FreeBSD__ )
+
+	#include <GL/gl.h>
+	#include <GL/glx.h>
+	#undef None
+
+	#if defined( __FX__ )
+		#include <GL/fxmesa.h>
+	#endif
 
 #else
 
-#include <gl.h>
+	#include <gl.h>
 
 #endif
 
 #ifndef APIENTRY
-#define APIENTRY
+	#define APIENTRY
 #endif
+
 #ifndef WINAPI
-#define WINAPI
+	#define WINAPI
 #endif
 
 // multitexture extension definitions
@@ -311,7 +318,7 @@ extern	void ( APIENTRY * qglLockArraysEXT) (GLint, GLint);
 extern	void ( APIENTRY * qglUnlockArraysEXT) (void);
 
 // non-windows systems will just redefine qgl* to gl*
-#if !defined( _WIN32 ) && !defined(MACOS_X) && !defined( __linux__ ) && !defined( __FreeBSD__ ) // rb010123
+#if !defined( _WIN32 ) && !defined(MACOS_X) && !defined( __linux__ ) && !defined( __FreeBSD__ )
 
 // ???
 
@@ -689,7 +696,7 @@ extern BOOL ( WINAPI * qwglSwapIntervalEXT)( int interval );
 
 #endif	// _WIN32
 
-#if ( (defined __linux__ )  || (defined __FreeBSD__ ) ) // rb010123
+#if ( (defined __linux__ )  || (defined __FreeBSD__ ) )
 
 //FX Mesa Functions
 // bk001129 - from cvs1.17 (mkv)
@@ -710,6 +717,6 @@ extern Bool (*qglXMakeCurrent)( Display *dpy, GLXDrawable drawable, GLXContext c
 extern void (*qglXCopyContext)( Display *dpy, GLXContext src, GLXContext dst, GLuint mask );
 extern void (*qglXSwapBuffers)( Display *dpy, GLXDrawable drawable );
 
-#endif // __linux__ || __FreeBSD__ // rb010123
+#endif // __linux__ || __FreeBSD__
 
 #endif	// _WIN32 && __linux__

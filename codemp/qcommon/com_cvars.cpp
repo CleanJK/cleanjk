@@ -121,6 +121,7 @@ cvar_t *cl_paused;
 cvar_t *cl_pitchspeed;
 cvar_t *cl_recordSPDemo;
 cvar_t *cl_renderer;
+cvar_t *cl_preciseFonts;
 cvar_t *cl_run;
 cvar_t *cl_running;
 cvar_t *cl_serverStatusResendTime;
@@ -143,11 +144,13 @@ cvar_t *com_affinity;
 cvar_t *com_buildScript;
 cvar_t *com_busyWait;
 cvar_t *com_cameraMode;
+cvar_t *com_fontHandles;
 cvar_t *com_journal;
 cvar_t *com_showtrace;
 cvar_t *com_speeds;
 cvar_t *com_validateZone;
 cvar_t *con_autoclear;
+cvar_t *con_fontScale;
 cvar_t *con_notifytime;
 cvar_t *con_opacity;
 cvar_t *d_saberStanceDebug;
@@ -241,7 +244,6 @@ cvar_t *s_volume;
 cvar_t *s_volumeVoice;
 cvar_t *saber1;
 cvar_t *saber2;
-cvar_t *scr_conspeed;
 cvar_t *se_debug;
 cvar_t *se_language;
 cvar_t *sensitivity;
@@ -308,7 +310,7 @@ void Com_InitCvars( void ) {
 	com_ansiColor =             Cvar_Get( "com_ansiColor",             "0",                                    CVAR_ARCHIVE_ND,                            "" );
 	#endif // _WIN32
 
-	#ifdef DEDICATED
+	#ifdef BUILD_DEDICATED
 	dedicated =                 Cvar_Get( "dedicated",                 "2",                                    CVAR_INIT,                                  "" );
 	#else
 	//OJKFIXME: Temporarily disabled dedicated server when not using the dedicated server binary.
@@ -316,7 +318,7 @@ void Com_InitCvars( void ) {
 	//			Until we fully remove the renderer from the server, the client executable will not have dedicated support capabilities.
 	//			Use the dedicated server package.
 	dedicated =                 Cvar_Get( "dedicated",                 "0",                                    CVAR_ROM | CVAR_INIT | CVAR_PROTECTED,      "" );
-	#endif // DEDICATED
+	#endif // BUILD_DEDICATED
 
 	#ifdef G2_PERFORMANCE_ANALYSIS
 	com_G2Report =              Cvar_Get( "com_G2Report",              "0",                                    CVAR_NONE,                                  "" );
@@ -410,6 +412,7 @@ void Com_InitCvars( void ) {
 	cl_packetdup =              Cvar_Get( "cl_packetdup",              "1",                                    CVAR_ARCHIVE_ND,                             "" );
 	cl_paused =                 Cvar_Get( "cl_paused",                 "0",                                    CVAR_ROM,                                    "" );
 	cl_pitchspeed =             Cvar_Get( "cl_pitchspeed",             "140",                                  CVAR_ARCHIVE_ND,                             "" );
+	cl_preciseFonts =           Cvar_Get( "cl_preciseFonts",           "1",                                    CVAR_ARCHIVE,                                "" );
 	cl_renderer =               Cvar_Get( "cl_renderer",               DEFAULT_RENDER_LIBRARY,                 CVAR_ARCHIVE | CVAR_LATCH | CVAR_PROTECTED,  "Which renderer library to use" );
 	cl_recordSPDemo =           Cvar_Get( "cl_recordSPDemo",           "0",                                    CVAR_ARCHIVE | CVAR_INTERNAL,                "" );
 	cl_run =                    Cvar_Get( "cl_run",                    "1",                                    CVAR_ARCHIVE_ND,                             "Always run" );
@@ -434,11 +437,13 @@ void Com_InitCvars( void ) {
 	com_buildScript =           Cvar_Get( "com_buildScript",           "0",                                    CVAR_NONE,                                   "" );
 	com_busyWait =              Cvar_Get( "com_busyWait",              "0",                                    CVAR_ARCHIVE_ND,                             "" );
 	com_cameraMode =            Cvar_Get( "com_cameraMode",            "0",                                    CVAR_CHEAT,                                  "" );
+	com_fontHandles =           Cvar_Get( "com_fontHandles",           "",                                     CVAR_INTERNAL | CVAR_ROM,                    "" );
 	com_journal =               Cvar_Get( "com_journal",               "0",                                    CVAR_INIT,                                   "" );
 	com_showtrace =             Cvar_Get( "com_showtrace",             "0",                                    CVAR_CHEAT,                                  "" );
 	com_speeds =                Cvar_Get( "com_speeds",                "0",                                    CVAR_NONE,                                   "" );
 	com_validateZone =          Cvar_Get( "com_validateZone",          "0",                                    CVAR_NONE,                                   "" );
 	con_autoclear =             Cvar_Get( "con_autoclear",             "1",                                    CVAR_ARCHIVE_ND,                             "Automatically clear console input on close" );
+	con_fontScale =             Cvar_Get( "con_fontScale",             "1.0",                                  CVAR_ARCHIVE_ND,                             "Size of console text" );
 	con_notifytime =            Cvar_Get( "con_notifytime",            "3",                                    CVAR_NONE,                                   "How many seconds notify messages should be shown before they fade away" );
 	con_opacity =               Cvar_Get( "con_opacity",               "1.0",                                  CVAR_ARCHIVE_ND,                             "Opacity of console background" );
 	d_saberStanceDebug =        Cvar_Get( "d_saberStanceDebug",        "0",                                    CVAR_NONE,                                   "" );
@@ -533,7 +538,6 @@ void Com_InitCvars( void ) {
 	s_volumeVoice =             Cvar_Get( "s_volumeVoice",             "1.0",                                  CVAR_ARCHIVE,                                "Volume for voice channels" );
 	saber1 =                    Cvar_Get( "saber1",                    DEFAULT_SABER,                          CVAR_USERINFO | CVAR_ARCHIVE,                "Player default right hand saber" );
 	saber2 =                    Cvar_Get( "saber2",                    "none",                                 CVAR_USERINFO | CVAR_ARCHIVE,                "Player left hand saber" );
-	scr_conspeed =              Cvar_Get( "scr_conspeed",              "3",                                    CVAR_NONE,                                   "Console open/close speed" );
 	se_debug =                  Cvar_Get( "se_debug",                  "0",                                    CVAR_NONE,                                   "" );
 	se_language =               Cvar_Get( "se_language",               "english",                              CVAR_ARCHIVE | CVAR_NORESTART,               "" );
 	sensitivity =               Cvar_Get( "sensitivity",               "5",                                    CVAR_ARCHIVE,                                "Mouse sensitivity value" );
@@ -594,10 +598,9 @@ void Com_InitCvars( void ) {
 	timescale =                 Cvar_Get( "timescale",                 "1",                                    CVAR_CHEAT | CVAR_SYSTEMINFO,                "" );
 	version =                   Cvar_Get( "version",                   JK_VERSION PLATFORM_STRING SOURCE_DATE, CVAR_ROM | CVAR_SERVERINFO,                  "" );
 
-	#ifdef DEDICATED
+	#ifdef BUILD_DEDICATED
 		Cvar_CheckRange( dedicated, 1, 2, true );
 	#endif
-	Cvar_CheckRange( scr_conspeed, 1.0f, 100.0f, false );
 	Cvar_CheckRange( sv_privateClients, 0, MAX_CLIENTS, true );
 	Cvar_CheckRange( sv_ratePolicy, 1, 2, true );
 	Cvar_CheckRange( sv_snapsPolicy, 0, 2, true );

@@ -41,7 +41,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 //#define RAG_TRACE_DEBUG_LINES
 
 //while this is all "shared" code, there are some places where we want to make cgame callbacks (for ragdoll) only if the cgvm exists
-#include "client/cl_public.hpp" 
+#include "client/cl_public.hpp"
 //rww - RAGDOLL_END
 
 // Bone List handling routines - so entities can override bone info on a bone by bone level, and also interrogate this info
@@ -52,7 +52,7 @@ int G2_Find_Bone(const model_t *mod, boneInfo_v &blist, const char *boneName)
 {
 	mdxaSkel_t			*skel;
 	mdxaSkelOffsets_t	*offsets;
-   	offsets = (mdxaSkelOffsets_t *)((byte *)mod->mdxa + sizeof(mdxaHeader_t));
+offsets = (mdxaSkelOffsets_t *)((byte *)mod->mdxa + sizeof(mdxaHeader_t));
 	skel = (mdxaSkel_t *)((byte *)mod->mdxa + sizeof(mdxaHeader_t) + offsets->offsets[0]);
 
 	// look through entire list
@@ -86,18 +86,14 @@ int G2_Add_Bone (const model_t *mod, boneInfo_v &blist, const char *boneName)
 	mdxaSkelOffsets_t	*offsets;
 	boneInfo_t			tempBone;
 
-	//rww - RAGDOLL_BEGIN
-	memset(&tempBone, 0, sizeof(tempBone));
-	//rww - RAGDOLL_END
+offsets = (mdxaSkelOffsets_t *)((byte *)mod->mdxa + sizeof(mdxaHeader_t));
 
-   	offsets = (mdxaSkelOffsets_t *)((byte *)mod->mdxa + sizeof(mdxaHeader_t));
-
- 	// walk the entire list of bones in the gla file for this model and see if any match the name of the bone we want to find
- 	for (x=0; x< mod->mdxa->numBones; x++)
- 	{
- 		skel = (mdxaSkel_t *)((byte *)mod->mdxa + sizeof(mdxaHeader_t) + offsets->offsets[x]);
- 		// if name is the same, we found it
- 		if (!Q_stricmp(skel->name, boneName))
+	// walk the entire list of bones in the gla file for this model and see if any match the name of the bone we want to find
+	for (x=0; x< mod->mdxa->numBones; x++)
+	{
+		skel = (mdxaSkel_t *)((byte *)mod->mdxa + sizeof(mdxaHeader_t) + offsets->offsets[x]);
+		// if name is the same, we found it
+		if (!Q_stricmp(skel->name, boneName))
 		{
 			break;
 		}
@@ -136,7 +132,7 @@ int G2_Add_Bone (const model_t *mod, boneInfo_v &blist, const char *boneName)
 			// if we found an entry that had a -1 for the bonenumber, then we hit a bone slot that was empty
 			blist[i].boneNumber = x;
 			blist[i].flags = 0;
-	 		return i;
+			return i;
 		}
 	}
 
@@ -171,7 +167,7 @@ bool G2_Remove_Bone_Index ( boneInfo_v &blist, int index)
 			// set this bone to not used
 			blist[index].boneNumber = -1;
 
-		   	unsigned int newSize = blist.size();
+		unsigned int newSize = blist.size();
 			// now look through the list from the back and see if there is a block of -1's we can resize off the end of the list
 			for (int i=blist.size()-1; i>-1; i--)
 			{
@@ -675,7 +671,7 @@ bool G2_Set_Bone_Anim_Index(
 	if (flags & BONE_ANIM_BLEND)
 	{
 		float	currentFrame, animSpeed;
-		int 	startFrame, endFrame, flags;
+		int	startFrame, endFrame, flags;
 		// figure out where we are now
 		if (G2_Get_Bone_Anim_Index(blist, index, currentTime, &currentFrame, &startFrame, &endFrame, &flags, &animSpeed, nullptr, numFrames))
 		{
@@ -983,7 +979,7 @@ bool G2_Pause_Bone_Anim(CGhoul2Info *ghlInfo, boneInfo_v &blist, const char *bon
 
 bool	G2_IsPaused(const char *fileName, boneInfo_v &blist, const char *boneName)
 {
-  	model_t		*mod_m = R_GetModelByHandle(RE_RegisterModel(fileName));
+	model_t		*mod_m = R_GetModelByHandle(RE_RegisterModel(fileName));
 	model_t		*mod_a = R_GetModelByHandle(mod_m->mdxm->animIndex);
 	int			index = G2_Find_Bone(mod_a, blist, boneName);
 
@@ -1021,7 +1017,7 @@ bool G2_Stop_Bone_Anim_Index(boneInfo_v &blist, const int index)
 // given a model, bonelist and bonename, lets stop an anim if it's playing.
 bool G2_Stop_Bone_Anim(const char *fileName, boneInfo_v &blist, const char *boneName)
 {
-  	model_t		*mod_m = R_GetModelByHandle(RE_RegisterModel(fileName));
+	model_t		*mod_m = R_GetModelByHandle(RE_RegisterModel(fileName));
 	model_t		*mod_a = R_GetModelByHandle(mod_m->mdxm->animIndex);
 	int			index = G2_Find_Bone(mod_a, blist, boneName);
 
@@ -1057,7 +1053,7 @@ bool G2_Stop_Bone_Angles_Index(boneInfo_v &blist, const int index)
 // given a model, bonelist and bonename, lets stop an anim if it's playing.
 bool G2_Stop_Bone_Angles(const char *fileName, boneInfo_v &blist, const char *boneName)
 {
-  	model_t		*mod_m = R_GetModelByHandle(RE_RegisterModel(fileName));
+	model_t		*mod_m = R_GetModelByHandle(RE_RegisterModel(fileName));
 	model_t		*mod_a = R_GetModelByHandle(mod_m->mdxm->animIndex);
 	int			index = G2_Find_Bone(mod_a, blist, boneName);
 
@@ -1252,7 +1248,7 @@ int G2_Find_Bone_Rag(CGhoul2Info *ghlInfo, boneInfo_v &blist, const char *boneNa
 	mdxaSkel_t			*skel;
 	mdxaSkelOffsets_t	*offsets;
 
-   	offsets = (mdxaSkelOffsets_t *)((byte *)ghlInfo->aHeader + sizeof(mdxaHeader_t));
+offsets = (mdxaSkelOffsets_t *)((byte *)ghlInfo->aHeader + sizeof(mdxaHeader_t));
 	skel = (mdxaSkel_t *)((byte *)ghlInfo->aHeader + sizeof(mdxaHeader_t) + offsets->offsets[0]);
 
 	/*
@@ -1267,7 +1263,7 @@ int G2_Find_Bone_Rag(CGhoul2Info *ghlInfo, boneInfo_v &blist, const char *boneNa
 	aHeader = animModel->mdxa;
 	assert(aHeader);
 
-   	offsets = (mdxaSkelOffsets_t *)((byte *)aHeader + sizeof(mdxaHeader_t));
+offsets = (mdxaSkelOffsets_t *)((byte *)aHeader + sizeof(mdxaHeader_t));
 	skel = (mdxaSkel_t *)((byte *)aHeader + sizeof(mdxaHeader_t) + offsets->offsets[0]);
 	*/
 
@@ -2314,7 +2310,7 @@ static inline char *G2_Get_Bone_Name(CGhoul2Info *ghlInfo, boneInfo_v &blist, in
 {
 	mdxaSkel_t			*skel;
 	mdxaSkelOffsets_t	*offsets;
-   	offsets = (mdxaSkelOffsets_t *)((byte *)ghlInfo->aHeader + sizeof(mdxaHeader_t));
+offsets = (mdxaSkelOffsets_t *)((byte *)ghlInfo->aHeader + sizeof(mdxaHeader_t));
 	skel = (mdxaSkel_t *)((byte *)ghlInfo->aHeader + sizeof(mdxaHeader_t) + offsets->offsets[0]);
 
 	// look through entire list
@@ -4337,7 +4333,7 @@ void G2_RemoveRedundantBoneOverrides(boneInfo_v &blist, int *activeBones)
 
 int	G2_Get_Bone_Index(CGhoul2Info *ghoul2, const char *boneName)
 {
-  	model_t		*mod_m = R_GetModelByHandle(RE_RegisterModel(ghoul2->mFileName));
+	model_t		*mod_m = R_GetModelByHandle(RE_RegisterModel(ghoul2->mFileName));
 	model_t		*mod_a = R_GetModelByHandle(mod_m->mdxm->animIndex);
 
 	return (G2_Find_Bone(mod_a, ghoul2->mBlist, boneName));

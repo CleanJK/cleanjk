@@ -678,7 +678,9 @@ void SaveGhoul2InfoArray()
 #endif
 		singleton->Serialize ((char *)data);
 
+#ifdef _DEBUG
 	assert (written == size);
+#endif
 
 	if ( !ri.PD_Store (PERSISTENT_G2DATA, data, size) )
 	{
@@ -980,7 +982,7 @@ bool G2API_RemoveGhoul2Model(CGhoul2Info_v **ghlRemove, const int modelIndex)
 		ghlInfo[modelIndex].mBltlist.clear();
 		ghlInfo[modelIndex].mSlist.clear();
 
-	   	 // set us to be the 'not active' state
+	 // set us to be the 'not active' state
 		ghlInfo[modelIndex].mModelindex = -1;
 
 		int newSize = ghlInfo.size();
@@ -1066,7 +1068,7 @@ bool G2API_RemoveGhoul2Models(CGhoul2Info_v **ghlRemove)
 		ghlInfo[modelIndex].mBltlist.clear();
 		ghlInfo[modelIndex].mSlist.clear();
 
-	   	 // set us to be the 'not active' state
+	 // set us to be the 'not active' state
 		ghlInfo[modelIndex].mModelindex = -1;
 	}
 
@@ -1127,10 +1129,10 @@ bool G2API_DoesBoneExist(CGhoul2Info_v& ghoul2, int modelIndex, const char *bone
 
 			offsets = (mdxaSkelOffsets_t *)((byte *)mdxa + sizeof(mdxaHeader_t));
 
- 			for (i = 0; i < mdxa->numBones; i++)
- 			{
- 				skel = (mdxaSkel_t *)((byte *)mdxa + sizeof(mdxaHeader_t) + offsets->offsets[i]);
- 				if (!Q_stricmp(skel->name, boneName))
+			for (i = 0; i < mdxa->numBones; i++)
+			{
+				skel = (mdxaSkel_t *)((byte *)mdxa + sizeof(mdxaHeader_t) + offsets->offsets[i]);
+				if (!Q_stricmp(skel->name, boneName))
 				{ //got it
 					return true;
 				}
@@ -1210,7 +1212,7 @@ bool G2API_SetBoneAnimIndex(CGhoul2Info *ghlInfo, const int index, const int Ast
 	{
 		// ensure we flush the cache
 		ghlInfo->mSkelFrameNum = 0;
- 		return G2_Set_Bone_Anim_Index(ghlInfo->mBlist, index, startFrame, endFrame, flags, animSpeed, currentTime, setFrame, blendTime, ghlInfo->aHeader->numFrames);
+		return G2_Set_Bone_Anim_Index(ghlInfo->mBlist, index, startFrame, endFrame, flags, animSpeed, currentTime, setFrame, blendTime, ghlInfo->aHeader->numFrames);
 	}
 	return false;
 }
@@ -1285,7 +1287,7 @@ bool G2API_SetBoneAnim(CGhoul2Info_v &ghoul2, const int modelIndex, const char *
 		{
 			// ensure we flush the cache
 			ghlInfo->mSkelFrameNum = 0;
- 			return G2_Set_Bone_Anim(ghlInfo, ghlInfo->mBlist, boneName, startFrame, endFrame, flags, animSpeed, currentTime, setFrame, blendTime);
+			return G2_Set_Bone_Anim(ghlInfo, ghlInfo->mBlist, boneName, startFrame, endFrame, flags, animSpeed, currentTime, setFrame, blendTime);
 		}
 	}
 	return false;
@@ -1304,7 +1306,7 @@ bool G2API_GetBoneAnim(CGhoul2Info_v& ghoul2, int modelIndex, const char *boneNa
 	if (G2_SetupModelPointers(ghlInfo))
 	{
 		int aCurrentTime=G2API_GetTime(currentTime);
- 		bool ret=G2_Get_Bone_Anim(ghlInfo, ghlInfo->mBlist, boneName, aCurrentTime, currentFrame,
+		bool ret=G2_Get_Bone_Anim(ghlInfo, ghlInfo->mBlist, boneName, aCurrentTime, currentFrame,
 			startFrame, endFrame, flags, animSpeed, modelList, ghlInfo->mModelindex);
 #ifdef _DEBUG
 		/*
@@ -1350,7 +1352,7 @@ bool G2API_GetAnimRange(CGhoul2Info *ghlInfo, const char *boneName,	int *startFr
 	assert(startFrame!=endFrame); //this is bad
 	if (G2_SetupModelPointers(ghlInfo))
 	{
- 		bool ret=G2_Get_Bone_Anim_Range(ghlInfo, ghlInfo->mBlist, boneName, startFrame, endFrame);
+		bool ret=G2_Get_Bone_Anim_Range(ghlInfo, ghlInfo->mBlist, boneName, startFrame, endFrame);
 #ifdef _DEBUG
 		assert(*endFrame>0);
 		assert(*endFrame<100000);
@@ -1382,7 +1384,7 @@ bool G2API_PauseBoneAnim(CGhoul2Info *ghlInfo, const char *boneName, const int c
 {
 	if (G2_SetupModelPointers(ghlInfo))
 	{
- 		return G2_Pause_Bone_Anim(ghlInfo, ghlInfo->mBlist, boneName, currentTime);
+		return G2_Pause_Bone_Anim(ghlInfo, ghlInfo->mBlist, boneName, currentTime);
 	}
 	return false;
 }
@@ -1391,7 +1393,7 @@ bool	G2API_IsPaused(CGhoul2Info *ghlInfo, const char *boneName)
 {
 	if (G2_SetupModelPointers(ghlInfo))
 	{
- 		return G2_IsPaused(ghlInfo->mFileName, ghlInfo->mBlist, boneName);
+		return G2_IsPaused(ghlInfo->mFileName, ghlInfo->mBlist, boneName);
 	}
 	return false;
 }
@@ -1400,7 +1402,7 @@ bool G2API_StopBoneAnimIndex(CGhoul2Info *ghlInfo, const int index)
 {
 	if (G2_SetupModelPointers(ghlInfo))
 	{
- 		return G2_Stop_Bone_Anim_Index(ghlInfo->mBlist, index);
+		return G2_Stop_Bone_Anim_Index(ghlInfo->mBlist, index);
 	}
 	return false;
 }
@@ -1409,7 +1411,7 @@ bool G2API_StopBoneAnim(CGhoul2Info *ghlInfo, const char *boneName)
 {
 	if (G2_SetupModelPointers(ghlInfo))
 	{
- 		return G2_Stop_Bone_Anim(ghlInfo->mFileName, ghlInfo->mBlist, boneName);
+		return G2_Stop_Bone_Anim(ghlInfo->mFileName, ghlInfo->mBlist, boneName);
 	}
 	return false;
 }
@@ -1522,7 +1524,7 @@ bool G2API_StopBoneAnglesIndex(CGhoul2Info *ghlInfo, const int index)
 	{
 		// ensure we flush the cache
 		ghlInfo->mSkelFrameNum = 0;
- 		return G2_Stop_Bone_Angles_Index(ghlInfo->mBlist, index);
+		return G2_Stop_Bone_Angles_Index(ghlInfo->mBlist, index);
 	}
 	return false;
 }
@@ -1533,7 +1535,7 @@ bool G2API_StopBoneAngles(CGhoul2Info *ghlInfo, const char *boneName)
 	{
 		// ensure we flush the cache
 		ghlInfo->mSkelFrameNum = 0;
- 		return G2_Stop_Bone_Angles(ghlInfo->mFileName, ghlInfo->mBlist, boneName);
+		return G2_Stop_Bone_Angles(ghlInfo->mFileName, ghlInfo->mBlist, boneName);
 	}
 	return false;
 }
@@ -1574,7 +1576,7 @@ bool G2API_RemoveBone(CGhoul2Info_v& ghoul2, int modelIndex, const char *boneNam
 	{
 		// ensure we flush the cache
 		ghlInfo->mSkelFrameNum = 0;
- 		return G2_Remove_Bone(ghlInfo, ghlInfo->mBlist, boneName);
+		return G2_Remove_Bone(ghlInfo, ghlInfo->mBlist, boneName);
 	}
 	return false;
 }
@@ -2303,7 +2305,7 @@ void G2API_GiveMeVectorFromMatrix(mdxaBone_t *boltMatrix, Eorientations_e flags,
 		vec[0] = boltMatrix->matrix[0][1];
 		vec[1] = boltMatrix->matrix[1][1];
 		vec[2] = boltMatrix->matrix[2][1];
- 		break;
+		break;
 	case POSITIVE_X:
 		vec[0] = boltMatrix->matrix[0][0];
 		vec[1] = boltMatrix->matrix[1][0];
@@ -2595,7 +2597,7 @@ bool G2API_SkinlessModel(CGhoul2Info_v& ghoul2, int modelIndex)
                     return false;
 				}
 
-  				surf = (mdxmSurfHierarchy_t *)( (byte *)surf + (intptr_t)( &((mdxmSurfHierarchy_t *)0)->childIndexes[ surf->numChildren ] ));
+				surf = (mdxmSurfHierarchy_t *)( (byte *)surf + (intptr_t)( &((mdxmSurfHierarchy_t *)0)->childIndexes[ surf->numChildren ] ));
 			}
 		}
 	}

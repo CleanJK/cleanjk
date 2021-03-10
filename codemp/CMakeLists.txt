@@ -48,7 +48,7 @@ if(BuildMPEngine OR BuildMPDed)
 
 	#    Botlib
 	# the files could arguably just be put into the engine and dedicated projects without having a library for it.
-	set(MPBotlibDefines ${SharedDefines} "BOTLIB")
+	set(MPBotlibDefines ${SharedDefines} "BUILD_BOTLIB")
 	set(MPBotlibIncludeDirectories
 		${SharedDir}
 		${MPDir}
@@ -130,7 +130,7 @@ if(BuildMPEngine OR BuildMPDed)
 	list(APPEND MPEngineAndDedLibraries          ${ZLIB_LIBRARIES})
 
 	set(MPEngineAndDedCgameFiles
-		"${MPDir}/cgame/cg_public.hpp"
+		"${MPDir}/cgame/cg_engine.hpp"
 		)
 	source_group("cgame" FILES ${MPEngineAndDedCgameFiles})
 	set(MPEngineAndDedFiles ${MPEngineAndDedFiles} ${MPEngineAndDedCgameFiles})
@@ -149,7 +149,7 @@ if(BuildMPEngine OR BuildMPDed)
 		"${MPDir}/game/bg_public.hpp"
 		"${MPDir}/game/bg_weapons.hpp"
 		"${MPDir}/botlib/botlib.hpp"
-		"${MPDir}/game/g_public.hpp"
+		"${MPDir}/game/g_engine.hpp"
 		)
 	source_group("game" FILES ${MPEngineAndDedGameFiles})
 	set(MPEngineAndDedFiles ${MPEngineAndDedFiles} ${MPEngineAndDedGameFiles})
@@ -169,6 +169,8 @@ if(BuildMPEngine OR BuildMPDed)
 		# hack until we clean up renderer/engine cvars
 		"${MPDir}/qcommon/com_cvars.cpp"
 		"${MPDir}/qcommon/com_cvars.hpp"
+		"${MPDir}/qcommon/com_inputField.cpp"
+		"${MPDir}/qcommon/com_inputField.hpp"
 		"${MPDir}/qcommon/cvar.cpp"
 		"${MPDir}/qcommon/disablewarnings.hpp"
 		"${MPDir}/qcommon/game_version.hpp"
@@ -269,7 +271,7 @@ if(BuildMPEngine OR BuildMPDed)
 	set(MPEngineAndDedFiles ${MPEngineAndDedFiles} ${MPEngineAndDedServerFiles})
 
 	set(MPEngineAndDedUiFiles
-		"${MPDir}/ui/ui_public.hpp"
+		"${MPDir}/ui/ui_engine.hpp"
 		)
 	source_group("ui" FILES ${MPEngineAndDedUiFiles})
 	set(MPEngineAndDedFiles ${MPEngineAndDedFiles} ${MPEngineAndDedUiFiles})
@@ -359,6 +361,8 @@ if(BuildMPEngine)
 		"${MPDir}/client/cl_cgameapi.hpp"
 		"${MPDir}/client/cl_cin.cpp"
 		"${MPDir}/client/cl_console.cpp"
+		"${MPDir}/client/cl_fonts.cpp"
+		"${MPDir}/client/cl_fonts.hpp"
 		"${MPDir}/client/cl_input.cpp"
 		"${MPDir}/client/cl_keys.cpp"
 		"${MPDir}/client/cl_lan.cpp"
@@ -563,7 +567,7 @@ if(BuildMPDed)
 	set(MPDedLibraries ${MPEngineAndDedLibraries})
 	set(MPDedIncludeDirectories ${MPEngineAndDedIncludeDirectories})
 	set(MPDedFiles ${MPEngineAndDedFiles})
-	set(MPDedDefines ${MPSharedDefines} "_CONSOLE" "DEDICATED")
+	set(MPDedDefines ${MPSharedDefines} "_CONSOLE" "BUILD_DEDICATED")
 
 	set(MPDedFiles ${MPDedFiles}
 		"${MPDir}/qcommon/com_cvars.cpp")
@@ -605,7 +609,7 @@ if(BuildMPDed)
 		)
 	source_group("null" FILES ${MPDedNullFiles})
 	set(MPDedFiles ${MPDedFiles} ${MPDedNullFiles})
-	
+
 	if(WIN32)
 		set(MPDedWin32Files
 			"${MPDir}/win32/openjkded.rc"

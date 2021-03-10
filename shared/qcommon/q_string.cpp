@@ -12,179 +12,152 @@
 
 #include "qcommon/q_color.hpp"
 
-int Q_isprint( int c )
-{
-	if ( c >= 0x20 && c <= 0x7E )
-		return ( 1 );
-	return ( 0 );
+int Q_isprint( int c ) {
+	return c >= 0x20 && c <= 0x7E;
 }
 
-int Q_isprintext( int c )
-{
-	if ( c >= 0x20 && c <= 0x7E )
-		return (1);
-	if ( c >= 0x80 && c <= 0xFE )
-		return (1);
-	return (0);
+int Q_isprintext( int c ) {
+	return (c >= 0x20 && c <= 0x7E) || (c >= 0x80 && c <= 0xFE);
 }
 
-int Q_isgraph( int c )
-{
-	if ( c >= 0x21 && c <= 0x7E )
-		return (1);
-	if ( c >= 0x80 && c <= 0xFE )
-		return (1);
-	return (0);
+int Q_isgraph( int c ) {
+	return (c >= 0x21 && c <= 0x7E) || (c >= 0x80 && c <= 0xFE);
 }
 
-int Q_islower( int c )
-{
-	if (c >= 'a' && c <= 'z')
-		return ( 1 );
-	return ( 0 );
+int Q_islower( int c ) {
+	return c >= 'a' && c <= 'z';
 }
 
-int Q_isupper( int c )
-{
-	if (c >= 'A' && c <= 'Z')
-		return ( 1 );
-	return ( 0 );
+int Q_isupper( int c ) {
+	return c >= 'A' && c <= 'Z';
 }
 
-int Q_isalpha( int c )
-{
-	if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'))
-		return ( 1 );
-	return ( 0 );
+int Q_isalpha( int c ) {
+	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
 }
 
-bool Q_isanumber( const char *s )
-{
+bool Q_isanumber( const char *s ) {
+	if ( *s == '\0' ) {
+		return false;
+	}
+
 	char *p;
-	double ret;
+	double ret = strtod( s, &p );
 
-	if( *s == '\0' )
+	if ( ret == HUGE_VAL || errno == ERANGE ) {
 		return false;
-
-	ret = strtod( s, &p );
-
-	if ( ret == HUGE_VAL || errno == ERANGE )
-		return false;
+	}
 
 	return (bool)(*p == '\0');
 }
 
-bool Q_isintegral( float f )
-{
-	return (bool)( (int)f == f );
+bool Q_isintegral( float f ) {
+	return (bool)((int)f == f);
 }
 
-char* Q_strrchr( const char* string, int c )
-{
+char *Q_strrchr( const char *string, int c ) {
 	char cc = c;
-	char *s;
-	char *sp=(char *)0;
+	char *s = (char *)string;
+	char *sp = nullptr;
 
-	s = (char*)string;
-
-	while (*s)
-	{
-		if (*s == cc)
+	while ( *s ) {
+		if ( *s == cc ) {
 			sp = s;
+		}
 		s++;
 	}
-	if (cc == 0)
+	if ( cc == '\0' ) {
 		sp = s;
+	}
 
 	return sp;
 }
 
 // Safe strncpy that ensures a trailing zero
 void Q_strncpyz( char *dest, const char *src, int destsize ) {
-	assert(src);
-	assert(dest);
-	assert(destsize);
+	assert( src );
+	assert( dest );
+	assert( destsize );
 
 	strncpy( dest, src, destsize-1 );
-	dest[destsize-1] = 0;
+	dest[destsize-1] = '\0';
 }
 
-int Q_stricmpn (const char *s1, const char *s2, int n) {
-	int		c1, c2;
+int Q_stricmpn( const char *s1, const char *s2, int n ) {
+	int c1, c2;
 
 	if ( s1 == nullptr ) {
-		if ( s2 == nullptr )
+		if ( s2 == nullptr ) {
 			return 0;
-		else
+		}
+		else {
 			return -1;
+		}
 	}
-	else if ( s2==nullptr )
+	else if ( s2 == nullptr ) {
 		return 1;
+	}
 
 	do {
 		c1 = *s1++;
 		c2 = *s2++;
 
-		if (!n--) {
-			return 0;		// strings are equal until end point
+		if ( !n-- ) {
+			return 0; // strings are equal until end point
 		}
 
-		if (c1 != c2) {
-			if (c1 >= 'a' && c1 <= 'z') {
+		if ( c1 != c2 ) {
+			if ( c1 >= 'a' && c1 <= 'z' ) {
 				c1 -= ('a' - 'A');
 			}
-			if (c2 >= 'a' && c2 <= 'z') {
+			if ( c2 >= 'a' && c2 <= 'z' ) {
 				c2 -= ('a' - 'A');
 			}
-			if (c1 != c2) {
+			if ( c1 != c2 ) {
 				return c1 < c2 ? -1 : 1;
 			}
 		}
-	} while (c1);
+	} while ( c1 );
 
-	return 0;		// strings are equal
+	return 0; // strings are equal
 }
 
-int Q_stricmp (const char *s1, const char *s2) {
-	return (s1 && s2) ? Q_stricmpn (s1, s2, 99999) : -1;
+int Q_stricmp( const char *s1, const char *s2 ) {
+	return (s1 && s2) ? Q_stricmpn( s1, s2, 99999 ) : -1;
 }
 
-int Q_strncmp (const char *s1, const char *s2, int n) {
-	int		c1, c2;
+int Q_strncmp( const char *s1, const char *s2, int n ) {
+	int c1, c2;
 
 	do {
 		c1 = *s1++;
 		c2 = *s2++;
 
-		if (!n--) {
-			return 0;		// strings are equal until end point
+		if ( !n-- ) {
+			return 0; // strings are equal until end point
 		}
 
-		if (c1 != c2) {
+		if ( c1 != c2 ) {
 			return c1 < c2 ? -1 : 1;
 		}
 	} while (c1);
 
-	return 0;		// strings are equal
+	return 0; // strings are equal
 }
 
 char *Q_strlwr( char *s1 ) {
-	char	*s;
-
-	s = s1;
+	char *s = s1;
 	while ( *s ) {
-		*s = tolower(*s);
+		*s = tolower( *s );
 		s++;
 	}
 	return s1;
 }
 
 char *Q_strupr( char *s1 ) {
-	char	*s;
-
-	s = s1;
+	char *s = s1;
 	while ( *s ) {
-		*s = toupper(*s);
+		*s = toupper( *s );
 		s++;
 	}
 	return s1;
@@ -192,15 +165,13 @@ char *Q_strupr( char *s1 ) {
 
 // never goes past bounds or leaves without a terminating 0
 void Q_strcat( char *dest, int size, const char *src ) {
-	int		l1;
-
-	l1 = strlen( dest );
+	int l1 = strlen( dest );
 	if ( l1 >= size ) {
 		//Com_Error( ERR_FATAL, "Q_strcat: already overflowed" );
 		return;
 	}
-	if ( strlen(src)+1 > (size_t)(size - l1))
-	{	//do the error here instead of in Q_strncpyz to get a meaningful msg
+	if ( strlen( src )+1 > (size_t)(size - l1) ) {
+		// do the error here instead of in Q_strncpyz to get a meaningful msg
 		//Com_Error(ERR_FATAL,"Q_strcat: cannot append \"%s\" to \"%s\"", src, dest);
 		return;
 	}
@@ -208,30 +179,25 @@ void Q_strcat( char *dest, int size, const char *src ) {
 }
 
 // Find the first occurrence of find in s.
-const char *Q_stristr( const char *s, const char *find )
-{
+const char *Q_stristr( const char *s, const char *find ) {
 	char c, sc;
 	size_t len;
 
-	if ((c = *find++) != 0)
-	{
-		if (c >= 'a' && c <= 'z')
-		{
+	if ( (c = *find++) != 0 ) {
+		if ( c >= 'a' && c <= 'z' ) {
 			c -= ('a' - 'A');
 		}
-		len = strlen(find);
-		do
-		{
-			do
-			{
-				if ((sc = *s++) == 0)
+		len = strlen( find );
+		do {
+			do {
+				if ( (sc = *s++) == 0 ) {
 					return nullptr;
-				if (sc >= 'a' && sc <= 'z')
-				{
+				}
+				if ( sc >= 'a' && sc <= 'z' ) {
 					sc -= ('a' - 'A');
 				}
-			} while (sc != c);
-		} while (Q_stricmpn(s, find, len) != 0);
+			} while ( sc != c );
+		} while ( Q_stricmpn( s, find, len ) );
 		s--;
 	}
 	return s;
@@ -239,17 +205,14 @@ const char *Q_stristr( const char *s, const char *find )
 
 // strlen that discounts Quake color sequences
 int Q_PrintStrlen( const char *string ) {
-	int			len;
-	const char	*p;
-
-	if( !string ) {
+	if ( !string ) {
 		return 0;
 	}
 
-	len = 0;
-	p = string;
-	while( *p ) {
-		if( Q_IsColorString( p ) ) {
+	int len = 0;
+	const char *p = string;
+	while ( *p ) {
+		if ( Q_IsColorString( p ) ) {
 			p += 2;
 			continue;
 		}
@@ -261,13 +224,10 @@ int Q_PrintStrlen( const char *string ) {
 }
 
 char *Q_CleanStr( char *string ) {
-	char*	d;
-	char*	s;
-	int		c;
-
-	s = string;
-	d = string;
-	while ((c = *s) != 0 ) {
+	char *s = string;
+	char *d = string;
+	int c;
+	while ( (c = *s) != 0 ) {
 		if ( Q_IsColorString( s ) ) {
 			s++;
 		}
@@ -319,16 +279,15 @@ void Q_StripColor( char *text ) {
 //	Q_strstrip( "Bo\nb is h\rairy!!", "\n\r!", "123" )	--> "Bo1b is h2airy33"
 //	Q_strstrip( "Bo\nb is h\rairy!!", "\n\r!", "12" )	--> "Bo1b is h2airy"
 //	Q_strstrip( "Bo\nb is h\rairy!!", "\n\r!", nullptr )	--> "Bob is hairy"
-void Q_strstrip( char *string, const char *strip, const char *repl )
-{
-	char		*out=string, *p=string, c;
-	const char	*s=strip;
-	int			replaceLen = repl?strlen( repl ):0, offset=0;
-	bool	recordChar = true;
+void Q_strstrip( char *string, const char *strip, const char *repl ) {
+	char *out = string, *p = string, c;
+	const char *s=strip;
+	int replaceLen = repl ? strlen( repl ) : 0, offset = 0;
+	bool recordChar = true;
 
 	while ( (c = *p++) != '\0' ) {
 		recordChar = true;
-		for ( s=strip; *s; s++ ) {
+		for ( s = strip; *s; s++ ) {
 			offset = s-strip;
 			if ( c == *s ) {
 				if ( !repl || offset >= replaceLen ) {
@@ -350,15 +309,12 @@ void Q_strstrip( char *string, const char *strip, const char *repl )
 // Find any characters in a string. Think of it as a shorthand strchr loop.
 // returns first instance of any characters found, otherwise nullptr
 const char *Q_strchrs( const char *string, const char *search ) {
-	const char *p = string, *s = search;
-
-	while ( *p != '\0' ) {
-		for ( s=search; *s; s++ ) {
+	for ( const char *p = string; *p != '\0'; p++ ) {
+		for ( const char *s = search; *s; s++ ) {
 			if ( *p == *s ) {
 				return p;
 			}
 		}
-		p++;
 	}
 
 	return nullptr;
@@ -369,14 +325,10 @@ const char *Q_strchrs( const char *string, const char *search ) {
 // MinGW comes with its own snprintf() which is not broken.
 // vsnprintf is ISO/IEC 9899:1999
 // abstracting this to make it portable
-int Q_vsnprintf(char *str, size_t size, const char *format, va_list ap)
-{
-	int retval;
+int Q_vsnprintf( char *str, size_t size, const char *format, va_list ap ) {
+	int retval = _vsnprintf(str, size, format, ap);
 
-	retval = _vsnprintf(str, size, format, ap);
-
-	if(retval < 0 || retval == size)
-	{
+	if ( retval < 0 || retval == size ) {
 		// Microsoft doesn't adhere to the C99 standard of vsnprintf, which states that the return value must be the number of bytes written if the output
 		//	string had sufficient length.
 		// Obviously we cannot determine that value from Microsoft's implementation, so we have no choice but to return size.

@@ -22,6 +22,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "qcommon/q_shared.hpp"
 #include "qcommon/q_common.hpp"
+#include "qcommon/com_inputField.hpp"
 #include "sys/sys_local.hpp"
 #include "sys/con_local.hpp"
 #define WIN32_LEAN_AND_MEAN
@@ -37,13 +38,13 @@ static DWORD qconsole_orig_mode;
 static CONSOLE_CURSOR_INFO qconsole_orig_cursorinfo;
 
 // cmd history
-static char qconsole_history[ QCONSOLE_HISTORY ][ MAX_EDIT_LINE ];
+static char qconsole_history[QCONSOLE_HISTORY][MAX_STRING_CHARS];
 static int qconsole_history_pos = -1;
 static int qconsole_history_lines = 0;
 static int qconsole_history_oldest = 0;
 
 // current edit buffer
-static char qconsole_line[ MAX_EDIT_LINE ];
+static char qconsole_line[MAX_STRING_CHARS];
 static int qconsole_linelen = 0;
 static bool qconsole_drawinput = true;
 static int qconsole_cursor;
@@ -183,12 +184,12 @@ CON_Show
 static void CON_Show( void )
 {
 	CONSOLE_SCREEN_BUFFER_INFO binfo;
-	COORD writeSize = { MAX_EDIT_LINE, 1 };
+	COORD writeSize = { MAX_STRING_CHARS, 1 };
 	COORD writePos = { 0, 0 };
 	SMALL_RECT writeArea = { 0, 0, 0, 0 };
 	COORD cursorPos;
 	int i;
-	CHAR_INFO line[ MAX_EDIT_LINE ];
+	CHAR_INFO line[ MAX_STRING_CHARS ];
 	WORD attrib;
 
 	GetConsoleScreenBufferInfo( qconsole_hout, &binfo );
@@ -200,13 +201,13 @@ static void CON_Show( void )
 	writeArea.Left = 0;
 	writeArea.Top = binfo.dwCursorPosition.Y;
 	writeArea.Bottom = binfo.dwCursorPosition.Y;
-	writeArea.Right = MAX_EDIT_LINE;
+	writeArea.Right = MAX_STRING_CHARS;
 
 	// set color to white
 	attrib = CON_ColorCharToAttrib( COLOR_WHITE );
 
 	// build a space-padded CHAR_INFO array
-	for( i = 0; i < MAX_EDIT_LINE; i++ )
+	for( i = 0; i < MAX_STRING_CHARS; i++ )
 	{
 		if( i < qconsole_linelen )
 		{
@@ -327,7 +328,7 @@ CON_Input
 */
 char *CON_Input( void )
 {
-	INPUT_RECORD buff[ MAX_EDIT_LINE ];
+	INPUT_RECORD buff[MAX_STRING_CHARS];
 	DWORD count = 0, events = 0;
 	WORD key = 0;
 	int i;
@@ -340,7 +341,7 @@ char *CON_Input( void )
 		return nullptr;
 
 	// if we have overflowed, start dropping oldest input events
-	if( events >= MAX_EDIT_LINE )
+	if( events >= MAX_STRING_CHARS )
 	{
 		ReadConsoleInput( qconsole_hin, buff, 1, &events );
 		return nullptr;
@@ -402,14 +403,7 @@ char *CON_Input( void )
 
 			case VK_TAB:
 			{
-				field_t f;
-
-				Q_strncpyz( f.buffer, qconsole_line, sizeof( f.buffer ) );
-				Field_AutoComplete( &f );
-				Q_strncpyz( qconsole_line, f.buffer, sizeof( qconsole_line ) );
-				qconsole_linelen = strlen( qconsole_line );
-				qconsole_cursor = qconsole_linelen;
-
+				//FIXME: autocomplete from qconsole_line, update qconsole_linelen and qconsole_cursor
 				break;
 			}
 

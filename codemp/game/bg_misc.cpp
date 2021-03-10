@@ -27,11 +27,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "qcommon/q_shared.hpp"
 #include "game/bg_public.hpp"
 
-#if defined(_GAME)
+#if defined(BUILD_GAME)
 	#include "game/g_local.hpp"
-#elif defined(_CGAME)
+#elif defined(BUILD_CGAME)
 	#include "cgame/cg_local.hpp"
-#elif defined(UI_BUILD)
+#elif defined(BUILD_UI)
 	#include "ui/ui_local.hpp"
 #endif
 
@@ -347,7 +347,7 @@ void BG_GiveMeVectorFromMatrix(mdxaBone_t *boltMatrix, int flags, vec3_t vec)
 		vec[0] = boltMatrix->matrix[0][1];
 		vec[1] = boltMatrix->matrix[1][1];
 		vec[2] = boltMatrix->matrix[2][1];
- 		break;
+		break;
 	case POSITIVE_X:
 		vec[0] = boltMatrix->matrix[0][0];
 		vec[1] = boltMatrix->matrix[1][0];
@@ -2173,7 +2173,7 @@ void BG_EvaluateTrajectory( const trajectory_t *tr, int atTime, vec3_t result ) 
 		result[2] -= 0.5 * DEFAULT_GRAVITY * deltaTime * deltaTime;		// FIXME: local gravity...
 		break;
 	default:
-#ifdef _GAME
+#ifdef BUILD_GAME
 		Com_Error( ERR_DROP, "BG_EvaluateTrajectory: [ GAME] unknown trType: %i", tr->trType );
 #else
 		Com_Error( ERR_DROP, "BG_EvaluateTrajectory: [CGAME] unknown trType: %i", tr->trType );
@@ -2223,7 +2223,7 @@ void BG_EvaluateTrajectoryDelta( const trajectory_t *tr, int atTime, vec3_t resu
 		result[2] -= DEFAULT_GRAVITY * deltaTime;		// FIXME: local gravity...
 		break;
 	default:
-#ifdef _GAME
+#ifdef BUILD_GAME
 		Com_Error( ERR_DROP, "BG_EvaluateTrajectoryDelta: [ GAME] unknown trType: %i", tr->trType );
 #else
 		Com_Error( ERR_DROP, "BG_EvaluateTrajectoryDelta: [CGAME] unknown trType: %i", tr->trType );
@@ -2391,9 +2391,9 @@ constexpr const char *eventnames[EV_NUM_ENTITY_EVENTS] = {
 // Handles the sequence numbers
 void BG_AddPredictableEventToPlayerstate( int newEvent, int eventParm, playerState_t *ps ) {
 
-#if defined(_DEBUG) && !defined(UI_BUILD)
+#if defined(_DEBUG) && !defined(BUILD_UI)
 	if ( bg_showEvents.integer != 0 ) {
-#ifdef _GAME
+#ifdef BUILD_GAME
 		Com_Printf(" game event svt %5d -> %5d: num = %20s parm %d\n", ps->pmove_framecount/*ps->commandTime*/, ps->eventSequence, eventnames[newEvent], eventParm);
 #else
 		Com_Printf("Cgame event svt %5d -> %5d: num = %20s parm %d\n", ps->pmove_framecount/*ps->commandTime*/, ps->eventSequence, eventnames[newEvent], eventParm);
@@ -2867,7 +2867,7 @@ void BG_PlayerStateToEntityStateExtraPolate( playerState_t *ps, entityState_t *s
 
 int BG_ModelCache(const char *modelName, const char *skinName)
 {
-	#ifdef _GAME
+	#ifdef BUILD_GAME
 		void *g2 = nullptr;
 
 		if ( VALIDSTRING( skinName ) )
@@ -2880,28 +2880,28 @@ int BG_ModelCache(const char *modelName, const char *skinName)
 			trap->G2API_CleanGhoul2Models( &g2 );
 
 		return 0;
-	#else // !_GAME
+	#else // !BUILD_GAME
 		if ( VALIDSTRING( skinName ) )
 		{
-			#ifdef _CGAME
+			#ifdef BUILD_CGAME
 				trap->R_RegisterSkin( skinName );
-			#else // !_CGAME
+			#else // !BUILD_CGAME
 				trap->R_RegisterSkin( skinName );
-			#endif // _CGAME
+			#endif // BUILD_CGAME
 		}
-		#ifdef _CGAME
+		#ifdef BUILD_CGAME
 			return trap->R_RegisterModel( modelName );
-		#else // !_CGAME
+		#else // !BUILD_CGAME
 			return trap->R_RegisterModel( modelName );
-		#endif // _CGAME
-	#endif // _GAME
+		#endif // BUILD_CGAME
+	#endif // BUILD_GAME
 }
 
-#if defined(_GAME)
+#if defined(BUILD_GAME)
 	#define MAX_POOL_SIZE	3072000 //1024000
-#elif defined(_CGAME) //don't need as much for cgame stuff. 2mb will be fine.
+#elif defined(BUILD_CGAME) //don't need as much for cgame stuff. 2mb will be fine.
 	#define MAX_POOL_SIZE	2048000
-#elif defined(UI_BUILD) //And for the ui the only thing we'll be using this for anyway is allocating anim data for g2 menu models
+#elif defined(BUILD_UI) //And for the ui the only thing we'll be using this for anyway is allocating anim data for g2 menu models
 	#define MAX_POOL_SIZE	512000
 #endif
 

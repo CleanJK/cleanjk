@@ -24,7 +24,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-#include "cgame/cg_public.hpp"
+#include "cgame/cg_engine.hpp"
 #include "qcommon/q_shared.hpp"
 #include "qcommon/q_common.hpp"
 #include "qcommon/q_files.hpp"
@@ -200,13 +200,13 @@ struct clientConnection_t {
 
 struct serverInfo_t {
 	netadr_t	adr;
-	char	  	hostName[MAX_NAME_LENGTH];
-	char	  	mapName[MAX_NAME_LENGTH];
-	char	  	game[MAX_NAME_LENGTH];
+	char		hostName[MAX_NAME_LENGTH];
+	char		mapName[MAX_NAME_LENGTH];
+	char		game[MAX_NAME_LENGTH];
 	int			netType;
 	int			gameType;
-	int		  	clients;
-	int		  	maxClients;
+	int			clients;
+	int			maxClients;
 	int			minPing;
 	int			maxPing;
 	int			ping;

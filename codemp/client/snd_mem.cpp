@@ -35,10 +35,10 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // WAV loading
 
 byte	*data_p;
-byte 	*iff_end;
-byte 	*last_chunk;
-byte 	*iff_data;
-int 	iff_chunk_len;
+byte	*iff_end;
+byte	*last_chunk;
+byte	*iff_data;
+int	iff_chunk_len;
 extern sfx_t		s_knownSfx[];
 extern	int			s_numSfx;
 
@@ -241,7 +241,7 @@ char *Filename_WithoutPath(const char *psFilename)
 	static char sString[MAX_QPATH];	// !!
 	const char *p = strrchr(psFilename,'\\');
 
-  	if (!p++)
+	if (!p++)
 		p=psFilename;
 
 	strcpy(sString,p);

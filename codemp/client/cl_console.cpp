@@ -26,55 +26,56 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "client/cl_cgameapi.hpp"
 #include "client/cl_keys.hpp"
 #include "client/cl_local.hpp"
+#include "client/cl_fonts.hpp"
 #include "game/bg_public.hpp"
+#include "qcommon/q_shared.hpp"
 #include "qcommon/com_cvars.hpp"
+#include "qcommon/com_inputField.hpp"
 #include "qcommon/game_version.hpp"
 #include "qcommon/stringed_ingame.hpp"
 
-int g_console_field_width = 78;
+#define DEFAULT_CONSOLE_WIDTH 78
 
-console_t	con;
+const vec4_t console_color = { 0.509f, 0.609f, 0.847f, 1.0f };
 
-#define	DEFAULT_CONSOLE_WIDTH	78
+static console_t   console;
 
-vec4_t	console_color = {0.509f, 0.609f, 0.847f, 1.0f};
 
-void Con_ToggleConsole_f (void) {
-	if( con_autoclear->integer )
-		Field_Clear( &g_consoleField );
-	g_consoleField.widthInChars = g_console_field_width;
+void Console_ToggleConsole_f( void ) {
+	if ( con_autoclear->integer ) {
+		console.field->Clear();
+	}
 
-	Con_ClearNotify ();
-	Key_SetCatcher( Key_GetCatcher( ) ^ KEYCATCH_CONSOLE );
+	Console_ClearNotify();
+	Key_SetCatcher( Key_GetCatcher() ^ KEYCATCH_CONSOLE );
 }
 
-void Con_ToggleMenu_f( void ) {
-	CL_KeyEvent( A_ESCAPE, true, Sys_Milliseconds() );
+void Console_ToggleMenu_f( void ) {
+	CL_KeyEvent( A_ESCAPE,  true, Sys_Milliseconds() );
 	CL_KeyEvent( A_ESCAPE, false, Sys_Milliseconds() );
 }
 
-void Con_MessageMode_f (void) {	//yell
+void Console_MessageMode_f( void ) {
+	// yell
 	chat_playerNum = -1;
 	chat_team = false;
-	Field_Clear( &chatField );
-	chatField.widthInChars = 30;
+	chatField.Clear();
 
-	Key_SetCatcher( Key_GetCatcher( ) ^ KEYCATCH_MESSAGE );
+	Key_SetCatcher( Key_GetCatcher() ^ KEYCATCH_MESSAGE );
 }
 
-void Con_MessageMode2_f (void) {	//team chat
+void Console_MessageMode2_f( void ) {
+	// team chat
 	chat_playerNum = -1;
 	chat_team = true;
-	Field_Clear( &chatField );
-	chatField.widthInChars = 25;
-	Key_SetCatcher( Key_GetCatcher( ) ^ KEYCATCH_MESSAGE );
+	chatField.Clear();
+	Key_SetCatcher( Key_GetCatcher() ^ KEYCATCH_MESSAGE );
 }
 
-void Con_MessageMode3_f (void)
-{		//target chat
-	if (!cls.cgameStarted)
-	{
-		assert(!"null cgvm");
+void Console_MessageMode3_f( void ) {
+	// target chat
+	if ( !cls.cgameStarted ) {
+		assert( !"null cgvm" );
 		return;
 	}
 
@@ -84,16 +85,14 @@ void Con_MessageMode3_f (void)
 		return;
 	}
 	chat_team = false;
-	Field_Clear( &chatField );
-	chatField.widthInChars = 30;
-	Key_SetCatcher( Key_GetCatcher( ) ^ KEYCATCH_MESSAGE );
+	chatField.Clear();
+	Key_SetCatcher( Key_GetCatcher() ^ KEYCATCH_MESSAGE );
 }
 
-void Con_MessageMode4_f (void)
-{	//attacker
-	if (!cls.cgameStarted)
-	{
-		assert(!"null cgvm");
+void Console_MessageMode4_f( void ) {
+	//attacker
+	if ( !cls.cgameStarted ) {
+		assert( !"null cgvm" );
 		return;
 	}
 
@@ -103,245 +102,251 @@ void Con_MessageMode4_f (void)
 		return;
 	}
 	chat_team = false;
-	Field_Clear( &chatField );
-	chatField.widthInChars = 30;
-	Key_SetCatcher( Key_GetCatcher( ) ^ KEYCATCH_MESSAGE );
+	chatField.Clear();
+	Key_SetCatcher( Key_GetCatcher() ^ KEYCATCH_MESSAGE );
 }
 
-void Con_Clear_f (void) {
-	int		i;
-
-	for ( i = 0 ; i < CON_TEXTSIZE ; i++ ) {
-		con.text[i] = (ColorIndex(COLOR_WHITE)<<8) | ' ';
-	}
-
-	Con_Bottom();		// go to end
+void Console_Clear_f( void ) {
+	memset( console.text, 0, sizeof(console.text) );
+	Console_Bottom(); // go to end
 }
 
 // Save the console contents out to a file
-void Con_Dump_f (void)
-{
-	int		l, x, i;
-	short	*line;
-	fileHandle_t	f;
-	int		bufferlen;
-	char	*buffer;
-	char	filename[MAX_QPATH];
-
-	if (Cmd_Argc() != 2)
-	{
-		Com_Printf ("%s\n", SE_GetString("CON_TEXT_DUMP_USAGE"));
+void Console_Dump_f( void ) {
+	if ( Cmd_Argc() != 2 ) {
+		Com_Printf( "%s\n", SE_GetString( "CON_TEXT_DUMP_USAGE" ) );
 		return;
 	}
 
-	Q_strncpyz( filename, Cmd_Argv( 1 ), sizeof( filename ) );
-	COM_DefaultExtension( filename, sizeof( filename ), ".txt" );
+	char filename[MAX_QPATH];
+	Q_strncpyz( filename, Cmd_Argv( 1 ), sizeof(filename) );
+	COM_DefaultExtension( filename, sizeof(filename), ".txt" );
 
-	if(!COM_CompareExtension(filename, ".txt"))
-	{
-		Com_Printf( "Con_Dump_f: Only the \".txt\" extension is supported by this command!\n" );
+	if ( !COM_CompareExtension( filename, ".txt" ) ) {
+		Com_Printf( "Console_Dump_f: Only the \".txt\" extension is supported by this command!\n" );
 		return;
 	}
 
-	f = FS_FOpenFileWrite( filename );
-	if (!f)
-	{
-		Com_Printf ("ERROR: couldn't open %s.\n", filename);
+	const fileHandle_t f = FS_FOpenFileWrite( filename );
+	if ( !f ) {
+		Com_Printf( "ERROR: couldn't open %s.\n", filename );
 		return;
 	}
 
-	Com_Printf ("Dumped console text to %s.\n", filename );
+	Com_Printf( "Dumped console text to %s.\n", filename );
 
 	// skip empty lines
-	for (l = con.current - con.totallines + 1 ; l <= con.current ; l++)
-	{
-		line = con.text + (l%con.totallines)*con.linewidth;
-		for (x=0 ; x<con.linewidth ; x++)
-			if ((line[x] & 0xff) != ' ')
+	for ( int l = console.current - console.totallines + 1; l <= console.current; l++ ) {
+		const char *line = console.text + (l % console.totallines) * console.linewidth;
+		int x;
+		for ( x = 0; x < console.linewidth; x++ ) {
+			if ( line[x] != ' ' ) {
 				break;
-		if (x != con.linewidth)
+			}
+		}
+		if ( x != console.linewidth ) {
 			break;
+		}
 	}
 
 #ifdef _WIN32
-	bufferlen = con.linewidth + 3 * sizeof ( char );
+	const int bufferlen = console.linewidth + 3 * sizeof ( char );
 #else
-	bufferlen = con.linewidth + 2 * sizeof ( char );
+	const int bufferlen = console.linewidth + 2 * sizeof ( char );
 #endif
 
-	buffer = (char *)Hunk_AllocateTempMemory( bufferlen );
+	char *buffer = (char *)Hunk_AllocateTempMemory( bufferlen );
 
 	// write the remaining lines
-	buffer[bufferlen-1] = 0;
-	for ( ; l <= con.current ; l++)
-	{
-		line = con.text + (l%con.totallines)*con.linewidth;
-		for(i=0; i<con.linewidth; i++)
-			buffer[i] = (char) (line[i] & 0xff);
-		for (x=con.linewidth-1 ; x>=0 ; x--)
-		{
-			if (buffer[x] == ' ')
+	buffer[bufferlen - 1] = '\0';
+	for ( int l = 0; l <= console.current ; l++ ) {
+		const char *line = console.text + (l % console.totallines) * console.linewidth;
+		for ( int i = 0; i < console.linewidth; i++ ) {
+			buffer[i] = line[i];
+		}
+		for ( int x = console.linewidth-1; x >= 0; x-- ) {
+			if ( buffer[x] == ' ' ) {
 				buffer[x] = 0;
-			else
+			}
+			else {
 				break;
+			}
 		}
 #ifdef _WIN32
-		Q_strcat(buffer, bufferlen, "\r\n");
+		Q_strcat( buffer, bufferlen, "\r\n" );
 #else
-		Q_strcat(buffer, bufferlen, "\n");
+		Q_strcat( buffer, bufferlen, "\n" );
 #endif
-		FS_Write(buffer, strlen(buffer), f);
+		FS_Write( buffer, strlen( buffer ), f );
 	}
 
 	Hunk_FreeTempMemory( buffer );
 	FS_FCloseFile( f );
 }
 
-void Con_ClearNotify( void ) {
-	int		i;
-
-	for ( i = 0 ; i < NUM_CON_TIMES ; i++ ) {
-		con.times[i] = 0;
+void Console_ClearNotify( void ) {
+	for ( int i = 0; i < NUM_CON_TIMES; i++ ) {
+		console.times[i] = 0;
 	}
 }
 
 // If the line width has changed, reformat the buffer.
-void Con_CheckResize (void)
-{
-	int		i, j, width, oldwidth, oldtotallines, numlines, numchars;
-	short	tbuf[CON_TEXTSIZE];
-
-//	width = (SCREEN_WIDTH / SMALLCHAR_WIDTH) - 2;
-	width = (cls.glconfig.vidWidth / SMALLCHAR_WIDTH) - 2;
-
-	if (width == con.linewidth)
+void Console_CheckResize( void ) {
+	const int width = (cls.glconfig.vidWidth / SMALLCHAR_WIDTH) - 2;
+	if ( width == console.linewidth ) {
 		return;
-
-	if (width < 1)			// video hasn't been initialized yet
-	{
-		con.xadjust = 1;
-		con.yadjust = 1;
-		width = DEFAULT_CONSOLE_WIDTH;
-		con.linewidth = width;
-		con.totallines = CON_TEXTSIZE / con.linewidth;
-		for(i=0; i<CON_TEXTSIZE; i++)
-		{
-			con.text[i] = (ColorIndex(COLOR_WHITE)<<8) | ' ';
-		}
 	}
-	else
-	{
-		// on wide screens, we will center the text
-		con.xadjust = 640.0f / cls.glconfig.vidWidth;
-		con.yadjust = 480.0f / cls.glconfig.vidHeight;
 
-		oldwidth = con.linewidth;
-		con.linewidth = width;
-		oldtotallines = con.totallines;
-		con.totallines = CON_TEXTSIZE / con.linewidth;
-		numlines = oldtotallines;
+	if ( width < 1 ) {
+		// video hasn't been initialized yet
+		console.xadjust = 1;
+		console.yadjust = 1;
+		console.linewidth = DEFAULT_CONSOLE_WIDTH;
+		console.totallines = CON_TEXTSIZE / console.linewidth;
+		memset( console.text, 0, sizeof(console.text) );
+	}
+	else {
+		console.xadjust = SCREEN_WIDTH / cls.glconfig.vidWidth;
+		console.yadjust = SCREEN_HEIGHT / cls.glconfig.vidHeight;
 
-		if (con.totallines < numlines)
-			numlines = con.totallines;
+		const int oldwidth = console.linewidth;
+		console.linewidth = width;
+		const int oldtotallines = console.totallines;
+		console.totallines = CON_TEXTSIZE / console.linewidth;
+		int numlines = oldtotallines;
 
-		numchars = oldwidth;
+		if ( console.totallines < numlines ) {
+			numlines = console.totallines;
+		}
 
-		if (con.linewidth < numchars)
-			numchars = con.linewidth;
+		int numchars = oldwidth;
 
-		Com_Memcpy (tbuf, con.text, CON_TEXTSIZE * sizeof(short));
-		for(i=0; i<CON_TEXTSIZE; i++)
+		if ( console.linewidth < numchars ) {
+			numchars = console.linewidth;
+		}
 
-			con.text[i] = (ColorIndex(COLOR_WHITE)<<8) | ' ';
+		char tbuf[CON_TEXTSIZE];
+		memcpy( tbuf, console.text, CON_TEXTSIZE );
+		memset( console.text, 0, sizeof(console.text) );
 
-		for (i=0 ; i<numlines ; i++)
-		{
-			for (j=0 ; j<numchars ; j++)
-			{
-				con.text[(con.totallines - 1 - i) * con.linewidth + j] =
-						tbuf[((con.current - i + oldtotallines) %
-							  oldtotallines) * oldwidth + j];
+		for ( int i = 0; i < numlines; i++ ) {
+			for ( int j = 0; j < numchars; j++ ) {
+				console.text[
+					(console.totallines - 1 - i) * console.linewidth + j
+				] = tbuf[
+					(
+						(console.current - i + oldtotallines)
+							% oldtotallines
+					) * oldwidth + j
+				];
 			}
 		}
 
-		Con_ClearNotify ();
+		Console_ClearNotify();
 	}
 
-	con.current = con.totallines - 1;
-	con.display = con.current;
+	console.current = console.totallines - 1;
+	console.display = console.current;
 }
 
-void Cmd_CompleteTxtName( char *args, int argNum ) {
-	if ( argNum == 2 )
-		Field_CompleteFilename( "", "txt", false, true );
-}
+static void Console_Execute( const char *text ) {
+	Com_Printf( CONSOLE_PROMPT_STR "%s\n", text );
 
-void Con_Init (void) {
-	int		i;
+	Cbuf_AddText( text );
+	Cbuf_AddText( "\n" );
 
-	Field_Clear( &g_consoleField );
-	g_consoleField.widthInChars = g_console_field_width;
-	for ( i = 0 ; i < COMMAND_HISTORY ; i++ ) {
-		Field_Clear( &historyEditLines[i] );
-		historyEditLines[i].widthInChars = g_console_field_width;
+	if ( !text[0] ) {
+		return; // empty lines just scroll the console without adding to history
 	}
 
-	Cmd_AddCommand( "toggleconsole", Con_ToggleConsole_f, "Show/hide console" );
-	Cmd_AddCommand( "togglemenu", Con_ToggleMenu_f, "Show/hide the menu" );
-	Cmd_AddCommand( "messagemode", Con_MessageMode_f, "Global Chat" );
-	Cmd_AddCommand( "messagemode2", Con_MessageMode2_f, "Team Chat" );
-	Cmd_AddCommand( "messagemode3", Con_MessageMode3_f, "Private Chat with Target Player" );
-	Cmd_AddCommand( "messagemode4", Con_MessageMode4_f, "Private Chat with Last Attacker" );
-	Cmd_AddCommand( "clear", Con_Clear_f, "Clear console text" );
-	Cmd_AddCommand( "condump", Con_Dump_f, "Dump console text to file" );
-	Cmd_SetCommandCompletionFunc( "condump", Cmd_CompleteTxtName );
+	if ( cls.state == CA_DISCONNECTED ) {
+		// force an update, because the command may take some time
+		SCR_UpdateScreen();
+	}
 }
 
-void Con_Shutdown(void)
-{
-	Cmd_RemoveCommand("toggleconsole");
-	Cmd_RemoveCommand("togglemenu");
-	Cmd_RemoveCommand("messagemode");
-	Cmd_RemoveCommand("messagemode2");
-	Cmd_RemoveCommand("messagemode3");
-	Cmd_RemoveCommand("messagemode4");
-	Cmd_RemoveCommand("clear");
-	Cmd_RemoveCommand("condump");
+static const std::string Console_Complete( const char *token ) {
+	ShortestMatchFinder smf( token );
+
+	// prefer matching commands
+	for ( const cmd_function_t *cmd = cmd_functions; cmd; cmd = cmd->next ) {
+		const char *description = cmd->description ?
+			va( S_COLOR_GREY " Cmd " S_COLOR_WHITE "%s " S_COLOR_GREY "(%s)", cmd->name, cmd->description ) :
+			va( S_COLOR_GREY " Cmd " S_COLOR_WHITE "%s", cmd->name );
+
+		smf.Feed( cmd->name, description );
+	}
+
+	// also try match from non-internal cvars
+	for ( cvar_t *cv = cvar_vars; cv; cv = cv->next ) {
+		if ( cv->flags & CVAR_INTERNAL ) {
+			continue;
+		}
+
+		const char *description = cv->description ?
+			va( S_COLOR_GREY "Cvar " S_COLOR_WHITE "%s " S_COLOR_GREY "= \"" S_COLOR_WHITE "%s" S_COLOR_GREY "\" (%s, default = \"" S_COLOR_WHITE "%s" S_COLOR_GREY "\")", cv->name, cv->string, cv->description, cv->resetString ) :
+			va( S_COLOR_GREY "Cvar " S_COLOR_WHITE "%s " S_COLOR_GREY "= \"" S_COLOR_WHITE "%s" S_COLOR_GREY "\" (default = \"" S_COLOR_WHITE "%s" S_COLOR_GREY "\")", cv->name, cv->string, cv->resetString );
+
+		smf.Feed( cv->name, description );
+	}
+
+	if ( !smf.IsComplete() ) {
+		smf.PrintMatches();
+	}
+
+	return smf.GetShortestMatch();
 }
 
-static void Con_Linefeed (bool skipnotify)
-{
-	int		i;
+void Console_Init( void ) {
+	console.field = new InputField( Console_Execute, Console_Complete );
 
+	Cmd_AddCommand( "clear",         Console_Clear_f,         "Clear console text" );
+	Cmd_AddCommand( "condump",       Console_Dump_f,          "Dump console text to file" );
+	Cmd_AddCommand( "messagemode",   Console_MessageMode_f,   "Global Chat" );
+	Cmd_AddCommand( "messagemode2",  Console_MessageMode2_f,  "Team Chat" );
+	Cmd_AddCommand( "messagemode3",  Console_MessageMode3_f,  "Private Chat with Target Player" );
+	Cmd_AddCommand( "messagemode4",  Console_MessageMode4_f,  "Private Chat with Last Attacker" );
+	Cmd_AddCommand( "toggleconsole", Console_ToggleConsole_f, "Show/hide console" );
+	Cmd_AddCommand( "togglemenu",    Console_ToggleMenu_f,    "Show/hide the menu" );
+}
+
+void Console_Shutdown( void ) {
+	Cmd_RemoveCommand( "toggleconsole" );
+	Cmd_RemoveCommand( "togglemenu" );
+	Cmd_RemoveCommand( "messagemode" );
+	Cmd_RemoveCommand( "messagemode2" );
+	Cmd_RemoveCommand( "messagemode3" );
+	Cmd_RemoveCommand( "messagemode4" );
+	Cmd_RemoveCommand( "clear" );
+	Cmd_RemoveCommand( "condump" );
+
+	delete console.field;
+	console.field = nullptr;
+}
+
+static void Console_Linefeed( bool skipnotify ) {
 	// mark time for transparent overlay
-	if (con.current >= 0)
-	{
-		if (skipnotify)
-			  con.times[con.current % NUM_CON_TIMES] = 0;
-		else
-			  con.times[con.current % NUM_CON_TIMES] = cls.realtime;
+	if ( console.current >= 0 ) {
+		console.times[console.current % NUM_CON_TIMES] = skipnotify ? 0 : cls.realtime;
 	}
 
-	con.x = 0;
-	if (con.display == con.current)
-		con.display++;
-	con.current++;
-	for(i=0; i<con.linewidth; i++)
-		con.text[(con.current%con.totallines)*con.linewidth+i] = (ColorIndex(COLOR_WHITE)<<8) | ' ';
+	console.x = 0;
+	if ( console.display == console.current ) {
+		console.display++;
+	}
+	console.current++;
+	for ( int i = 0; i < console.linewidth; i++ ) {
+		console.text[ (console.current % console.totallines) * console.linewidth + i ] = '\0';
+	}
 }
 
 // Handles cursor positioning, line wrapping, etc
 // All console printing must go through this in order to be logged to disk
 // If no console is visible, the text will appear at the top of the game window
-void CL_ConsolePrint( const char *txt) {
-	int		y;
-	int		c, l;
-	int		color;
-	bool skipnotify = false;		// NERVE - SMF
-	int prev;							// NERVE - SMF
-
+void CL_ConsolePrint( const char *txt ) {
 	// TTimo - prefix for text that shows up in console but not in notify
 	// backported from RTCW
+	bool skipnotify = false;
 	if ( !Q_strncmp( txt, "[skipnotify]", 12 ) ) {
 		skipnotify = true;
 		txt += 12;
@@ -356,413 +361,314 @@ void CL_ConsolePrint( const char *txt) {
 		return;
 	}
 
-	if (!con.initialized) {
-		con.color[0] =
-		con.color[1] =
-		con.color[2] =
-		con.color[3] = 1.0f;
-		con.linewidth = -1;
-		Con_CheckResize ();
-		con.initialized = true;
+	if ( !console.initialized ) {
+		console.linewidth = -1;
+		Console_CheckResize();
+		console.initialized = true;
 	}
 
-	color = ColorIndex(COLOR_WHITE);
-
-	while ( (c = (unsigned char) *txt) != 0 ) {
-		if ( Q_IsColorString( (unsigned char*) txt ) ) {
-			color = ColorIndex( *(txt+1) );
-			txt += 2;
-			continue;
+	int c;
+	while ( (c = (unsigned char)*txt) != 0 ) {
+		if ( Q_IsColorString( (unsigned char *)txt ) ) {
+			//color = ColorIndex( *(txt + 1) );
+			//txt += 2;
+			//continue;
 		}
 
 		// count word length
-		for (l=0 ; l< con.linewidth ; l++) {
+		int l;
+		for ( l = 0; l < console.linewidth; l++ ) {
 			if ( txt[l] <= ' ') {
 				break;
 			}
 		}
 
 		// word wrap
-		if (l != con.linewidth && (con.x + l >= con.linewidth) ) {
-			Con_Linefeed(skipnotify);
-
+		if ( l != console.linewidth && console.x + l >= console.linewidth ) {
+			Console_Linefeed( skipnotify );
 		}
 
 		txt++;
 
-		switch (c)
-		{
-		case '\n':
-			Con_Linefeed (skipnotify);
-			break;
-		case '\r':
-			con.x = 0;
-			break;
-		default:	// display character and advance
-			y = con.current % con.totallines;
-			con.text[y*con.linewidth+con.x] = (short) ((color << 8) | c);
-			con.x++;
-			if (con.x >= con.linewidth) {
-				Con_Linefeed(skipnotify);
+		switch ( c ) {
+
+		case '\n': {
+			Console_Linefeed( skipnotify );
+		} break;
+
+		case '\r': {
+			console.x = 0;
+		} break;
+
+		default: {
+			// display character and advance
+			const int y = console.current % console.totallines;
+			console.text[y * console.linewidth + console.x] = c;
+			console.x++;
+			if ( console.x >= console.linewidth ) {
+				Console_Linefeed( skipnotify );
 			}
-			break;
+		} break;
+
 		}
 	}
 
 	// mark time for transparent overlay
-
-	if (con.current >= 0 )
-	{
-		// NERVE - SMF
+	if ( console.current >= 0 ) {
 		if ( skipnotify ) {
-			prev = con.current % NUM_CON_TIMES - 1;
-			if ( prev < 0 )
+			int prev = console.current % NUM_CON_TIMES - 1;
+			if ( prev < 0 ) {
 				prev = NUM_CON_TIMES - 1;
-			con.times[prev] = 0;
+			}
+			console.times[prev] = 0;
 		}
-		else
-		// -NERVE - SMF
-			con.times[con.current % NUM_CON_TIMES] = cls.realtime;
+		else {
+			console.times[console.current % NUM_CON_TIMES] = cls.realtime;
+		}
 	}
 }
 
 // DRAWING
 
-// Draw the editline after a ] prompt
-void Con_DrawInput (void) {
-	int		y;
-
-	if ( cls.state != CA_DISCONNECTED && !(Key_GetCatcher( ) & KEYCATCH_CONSOLE ) ) {
-		return;
-	}
-
-	y = con.vislines - ( SMALLCHAR_HEIGHT * (re->Language_IsAsian() ? 1.5 : 2) );
-
-	re->SetColor( con.color );
-
-	SCR_DrawSmallChar( (int)(con.xadjust + 1 * SMALLCHAR_WIDTH), y, CONSOLE_PROMPT_CHAR );
-
-	Field_Draw( &g_consoleField, (int)(con.xadjust + 2 * SMALLCHAR_WIDTH), y,
-				SCREEN_WIDTH - 3 * SMALLCHAR_WIDTH, true, true );
-}
-
 // Draws the last few lines of output transparently over the game top
-void Con_DrawNotify (void)
-{
-	int		x, v;
-	short	*text;
-	int		i;
-	int		time;
-	int		skip;
-	int		currentColor;
-	const char* chattext;
-
-	currentColor = 7;
+void Console_DrawNotify( void ) {
+	int currentColor = 7;
 	re->SetColor( g_color_table[currentColor] );
 
-	v = 0;
-	for (i= con.current-NUM_CON_TIMES+1 ; i<=con.current ; i++)
-	{
-		if (i < 0)
+	int v = 0;
+	char *text;
+	for ( int i = console.current - NUM_CON_TIMES + 1; i <= console.current; i++ ) {
+		if ( i < 0 ) {
 			continue;
-		time = con.times[i % NUM_CON_TIMES];
-		if (time == 0)
+		}
+		int time = console.times[i % NUM_CON_TIMES];
+		if ( time == 0 ) {
 			continue;
+		}
 		time = cls.realtime - time;
-		if (time > con_notifytime->value*1000)
-			continue;
-		text = con.text + (i % con.totallines)*con.linewidth;
-
-		if (cl.snap.ps.pm_type != PM_INTERMISSION && Key_GetCatcher( ) & (KEYCATCH_UI | KEYCATCH_CGAME) ) {
+		if ( time > con_notifytime->value * 1000 ) {
 			continue;
 		}
+		text = console.text + (i % console.totallines) * console.linewidth;
 
-		// asian language needs to use the new font system to print glyphs...
-		// (ignore colours since we're going to print the whole thing as one string)
-		if (re->Language_IsAsian())
-		{
-			static int iFontIndex = re->RegisterFont("ocr_a");	// this seems naughty
-			const float fFontScale = 0.75f*con.yadjust;
-			const int iPixelHeightToAdvance =   2+(1.3/con.yadjust) * re->Font_HeightPixels(iFontIndex, fFontScale);	// for asian spacing, since we don't want glyphs to touch.
-
-			// concat the text to be printed...
-			char sTemp[4096]={0};	// ott
-			for (x = 0 ; x < con.linewidth ; x++)
-			{
-				if ( ( (text[x]>>8)&Q_COLOR_BITS ) != currentColor ) {
-					currentColor = (text[x]>>8)&Q_COLOR_BITS;
-					strcat(sTemp,va("^%i", (text[x]>>8)&Q_COLOR_BITS) );
-				}
-				strcat(sTemp,va("%c",text[x] & 0xFF));
-			}
-			// and print...
-			re->Font_DrawString(cl_conXOffset->integer + con.xadjust*(con.xadjust + (1*SMALLCHAR_WIDTH/*aesthetics*/)), con.yadjust*(v), sTemp, g_color_table[currentColor], iFontIndex, -1, fFontScale);
-
-			v +=  iPixelHeightToAdvance;
+		if ( cl.snap.ps.pm_type != PM_INTERMISSION && Key_GetCatcher() & (KEYCATCH_UI | KEYCATCH_CGAME) ) {
+			continue;
 		}
-		else
-		{
-			for (x = 0 ; x < con.linewidth ; x++) {
-				if ( ( text[x] & 0xff ) == ' ' ) {
-					continue;
-				}
-				if ( ( (text[x]>>8)&Q_COLOR_BITS ) != currentColor ) {
-					currentColor = (text[x]>>8)&Q_COLOR_BITS;
-					re->SetColor( g_color_table[currentColor] );
-				}
-				SCR_DrawSmallChar( (int)(cl_conXOffset->integer + con.xadjust + (x+1)*SMALLCHAR_WIDTH), v, text[x] & 0xff );
-			}
 
-			v += SMALLCHAR_HEIGHT;
-		}
+		// concat the text to be printed...
+		char sTemp[MAX_STRING_CHARS] = { 0 };
+		Q_strncpyz( sTemp, text, console.linewidth );
+
+		// and print...
+		re->Font_DrawString( 2, v, sTemp, g_color_table[currentColor], console.field->textProperties.font, -1, console.field->textProperties.scale );
+		v += re->Font_HeightPixels( console.field->textProperties.font, console.field->textProperties.scale );
 	}
 
 	re->SetColor( nullptr );
 
-	if (Key_GetCatcher( ) & (KEYCATCH_UI | KEYCATCH_CGAME) ) {
+	if ( Key_GetCatcher() & (KEYCATCH_UI | KEYCATCH_CGAME) ) {
 		return;
 	}
 
 	// draw the chat line
-	if ( Key_GetCatcher( ) & KEYCATCH_MESSAGE )
-	{
-		if (chat_team)
-		{
-			chattext = SE_GetString("MP_SVGAME", "SAY_TEAM");
-			SCR_DrawBigString (8, v, chattext, 1.0f, false );
-			skip = strlen(chattext)+1;
-		}
-		else
-		{
-			chattext = SE_GetString("MP_SVGAME", "SAY");
-			SCR_DrawBigString (8, v, chattext, 1.0f, false );
-			skip = strlen(chattext)+1;
-		}
-
-		Field_BigDraw( &chatField, skip * BIGCHAR_WIDTH, v,
-			SCREEN_WIDTH - ( skip + 1 ) * BIGCHAR_WIDTH, true, true );
-
+	if ( Key_GetCatcher() & KEYCATCH_MESSAGE ) {
+		const char *prompt = SE_GetString( "MP_SVGAME", chat_team ? "SAY_TEAM" : "SAY" );
+		//const int skip = strlen( prompt );
+		chatField.Draw( 0, v, SCREEN_WIDTH, true, prompt );
 		v += BIGCHAR_HEIGHT;
 	}
 
 }
 
 // Draws the console with the solid background
-void Con_DrawSolidConsole( float frac ) {
-	int				i, x, y;
-	int				rows;
-	short			*text;
-	int				row;
-	int				lines;
-//	qhandle_t		conShader;
-	int				currentColor;
+static void Console_DrawSolidConsole( void ) {
+	console.field->textProperties = { JKFont::Small, Com_Clamp( 0.0f, 128.0f, con_fontScale->value ) }; // this seems naughty
+	const float lineHeight = Text_Height( console.field->textProperties, " " );
 
-	lines = (int) (cls.glconfig.vidHeight * frac);
-	if (lines <= 0)
-		return;
+	// everything is drawn from the bottom-up
+	const float midpoint = (SCREEN_HEIGHT / 2.0f);
+	console.vislines = midpoint / lineHeight;
+	const int numLogRows = console.vislines - 2; // reserve for input line + version, scroll markers
 
-	if (lines > cls.glconfig.vidHeight )
-		lines = cls.glconfig.vidHeight;
+	vec4_t con_color;
+	MAKERGBA( con_color, 1.0f, 1.0f, 1.0f, Com_Clamp( 0.0f, 1.0f, con_opacity->value ) );
 
-	// draw the background
-	y = (int) (frac * SCREEN_HEIGHT - 2);
-	if ( y < 1 ) {
-		y = 0;
-	}
-	else {
-		// draw the background at full opacity only if fullscreen
-		if (frac < 1.0f)
-		{
-			vec4_t con_color;
-			MAKERGBA(con_color, 1.0f, 1.0f, 1.0f, Com_Clamp(0.0f, 1.0f, con_opacity->value));
-			re->SetColor(con_color);
-		}
-		else
-		{
-			re->SetColor(nullptr);
-		}
-		SCR_DrawPic( 0, 0, SCREEN_WIDTH, (float) y, cls.consoleShader );
-	}
+	float y = midpoint;
 
-	// draw the bottom bar and version number
+	// background
+	re->SetColor( con_color );
+	SCR_DrawPic( 0, 0, SCREEN_WIDTH, y, cls.consoleShader );
 
+	// bottom border
 	re->SetColor( console_color );
 	re->DrawStretchPic( 0, y, SCREEN_WIDTH, 2, 0, 0, 0, 0, cls.whiteShader );
 
-	i = strlen( JK_VERSION );
+	// version number
+	y -= lineHeight;
+	Text_Paint( console.field->textProperties, SCREEN_WIDTH - Text_Width( console.field->textProperties, JK_VERSION ), y, JK_VERSION, colorTable[CT_MDGREY] );
 
-	for (x=0 ; x<i ; x++) {
-		SCR_DrawSmallChar( cls.glconfig.vidWidth - ( i - x + 1 ) * SMALLCHAR_WIDTH,
-			(lines-(SMALLCHAR_HEIGHT+SMALLCHAR_HEIGHT/2)), JK_VERSION[x] );
+	// input prompt, user text, and cursor
+	if ( cls.state == CA_DISCONNECTED || (Key_GetCatcher() & KEYCATCH_CONSOLE) ) {
+		console.field->Draw( 0, y, SCREEN_WIDTH, true, CONSOLE_PROMPT_STR );
 	}
 
-	// draw the text
-	con.vislines = lines;
-	rows = (lines-SMALLCHAR_WIDTH)/SMALLCHAR_WIDTH;		// rows of text to draw
-
-	y = lines - (SMALLCHAR_HEIGHT*3);
-
-	// draw from the bottom up
-	if (con.display != con.current)
-	{
-	// draw arrows to show the buffer is backscrolled
-		re->SetColor( console_color );
-		for (x=0 ; x<con.linewidth ; x+=4)
-			SCR_DrawSmallChar( (int) (con.xadjust + (x+1)*SMALLCHAR_WIDTH), y, '^' );
-		y -= SMALLCHAR_HEIGHT;
-		rows--;
-	}
-
-	row = con.display;
-
-	if ( con.x == 0 ) {
-		row--;
-	}
-
-	currentColor = 7;
-	re->SetColor( g_color_table[currentColor] );
-
-	static int iFontIndexForAsian = 0;
-	const float fFontScaleForAsian = 0.75f*con.yadjust;
-	int iPixelHeightToAdvance = SMALLCHAR_HEIGHT;
-	if (re->Language_IsAsian())
-	{
-		if (!iFontIndexForAsian)
-		{
-			iFontIndexForAsian = re->RegisterFont("ocr_a");
+	// scroll markers
+	y -= lineHeight;
+	if ( console.display != console.current ) {
+		const char *fill = "^ ";
+		const float fillWidth = Text_Width( console.field->textProperties, fill );
+		char fillBuf[MAX_STRING_CHARS] = {};
+		for ( int i = 0; i < SCREEN_WIDTH / fillWidth; i++ ) {
+			Q_strcat( fillBuf, sizeof(fillBuf), fill );
 		}
-		iPixelHeightToAdvance = (1.3/con.yadjust) * re->Font_HeightPixels(iFontIndexForAsian, fFontScaleForAsian);	// for asian spacing, since we don't want glyphs to touch.
+		Text_Paint( console.field->textProperties, 0, y, fillBuf, colorTable[CT_RED] );
+	}
+	else {
+		// ...
 	}
 
-	for (i=0 ; i<rows ; i++, y -= iPixelHeightToAdvance, row--)
-	{
-		if (row < 0)
-			break;
-		if (con.current - row >= con.totallines) {
-			// past scrollback wrap point
-			continue;
-		}
+	// console log
+	y = numLogRows * lineHeight;
+	for ( int i = 0; i < numLogRows; i++ ) {
+		char sTemp[4096] = {0};
+		//Q_strncpyz( sTemp, &console.text[(i % console.totallines) * console.linewidth], console.linewidth );
+		Q_strncpyz( sTemp, &console.text[((console.display - i - 1) % console.totallines) * console.linewidth], console.linewidth );
 
-		text = con.text + (row % con.totallines)*con.linewidth;
-
-		// asian language needs to use the new font system to print glyphs...
-		// (ignore colours since we're going to print the whole thing as one string)
-		if (re->Language_IsAsian())
-		{
-			// concat the text to be printed...
-			char sTemp[4096]={0};	// ott
-			for (x = 0 ; x < con.linewidth ; x++)
-			{
-				if ( ( (text[x]>>8)&Q_COLOR_BITS ) != currentColor ) {
-					currentColor = (text[x]>>8)&Q_COLOR_BITS;
-					strcat(sTemp,va("^%i", (text[x]>>8)&Q_COLOR_BITS) );
-				}
-				strcat(sTemp,va("%c",text[x] & 0xFF));
-			}
-			// and print...
-			re->Font_DrawString(con.xadjust*(con.xadjust + (1*SMALLCHAR_WIDTH/*(aesthetics)*/)), con.yadjust*(y), sTemp, g_color_table[currentColor], iFontIndexForAsian, -1, fFontScaleForAsian);
-		}
-		else
-		{
-			for (x=0 ; x<con.linewidth ; x++) {
-				if ( ( text[x] & 0xff ) == ' ' ) {
-					continue;
-				}
-
-				if ( ( (text[x]>>8)&Q_COLOR_BITS ) != currentColor ) {
-					currentColor = (text[x]>>8)&Q_COLOR_BITS;
-					re->SetColor( g_color_table[currentColor] );
-				}
-				SCR_DrawSmallChar(  (int) (con.xadjust + (x+1)*SMALLCHAR_WIDTH), y, text[x] & 0xff );
-			}
-		}
+		y -= lineHeight;
+		Text_Paint( console.field->textProperties, 0, y, sTemp, colorTable[CT_WHITE] );
 	}
-
-	// draw the input prompt, user text, and cursor if desired
-	Con_DrawInput ();
 
 	re->SetColor( nullptr );
 }
 
-void Con_DrawConsole( void ) {
+void Console_DrawConsole( void ) {
 	// check for console width changes from a vid mode change
-	Con_CheckResize ();
+	Console_CheckResize();
 
 	// if disconnected, render console full screen
 	if ( cls.state == CA_DISCONNECTED ) {
-		if ( !( Key_GetCatcher( ) & (KEYCATCH_UI | KEYCATCH_CGAME)) ) {
-			Con_DrawSolidConsole( 1.0 );
+		if ( !(Key_GetCatcher() & (KEYCATCH_UI | KEYCATCH_CGAME)) ) {
+			Console_DrawSolidConsole();
 			return;
 		}
 	}
 
-	if ( con.displayFrac ) {
-		Con_DrawSolidConsole( con.displayFrac );
-	} else {
+	if ( console.active ) {
+		Console_DrawSolidConsole();
+	}
+	else {
 		// draw notify lines
 		if ( cls.state == CA_ACTIVE ) {
-			Con_DrawNotify ();
+			Console_DrawNotify();
 		}
 	}
 }
 
 // Scroll it up or down
-void Con_RunConsole (void) {
+void Console_RunConsole( void ) {
 	// decide on the destination height of the console
-	if ( Key_GetCatcher( ) & KEYCATCH_CONSOLE )
-		con.finalFrac = 0.5;		// half screen
-	else
-		con.finalFrac = 0;				// none visible
-
-	// scroll towards the destination height
-	if (con.finalFrac < con.displayFrac)
-	{
-		con.displayFrac -= scr_conspeed->value*(float)(cls.realFrametime*0.001);
-		if (con.finalFrac > con.displayFrac)
-			con.displayFrac = con.finalFrac;
-
-	}
-	else if (con.finalFrac > con.displayFrac)
-	{
-		con.displayFrac += scr_conspeed->value*(float)(cls.realFrametime*0.001);
-		if (con.finalFrac < con.displayFrac)
-			con.displayFrac = con.finalFrac;
-	}
-
+	console.active = !!(Key_GetCatcher() & KEYCATCH_CONSOLE);
 }
 
-void Con_PageUp( void ) {
-	con.display -= 2;
-	if ( con.current - con.display >= con.totallines ) {
-		con.display = con.current - con.totallines + 1;
+void Console_PageUp( int mode ) {
+	switch ( mode ) {
+
+	default:
+	case 0: {
+		console.display -= 1;
+	} break;
+
+	case 1: {
+		console.display -= 3;
+	} break;
+
+	case 2: {
+		console.display -= console.vislines - 2;
+	} break;
+
+	}
+
+	if ( console.current - console.display >= console.totallines ) {
+		console.display = console.current - console.totallines + 1;
 	}
 }
 
-void Con_PageDown( void ) {
-	con.display += 2;
-	if (con.display > con.current) {
-		con.display = con.current;
+void Console_PageDown( int mode ) {
+	switch ( mode ) {
+
+	default:
+	case 0: {
+		console.display += 1;
+	} break;
+
+	case 1: {
+		console.display += 3;
+	} break;
+
+	case 2: {
+		console.display += console.vislines - 2;
+	} break;
+
+	}
+	if (console.display > console.current) {
+		console.display = console.current;
 	}
 }
 
-void Con_Top( void ) {
-	con.display = con.totallines;
-	if ( con.current - con.display >= con.totallines ) {
-		con.display = con.current - con.totallines + 1;
+void Console_Top( void ) {
+	console.display = console.totallines;
+	if ( console.current - console.display >= console.totallines ) {
+		console.display = console.current - console.totallines + 1;
 	}
 }
 
-void Con_Bottom( void ) {
-	con.display = con.current;
+void Console_Bottom( void ) {
+	console.display = console.current;
 }
 
-void Con_Close( void ) {
+void Console_Close( void ) {
 	if ( !cl_running->integer ) {
 		return;
 	}
-	Field_Clear( &g_consoleField );
-	Con_ClearNotify ();
-	Key_SetCatcher( Key_GetCatcher( ) & ~KEYCATCH_CONSOLE );
-	con.finalFrac = 0;				// none visible
-	con.displayFrac = 0;
+	console.field->Clear();
+	Console_ClearNotify();
+	Key_SetCatcher( Key_GetCatcher() & ~KEYCATCH_CONSOLE );
+	console.active = false;
+}
+
+// Handles history and console scrollback
+void Console_KeyDownEvent( int key ) {
+	// console-specific key handling
+	if ( keynames[key].lower == 'l' && kg.keys[A_CTRL].down ) {
+		// ctrl-L clears screen
+		Cbuf_AddText( "clear\n" );
+	}
+	else if ( key == A_PAGE_UP ) {
+		Console_PageUp( 2 );
+	}
+	else if ( key == A_MWHEELUP ) {
+		Console_PageUp( kg.keys[A_CTRL].down ? 1 : 0 );
+	}
+	else if ( key == A_PAGE_DOWN ) {
+		Console_PageDown( 2 );
+	}
+	else if ( key == A_MWHEELDOWN ) {
+		Console_PageDown( kg.keys[A_CTRL].down ? 1 : 0 );
+	}
+	else if ( key == A_HOME && kg.keys[A_CTRL].down ) {
+		// ctrl-home = top of console
+		Console_Top();
+	}
+	else if ( key == A_END && kg.keys[A_CTRL].down ) {
+		// ctrl-end = bottom of console
+		Console_Bottom();
+	}
+	else {
+		// pass to the normal editline routine
+		console.field->KeyDownEvent( key );
+	}
+}
+
+void Console_CharEvent( int key ) {
+	console.field->CharEvent( key );
 }

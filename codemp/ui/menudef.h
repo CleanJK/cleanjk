@@ -24,12 +24,13 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // this file is parsed at runtime by botlib's text preprocessor (used for .menu scripting)
 // include guards aren't necessary
 
-// fonts
-#define FONT_NONE	0
-#define FONT_SMALL	1
-#define FONT_MEDIUM	2
-#define FONT_LARGE	3
-#define FONT_SMALL2	4
+// fonts - any changes must be reflected in qcommon/q_shared.h
+#define FONT_NONE      0
+#define FONT_BITMAP    1
+#define FONT_SMALL     2
+#define FONT_SMALL2    3
+#define FONT_MEDIUM    4
+#define FONT_LARGE     5
 
 
 // item types

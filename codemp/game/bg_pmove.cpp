@@ -30,11 +30,11 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 #include "game/bg_local.hpp"
 #include "ghoul2/G2.hpp"
 
-#ifdef _GAME
+#ifdef BUILD_GAME
 	#include "game/g_local.hpp"
-#elif _CGAME
+#elif BUILD_CGAME
 	#include "cgame/cg_local.hpp"
-#elif UI_BUILD
+#elif BUILD_UI
 	#include "ui/ui_local.hpp"
 #endif
 
@@ -2349,7 +2349,7 @@ static void PM_WalkMove( void ) {
 	/*
 	if (pm->ps->clientNum >= MAX_CLIENTS)
 	{
-#ifdef _GAME
+#ifdef BUILD_GAME
 		Com_Printf("^1S: %f, %f\n", wishspeed, pm->ps->speed);
 #else
 		Com_Printf("^2C: %f, %f\n", wishspeed, pm->ps->speed);
@@ -2551,7 +2551,7 @@ static int PM_TryRoll( void )
 	return 0;
 }
 
-#ifdef _GAME
+#ifdef BUILD_GAME
 static void PM_CrashLandEffect( void )
 {
 	float delta;
@@ -2621,7 +2621,7 @@ static void PM_CrashLand( void ) {
 	delta = vel + t * acc;
 	delta = delta*delta * 0.0001;
 
-#ifdef _GAME
+#ifdef BUILD_GAME
 	PM_CrashLandEffect();
 #endif
 	// ducking while falling doubles damage
@@ -4367,14 +4367,14 @@ static void PM_Footsteps( void ) {
 
 // Generate sound events for entering and leaving water
 static void PM_WaterEvents( void ) {		// FIXME?
-#ifdef _GAME
+#ifdef BUILD_GAME
 	bool impact_splash = false;
 #endif
 
 	// if just entered a water volume, play a sound
 
 	if (!pml.previous_waterlevel && pm->waterlevel) {
-#ifdef _GAME
+#ifdef BUILD_GAME
 		if ( VectorLengthSquared( pm->ps->velocity ) > 40000 )
 		{
 			impact_splash = true;
@@ -4386,7 +4386,7 @@ static void PM_WaterEvents( void ) {		// FIXME?
 	// if just completely exited a water volume, play a sound
 
 	if (pml.previous_waterlevel && !pm->waterlevel) {
-#ifdef _GAME
+#ifdef BUILD_GAME
 		if ( VectorLengthSquared( pm->ps->velocity ) > 40000 )
 		{
 			impact_splash = true;
@@ -4395,7 +4395,7 @@ static void PM_WaterEvents( void ) {		// FIXME?
 		PM_AddEvent( EV_WATER_LEAVE );
 	}
 
-#ifdef _GAME
+#ifdef BUILD_GAME
 	if ( impact_splash )
 	{
 		//play the splash effect
@@ -4929,7 +4929,7 @@ static void PM_Weapon( void )
 	bgEntity_t *veh = nullptr;
 	bool vehicleRocketLock = false;
 
-#ifdef _GAME
+#ifdef BUILD_GAME
 	if (pm->ps->clientNum >= MAX_CLIENTS &&
 		pm->ps->weapon == WP_NONE &&
 		pm->cmd.weapon == WP_NONE &&
@@ -5618,7 +5618,7 @@ static void PM_Weapon( void )
 			(pm->cmd.buttons & BUTTON_ATTACK) &&
 			(pm->cmd.buttons & BUTTON_ALT_ATTACK))
 		{ //ok, grapple time
-#ifdef _GAME
+#ifdef BUILD_GAME
 			if (pm_entSelf)
 			{
 				if (TryGrapple((gentity_t *)pm_entSelf))
@@ -5759,7 +5759,7 @@ static void PM_Weapon( void )
 		}
 	}
 
-	if ( pm->cmd.buttons & BUTTON_ALT_ATTACK ) 	{
+	if ( pm->cmd.buttons & BUTTON_ALT_ATTACK )	{
 		//if ( pm->ps->weapon == WP_BRYAR_PISTOL )
 		if (0)
 		{ //kind of a hack for now
@@ -7964,7 +7964,7 @@ void PmoveSingle (pmove_t *pmove) {
 	/*
 	if (pm->ps->clientNum >= MAX_CLIENTS)
 	{
-#ifdef _GAME
+#ifdef BUILD_GAME
 		Com_Printf( S_C0LOR_RED" SERVER N%i msec %d\n", pm->ps->clientNum, pml.msec );
 #else
 		Com_Printf( S_COLOR_GREEN" CLIENT N%i msec %d\n", pm->ps->clientNum, pml.msec );
@@ -8205,7 +8205,7 @@ void PmoveSingle (pmove_t *pmove) {
 	PM_DropTimers();
 
 #ifdef _TESTING_VEH_PREDICTION
-#ifndef _GAME
+#ifndef BUILD_GAME
 	{
 		vec3_t blah;
 		VectorMA(pm->ps->origin, 128.0f, pm->ps->moveDir, blah);
@@ -8269,7 +8269,7 @@ void PmoveSingle (pmove_t *pmove) {
 		trap->SnapVector( pm->ps->velocity );
 	}
 
- 	if ( pm->ps->pm_type == PM_JETPACK || gPMDoSlowFall ) {
+	if ( pm->ps->pm_type == PM_JETPACK || gPMDoSlowFall ) {
 		pm->ps->gravity = savedGravity;
 	}
 }

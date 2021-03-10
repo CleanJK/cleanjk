@@ -29,7 +29,7 @@ set(MPCGameIncludeDirectories
 if(WIN32)
 	set(MPCGameLibraries "odbc32" "odbccp32") # what are these even?
 endif(WIN32)
-set(MPCGameDefines ${MPSharedDefines} "_CGAME" )
+set(MPCGameDefines ${MPSharedDefines} "BUILD_CGAME" )
 set(MPCGameGameFiles
 	"${MPDir}/game/bg_g2_utils.cpp"
 	"${MPDir}/game/bg_misc.cpp"
@@ -54,6 +54,7 @@ set(MPCGameCgameFiles
 	"${MPDir}/cgame/cg_draw.cpp"
 	"${MPDir}/cgame/cg_drawtools.cpp"
 	"${MPDir}/cgame/cg_effects.cpp"
+	"${MPDir}/cgame/cg_engine.cpp"
 	"${MPDir}/cgame/cg_ents.cpp"
 	"${MPDir}/cgame/cg_event.cpp"
 	"${MPDir}/cgame/cg_info.cpp"
@@ -78,7 +79,7 @@ set(MPCGameCgameFiles
 	"${MPDir}/cgame/animtable.hpp"
 	"${MPDir}/cgame/cg_local.hpp"
 	"${MPDir}/cgame/cg_media.hpp"
-	"${MPDir}/cgame/cg_public.hpp"
+	"${MPDir}/cgame/cg_engine.hpp"
 	"${MPDir}/cgame/cg_weaponfx.hpp"
 	"${MPDir}/cgame/cg_xcvar.hpp"
 	)
@@ -86,6 +87,8 @@ source_group("cgame" FILES ${MPCGameCgameFiles})
 set(MPCGameFiles ${MPCGameFiles} ${MPCGameCgameFiles})
 
 set(MPCGameCommonFiles
+	"${MPDir}/qcommon/com_inputField.cpp"
+	"${MPDir}/qcommon/com_inputField.hpp"
 	"${MPDir}/qcommon/q_shared.cpp"
 	"${MPDir}/qcommon/disablewarnings.hpp"
 	"${MPDir}/qcommon/q_shared.hpp"
@@ -98,10 +101,8 @@ source_group("common" FILES ${MPCGameCommonFiles})
 set(MPCGameFiles ${MPCGameFiles} ${MPCGameCommonFiles})
 
 set(MPCGameUiFiles
-	"${MPDir}/ui/ui_fonts.cpp"
 	"${MPDir}/ui/ui_shared.cpp"
 	"${MPDir}/ui/menudef.h"
-	"${MPDir}/ui/ui_fonts.hpp"
 	"${MPDir}/ui/ui_shared.hpp"
 	)
 source_group("ui" FILES ${MPCGameUiFiles})

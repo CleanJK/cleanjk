@@ -29,13 +29,9 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 
 #include "cgame/cg_local.hpp"
 #include "ui/ui_shared.hpp"
-#include "ui/ui_public.hpp"
-#include "ui/ui_fonts.hpp"
 #include "ui/menudef.h"
 #include "cgame/cg_media.hpp"
-
-// used for scoreboard
-extern displayContextDef_t cgDC;
+#include "client/cl_fonts.hpp"
 
 int sortedTeamPlayers[TEAM_MAXOVERLAY];
 int	numSortedTeamPlayers;
@@ -779,7 +775,7 @@ static void CG_DrawAmmo( centity_t	*cent,menuDef_t *menuHUD)
 		trap->R_SetColor( colorTable[CT_YELLOW] );
 		if (focusItem)
 		{
-			Text_Paint_Proportional(focusItem->window.rect.x, focusItem->window.rect.y, "--", NUM_FONT_SMALL, focusItem->window.foreColor);
+			TextHelper_Paint_Proportional(focusItem->window.rect.x, focusItem->window.rect.y, "--", NUM_FONT_SMALL, focusItem->window.foreColor);
 		}
 	}
 	else
@@ -1047,7 +1043,7 @@ static void CG_DrawSimpleSaberStyle( const centity_t *cent )
 		break;
 	}
 
-	Text_Paint_Proportional( SCREEN_WIDTH - (weapX + 16 + 32), (SCREEN_HEIGHT - 80) + 40, num, UI_DROPSHADOW, colorTable[calcColor], FONT_SMALL );
+	TextHelper_Paint_Proportional( SCREEN_WIDTH - (weapX + 16 + 32), (SCREEN_HEIGHT - 80) + 40, num, UI_DROPSHADOW, colorTable[calcColor], JKFont::Small );
 }
 
 static void CG_DrawSimpleAmmo( const centity_t *cent )
@@ -1069,7 +1065,7 @@ static void CG_DrawSimpleAmmo( const centity_t *cent )
 	// No ammo
 	if ( currValue < 0 || (weaponData[cent->currentState.weapon].energyPerShot == 0 && weaponData[cent->currentState.weapon].altEnergyPerShot == 0) )
 	{
-		Text_Paint_Proportional( SCREEN_WIDTH - (16 + 32), (SCREEN_HEIGHT - 80) + 40, "--", UI_DROPSHADOW, colorTable[CT_HUD_ORANGE], FONT_SMALL );
+		TextHelper_Paint_Proportional( SCREEN_WIDTH - (16 + 32), (SCREEN_HEIGHT - 80) + 40, "--", UI_DROPSHADOW, colorTable[CT_HUD_ORANGE], JKFont::Small );
 		return;
 	}
 
@@ -1111,7 +1107,7 @@ static void CG_DrawSimpleAmmo( const centity_t *cent )
 
 	Com_sprintf( num, sizeof( num ), "%i", currValue );
 
-	Text_Paint_Proportional( SCREEN_WIDTH - (16 + 32), (SCREEN_HEIGHT - 80) + 40, num, UI_DROPSHADOW, colorTable[calcColor], FONT_SMALL );
+	TextHelper_Paint_Proportional( SCREEN_WIDTH - (16 + 32), (SCREEN_HEIGHT - 80) + 40, num, UI_DROPSHADOW, colorTable[calcColor], JKFont::Small );
 }
 
 static void CG_DrawSimpleForcePower( const centity_t *cent )
@@ -1155,7 +1151,7 @@ static void CG_DrawSimpleForcePower( const centity_t *cent )
 
 	Com_sprintf( num, sizeof( num ), "%i", cg.snap->ps.fd.forcePower );
 
-	Text_Paint_Proportional( SCREEN_WIDTH - (18 + 14 + 32), (SCREEN_HEIGHT - 80) + 40 + 14, num, UI_DROPSHADOW, colorTable[calcColor], FONT_SMALL );
+	TextHelper_Paint_Proportional( SCREEN_WIDTH - (18 + 14 + 32), (SCREEN_HEIGHT - 80) + 40 + 14, num, UI_DROPSHADOW, colorTable[calcColor], JKFont::Small );
 }
 
 void CG_DrawHUD(centity_t	*cent)
@@ -1173,9 +1169,9 @@ void CG_DrawHUD(centity_t	*cent)
 
 		if (cg.predictedPlayerState.pm_type != PM_SPECTATOR)
 		{
-			Text_Paint_Proportional( x+16, y+40, va( "%i", cg.snap->ps.stats[STAT_HEALTH] ), UI_DROPSHADOW, colorTable[CT_HUD_RED], FONT_SMALL );
+			TextHelper_Paint_Proportional( x+16, y+40, va( "%i", cg.snap->ps.stats[STAT_HEALTH] ), UI_DROPSHADOW, colorTable[CT_HUD_RED], JKFont::Small );
 
-			Text_Paint_Proportional( x+18+14, y+40+14, va( "%i", cg.snap->ps.stats[STAT_ARMOR] ), UI_DROPSHADOW, colorTable[CT_HUD_GREEN], FONT_SMALL );
+			TextHelper_Paint_Proportional( x+18+14, y+40+14, va( "%i", cg.snap->ps.stats[STAT_ARMOR] ), UI_DROPSHADOW, colorTable[CT_HUD_GREEN], JKFont::Small );
 
 			CG_DrawSimpleForcePower( cent );
 
@@ -1285,12 +1281,13 @@ void CG_DrawHUD(centity_t	*cent)
 				focusItem = Menu_FindItemByName(menuHUD, "score_line");
 				if (focusItem)
 				{
-					Text_Paint_Proportional(
+					TextHelper_Paint_Proportional(
 						focusItem->window.rect.x,
 						focusItem->window.rect.y,
 						scoreStr,
 						UI_RIGHT|UI_DROPSHADOW,
 						focusItem->window.foreColor,
+						JKFont::Medium,
 						0.7f);
 				}
 			}
@@ -1501,7 +1498,7 @@ void CG_DrawForceSelect( void )
 
 	if ( showPowersName[cg.forceSelect] )
 	{
-		Text_Paint_Proportional(320, y + 30 + yOffset, CG_GetStringEdString("SP_INGAME", showPowersName[cg.forceSelect]), UI_CENTER, colorTable[CT_ICON_BLUE], FONT_SMALL);
+		TextHelper_Paint_Proportional(320, y + 30 + yOffset, CG_GetStringEdString("SP_INGAME", showPowersName[cg.forceSelect]), UI_CENTER, colorTable[CT_ICON_BLUE], JKFont::Small);
 	}
 }
 
@@ -1552,7 +1549,7 @@ void CG_DrawInvenSelect( void )
 	if (!count)
 	{
 		y2 = 0; //err?
-		Text_Paint_Proportional(320, y2 + 22, "EMPTY INVENTORY", UI_CENTER, colorTable[CT_ICON_BLUE], FONT_SMALL);
+		TextHelper_Paint_Proportional(320, y2 + 22, "EMPTY INVENTORY", UI_CENTER, colorTable[CT_ICON_BLUE], JKFont::Small);
 		return;
 	}
 
@@ -1649,11 +1646,11 @@ void CG_DrawInvenSelect( void )
 
 			if ( trap->SE_GetStringTextString( va("SP_INGAME_%s",Q_strupr(upperKey)), text, sizeof( text )))
 			{
-				Text_Paint_Proportional(320, y+45, text, UI_CENTER, textColor, FONT_SMALL);
+				TextHelper_Paint_Proportional(320, y+45, text, UI_CENTER, textColor, JKFont::Small);
 			}
 			else
 			{
-				Text_Paint_Proportional(320, y+45, bg_itemlist[itemNdex].classname, UI_CENTER, textColor, FONT_SMALL);
+				TextHelper_Paint_Proportional(320, y+45, bg_itemlist[itemNdex].classname, UI_CENTER, textColor, JKFont::Small);
 			}
 		}
 	}
@@ -1764,8 +1761,8 @@ static float CG_DrawMiniScoreboard ( float y )
 		Q_strcat( temp, sizeof( temp ), va( " %s: ", CG_GetStringEdString( "MP_INGAME", "BLUE" ) ) );
 		Q_strcat( temp, sizeof( temp ), cgs.scores2 == SCORE_NOT_PRESENT ? "-" : (va( "%i", cgs.scores2 )) );
 
-		const Font font( FONT_MEDIUM, 0.7f );
-		font.Paint( 630 - font.Width( temp ) + xOffset, y, temp, colorWhite, ITEM_TEXTSTYLE_SHADOWEDMORE );
+		const Text text{ JKFont::Medium, 0.7f };
+		Text_Paint( text, 630 - Text_Width( text, temp ) + xOffset, y, temp, colorWhite, ITEM_TEXTSTYLE_SHADOWEDMORE );
 		y += 15;
 	}
 	else
@@ -1777,7 +1774,7 @@ static float CG_DrawMiniScoreboard ( float y )
 		Q_strcat ( temp, MAX_QPATH, " 2nd: " );
 		Q_strcat ( temp, MAX_QPATH, cgs.scores2==SCORE_NOT_PRESENT?"-":(va("%i",cgs.scores2)) );
 
-		font.Paint( 630 - font.Width ( temp ), y, 0.7f, colorWhite, temp, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE, FONT_MEDIUM );
+		Text_Paint( text, 630 - Text_Width( text, temp ), y, 0.7f, colorWhite, temp, 0, 0, ITEM_TEXTSTYLE_SHADOWEDMORE, JKFont::Medium );
 		y += 15;
 		*/
 		//rww - no longer doing this. Since the attacker now shows who is first, we print the score there.
@@ -1879,12 +1876,12 @@ static float CG_DrawEnemyInfo ( float y )
 			y += size;
 
 			/*
-			font.Paint( 630 - font.Width ( ci->name ), y, 0.7f, colorWhite, ci->name, 0, 0, 0, FONT_MEDIUM );
+			Text_Paint( text, 630 - Text_Width( text, ci->name ), y, 0.7f, colorWhite, ci->name, 0, 0, 0, JKFont::Medium );
 			y += 15;
 			*/
 
-			Font font( FONT_MEDIUM, 0.7f );
-			font.Paint( 630 - font.Width ( title ) + xOffset, y, title, colorWhite, 0 );
+			Text text{ JKFont::Medium, 0.7f };
+			Text_Paint( text, 630 - Text_Width( text, title ) + xOffset, y, title, colorWhite, 0 );
 
 			return y + BIGCHAR_HEIGHT + 2;
 		}
@@ -1970,19 +1967,19 @@ static float CG_DrawEnemyInfo ( float y )
 
 	y += size;
 
-	Font smallFont( FONT_SMALL2, 1.0f );
-	Font mediumFont( FONT_MEDIUM, 1.0f );
-	smallFont.Paint( 630 - smallFont.Width ( ci->name ) + xOffset, y, ci->name, colorWhite, 0 );
+	Text smallText{ JKFont::Small2, 1.0f };
+	Text mediumText{ JKFont::Medium, 1.0f };
+	Text_Paint( smallText, 630 - Text_Width( smallText, ci->name ) + xOffset, y, ci->name, colorWhite, 0 );
 
 	y += 15;
-	smallFont.Paint( 630 - smallFont.Width ( title ) + xOffset, y, title, colorWhite, 0 );
+	Text_Paint( smallText, 630 - Text_Width( smallText, title ) + xOffset, y, title, colorWhite, 0 );
 
 	if ( (cgs.gametype == GT_DUEL || cgs.gametype == GT_POWERDUEL) && cgs.clientinfo[cg.snap->ps.clientNum].team != TEAM_SPECTATOR)
 	{//also print their score
 		char text[1024];
 		y += 15;
 		Com_sprintf(text, sizeof(text), "%i/%i", cgs.clientinfo[clientNum].score, cgs.fraglimit );
-		mediumFont.Paint( 630 - mediumFont.Width ( text ) + xOffset, y, text, colorWhite, 0 );
+		Text_Paint( mediumText, 630 - Text_Width( mediumText, text ) + xOffset, y, text, colorWhite, 0 );
 	}
 
 // nmckenzie: DUEL_HEALTH - fixme - need checks and such here.  And this is coded to duelist 1 right now, which is wrongly.
@@ -2043,7 +2040,7 @@ static float CG_DrawFPS( float y ) {
 
 	cg.fps = fps = 1000.0f * (float)((float)(FPS_FRAMES) / (float)total);
 
-	const Font font( FONT_SMALL, 1.0f );
+	const Text text{ JKFont::Small, 1.0f };
 	if ( cg_drawFPS.integer ) {
 		constexpr vec4_t fpsGood = { 0.0f, 1.0f, 0.0f, 1.0f }, fpsBad = { 1.0f, 0.0f, 0.0f, 1.0f };
 		vec4_t fpsColour = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -2056,16 +2053,16 @@ static float CG_DrawFPS( float y ) {
 		);
 
 		s = va( "%ifps", fps );
-		w = font.Width( s );
-		font.Paint( SCREEN_WIDTH - w, y, s, fpsColour, ITEM_TEXTSTYLE_SHADOWED );
-		y += font.Height( s );
+		w = Text_Width( text, s );
+		Text_Paint( text, SCREEN_WIDTH - w, y, s, fpsColour, ITEM_TEXTSTYLE_SHADOWED );
+		y += Text_Height( text, s );
 	}
 	if ( cg_drawFPS.integer == 2 ) {
 		s = va( "%i/%3.2f msec", frameTime, 1000.0f / (float)fps );
 
-		w = font.Width( s );
-		font.Paint( SCREEN_WIDTH - w, y, s, g_color_table[ColorIndex(COLOR_GREY)], ITEM_TEXTSTYLE_SHADOWED );
-		y += font.Height( s );
+		w = Text_Width( text, s );
+		Text_Paint( text, SCREEN_WIDTH - w, y, s, g_color_table[ColorIndex(COLOR_GREY)], ITEM_TEXTSTYLE_SHADOWED );
+		y += Text_Height( text, s );
 	}
 
 	return y;
@@ -2617,7 +2614,7 @@ static void CG_DrawPowerupIcons(int y)
 
 				if (j != PW_REDFLAG && j != PW_BLUEFLAG && secondsleft < 999)
 				{
-					Text_Paint_Proportional((640-(ico_size*1.1))+(ico_size/2) + xOffset, y-8, va("%i", secondsleft), UI_CENTER | UI_DROPSHADOW, colorTable[CT_WHITE]);
+					TextHelper_Paint_Proportional((640-(ico_size*1.1))+(ico_size/2) + xOffset, y-8, va("%i", secondsleft), UI_CENTER | UI_DROPSHADOW, colorTable[CT_WHITE]);
 				}
 
 				y += (ico_size/3);
@@ -2656,7 +2653,6 @@ static void CG_DrawUpperRight( void ) {
 	CG_DrawPowerupIcons(y);
 }
 
-#ifdef JK2AWARDS
 static void CG_DrawReward( void ) {
 	float	*color;
 	int		i, count;
@@ -2707,8 +2703,7 @@ static void CG_DrawReward( void ) {
 		CG_DrawPic( x, y, ICON_SIZE-4, ICON_SIZE-4, cg.rewardShader[0] );
 		Com_sprintf(buf, sizeof(buf), "%d", cg.rewardCount[0]);
 		x = ( SCREEN_WIDTH - SMALLCHAR_WIDTH * CG_DrawStrlen( buf ) ) / 2;
-		CG_DrawStringExt( x, y+ICON_SIZE, buf, color, false, true,
-								SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0 );
+		CG_DrawStringExt( x, y+ICON_SIZE, buf, color, false, true, SMALLCHAR_WIDTH, SMALLCHAR_HEIGHT, 0 );
 	}
 	else {
 
@@ -2723,7 +2718,6 @@ static void CG_DrawReward( void ) {
 	}
 	trap->R_SetColor( nullptr );
 }
-#endif
 
 #define	LAG_SAMPLES		128
 
@@ -3003,11 +2997,11 @@ static void CG_DrawCenterString( void ) {
 		}
 		//[/BugFix19]
 
-		Font font( FONT_MEDIUM, scale );
-		w = font.Width( linebuffer );
-		h = font.Height( linebuffer );
+		Text text{ JKFont::Medium, scale };
+		w = Text_Width( text, linebuffer );
+		h = Text_Height( text, linebuffer );
 		x = (SCREEN_WIDTH - w) / 2;
-		font.Paint(x, y + h, linebuffer, color, ITEM_TEXTSTYLE_SHADOWEDMORE);
+		Text_Paint( text, x, y + h, linebuffer, color, ITEM_TEXTSTYLE_SHADOWEDMORE);
 		y += h + 6;
 
 		//[BugFix19]
@@ -4190,11 +4184,11 @@ static void CG_DrawCrosshairNames( void ) {
 	{
 		char str[MAX_STRING_CHARS];
 		Com_sprintf(str, MAX_STRING_CHARS, "%s (pilot)", name);
-		Text_Paint_Proportional(320, 170, str, UI_CENTER, tcolor);
+		TextHelper_Paint_Proportional(320, 170, str, UI_CENTER, tcolor);
 	}
 	else
 	{
-		Text_Paint_Proportional(320, 170, name, UI_CENTER, tcolor);
+		TextHelper_Paint_Proportional(320, 170, name, UI_CENTER, tcolor);
 	}
 
 	trap->R_SetColor( nullptr );
@@ -4202,25 +4196,25 @@ static void CG_DrawCrosshairNames( void ) {
 
 static void CG_DrawSpectator(void)
 {
-	Font font( FONT_LARGE, 1.0f );
+	Text text{ JKFont::Large, 1.0f };
 	const char *s = CG_GetStringEdString("MP_INGAME", "SPECTATOR");
 
 	if ((cgs.gametype == GT_DUEL || cgs.gametype == GT_POWERDUEL) &&
 		cgs.duelist1 != -1 &&
 		cgs.duelist2 != -1)
 	{
-		char text[1024];
+		char str[1024];
 		int size = 64;
 
 		if (cgs.gametype == GT_POWERDUEL && cgs.duelist3 != -1)
 		{
-			Com_sprintf(text, sizeof(text), "%s^7 %s %s^7 %s %s", cgs.clientinfo[cgs.duelist1].name, CG_GetStringEdString("MP_INGAME", "SPECHUD_VERSUS"), cgs.clientinfo[cgs.duelist2].name, CG_GetStringEdString("MP_INGAME", "AND"), cgs.clientinfo[cgs.duelist3].name);
+			Com_sprintf(str, sizeof(str), "%s^7 %s %s^7 %s %s", cgs.clientinfo[cgs.duelist1].name, CG_GetStringEdString("MP_INGAME", "SPECHUD_VERSUS"), cgs.clientinfo[cgs.duelist2].name, CG_GetStringEdString("MP_INGAME", "AND"), cgs.clientinfo[cgs.duelist3].name);
 		}
 		else
 		{
-			Com_sprintf(text, sizeof(text), "%s^7 %s %s", cgs.clientinfo[cgs.duelist1].name, CG_GetStringEdString("MP_INGAME", "SPECHUD_VERSUS"), cgs.clientinfo[cgs.duelist2].name);
+			Com_sprintf(str, sizeof(str), "%s^7 %s %s", cgs.clientinfo[cgs.duelist1].name, CG_GetStringEdString("MP_INGAME", "SPECHUD_VERSUS"), cgs.clientinfo[cgs.duelist2].name);
 		}
-		font.Paint ( 320 - font.Width ( text ) / 2, 420, text, colorWhite, 0 );
+		Text_Paint( text, 320 - Text_Width( text, str ) / 2, 420, str, colorWhite, 0 );
 
 		trap->R_SetColor( colorTable[CT_WHITE] );
 		if ( cgs.clientinfo[cgs.duelist1].modelIcon )
@@ -4244,12 +4238,12 @@ static void CG_DrawSpectator(void)
 
 		if (cgs.gametype != GT_POWERDUEL)
 		{
-			Font font2( FONT_MEDIUM, 1.0f );
-			Com_sprintf(text, sizeof(text), "%i/%i", cgs.clientinfo[cgs.duelist1].score, cgs.fraglimit );
-			font2.Paint( 42 - font2.Width( text ) / 2, SCREEN_HEIGHT-(size*1.5) + 64, text, colorWhite, 0 );
+			Text font2{ JKFont::Medium, 1.0f };
+			Com_sprintf(str, sizeof(str), "%i/%i", cgs.clientinfo[cgs.duelist1].score, cgs.fraglimit );
+			Text_Paint( font2, 42 - Text_Width( font2, str ) / 2, SCREEN_HEIGHT-(size*1.5) + 64, str, colorWhite, 0 );
 
-			Com_sprintf(text, sizeof(text), "%i/%i", cgs.clientinfo[cgs.duelist2].score, cgs.fraglimit );
-			font2.Paint( SCREEN_WIDTH-size+22 - font2.Width( text ) / 2, SCREEN_HEIGHT-(size*1.5) + 64, text, colorWhite, 0 );
+			Com_sprintf(str, sizeof(str), "%i/%i", cgs.clientinfo[cgs.duelist2].score, cgs.fraglimit );
+			Text_Paint( font2, SCREEN_WIDTH-size+22 - Text_Width( font2, str ) / 2, SCREEN_HEIGHT-(size*1.5) + 64, str, colorWhite, 0 );
 		}
 
 		if (cgs.gametype == GT_POWERDUEL && cgs.duelist3 != -1)
@@ -4262,19 +4256,19 @@ static void CG_DrawSpectator(void)
 	}
 	else
 	{
-		font.Paint ( 320 - font.Width ( s ) / 2, 420, s, colorWhite, 0 );
+		Text_Paint( text, 320 - Text_Width( text, s ) / 2, 420, s, colorWhite, 0 );
 	}
 
 	if ( cgs.gametype == GT_DUEL || cgs.gametype == GT_POWERDUEL )
 	{
 		s = CG_GetStringEdString("MP_INGAME", "WAITING_TO_PLAY");	// "waiting to play";
-		font.Paint ( 320 - font.Width ( s ) / 2, 440, s, colorWhite, 0 );
+		Text_Paint( text, 320 - Text_Width( text, s ) / 2, 440, s, colorWhite, 0 );
 	}
 	else //if ( cgs.gametype >= GT_TEAM )
 	{
 		//s = "press ESC and use the JOIN menu to play";
 		s = CG_GetStringEdString("MP_INGAME", "SPEC_CHOOSEJOIN");
-		font.Paint ( 320 - font.Width ( s ) / 2, 440, s, colorWhite, 0 );
+		Text_Paint( text, 320 - Text_Width( text, s ) / 2, 440, s, colorWhite, 0 );
 	}
 }
 
@@ -4297,22 +4291,25 @@ static void CG_DrawVote(void) {
 		sec = 0;
 	}
 
-	if ( !Q_strncmp( cgs.vote.string, "map_restart", 11 ) )
+	if ( !Q_strncmp( cgs.vote.string, "map_restart", 11 ) ) {
 		trap->SE_GetStringTextString( "MENUS_RESTART_MAP", sCmd, sizeof( sCmd ) );
-	else if ( !Q_strncmp( cgs.vote.string, "vstr nextmap", 12 ) )
+	}
+	else if ( !Q_strncmp( cgs.vote.string, "vstr nextmap", 12 ) ) {
 		trap->SE_GetStringTextString( "MENUS_NEXT_MAP", sCmd, sizeof( sCmd ) );
-	else if ( !Q_strncmp( cgs.vote.string, "g_doWarmup", 10 ) )
+	}
+	else if ( !Q_strncmp( cgs.vote.string, "g_doWarmup", 10 ) ) {
 		trap->SE_GetStringTextString( "MENUS_WARMUP", sCmd, sizeof( sCmd ) );
+	}
 	else if ( !Q_strncmp( cgs.vote.string, "g_gametype", 10 ) ) {
 		trap->SE_GetStringTextString( "MENUS_GAME_TYPE", sCmd, sizeof( sCmd ) );
 
-			 if ( !Q_stricmp( "Free For All", cgs.vote.string+11 ) )				sParm = CG_GetStringEdString( "MENUS", "FREE_FOR_ALL" );
-		else if ( !Q_stricmp( "Duel", cgs.vote.string+11 ) )						sParm = CG_GetStringEdString( "MENUS", "DUEL" );
-		else if ( !Q_stricmp( "Holocron FFA", cgs.vote.string+11 ) )				sParm = CG_GetStringEdString( "MENUS", "HOLOCRON_FFA" );
-		else if ( !Q_stricmp( "Power Duel", cgs.vote.string+11 ) )				sParm = CG_GetStringEdString( "MENUS", "POWERDUEL" );
-		else if ( !Q_stricmp( "Team FFA", cgs.vote.string+11 ) ) 				sParm = CG_GetStringEdString( "MENUS", "TEAM_FFA" );
-		else if ( !Q_stricmp( "Capture the Flag", cgs.vote.string+11 )  )		sParm = CG_GetStringEdString( "MENUS", "CAPTURE_THE_FLAG" );
-		else if ( !Q_stricmp( "Capture the Ysalamiri", cgs.vote.string+11 ) )	sParm = CG_GetStringEdString( "MENUS", "CAPTURE_THE_YSALIMARI" );
+		     if ( !Q_stricmp( "Free For All", cgs.vote.string+11 ) )          { sParm = CG_GetStringEdString( "MENUS", "FREE_FOR_ALL" ); }
+		else if ( !Q_stricmp( "Duel", cgs.vote.string+11 ) )                  { sParm = CG_GetStringEdString( "MENUS", "DUEL" ); }
+		else if ( !Q_stricmp( "Holocron FFA", cgs.vote.string+11 ) )          { sParm = CG_GetStringEdString( "MENUS", "HOLOCRON_FFA" ); }
+		else if ( !Q_stricmp( "Power Duel", cgs.vote.string+11 ) )            { sParm = CG_GetStringEdString( "MENUS", "POWERDUEL" ); }
+		else if ( !Q_stricmp( "Team FFA", cgs.vote.string+11 ) )              { sParm = CG_GetStringEdString( "MENUS", "TEAM_FFA" ); }
+		else if ( !Q_stricmp( "Capture the Flag", cgs.vote.string+11 )  )     { sParm = CG_GetStringEdString( "MENUS", "CAPTURE_THE_FLAG" ); }
+		else if ( !Q_stricmp( "Capture the Ysalamiri", cgs.vote.string+11 ) ) { sParm = CG_GetStringEdString( "MENUS", "CAPTURE_THE_YSALIMARI" ); }
 	}
 	else if ( !Q_strncmp( cgs.vote.string, "map", 3 ) ) {
 		trap->SE_GetStringTextString( "MENUS_NEW_MAP", sCmd, sizeof( sCmd ) );
@@ -4322,8 +4319,8 @@ static void CG_DrawVote(void) {
 		trap->SE_GetStringTextString( "MENUS_KICK_PLAYER", sCmd, sizeof( sCmd ) );
 		sParm = cgs.vote.string+5;
 	}
-	else
-	{// custom votes like ampoll, cointoss, etc
+	else {
+		// custom votes like ampoll, cointoss, etc
 		sParm = cgs.vote.string;
 	}
 
@@ -4331,10 +4328,12 @@ static void CG_DrawVote(void) {
 	trap->SE_GetStringTextString( "MENUS_YES", sYes, sizeof( sYes ) );
 	trap->SE_GetStringTextString( "MENUS_NO", sNo, sizeof( sNo ) );
 
-	if (sParm && sParm[0])
-		s = va( "%s(%i):<%s %s> %s:%i %s:%i", sVote, sec, sCmd, sParm, sYes, cgs.vote.yes, sNo, cgs.vote.no);
-	else
-		s = va( "%s(%i):<%s> %s:%i %s:%i",    sVote, sec, sCmd,        sYes, cgs.vote.yes, sNo, cgs.vote.no);
+	if ( sParm && sParm[0] ) {
+		s = va( "%s(%i):<%s %s> %s:%i %s:%i", sVote, sec, sCmd, sParm, sYes, cgs.vote.yes, sNo, cgs.vote.no );
+	}
+	else {
+		s = va( "%s(%i):<%s> %s:%i %s:%i",    sVote, sec, sCmd,        sYes, cgs.vote.yes, sNo, cgs.vote.no );
+	}
 	CG_DrawSmallString( 4, 58, s, 1.0F );
 	if ( cgs.clientinfo[cg.clientNum].team != TEAM_SPECTATOR ) {
 		s = CG_GetStringEdString( "MP_INGAME", "OR_PRESS_ESC_THEN_CLICK_VOTE" );	//	s = "or press ESC then click Vote";
@@ -4451,12 +4450,12 @@ static bool CG_DrawFollow( void )
 		s = CG_GetStringEdString("MP_INGAME", "FOLLOWING");
 	}
 
-	Font font( FONT_MEDIUM, 1.0f );
-	font.Paint ( 320 - font.Width ( s ) / 2, 60, s, colorWhite, 0 );
+	Text text{ JKFont::Medium, 1.0f };
+	Text_Paint( text, 320 - Text_Width( text, s ) / 2, 60, s, colorWhite, 0 );
 
 	s = cgs.clientinfo[ cg.snap->ps.clientNum ].name;
-	font.scale = 2.0f;
-	font.Paint ( 320 - font.Width ( s ) / 2, 80, s, colorWhite, 0 );
+	text.scale = 2.0f;
+	Text_Paint( text, 320 - Text_Width( text, s ) / 2, 80, s, colorWhite, 0 );
 
 	return true;
 }
@@ -4526,9 +4525,9 @@ static void CG_DrawWarmup( void ) {
 			{
 				s = va( "%s vs %s", ci1->name, ci2->name );
 			}
-			Font font( FONT_MEDIUM, 0.6f );
-			w = font.Width(s);
-			font.Paint(320 - w / 2, 60, s, colorWhite, ITEM_TEXTSTYLE_SHADOWEDMORE);
+			Text text{ JKFont::Medium, 0.6f };
+			w = Text_Width( text, s);
+			Text_Paint( text, 320 - w / 2, 60, s, colorWhite, ITEM_TEXTSTYLE_SHADOWEDMORE);
 		}
 	} else {
 			 if ( cgs.gametype == GT_FFA )				s = CG_GetStringEdString("MENUS", "FREE_FOR_ALL");//"Free For All";
@@ -4538,9 +4537,9 @@ static void CG_DrawWarmup( void ) {
 		else if ( cgs.gametype == GT_CTF )				s = CG_GetStringEdString("MENUS", "CAPTURE_THE_FLAG");//"Capture the Flag";
 		else if ( cgs.gametype == GT_CTY )				s = CG_GetStringEdString("MENUS", "CAPTURE_THE_YSALIMARI");//"Capture the Ysalamiri";
 		else											s = "";
-		Font font( FONT_MEDIUM, 1.5 );
-		w = font.Width(s);
-		font.Paint(320 - w / 2, 90, s, colorWhite, ITEM_TEXTSTYLE_SHADOWEDMORE);
+		Text text{ JKFont::Medium, 1.5 };
+		w = Text_Width( text, s);
+		Text_Paint( text, 320 - w / 2, 90, s, colorWhite, ITEM_TEXTSTYLE_SHADOWEDMORE);
 	}
 
 	sec = ( sec - cg.time ) / 1000;
@@ -4583,9 +4582,9 @@ static void CG_DrawWarmup( void ) {
 		break;
 	}
 
-	Font font( FONT_MEDIUM, scale );
-	w = font.Width(s);
-	font.Paint(320 - w / 2, 125, s, colorWhite, ITEM_TEXTSTYLE_SHADOWEDMORE);
+	Text text{ JKFont::Medium, scale };
+	w = Text_Width( text, s);
+	Text_Paint( text, 320 - w / 2, 125, s, colorWhite, ITEM_TEXTSTYLE_SHADOWEDMORE);
 }
 
 void CG_DrawTimedMenus() {
@@ -4888,8 +4887,8 @@ void CG_ChatBox_AddString(char *chatStr)
 
 	chat->lines = 1;
 
-	Font font( FONT_SMALL, 0.5f );
-	chatLen = font.Width(chat->string);
+	Text text{ JKFont::Small, 0.5f };
+	chatLen = Text_Width( text, chat->string);
 	if (chatLen > CHATBOX_CUTOFF_LEN)
 	{ //we have to break it into segments...
         int i = 0;
@@ -4901,7 +4900,7 @@ void CG_ChatBox_AddString(char *chatStr)
 		{
 			s[0] = chat->string[i];
 			s[1] = 0;
-			chatLen += font.Width(s);
+			chatLen += Text_Width( text, s);
 
 			if (chatLen >= CHATBOX_CUTOFF_LEN)
 			{
@@ -5002,9 +5001,9 @@ static QINLINE void CG_ChatBox_DrawStrings(void)
 	y -= (CHATBOX_FONT_HEIGHT*fontScale)*linesToDraw;
 
 	//we have the items we want to draw, just quickly loop through them now
-	Font font( FONT_SMALL, fontScale );
+	Text text{ JKFont::Small, fontScale };
 	for ( i=0; i<numToDraw; i++ ) {
-		font.Paint(x, y, drawThese[i]->string, colorWhite, ITEM_TEXTSTYLE_OUTLINED );
+		Text_Paint( text, x, y, drawThese[i]->string, colorWhite, ITEM_TEXTSTYLE_OUTLINED );
 		y += ((CHATBOX_FONT_HEIGHT*fontScale)*drawThese[i]->lines);
 	}
 }
@@ -5631,6 +5630,8 @@ static void CG_Draw2D( void ) {
 		}
 	}
 
+	CG_DrawReward();
+
 	CG_DrawVote();
 	CG_DrawTeamVote();
 
@@ -5679,7 +5680,7 @@ void CG_DrawMiscStaticModels( void ) {
 		}
 		if( cgs.miscStaticModels[i].radius ) {
 			if( CG_CullPointAndRadius( cullorg, cgs.miscStaticModels[i].radius ) ) {
- 				continue;
+				continue;
 			}
 		}
 
@@ -5764,5 +5765,5 @@ void CG_DrawActive( stereoFrame_e stereoView ) {
 	}
 
 	// draw status bar and other floating elements
- 	CG_Draw2D();
+	CG_Draw2D();
 }

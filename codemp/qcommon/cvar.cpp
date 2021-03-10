@@ -166,20 +166,6 @@ uint32_t Cvar_Flags( const char *var_name ) {
 	}
 }
 
-// callback with each valid string
-void	Cvar_CommandCompletion( completionCallback_t callback ) {
-	cvar_t		*cvar;
-
-	for ( cvar = cvar_vars ; cvar ; cvar = cvar->next ) {
-		// Don't show internal cvars
-		if ( cvar->flags & CVAR_INTERNAL )
-		{
-			continue;
-		}
-		callback( cvar->name );
-	}
-}
-
 static const char *Cvar_Validate( cvar_t *var, const char *value, bool warn )
 {
 	static char s[MAX_CVAR_VALUE_STRING];
@@ -1319,54 +1305,29 @@ void	Cvar_Update( vmCvar_t *vmCvar ) {
 	vmCvar->integer = cv->integer;
 }
 
-void Cvar_CompleteCvarName( char *args, int argNum )
-{
-	if( argNum == 2 )
-	{
-		// Skip "<cmd> "
-		char *p = Com_SkipTokens( args, 1, " " );
-
-		if( p > args )
-			Field_CompleteCommand( p, false, true );
-	}
-}
-
 // Reads in all archived cvars
-void Cvar_Init (void) {
+void Cvar_Init( void ) {
 	memset( cvar_indexes, 0, sizeof( cvar_indexes ) );
 	memset( hashTable, 0, sizeof( hashTable ) );
 
-	Cmd_AddCommand( "print", Cvar_Print_f, "Print cvar help" );
-	Cmd_SetCommandCompletionFunc( "print", Cvar_CompleteCvarName );
-	Cmd_AddCommand( "toggle", Cvar_Toggle_f, "Toggle a cvar between values" );
-	Cmd_SetCommandCompletionFunc( "toggle", Cvar_CompleteCvarName );
-	Cmd_AddCommand( "set", Cvar_Set_f, "Set a cvar" );
-	Cmd_SetCommandCompletionFunc( "set", Cvar_CompleteCvarName );
-	Cmd_AddCommand( "sets", Cvar_Set_f, "Set a cvar and apply serverinfo flag" );
-	Cmd_SetCommandCompletionFunc( "sets", Cvar_CompleteCvarName );
-	Cmd_AddCommand( "setu", Cvar_Set_f, "Set a cvar and apply userinfo flag" );
-	Cmd_SetCommandCompletionFunc( "setu", Cvar_CompleteCvarName );
-	Cmd_AddCommand( "seta", Cvar_Set_f, "Set a cvar and apply archive flag" );
-	Cmd_SetCommandCompletionFunc( "seta", Cvar_CompleteCvarName );
-	Cmd_AddCommand( "cvarAdd", Cvar_Math_f, "Add a value to a cvar" );
-	Cmd_SetCommandCompletionFunc( "cvarAdd", Cvar_CompleteCvarName );
-	Cmd_AddCommand( "cvarSub", Cvar_Math_f, "Subtract a value from a cvar" );
-	Cmd_SetCommandCompletionFunc( "cvarSub", Cvar_CompleteCvarName );
-	Cmd_AddCommand( "cvarMult", Cvar_Math_f, "Multiply a value to a cvar" );
-	Cmd_SetCommandCompletionFunc( "cvarMult", Cvar_CompleteCvarName );
-	Cmd_AddCommand( "cvarDiv", Cvar_Math_f, "Divide a value from a cvar" );
-	Cmd_SetCommandCompletionFunc( "cvarDiv", Cvar_CompleteCvarName );
-	Cmd_AddCommand( "cvarMod", Cvar_Math_f, "Apply a modulo on a cvar" );
-	Cmd_SetCommandCompletionFunc( "cvarMod", Cvar_CompleteCvarName );
-	Cmd_AddCommand( "reset", Cvar_Reset_f, "Reset a cvar to default" );
-	Cmd_SetCommandCompletionFunc( "reset", Cvar_CompleteCvarName );
-	Cmd_AddCommand( "unset", Cvar_Unset_f, "Unset a user generated cvar" );
-	Cmd_SetCommandCompletionFunc( "unset", Cvar_CompleteCvarName );
+	Cmd_AddCommand( "cvar_modified",     Cvar_ListModified_f,     "Show all modified cvars" );
+	Cmd_AddCommand( "cvar_restart",      Cvar_Restart_f,          "Resetart the cvar sub-system" );
+	Cmd_AddCommand( "cvar_usercreated",  Cvar_ListUserCreated_f,  "Show all user created cvars" );
+	Cmd_AddCommand( "cvarAdd",           Cvar_Math_f,             "Add a value to a cvar" );
+	Cmd_AddCommand( "cvarDiv",           Cvar_Math_f,             "Divide a value from a cvar" );
+	Cmd_AddCommand( "cvarlist",          Cvar_List_f,             "Show all cvars" );
+	Cmd_AddCommand( "cvarMod",           Cvar_Math_f,             "Apply a modulo on a cvar" );
+	Cmd_AddCommand( "cvarMult",          Cvar_Math_f,             "Multiply a value to a cvar" );
+	Cmd_AddCommand( "cvarSub",           Cvar_Math_f,             "Subtract a value from a cvar" );
+	Cmd_AddCommand( "print",             Cvar_Print_f,            "Print cvar help" );
+	Cmd_AddCommand( "reset",             Cvar_Reset_f,            "Reset a cvar to default" );
+	Cmd_AddCommand( "set",               Cvar_Set_f,              "Set a cvar" );
+	Cmd_AddCommand( "seta",              Cvar_Set_f,              "Set a cvar and apply archive flag" );
+	Cmd_AddCommand( "sets",              Cvar_Set_f,              "Set a cvar and apply serverinfo flag" );
+	Cmd_AddCommand( "setu",              Cvar_Set_f,              "Set a cvar and apply userinfo flag" );
+	Cmd_AddCommand( "toggle",            Cvar_Toggle_f,           "Toggle a cvar between values" );
 	Cmd_AddCommand( "unset_usercreated", Cvar_UnsetUserCreated_f, "Unset all user generated cvars " S_COLOR_RED "Use with caution!" S_COLOR_WHITE );
-	Cmd_AddCommand( "cvarlist", Cvar_List_f, "Show all cvars" );
-	Cmd_AddCommand( "cvar_usercreated", Cvar_ListUserCreated_f, "Show all user created cvars" );
-	Cmd_AddCommand( "cvar_modified", Cvar_ListModified_f, "Show all modified cvars" );
-	Cmd_AddCommand( "cvar_restart", Cvar_Restart_f, "Resetart the cvar sub-system" );
+	Cmd_AddCommand( "unset",             Cvar_Unset_f,            "Unset a user generated cvar" );
 }
 
 static void Cvar_Realloc(char **string, char *memPool, int &memPoolUsed)

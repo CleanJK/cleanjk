@@ -95,7 +95,7 @@ void CTRPatch::RecurseRender(int depth, ivec5_t left, ivec5_t right, ivec5_t ape
 //		assert(left[0] != right[0] || left[1] != right[1]);
 //		assert(left[0] != apex[0] || left[1] != apex[1]);
 
-	  	RenderCorner(left);
+		RenderCorner(left);
 		RenderCorner(right);
 		RenderCorner(apex);
 	}
@@ -400,10 +400,10 @@ void CTRLandScape::CalculateLighting(void)
 			offset = (y * GetRealWidth()) + x;
 
 			// Work out average normal
-		   	VectorCopy(GetRenderMap(x, y)->normal, total);
-		   	VectorAdd(total, GetRenderMap(x + 1, y)->normal, total);
-		   	VectorAdd(total, GetRenderMap(x + 1, y + 1)->normal, total);
-		   	VectorAdd(total, GetRenderMap(x, y + 1)->normal, total);
+		VectorCopy(GetRenderMap(x, y)->normal, total);
+		VectorAdd(total, GetRenderMap(x + 1, y)->normal, total);
+		VectorAdd(total, GetRenderMap(x + 1, y + 1)->normal, total);
+		VectorAdd(total, GetRenderMap(x, y + 1)->normal, total);
 			VectorNormalize(total);
 
 			if (!R_LightForPoint(mRenderMap[offset].coords, ambient, directed, direction))
@@ -519,7 +519,7 @@ void CTRLandScape::LoadTerrainDef(const char *td)
 			{
 				int			height;
 				const char	*shaderName;
-			  	qhandle_t	shader;
+				qhandle_t	shader;
 
 				// Height must exist - the rest are optional
 				height = atol(items->FindPairValue("height", "0"));
@@ -783,8 +783,8 @@ void CTRPatch::SetRenderMap(const int x, const int y)
 
 void InitRendererPatches( CCMPatch *patch, void *userdata )
 {
-	int			  	tx, ty, bx, by;
-	CTRPatch	  	*localpatch;
+	int				tx, ty, bx, by;
+	CTRPatch		*localpatch;
 	CCMLandScape	*owner;
 	CTRLandScape	*localowner;
 

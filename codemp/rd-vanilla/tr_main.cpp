@@ -1091,12 +1091,12 @@ void R_AddEntitySurfaces (void) {
 					R_AddBrushModelSurfaces( ent );
 					break;
 				case MOD_MDXM:
-  					//g2r
+					//g2r
 					if (ent->e.ghoul2)
 					{
 						R_AddGhoulSurfaces( ent);
 					}
-  					break;
+					break;
 				case MOD_BAD:		// null model axis
 					if ( (ent->e.renderfx & RF_THIRD_PERSON) && !tr.viewParms.isPortal)
 					{
@@ -1106,11 +1106,11 @@ void R_AddEntitySurfaces (void) {
 						}
 					}
 
-  					if (ent->e.ghoul2 && G2API_HaveWeGhoul2Models(*((CGhoul2Info_v *)ent->e.ghoul2)))
-  					{
-  						R_AddGhoulSurfaces( ent);
-  						break;
-  					}
+					if (ent->e.ghoul2 && G2API_HaveWeGhoul2Models(*((CGhoul2Info_v *)ent->e.ghoul2)))
+					{
+						R_AddGhoulSurfaces( ent);
+						break;
+					}
 
 					R_AddDrawSurf( &entitySurface, tr.defaultShader, 0, false );
 					break;

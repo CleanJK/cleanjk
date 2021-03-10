@@ -136,18 +136,18 @@ namespace	mem
 	}
 
 	template<class T>
-	inline 	void	cpy( T *dest, const T *src)
+	inline	void	cpy( T *dest, const T *src)
 	{
 		cpy(dest, src, sizeof(T));
 	}
 	template<class T>
-	inline 	void	set(T *dest, int c)
+	inline	void	set(T *dest, int c)
 	{
 		set(dest, c, sizeof(T));
 	}
 
 	template<class T>
-	inline 	void	swap(T *s1, T *s2)
+	inline	void	swap(T *s1, T *s2)
 	{
 		unsigned char temp[sizeof(T)];
 		cpy((T *)temp,s1);
@@ -156,19 +156,19 @@ namespace	mem
 	}
 
 	template<class T>
-	inline 	int		cmp( const T *buf1, const T *buf2)
+	inline	int		cmp( const T *buf1, const T *buf2)
 	{
 		return cmp( buf1, buf2, sizeof(T) );
 	}
 
 	template<class T>
-	inline 	bool	eql( const T *buf1, const T *buf2)
+	inline	bool	eql( const T *buf1, const T *buf2)
 	{
 		return cmp( buf1, buf2,sizeof(T))==0;
 	}
 
 	template<class T>
-	inline 	void	zero( T *dest )
+	inline	void	zero( T *dest )
 	{
 		return set(dest, 0, sizeof(T));
 	}
@@ -961,7 +961,7 @@ class array_base : public ratl_base
 {
 public:
 	// Capacity Enum
- 	enum
+	enum
 	{
 		CAPACITY	= T::CAPACITY,
 		SIZE		= T::CAPACITY,

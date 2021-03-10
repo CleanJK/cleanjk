@@ -223,7 +223,7 @@ static leakyBucket_t *bucketHashes[ MAX_HASHES ];
 leakyBucket_t outboundLeakyBucket;
 
 static long SVC_HashForAddress( netadr_t address ) {
-	byte 		*ip = nullptr;
+	byte		*ip = nullptr;
 	size_t	size = 0;
 	long		hash = 0;
 

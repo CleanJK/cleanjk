@@ -25,7 +25,7 @@ along with this program; if not, see <http://www.gnu.org/licenses/>.
 // INCLUDE
 // ======================================================================
 
-#include "ui/ui_public.hpp"
+#include "ui/ui_engine.hpp"
 
 // ======================================================================
 // FUNCTION
