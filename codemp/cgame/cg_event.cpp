@@ -54,11 +54,11 @@ const char	*CG_PlaceString( int rank ) {
 	char sTH[10];
 	char sTiedFor[64];	// german is much longer, super safe...
 
-	trap->SE_GetStringTextString("MP_INGAME_NUMBER_ST",sST, sizeof(sST) );
-	trap->SE_GetStringTextString("MP_INGAME_NUMBER_ND",sND, sizeof(sND) );
-	trap->SE_GetStringTextString("MP_INGAME_NUMBER_RD",sRD, sizeof(sRD) );
-	trap->SE_GetStringTextString("MP_INGAME_NUMBER_TH",sTH, sizeof(sTH) );
-	trap->SE_GetStringTextString("MP_INGAME_TIED_FOR" ,sTiedFor,sizeof(sTiedFor) );
+	trap->SE_GetStringTextString("INGAME_NUMBER_ST",sST, sizeof(sST) );
+	trap->SE_GetStringTextString("INGAME_NUMBER_ND",sND, sizeof(sND) );
+	trap->SE_GetStringTextString("INGAME_NUMBER_RD",sRD, sizeof(sRD) );
+	trap->SE_GetStringTextString("INGAME_NUMBER_TH",sTH, sizeof(sTH) );
+	trap->SE_GetStringTextString("INGAME_TIED_FOR" ,sTiedFor,sizeof(sTiedFor) );
 	strcat(sTiedFor," ");	// save worrying about translators adding spaces or not
 
 	if ( rank & RANK_TIED_FLAG ) {
@@ -234,7 +234,7 @@ static void CG_Obituary( entityState_t *ent ) {
 			else
 				message = "SUICIDE_GENERICDEATH_MALE";
 		}
-		message = (char *)CG_GetStringEdString("MP_INGAME", message);
+		message = (char *)CG_GetStringEdString("INGAME", message);
 
 		trap->Print( "%s %s\n", targetName, message);
 		return;
@@ -255,8 +255,8 @@ clientkilled:
 			{
 				char part1[512];
 				char part2[512];
-				trap->SE_GetStringTextString("MP_INGAME_KILLED_MESSAGE", part1, sizeof(part1));
-				trap->SE_GetStringTextString("MP_INGAME_JMKILLED_NOTJM", part2, sizeof(part2));
+				trap->SE_GetStringTextString("INGAME_KILLED_MESSAGE", part1, sizeof(part1));
+				trap->SE_GetStringTextString("INGAME_JMKILLED_NOTJM", part2, sizeof(part2));
 				s = va("%s %s\n%s\n", part1, targetName, part2);
 			}
 			else if (cgs.gametype == GT_JEDIMASTER &&
@@ -265,7 +265,7 @@ clientkilled:
 				!cg.snap->ps.isJediMaster)
 			{ //no JM, saber must be out
 				char part1[512];
-				trap->SE_GetStringTextString("MP_INGAME_KILLED_MESSAGE", part1, sizeof(part1));
+				trap->SE_GetStringTextString("INGAME_KILLED_MESSAGE", part1, sizeof(part1));
 				/*
 				kmsg1 = "for 0 points.\nGo for the saber!";
 				strcpy(part2, kmsg1);
@@ -282,8 +282,8 @@ clientkilled:
 			{
 				char sPlaceWith[256];
 				char sKilledStr[256];
-				trap->SE_GetStringTextString("MP_INGAME_PLACE_WITH",     sPlaceWith, sizeof(sPlaceWith));
-				trap->SE_GetStringTextString("MP_INGAME_KILLED_MESSAGE", sKilledStr, sizeof(sKilledStr));
+				trap->SE_GetStringTextString("INGAME_PLACE_WITH",     sPlaceWith, sizeof(sPlaceWith));
+				trap->SE_GetStringTextString("INGAME_KILLED_MESSAGE", sKilledStr, sizeof(sKilledStr));
 
 				s = va("%s %s.\n%s %s %i.", sKilledStr, targetName,
 					CG_PlaceString( cg.snap->ps.persistant[PERS_RANK] + 1 ),
@@ -292,7 +292,7 @@ clientkilled:
 			}
 		} else {
 			char sKilledStr[256];
-			trap->SE_GetStringTextString("MP_INGAME_KILLED_MESSAGE", sKilledStr, sizeof(sKilledStr));
+			trap->SE_GetStringTextString("INGAME_KILLED_MESSAGE", sKilledStr, sizeof(sKilledStr));
 			s = va("%s %s", sKilledStr, targetName );
 		}
 		CG_CenterPrint( s, SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
@@ -409,7 +409,7 @@ clientkilled:
 		}
 
 		if (message) {
-			message = (char *)CG_GetStringEdString("MP_INGAME", message);
+			message = (char *)CG_GetStringEdString("INGAME", message);
 
 			trap->Print( "%s %s %s\n",
 				targetName, message, attackerName);
@@ -418,7 +418,7 @@ clientkilled:
 	}
 
 	// we don't know what it was
-	trap->Print( "%s %s\n", targetName, (char *)CG_GetStringEdString("MP_INGAME", "DIED_GENERIC") );
+	trap->Print( "%s %s\n", targetName, (char *)CG_GetStringEdString("INGAME", "DIED_GENERIC") );
 }
 
 void CG_ToggleBinoculars(centity_t *cent, int forceZoom)
@@ -620,11 +620,11 @@ static void CG_ItemPickup( int itemNum ) {
 
 		if ( trap->SE_GetStringTextString( va("SP_INGAME_%s",Q_strupr(upperKey)), text, sizeof( text )))
 		{
-			Com_Printf("%s %s\n", CG_GetStringEdString("MP_INGAME", "PICKUPLINE"), text);
+			Com_Printf("%s %s\n", CG_GetStringEdString("INGAME", "PICKUPLINE"), text);
 		}
 		else
 		{
-			Com_Printf("%s %s\n", CG_GetStringEdString("MP_INGAME", "PICKUPLINE"), bg_itemlist[itemNum].classname);
+			Com_Printf("%s %s\n", CG_GetStringEdString("INGAME", "PICKUPLINE"), bg_itemlist[itemNum].classname);
 		}
 	}
 }
@@ -765,7 +765,7 @@ void CG_PrintCTFMessage(clientInfo_t *ci, const char *teamName, int ctfMessage)
 		return;
 	}
 
-	psStringEDString = CG_GetStringEdString("MP_INGAME", refName);
+	psStringEDString = CG_GetStringEdString("INGAME", refName);
 
 	if (!psStringEDString || !psStringEDString[0])
 	{
@@ -1341,7 +1341,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 			es->otherEntityNum2 == cg.predictedPlayerState.clientNum ||
 			es->groundEntityNum == cg.predictedPlayerState.clientNum)
 		{
-			CG_CenterPrint( CG_GetStringEdString("MP_SVGAME", "BEGIN_DUEL"), 120, GIANTCHAR_WIDTH*2 );
+			CG_CenterPrint( CG_GetStringEdString("SVGAME", "BEGIN_DUEL"), 120, GIANTCHAR_WIDTH*2 );
 			trap->S_StartLocalSound( media.sounds.null, CHAN_ANNOUNCER );
 		}
 		break;
@@ -1358,12 +1358,12 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 		{ //starting the duel
 			if (es->eventParm == 2)
 			{
-				CG_CenterPrint( CG_GetStringEdString("MP_SVGAME", "BEGIN_DUEL"), 120, GIANTCHAR_WIDTH*2 );
+				CG_CenterPrint( CG_GetStringEdString("SVGAME", "BEGIN_DUEL"), 120, GIANTCHAR_WIDTH*2 );
 				trap->S_StartLocalSound( media.sounds.null, CHAN_ANNOUNCER );
 			}
 			else
 			{
-				trap->S_StartBackgroundTrack( "music/mp/duel.mp3", "music/mp/duel.mp3", false );
+				trap->S_StartBackgroundTrack( "music/duel.mp3", "music/duel.mp3", false );
 			}
 		}
 		else
@@ -1674,7 +1674,7 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 
 				if (es->number == cg.snap->ps.clientNum && showPowersName[index])
 				{
-					const char *strText = CG_GetStringEdString("MP_INGAME", "PICKUPLINE");
+					const char *strText = CG_GetStringEdString("INGAME", "PICKUPLINE");
 
 					//Com_Printf("%s %s\n", strText, showPowersName[index]);
 					CG_CenterPrint( va("%s %s\n", strText, CG_GetStringEdString("SP_INGAME",showPowersName[index])), SCREEN_HEIGHT * 0.30, BIGCHAR_WIDTH );
@@ -2390,16 +2390,16 @@ void CG_EntityEvent( centity_t *cent, vec3_t position ) {
 			switch(es->eventParm)
 			{
 			case SENTRY_NOROOM:
-				psStringEDRef = (char *)CG_GetStringEdString("MP_INGAME", "SENTRY_NOROOM");
+				psStringEDRef = (char *)CG_GetStringEdString("INGAME", "SENTRY_NOROOM");
 				break;
 			case SENTRY_ALREADYPLACED:
-				psStringEDRef = (char *)CG_GetStringEdString("MP_INGAME", "SENTRY_ALREADYPLACED");
+				psStringEDRef = (char *)CG_GetStringEdString("INGAME", "SENTRY_ALREADYPLACED");
 				break;
 			case SHIELD_NOROOM:
-				psStringEDRef = (char *)CG_GetStringEdString("MP_INGAME", "SHIELD_NOROOM");
+				psStringEDRef = (char *)CG_GetStringEdString("INGAME", "SHIELD_NOROOM");
 				break;
 			case SEEKER_ALREADYDEPLOYED:
-				psStringEDRef = (char *)CG_GetStringEdString("MP_INGAME", "SEEKER_ALREADYDEPLOYED");
+				psStringEDRef = (char *)CG_GetStringEdString("INGAME", "SEEKER_ALREADYDEPLOYED");
 				break;
 			default:
 				break;

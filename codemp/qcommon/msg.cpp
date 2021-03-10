@@ -1281,9 +1281,6 @@ struct netField_t {
 // using the stringizing operator to save typing...
 #define	NETF(x) #x,offsetof(entityState_t, x)
 
-//rww - Remember to update ext_data/MP/netf_overrides.txt if you change any of this!
-//(for the sake of being consistent)
-
 netField_t	entityStateFields[] =
 {
 { NETF(pos.trTime), 32 },
@@ -1714,9 +1711,6 @@ void MSG_ReadDeltaEntity( msg_t *msg, entityState_t *from, entityState_t *to,
 
 // using the stringizing operator to save typing...
 #define	PSF(x) #x,offsetof(playerState_t, x)
-
-//rww - Remember to update ext_data/MP/psf_overrides.txt if you change any of this!
-//(for the sake of being consistent)
 
 //Instead of sending 2 full playerStates for the pilot and the vehicle, send a smaller,
 //specialized pilot playerState and vehicle playerState.  Also removes some vehicle

@@ -529,7 +529,7 @@ static const char *GetCRDelineatedString( const char *psStripFileRef, const char
 
 static const char *GetMonthAbbrevString( int iMonth )
 {
-	const char *p = GetCRDelineatedString("MP_INGAME","MONTHS", iMonth);
+	const char *p = GetCRDelineatedString("INGAME","MONTHS", iMonth);
 
 	return p ? p : "Jan";	// sanity
 }
@@ -566,7 +566,7 @@ static const char *GetNetSourceString(int iSource)
 {
 	static char result[256] = {0};
 
-	Q_strncpyz( result, GetCRDelineatedString( "MP_INGAME", "NET_SOURCES", UI_SourceForLAN() ), sizeof(result) );
+	Q_strncpyz( result, GetCRDelineatedString( "INGAME", "NET_SOURCES", UI_SourceForLAN() ), sizeof(result) );
 
 	if ( iSource >= UIAS_GLOBAL1 && iSource <= UIAS_GLOBAL5 ) {
 		Q_strcat( result, sizeof(result), va( " %d", iSource ) );
@@ -1308,7 +1308,7 @@ static void UI_DrawAutoSwitch(rectDef_t *rect, float scale, vec4_t color, int te
 		break;
 	}
 
-	stripString = UI_GetStringEdString("MP_INGAME", (char *)switchString);
+	stripString = UI_GetStringEdString("INGAME", (char *)switchString);
 
 	if (stripString)
 	{
@@ -1394,7 +1394,7 @@ static void UI_DrawSkill(rectDef_t *rect, float scale, vec4_t color, int textSty
 		i = 1;
 	}
 	Text text{ font, scale };
-	Text_Paint( text, rect->x, rect->y, (char *)UI_GetStringEdString("MP_INGAME", (char *)skillLevels[i-1]), color, textStyle);
+	Text_Paint( text, rect->x, rect->y, (char *)UI_GetStringEdString("INGAME", (char *)skillLevels[i-1]), color, textStyle);
 }
 
 static void UI_DrawGenericNum(rectDef_t *rect, float scale, vec4_t color, int textStyle, int val, int min, int max, int type,JKFont font)
@@ -1428,7 +1428,7 @@ static void UI_DrawForceMastery(rectDef_t *rect, float scale, vec4_t color, int 
 		i = max;
 	}
 
-	s = (char *)UI_GetStringEdString("MP_INGAME", forceMasteryLevels[i]);
+	s = (char *)UI_GetStringEdString("INGAME", forceMasteryLevels[i]);
 	Text text{ font, scale };
 	Text_Paint( text, rect->x, rect->y, s, color, textStyle);
 }
@@ -2294,7 +2294,7 @@ static int UI_OwnerDrawWidth(int ownerDraw, float scale) {
 			i = 1;
 		}
 
-		s = (char *)UI_GetStringEdString("MP_INGAME", forceMasteryLevels[i]);
+		s = (char *)UI_GetStringEdString("INGAME", forceMasteryLevels[i]);
 		break;
 	case UI_FORCE_RANK_HEAL:
 	case UI_FORCE_RANK_LEVITATION:
@@ -2336,7 +2336,7 @@ static int UI_OwnerDrawWidth(int ownerDraw, float scale) {
 		if (i < 1 || i > numSkillLevels) {
 			i = 1;
 		}
-		s = (char *)UI_GetStringEdString("MP_INGAME", (char *)skillLevels[i-1]);
+		s = (char *)UI_GetStringEdString("INGAME", (char *)skillLevels[i-1]);
       break;
     case UI_BLUETEAMNAME:
 		i = UI_TeamIndexFromName(ui_blueteam.string);
@@ -2432,7 +2432,7 @@ static int UI_OwnerDrawWidth(int ownerDraw, float scale) {
 			break;
 		case UI_KEYBINDSTATUS:
 			if (Display_KeyBindPending()) {
-				s = UI_GetStringEdString("MP_INGAME", "WAITING_FOR_NEW_KEY");
+				s = UI_GetStringEdString("INGAME", "WAITING_FOR_NEW_KEY");
 			} else {
 			//	s = "Press ENTER or CLICK to change, Press BACKSPACE to clear";
 			}
@@ -2466,14 +2466,14 @@ static void UI_DrawBotSkill(rectDef_t *rect, float scale, vec4_t color, int text
 	if (uiInfo.skillIndex >= 0 && uiInfo.skillIndex < numSkillLevels)
 	{
 		Text text{ font, scale };
-		Text_Paint( text, rect->x, rect->y, (char *)UI_GetStringEdString("MP_INGAME", (char *)skillLevels[uiInfo.skillIndex]), color, textStyle);
+		Text_Paint( text, rect->x, rect->y, (char *)UI_GetStringEdString("INGAME", (char *)skillLevels[uiInfo.skillIndex]), color, textStyle);
 	}
 }
 
 static void UI_DrawRedBlue(rectDef_t *rect, float scale, vec4_t color, int textStyle,JKFont font)
 {
 	Text text{ font, scale };
-	Text_Paint( text, rect->x, rect->y, (uiInfo.redBlue == 0) ? UI_GetStringEdString("MP_INGAME","RED") : UI_GetStringEdString("MP_INGAME","BLUE"), color, textStyle);
+	Text_Paint( text, rect->x, rect->y, (uiInfo.redBlue == 0) ? UI_GetStringEdString("INGAME","RED") : UI_GetStringEdString("INGAME","BLUE"), color, textStyle);
 }
 
 static void UI_DrawCrosshair(rectDef_t *rect, float scale, vec4_t color) {
@@ -2510,14 +2510,14 @@ static void UI_DrawServerRefreshDate(rectDef_t *rect, float scale, vec4_t color,
 		lowLight[3] = 0.8 * color[3];
 		LerpColor(color,lowLight,newColor,0.5+0.5*sin((float)(uiInfo.uiDC.realTime / PULSE_DIVISOR)));
 
-		trap->SE_GetStringTextString("MP_INGAME_GETTINGINFOFORSERVERS", holdSPString, sizeof(holdSPString));
+		trap->SE_GetStringTextString("INGAME_GETTINGINFOFORSERVERS", holdSPString, sizeof(holdSPString));
 		Text_Paint( text, rect->x, rect->y, va((char *) holdSPString, trap->LAN_GetServerCount(UI_SourceForLAN())), newColor, textStyle);
 	}
 	else
 	{
 		char buff[64];
 		Q_strncpyz(buff, UI_Cvar_VariableString(va("ui_lastServerRefresh_%i", ui_netSource.integer)), sizeof(buff));
-		trap->SE_GetStringTextString("MP_INGAME_SERVER_REFRESHTIME", holdSPString, sizeof(holdSPString));
+		trap->SE_GetStringTextString("INGAME_SERVER_REFRESHTIME", holdSPString, sizeof(holdSPString));
 
 		Text_Paint( text, rect->x, rect->y, va("%s: %s", holdSPString, buff), color, textStyle);
 	}
@@ -2585,7 +2585,7 @@ static void UI_DrawServerMOTD(rectDef_t *rect, float scale, vec4_t color, JKFont
 static void UI_DrawKeyBindStatus(rectDef_t *rect, float scale, vec4_t color, int textStyle,JKFont font) {
 	if (Display_KeyBindPending()) {
 		Text text{ font, scale };
-		Text_Paint( text, rect->x, rect->y, UI_GetStringEdString("MP_INGAME", "WAITING_FOR_NEW_KEY"), color, textStyle);
+		Text_Paint( text, rect->x, rect->y, UI_GetStringEdString("INGAME", "WAITING_FOR_NEW_KEY"), color, textStyle);
 	} else {
 //		Text_Paint( text, rect->x, rect->y, "Press ENTER or CLICK to change, Press BACKSPACE to clear", color, textStyle);
 	}
@@ -8102,7 +8102,7 @@ void UI_Refresh( int realtime ) {
 
 		if (!parsedFPMessage[0] /*&& uiMaxRank > ui_rankChange.integer*/)
 		{
-			const char *printMessage = UI_GetStringEdString("MP_INGAME", "SET_NEW_RANK");
+			const char *printMessage = UI_GetStringEdString("INGAME", "SET_NEW_RANK");
 
 			int i = 0;
 			int p = 0;

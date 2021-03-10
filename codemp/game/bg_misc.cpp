@@ -701,10 +701,10 @@ Instant shield pickup, restores 25
 	{
 		"item_shield_sm_instant",
 		"sound/player/pickupshield.wav",
-        { "models/map_objects/mp/psd_sm.md3",
+        { "models/map_objects/psd_sm.md3",
 		0, 0, 0},
 /* view */		nullptr,
-/* icon */		"gfx/mp/small_shield",
+/* icon */		"gfx/hud/small_shield",
 /* pickup *///	"Shield Small",
 		25,
 		IT_ARMOR,
@@ -720,10 +720,10 @@ Instant shield pickup, restores 100
 	{
 		"item_shield_lrg_instant",
 		"sound/player/pickupshield.wav",
-        { "models/map_objects/mp/psd.md3",
+        { "models/map_objects/psd.md3",
 		0, 0, 0},
 /* view */		nullptr,
-/* icon */		"gfx/mp/large_shield",
+/* icon */		"gfx/hud/large_shield",
 /* pickup *///	"Shield Large",
 		100,
 		IT_ARMOR,
@@ -739,7 +739,7 @@ Instant medpack pickup, heals 25
 	{
 		"item_medpak_instant",
 		"sound/player/pickuphealth.wav",
-        { "models/map_objects/mp/medpac.md3",
+        { "models/map_objects/medpac.md3",
 		0, 0, 0 },
 /* view */		nullptr,
 /* icon */		"gfx/hud/i_icon_medkit",
@@ -779,7 +779,7 @@ Portable shield
 	{
 		"item_shield",
 		"sound/weapons/w_pkup.wav",
-		{ "models/map_objects/mp/shield.md3",
+		{ "models/map_objects/shield.md3",
 		0, 0, 0} ,
 /* view */		nullptr,
 /* icon */		"gfx/hud/i_icon_shieldwall",
@@ -798,7 +798,7 @@ Bacta canister pickup, heals 25 on use
 	{
 		"item_medpac",	//should be item_bacta
 		"sound/weapons/w_pkup.wav",
-		{ "models/map_objects/mp/bacta.md3",
+		{ "models/map_objects/bacta.md3",
 		0, 0, 0} ,
 /* view */		nullptr,
 /* icon */		"gfx/hud/i_icon_bacta",
@@ -893,7 +893,7 @@ Do not place. For siege classes ONLY.
 	{
 		"item_healthdisp",
 		"sound/weapons/w_pkup.wav",
-		{ "models/map_objects/mp/bacta.md3", //replace me
+		{ "models/map_objects/bacta.md3", //replace me
 		0, 0, 0} ,
 /* view */		nullptr,
 /* icon */		"gfx/hud/i_icon_healthdisp",
@@ -912,7 +912,7 @@ Do not place. For siege classes ONLY.
 	{
 		"item_ammodisp",
 		"sound/weapons/w_pkup.wav",
-		{ "models/map_objects/mp/bacta.md3", //replace me
+		{ "models/map_objects/bacta.md3", //replace me
 		0, 0, 0} ,
 /* view */		nullptr,
 /* icon */		"gfx/hud/i_icon_ammodisp",
@@ -969,7 +969,7 @@ Adds one rank to all Force powers temporarily. Only light jedi can use.
 	{
 		"item_force_enlighten_light",
 		"sound/player/enlightenment.wav",
-		{ "models/map_objects/mp/jedi_enlightenment.md3",
+		{ "models/map_objects/jedi_enlightenment.md3",
 		0, 0, 0} ,
 /* view */		nullptr,
 /* icon */		"gfx/hud/mpi_jlight",
@@ -988,7 +988,7 @@ Adds one rank to all Force powers temporarily. Only dark jedi can use.
 	{
 		"item_force_enlighten_dark",
 		"sound/player/enlightenment.wav",
-		{ "models/map_objects/mp/dk_enlightenment.md3",
+		{ "models/map_objects/dk_enlightenment.md3",
 		0, 0, 0} ,
 /* view */		nullptr,
 /* icon */		"gfx/hud/mpi_dklight",
@@ -1007,7 +1007,7 @@ Unlimited Force Pool for a short time.
 	{
 		"item_force_boon",
 		"sound/player/boon.wav",
-		{ "models/map_objects/mp/force_boon.md3",
+		{ "models/map_objects/force_boon.md3",
 		0, 0, 0} ,
 /* view */		nullptr,
 /* icon */		"gfx/hud/mpi_fboon",
@@ -1026,7 +1026,7 @@ A small lizard carried on the player, which prevents the possessor from using an
 	{
 		"item_ysalimari",
 		"sound/player/ysalimari.wav",
-		{ "models/map_objects/mp/ysalimari.md3",
+		{ "models/map_objects/ysalimari.md3",
 		0, 0, 0} ,
 /* view */		nullptr,
 /* icon */		"gfx/hud/mpi_ysamari",
@@ -1472,7 +1472,7 @@ Ammo for Tenloss Disruptor, Wookie Bowcaster, and the Destructive Electro Magnet
         { "models/items/power_cell.md3",
 		0, 0, 0},
 /* view */		nullptr,
-/* icon */		"gfx/mp/ammo_power_cell",
+/* icon */		"gfx/hud/ammo_power_cell",
 /* pickup *///	"Power Cell",
 		100,
 		IT_AMMO,
@@ -1491,7 +1491,7 @@ Ammo for Imperial Heavy Repeater and the Golan Arms Flechette
         { "models/items/metallic_bolts.md3",
 		0, 0, 0},
 /* view */		nullptr,
-/* icon */		"gfx/mp/ammo_metallic_bolts",
+/* icon */		"gfx/hud/ammo_metallic_bolts",
 /* pickup *///	"Metallic Bolts",
 		100,
 		IT_AMMO,
@@ -1510,7 +1510,7 @@ Ammo for Merr-Sonn portable missile launcher
         { "models/items/rockets.md3",
 		0, 0, 0},
 /* view */		nullptr,
-/* icon */		"gfx/mp/ammo_rockets",
+/* icon */		"gfx/hud/ammo_rockets",
 /* pickup *///	"Rockets",
 		3,
 		IT_AMMO,
@@ -1530,7 +1530,7 @@ dispensing ability
         { "models/items/battery.md3",  //replace me
 		0, 0, 0},
 /* view */		nullptr,
-/* icon */		"gfx/mp/ammo_rockets", //replace me
+/* icon */		"gfx/hud/ammo_rockets", //replace me
 /* pickup *///	"Rockets",
 		0,
 		IT_AMMO,

@@ -739,8 +739,8 @@ int CG_G2EvIndexForModel(void *g2, int animIndex)
 	return evtIndex;
 }
 
-#define DEFAULT_FEMALE_SOUNDPATH "chars/mp_generic_female/misc"//"chars/tavion/misc"
-#define DEFAULT_MALE_SOUNDPATH "chars/mp_generic_male/misc"//"chars/kyle/misc"
+#define DEFAULT_FEMALE_SOUNDPATH "chars/generic_female/misc"//"chars/tavion/misc"
+#define DEFAULT_MALE_SOUNDPATH "chars/generic_male/misc"//"chars/kyle/misc"
 void CG_LoadCISounds(clientInfo_t *ci, bool modelloaded)
 {
 	fileHandle_t f;

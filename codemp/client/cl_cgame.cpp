@@ -316,7 +316,7 @@ void CL_CheckSVStringEdRef(char *buf, const char *str)
 					stringRef[r] = 0;
 
 					buf[b] = 0;
-					Q_strcat(buf, MAX_STRINGED_SV_STRING, SE_GetString("MP_SVGAME", stringRef));
+					Q_strcat(buf, MAX_STRINGED_SV_STRING, SE_GetString("SVGAME", stringRef));
 					b = strlen(buf);
 				}
 			}
@@ -378,7 +378,7 @@ rescan:
 	if ( !strcmp( cmd, "disconnect" ) ) {
 		char strEd[MAX_STRINGED_SV_STRING];
 		CL_CheckSVStringEdRef(strEd, Cmd_Argv(1));
-		Com_Error (ERR_SERVERDISCONNECT, "%s: %s\n", SE_GetString("MP_SVGAME_SERVER_DISCONNECTED"), strEd );
+		Com_Error (ERR_SERVERDISCONNECT, "%s: %s\n", SE_GetString("SVGAME_SERVER_DISCONNECTED"), strEd );
 	}
 
 	if ( !strcmp( cmd, "bcs0" ) ) {

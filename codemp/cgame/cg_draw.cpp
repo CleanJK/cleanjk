@@ -1236,7 +1236,7 @@ void CG_DrawHUD(centity_t	*cent)
 		if ( cgs.gametype == GT_DUEL )
 		{//A duel that requires more than one kill to knock the current enemy back to the queue
 			//show current kills out of how many needed
-			scoreStr = va("%s: %i/%i", CG_GetStringEdString("MP_INGAME", "SCORE"), cg.snap->ps.persistant[PERS_SCORE], cgs.fraglimit);
+			scoreStr = va("%s: %i/%i", CG_GetStringEdString("INGAME", "SCORE"), cg.snap->ps.persistant[PERS_SCORE], cgs.fraglimit);
 		}
 		else if (0 && cgs.gametype < GT_TEAM )
 		{	// This is a teamless mode, draw the score bias.
@@ -1264,11 +1264,11 @@ void CG_DrawHUD(centity_t	*cent)
 			{	// We are behind!
 				Com_sprintf(scoreBiasStr, sizeof(scoreBiasStr), " (%d)", scoreBias);
 			}
-			scoreStr = va("%s: %i%s", CG_GetStringEdString("MP_INGAME", "SCORE"), cg.snap->ps.persistant[PERS_SCORE], scoreBiasStr);
+			scoreStr = va("%s: %i%s", CG_GetStringEdString("INGAME", "SCORE"), cg.snap->ps.persistant[PERS_SCORE], scoreBiasStr);
 		}
 		else
 		{	// Don't draw a bias.
-			scoreStr = va("%s: %i", CG_GetStringEdString("MP_INGAME", "SCORE"), cg.snap->ps.persistant[PERS_SCORE]);
+			scoreStr = va("%s: %i", CG_GetStringEdString("INGAME", "SCORE"), cg.snap->ps.persistant[PERS_SCORE]);
 		}
 
 		menuHUD = Menus_FindByName("righthud");
@@ -1756,9 +1756,9 @@ static float CG_DrawMiniScoreboard ( float y )
 
 	if ( cgs.gametype >= GT_TEAM )
 	{
-		Q_strncpyz( temp, va( "%s: ", CG_GetStringEdString( "MP_INGAME", "RED" ) ), sizeof( temp ) );
+		Q_strncpyz( temp, va( "%s: ", CG_GetStringEdString( "INGAME", "RED" ) ), sizeof( temp ) );
 		Q_strcat( temp, sizeof( temp ), cgs.scores1 == SCORE_NOT_PRESENT ? "-" : (va( "%i", cgs.scores1 )) );
-		Q_strcat( temp, sizeof( temp ), va( " %s: ", CG_GetStringEdString( "MP_INGAME", "BLUE" ) ) );
+		Q_strcat( temp, sizeof( temp ), va( " %s: ", CG_GetStringEdString( "INGAME", "BLUE" ) ) );
 		Q_strcat( temp, sizeof( temp ), cgs.scores2 == SCORE_NOT_PRESENT ? "-" : (va( "%i", cgs.scores2 )) );
 
 		const Text text{ JKFont::Medium, 0.7f };
@@ -1859,14 +1859,14 @@ static float CG_DrawEnemyInfo ( float y )
 	if ( cgs.gametype == GT_JEDIMASTER )
 	{
 		//title = "Jedi Master";
-		title = CG_GetStringEdString("MP_INGAME", "MASTERY7");
+		title = CG_GetStringEdString("INGAME", "MASTERY7");
 		clientNum = cgs.jediMaster;
 
 		if ( clientNum < 0 )
 		{
 			//return y;
 //			title = "Get Saber!";
-			title = CG_GetStringEdString("MP_INGAME", "GET_SABER");
+			title = CG_GetStringEdString("INGAME", "GET_SABER");
 
 			size = ICON_SIZE * 1.25;
 			y += 5;
@@ -1889,12 +1889,12 @@ static float CG_DrawEnemyInfo ( float y )
 	else if ( cg.snap->ps.duelInProgress )
 	{
 //		title = "Dueling";
-		title = CG_GetStringEdString("MP_INGAME", "DUELING");
+		title = CG_GetStringEdString("INGAME", "DUELING");
 		clientNum = cg.snap->ps.duelIndex;
 	}
 	else if ( cgs.gametype == GT_DUEL && cgs.clientinfo[cg.snap->ps.clientNum].team != TEAM_SPECTATOR)
 	{
-		title = CG_GetStringEdString("MP_INGAME", "DUELING");
+		title = CG_GetStringEdString("INGAME", "DUELING");
 		if (cg.snap->ps.clientNum == cgs.duelist1)
 		{
 			clientNum = cgs.duelist2; //if power duel, should actually draw both duelists 2 and 3 I guess
@@ -1935,7 +1935,7 @@ static float CG_DrawEnemyInfo ( float y )
 			return y;
 		}
 
-		title = va("%s: %i",CG_GetStringEdString("MP_INGAME", "LEADER"), cgs.scores1);
+		title = va("%s: %i",CG_GetStringEdString("INGAME", "LEADER"), cgs.scores1);
 
 		/*
 		if (cgs.scores1 == 1)
@@ -2764,11 +2764,11 @@ static void CG_DrawDisconnect( void ) {
 
 	if (cg.mMapChange)
 	{
-		s = CG_GetStringEdString("MP_INGAME", "SERVER_CHANGING_MAPS");	// s = "Server Changing Maps";
+		s = CG_GetStringEdString("INGAME", "SERVER_CHANGING_MAPS");	// s = "Server Changing Maps";
 		w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
 		CG_DrawBigString( 320 - w/2, 100, s, 1.0F);
 
-		s = CG_GetStringEdString("MP_INGAME", "PLEASE_WAIT");	// s = "Please wait...";
+		s = CG_GetStringEdString("INGAME", "PLEASE_WAIT");	// s = "Please wait...";
 		w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
 		CG_DrawBigString( 320 - w/2, 200, s, 1.0F);
 		return;
@@ -2783,7 +2783,7 @@ static void CG_DrawDisconnect( void ) {
 	}
 
 	// also add text in center of screen
-	s = CG_GetStringEdString("MP_INGAME", "CONNECTION_INTERRUPTED"); // s = "Connection Interrupted"; // bk 010215 - FIXME
+	s = CG_GetStringEdString("INGAME", "CONNECTION_INTERRUPTED"); // s = "Connection Interrupted"; // bk 010215 - FIXME
 	w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
 	CG_DrawBigString( 320 - w/2, 100, s, 1.0F);
 
@@ -4197,7 +4197,7 @@ static void CG_DrawCrosshairNames( void ) {
 static void CG_DrawSpectator(void)
 {
 	Text text{ JKFont::Large, 1.0f };
-	const char *s = CG_GetStringEdString("MP_INGAME", "SPECTATOR");
+	const char *s = CG_GetStringEdString("INGAME", "SPECTATOR");
 
 	if ((cgs.gametype == GT_DUEL || cgs.gametype == GT_POWERDUEL) &&
 		cgs.duelist1 != -1 &&
@@ -4208,11 +4208,11 @@ static void CG_DrawSpectator(void)
 
 		if (cgs.gametype == GT_POWERDUEL && cgs.duelist3 != -1)
 		{
-			Com_sprintf(str, sizeof(str), "%s^7 %s %s^7 %s %s", cgs.clientinfo[cgs.duelist1].name, CG_GetStringEdString("MP_INGAME", "SPECHUD_VERSUS"), cgs.clientinfo[cgs.duelist2].name, CG_GetStringEdString("MP_INGAME", "AND"), cgs.clientinfo[cgs.duelist3].name);
+			Com_sprintf(str, sizeof(str), "%s^7 %s %s^7 %s %s", cgs.clientinfo[cgs.duelist1].name, CG_GetStringEdString("INGAME", "SPECHUD_VERSUS"), cgs.clientinfo[cgs.duelist2].name, CG_GetStringEdString("INGAME", "AND"), cgs.clientinfo[cgs.duelist3].name);
 		}
 		else
 		{
-			Com_sprintf(str, sizeof(str), "%s^7 %s %s", cgs.clientinfo[cgs.duelist1].name, CG_GetStringEdString("MP_INGAME", "SPECHUD_VERSUS"), cgs.clientinfo[cgs.duelist2].name);
+			Com_sprintf(str, sizeof(str), "%s^7 %s %s", cgs.clientinfo[cgs.duelist1].name, CG_GetStringEdString("INGAME", "SPECHUD_VERSUS"), cgs.clientinfo[cgs.duelist2].name);
 		}
 		Text_Paint( text, 320 - Text_Width( text, str ) / 2, 420, str, colorWhite, 0 );
 
@@ -4261,13 +4261,13 @@ static void CG_DrawSpectator(void)
 
 	if ( cgs.gametype == GT_DUEL || cgs.gametype == GT_POWERDUEL )
 	{
-		s = CG_GetStringEdString("MP_INGAME", "WAITING_TO_PLAY");	// "waiting to play";
+		s = CG_GetStringEdString("INGAME", "WAITING_TO_PLAY");	// "waiting to play";
 		Text_Paint( text, 320 - Text_Width( text, s ) / 2, 440, s, colorWhite, 0 );
 	}
 	else //if ( cgs.gametype >= GT_TEAM )
 	{
 		//s = "press ESC and use the JOIN menu to play";
-		s = CG_GetStringEdString("MP_INGAME", "SPEC_CHOOSEJOIN");
+		s = CG_GetStringEdString("INGAME", "SPEC_CHOOSEJOIN");
 		Text_Paint( text, 320 - Text_Width( text, s ) / 2, 440, s, colorWhite, 0 );
 	}
 }
@@ -4336,7 +4336,7 @@ static void CG_DrawVote(void) {
 	}
 	CG_DrawSmallString( 4, 58, s, 1.0F );
 	if ( cgs.clientinfo[cg.clientNum].team != TEAM_SPECTATOR ) {
-		s = CG_GetStringEdString( "MP_INGAME", "OR_PRESS_ESC_THEN_CLICK_VOTE" );	//	s = "or press ESC then click Vote";
+		s = CG_GetStringEdString( "INGAME", "OR_PRESS_ESC_THEN_CLICK_VOTE" );	//	s = "or press ESC then click Vote";
 		CG_DrawSmallString( 4, 58 + SMALLCHAR_HEIGHT + 2, s, 1.0F );
 	}
 }
@@ -4434,20 +4434,20 @@ static bool CG_DrawFollow( void )
 
 		if (ci->duelTeam == DUELTEAM_LONE)
 		{
-			s = CG_GetStringEdString("MP_INGAME", "FOLLOWINGLONE");
+			s = CG_GetStringEdString("INGAME", "FOLLOWINGLONE");
 		}
 		else if (ci->duelTeam == DUELTEAM_DOUBLE)
 		{
-			s = CG_GetStringEdString("MP_INGAME", "FOLLOWINGDOUBLE");
+			s = CG_GetStringEdString("INGAME", "FOLLOWINGDOUBLE");
 		}
 		else
 		{
-			s = CG_GetStringEdString("MP_INGAME", "FOLLOWING");
+			s = CG_GetStringEdString("INGAME", "FOLLOWING");
 		}
 	}
 	else
 	{
-		s = CG_GetStringEdString("MP_INGAME", "FOLLOWING");
+		s = CG_GetStringEdString("INGAME", "FOLLOWING");
 	}
 
 	Text text{ JKFont::Medium, 1.0f };
@@ -4472,7 +4472,7 @@ static void CG_DrawWarmup( void ) {
 
 	if ( sec < 0 ) {
 //		s = "Waiting for players";
-		s = CG_GetStringEdString("MP_INGAME", "WAITING_FOR_PLAYERS");
+		s = CG_GetStringEdString("INGAME", "WAITING_FOR_PLAYERS");
 		w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
 		CG_DrawBigString(320 - w / 2, 24, s, 1.0F);
 		cg.warmupCount = 0;
@@ -4548,7 +4548,7 @@ static void CG_DrawWarmup( void ) {
 		sec = 0;
 	}
 //	s = va( "Starts in: %i", sec + 1 );
-	s = va( "%s: %i",CG_GetStringEdString("MP_INGAME", "STARTS_IN"), sec + 1 );
+	s = va( "%s: %i",CG_GetStringEdString("INGAME", "STARTS_IN"), sec + 1 );
 	if ( sec != cg.warmupCount ) {
 		cg.warmupCount = sec;
 

@@ -357,7 +357,7 @@ static void SV_KickBlankPlayers( void ) {
 			continue;
 		}
 		if ( !Q_stricmp( cl->name, "" ) ) {
-			SV_DropClient( cl, SV_GetStringEdString("MP_SVGAME","WAS_KICKED"));	// "was kicked" );
+			SV_DropClient( cl, SV_GetStringEdString("SVGAME","WAS_KICKED"));	// "was kicked" );
 			cl->lastPacketTime = svs.time;	// in case there is a funny zombie
 			continue;
 		}
@@ -366,7 +366,7 @@ static void SV_KickBlankPlayers( void ) {
 		Q_StripColor( cleanName );
 		//Q_CleanStr( cleanName );
 		if ( !Q_stricmp( cleanName, "" ) ) {
-			SV_DropClient( cl, SV_GetStringEdString("MP_SVGAME","WAS_KICKED"));	// "was kicked" );
+			SV_DropClient( cl, SV_GetStringEdString("SVGAME","WAS_KICKED"));	// "was kicked" );
 			cl->lastPacketTime = svs.time;	// in case there is a funny zombie
 		}
 	}
@@ -403,7 +403,7 @@ static void SV_Kick_f( void ) {
 				if( cl->netchan.remoteAddress.type == NA_LOOPBACK ) {
 					continue;
 				}
-				SV_DropClient( cl, SV_GetStringEdString("MP_SVGAME","WAS_KICKED"));	// "was kicked" );
+				SV_DropClient( cl, SV_GetStringEdString("SVGAME","WAS_KICKED"));	// "was kicked" );
 				cl->lastPacketTime = svs.time;	// in case there is a funny zombie
 			}
 		}
@@ -415,7 +415,7 @@ static void SV_Kick_f( void ) {
 				if( cl->netchan.remoteAddress.type != NA_BOT ) {
 					continue;
 				}
-				SV_DropClient( cl, SV_GetStringEdString("MP_SVGAME","WAS_KICKED"));	// "was kicked" );
+				SV_DropClient( cl, SV_GetStringEdString("SVGAME","WAS_KICKED"));	// "was kicked" );
 				cl->lastPacketTime = svs.time;	// in case there is a funny zombie
 			}
 		}
@@ -426,7 +426,7 @@ static void SV_Kick_f( void ) {
 		return;
 	}
 
-	SV_DropClient( cl, SV_GetStringEdString("MP_SVGAME","WAS_KICKED"));	// "was kicked" );
+	SV_DropClient( cl, SV_GetStringEdString("SVGAME","WAS_KICKED"));	// "was kicked" );
 	cl->lastPacketTime = svs.time;	// in case there is a funny zombie
 }
 
@@ -450,7 +450,7 @@ static void SV_KickBots_f( void ) {
 			continue;
 		}
 
-		SV_DropClient( cl, SV_GetStringEdString("MP_SVGAME","WAS_KICKED"));	// "was kicked" );
+		SV_DropClient( cl, SV_GetStringEdString("SVGAME","WAS_KICKED"));	// "was kicked" );
 		cl->lastPacketTime = svs.time; // in case there is a funny zombie
 	}
 }
@@ -475,7 +475,7 @@ static void SV_KickAll_f( void ) {
 			continue;
 		}
 
-		SV_DropClient( cl, SV_GetStringEdString("MP_SVGAME","WAS_KICKED"));	// "was kicked" );
+		SV_DropClient( cl, SV_GetStringEdString("SVGAME","WAS_KICKED"));	// "was kicked" );
 		cl->lastPacketTime = svs.time; // in case there is a funny zombie
 	}
 }
@@ -504,7 +504,7 @@ static void SV_KickNum_f( void ) {
 		return;
 	}
 
-	SV_DropClient( cl, SV_GetStringEdString("MP_SVGAME","WAS_KICKED"));	// "was kicked" );
+	SV_DropClient( cl, SV_GetStringEdString("SVGAME","WAS_KICKED"));	// "was kicked" );
 	cl->lastPacketTime = svs.time;	// in case there is a funny zombie
 }
 

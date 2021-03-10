@@ -3862,7 +3862,7 @@ void emplaced_gun_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacke
 
 void SP_emplaced_gun( gentity_t *ent )
 {
-	const char *name = "models/map_objects/mp/turret_chair.glm";
+	const char *name = "models/map_objects/turret_chair.glm";
 	vec3_t down;
 	trace_t tr;
 

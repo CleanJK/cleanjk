@@ -260,7 +260,7 @@ void SV_DirectConnect( netadr_t from ) {
 		}
 		else {
 			const char *SV_GetStringEdString(char *refSection, char *refName);
-			NET_OutOfBandPrint( NS_SERVER, from, va("print\n%s\n", SV_GetStringEdString("MP_SVGAME","SERVER_IS_FULL")));
+			NET_OutOfBandPrint( NS_SERVER, from, va("print\n%s\n", SV_GetStringEdString("SVGAME","SERVER_IS_FULL")));
 			Com_DPrintf ("Rejected a connection.\n");
 			return;
 		}
@@ -828,7 +828,7 @@ void SV_WriteDownloadToClient(client_t *cl, msg_t *msg)
 // The client is going to disconnect, so remove the connection immediately  FIXME: move to game?
 static void SV_Disconnect_f( client_t *cl ) {
 //	SV_DropClient( cl, "disconnected" );
-	SV_DropClient( cl, SV_GetStringEdString("MP_SVGAME","DISCONNECTED") );
+	SV_DropClient( cl, SV_GetStringEdString("SVGAME","DISCONNECTED") );
 }
 
 // If we are pure, disconnect the client if they do no meet the following conditions:

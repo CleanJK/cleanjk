@@ -658,7 +658,7 @@ static void G_AddBot( const char *name, float skill, const char *team, int delay
 	if ( clientNum == -1 ) {
 //		trap->Print( S_COLOR_RED "Unable to add bot.  All player slots are in use.\n" );
 //		trap->Print( S_COLOR_RED "Start server with more 'open' slots.\n" );
-		trap->SendServerCommand( -1, va("print \"%s\n\"", G_GetStringEdString("MP_SVGAME", "UNABLE_TO_ADD_BOT")));
+		trap->SendServerCommand( -1, va("print \"%s\n\"", G_GetStringEdString("SVGAME", "UNABLE_TO_ADD_BOT")));
 		return;
 	}
 

@@ -513,24 +513,24 @@ void ScaleModelAxis(refEntity_t	*ent)
 }
 
 static constexpr const char *forceHolocronModels[NUM_FORCE_POWERS] = {
-	"models/map_objects/mp/lt_heal.md3",		//FP_HEAL,
-	"models/map_objects/mp/force_jump.md3",		//FP_LEVITATION,
-	"models/map_objects/mp/force_speed.md3",	//FP_SPEED,
-	"models/map_objects/mp/force_push.md3",		//FP_PUSH,
-	"models/map_objects/mp/force_pull.md3",		//FP_PULL,
-	"models/map_objects/mp/lt_telepathy.md3",	//FP_TELEPATHY,
-	"models/map_objects/mp/dk_grip.md3",		//FP_GRIP,
-	"models/map_objects/mp/dk_lightning.md3",	//FP_LIGHTNING,
-	"models/map_objects/mp/dk_rage.md3",		//FP_RAGE,
-	"models/map_objects/mp/lt_protect.md3",		//FP_PROTECT,
-	"models/map_objects/mp/lt_absorb.md3",		//FP_ABSORB,
-	"models/map_objects/mp/lt_healother.md3",	//FP_TEAM_HEAL,
-	"models/map_objects/mp/dk_powerother.md3",	//FP_TEAM_FORCE,
-	"models/map_objects/mp/dk_drain.md3",		//FP_DRAIN,
-	"models/map_objects/mp/force_sight.md3",	//FP_SEE,
-	"models/map_objects/mp/saber_attack.md3",	//FP_SABER_OFFENSE,
-	"models/map_objects/mp/saber_defend.md3",	//FP_SABER_DEFENSE,
-	"models/map_objects/mp/saber_throw.md3"		//FP_SABERTHROW
+	"models/map_objects/lt_heal.md3",       // FP_HEAL,
+	"models/map_objects/force_jump.md3",    // FP_LEVITATION,
+	"models/map_objects/force_speed.md3",   // FP_SPEED,
+	"models/map_objects/force_push.md3",    // FP_PUSH,
+	"models/map_objects/force_pull.md3",    // FP_PULL,
+	"models/map_objects/lt_telepathy.md3",  // FP_TELEPATHY,
+	"models/map_objects/dk_grip.md3",       // FP_GRIP,
+	"models/map_objects/dk_lightning.md3",  // FP_LIGHTNING,
+	"models/map_objects/dk_rage.md3",       // FP_RAGE,
+	"models/map_objects/lt_protect.md3",    // FP_PROTECT,
+	"models/map_objects/lt_absorb.md3",     // FP_ABSORB,
+	"models/map_objects/lt_healother.md3",  // FP_TEAM_HEAL,
+	"models/map_objects/dk_powerother.md3", // FP_TEAM_FORCE,
+	"models/map_objects/dk_drain.md3",      // FP_DRAIN,
+	"models/map_objects/force_sight.md3",   // FP_SEE,
+	"models/map_objects/saber_attack.md3",  // FP_SABER_OFFENSE,
+	"models/map_objects/saber_defend.md3",  // FP_SABER_DEFENSE,
+	"models/map_objects/saber_throw.md3"    // FP_SABERTHROW
 };
 
 void CG_Disintegration(centity_t *cent, refEntity_t *ent)
@@ -1761,11 +1761,11 @@ static void CG_Item( centity_t *cent ) {
 
 			if (item->giTag == PW_FORCE_ENLIGHTENED_LIGHT)
 			{
-				ent.customShader = media.gfx.null /*"gfx/misc/mp_light_enlight_disable"*/;
+				ent.customShader = media.gfx.null /*"gfx/misc/light_enlight_disable"*/;
 			}
 			else
 			{
-				ent.customShader = media.gfx.null /*"gfx/misc/mp_dark_enlight_disable"*/;
+				ent.customShader = media.gfx.null /*"gfx/misc/dark_enlight_disable"*/;
 			}
 		}
 		trap->R_AddRefEntityToScene(&ent);
@@ -1923,11 +1923,11 @@ static void CG_Item( centity_t *cent ) {
 
 		if (item->giTag == PW_FORCE_ENLIGHTENED_LIGHT)
 		{
-			ent.customShader = media.gfx.null /*"gfx/misc/mp_light_enlight_disable"*/;
+			ent.customShader = media.gfx.null /*"gfx/misc/light_enlight_disable"*/;
 		}
 		else
 		{
-			ent.customShader = media.gfx.null /*"gfx/misc/mp_dark_enlight_disable"*/;
+			ent.customShader = media.gfx.null /*"gfx/misc/dark_enlight_disable"*/;
 		}
 
 		trap->R_AddRefEntityToScene( &ent );

@@ -359,7 +359,7 @@ void JMSaberTouch(gentity_t *self, gentity_t *other, trace_t *trace)
 		other->client->invulnerableTimer = level.time + g_spawnInvulnerability.integer;
 	}
 
-	trap->SendServerCommand( -1, va("cp \"%s %s\n\"", other->client->pers.netname, G_GetStringEdString("MP_SVGAME", "BECOMEJM")) );
+	trap->SendServerCommand( -1, va("cp \"%s %s\n\"", other->client->pers.netname, G_GetStringEdString("SVGAME", "BECOMEJM")) );
 
 	other->client->ps.isJediMaster = true;
 	other->client->ps.saberIndex = self->s.number;
@@ -1734,7 +1734,7 @@ bool ClientUserinfoChanged( int clientNum ) {
 
 	if ( client->pers.connected == CON_CONNECTED && strcmp( oldname, client->pers.netname ) ) {
 		if ( client->pers.netnameTime > level.time ) {
-			trap->SendServerCommand( clientNum, va( "print \"%s\n\"", G_GetStringEdString( "MP_SVGAME", "NONAMECHANGE" ) ) );
+			trap->SendServerCommand( clientNum, va( "print \"%s\n\"", G_GetStringEdString( "SVGAME", "NONAMECHANGE" ) ) );
 
 			Info_SetValueForKey( userinfo, "name", oldname );
 			trap->SetUserinfo( clientNum, userinfo );
@@ -1743,7 +1743,7 @@ bool ClientUserinfoChanged( int clientNum ) {
 			Q_StripColor( client->pers.netname_nocolor );
 		}
 		else {
-			trap->SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE " %s %s\n\"", oldname, G_GetStringEdString( "MP_SVGAME", "PLRENAME" ), client->pers.netname ) );
+			trap->SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE " %s %s\n\"", oldname, G_GetStringEdString( "SVGAME", "PLRENAME" ), client->pers.netname ) );
 			G_LogPrintf( "ClientRename: %i [%s] (%s) \"%s^7\" -> \"%s^7\"\n", clientNum, ent->client->sess.IP, ent->client->pers.guid, oldname, ent->client->pers.netname );
 			client->pers.netnameTime = level.time + 5000;
 		}
@@ -1928,7 +1928,7 @@ char *ClientConnect( int clientNum, bool firstTime, bool isBot ) {
 		if ( g_password.string[0] && Q_stricmp( g_password.string, "none" ) &&
 			strcmp( g_password.string, value) != 0) {
 			static char sTemp[1024];
-			Q_strncpyz(sTemp, G_GetStringEdString("MP_SVGAME","INVALID_ESCAPE_TO_MAIN"), sizeof (sTemp) );
+			Q_strncpyz(sTemp, G_GetStringEdString("SVGAME","INVALID_ESCAPE_TO_MAIN"), sizeof (sTemp) );
 			return sTemp;// return "Invalid password";
 		}
 	}
@@ -2012,7 +2012,7 @@ char *ClientConnect( int clientNum, bool firstTime, bool isBot ) {
 
 	// don't do the "xxx connected" messages if they were caried over from previous level
 	if ( firstTime ) {
-		trap->SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " %s\n\"", client->pers.netname, G_GetStringEdString("MP_SVGAME", "PLCONNECT")) );
+		trap->SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " %s\n\"", client->pers.netname, G_GetStringEdString("SVGAME", "PLCONNECT")) );
 	}
 
 	if ( level.gametype >= GT_TEAM &&
@@ -2163,7 +2163,7 @@ void ClientBegin( int clientNum, bool allowTeamReset ) {
 
 	if ( client->sess.sessionTeam != TEAM_SPECTATOR ) {
 		if ( level.gametype != GT_DUEL || level.gametype == GT_POWERDUEL ) {
-			trap->SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " %s\n\"", client->pers.netname, G_GetStringEdString("MP_SVGAME", "PLENTER")) );
+			trap->SendServerCommand( -1, va("print \"%s" S_COLOR_WHITE " %s\n\"", client->pers.netname, G_GetStringEdString("SVGAME", "PLENTER")) );
 		}
 	}
 	G_LogPrintf( "ClientBegin: %i\n", clientNum );

@@ -692,7 +692,7 @@ static void CG_MapRestart( void ) {
 	// play the "fight" sound if this is a restart without warmup
 	if ( cg.warmup == 0 && cgs.gametype != GT_POWERDUEL/* && cgs.gametype == GT_DUEL */) {
 		trap->S_StartLocalSound( media.sounds.null, CHAN_ANNOUNCER );
-		CG_CenterPrint( CG_GetStringEdString("MP_SVGAME", "BEGIN_DUEL"), 120, GIANTCHAR_WIDTH*2 );
+		CG_CenterPrint( CG_GetStringEdString("SVGAME", "BEGIN_DUEL"), 120, GIANTCHAR_WIDTH*2 );
 	}
 //	trap->Cvar_Set("cg_thirdPerson", "0");
 }
@@ -763,7 +763,7 @@ void CG_CheckSVStringEdRef(char *buf, const char *str)
 					stringRef[r] = 0;
 
 					buf[b] = 0;
-					Q_strcat(buf, MAX_STRINGED_SV_STRING, CG_GetStringEdString("MP_SVGAME", stringRef));
+					Q_strcat(buf, MAX_STRINGED_SV_STRING, CG_GetStringEdString("SVGAME", stringRef));
 					b = strlen(buf);
 				}
 			}

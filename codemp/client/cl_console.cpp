@@ -472,7 +472,7 @@ void Console_DrawNotify( void ) {
 
 	// draw the chat line
 	if ( Key_GetCatcher() & KEYCATCH_MESSAGE ) {
-		const char *prompt = SE_GetString( "MP_SVGAME", chat_team ? "SAY_TEAM" : "SAY" );
+		const char *prompt = SE_GetString( "SVGAME", chat_team ? "SAY_TEAM" : "SAY" );
 		//const int skip = strlen( prompt );
 		chatField.Draw( 0, v, SCREEN_WIDTH, true, prompt );
 		v += BIGCHAR_HEIGHT;

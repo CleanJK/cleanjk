@@ -133,7 +133,7 @@ void CG_DrawInformation( void ) {
 		// pure server
 		s = Info_ValueForKey( sysInfo, "sv_pure" );
 		if ( s[0] == '1' ) {
-			const char *psPure = CG_GetStringEdString("MP_INGAME", "PURE_SERVER");
+			const char *psPure = CG_GetStringEdString("INGAME", "PURE_SERVER");
 			TextHelper_Paint_Proportional( 320, y, psPure, UI_CENTER|UI_DROPSHADOW, colorWhite );
 			y += iPropHeight;
 		}
@@ -165,7 +165,7 @@ void CG_DrawInformation( void ) {
 	// cheats warning
 	s = Info_ValueForKey( sysInfo, "sv_cheats" );
 	if ( s[0] == '1' ) {
-		TextHelper_Paint_Proportional( 320, y, CG_GetStringEdString("MP_INGAME", "CHEATSAREENABLED"), UI_CENTER|UI_DROPSHADOW, colorWhite );
+		TextHelper_Paint_Proportional( 320, y, CG_GetStringEdString("INGAME", "CHEATSAREENABLED"), UI_CENTER|UI_DROPSHADOW, colorWhite );
 		y += iPropHeight;
 	}
 
@@ -176,14 +176,14 @@ void CG_DrawInformation( void ) {
 
 	value = atoi( Info_ValueForKey( info, "timelimit" ) );
 	if ( value ) {
-		TextHelper_Paint_Proportional( 320, y, va( "%s %i", CG_GetStringEdString("MP_INGAME", "TIMELIMIT"), value ), UI_CENTER|UI_DROPSHADOW, colorWhite );
+		TextHelper_Paint_Proportional( 320, y, va( "%s %i", CG_GetStringEdString("INGAME", "TIMELIMIT"), value ), UI_CENTER|UI_DROPSHADOW, colorWhite );
 		y += iPropHeight;
 	}
 
 	if (cgs.gametype < GT_CTF ) {
 		value = atoi( Info_ValueForKey( info, "fraglimit" ) );
 		if ( value ) {
-			TextHelper_Paint_Proportional( 320, y, va( "%s %i", CG_GetStringEdString("MP_INGAME", "FRAGLIMIT"), value ), UI_CENTER|UI_DROPSHADOW, colorWhite );
+			TextHelper_Paint_Proportional( 320, y, va( "%s %i", CG_GetStringEdString("INGAME", "FRAGLIMIT"), value ), UI_CENTER|UI_DROPSHADOW, colorWhite );
 			y += iPropHeight;
 		}
 
@@ -191,7 +191,7 @@ void CG_DrawInformation( void ) {
 		{
 			value = atoi( Info_ValueForKey( info, "duel_fraglimit" ) );
 			if ( value ) {
-				TextHelper_Paint_Proportional( 320, y, va( "%s %i", CG_GetStringEdString("MP_INGAME", "WINLIMIT"), value ), UI_CENTER|UI_DROPSHADOW, colorWhite );
+				TextHelper_Paint_Proportional( 320, y, va( "%s %i", CG_GetStringEdString("INGAME", "WINLIMIT"), value ), UI_CENTER|UI_DROPSHADOW, colorWhite );
 				y += iPropHeight;
 			}
 		}
@@ -200,7 +200,7 @@ void CG_DrawInformation( void ) {
 	if (cgs.gametype >= GT_CTF) {
 		value = atoi( Info_ValueForKey( info, "capturelimit" ) );
 		if ( value ) {
-			TextHelper_Paint_Proportional( 320, y, va( "%s %i", CG_GetStringEdString("MP_INGAME", "CAPTURELIMIT"), value ), UI_CENTER|UI_DROPSHADOW, colorWhite );
+			TextHelper_Paint_Proportional( 320, y, va( "%s %i", CG_GetStringEdString("INGAME", "CAPTURELIMIT"), value ), UI_CENTER|UI_DROPSHADOW, colorWhite );
 			y += iPropHeight;
 		}
 	}
@@ -209,7 +209,7 @@ void CG_DrawInformation( void ) {
 	{
 		value = atoi( Info_ValueForKey( info, "g_forceBasedTeams" ) );
 		if ( value ) {
-			TextHelper_Paint_Proportional( 320, y, CG_GetStringEdString("MP_INGAME", "FORCEBASEDTEAMS"), UI_CENTER|UI_DROPSHADOW, colorWhite );
+			TextHelper_Paint_Proportional( 320, y, CG_GetStringEdString("INGAME", "FORCEBASEDTEAMS"), UI_CENTER|UI_DROPSHADOW, colorWhite );
 			y += iPropHeight;
 		}
 	}
@@ -220,17 +220,17 @@ void CG_DrawInformation( void ) {
 	if ( value && !valueNOFP && (value < NUM_FORCE_MASTERY_LEVELS) ) {
 		char fmStr[1024];
 
-		trap->SE_GetStringTextString("MP_INGAME_MAXFORCERANK",fmStr, sizeof(fmStr));
+		trap->SE_GetStringTextString("INGAME_MAXFORCERANK",fmStr, sizeof(fmStr));
 
-		TextHelper_Paint_Proportional( 320, y, va( "%s %s", fmStr, CG_GetStringEdString("MP_INGAME", forceMasteryLevels[value]) ), UI_CENTER|UI_DROPSHADOW, colorWhite );
+		TextHelper_Paint_Proportional( 320, y, va( "%s %s", fmStr, CG_GetStringEdString("INGAME", forceMasteryLevels[value]) ), UI_CENTER|UI_DROPSHADOW, colorWhite );
 		y += iPropHeight;
 	}
 	else if (!valueNOFP)
 	{
 		char fmStr[1024];
-		trap->SE_GetStringTextString("MP_INGAME_MAXFORCERANK",fmStr, sizeof(fmStr));
+		trap->SE_GetStringTextString("INGAME_MAXFORCERANK",fmStr, sizeof(fmStr));
 
-		TextHelper_Paint_Proportional( 320, y, va( "%s %s", fmStr, (char *)CG_GetStringEdString("MP_INGAME", forceMasteryLevels[7]) ), UI_CENTER|UI_DROPSHADOW, colorWhite );
+		TextHelper_Paint_Proportional( 320, y, va( "%s %s", fmStr, (char *)CG_GetStringEdString("INGAME", forceMasteryLevels[7]) ), UI_CENTER|UI_DROPSHADOW, colorWhite );
 		y += iPropHeight;
 	}
 
@@ -243,12 +243,12 @@ void CG_DrawInformation( void ) {
 		value = atoi( Info_ValueForKey( info, "g_weaponDisable" ) );
 	}
 	if ( cgs.gametype != GT_JEDIMASTER && value ) {
-		TextHelper_Paint_Proportional( 320, y, va( "%s", (char *)CG_GetStringEdString("MP_INGAME", "SABERONLYSET") ), UI_CENTER|UI_DROPSHADOW, colorWhite );
+		TextHelper_Paint_Proportional( 320, y, va( "%s", (char *)CG_GetStringEdString("INGAME", "SABERONLYSET") ), UI_CENTER|UI_DROPSHADOW, colorWhite );
 		y += iPropHeight;
 	}
 
 	if ( valueNOFP ) {
-		TextHelper_Paint_Proportional( 320, y, va( "%s", (char *)CG_GetStringEdString("MP_INGAME", "NOFPSET") ), UI_CENTER|UI_DROPSHADOW, colorWhite );
+		TextHelper_Paint_Proportional( 320, y, va( "%s", (char *)CG_GetStringEdString("INGAME", "NOFPSET") ), UI_CENTER|UI_DROPSHADOW, colorWhite );
 		y += iPropHeight;
 	}
 
@@ -256,49 +256,49 @@ void CG_DrawInformation( void ) {
 		y += iPropHeight;
 	switch ( cgs.gametype ) {
 	case GT_FFA:
-		TextHelper_Paint_Proportional( 320, y, va( "%s", (char *)CG_GetStringEdString("MP_INGAME", "RULES_FFA_1")), UI_CENTER|UI_DROPSHADOW, colorWhite );
+		TextHelper_Paint_Proportional( 320, y, va( "%s", (char *)CG_GetStringEdString("INGAME", "RULES_FFA_1")), UI_CENTER|UI_DROPSHADOW, colorWhite );
 		y += iPropHeight;
 		break;
 	case GT_HOLOCRON:
-		TextHelper_Paint_Proportional( 320, y, va( "%s", (char *)CG_GetStringEdString("MP_INGAME", "RULES_HOLO_1")), UI_CENTER|UI_DROPSHADOW, colorWhite );
+		TextHelper_Paint_Proportional( 320, y, va( "%s", (char *)CG_GetStringEdString("INGAME", "RULES_HOLO_1")), UI_CENTER|UI_DROPSHADOW, colorWhite );
 		y += iPropHeight;
-		TextHelper_Paint_Proportional( 320, y, va( "%s", (char *)CG_GetStringEdString("MP_INGAME", "RULES_HOLO_2")), UI_CENTER|UI_DROPSHADOW, colorWhite );
+		TextHelper_Paint_Proportional( 320, y, va( "%s", (char *)CG_GetStringEdString("INGAME", "RULES_HOLO_2")), UI_CENTER|UI_DROPSHADOW, colorWhite );
 		y += iPropHeight;
 		break;
 	case GT_JEDIMASTER:
-		TextHelper_Paint_Proportional( 320, y, va( "%s", (char *)CG_GetStringEdString("MP_INGAME", "RULES_JEDI_1")), UI_CENTER|UI_DROPSHADOW, colorWhite );
+		TextHelper_Paint_Proportional( 320, y, va( "%s", (char *)CG_GetStringEdString("INGAME", "RULES_JEDI_1")), UI_CENTER|UI_DROPSHADOW, colorWhite );
 		y += iPropHeight;
-		TextHelper_Paint_Proportional( 320, y, va( "%s", (char *)CG_GetStringEdString("MP_INGAME", "RULES_JEDI_2")), UI_CENTER|UI_DROPSHADOW, colorWhite );
+		TextHelper_Paint_Proportional( 320, y, va( "%s", (char *)CG_GetStringEdString("INGAME", "RULES_JEDI_2")), UI_CENTER|UI_DROPSHADOW, colorWhite );
 		y += iPropHeight;
 		break;
 	case GT_DUEL:
-		TextHelper_Paint_Proportional( 320, y, va( "%s", (char *)CG_GetStringEdString("MP_INGAME", "RULES_DUEL_1")), UI_CENTER|UI_DROPSHADOW, colorWhite );
+		TextHelper_Paint_Proportional( 320, y, va( "%s", (char *)CG_GetStringEdString("INGAME", "RULES_DUEL_1")), UI_CENTER|UI_DROPSHADOW, colorWhite );
 		y += iPropHeight;
-		TextHelper_Paint_Proportional( 320, y, va( "%s", (char *)CG_GetStringEdString("MP_INGAME", "RULES_DUEL_2")), UI_CENTER|UI_DROPSHADOW, colorWhite );
+		TextHelper_Paint_Proportional( 320, y, va( "%s", (char *)CG_GetStringEdString("INGAME", "RULES_DUEL_2")), UI_CENTER|UI_DROPSHADOW, colorWhite );
 		y += iPropHeight;
 		break;
 	case GT_POWERDUEL:
-		TextHelper_Paint_Proportional( 320, y, va( "%s", (char *)CG_GetStringEdString("MP_INGAME", "RULES_POWERDUEL_1")), UI_CENTER|UI_DROPSHADOW, colorWhite );
+		TextHelper_Paint_Proportional( 320, y, va( "%s", (char *)CG_GetStringEdString("INGAME", "RULES_POWERDUEL_1")), UI_CENTER|UI_DROPSHADOW, colorWhite );
 		y += iPropHeight;
-		TextHelper_Paint_Proportional( 320, y, va( "%s", (char *)CG_GetStringEdString("MP_INGAME", "RULES_POWERDUEL_2")), UI_CENTER|UI_DROPSHADOW, colorWhite );
+		TextHelper_Paint_Proportional( 320, y, va( "%s", (char *)CG_GetStringEdString("INGAME", "RULES_POWERDUEL_2")), UI_CENTER|UI_DROPSHADOW, colorWhite );
 		y += iPropHeight;
 		break;
 	case GT_TEAM:
-		TextHelper_Paint_Proportional( 320, y, va( "%s", (char *)CG_GetStringEdString("MP_INGAME", "RULES_TEAM_1")), UI_CENTER|UI_DROPSHADOW, colorWhite );
+		TextHelper_Paint_Proportional( 320, y, va( "%s", (char *)CG_GetStringEdString("INGAME", "RULES_TEAM_1")), UI_CENTER|UI_DROPSHADOW, colorWhite );
 		y += iPropHeight;
-		TextHelper_Paint_Proportional( 320, y, va( "%s", (char *)CG_GetStringEdString("MP_INGAME", "RULES_TEAM_2")), UI_CENTER|UI_DROPSHADOW, colorWhite );
+		TextHelper_Paint_Proportional( 320, y, va( "%s", (char *)CG_GetStringEdString("INGAME", "RULES_TEAM_2")), UI_CENTER|UI_DROPSHADOW, colorWhite );
 		y += iPropHeight;
 		break;
 	case GT_CTF:
-		TextHelper_Paint_Proportional( 320, y, va( "%s", (char *)CG_GetStringEdString("MP_INGAME", "RULES_CTF_1")), UI_CENTER|UI_DROPSHADOW, colorWhite );
+		TextHelper_Paint_Proportional( 320, y, va( "%s", (char *)CG_GetStringEdString("INGAME", "RULES_CTF_1")), UI_CENTER|UI_DROPSHADOW, colorWhite );
 		y += iPropHeight;
-		TextHelper_Paint_Proportional( 320, y, va( "%s", (char *)CG_GetStringEdString("MP_INGAME", "RULES_CTF_2")), UI_CENTER|UI_DROPSHADOW, colorWhite );
+		TextHelper_Paint_Proportional( 320, y, va( "%s", (char *)CG_GetStringEdString("INGAME", "RULES_CTF_2")), UI_CENTER|UI_DROPSHADOW, colorWhite );
 		y += iPropHeight;
 		break;
 	case GT_CTY:
-		TextHelper_Paint_Proportional( 320, y, va( "%s", (char *)CG_GetStringEdString("MP_INGAME", "RULES_CTY_1")), UI_CENTER|UI_DROPSHADOW, colorWhite );
+		TextHelper_Paint_Proportional( 320, y, va( "%s", (char *)CG_GetStringEdString("INGAME", "RULES_CTY_1")), UI_CENTER|UI_DROPSHADOW, colorWhite );
 		y += iPropHeight;
-		TextHelper_Paint_Proportional( 320, y, va( "%s", (char *)CG_GetStringEdString("MP_INGAME", "RULES_CTY_2")), UI_CENTER|UI_DROPSHADOW, colorWhite );
+		TextHelper_Paint_Proportional( 320, y, va( "%s", (char *)CG_GetStringEdString("INGAME", "RULES_CTY_2")), UI_CENTER|UI_DROPSHADOW, colorWhite );
 		y += iPropHeight;
 		break;
 	default:

@@ -103,7 +103,7 @@ static void CG_DrawClientScore( int y, score_t *score, float *color, float fade,
 
 	else if ( cgs.gametype == GT_POWERDUEL && (ci->duelTeam == DUELTEAM_LONE || ci->duelTeam == DUELTEAM_DOUBLE) )
 	{
-		const qhandle_t shader = media.gfx.null;//(ci->duelTeam == DUELTEAM_LONE) ? "gfx/mp/pduel_icon_lone" : "gfx/mp/pduel_icon_double";
+		const qhandle_t shader = media.gfx.null;//(ci->duelTeam == DUELTEAM_LONE) ? "gfx/pduel_icon_lone" : "gfx/pduel_icon_double";
 		CG_DrawPic( iconx, y, iconSize, iconSize, shader );
 	}
 
@@ -176,7 +176,7 @@ static void CG_DrawClientScore( int y, score_t *score, float *color, float fade,
 	// add the "ready" marker for intermission exiting
 	if ( cg.snap->ps.stats[ STAT_CLIENTS_READY ] & ( 1 << score->client ) )
 	{
-		Text_Paint( text, SB_NAME_X - 64, y + 2, CG_GetStringEdString("MP_INGAME", "READY"), colorWhite, ITEM_TEXTSTYLE_OUTLINED );
+		Text_Paint( text, SB_NAME_X - 64, y + 2, CG_GetStringEdString("INGAME", "READY"), colorWhite, ITEM_TEXTSTYLE_OUTLINED );
 	}
 }
 
@@ -299,7 +299,7 @@ bool CG_DrawOldScoreboard( void ) {
 	if ((cgs.gametype == GT_DUEL || cgs.gametype == GT_POWERDUEL) && cgs.duelWinner != -1 &&
 		cg.predictedPlayerState.pm_type == PM_INTERMISSION)
 	{
-		s = va("%s^7 %s", cgs.clientinfo[cgs.duelWinner].name, CG_GetStringEdString("MP_INGAME", "DUEL_WINS") );
+		s = va("%s^7 %s", cgs.clientinfo[cgs.duelWinner].name, CG_GetStringEdString("INGAME", "DUEL_WINS") );
 		/*w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
 		x = ( SCREEN_WIDTH - w ) / 2;
 		y = 40;
@@ -314,11 +314,11 @@ bool CG_DrawOldScoreboard( void ) {
 	{
 		if (cgs.gametype == GT_POWERDUEL && cgs.duelist3 != -1)
 		{
-			s = va("%s^7 %s %s^7 %s %s", cgs.clientinfo[cgs.duelist1].name, CG_GetStringEdString("MP_INGAME", "SPECHUD_VERSUS"), cgs.clientinfo[cgs.duelist2].name, CG_GetStringEdString("MP_INGAME", "AND"), cgs.clientinfo[cgs.duelist3].name );
+			s = va("%s^7 %s %s^7 %s %s", cgs.clientinfo[cgs.duelist1].name, CG_GetStringEdString("INGAME", "SPECHUD_VERSUS"), cgs.clientinfo[cgs.duelist2].name, CG_GetStringEdString("INGAME", "AND"), cgs.clientinfo[cgs.duelist3].name );
 		}
 		else
 		{
-			s = va("%s^7 %s %s", cgs.clientinfo[cgs.duelist1].name, CG_GetStringEdString("MP_INGAME", "SPECHUD_VERSUS"), cgs.clientinfo[cgs.duelist2].name );
+			s = va("%s^7 %s %s", cgs.clientinfo[cgs.duelist1].name, CG_GetStringEdString("INGAME", "SPECHUD_VERSUS"), cgs.clientinfo[cgs.duelist2].name );
 		}
 		/*w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
 		x = ( SCREEN_WIDTH - w ) / 2;
@@ -330,7 +330,7 @@ bool CG_DrawOldScoreboard( void ) {
 		Text_Paint( text, x - Text_Width( text, s ) / 2, y, s, colorWhite, ITEM_TEXTSTYLE_OUTLINED );
 	}
 	else if ( cg.killerName[0] ) {
-		s = va("%s %s", CG_GetStringEdString("MP_INGAME", "KILLEDBY"), cg.killerName );
+		s = va("%s %s", CG_GetStringEdString("INGAME", "KILLEDBY"), cg.killerName );
 		/*w = CG_DrawStrlen( s ) * BIGCHAR_WIDTH;
 		x = ( SCREEN_WIDTH - w ) / 2;
 		y = 40;
@@ -352,9 +352,9 @@ bool CG_DrawOldScoreboard( void ) {
 			char sOf[256];
 			char sWith[256];
 
-			trap->SE_GetStringTextString("MP_INGAME_PLACE",	sPlace,	sizeof(sPlace));
-			trap->SE_GetStringTextString("MP_INGAME_OF",		sOf,	sizeof(sOf));
-			trap->SE_GetStringTextString("MP_INGAME_WITH",	sWith,	sizeof(sWith));
+			trap->SE_GetStringTextString("INGAME_PLACE",	sPlace,	sizeof(sPlace));
+			trap->SE_GetStringTextString("INGAME_OF",		sOf,	sizeof(sOf));
+			trap->SE_GetStringTextString("INGAME_WITH",	sWith,	sizeof(sWith));
 
 			s = va("%s %s (%s %i) %s %i",
 				CG_PlaceString( cg.snap->ps.persistant[PERS_RANK] + 1 ),
@@ -373,11 +373,11 @@ bool CG_DrawOldScoreboard( void ) {
 	else
 	{
 		if ( cg.teamScores[0] == cg.teamScores[1] ) {
-			s = va("%s %i", CG_GetStringEdString("MP_INGAME", "TIEDAT"), cg.teamScores[0] );
+			s = va("%s %i", CG_GetStringEdString("INGAME", "TIEDAT"), cg.teamScores[0] );
 		} else if ( cg.teamScores[0] >= cg.teamScores[1] ) {
-			s = va("%s, %i / %i", CG_GetStringEdString("MP_INGAME", "RED_LEADS"), cg.teamScores[0], cg.teamScores[1] );
+			s = va("%s, %i / %i", CG_GetStringEdString("INGAME", "RED_LEADS"), cg.teamScores[0], cg.teamScores[1] );
 		} else {
-			s = va("%s, %i / %i", CG_GetStringEdString("MP_INGAME", "BLUE_LEADS"), cg.teamScores[1], cg.teamScores[0] );
+			s = va("%s, %i / %i", CG_GetStringEdString("INGAME", "BLUE_LEADS"), cg.teamScores[1], cg.teamScores[0] );
 		}
 
 		x = ( SCREEN_WIDTH ) / 2;
@@ -391,20 +391,20 @@ bool CG_DrawOldScoreboard( void ) {
 
 	CG_DrawPic ( SB_SCORELINE_X - 40, y - 5, SB_SCORELINE_WIDTH + 80, 40, media.gfx.null/*media.gfx.interface.button.back "gfx/menus/menu_buttonback.tga"*/ );
 
-	Text_Paint( text, SB_NAME_X, y, CG_GetStringEdString("MP_INGAME", "NAME"),colorWhite, ITEM_TEXTSTYLE_OUTLINED );
+	Text_Paint( text, SB_NAME_X, y, CG_GetStringEdString("INGAME", "NAME"),colorWhite, ITEM_TEXTSTYLE_OUTLINED );
 	if (cgs.gametype == GT_DUEL || cgs.gametype == GT_POWERDUEL)
 	{
 		char sWL[100];
-		trap->SE_GetStringTextString("MP_INGAME_W_L", sWL,	sizeof(sWL));
+		trap->SE_GetStringTextString("INGAME_W_L", sWL,	sizeof(sWL));
 
 		Text_Paint( text, SB_SCORE_X, y, sWL, colorWhite, ITEM_TEXTSTYLE_OUTLINED );
 	}
 	else
 	{
-		Text_Paint( text, SB_SCORE_X, y, CG_GetStringEdString("MP_INGAME", "SCORE"), colorWhite, ITEM_TEXTSTYLE_OUTLINED );
+		Text_Paint( text, SB_SCORE_X, y, CG_GetStringEdString("INGAME", "SCORE"), colorWhite, ITEM_TEXTSTYLE_OUTLINED );
 	}
-	Text_Paint( text, SB_PING_X, y, CG_GetStringEdString("MP_INGAME", "PING"), colorWhite, ITEM_TEXTSTYLE_OUTLINED );
-	Text_Paint( text, SB_TIME_X, y, CG_GetStringEdString("MP_INGAME", "TIME"), colorWhite, ITEM_TEXTSTYLE_OUTLINED );
+	Text_Paint( text, SB_PING_X, y, CG_GetStringEdString("INGAME", "PING"), colorWhite, ITEM_TEXTSTYLE_OUTLINED );
+	Text_Paint( text, SB_TIME_X, y, CG_GetStringEdString("INGAME", "TIME"), colorWhite, ITEM_TEXTSTYLE_OUTLINED );
 
 	y = SB_TOP;
 

@@ -1422,7 +1422,7 @@ static void CL_CheckSVStringEdRef(char *buf, const char *str)
 					stripRef[r] = 0;
 
 					buf[b] = 0;
-					Q_strcat(buf, MAX_STRINGED_SV_STRING, SE_GetString(va("MP_SVGAME_%s", stripRef)));
+					Q_strcat(buf, MAX_STRINGED_SV_STRING, SE_GetString(va("SVGAME_%s", stripRef)));
 					b = strlen(buf);
 				}
 			}
@@ -1727,7 +1727,7 @@ void CL_CheckTimeout( void ) {
 		&& cls.state >= CA_CONNECTED && cls.state != CA_CINEMATIC
 	    && cls.realtime - clc.lastPacketTime > cl_timeout->value*1000) {
 		if (++cl.timeoutcount > 5) {	// timeoutcount saves debugger
-			const char *psTimedOut = SE_GetString("MP_SVGAME_SERVER_CONNECTION_TIMED_OUT");
+			const char *psTimedOut = SE_GetString("SVGAME_SERVER_CONNECTION_TIMED_OUT");
 			Com_Printf ("\n%s\n",psTimedOut);
 			Com_Error(ERR_DROP, psTimedOut);
 			//CL_Disconnect( true );

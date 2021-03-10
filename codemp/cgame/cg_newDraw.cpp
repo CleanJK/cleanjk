@@ -214,7 +214,7 @@ bool CG_OwnerDrawVisible(int flags) {
 const char *CG_GetKillerText(void) {
 	static const char *s = "";
 	if ( cg.killerName[0] ) {
-		s = va("%s %s", CG_GetStringEdString("MP_INGAME", "KILLEDBY"), cg.killerName );
+		s = va("%s %s", CG_GetStringEdString("INGAME", "KILLEDBY"), cg.killerName );
 	}
 	return s;
 }
@@ -230,7 +230,7 @@ const char *CG_GetGameStatusText(void) {
 		if (cg.snap->ps.persistant[PERS_TEAM] != TEAM_SPECTATOR )
 		{
 			char sPlaceWith[256];
-			trap->SE_GetStringTextString("MP_INGAME_PLACE_WITH", sPlaceWith, sizeof(sPlaceWith));
+			trap->SE_GetStringTextString("INGAME_PLACE_WITH", sPlaceWith, sizeof(sPlaceWith));
 
 			s = va("%s %s %i",CG_PlaceString( cg.snap->ps.persistant[PERS_RANK] + 1 ), sPlaceWith, cg.snap->ps.persistant[PERS_SCORE] );
 		}
@@ -238,11 +238,11 @@ const char *CG_GetGameStatusText(void) {
 	else
 	{
 		if ( cg.teamScores[0] == cg.teamScores[1] ) {
-			s = va("%s %i", CG_GetStringEdString("MP_INGAME", "TIEDAT"), cg.teamScores[0] );
+			s = va("%s %i", CG_GetStringEdString("INGAME", "TIEDAT"), cg.teamScores[0] );
 		} else if ( cg.teamScores[0] >= cg.teamScores[1] ) {
-			s = va("%s, %i / %i", CG_GetStringEdString("MP_INGAME", "RED_LEADS"), cg.teamScores[0], cg.teamScores[1] );
+			s = va("%s, %i / %i", CG_GetStringEdString("INGAME", "RED_LEADS"), cg.teamScores[0], cg.teamScores[1] );
 		} else {
-			s = va("%s, %i / %i", CG_GetStringEdString("MP_INGAME", "BLUE_LEADS"), cg.teamScores[1], cg.teamScores[0] );
+			s = va("%s, %i / %i", CG_GetStringEdString("INGAME", "BLUE_LEADS"), cg.teamScores[1], cg.teamScores[0] );
 		}
 	}
 	return s;
