@@ -971,7 +971,6 @@ void Cvar_WriteVariables( fileHandle_t f ) {
 	char buffer[1024];
 
 	if ( cvar_sort ) {
-		Com_DPrintf( "Cvar_Sort: sort cvars\n" );
 		cvar_sort = false;
 		Cvar_Sort();
 	}
